@@ -84,6 +84,8 @@ export {
   type HttpApiProjection,
   type HttpApiProjectionOptions,
   type AnyHttpProvide,
+  type CheckedHook,
+  type CheckedHooks,
   type HttpProvide,
   type MiddlewareOf,
   type ProvideMiddleware,

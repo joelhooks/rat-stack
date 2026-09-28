@@ -411,6 +411,36 @@ describe("toHttpApi provide hooks", () => {
       }).pipe(Effect.scoped)
   );
 
+  it("types each hook's from against its tag's service and its declared failure", () => {
+    const wrongService = toHttpApi("WrongServiceApi", [whoAmI], {
+      provide: [
+        {
+          failure: Schema.Never,
+          // @ts-expect-error -- from must answer the tag's service, not a number.
+          from: () => Effect.succeed(123),
+          tag: Caller,
+        },
+      ],
+    });
+
+    const undeclared = toHttpApi("UndeclaredApi", [whoAmI], {
+      provide: [
+        {
+          failure: Schema.Never,
+          // @ts-expect-error -- from may fail only with its declared failure.
+          // @effect-diagnostics-next-line missingEffectError:off -- this hook fails with an undeclared value on purpose, to prove the type error.
+          from: () => Effect.fail("undeclared"),
+          tag: Caller,
+        },
+      ],
+    });
+
+    expect([wrongService.api.identifier, undeclared.api.identifier]).toEqual([
+      "WrongServiceApi",
+      "UndeclaredApi",
+    ]);
+  });
+
   it("documents each hook's refusal on every route", () => {
     const { paths } = guarded.openApi();
 

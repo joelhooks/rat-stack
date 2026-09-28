@@ -255,6 +255,20 @@ export type MiddlewareOf<Hooks extends readonly AnyHttpProvide[]> =
       : never
     : never;
 
+export type CheckedHook<Hook> = Hook extends {
+  readonly failure: infer Failure extends Schema.Top;
+  readonly from: (
+    request: never
+  ) => Effect.Effect<unknown, unknown, infer Requirements>;
+  readonly tag: Context.Key<infer Id, infer Service>;
+}
+  ? HttpProvide<Id, Service, Failure, Requirements>
+  : never;
+
+export type CheckedHooks<Hooks extends readonly AnyHttpProvide[]> = {
+  readonly [K in keyof Hooks]: CheckedHook<Hooks[K]>;
+};
+
 export interface HttpApiProjectionOptions<
   Hooks extends readonly AnyHttpProvide[] = readonly [],
 > {
@@ -447,7 +461,9 @@ export const toHttpApi = <
 >(
   id: Id,
   capabilities: Caps,
-  options?: HttpApiProjectionOptions<Hooks>
+  options?: HttpApiProjectionOptions<Hooks> & {
+    readonly provide?: CheckedHooks<Hooks> | undefined;
+  }
 ): HttpApiProjection<Id, Caps, MiddlewareOf<Hooks>> => {
   const hostErrors = options?.errors ?? [];
 
