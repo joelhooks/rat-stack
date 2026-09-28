@@ -4,15 +4,16 @@ import { Etag, HttpPlatform, HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder, HttpApiTest } from "effect/unstable/httpapi";
 
 import { defineContract, implement, toHttpApi } from "../src/index.js";
-import { Authenticated, AuthenticatedLayer, Caller } from "./authenticated.js";
 import { NotFound, echo } from "./fixtures.js";
-import { Maintenance, MaintenanceLayer } from "./maintenance.js";
-import { ProblemBodies, ProblemBodiesLayer } from "./problem-bodies.js";
 import {
-  Problem,
-  ProblemStatus,
-  ProblemStatusLayer,
-} from "./problem-status.js";
+  Caller,
+  MissingRequestId,
+  RESOURCE_METADATA,
+  RequestId,
+  callerFromRequest,
+  renderRefusal,
+  requestIdFromRequest,
+} from "./http-hooks.js";
 
 const TestServices = Layer.mergeAll(
   Path.layer,
@@ -106,6 +107,7 @@ const fetchJson = (
 
     return {
       body: text === "" ? undefined : yield* Effect.orDie(decodeJsonText(text)),
+      challenge: response.headers.get("www-authenticate"),
       contentType: response.headers.get("content-type"),
       status: response.status,
     };
@@ -234,48 +236,78 @@ const whoAmI = implement(whoAmIContract, () =>
   Caller.use((caller) => Effect.succeed({ name: caller.name }))
 );
 
+const tracedContract = defineContract("traced", {
+  description: "Name the caller and the request id the host read",
+  failure: Schema.Never,
+  http: { method: "GET", path: "/traced" },
+  input: Schema.Struct({}),
+  output: Schema.Struct({ id: Schema.String, name: Schema.String }),
+});
+
+const traced = implement(tracedContract, () =>
+  Effect.gen(function* traceCall() {
+    const caller = yield* Caller;
+    const request = yield* RequestId;
+
+    return { id: request.id, name: caller.name };
+  })
+);
+
+const Gone = Schema.Struct({
+  status: Schema.Literal(410),
+  title: Schema.String,
+}).annotate({ httpApiStatus: 410 });
+
+const Conflict = Schema.Struct({
+  status: Schema.Literal(409),
+  title: Schema.String,
+}).annotate({ httpApiStatus: 409 });
+
 const gateContract = defineContract("gate", {
   description: "Refuse with a problem whose status is its own",
-  failure: Problem,
+  failure: Schema.Union([Gone, Conflict]),
   http: { method: "GET", path: "/gate/:status" },
   input: Schema.Struct({
     mode: Schema.optional(Schema.Literals(["leak", "undeclared"])),
-    status: Schema.Finite,
+    status: Schema.Literals([409, 410]),
   }),
   output: Schema.String,
 });
 
-const undeclaredFailure: Partial<typeof Problem.Type> & {
+const undeclaredFailure: Partial<typeof Gone.Type> & {
   readonly secret: string;
-} = { secret: "hunter2", status: 409 };
+} = { secret: "hunter2" };
 
 const gate = implement(gateContract, ({ mode, status }) => {
   if (mode === "undeclared") {
-    // SAFETY: this handler breaks its contract on purpose, failing with a value its failure schema refuses, to show that a problem renderer lets it fail closed.
+    // SAFETY: this handler breaks its contract on purpose, failing with a value its failure schema refuses, to show that the projection fails closed.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return Effect.fail(undeclaredFailure as typeof Problem.Type);
+    return Effect.fail(undeclaredFailure as typeof Gone.Type);
   }
 
-  const refusal = { status, title: "Refused" };
+  const refusal =
+    status === 410
+      ? { status, title: "Gone" as const }
+      : { status, title: "Conflict" as const };
 
   return Effect.fail(
     mode === "leak" ? { ...refusal, secret: "hunter2" } : refusal
   );
 });
 
-describe("toHttpApi middleware", () => {
+const gates = toHttpApi("GateApi", [gate]);
+
+describe("toHttpApi provide hooks", () => {
   const guarded = toHttpApi("GuardedApi", [whoAmI, lookup], {
-    middleware: [Authenticated],
+    provide: [callerFromRequest],
   });
 
   it.effect(
-    "runs host middleware before every handler and provides what it names",
+    "provides a service from the request before every route, and refuses with its declared failure",
     () =>
-      Effect.gen(function* middleware() {
+      Effect.gen(function* provided() {
         const handler = yield* serve(
-          HttpApiBuilder.layer(guarded.api).pipe(
-            Layer.provide(guarded.layer.pipe(Layer.provide(AuthenticatedLayer)))
-          )
+          HttpApiBuilder.layer(guarded.api).pipe(Layer.provide(guarded.layer))
         );
 
         const signedIn = yield* fetchJson(
@@ -289,57 +321,55 @@ describe("toHttpApi middleware", () => {
         expect([
           signedIn.status,
           signedIn.body,
-          anonymous.status,
+          anonymous,
           anonymousLookup.status,
-        ]).toEqual([200, { name: "rat" }, 401, 401]);
+        ]).toEqual([
+          200,
+          { name: "rat" },
+          {
+            body: { title: "Sign in first" },
+            challenge: RESOURCE_METADATA,
+            contentType: "application/json",
+            status: 401,
+          },
+          401,
+        ]);
       }).pipe(Effect.scoped)
   );
 
-  it.effect("runs different middlewares together, in the order given", () =>
-    Effect.gen(function* twoMiddlewares() {
-      const both = toHttpApi("BothApi", [whoAmI, lookup], {
-        middleware: [Authenticated, ProblemBodies],
-      });
+  it.effect(
+    "infers a list of different hooks, each providing its own service",
+    () =>
+      Effect.gen(function* hooks() {
+        const both = toHttpApi("BothApi", [traced], {
+          provide: [callerFromRequest, requestIdFromRequest],
+        });
 
-      const handler = yield* serve(
-        HttpApiBuilder.layer(both.api).pipe(
-          Layer.provide(
-            both.layer.pipe(
-              Layer.provide(
-                Layer.mergeAll(AuthenticatedLayer, ProblemBodiesLayer)
-              )
-            )
-          )
-        )
-      );
+        const handler = yield* serve(
+          HttpApiBuilder.layer(both.api).pipe(Layer.provide(both.layer))
+        );
 
-      const signedIn = yield* fetchJson(
-        handler,
-        at("/items/a?window=abc", { headers: { "x-caller": "rat" } })
-      );
+        const complete = yield* fetchJson(
+          handler,
+          at("/traced", {
+            headers: { "x-caller": "rat", "x-request-id": "r1" },
+          })
+        );
 
-      const anonymous = yield* fetchJson(handler, at("/items/a?window=abc"));
+        const unmarked = yield* fetchJson(
+          handler,
+          at("/traced", { headers: { "x-caller": "rat" } })
+        );
 
-      const me = yield* fetchJson(
-        handler,
-        at("/me", { headers: { "x-caller": "rat" } })
-      );
-
-      expect([
-        signedIn.status,
-        signedIn.body,
-        anonymous.status,
-        me.body,
-      ]).toEqual([
-        400,
-        { hint: "Fix the query.", status: 400, title: "Malformed request" },
-        401,
-        { name: "rat" },
-      ]);
-    }).pipe(Effect.scoped)
+        expect([complete.body, unmarked.status, unmarked.body]).toEqual([
+          { id: "r1", name: "rat" },
+          400,
+          MissingRequestId.make({ header: "x-request-id" }),
+        ]);
+      }).pipe(Effect.scoped)
   );
 
-  it("documents the middleware's refusal on every route", () => {
+  it("documents each hook's refusal on every route", () => {
     const { paths } = guarded.openApi();
 
     expect([
@@ -351,139 +381,92 @@ describe("toHttpApi middleware", () => {
     ]);
   });
 
-  it.effect("lets a host render decode refusals as its own body", () =>
+  it.effect("lets the host render decode refusals as its own body", () =>
     Effect.gen(function* decodeRefusal() {
       const plain = yield* serve(
         HttpApiBuilder.layer(routes.api).pipe(Layer.provide(routes.layer))
       );
 
-      const problemBodies = toHttpApi("ShapedApi", [lookup], {
-        middleware: [ProblemBodies],
+      const rendered = toHttpApi("RenderedApi", [lookup], {
+        decodeRefusal: renderRefusal,
       });
 
       const handler = yield* serve(
-        HttpApiBuilder.layer(problemBodies.api).pipe(
-          Layer.provide(
-            problemBodies.layer.pipe(Layer.provide(ProblemBodiesLayer))
-          )
-        )
+        HttpApiBuilder.layer(rendered.api).pipe(Layer.provide(rendered.layer))
       );
 
       const bare = yield* fetchJson(plain, at("/items/a?window=abc"));
       const refused = yield* fetchJson(handler, at("/items/a?window=abc"));
+      const found = yield* fetchJson(handler, at("/items/a?window=5"));
 
-      expect([bare.status, bare.body, refused]).toEqual([
+      expect([
+        bare.status,
+        bare.body,
+        refused.status,
+        refused.contentType,
+        refused.body,
+        found.body,
+      ]).toEqual([
         400,
         undefined,
-        {
-          body: {
-            hint: "Fix the query.",
-            status: 400,
-            title: "Malformed request",
-          },
-          contentType: "application/problem+json",
-          status: 400,
-        },
+        400,
+        "application/problem+json",
+        { hint: "Fix the query.", status: 400, title: "Malformed request" },
+        { item: "a", window: 5 },
       ]);
     }).pipe(Effect.scoped)
   );
+});
 
+describe("toHttpApi failures", () => {
   it.effect(
-    "lets a host answer a typed failure with the status it carries",
+    "answers each member of a failure union with that member's status, through its schema only",
     () =>
-      Effect.gen(function* failureStatus() {
-        const statuses = toHttpApi("StatusApi", [gate], {
-          middleware: [ProblemStatus],
-        });
-
+      Effect.gen(function* unionStatuses() {
         const handler = yield* serve(
-          HttpApiBuilder.layer(statuses.api).pipe(
-            Layer.provide(
-              statuses.layer.pipe(Layer.provide(ProblemStatusLayer))
-            )
-          )
+          HttpApiBuilder.layer(gates.api).pipe(Layer.provide(gates.layer))
         );
 
         const gone = yield* fetchJson(handler, at("/gate/410"));
-        const conflict = yield* fetchJson(handler, at("/gate/409"));
-
-        expect([gone, conflict.status]).toEqual([
-          {
-            body: { status: 410, title: "Refused" },
-            contentType: "application/problem+json",
-            status: 410,
-          },
-          409,
-        ]);
-      }).pipe(Effect.scoped)
-  );
-
-  it.effect(
-    "renders only the declared problem fields, and lets an undeclared failure fail closed",
-    () =>
-      Effect.gen(function* declaredOnly() {
-        const statuses = toHttpApi("StatusApi", [gate], {
-          middleware: [ProblemStatus],
-        });
-
-        const unrendered = toHttpApi("UnrenderedApi", [gate]);
-
-        const rendered = yield* serve(
-          HttpApiBuilder.layer(statuses.api).pipe(
-            Layer.provide(
-              statuses.layer.pipe(Layer.provide(ProblemStatusLayer))
-            )
-          )
-        );
-
-        const plain = yield* serve(
-          HttpApiBuilder.layer(unrendered.api).pipe(
-            Layer.provide(unrendered.layer)
-          )
-        );
-
-        const leak = yield* fetchJson(rendered, at("/gate/409?mode=leak"));
-
-        const undeclared = yield* fetchJson(
-          rendered,
-          at("/gate/409?mode=undeclared")
-        );
-
-        const undeclaredPlain = yield* fetchJson(
-          plain,
-          at("/gate/409?mode=undeclared")
-        );
+        const conflict = yield* fetchJson(handler, at("/gate/409?mode=leak"));
 
         expect([
-          leak.status,
-          leak.body,
-          undeclared.status,
-          JSON.stringify(undeclared.body ?? null).includes("hunter2"),
-          undeclaredPlain.status,
-        ]).toEqual([409, { status: 409, title: "Refused" }, 500, false, 500]);
+          gone.status,
+          gone.body,
+          conflict.status,
+          conflict.body,
+        ]).toEqual([
+          410,
+          { status: 410, title: "Gone" },
+          409,
+          { status: 409, title: "Conflict" },
+        ]);
       }).pipe(Effect.scoped)
   );
 
   it.effect(
-    "trusts middleware: it may answer before the route decodes its input",
+    "fails closed with an empty 500 on a failure its schema does not declare",
     () =>
-      Effect.gen(function* trusted() {
-        const closed = toHttpApi("ClosedApi", [lookup], {
-          middleware: [Maintenance],
-        });
-
+      Effect.gen(function* undeclared() {
         const handler = yield* serve(
-          HttpApiBuilder.layer(closed.api).pipe(
-            Layer.provide(closed.layer.pipe(Layer.provide(MaintenanceLayer)))
-          )
+          HttpApiBuilder.layer(gates.api).pipe(Layer.provide(gates.layer))
         );
 
-        const malformed = yield* fetchJson(handler, at("/items/a?window=abc"));
+        const refused = yield* fetchJson(
+          handler,
+          at("/gate/410?mode=undeclared")
+        );
 
-        expect([malformed.status, malformed.body]).toEqual([
-          503,
-          { maintenance: true },
-        ]);
+        expect([refused.status, refused.body]).toEqual([500, undefined]);
       }).pipe(Effect.scoped)
   );
+
+  it("documents each member's status", () => {
+    const responses =
+      gates.openApi().paths["/gate/{status}"]?.get?.responses ?? {};
+
+    expect(Object.keys(responses)).toEqual(
+      expect.arrayContaining(["200", "409", "410"])
+    );
+  });
 });

@@ -1,18 +1,19 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- See to-toolkit.ts: a projection over a heterogeneous list erases error and requirement types at the boundary and recovers them for callers.
-import { Effect, Schema } from "effect";
-import type { Context, JsonSchema, Layer } from "effect";
+import { Effect, Layer, Predicate, Schema, SchemaAST } from "effect";
+import type { Context, JsonSchema } from "effect";
+import { HttpServerRequest } from "effect/unstable/http";
+import type { HttpServerResponse } from "effect/unstable/http";
 import {
   HttpApi,
   HttpApiBuilder,
   HttpApiEndpoint,
   HttpApiError,
   HttpApiGroup,
+  HttpApiMiddleware,
   OpenApi,
 } from "effect/unstable/httpapi";
-import type { HttpApiMiddleware } from "effect/unstable/httpapi";
 
 import { ApprovalDenied } from "./approval.js";
-import { failureSchemaOf } from "./contract.js";
 import type {
   AnyCapability,
   AnyContract,
@@ -70,15 +71,28 @@ const pathParamNames = (path: string): readonly string[] =>
 
 const DEFAULT_FAILURE_STATUS = 422;
 
-const withFailureStatus = (failure: PlainSchema): Schema.Top =>
+const withFailureStatus = (failure: Schema.Top): Schema.Top =>
   failure.ast.annotations?.httpApiStatus === undefined
     ? failure.annotate({ httpApiStatus: DEFAULT_FAILURE_STATUS })
     : failure;
 
-const httpFailure = (contract: AnyContract): readonly Schema.Top[] =>
-  contract.needsApproval
-    ? [withFailureStatus(contract.failure), ApprovalDenied]
-    : [withFailureStatus(failureSchemaOf(contract))];
+const membersOf = (failure: Schema.Top): readonly Schema.Top[] => {
+  if (
+    !SchemaAST.isUnion(failure.ast) ||
+    failure.ast.annotations?.httpApiStatus !== undefined ||
+    !Predicate.hasProperty(failure, "members") ||
+    !Array.isArray(failure.members)
+  ) {
+    return [failure];
+  }
+
+  return failure.members.filter((member) => Schema.isSchema(member));
+};
+
+const httpFailure = (contract: AnyContract): readonly Schema.Top[] => [
+  ...membersOf(contract.failure).map(withFailureStatus),
+  ...(contract.needsApproval ? [ApprovalDenied] : []),
+];
 
 type ParamFieldsOf<C, Path extends string> = Pick<
   InputOf<C>["fields"],
@@ -177,21 +191,59 @@ export type ApiOf<
   Middleware extends HttpApiMiddleware.AnyId = never,
 > = ReturnType<typeof apiFor<Id, GroupOf<Caps, Middleware>>>;
 
-export type MiddlewareKey = Context.Key<HttpApiMiddleware.AnyId, unknown>;
+export interface HttpProvide<
+  Id,
+  Service,
+  Failure extends Schema.Top,
+  Requirements,
+> {
+  readonly failure: Failure;
+  readonly from: (
+    request: HttpServerRequest.HttpServerRequest
+  ) => Effect.Effect<Service, Failure["Type"], Requirements>;
+  readonly tag: Context.Key<Id, Service>;
+}
 
-export type MiddlewareOf<Keys extends readonly MiddlewareKey[]> =
-  Keys[number] extends Context.Key<infer Middleware, unknown>
-    ? Middleware extends HttpApiMiddleware.AnyId
-      ? Middleware
+export type AnyHttpProvide = HttpProvide<unknown, unknown, Schema.Top, unknown>;
+
+export interface ProvideMiddleware<
+  Id,
+  Failure extends Schema.Top,
+  Requirements,
+> {
+  readonly "~effect/httpapi/HttpApiMiddleware": {
+    readonly clientError: never;
+    readonly error: Failure;
+    readonly provides: Id;
+    readonly requiredForClient: false;
+    readonly requires: Requirements;
+  };
+}
+
+export type MiddlewareOf<Hooks extends readonly AnyHttpProvide[]> =
+  Hooks[number] extends infer Hook
+    ? Hook extends {
+        readonly failure: infer Failure extends Schema.Top;
+        readonly from: (
+          request: never
+        ) => Effect.Effect<unknown, unknown, infer Requirements>;
+        readonly tag: Context.Key<infer Id, unknown>;
+      }
+      ? ProvideMiddleware<Id, Failure, Requirements>
       : never
     : never;
 
 export interface HttpApiProjectionOptions<
-  Keys extends readonly MiddlewareKey[] = readonly [],
+  Hooks extends readonly AnyHttpProvide[] = readonly [],
 > {
+  readonly decodeRefusal?:
+    | ((
+        refusal: HttpApiError.HttpApiSchemaError
+      ) => Effect.Effect<HttpServerResponse.HttpServerResponse>)
+    | undefined;
   readonly errors?: readonly Schema.Top[] | undefined;
-  readonly middleware?: Keys | undefined;
   readonly prefix?: `/${string}` | undefined;
+  readonly provide?: Hooks | undefined;
 }
 
 export interface HttpApiProjection<
@@ -201,10 +253,10 @@ export interface HttpApiProjection<
 > {
   readonly api: ApiOf<Id, Caps, Middleware>;
   readonly layer: Layer.Layer<
-    HttpApiGroup.ToService<Id, GroupOf<Caps, Middleware>>,
+    HttpApiGroup.ToService<Id, GroupOf<Caps, Middleware>> | Middleware,
     never,
     | Exclude<RequirementsOf<Caps>, HttpApiMiddleware.Provides<Middleware>>
-    | Middleware
+    | HttpApiMiddleware.Requires<Middleware>
   >;
   readonly openApi: () => OpenApi.OpenAPISpec;
 }
@@ -277,9 +329,65 @@ const inputOf = (
   );
 };
 
+interface HostMiddleware {
+  readonly key: Context.Key<HttpApiMiddleware.AnyId, unknown>;
+  readonly layer: Layer.Layer<never>;
+}
+
+const REQUEST_REFUSALS: ReadonlySet<HttpApiError.HttpApiSchemaError["kind"]> =
+  new Set(["Headers", "Params", "Payload", "Query"]);
+
+const provideMiddleware = (
+  id: string,
+  hook: AnyHttpProvide,
+  index: number
+): HostMiddleware => {
+  const key = HttpApiMiddleware.Service<HostMiddleware>()(
+    `@rat-stack/capability/${id}/provide/${String(index)}`,
+    { error: hook.failure }
+  );
+
+  const provideFromRequest = (
+    httpEffect: Effect.Effect<HttpServerResponse.HttpServerResponse, unknown>
+  ) =>
+    HttpServerRequest.HttpServerRequest.pipe(
+      Effect.flatMap(hook.from),
+      Effect.flatMap((service) =>
+        Effect.provideService(httpEffect, hook.tag, service)
+      )
+    );
+
+  // SAFETY: the hook's requirements are erased to `unknown` here; the builder runs middleware in the group layer's context, which `HttpApiProjection["layer"]` requires to hold them.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  const layer = Layer.succeed(key, provideFromRequest as never);
+
+  // SAFETY: the key is the middleware service this layer builds; its phantom identity and the hook's erased requirements are recovered for callers by `MiddlewareOf`.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  return { key, layer } as unknown as HostMiddleware;
+};
+
+const refusalMiddleware = (
+  id: string,
+  render: (
+    refusal: HttpApiError.HttpApiSchemaError
+  ) => Effect.Effect<HttpServerResponse.HttpServerResponse>
+): HostMiddleware => {
+  const key = HttpApiMiddleware.Service<HostMiddleware>()(
+    `@rat-stack/capability/${id}/decode-refusal`
+  );
+
+  const layer = HttpApiMiddleware.layerSchemaErrorTransform(key, (refusal) =>
+    REQUEST_REFUSALS.has(refusal.kind) ? render(refusal) : Effect.fail(refusal)
+  );
+
+  // SAFETY: as for `provideMiddleware`: the key is the middleware service this layer builds.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  return { key, layer } as unknown as HostMiddleware;
+};
+
 const withMiddleware = (
   group: HttpApiGroup.Constraint,
-  middleware: readonly MiddlewareKey[]
+  middleware: readonly HostMiddleware[]
 ): HttpApiGroup.Constraint => {
   const [next, ...others] = middleware;
 
@@ -287,9 +395,11 @@ const withMiddleware = (
     return group;
   }
 
-  // SAFETY: every group here comes from `groupFor`, an `HttpApiGroup`; `middleware` changes only each endpoint's middleware services, which `GroupOf` recomputes for callers from the same middleware list.
+  // SAFETY: every group here comes from `groupFor`, an `HttpApiGroup`; `middleware` changes only each endpoint's middleware services, which `GroupOf` recomputes for callers from the same hooks.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return withMiddleware((group as HttpApiGroup.Top).middleware(next), others);
+  const httpGroup = group as HttpApiGroup.Top;
+
+  return withMiddleware(httpGroup.middleware(next.key), others);
 };
 
 const withPrefix = <Id extends string>(
@@ -311,12 +421,12 @@ const withPrefix = <Id extends string>(
 export const toHttpApi = <
   const Id extends string,
   const Caps extends readonly [AnyCapability, ...AnyCapability[]],
-  const Keys extends readonly MiddlewareKey[] = readonly [],
+  const Hooks extends readonly AnyHttpProvide[] = readonly [],
 >(
   id: Id,
   capabilities: Caps,
-  options?: HttpApiProjectionOptions<Keys>
-): HttpApiProjection<Id, Caps, MiddlewareOf<Keys>> => {
+  options?: HttpApiProjectionOptions<Hooks>
+): HttpApiProjection<Id, Caps, MiddlewareOf<Hooks>> => {
   const hostErrors = options?.errors ?? [];
 
   const endpoints = capabilities.map(({ contract }) => {
@@ -337,17 +447,23 @@ export const toHttpApi = <
     throw new Error("toHttpApi needs at least one capability");
   }
 
-  const projectedApi = withPrefix(
-    apiFor(
-      id,
-      withMiddleware(groupFor(first, ...rest), options?.middleware ?? [])
+  const middleware = [
+    ...(options?.provide ?? []).map((hook, index) =>
+      provideMiddleware(id, hook, index)
     ),
+    ...(options?.decodeRefusal === undefined
+      ? []
+      : [refusalMiddleware(id, options.decodeRefusal)]),
+  ];
+
+  const projectedApi = withPrefix(
+    apiFor(id, withMiddleware(groupFor(first, ...rest), middleware)),
     options?.prefix
   );
 
   // SAFETY: prefixing changes endpoint paths but not the API id, group id, schemas, or handler service. Keep the stable public type while preserving that runtime path transformation for HttpApiBuilder and OpenAPI.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
-  const api = projectedApi as unknown as ApiOf<Id, Caps, MiddlewareOf<Keys>>;
+  const api = projectedApi as unknown as ApiOf<Id, Caps, MiddlewareOf<Hooks>>;
 
   const implementations: Record<
     string,
@@ -376,12 +492,27 @@ export const toHttpApi = <
     handlers.handleAll(implementations as never)
   );
 
-  // SAFETY: `built` is the layer for exactly the group `api` names, which is what `HttpApiProjection<Id, Caps>["layer"]` spells out.
+  const [firstMiddleware, ...otherMiddleware] = middleware;
+
+  const withHostMiddleware =
+    firstMiddleware === undefined
+      ? built
+      : Layer.provideMerge(
+          built,
+          Layer.mergeAll(
+            firstMiddleware.layer,
+            ...otherMiddleware.map(
+              ({ layer: middlewareLayer }) => middlewareLayer
+            )
+          )
+        );
+
+  // SAFETY: `withHostMiddleware` is the layer for exactly the group `api` names, plus the middleware services the hooks build, which is what `HttpApiProjection["layer"]` spells out.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
-  const layer = built as unknown as HttpApiProjection<
+  const layer = withHostMiddleware as unknown as HttpApiProjection<
     Id,
     Caps,
-    MiddlewareOf<Keys>
+    MiddlewareOf<Hooks>
   >["layer"];
 
   const emptyInputsByOperationId: ReadonlyMap<string, JsonSchema.JsonSchema> =

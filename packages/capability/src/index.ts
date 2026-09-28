@@ -83,8 +83,10 @@ export {
   toHttpApi,
   type HttpApiProjection,
   type HttpApiProjectionOptions,
-  type MiddlewareKey,
+  type AnyHttpProvide,
+  type HttpProvide,
   type MiddlewareOf,
+  type ProvideMiddleware,
 } from "./to-http-api.js";
 
 export {
