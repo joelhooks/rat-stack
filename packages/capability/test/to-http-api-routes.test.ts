@@ -6,6 +6,7 @@ import { HttpApiBuilder, HttpApiTest } from "effect/unstable/httpapi";
 import { defineContract, implement, toHttpApi } from "../src/index.js";
 import { Authenticated, AuthenticatedLayer, Caller } from "./authenticated.js";
 import { NotFound, echo } from "./fixtures.js";
+import { Maintenance, MaintenanceLayer } from "./maintenance.js";
 import { ProblemBodies, ProblemBodiesLayer } from "./problem-bodies.js";
 import {
   Problem,
@@ -236,13 +237,30 @@ const gateContract = defineContract("gate", {
   description: "Refuse with a problem whose status is its own",
   failure: Problem,
   http: { method: "GET", path: "/gate/:status" },
-  input: Schema.Struct({ status: Schema.Finite }),
+  input: Schema.Struct({
+    mode: Schema.optional(Schema.Literals(["leak", "undeclared"])),
+    status: Schema.Finite,
+  }),
   output: Schema.String,
 });
 
-const gate = implement(gateContract, ({ status }) =>
-  Effect.fail({ status, title: "Refused" })
-);
+const undeclaredFailure: Partial<typeof Problem.Type> & {
+  readonly secret: string;
+} = { secret: "hunter2", status: 409 };
+
+const gate = implement(gateContract, ({ mode, status }) => {
+  if (mode === "undeclared") {
+    // SAFETY: this handler breaks its contract on purpose, failing with a value its failure schema refuses, to show that a problem renderer lets it fail closed.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return Effect.fail(undeclaredFailure as typeof Problem.Type);
+  }
+
+  const refusal = { status, title: "Refused" };
+
+  return Effect.fail(
+    mode === "leak" ? { ...refusal, secret: "hunter2" } : refusal
+  );
+});
 
 describe("toHttpApi middleware", () => {
   const guarded = toHttpApi("GuardedApi", [whoAmI, lookup], {
@@ -395,6 +413,75 @@ describe("toHttpApi middleware", () => {
             status: 410,
           },
           409,
+        ]);
+      }).pipe(Effect.scoped)
+  );
+
+  it.effect(
+    "renders only the declared problem fields, and lets an undeclared failure fail closed",
+    () =>
+      Effect.gen(function* declaredOnly() {
+        const statuses = toHttpApi("StatusApi", [gate], {
+          middleware: [ProblemStatus],
+        });
+
+        const unrendered = toHttpApi("UnrenderedApi", [gate]);
+
+        const rendered = yield* serve(
+          HttpApiBuilder.layer(statuses.api).pipe(
+            Layer.provide(
+              statuses.layer.pipe(Layer.provide(ProblemStatusLayer))
+            )
+          )
+        );
+
+        const plain = yield* serve(
+          HttpApiBuilder.layer(unrendered.api).pipe(
+            Layer.provide(unrendered.layer)
+          )
+        );
+
+        const leak = yield* fetchJson(rendered, at("/gate/409?mode=leak"));
+
+        const undeclared = yield* fetchJson(
+          rendered,
+          at("/gate/409?mode=undeclared")
+        );
+
+        const undeclaredPlain = yield* fetchJson(
+          plain,
+          at("/gate/409?mode=undeclared")
+        );
+
+        expect([
+          leak.status,
+          leak.body,
+          undeclared.status,
+          JSON.stringify(undeclared.body ?? null).includes("hunter2"),
+          undeclaredPlain.status,
+        ]).toEqual([409, { status: 409, title: "Refused" }, 500, false, 500]);
+      }).pipe(Effect.scoped)
+  );
+
+  it.effect(
+    "trusts middleware: it may answer before the route decodes its input",
+    () =>
+      Effect.gen(function* trusted() {
+        const closed = toHttpApi("ClosedApi", [lookup], {
+          middleware: [Maintenance],
+        });
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(closed.api).pipe(
+            Layer.provide(closed.layer.pipe(Layer.provide(MaintenanceLayer)))
+          )
+        );
+
+        const malformed = yield* fetchJson(handler, at("/items/a?window=abc"));
+
+        expect([malformed.status, malformed.body]).toEqual([
+          503,
+          { maintenance: true },
         ]);
       }).pipe(Effect.scoped)
   );
