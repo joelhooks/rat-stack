@@ -23,12 +23,17 @@ export {
   type DefineContractOptions,
   type FailureOf,
   type FailureSchemaOf,
+  type HttpMethod,
+  type HttpRoute,
+  type HttpRouteOf,
   type InputOf,
   type InputSchema,
   type NameOf,
   type OutputOf,
+  type PathParamNames,
   type PlainSchema,
   type RequirementsOf,
+  type RouteParamsCheck,
 } from "./contract.js";
 
 export { aroundHandlers, implement } from "./implement.js";
@@ -78,6 +83,12 @@ export {
   toHttpApi,
   type HttpApiProjection,
   type HttpApiProjectionOptions,
+  type AnyHttpProvide,
+  type CheckedHook,
+  type CheckedHooks,
+  type HttpProvide,
+  type MiddlewareOf,
+  type ProvideMiddleware,
 } from "./to-http-api.js";
 
 export {
