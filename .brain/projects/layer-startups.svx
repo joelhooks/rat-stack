@@ -41,6 +41,14 @@ Prior art: `@alchemy.run/better-auth`, which takes its database as a swappable L
 - **VISION frames it as pieces, trust, floor, and range.** Layers are the pieces. Lauren Tan's correction ladder and her Dune framework ("the easy path is the right path for agents") are the trust. Theo Browne's "raise the floor" is the floor, applied here to the environment instead of models. His "think wider" is the range. See [VISION.md](../../VISION.md) for the cited quotes. The home page on ratstack.sh follows this framing.
 - **An email automation engine is the flagship case study.** It is a working prototype (XState journeys, one Durable Object per contact journey, a pure `decide(snapshot, event)` fold) that is shown as a general-purpose email automation SaaS behind a service tag. Its details live in the content research project, not here.
 
+## HTTP extensions stay inside the contract
+
+Decided 2026-09-28 while reviewing drovr's PR #1 (per-contract HTTP routes, merged as a0123bc).
+
+- A projection option may not answer around the contract. `toHttpApi` takes a `provide` hook (derive a service from the request, or fail with a declared error) instead of raw `HttpApiMiddleware`, because Effect runs middleware around decode and encode: a middleware could return 200 for an invalid query or leak an undeclared failure. The independent review demonstrated both before the rework.
+- Decode refusals render through Effect's `layerSchemaErrorTransform` at the host. Domain failures render only through the contract's declared failure schema; whatever that schema rejects stays an empty 500.
+- A contract without `http` keeps a byte-identical wire (declared failures stay 422). Per-class statuses are opt-in with `http`. Checked on live ratstack.sh after the deploy: failure bodies and OpenAPI paths unchanged.
+
 ## Build order
 
 1. **Purity + binding proof.** Importing `apps/infra/alchemy.run.ts` deploys nothing, and removing a binding is a type error. Adds a vitest devDependency to `apps/infra`.
@@ -63,5 +71,5 @@ Prior art: `@alchemy.run/better-auth`, which takes its database as a swappable L
   - Invalid input is reported as `DatabaseError`. Give it its own tagged error so a caller's mistake is not read as a storage failure.
 - [ ] **Mischief becomes an external, composed Layer.** Joel's call: latent and understood, not yet scheduled. The generic "agent front door" (REST, MCP, A2A, code-mode sandbox, rate limits, Web Bot Auth) becomes an `AgentFrontDoor({ id, capabilities })` Layer that rat-stack's Worker provides instead of inheriting. DNS-AID records move to a Stack-scope function over the zone. Keep existing logical ids or use `Alchemy.renamedFrom`, or the plan replaces the DNS records. Build it on the `defineContract` / `implement` split in `AGENTS.md`, with approval metadata on the contract and the gate added by `implement`.
 - [x] **Rewrite the ratstack.sh home page from VISION.md.** Done 2026-09-22: the reference lead, pieces, trust, floor, and range, and the cartridge shelf. The series is a content concern, so the home page and this repo do not track episodes.
-- [ ] **Decide where ratstack.sh and its LLM wiki live.** This repo, or a separate site repo that consumes rat-stack. The content research wiki stays private either way. A public wiki would be a separate layer, derived from it and redacted.
+- [x] **Decide where ratstack.sh and its LLM wiki live.** Done 2026-09-25: this repo. The public research is folded into lore (`.brain/resources/lore/`), woven across the site, with only public sources cited; the private research wiki stays private.
 - [ ] **Add the second lifecycle pattern to AGENTS.md.** Durable machines fold (pure transition, persisted snapshot, emitted intents, alarm timers). Live machines run (`createEffectActor`, `fromEffect` side effects).
