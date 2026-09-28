@@ -276,6 +276,50 @@ describe("toHttpApi middleware", () => {
       }).pipe(Effect.scoped)
   );
 
+  it.effect("runs different middlewares together, in the order given", () =>
+    Effect.gen(function* twoMiddlewares() {
+      const both = toHttpApi("BothApi", [whoAmI, lookup], {
+        middleware: [Authenticated, ProblemBodies],
+      });
+
+      const handler = yield* serve(
+        HttpApiBuilder.layer(both.api).pipe(
+          Layer.provide(
+            both.layer.pipe(
+              Layer.provide(
+                Layer.mergeAll(AuthenticatedLayer, ProblemBodiesLayer)
+              )
+            )
+          )
+        )
+      );
+
+      const signedIn = yield* fetchJson(
+        handler,
+        at("/items/a?window=abc", { headers: { "x-caller": "rat" } })
+      );
+
+      const anonymous = yield* fetchJson(handler, at("/items/a?window=abc"));
+
+      const me = yield* fetchJson(
+        handler,
+        at("/me", { headers: { "x-caller": "rat" } })
+      );
+
+      expect([
+        signedIn.status,
+        signedIn.body,
+        anonymous.status,
+        me.body,
+      ]).toEqual([
+        400,
+        { hint: "Fix the query.", status: 400, title: "Malformed request" },
+        401,
+        { name: "rat" },
+      ]);
+    }).pipe(Effect.scoped)
+  );
+
   it("documents the middleware's refusal on every route", () => {
     const { paths } = guarded.openApi();
 

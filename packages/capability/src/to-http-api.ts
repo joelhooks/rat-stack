@@ -185,11 +185,20 @@ export type ApiOf<
   Middleware extends HttpApiMiddleware.AnyId = never,
 > = ReturnType<typeof apiFor<Id, GroupOf<Caps, Middleware>>>;
 
+export type MiddlewareKey = Context.Key<HttpApiMiddleware.AnyId, unknown>;
+
+export type MiddlewareOf<Keys extends readonly MiddlewareKey[]> =
+  Keys[number] extends Context.Key<infer Middleware, unknown>
+    ? Middleware extends HttpApiMiddleware.AnyId
+      ? Middleware
+      : never
+    : never;
+
 export interface HttpApiProjectionOptions<
-  Middleware extends HttpApiMiddleware.AnyId = never,
+  Keys extends readonly MiddlewareKey[] = readonly [],
 > {
   readonly errors?: readonly Schema.Top[] | undefined;
-  readonly middleware?: readonly Context.Key<Middleware, unknown>[] | undefined;
+  readonly middleware?: Keys | undefined;
   readonly prefix?: `/${string}` | undefined;
 }
 
@@ -276,9 +285,9 @@ const inputOf = (
   );
 };
 
-const withMiddleware = <Middleware extends HttpApiMiddleware.AnyId>(
+const withMiddleware = (
   group: HttpApiGroup.Constraint,
-  middleware: readonly Context.Key<Middleware, unknown>[]
+  middleware: readonly MiddlewareKey[]
 ): HttpApiGroup.Constraint => {
   const [next, ...others] = middleware;
 
@@ -310,12 +319,12 @@ const withPrefix = <Id extends string>(
 export const toHttpApi = <
   const Id extends string,
   const Caps extends readonly [AnyCapability, ...AnyCapability[]],
-  Middleware extends HttpApiMiddleware.AnyId = never,
+  const Keys extends readonly MiddlewareKey[] = readonly [],
 >(
   id: Id,
   capabilities: Caps,
-  options?: HttpApiProjectionOptions<Middleware>
-): HttpApiProjection<Id, Caps, Middleware> => {
+  options?: HttpApiProjectionOptions<Keys>
+): HttpApiProjection<Id, Caps, MiddlewareOf<Keys>> => {
   const hostErrors = options?.errors ?? [];
 
   const endpoints = capabilities.map(({ contract }) => {
@@ -346,7 +355,7 @@ export const toHttpApi = <
 
   // SAFETY: prefixing changes endpoint paths but not the API id, group id, schemas, or handler service. Keep the stable public type while preserving that runtime path transformation for HttpApiBuilder and OpenAPI.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
-  const api = projectedApi as unknown as ApiOf<Id, Caps, Middleware>;
+  const api = projectedApi as unknown as ApiOf<Id, Caps, MiddlewareOf<Keys>>;
 
   const implementations: Record<
     string,
@@ -380,7 +389,7 @@ export const toHttpApi = <
   const layer = built as unknown as HttpApiProjection<
     Id,
     Caps,
-    Middleware
+    MiddlewareOf<Keys>
   >["layer"];
 
   const emptyInputsByOperationId: ReadonlyMap<string, JsonSchema.JsonSchema> =
