@@ -763,6 +763,38 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
+const skippedByBraceEscaper = new Set(["code", "pre"]);
+
+const hasBrace = /[{}]/u;
+
+const braceSafeText = (value: string): LoreHastNode => ({
+  type: "raw",
+  value: escapeHtml(value).replaceAll("{", "&#123;").replaceAll("}", "&#125;"),
+});
+
+export const escapeSvelteBraces = () => (tree: LoreHastNode) => {
+  const visit = (node: LoreHastNode): void => {
+    if (
+      node.children === undefined ||
+      skippedByBraceEscaper.has(node.tagName ?? "")
+    ) {
+      return;
+    }
+
+    node.children = node.children.map((child) => {
+      if (child.type === "text" && hasBrace.test(child.value ?? "")) {
+        return braceSafeText(child.value ?? "");
+      }
+
+      visit(child);
+
+      return child;
+    });
+  };
+
+  visit(tree);
+};
+
 export const deriveAgentMarkdown = (source: string): string => {
   if (!audienceTag.test(source)) {
     return source;

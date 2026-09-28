@@ -27,6 +27,7 @@ import type { Plugin } from "unified";
 
 import {
   assertLoreTerms,
+  escapeSvelteBraces,
   assertSkillGroups,
   buildError,
   ContentBuildError,
@@ -79,11 +80,7 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;");
 
 const svelteSafeText = (value: string) =>
-  value
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("{", "&#123;")
-    .replaceAll("}", "&#125;");
+  value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const svelteServerUrl = import.meta.resolve("svelte/internal/server");
 
@@ -600,6 +597,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
               12,
               linkedLoreTerms
             ),
+            escapeSvelteBraces,
           ],
           // SAFETY: remark-gfm is a unified remark plugin; mdsvex types its options with `Plugin` from the unified version it bundles.
           remarkPlugins: [remarkGfm as Plugin],
