@@ -113,6 +113,20 @@ const fetchJson = (
     };
   });
 
+const fetchText = (
+  handler: (request: Request) => Promise<Response>,
+  request: Request
+) =>
+  Effect.gen(function* fetchedText() {
+    // oxlint-disable-next-line typescript/promise-function-async -- HttpRouter exposes a Promise API for this in-memory web handler test.
+    const response = yield* Effect.promise(() => handler(request));
+
+    // oxlint-disable-next-line typescript/promise-function-async -- Web Response.text returns a Promise at this in-memory transport boundary.
+    const text = yield* Effect.promise(() => response.text());
+
+    return [response.status, response.headers.get("content-type"), text];
+  });
+
 const at = (path: string, init?: RequestInit): Request =>
   new Request(`http://localhost${path}`, init);
 
@@ -308,6 +322,23 @@ const legacyGate = implement(legacyGateContract, () =>
   Effect.fail({ status: 410 as const, title: "Gone" })
 );
 
+const CheckedRefusal = Schema.Union([Gone, Conflict]).check(
+  Schema.makeFilter(({ title }) => title !== "Forbidden")
+);
+
+const checkedGateContract = defineContract("checkedGate", {
+  description:
+    "Refuse with a value a member accepts and the union's own check refuses",
+  failure: CheckedRefusal,
+  http: { method: "GET", path: "/checked-gate" },
+  input: Schema.Struct({ title: Schema.String }),
+  output: Schema.String,
+});
+
+const checkedGate = implement(checkedGateContract, ({ title }) =>
+  Effect.fail({ status: 410 as const, title })
+);
+
 describe("toHttpApi provide hooks", () => {
   const guarded = toHttpApi("GuardedApi", [whoAmI, lookup], {
     provide: [callerFromRequest],
@@ -473,7 +504,7 @@ describe("toHttpApi failures", () => {
   );
 
   it.effect(
-    "keeps a contract without http on today's single failure status",
+    "answers a contract without http byte for byte as before: one 422 for its union failure",
     () =>
       Effect.gen(function* legacyStatus() {
         const legacy = toHttpApi("LegacyApi", [legacyGate]);
@@ -482,7 +513,7 @@ describe("toHttpApi failures", () => {
           HttpApiBuilder.layer(legacy.api).pipe(Layer.provide(legacy.layer))
         );
 
-        const refused = yield* fetchJson(
+        const refused = yield* fetchText(
           handler,
           at("/legacyGate", {
             body: "{}",
@@ -491,9 +522,38 @@ describe("toHttpApi failures", () => {
           })
         );
 
-        expect([refused.status, refused.body]).toEqual([
+        expect(refused).toEqual([
           422,
-          { status: 410, title: "Gone" },
+          "application/json",
+          '{"status":410,"title":"Gone"}',
+        ]);
+      }).pipe(Effect.scoped)
+  );
+
+  it.effect(
+    "fails closed when a value matches a member but not the union's own check",
+    () =>
+      Effect.gen(function* unionCheck() {
+        const checked = toHttpApi("CheckedApi", [checkedGate]);
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(checked.api).pipe(Layer.provide(checked.layer))
+        );
+
+        const allowed = yield* fetchJson(
+          handler,
+          at("/checked-gate?title=Gone")
+        );
+
+        const refused = yield* fetchJson(
+          handler,
+          at("/checked-gate?title=Forbidden")
+        );
+
+        expect([allowed.status, refused.status, refused.body]).toEqual([
+          410,
+          500,
+          undefined,
         ]);
       }).pipe(Effect.scoped)
   );

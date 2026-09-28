@@ -90,6 +90,19 @@ const membersOf = (failure: Schema.Top): readonly Schema.Top[] => {
   return failure.members.filter((member) => Schema.isSchema(member));
 };
 
+const declaredFailuresOnly = (contract: AnyContract) => {
+  const isDeclared = Schema.is(failureSchemaOf(contract));
+
+  return <A, R>(
+    handled: Effect.Effect<A, unknown, R>
+  ): Effect.Effect<A, unknown, R> =>
+    Effect.catchIf(
+      handled,
+      (failure) => !isDeclared(failure),
+      (failure) => Effect.die(failure)
+    );
+};
+
 const httpFailure = (contract: AnyContract): readonly Schema.Top[] => {
   if (contract.http === undefined) {
     return contract.needsApproval
@@ -491,8 +504,13 @@ export const toHttpApi = <
       input: unknown
     ) => Effect.Effect<unknown, unknown, RequirementsOf<Caps>>;
 
+    const failureGuard =
+      capability.contract.http === undefined
+        ? <A, E, R>(handled: Effect.Effect<A, E, R>) => handled
+        : declaredFailuresOnly(capability.contract);
+
     implementations[capability.contract.name] = (request) =>
-      Effect.flatMap(inputOf(capability.contract, request), run);
+      failureGuard(Effect.flatMap(inputOf(capability.contract, request), run));
   }
 
   // SAFETY: `handleAll` wants a record keyed by the group's endpoint identifiers with each handler typed to its endpoint; that is what `implementations` is at runtime, but a loop cannot say so. `never` is accepted by every parameter type, so the call stays checked on its return side.
