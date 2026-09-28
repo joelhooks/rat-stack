@@ -1,5 +1,5 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- See to-toolkit.ts: a projection over a heterogeneous list erases error and requirement types at the boundary and recovers them for callers.
-import { Effect, Layer, Predicate, Schema, SchemaAST } from "effect";
+import { Data, Effect, Layer, Predicate, Schema, SchemaAST } from "effect";
 import type { Context, JsonSchema } from "effect";
 import { HttpServerRequest } from "effect/unstable/http";
 import type { HttpServerResponse } from "effect/unstable/http";
@@ -90,6 +90,11 @@ const membersOf = (failure: Schema.Top): readonly Schema.Top[] => {
   return failure.members.filter((member) => Schema.isSchema(member));
 };
 
+class UndeclaredFailure extends Data.TaggedError("UndeclaredFailure")<{
+  readonly cause: unknown;
+  readonly contract: string;
+}> {}
+
 const declaredFailuresOnly = (contract: AnyContract) => {
   const isDeclared = Schema.is(failureSchemaOf(contract));
 
@@ -99,7 +104,10 @@ const declaredFailuresOnly = (contract: AnyContract) => {
     Effect.catchIf(
       handled,
       (failure) => !isDeclared(failure),
-      (failure) => Effect.die(failure)
+      (failure) =>
+        Effect.die(
+          new UndeclaredFailure({ cause: failure, contract: contract.name })
+        )
     );
 };
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
-import { Etag, HttpPlatform, HttpRouter } from "effect/unstable/http";
+import {
+  Etag,
+  HttpPlatform,
+  HttpRouter,
+  HttpServerResponse,
+} from "effect/unstable/http";
 import { HttpApiBuilder, HttpApiTest } from "effect/unstable/httpapi";
 
 import { defineContract, implement, toHttpApi } from "../src/index.js";
@@ -310,6 +315,24 @@ const gate = implement(gateContract, ({ mode, status }) => {
 });
 
 const gates = toHttpApi("GateApi", [gate]);
+
+const leakedResponse = HttpServerResponse.jsonUnsafe({
+  secret: "must-not-leak",
+});
+
+const leakyContract = defineContract("leaky", {
+  description: "Fail with an undeclared value that is itself a response",
+  failure: Schema.Never,
+  http: { method: "GET", path: "/leaky" },
+  input: Schema.Struct({}),
+  output: Schema.String,
+});
+
+const leaky = implement(leakyContract, () =>
+  // SAFETY: this handler breaks its contract on purpose, failing with a response value its failure schema refuses, to show that the projection never answers with it.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  Effect.fail(leakedResponse as never)
+);
 
 const mergedCalls: string[] = [];
 
@@ -635,6 +658,22 @@ describe("toHttpApi failures", () => {
           500,
           undefined,
         ]);
+      }).pipe(Effect.scoped)
+  );
+
+  it.effect(
+    "fails closed with an empty 500 when an undeclared failure is itself a response",
+    () =>
+      Effect.gen(function* responseFailure() {
+        const leaks = toHttpApi("LeakyApi", [leaky]);
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(leaks.api).pipe(Layer.provide(leaks.layer))
+        );
+
+        const refused = yield* fetchText(handler, at("/leaky"));
+
+        expect([refused[0], refused[2]]).toEqual([500, ""]);
       }).pipe(Effect.scoped)
   );
 
