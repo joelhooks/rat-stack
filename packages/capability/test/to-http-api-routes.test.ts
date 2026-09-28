@@ -311,6 +311,27 @@ const gate = implement(gateContract, ({ mode, status }) => {
 
 const gates = toHttpApi("GateApi", [gate]);
 
+const mergedCalls: string[] = [];
+
+const mergedContract = defineContract("merged", {
+  description:
+    "Read an input whose own check spans a path field and a query field",
+  failure: Schema.Never,
+  http: { method: "GET", path: "/merged/:id" },
+  input: Schema.Struct({ id: Schema.String, value: Schema.String }).check(
+    Schema.makeFilter(({ id, value }) => id !== value)
+  ),
+  output: Schema.String,
+});
+
+const merged = implement(mergedContract, ({ id }) =>
+  Effect.sync(() => {
+    mergedCalls.push(id);
+
+    return id;
+  })
+);
+
 const legacyGateContract = defineContract("legacyGate", {
   description: "Refuse with a union failure and no http route",
   failure: Schema.Union([Gone, Conflict]),
@@ -452,6 +473,35 @@ describe("toHttpApi provide hooks", () => {
       expect.arrayContaining(["200", "401", "422"]),
     ]);
   });
+
+  it.effect(
+    "renders a refusal of the merged path and query input through decodeRefusal, without running the handler",
+    () =>
+      Effect.gen(function* mergedRefusal() {
+        const rendered = toHttpApi("MergedApi", [merged], {
+          decodeRefusal: renderRefusal,
+        });
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(rendered.api).pipe(Layer.provide(rendered.layer))
+        );
+
+        const refused = yield* fetchJson(handler, at("/merged/a?value=a"));
+        const allowed = yield* fetchJson(handler, at("/merged/a?value=b"));
+
+        expect([
+          refused.status,
+          refused.body,
+          allowed.body,
+          mergedCalls,
+        ]).toEqual([
+          400,
+          { hint: "Fix the params.", status: 400, title: "Malformed request" },
+          "a",
+          ["a"],
+        ]);
+      }).pipe(Effect.scoped)
+  );
 
   it.effect("lets the host render decode refusals as its own body", () =>
     Effect.gen(function* decodeRefusal() {

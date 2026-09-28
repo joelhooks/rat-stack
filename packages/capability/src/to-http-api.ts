@@ -526,7 +526,9 @@ export const toHttpApi = <
         : declaredFailuresOnly(capability.contract);
 
     implementations[capability.contract.name] = (request) =>
-      failureGuard(Effect.flatMap(inputOf(capability.contract, request), run));
+      Effect.flatMap(inputOf(capability.contract, request), (input) =>
+        failureGuard(run(input))
+      );
   }
 
   // SAFETY: `handleAll` wants a record keyed by the group's endpoint identifiers with each handler typed to its endpoint; that is what `implementations` is at runtime, but a loop cannot say so. `never` is accepted by every parameter type, so the call stays checked on its return side.
