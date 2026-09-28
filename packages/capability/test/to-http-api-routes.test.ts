@@ -168,7 +168,8 @@ describe("toHttpApi routes", () => {
     });
   });
 
-  it("refuses a path parameter that is not an input field", () => {
+  it("refuses a path parameter that is not an input field, at compile time and at projection", () => {
+    // @ts-expect-error -- a path parameter must name an input field; this call proves the type check, and toHttpApi's throw covers contracts only known as AnyContract.
     const strayContract = defineContract("stray", {
       description: "Name a parameter the input lacks",
       failure: Schema.Never,

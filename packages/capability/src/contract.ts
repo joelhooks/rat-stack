@@ -25,6 +25,34 @@ export interface HttpRoute {
   readonly path: `/${string}`;
 }
 
+type SegmentParam<Segment extends string> = Segment extends `:${infer Name}`
+  ? Name
+  : never;
+
+export type PathParamNames<Path extends string> =
+  Path extends `${infer Segment}/${infer Rest}`
+    ? SegmentParam<Segment> | PathParamNames<Rest>
+    : SegmentParam<Path>;
+
+type StrayParams<Http extends HttpRoute, Input extends InputSchema> = Exclude<
+  PathParamNames<Http["path"]>,
+  keyof Input["fields"]
+>;
+
+export type RouteParamsCheck<
+  Http,
+  Input extends InputSchema,
+> = Http extends HttpRoute
+  ? [StrayParams<Http, Input>] extends [never]
+    ? unknown
+    : Readonly<
+        Record<
+          `path parameter :${StrayParams<Http, Input> & string} is not an input field`,
+          never
+        >
+      >
+  : unknown;
+
 export type ApprovalRequirement<NeedsApproval extends boolean> =
   NeedsApproval extends false ? never : Approval;
 
@@ -179,7 +207,8 @@ export function defineContract<
   const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure, false, Http>
+  options: DefineContractOptions<Input, Output, Failure, false, Http> &
+    RouteParamsCheck<Http, Input>
 ): Contract<Name, Input, Output, Failure, false, Http>;
 export function defineContract<
   const Name extends string,
@@ -189,9 +218,10 @@ export function defineContract<
   const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure, true, Http> & {
-    readonly needsApproval: true;
-  }
+  options: DefineContractOptions<Input, Output, Failure, true, Http> &
+    RouteParamsCheck<Http, Input> & {
+      readonly needsApproval: true;
+    }
 ): Contract<Name, Input, Output, Failure, true, Http>;
 export function defineContract<
   const Name extends string,
@@ -202,7 +232,8 @@ export function defineContract<
   const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure, NeedsApproval, Http>
+  options: DefineContractOptions<Input, Output, Failure, NeedsApproval, Http> &
+    RouteParamsCheck<Http, Input>
 ): Contract<Name, Input, Output, Failure, NeedsApproval, Http>;
 export function defineContract(
   name: string,

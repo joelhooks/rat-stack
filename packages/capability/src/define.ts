@@ -21,6 +21,8 @@ export type {
   InputSchema,
   NameOf,
   OutputOf,
+  PathParamNames,
   PlainSchema,
   RequirementsOf,
+  RouteParamsCheck,
 } from "./contract.js";

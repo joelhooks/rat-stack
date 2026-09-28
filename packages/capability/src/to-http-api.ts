@@ -24,6 +24,7 @@ import type {
   InputSchema,
   NameOf,
   OutputOf,
+  PathParamNames,
   PlainSchema,
 } from "./contract.js";
 import { inputJsonSchemaOf } from "./input-json-schema.js";
@@ -66,15 +67,6 @@ const pathParamNames = (path: string): readonly string[] =>
     .split("/")
     .filter((segment) => segment.startsWith(":"))
     .map((segment) => segment.slice(1));
-
-type SegmentParam<Segment extends string> = Segment extends `:${infer Name}`
-  ? Name
-  : never;
-
-export type PathParamNames<Path extends string> =
-  Path extends `${infer Segment}/${infer Rest}`
-    ? SegmentParam<Segment> | PathParamNames<Rest>
-    : SegmentParam<Path>;
 
 const DEFAULT_FAILURE_STATUS = 422;
 

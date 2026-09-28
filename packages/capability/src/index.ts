@@ -30,8 +30,10 @@ export {
   type InputSchema,
   type NameOf,
   type OutputOf,
+  type PathParamNames,
   type PlainSchema,
   type RequirementsOf,
+  type RouteParamsCheck,
 } from "./contract.js";
 
 export { aroundHandlers, implement } from "./implement.js";
@@ -83,7 +85,6 @@ export {
   type HttpApiProjectionOptions,
   type MiddlewareKey,
   type MiddlewareOf,
-  type PathParamNames,
 } from "./to-http-api.js";
 
 export {
