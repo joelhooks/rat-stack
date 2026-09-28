@@ -297,6 +297,17 @@ const gate = implement(gateContract, ({ mode, status }) => {
 
 const gates = toHttpApi("GateApi", [gate]);
 
+const legacyGateContract = defineContract("legacyGate", {
+  description: "Refuse with a union failure and no http route",
+  failure: Schema.Union([Gone, Conflict]),
+  input: Schema.Struct({}),
+  output: Schema.String,
+});
+
+const legacyGate = implement(legacyGateContract, () =>
+  Effect.fail({ status: 410 as const, title: "Gone" })
+);
+
 describe("toHttpApi provide hooks", () => {
   const guarded = toHttpApi("GuardedApi", [whoAmI, lookup], {
     provide: [callerFromRequest],
@@ -458,6 +469,32 @@ describe("toHttpApi failures", () => {
         );
 
         expect([refused.status, refused.body]).toEqual([500, undefined]);
+      }).pipe(Effect.scoped)
+  );
+
+  it.effect(
+    "keeps a contract without http on today's single failure status",
+    () =>
+      Effect.gen(function* legacyStatus() {
+        const legacy = toHttpApi("LegacyApi", [legacyGate]);
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(legacy.api).pipe(Layer.provide(legacy.layer))
+        );
+
+        const refused = yield* fetchJson(
+          handler,
+          at("/legacyGate", {
+            body: "{}",
+            headers: { "content-type": "application/json" },
+            method: "POST",
+          })
+        );
+
+        expect([refused.status, refused.body]).toEqual([
+          422,
+          { status: 410, title: "Gone" },
+        ]);
       }).pipe(Effect.scoped)
   );
 

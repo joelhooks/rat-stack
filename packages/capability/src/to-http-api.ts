@@ -14,6 +14,7 @@ import {
 } from "effect/unstable/httpapi";
 
 import { ApprovalDenied } from "./approval.js";
+import { failureSchemaOf } from "./contract.js";
 import type {
   AnyCapability,
   AnyContract,
@@ -89,10 +90,18 @@ const membersOf = (failure: Schema.Top): readonly Schema.Top[] => {
   return failure.members.filter((member) => Schema.isSchema(member));
 };
 
-const httpFailure = (contract: AnyContract): readonly Schema.Top[] => [
-  ...membersOf(contract.failure).map(withFailureStatus),
-  ...(contract.needsApproval ? [ApprovalDenied] : []),
-];
+const httpFailure = (contract: AnyContract): readonly Schema.Top[] => {
+  if (contract.http === undefined) {
+    return contract.needsApproval
+      ? [withFailureStatus(contract.failure), ApprovalDenied]
+      : [withFailureStatus(failureSchemaOf(contract))];
+  }
+
+  return [
+    ...membersOf(contract.failure).map(withFailureStatus),
+    ...(contract.needsApproval ? [ApprovalDenied] : []),
+  ];
+};
 
 type ParamFieldsOf<C, Path extends string> = Pick<
   InputOf<C>["fields"],
