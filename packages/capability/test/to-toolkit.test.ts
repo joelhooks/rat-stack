@@ -80,6 +80,7 @@ describe("toToolkit", () => {
 
       expect(tool?.inputSchema).toEqual({
         additionalProperties: false,
+        properties: {},
         type: "object",
       });
 
@@ -91,6 +92,13 @@ describe("toToolkit", () => {
       expect(result.isError).toBeFalsy();
       const [content] = result.content;
       expect(content?.type === "text" ? content.text : "").toContain("ready");
+
+      const stray = yield* client["tools/call"]({
+        arguments: { unexpected: true },
+        name: "noArgs",
+      });
+
+      expect(stray.isError).toBeFalsy();
     })
   );
 

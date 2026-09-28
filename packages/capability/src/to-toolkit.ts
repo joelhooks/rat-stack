@@ -1,6 +1,6 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- A projection over a heterogeneous list of capabilities erases each one's error and requirement types at the boundary and recovers them for callers through `ToolsOf` / `RequirementsOf`. The three diagnostics above cannot distinguish that boundary from a leak, so they are off for this file only.
 import type { Layer } from "effect";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Tool, Toolkit } from "effect/unstable/ai";
 
 import { failureSchemaOf } from "./contract.js";
@@ -56,26 +56,35 @@ export interface ToolkitProjection<Caps extends readonly AnyCapability[]> {
   >;
 }
 
+const emptyObjectJsonSchema = {
+  additionalProperties: false,
+  properties: {},
+  type: "object",
+} as const;
+
+const hasNoInputFields = (contract: AnyCapability["contract"]) =>
+  Object.keys(contract.input.fields).length === 0;
+
 const emptyInputTool = (contract: AnyCapability["contract"]): Tool.Any =>
-  Tool.make(contract.name, {
+  Tool.dynamic(contract.name, {
     description: contract.description,
     failure: failureSchemaOf(contract),
     needsApproval: contract.needsApproval,
+    parameters: emptyObjectJsonSchema,
     success: contract.output,
   });
 
 const toTool = ({ contract }: AnyCapability) => {
-  const tool =
-    Object.keys(contract.input.fields).length === 0
-      ? emptyInputTool(contract)
-      : toolFor(
-          contract.name,
-          contract.description,
-          contract.input,
-          contract.output,
-          failureSchemaOf(contract),
-          contract.needsApproval
-        );
+  const tool = hasNoInputFields(contract)
+    ? emptyInputTool(contract)
+    : toolFor(
+        contract.name,
+        contract.description,
+        contract.input,
+        contract.output,
+        failureSchemaOf(contract),
+        contract.needsApproval
+      );
 
   return tool
     .annotate(Tool.Readonly, contract.annotations.readOnly)
@@ -110,8 +119,21 @@ export const toToolkit = <const Caps extends readonly AnyCapability[]>(
           input: unknown
         ) => Effect.Effect<unknown, unknown, RequirementsOf<Caps>>;
 
-        handlers[capability.contract.name] = (parameters) =>
-          run(parameters).pipe(Effect.provideContext(context));
+        const decodeEmptyInput = Schema.decodeUnknownEffect(
+          capability.contract.input
+        );
+
+        handlers[capability.contract.name] = hasNoInputFields(
+          capability.contract
+        )
+          ? (parameters) =>
+              decodeEmptyInput(parameters).pipe(
+                Effect.orDie,
+                Effect.flatMap(run),
+                Effect.provideContext(context)
+              )
+          : (parameters) =>
+              run(parameters).pipe(Effect.provideContext(context));
       }
 
       // SAFETY: same boundary as the toolkit cast: the record is keyed by the capabilities' names, which is exactly `HandlersFrom<ToolsOf<Caps>>`.
