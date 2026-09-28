@@ -23,6 +23,9 @@ export {
   type DefineContractOptions,
   type FailureOf,
   type FailureSchemaOf,
+  type HttpMethod,
+  type HttpRoute,
+  type HttpRouteOf,
   type InputOf,
   type InputSchema,
   type NameOf,
@@ -78,6 +81,7 @@ export {
   toHttpApi,
   type HttpApiProjection,
   type HttpApiProjectionOptions,
+  type PathParamNames,
 } from "./to-http-api.js";
 
 export {

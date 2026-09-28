@@ -18,6 +18,13 @@ export type PlainSchema = Schema.Top & {
 
 export type InputSchema = Schema.Struct<Record<string, PlainSchema>>;
 
+export type HttpMethod = "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
+
+export interface HttpRoute {
+  readonly method: HttpMethod;
+  readonly path: `/${string}`;
+}
+
 export type ApprovalRequirement<NeedsApproval extends boolean> =
   NeedsApproval extends false ? never : Approval;
 
@@ -34,6 +41,7 @@ export interface Contract<
   Output extends PlainSchema,
   Failure extends PlainSchema,
   NeedsApproval extends boolean = false,
+  Http extends HttpRoute | undefined = undefined,
 > {
   readonly _tag: "Contract";
   readonly name: Name;
@@ -43,6 +51,7 @@ export interface Contract<
   readonly failure: Failure;
   readonly annotations: Annotations;
   readonly needsApproval: NeedsApproval;
+  readonly http: Http;
 }
 
 export type AnyContract = Contract<
@@ -50,7 +59,8 @@ export type AnyContract = Contract<
   InputSchema,
   PlainSchema,
   PlainSchema,
-  boolean
+  boolean,
+  HttpRoute | undefined
 >;
 
 export interface Capability<
@@ -103,6 +113,13 @@ export type OutputOf<Value> =
     ? Output
     : never;
 
+export type HttpRouteOf<Value> =
+  ContractOf<Value> extends {
+    readonly http: infer Route extends HttpRoute;
+  }
+    ? Route
+    : undefined;
+
 export type ContractFailureOf<Value> =
   ContractOf<Value> extends {
     readonly failure: infer Failure extends PlainSchema;
@@ -132,6 +149,7 @@ export interface DefineContractOptions<
   Output extends PlainSchema,
   Failure extends PlainSchema,
   NeedsApproval extends boolean = false,
+  Http extends HttpRoute | undefined = undefined,
 > {
   readonly description: string;
   readonly input: Input;
@@ -139,6 +157,7 @@ export interface DefineContractOptions<
   readonly failure: Failure;
   readonly annotations?: Partial<Annotations> | undefined;
   readonly needsApproval?: NeedsApproval | undefined;
+  readonly http?: Http;
 }
 
 const defaultAnnotations: Annotations = {
@@ -157,39 +176,49 @@ export function defineContract<
   Input extends InputSchema,
   Output extends PlainSchema,
   Failure extends PlainSchema,
+  const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure>
-): Contract<Name, Input, Output, Failure>;
+  options: DefineContractOptions<Input, Output, Failure, false, Http>
+): Contract<Name, Input, Output, Failure, false, Http>;
 export function defineContract<
   const Name extends string,
   Input extends InputSchema,
   Output extends PlainSchema,
   Failure extends PlainSchema,
+  const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure, true> & {
+  options: DefineContractOptions<Input, Output, Failure, true, Http> & {
     readonly needsApproval: true;
   }
-): Contract<Name, Input, Output, Failure, true>;
+): Contract<Name, Input, Output, Failure, true, Http>;
 export function defineContract<
   const Name extends string,
   Input extends InputSchema,
   Output extends PlainSchema,
   Failure extends PlainSchema,
   const NeedsApproval extends boolean,
+  const Http extends HttpRoute | undefined = undefined,
 >(
   name: Name,
-  options: DefineContractOptions<Input, Output, Failure, NeedsApproval>
-): Contract<Name, Input, Output, Failure, NeedsApproval>;
+  options: DefineContractOptions<Input, Output, Failure, NeedsApproval, Http>
+): Contract<Name, Input, Output, Failure, NeedsApproval, Http>;
 export function defineContract(
   name: string,
-  options: DefineContractOptions<InputSchema, PlainSchema, PlainSchema, boolean>
+  options: DefineContractOptions<
+    InputSchema,
+    PlainSchema,
+    PlainSchema,
+    boolean,
+    HttpRoute | undefined
+  >
 ): AnyContract {
   return new ContractRecord({
     annotations: { ...defaultAnnotations, ...options.annotations },
     description: options.description,
     failure: options.failure,
+    http: options.http,
     input: options.input,
     name,
     needsApproval: options.needsApproval ?? false,
