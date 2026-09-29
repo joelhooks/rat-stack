@@ -67,6 +67,15 @@ describe("union members", () => {
         ],
       })
     ).toBe("ProblemDetail | null");
+    expect(
+      typeOf({
+        oneOf: [
+          { type: "null" },
+          { $ref: "#/$defs/ProblemDetail" },
+          { type: "null" },
+        ],
+      })
+    ).toBe("null | ProblemDetail");
     expect(typeOf({ type: ["string", "null", "string"] })).toBe(
       "string | null"
     );
