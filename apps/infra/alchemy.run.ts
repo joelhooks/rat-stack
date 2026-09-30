@@ -51,7 +51,7 @@ export default Alchemy.Stack(
       });
 
       yield* Cloudflare.DNS.Record("PostShibaDkimCname", {
-        content: "172.customers.postshiba.com",
+        content: "174.customers.postshiba.com",
         name: "ps1._domainkey.ratstack.sh",
         proxied: false,
         ttl: 3600,
