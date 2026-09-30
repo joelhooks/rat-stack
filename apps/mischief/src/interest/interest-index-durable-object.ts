@@ -49,7 +49,7 @@ export default class InterestIndex extends Cloudflare.DurableObject<InterestInde
       return {
         note: (record: InterestRecord) =>
           note(record).pipe(Effect.provideContext(runtime)),
-        records: records.pipe(Effect.provideContext(runtime)),
+        records: () => records.pipe(Effect.provideContext(runtime)),
       };
     });
   })
