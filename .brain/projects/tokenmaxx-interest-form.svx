@@ -25,4 +25,4 @@ privacy: "public"
 
 - The link in the email opens a page with one button; the button confirms. Mail scanners follow links, and a GET that confirms would count a scanner as a person.
 - The page has no client script. The form posts and answers with a page.
-- The Durable Object paths are covered by the machine and directory tests with in-memory stores. Nothing here has run against a deployed Durable Object yet.
+- `apps/mischief/test/interest-runtime.test.ts` now exercises the actual interest routes and both Durable Objects under Alchemy's local workerd provider. Sending stays disabled. The deployed fix still needs an operator re-check.

@@ -14,7 +14,7 @@ export interface InterestStub {
 
 export interface InterestIndexStub {
   readonly note: (record: InterestRecord) => Effect.Effect<void>;
-  readonly records: Effect.Effect<readonly InterestRecord[]>;
+  readonly records: () => Effect.Effect<readonly InterestRecord[]>;
 }
 
 export const interestDirectoryLayer = (
@@ -43,7 +43,7 @@ export const interestDirectoryLayer = (
     summary: Effect.gen(function* currentSummary() {
       const now = yield* Clock.currentTimeMillis;
 
-      return summarize(yield* index().records, now);
+      return summarize(yield* index().records(), now);
     }),
   });
 };

@@ -371,7 +371,7 @@ const tokenmaxxFormHtml = `
 <p class="hp" aria-hidden="true"><label for="interest-website">Leave this empty</label><br />
 <input id="interest-website" type="text" name="website" tabindex="-1" autocomplete="off" /></p>
 <p><button type="submit">Tell me when the date is set</button></p>
-<p>You get one confirmation email. Nothing is saved until you click its link. After that you get one email when the date is set.</p>
+<p>If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours.</p>
 </form>
 `;
 

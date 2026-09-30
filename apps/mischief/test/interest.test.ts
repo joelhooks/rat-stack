@@ -172,6 +172,9 @@ it.effect(
         );
         expect(html).toContain('name="website"');
         expect(html).toContain("how to burn a trillion tokens");
+        expect(html).toContain(
+          "If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours."
+        );
       })
     )
 );
@@ -541,7 +544,7 @@ it.effect(
         expect(answered.status).toBe(200);
         expect(yield* Effect.promise(answered.json.bind(answered))).toEqual({
           message:
-            "If that address can join the list, a confirmation email is on its way. Nothing is saved until you click the link in it.",
+            "If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours.",
         });
         expect(yield* sent(services)).toHaveLength(1);
       })
