@@ -96,3 +96,44 @@ th {
     font-weight: bold;
   }
 }
+
+figure {
+  margin: 1rem 0;
+}
+
+figure img {
+  border: 1px solid #ccd0da;
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+figcaption {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+input,
+button {
+  font: inherit;
+}
+
+input[type="email"],
+input[type="text"] {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  width: 28rem;
+}
+
+button {
+  cursor: pointer;
+  padding: 0.25rem 0.75rem;
+}
+
+.hp {
+  height: 0;
+  left: -9999px;
+  overflow: hidden;
+  position: absolute;
+}

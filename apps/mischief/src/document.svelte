@@ -1,6 +1,7 @@
 <script>
   let {
     bodyHtml,
+    noindex = false,
     breadcrumbHref,
     breadcrumbLabel,
     breadcrumbName,
@@ -23,6 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  {#if noindex}<meta name="robots" content="noindex" />{/if}
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />

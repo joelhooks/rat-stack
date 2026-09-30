@@ -50,6 +50,32 @@ export default Alchemy.Stack(
         zoneId: zone.zoneId,
       });
 
+      yield* Cloudflare.DNS.Record("PostShibaDkimCname", {
+        content: "172.customers.postshiba.com",
+        name: "ps1._domainkey.ratstack.sh",
+        proxied: false,
+        ttl: 3600,
+        type: "CNAME",
+        zoneId: zone.zoneId,
+      });
+
+      yield* Cloudflare.DNS.Record("PostShibaReturnPathCname", {
+        content: "rp.postshiba.com",
+        name: "rp.ratstack.sh",
+        proxied: false,
+        ttl: 3600,
+        type: "CNAME",
+        zoneId: zone.zoneId,
+      });
+
+      yield* Cloudflare.DNS.Record("DmarcTxt", {
+        content: '"v=DMARC1; p=none;"',
+        name: "_dmarc.ratstack.sh",
+        ttl: 3600,
+        type: "TXT",
+        zoneId: zone.zoneId,
+      });
+
       yield* Cloudflare.DNS.Dnssec("RatstackDnssec", {
         status: "active",
         zoneId: zone.zoneId,

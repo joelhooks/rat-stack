@@ -125,6 +125,7 @@ const fakeRateLimitBindings = (
   API_PER_IP: overrides.API_PER_IP ?? new FakeRateLimitBinding(),
   EXECUTE_GLOBAL: overrides.EXECUTE_GLOBAL ?? new FakeRateLimitBinding(),
   EXECUTE_PER_IP: overrides.EXECUTE_PER_IP ?? new FakeRateLimitBinding(),
+  INTEREST_PER_IP: overrides.INTEREST_PER_IP ?? new FakeRateLimitBinding(),
 });
 
 const sha256 = (text: string) =>

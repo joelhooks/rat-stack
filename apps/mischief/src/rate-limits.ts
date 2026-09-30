@@ -20,6 +20,7 @@ export const rateLimitNamespaceIds = (stage: string) => {
       API_PER_IP: 1001,
       EXECUTE_GLOBAL: 1002,
       EXECUTE_PER_IP: 1003,
+      INTEREST_PER_IP: 1004,
     } as const;
   }
 
@@ -29,6 +30,7 @@ export const rateLimitNamespaceIds = (stage: string) => {
     API_PER_IP: blockStart + 1,
     EXECUTE_GLOBAL: blockStart + 2,
     EXECUTE_PER_IP: blockStart + 3,
+    INTEREST_PER_IP: blockStart,
   };
 };
 
@@ -48,6 +50,10 @@ export const rateLimitDeclarations = (stage: string) => {
       namespaceId: namespaceIds.EXECUTE_PER_IP,
       simple: { limit: 6, period: 60 },
     },
+    INTEREST_PER_IP: {
+      namespaceId: namespaceIds.INTEREST_PER_IP,
+      simple: { limit: 5, period: 60 },
+    },
   } as const;
 };
 
@@ -63,6 +69,7 @@ export interface RateLimitBindings {
   readonly API_PER_IP: NativeRateLimitBinding;
   readonly EXECUTE_GLOBAL: NativeRateLimitBinding;
   readonly EXECUTE_PER_IP: NativeRateLimitBinding;
+  readonly INTEREST_PER_IP: NativeRateLimitBinding;
 }
 
 export interface RateLimits {

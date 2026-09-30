@@ -7,6 +7,7 @@ it("preserves the production namespace IDs", () => {
     API_PER_IP: 1001,
     EXECUTE_GLOBAL: 1002,
     EXECUTE_PER_IP: 1003,
+    INTEREST_PER_IP: 1004,
   });
 });
 
