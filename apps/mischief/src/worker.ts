@@ -1,3 +1,5 @@
+import { InterestTokens, postShibaMailerLayer } from "@rat-stack/core/interest";
+import type { InterestDirectory } from "@rat-stack/core/interest";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Config from "effect/Config";
@@ -5,12 +7,16 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
+import { interestDirectoryLayer } from "./interest/directory.js";
+import Interest from "./interest/interest-durable-object.js";
+import InterestIndex from "./interest/interest-index-durable-object.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
@@ -27,7 +33,8 @@ const cloudflareStaticCache = {
 };
 
 export const makeMischief = (
-  legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>
+  legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
+  interestDirectory: Layer.Layer<InterestDirectory>
 ) =>
   Effect.gen(function* makeMischiefInit() {
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
@@ -41,6 +48,10 @@ export const makeMischief = (
         "EXECUTE_PER_IP",
         stageRateLimits.EXECUTE_PER_IP
       );
+      yield* Cloudflare.RateLimit(
+        "INTEREST_PER_IP",
+        stageRateLimits.INTEREST_PER_IP
+      );
     }
 
     const webBotAuthEnabled = yield* Config.Boolean(
@@ -49,6 +60,28 @@ export const makeMischief = (
 
     const webBotAuthPrivateJwk = yield* Config.option(
       Config.Redacted("WEB_BOT_AUTH_PRIVATE_JWK")
+    );
+
+    const interestSendEnabled = yield* Config.Boolean(
+      "INTEREST_SEND_ENABLED"
+    ).pipe(Config.withDefault(false));
+
+    const interestTokenSecret = yield* Config.option(
+      Config.Redacted("INTEREST_TOKEN_SECRET")
+    );
+
+    const interestOperatorToken = yield* Config.option(
+      Config.Redacted("INTEREST_OPERATOR_TOKEN")
+    );
+
+    const postShibaApiKey = yield* Config.option(
+      Config.Redacted("POSTSHIBA_API_KEY")
+    );
+
+    const postShibaTeam = yield* Config.option(Config.String("POSTSHIBA_TEAM"));
+
+    const postShibaCluster = yield* Config.option(
+      Config.String("POSTSHIBA_CLUSTER")
     );
 
     const environment = yield* Cloudflare.WorkerEnvironment;
@@ -65,9 +98,43 @@ export const makeMischief = (
       API_PER_IP: bindings.API_PER_IP,
       EXECUTE_GLOBAL: bindings.EXECUTE_GLOBAL,
       EXECUTE_PER_IP: bindings.EXECUTE_PER_IP,
+      INTEREST_PER_IP: bindings.INTEREST_PER_IP,
     });
 
+    const interestServices = Option.isNone(interestTokenSecret)
+      ? undefined
+      : yield* Layer.build(
+          Layer.mergeAll(
+            interestDirectory,
+            InterestTokens.layer(interestTokenSecret.value),
+            postShibaMailerLayer({
+              apiKey: Option.getOrElse(postShibaApiKey, () =>
+                Redacted.make("")
+              ),
+              cluster: Option.getOrElse(postShibaCluster, () => ""),
+              enabled:
+                interestSendEnabled &&
+                Option.isSome(postShibaApiKey) &&
+                Option.isSome(postShibaTeam) &&
+                Option.isSome(postShibaCluster),
+              team: Option.getOrElse(postShibaTeam, () => ""),
+            }).pipe(Layer.provide(FetchHttpClient.layer))
+          )
+        );
+
+    const interest =
+      interestServices === undefined
+        ? undefined
+        : {
+            operatorToken: interestOperatorToken.pipe(
+              Option.map(Redacted.value),
+              Option.getOrUndefined
+            ),
+            services: interestServices,
+          };
+
     const workerRoutes = mischiefRoutes({
+      interest,
       legacyMcp,
       rateLimits,
       staticCache: cloudflareStaticCache,
@@ -91,21 +158,29 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   }
 
   const legacyMcp = yield* LegacyMcp;
+  const interests = yield* Interest;
+  const interestIndex = yield* InterestIndex;
 
-  return yield* makeMischief({
-    forward: (session, request) => {
-      const headers = new Headers(request.headers);
-      headers.set(LEGACY_SESSION_HEADER, session);
+  return yield* makeMischief(
+    {
+      forward: (session, request) => {
+        const headers = new Headers(request.headers);
+        headers.set(LEGACY_SESSION_HEADER, session);
 
-      return legacyMcp
-        .getByName(session)
-        .fetch(HttpServerRequest.fromWeb(new Request(request, { headers })))
-        .pipe(
-          Effect.map((response) => HttpServerResponse.toWeb(response)),
-          Effect.orDie
-        );
+        return legacyMcp
+          .getByName(session)
+          .fetch(HttpServerRequest.fromWeb(new Request(request, { headers })))
+          .pipe(
+            Effect.map((response) => HttpServerResponse.toWeb(response)),
+            Effect.orDie
+          );
+      },
     },
-  });
+    interestDirectoryLayer(
+      (address) => interests.getByName(address),
+      () => interestIndex.getByName("index")
+    )
+  );
 }).pipe(Effect.provide(Cloudflare.Workers.RateLimitBinding));
 
 export default class Mischief extends Cloudflare.Worker<Mischief>()(

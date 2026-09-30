@@ -7,6 +7,7 @@ import {
   originToken,
   skillIndexMarkdown,
   skillSources,
+  tokenmaxxImageJpegBase64,
 } from "./bundled-content.generated.js";
 
 export { loreGraphSnapshot } from "./bundled-content.generated.js";
@@ -22,7 +23,14 @@ export {
   ratSvg,
   skillIndexDocumentHtml,
   staticContentVersion,
+  tokenmaxxDocumentHtml,
+  tokenmaxxMarkdown,
 } from "./bundled-content.generated.js";
+
+export const tokenmaxxImageJpeg = Uint8Array.from(
+  atob(tokenmaxxImageJpegBase64),
+  (character) => character.codePointAt(0) ?? 0
+);
 
 export const ogImagePath = (routePath: string): `/${string}` =>
   `/og${routePath === "/" ? "/home" : routePath}.png`;

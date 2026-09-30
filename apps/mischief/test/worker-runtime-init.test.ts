@@ -1,4 +1,5 @@
 import { expect, it } from "@effect/vitest";
+import { InterestDirectory } from "@rat-stack/core/interest";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { ConfigProvider, Effect, Layer } from "effect";
 import type { ConfigError } from "effect/Config";
@@ -24,6 +25,7 @@ const rateLimitBindings: RateLimitBindings = {
   API_PER_IP: rateLimit,
   EXECUTE_GLOBAL: rateLimit,
   EXECUTE_PER_IP: rateLimit,
+  INTEREST_PER_IP: rateLimit,
 };
 
 const workerEnvironment = {
@@ -62,7 +64,8 @@ it.effect(
       () =>
         Effect.gen(function* runtimeRequest() {
           const erasedWorkerInit: unknown = makeMischief(
-            unavailableLegacyMcp
+            unavailableLegacyMcp,
+            InterestDirectory.memory
           ).pipe(Effect.provide(runtimeServices));
 
           // SAFETY: runtimeServices provides the bindings Alchemy erases from the init effect type.

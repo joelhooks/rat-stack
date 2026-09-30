@@ -1,0 +1,28 @@
+---
+title: "The tokenmaxx page and its double opt-in interest form"
+type: "project"
+status: "active"
+created_at: "2026-09-30"
+privacy: "public"
+---
+
+# The tokenmaxx page and its double opt-in interest form
+
+`/tokenmaxx` is an unlisted workshop pitch page on ratstack.sh. A small form at the bottom collects an email address with double opt-in: the visitor gets one confirmation email and is counted only after using its link.
+
+## What exists
+
+- **Page.** `apps/mischief/content/tokenmaxx.md` renders through the site's own pipeline and theme. It is `noindex` and is left out of the sitemap, `llms.txt`, search, and the lore index. The OG image comes from the normal share-image pipeline.
+- **Contracts.** `registerInterest` and `confirmInterest` live in `packages/core` (`@rat-stack/core/interest`). Their handlers live in `apps/mischief/src/interest`. They are projected over HTTP only: a JSON projection under `/api` and a plain HTML form adapter that calls the same handlers. They are not in `capabilities` or `contentCapabilities`, so they are not MCP tools, RPC procedures, or code-mode functions. A tool that emails any address it is given is a spam vector. A test pins this.
+- **Lifecycle.** One Durable Object per normalized address holds the record. An XState machine (`interestMachine`) owns `unregistered`, `pending`, `confirmed`, and `expired`; `fromEffect` actors do the persistence. The machine runs once per request, hydrated from the stored record, because `@xstate/effect` has no snapshot restore yet. Pending expires after 72 hours. A second request inside 24 hours sends nothing.
+- **Index.** A second Durable Object, `InterestIndex`, keeps the list of confirmed addresses and the pending count so the operator can read them. Durable Objects cannot be enumerated, so the per-address object cannot answer that alone.
+- **Token.** HMAC-SHA-256 over the address and expiry, verified with Web Crypto, which compares in constant time.
+- **Abuse.** A per-IP rate limit (`INTEREST_PER_IP`, five per minute), a hidden honeypot field, and the per-address cooldown. Every valid address gets the same answer: new, pending, confirmed, rate-limited, or honeypot.
+- **Mailer.** `InterestMailer` is a service. The production layer calls the PostShiba HTTP API; the recording layer is for tests and dev. Nothing sends unless `INTEREST_SEND_ENABLED` is `"true"` and the PostShiba credentials are present. A skipped send clears the cooldown so the address can be retried later.
+- **Operator read.** `GET /operator/interest` with a bearer token returns the confirmed list and the pending count. A route on the existing Worker was smaller than a CLI that would need its own auth and base URL.
+
+## Decisions to revisit
+
+- The link in the email opens a page with one button; the button confirms. Mail scanners follow links, and a GET that confirms would count a scanner as a person.
+- The page has no client script. The form posts and answers with a page.
+- The Durable Object paths are covered by the machine and directory tests with in-memory stores. Nothing here has run against a deployed Durable Object yet.

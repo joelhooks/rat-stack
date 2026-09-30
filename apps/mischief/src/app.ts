@@ -45,10 +45,16 @@ import {
   skillIndexDocumentHtml,
   skills,
   staticContentVersion,
+  tokenmaxxDocumentHtml,
+  tokenmaxxImageJpeg,
+  tokenmaxxMarkdown,
 } from "./content.js";
 import { renderStaticDocument } from "./html.js";
+import { interestRoutes } from "./interest/routes.js";
+import type { InterestOptions } from "./interest/routes.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
+import { contentSecurityPolicy } from "./security.js";
 import { decodeEd25519PrivateJwk, publicKeyDirectory } from "./web-bot-auth.js";
 
 const markdown = (body: string) =>
@@ -424,7 +430,38 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
     }
   );
 
+const tokenmaxxResponse = (request: HttpServerRequest.HttpServerRequest) =>
+  HttpServerResponse.text(
+    acceptsHtml(request)
+      ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
+      : tokenmaxxMarkdown,
+    {
+      contentType: acceptsHtml(request)
+        ? "text/html; charset=utf-8"
+        : "text/markdown; charset=utf-8",
+      headers: {
+        "content-security-policy": contentSecurityPolicy("'self'"),
+        vary: "Accept",
+        "x-robots-tag": "noindex",
+      },
+    }
+  );
+
 const contentRoutes = Layer.mergeAll(
+  HttpRouter.add("GET", "/tokenmaxx", (request) =>
+    Effect.succeed(tokenmaxxResponse(request))
+  ),
+  HttpRouter.add(
+    "GET",
+    "/tokenmaxx/four-comma-club.jpg",
+    HttpServerResponse.uint8Array(tokenmaxxImageJpeg, {
+      contentType: "image/jpeg",
+      headers: {
+        "cache-control": "public, max-age=86400",
+        "x-robots-tag": "noindex",
+      },
+    })
+  ),
   HttpRouter.add("GET", "/", (request) => {
     const origin = originOf(request);
 
@@ -856,9 +893,6 @@ const securityHeaders = {
   "x-frame-options": "DENY",
 };
 
-const contentSecurityPolicy =
-  "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; script-src https://static.cloudflareinsights.com; connect-src https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
-
 const securityHeadersMiddleware = HttpRouter.middleware(
   (httpEffect) =>
     httpEffect.pipe(
@@ -882,7 +916,8 @@ const securityHeadersMiddleware = HttpRouter.middleware(
           ? HttpServerResponse.setHeader(
               embeddable,
               "content-security-policy",
-              contentSecurityPolicy
+              response.headers["content-security-policy"] ??
+                contentSecurityPolicy("'none'")
             )
           : embeddable;
       })
@@ -896,6 +931,7 @@ export interface WebBotAuthOptions {
 }
 
 export interface MischiefRouteOptions {
+  readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
   readonly legacyMcp?: LegacyMcpRouter;
   readonly rateLimits?: RateLimits;
   readonly staticCache?: StaticResponseCache | undefined;
@@ -939,6 +975,9 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
     contentRoutes,
     apiRoutes,
+    options.interest === undefined
+      ? Layer.empty
+      : interestRoutes({ ...options.interest, rateLimits: options.rateLimits }),
     mcp,
     securityHeadersMiddleware,
     options.rateLimits === undefined && options.legacyMcp === undefined

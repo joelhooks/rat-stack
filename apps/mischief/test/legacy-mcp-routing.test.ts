@@ -88,6 +88,7 @@ const withWorker = <A, E, R>(
                 API_PER_IP: bindings.API_PER_IP ?? new FakeLimit(),
                 EXECUTE_GLOBAL: bindings.EXECUTE_GLOBAL ?? new FakeLimit(),
                 EXECUTE_PER_IP: bindings.EXECUTE_PER_IP ?? new FakeLimit(),
+                INTEREST_PER_IP: bindings.INTEREST_PER_IP ?? new FakeLimit(),
               }),
             }).pipe(Layer.provide(TestSandbox)),
             { disableLogger: true }

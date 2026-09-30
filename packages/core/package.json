@@ -18,6 +18,11 @@
       "types": "./src/contracts.ts",
       "import": "./dist/contracts.js",
       "default": "./dist/contracts.js"
+    },
+    "./interest": {
+      "types": "./src/interest.ts",
+      "import": "./dist/interest.js",
+      "default": "./dist/interest.js"
     }
   },
   "scripts": {

@@ -624,6 +624,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/skills",
         "/lore",
         "/--no-verify",
+        "/tokenmaxx",
         ...lawSources.map((source) => source.routePath),
         ...loreSources.map((lore) => lore.routePath),
         ...skillSources.map((skill) => skill.routePath),
