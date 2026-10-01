@@ -27,6 +27,7 @@ import { agentNextActions } from "../src/agent-guide.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
+import type { ComponentRegistry } from "./component-registry.ts";
 import {
   agentPointerHtml,
   componentContext,
@@ -35,6 +36,7 @@ import {
   renderAgentPage,
   renderComponent,
 } from "./component-registry.ts";
+import { buildBlockIndex, paragraphAnchors } from "./content-blocks.ts";
 import {
   assertDocumentTitle,
   assertLoreTerms,
@@ -66,6 +68,12 @@ import {
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
 import { linkStackEntities } from "./content-links.ts";
+import {
+  createRefComponent,
+  extractBlockReferences,
+  refIndexComponent,
+  resolveReferencedBlock,
+} from "./content-references.ts";
 import { readDailyLog } from "./daily-log.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
@@ -220,15 +228,35 @@ const slugHeading = (value: string) =>
     .replaceAll(/[^a-z0-9]+/gu, "-")
     .replaceAll(/^-+|-+$/gu, "");
 
-const stableHeadingIds = (): ((tree: HastNode) => void) => {
-  const used = new Map<string, number>();
+const stableHeadingIds = (): ((tree: HastNode) => void) => (tree) => {
+  const used = new Set<string>();
+
+  const reserve = (node: HastNode): void => {
+    const id = node.properties?.id;
+
+    if (Predicate.isString(id)) {
+      used.add(id);
+    }
+
+    for (const child of node.children ?? []) {
+      reserve(child);
+    }
+  };
+
+  reserve(tree);
 
   const visit = (node: HastNode): void => {
     if (node.tagName !== undefined && /^h[1-6]$/u.test(node.tagName)) {
       const base = slugHeading(nodeText(node)) || "section";
-      const count = used.get(base) ?? 0;
-      used.set(base, count + 1);
-      const id = count === 0 ? base : `${base}-${count + 1}`;
+      let id = base;
+      let suffix = 2;
+
+      while (used.has(id)) {
+        id = `${base}-${suffix}`;
+        suffix += 1;
+      }
+
+      used.add(id);
       node.properties = { ...node.properties, id };
     }
 
@@ -237,7 +265,7 @@ const stableHeadingIds = (): ((tree: HastNode) => void) => {
     }
   };
 
-  return visit;
+  visit(tree);
 };
 
 const linkCodeSpans =
@@ -589,6 +617,12 @@ const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
   }
 );
 
+const blockIndexRegistry = createComponentRegistry({ Ref: refIndexComponent });
+
+const graphRegistry = createComponentRegistry({
+  Ref: { agent: () => [], human: () => [] },
+});
+
 const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
   function* compileMarkdownBody(
     source: string,
@@ -596,8 +630,34 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
     highlighter: Highlighter,
     targets: ReadonlyMap<string, string> = emptyTargets,
     loreTerms: readonly LoreTermTarget[] = [],
-    routePath: string = sourcePath
-  ) {
+    routePath: string = sourcePath,
+    registry: ComponentRegistry = graphRegistry
+  ): Effect.fn.Return<
+    {
+      readonly bodyHtml: string;
+      readonly unlinkedProse: readonly UnlinkedProse[];
+      readonly linkedLoreRoutes: ReadonlySet<string>;
+      readonly linkedLoreTerms: readonly {
+        readonly target: string;
+        readonly term: string;
+      }[];
+    },
+    ContentBuildError,
+    FileSystem.FileSystem | Path.Path
+  > {
+    const sourceLinks =
+      registry !== graphRegistry && extractBlockReferences(source).length > 0
+        ? yield* compileMarkdownBody(
+            source,
+            sourcePath,
+            highlighter,
+            targets,
+            loreTerms,
+            routePath,
+            graphRegistry
+          )
+        : undefined;
+
     const linkedLoreRoutes = new Set<string>();
     const linkedLoreTerms = new Map<string, string>();
     const unlinkedProse: UnlinkedProse[] = [];
@@ -606,11 +666,13 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
       ? yield* copyPromptRenderer()
       : undefined;
 
+    const htmlSource = deriveHtmlMarkdown(source, renderPrompt, registry);
+
     const transformed = yield* Effect.tryPromise({
       catch: (cause) => buildError("mdsvex compile", sourcePath, cause),
       // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this Promise boundary.
       try: async () =>
-        await compileMdsvex(deriveHtmlMarkdown(source, renderPrompt), {
+        await compileMdsvex(htmlSource, {
           extensions: [".md", ".svx"],
           filename: sourcePath,
           highlight: {
@@ -618,6 +680,11 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
             optimise: false,
           },
           rehypePlugins: [
+            ...(["/lore/", "/systems/", "/skills/"].some((prefix) =>
+              routePath.startsWith(prefix)
+            )
+              ? [paragraphAnchors(htmlSource)]
+              : []),
             stableHeadingIds,
             responsiveTables,
             linkCodeSpans(targets),
@@ -647,12 +714,14 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
 
     return {
       bodyHtml,
-      linkedLoreRoutes,
-      linkedLoreTerms: [...linkedLoreTerms].map(([target, term]) => ({
-        target,
-        term,
-      })),
-      unlinkedProse,
+      linkedLoreRoutes: sourceLinks?.linkedLoreRoutes ?? linkedLoreRoutes,
+      linkedLoreTerms:
+        sourceLinks?.linkedLoreTerms ??
+        [...linkedLoreTerms].map(([target, term]) => ({
+          target,
+          term,
+        })),
+      unlinkedProse: sourceLinks?.unlinkedProse ?? unlinkedProse,
     };
   }
 );
@@ -1270,7 +1339,7 @@ const program = Effect.gen(function* generateContent() {
       Effect.gen(function* readSkill() {
         const sourcePath = `skills/${directoryName}/SKILL.md`;
         const rawText = yield* readText(sourcePath);
-        const text = deriveAgentMarkdown(rawText);
+        const text = deriveAgentMarkdown(rawText, blockIndexRegistry);
 
         const name = yield* Effect.try({
           catch: (cause) => buildError("frontmatter", sourcePath, cause),
@@ -1342,7 +1411,7 @@ const program = Effect.gen(function* generateContent() {
             return {
               ...metadata,
               rawText,
-              text: deriveAgentMarkdown(rawText),
+              text: deriveAgentMarkdown(rawText, blockIndexRegistry),
             };
           }),
         { concurrency: "unbounded" }
@@ -1361,6 +1430,36 @@ const program = Effect.gen(function* generateContent() {
   ]);
 
   const publicSpecs = publicSpecsForLog(logText);
+
+  const blockIndex = yield* buildBlockIndex([
+    ...skillTexts.map((skill) => ({
+      ...skill,
+      rawText: deriveHtmlMarkdown(skill.rawText, undefined, blockIndexRegistry),
+      title: skill.name,
+    })),
+    ...loreTexts.map((lore) => ({
+      ...lore,
+      rawText: deriveHtmlMarkdown(lore.rawText, undefined, blockIndexRegistry),
+    })),
+  ]);
+
+  yield* Effect.try({
+    catch: (cause) =>
+      Schema.is(ContentBuildError)(cause)
+        ? cause
+        : buildError("block reference", loreDirectory, cause),
+    try: () => {
+      for (const page of [...skillTexts, ...loreTexts]) {
+        for (const ref of extractBlockReferences(page.rawText)) {
+          resolveReferencedBlock(ref, page.sourcePath, blockIndex);
+        }
+      }
+    },
+  });
+
+  const blockReferenceRegistry = createComponentRegistry({
+    Ref: createRefComponent(blockIndex),
+  });
 
   const systemTexts = loreTexts.filter((lore) => lore.group === "system");
 
@@ -1656,7 +1755,8 @@ const program = Effect.gen(function* generateContent() {
             highlighter,
             targets,
             loreTermIndex,
-            skill.routePath
+            skill.routePath,
+            blockReferenceRegistry
           );
 
         return {
@@ -1665,7 +1765,10 @@ const program = Effect.gen(function* generateContent() {
           linkedLoreTerms,
           skill: {
             ...skill,
-            text: appendLoreMarkdown(skill.text, linkedLoreRoutes),
+            text: appendLoreMarkdown(
+              deriveAgentMarkdown(skill.rawText, blockReferenceRegistry),
+              linkedLoreRoutes
+            ),
           },
           unlinkedProse,
         };
@@ -1687,7 +1790,8 @@ const program = Effect.gen(function* generateContent() {
             highlighter,
             targets,
             loreTermIndex,
-            lore.routePath
+            lore.routePath,
+            blockReferenceRegistry
           );
 
         const bibliography = renderBibliography(lore.bibliography);
@@ -1699,7 +1803,7 @@ const program = Effect.gen(function* generateContent() {
           lore: {
             ...lore,
             text: appendLoreMarkdown(
-              `${withMarkdownTitle(lore.text, lore.title, bodyHtml)}${bibliography.markdown}`,
+              `${withMarkdownTitle(deriveAgentMarkdown(lore.rawText, blockReferenceRegistry), lore.title, bodyHtml)}${bibliography.markdown}`,
               linkedLoreRoutes
             ),
           },
@@ -2364,6 +2468,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   ) => {
     recordLoreRoutes(route, wovenRoutes);
     recordLoreRoutes(route, loreLinkTargets(sourcePath, markdown, loreRoutes));
+    recordLoreRoutes(
+      route,
+      extractBlockReferences(markdown).map((ref) => ref.page)
+    );
   };
 
   recordPageLinks(

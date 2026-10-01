@@ -1,0 +1,29 @@
+---
+title: "Paragraph anchors and block references"
+type: "decision"
+status: "accepted"
+created_at: "2026-10-01"
+parent: "./ratstack-sh-brief.svx"
+---
+
+# Paragraph anchors and block references
+
+Paragraphs and list items on lore, systems and skill pages have fragment IDs. An explicit `{#claim}` marker wins; otherwise the ID comes from the block's NFC-normalized text with whitespace collapsed. Repeated text gets deterministic numeric suffixes. Duplicate explicit IDs fail the build. Heading IDs avoid the block IDs already assigned on that page.
+
+The `¶` link is an ordinary fragment link. CSS reveals it on hover or keyboard focus; there is no browser script.
+
+A standalone component embeds one source block:
+
+```svx
+<Ref page="/lore/source-page" id="claim"/>
+```
+
+Use a canonical served path: `/lore/<slug>`, `/systems/<slug>`, or `/skills/<name>`. Explicit IDs are best for claims another page will cite; generated IDs change when that block's text changes.
+
+`Ref` belongs to the shared component registry. Its human renderer emits the block and a small attribution link. Its agent renderer emits mdast block nodes and a source-link paragraph. It selects the original paragraph or list item by its parser offsets, preserves list nesting, and resolves page-local reference-style links before embedding. It doesn't build Markdown with source regexes.
+
+Indexing uses the same registry with a metadata-only Ref placeholder, then assigns IDs in the HAST pass. The shared unified 11 parser supplies source-block text, keyed by numeric ranges; its nodes never enter mdsvex's older compiler. Code-highlighter markup cannot change a list item's ID. The final renderer resolves against that index. Missing pages or IDs fail the build, including references hidden in audience components. Inline Ref and references to blocks containing another Ref fail rather than producing invalid or recursive embeds.
+
+Source Ref targets enter the existing lore graph's link edges. Ratlinks owns the backlink index. Links inherited from embedded text don't become claims that the host page cited them. The Ref-omitted registry pass also supplies the host's unlinked prose, so embedded source text cannot become a host-page gardening candidate.
+
+Code: `apps/mischief/scripts/content-blocks.ts`, `content-references.ts`, and `generate-content.ts`. Behavior checks: `apps/mischief/test/content-blocks.test.ts` and `content-references.test.ts`.
