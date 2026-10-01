@@ -6,8 +6,16 @@ terms:
   - "clean playground"
   - "house rule"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/VISION.md
-  - https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/layer-startups.svx
+  - url: https://github.com/joelhooks/rat-stack/blob/main/VISION.md
+    title: "rat-stack/VISION.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Product vision; used for the cartridge test and rejection of toy examples."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/layer-startups.svx
+    title: "rat-stack/.brain/projects/layer-startups.svx at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Layer-startup decision; used for the self-contained construction boundary."
+    accessed: "2026-10-01"
 ---
 
 The house rule is a clean, organized playground where real work gets done. It does not cap the size of the project. Anything useful can go in if it passes the cartridge test: label it, push it in, pull it out, keep it self-contained, and make it easy to throw away.

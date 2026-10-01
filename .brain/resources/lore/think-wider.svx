@@ -6,8 +6,16 @@ terms:
   - "think wider"
   - "product breadth"
 sources:
-  - https://youtu.be/xUnRQ9vLXxo?t=787
-  - https://youtu.be/xUnRQ9vLXxo?t=877
+  - url: https://youtu.be/xUnRQ9vLXxo?t=787
+    title: "Everything we knew about software has changed — Theo Browne, @t3dotgg ​ - YouTube"
+    publisher: "Theo Browne"
+    note: "Breadth argument; used to distinguish range from depth."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/xUnRQ9vLXxo?t=877
+    title: "Everything we knew about software has changed — Theo Browne, @t3dotgg ​ - YouTube"
+    publisher: "Theo Browne"
+    note: "Extensibility argument; used for user-built vertical features."
+    accessed: "2026-10-01"
 ---
 
 # Think wider

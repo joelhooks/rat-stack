@@ -6,8 +6,16 @@ terms:
   - "Effect basics"
   - "Effect computation"
 sources:
-  - https://youtu.be/gc5P36t6kD0?t=2955
-  - https://youtu.be/und9h4xiIz4?t=752
+  - url: https://youtu.be/gc5P36t6kD0?t=2955
+    title: "#81 TypeScript & Effects with Michael Arnaldi - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Effect type explanation; used for output, errors, and requirements."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/und9h4xiIz4?t=752
+    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Lazy-computation discussion; used for transforming an Effect before execution."
+    accessed: "2026-10-01"
 ---
 
 # Effect basics

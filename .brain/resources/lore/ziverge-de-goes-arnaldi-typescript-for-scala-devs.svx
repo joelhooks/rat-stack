@@ -6,7 +6,11 @@ speaker: "John De Goes and Michael Arnaldi"
 date: 2026-08-01
 url: https://youtu.be/59QbEjsaBvA
 sources:
-  - https://youtu.be/59QbEjsaBvA
+  - url: https://youtu.be/59QbEjsaBvA
+    title: "Why TypeScript is a Good Fit for Unemployed Scala Developers - YouTube"
+    publisher: "John De Goes and Michael Arnaldi"
+    note: "Recording; used for functional programming ideas carried into TypeScript."
+    accessed: "2026-10-01"
 ---
 
 # Why TypeScript is a good fit for Scala developers

@@ -5,9 +5,21 @@ group: person
 terms:
   - "Sam Goodwin"
 sources:
-  - https://youtu.be/YEn4A7XxgF4
-  - https://youtu.be/fPSxB7ZgSJw
-  - https://youtu.be/MtKHzAH6uXM
+  - url: https://youtu.be/YEn4A7XxgF4
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Infrastructure conversation; used for Sam's Effect and Alchemy explanation."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/fPSxB7ZgSJw
+    title: "Alchemy, Infrastructure as Effects | Office Hours 27 🔥 - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Office-hours demonstration; used for infrastructure as Effects."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/MtKHzAH6uXM
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Alchemy interview; used for Layers, cloud libraries, and SaaS as NPM."
+    accessed: "2026-10-01"
 ---
 
 # Sam Goodwin

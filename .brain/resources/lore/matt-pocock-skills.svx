@@ -8,8 +8,16 @@ terms:
   - "grill-with-docs"
   - "grilling session"
 sources:
-  - https://github.com/mattpocock/skills
-  - https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md
+  - url: https://github.com/mattpocock/skills
+    title: "GitHub - mattpocock/skills: Skills for Real Engineers. Straight from my .agents directory. · GitHub"
+    publisher: "GitHub mattpocock/skills"
+    note: "Skills repository; used for the public engineering and productivity skill collection."
+    accessed: "2026-10-01"
+  - url: https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md
+    title: "skills/README.md at d81f3a183412e71a5b1e84ca21bc1a35eea03a60 · mattpocock/skills · GitHub"
+    publisher: "GitHub mattpocock/skills"
+    note: "Pinned README; used for failure modes, composition, and installation choices."
+    accessed: "2026-10-01"
 ---
 
 # Matt Pocock's skills

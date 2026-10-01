@@ -5,8 +5,16 @@ group: concept
 terms:
   - "infrastructure as effects"
 sources:
-  - https://youtu.be/YEn4A7XxgF4?t=1831
-  - https://youtu.be/fPSxB7ZgSJw?t=4255
+  - url: https://youtu.be/YEn4A7XxgF4?t=1831
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Client and policy discussion; used for resource requirements implied by runtime operations."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/fPSxB7ZgSJw?t=4255
+    title: "Alchemy, Infrastructure as Effects | Office Hours 27 🔥 - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Bundle separation discussion; used for keeping providers out of runtime code."
+    accessed: "2026-10-01"
 ---
 
 # Infrastructure as effects

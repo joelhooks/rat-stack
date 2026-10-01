@@ -6,7 +6,11 @@ speaker: "Sam Goodwin"
 date: 2026-04-30
 url: https://youtu.be/fPSxB7ZgSJw
 sources:
-  - https://youtu.be/fPSxB7ZgSJw
+  - url: https://youtu.be/fPSxB7ZgSJw
+    title: "Alchemy, Infrastructure as Effects | Office Hours 27 🔥 - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Recording; used for Effect-native planning, testing, and deployment of infrastructure."
+    accessed: "2026-10-01"
 ---
 
 # Effect Office Hours 27: Alchemy, infrastructure as effects

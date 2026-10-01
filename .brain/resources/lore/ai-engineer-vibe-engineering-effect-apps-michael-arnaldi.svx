@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2026-05-07
 url: https://youtu.be/Wmp2Tku2PrI
 sources:
-  - https://youtu.be/Wmp2Tku2PrI
+  - url: https://youtu.be/Wmp2Tku2PrI
+    title: "Vibe Engineering Effect Apps — Michael Arnaldi, Effectful - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for source, tests, and diagnostics as agent feedback."
+    accessed: "2026-10-01"
 ---
 
 # Vibe engineering Effect apps

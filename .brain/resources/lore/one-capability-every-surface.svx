@@ -6,9 +6,21 @@ terms:
   - "one capability, every surface"
   - "capability projection"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-rpc-group.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
+    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Projection law; used for one contract across every interface."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
+    title: "rat-stack/packages/capability/src/implement.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Handler binding; used for separating contracts from implementations."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-rpc-group.ts
+    title: "rat-stack/packages/capability/src/to-rpc-group.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Client RPC projection; used for contracts without server handlers."
+    accessed: "2026-10-01"
 ---
 
 A capability starts with one contract and one server-side handler. `defineContract` owns the name, Effect schemas, annotations, and approval setting. `implement` binds that contract to its handler. The registry then feeds projections for the command line, HTTP, MCP, RPC, and code mode. Each surface derives its input and failure shape from the same schemas.

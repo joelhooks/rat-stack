@@ -6,8 +6,16 @@ terms:
   - "floor and ceiling"
   - "model floor"
 sources:
-  - https://youtu.be/iBrAWpjXNxs?t=259
-  - https://youtu.be/iBrAWpjXNxs?t=1359
+  - url: https://youtu.be/iBrAWpjXNxs?t=259
+    title: "Please stop using stupid models - YouTube"
+    publisher: "Theo Browne"
+    note: "Reliability argument; used to distinguish the ordinary floor from peak performance."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/iBrAWpjXNxs?t=1359
+    title: "Please stop using stupid models - YouTube"
+    publisher: "Theo Browne"
+    note: "Failure-rate example; used for compounding errors over long agent runs."
+    accessed: "2026-10-01"
 ---
 
 # Floor and ceiling

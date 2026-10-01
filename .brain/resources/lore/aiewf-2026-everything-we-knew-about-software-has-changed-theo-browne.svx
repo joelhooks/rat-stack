@@ -6,7 +6,11 @@ speaker: "Theo Browne"
 date: 2026-07-08
 url: https://youtu.be/xUnRQ9vLXxo
 sources:
-  - https://youtu.be/xUnRQ9vLXxo
+  - url: https://youtu.be/xUnRQ9vLXxo
+    title: "Everything we knew about software has changed — Theo Browne, @t3dotgg ​ - YouTube"
+    publisher: "Theo Browne"
+    note: "Recording; used for wider software work and user-extensible products."
+    accessed: "2026-10-01"
 ---
 
 # AI Engineer World's Fair 2026: Software has changed

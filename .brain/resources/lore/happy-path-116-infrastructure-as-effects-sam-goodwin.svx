@@ -6,7 +6,11 @@ speaker: "Sam Goodwin"
 date: 2025-09-19
 url: https://youtu.be/YEn4A7XxgF4
 sources:
-  - https://youtu.be/YEn4A7XxgF4
+  - url: https://youtu.be/YEn4A7XxgF4
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Recording; used for the relationship between Effect requirements, policies, and runtime behavior."
+    accessed: "2026-10-01"
 ---
 
 # Happy Path 116: Infrastructure as effects

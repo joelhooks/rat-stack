@@ -6,12 +6,36 @@ terms:
   - "request analytics"
   - "events_raw"
 sources:
-  - https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
-  - https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/
-  - https://developers.cloudflare.com/basin-pipelines/observability/metrics/
-  - https://developers.cloudflare.com/basin-sql/query-data/
-  - https://developers.cloudflare.com/basin-sql/sql-reference/scalar-functions/
-  - https://github.com/joelhooks/rat-stack/tree/main/packages/events
+  - url: https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
+    title: "Manage streams"
+    publisher: "Cloudflare docs"
+    note: "Stream modes; used for unstructured JSON ingestion."
+    accessed: "2026-10-01"
+  - url: https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/
+    title: "Basin Catalog"
+    publisher: "Cloudflare docs"
+    note: "Sink configuration; used for the R2 Data Catalog sink and its permissions."
+    accessed: "2026-10-01"
+  - url: https://developers.cloudflare.com/basin-pipelines/observability/metrics/
+    title: "Metrics and analytics"
+    publisher: "Cloudflare docs"
+    note: "Pipeline metrics; used to check dropped records and sink writes."
+    accessed: "2026-10-01"
+  - url: https://developers.cloudflare.com/basin-sql/query-data/
+    title: "Query data"
+    publisher: "Cloudflare docs"
+    note: "Query commands; used to verify rows land in the warehouse."
+    accessed: "2026-10-01"
+  - url: https://developers.cloudflare.com/basin-sql/sql-reference/scalar-functions/
+    title: "Scalar functions"
+    publisher: "Cloudflare docs"
+    note: "JSON scalar functions; used to read request paths from the value column."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/events
+    title: "rat-stack/packages/events at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Events cartridge; used for the capture envelope, identity modes, and tests."
+    accessed: "2026-10-01"
 ---
 
 ## What it does

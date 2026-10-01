@@ -6,10 +6,26 @@ terms:
   - "Worker init runs twice"
   - "initialization runs twice"
 sources:
-  - https://github.com/joelhooks/rat-stack/commit/95687ec906a6b4cde99a5b8e5df77115695833a8
-  - https://github.com/joelhooks/rat-stack/commit/9da5f9d
-  - https://github.com/joelhooks/rat-stack/commit/6e85432034400df8e49a9354a4cab1246d7cece0
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/worker-runtime-init.test.ts
+  - url: https://github.com/joelhooks/rat-stack/commit/95687ec906a6b4cde99a5b8e5df77115695833a8
+    title: "fix(mischief): isolate rate limits by stage · joelhooks/rat-stack@95687ec · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Initial rate-limit change; used for the deploy-time service leak."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/commit/9da5f9d
+    title: "Merge revert: stage rate limits broke Worker startup · joelhooks/rat-stack@9da5f9d · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Revert; used for the production rollback."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/commit/6e85432034400df8e49a9354a4cab1246d7cece0
+    title: "fix(mischief): isolate rate-limit stages from runtime init · joelhooks/rat-stack@6e85432 · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Runtime guard fix; used for separating declarations from isolate startup."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/worker-runtime-init.test.ts
+    title: "rat-stack/apps/mischief/test/worker-runtime-init.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Runtime initialization test; used to reproduce missing deploy-time services."
+    accessed: "2026-10-01"
 ---
 
 A Cloudflare Worker's initialization effect runs once while Alchemy declares deploy-time resources and again when the Worker starts in an isolate. Those contexts do not have the same services. On 2026-09-24, stage-specific rate-limit declarations used `yield* Stage` in the Worker initializer. The runtime did not have that deploy-time service, so production returned error 1101 for about three minutes.

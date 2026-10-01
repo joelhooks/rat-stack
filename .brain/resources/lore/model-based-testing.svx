@@ -7,10 +7,26 @@ terms:
   - "test model"
   - "MBT"
 sources:
-  - https://css-tricks.com/model-based-testing-in-react-with-state-machines/
-  - https://stately.ai/docs/graph
-  - https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/events/test/visitor.model.test.ts
+  - url: https://css-tricks.com/model-based-testing-in-react-with-state-machines/
+    title: "Model-Based Testing in React with State Machines"
+    publisher: "David Khourshid · CSS-Tricks"
+    note: "Testing article; used for checking action sequences against a model."
+    accessed: "2026-10-01"
+  - url: https://stately.ai/docs/graph
+    title: "Graph & Paths"
+    publisher: "David Khourshid · Stately docs"
+    note: "Graph docs; used for generated paths from XState machines."
+    accessed: "2026-10-01"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
+    title: "effect/packages/effect/src/unstable/arbitrary/Arbitrary.ts at effect@4.0.0-rc.117 · Effect-TS/effect · GitHub"
+    publisher: "GitHub Effect-TS/effect"
+    note: "Arbitrary API; used for generated and shrinking command sequences."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/events/test/visitor.model.test.ts
+    title: "rat-stack/packages/events/test/visitor.model.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Visitor model test; used for identity across cookies, devices, and days."
+    accessed: "2026-10-01"
 ---
 
 Model-based testing writes down what a system should do as a small model, then generates sequences of actions and checks that the real system and the model agree after each step. It suits anything with history: sessions, retries, lifecycles.

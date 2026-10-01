@@ -6,8 +6,16 @@ terms:
   - "no comments"
   - "comments are banned"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-  - https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-no-comments.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
+    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Comment policy; used for the ban and permitted directives."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-no-comments.ts
+    title: "rat-stack/scripts/oxlint-plugin-no-comments.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Comment lint rule; used for enforcement and prose removal."
+    accessed: "2026-10-01"
 ---
 
 The code rule bans prose comments because agents copy them, and a comment that explains a workaround can spread the workaround. Put the reason where the code can enforce or reveal it: in a name, a type, a test, a commit message, or the Brain.

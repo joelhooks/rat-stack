@@ -6,7 +6,11 @@ speaker: "David Heinemeier Hansson"
 date: 2026-09-18
 url: https://youtu.be/OSjmLh0cyVo
 sources:
-  - https://youtu.be/OSjmLh0cyVo
+  - url: https://youtu.be/OSjmLh0cyVo
+    title: "DHH - Omarchy the Agent OS - YouTube"
+    publisher: "David Heinemeier Hansson"
+    note: "Recording; used for agency and building with language and agents."
+    accessed: "2026-10-01"
 ---
 
 # DHH on Omarchy and the agent OS

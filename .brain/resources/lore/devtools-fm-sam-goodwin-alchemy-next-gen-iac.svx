@@ -6,7 +6,11 @@ speaker: "Sam Goodwin"
 date: 2025-04-14
 url: https://youtu.be/babOa4shATk
 sources:
-  - https://youtu.be/babOa4shATk
+  - url: https://youtu.be/babOa4shATk
+    title: "Sam Goodwin - Alchemy and the Next Generation of Infra as Code - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Recording; used for Alchemy’s stateful TypeScript infrastructure model."
+    accessed: "2026-10-01"
 ---
 
 # Alchemy and the next generation of infrastructure as code

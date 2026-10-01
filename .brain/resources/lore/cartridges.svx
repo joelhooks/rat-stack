@@ -7,9 +7,21 @@ terms:
   - cartridges
   - "cartridge test"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/VISION.md
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/VISION.md
+    title: "rat-stack/VISION.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Cartridge criteria; used for labeling, composition, removal, and self-containment."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
+    title: "rat-stack/packages/database/src/vendor.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Database vendor boundary; used for the D1 and Hyperdrive example."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+    title: "rat-stack/packages/auth/src/auth.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Auth composition; used for the cartridge that consumes the database vendor."
+    accessed: "2026-10-01"
 ---
 
 An Alchemy Layer can carry the cloud resources behind one service. The service tag is the API; a Layer is one vendor's implementation. `Layer.provide` wires the chosen vendor into the application. Replacing that Layer changes the supply chain without changing callers.

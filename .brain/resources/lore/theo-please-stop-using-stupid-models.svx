@@ -6,7 +6,11 @@ speaker: "Theo Browne"
 date: 2026-09-18
 url: https://youtu.be/iBrAWpjXNxs
 sources:
-  - https://youtu.be/iBrAWpjXNxs
+  - url: https://youtu.be/iBrAWpjXNxs
+    title: "Please stop using stupid models - YouTube"
+    publisher: "Theo Browne"
+    note: "Recording; used for model reliability over wider and longer agent runs."
+    accessed: "2026-10-01"
 ---
 
 # Theo Browne: Please stop using stupid models

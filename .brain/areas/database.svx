@@ -6,10 +6,26 @@ terms:
   - "run log"
   - "database vendor"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/run-log.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/run-log.test.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/migration-paths.test.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/run-log.ts
+    title: "rat-stack/packages/database/src/run-log.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "RunLog service; used for the storage boundary and typed failures."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
+    title: "rat-stack/packages/database/src/vendor.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Vendor choice; used for D1 and Hyperdrive Postgres selection."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/run-log.test.ts
+    title: "rat-stack/packages/database/test/run-log.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Shared storage tests; used for the behavior checked on both vendors."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/migration-paths.test.ts
+    title: "rat-stack/packages/database/test/migration-paths.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Migration tests; used to verify loading outside the package."
+    accessed: "2026-10-01"
 ---
 
 ## What it does

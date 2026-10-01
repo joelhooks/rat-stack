@@ -6,10 +6,26 @@ terms:
   - "MCP your users want"
   - "useful MCP tools"
 sources:
-  - https://x.com/RhysSullivan/status/2103280866084708510
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/approval.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+  - url: https://x.com/RhysSullivan/status/2103280866084708510
+    title: "Rhys on X: \"Here's Rhys' practical guide to shipping an MCP your users want: - Your MCP should be able to do everything your dashboard can Yes including things like deleting resources. The way to make this practical inside of an agent while not having things be unsafe is to deep link them into yo… / X"
+    publisher: "Rhys Sullivan"
+    note: "Practical MCP guide; used to compare dashboard actions, docs search, deep links, and OAuth."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+    title: "rat-stack/apps/mischief/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Capability registry; used to check the hosted tool coverage."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/approval.ts
+    title: "rat-stack/packages/capability/src/approval.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Approval service; used to check the safety boundary for actions."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+    title: "rat-stack/packages/auth/src/auth.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Auth service; used to distinguish current sign-in from MCP OAuth."
+    accessed: "2026-10-01"
 ---
 
 [Rhys Sullivan's practical guide](https://x.com/RhysSullivan/status/2103280866084708510) starts with the jobs people already do in a product. It asks MCP authors to expose dashboard actions, keep code mode as a client-side harness choice, provide documentation search, and consider deep links, toolsets, and OAuth. The table paraphrases his advice and checks it against rat-stack today. Gaps are facts to record, not work authorized by this page.

@@ -8,9 +8,21 @@ terms:
   - "property tests"
   - "PBT"
 sources:
-  - https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
-  - https://github.com/joelhooks/rat-stack/tree/main/packages/events/test
-  - https://x.com/davidkpiano/status/2105670489091834297
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
+    title: "effect/packages/effect/src/unstable/arbitrary/Arbitrary.ts at effect@4.0.0-rc.117 · Effect-TS/effect · GitHub"
+    publisher: "GitHub Effect-TS/effect"
+    note: "Arbitrary API; used for generated inputs and shrinking failures."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/events/test
+    title: "rat-stack/packages/events/test at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Events properties; used for capture invariants over generated requests."
+    accessed: "2026-10-01"
+  - url: https://x.com/davidkpiano/status/2105670489091834297
+    title: "David K 🎹 on X: \"@joelhooks I need to get you on the MBT/PBT train\" / X"
+    publisher: "David Khourshid"
+    note: "Public reply; used for David's invitation to adopt property-based testing."
+    accessed: "2026-10-01"
 ---
 
 An example test checks one input you picked. A property test states a rule that must hold for every input, generates many inputs, and when one fails, shrinks it to a small counterexample.

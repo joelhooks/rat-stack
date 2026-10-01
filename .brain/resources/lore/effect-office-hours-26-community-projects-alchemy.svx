@@ -6,7 +6,11 @@ speaker: "Effect Office Hours hosts"
 date: 2026-04-23
 url: https://youtu.be/X4BLYNVzjDA
 sources:
-  - https://youtu.be/X4BLYNVzjDA
+  - url: https://youtu.be/X4BLYNVzjDA
+    title: "Reviewing Effect community projects & Alchemy - Infrastructure as TypeScript | Office Hours 26 🔥 - YouTube"
+    publisher: "Effect Office Hours hosts"
+    note: "Recording; used for typed resource requirements, plans, and deployment stages."
+    accessed: "2026-10-01"
 ---
 
 # Effect Office Hours 26: Community projects and Alchemy

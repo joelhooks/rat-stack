@@ -5,9 +5,21 @@ group: person
 terms:
   - "Theo Browne"
 sources:
-  - https://youtu.be/xUnRQ9vLXxo
-  - https://youtu.be/iBrAWpjXNxs
-  - https://youtu.be/TV6f2weVgCI
+  - url: https://youtu.be/xUnRQ9vLXxo
+    title: "Everything we knew about software has changed — Theo Browne, @t3dotgg ​ - YouTube"
+    publisher: "Theo Browne"
+    note: "World's Fair talk; used for wider software work and extensible products."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/iBrAWpjXNxs
+    title: "Please stop using stupid models - YouTube"
+    publisher: "Theo Browne"
+    note: "Model discussion; used for the reliability floor on long agent runs."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/TV6f2weVgCI
+    title: "It's Time To Rethink Everything by @t3dotgg - YouTube"
+    publisher: "Theo Browne"
+    note: "CascadiaJS talk; used for rethinking assumptions and building bigger."
+    accessed: "2026-10-01"
 ---
 
 # Theo Browne

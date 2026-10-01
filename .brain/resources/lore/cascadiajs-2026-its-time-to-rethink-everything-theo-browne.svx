@@ -6,7 +6,11 @@ speaker: "Theo Browne"
 date: 2026-06-17
 url: https://youtu.be/TV6f2weVgCI
 sources:
-  - https://youtu.be/TV6f2weVgCI
+  - url: https://youtu.be/TV6f2weVgCI
+    title: "It's Time To Rethink Everything by @t3dotgg - YouTube"
+    publisher: "Theo Browne"
+    note: "Recording; used for the changing cost of experimentation with agents and cloud infrastructure."
+    accessed: "2026-10-01"
 ---
 
 # CascadiaJS 2026: It's time to rethink everything
