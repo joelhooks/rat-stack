@@ -1,4 +1,5 @@
 import {
+  cartridgesImageJpegBase64,
   homeMarkdownTemplate,
   lawSources,
   loreIndexMarkdown,
@@ -30,6 +31,11 @@ export {
   tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./bundled-content.generated.js";
+
+export const cartridgesImageJpeg = Uint8Array.from(
+  atob(cartridgesImageJpegBase64),
+  (character) => character.codePointAt(0) ?? 0
+);
 
 export const tokenmaxxImageJpeg = Uint8Array.from(
   atob(tokenmaxxImageJpegBase64),

@@ -18,6 +18,13 @@ The database cartridge makes this concrete. `DatabaseVendor` represents either D
 
 A cartridge must be labeled, push in with one package and one provision line, pull out without breaking the rest, own its bindings, and be easy to throw away. That last test matters: a neat interface is not enough if removal leaves loose resources or broken imports. The pull-out test is deleting the package and its provision line, then running `pnpm turbo run check test build`.
 
+<HumanOnly>
+<figure>
+<a href="https://commons.wikimedia.org/wiki/File:SNES-SFAM-Cartridges.jpg"><img src="/lore/cartridges/snes-sfam-cartridges.jpg" width="1400" height="745" alt="A rectangular grey Super NES cartridge above a rounded Super Famicom cartridge, with their moulded shells and connector openings visible." /></a>
+<figcaption>A Super NES cartridge above a Super Famicom cartridge. Photo by <a href="https://commons.wikimedia.org/wiki/User:Evan-Amos">Evan-Amos</a>, 2011; <a href="https://commons.wikimedia.org/wiki/Template:PD-self">public domain (PD-self)</a>. <a href="https://commons.wikimedia.org/wiki/File:SNES-SFAM-Cartridges.jpg">Source: Wikimedia Commons</a>.</figcaption>
+</figure>
+</HumanOnly>
+
 ## Where the pattern comes from
 
 "Cartridge" is this project's metaphor, not Sam Goodwin's wording. Sam describes Layers as a way to carry infrastructure and permissions with a service, and calls the idea "SaaS as NPM." [devtools.fm, 21:15](https://youtu.be/MtKHzAH6uXM?t=1275). He also describes swapping implementations by providing different Layers. [Effect Office Hours 27, 34:35](https://youtu.be/fPSxB7ZgSJw?t=2075).

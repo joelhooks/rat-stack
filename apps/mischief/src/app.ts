@@ -49,6 +49,7 @@ import {
   skills,
   staticContentVersion,
   tokenmaxxDocumentHtml,
+  cartridgesImageJpeg,
   tokenmaxxImageJpeg,
   tokenmaxxCopyScript,
   tokenmaxxCopyScriptHash,
@@ -486,6 +487,16 @@ const contentRoutes = (shieldSiteKey: string | undefined) =>
         headers: {
           "cache-control": "public, max-age=86400",
           "x-robots-tag": "noindex",
+        },
+      })
+    ),
+    HttpRouter.add(
+      "GET",
+      "/lore/cartridges/snes-sfam-cartridges.jpg",
+      HttpServerResponse.uint8Array(cartridgesImageJpeg, {
+        contentType: "image/jpeg",
+        headers: {
+          "cache-control": "public, max-age=86400",
         },
       })
     ),
