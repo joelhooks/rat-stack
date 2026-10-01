@@ -24,13 +24,15 @@ import {
   authMarkdown,
   faviconIcoBase64,
   homeDocumentHtml,
+  glossaryIndex,
+  glossaryIndexDocumentHtml,
   lawResources,
   loreIndex,
   loreIndexDocumentHtml,
   loreResources,
   systemsIndex,
   systemsIndexDocumentHtml,
-  linkHeader,
+  linkHeaderForPage,
   llmsFullText,
   llmsText,
   markdownDocument,
@@ -240,6 +242,7 @@ const negotiatedHtmlPaths = new Set<string>([
   "/skills",
   "/lore",
   "/systems",
+  "/glossary",
   ...lawResources.map((resource) => resource.routePath),
   ...loreResources.map((resource) => resource.routePath),
   ...skills.map((skill) => skill.routePath),
@@ -523,6 +526,15 @@ const contentRoutes = (shieldSiteKey: string | undefined) =>
               renderStaticDocument(originOf(request), skillIndexDocumentHtml)
             )
           : markdown(skillIndex())
+      )
+    ),
+    HttpRouter.add("GET", "/glossary", (request) =>
+      Effect.succeed(
+        acceptsHtml(request)
+          ? html(
+              renderStaticDocument(originOf(request), glossaryIndexDocumentHtml)
+            )
+          : markdown(glossaryIndex())
       )
     ),
     HttpRouter.add("GET", "/lore", (request) =>
@@ -930,9 +942,23 @@ const requestProtection = (options: {
 
 const linkHeaders = HttpRouter.middleware(
   (httpEffect) =>
-    httpEffect.pipe(
-      Effect.map(HttpServerResponse.setHeader("Link", linkHeader))
-    ),
+    Effect.gen(function* addDiscoveryHeaders() {
+      const request = yield* HttpServerRequest.HttpServerRequest;
+      const response = yield* httpEffect;
+      const pagePath = new URL(request.url, "https://ratstack.sh").pathname;
+
+      return HttpServerResponse.setHeader(
+        response,
+        "Link",
+        linkHeaderForPage(
+          negotiatedHtmlPaths.has(pagePath) ||
+            pagePath === "/tokenmaxx" ||
+            pagePath === "/--no-verify"
+            ? pagePath
+            : "/"
+        )
+      );
+    }),
   { global: true }
 );
 
