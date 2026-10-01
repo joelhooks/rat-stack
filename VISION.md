@@ -6,7 +6,7 @@ _An Effect stack so pure (aspirational) Kit Langton will blush._
 
 The goal is to **build the best Effect + Alchemy application that we can**, as close to a perfect Effect application as we can get. Every change here moves toward that, and projects that grow out of rat-stack move toward it too. In practice:
 
-- New code takes the rat-stack path: a shared contract, a typed service, a provider adapter, and an outcome you can observe.
+- New code takes the rat-stack path: a shared contract, a job-shaped service port, a provider adapter outside core, and an outcome you can observe. Ports name the application's jobs; Layers supply the adapters. The fence keeps core free of HTTP-client and vendor implementations.
 - Existing code is finished that way when someone touches it, and the old version is deleted.
 - Debt only shrinks. Plain async code moves onto Effect, and lint exemptions get retired, never added.
 - The fence (lint, types, the Effect language service, CI) makes the easy path the right one.
@@ -52,7 +52,7 @@ Four ideas hold this together.
 
 **Floor.** [Theo Browne](https://www.youtube.com/watch?v=iBrAWpjXNxs&t=349s): "raising the floor is way more beneficial than raising the ceiling." [He gave the same advice about videos](https://www.youtube.com/watch?v=q9GCu3hiNjw&t=707s) on Joel's channel: "raise the baseline so that you average higher... the floor is the hardest part to get right." A higher floor also makes failure cheaper: "it'll also make it hurt less when the video you put a lot of effort into bombs." The floor is the worst thing that happens on a normal run. His math is about long runs. A step that fails 5% of the time every ten minutes fails about 70% of the time over four hours. Cut that 5% to 3% and the four-hour failure rate drops to about 50%. Small cuts to the failure rate multiply how long the work can run. [At CascadiaJS](https://www.youtube.com/watch?v=TV6f2weVgCI&t=135s) he also said failure got cheap: "experimentation is now significantly cheaper... it costs pennies." Theo applies the floor to models. We apply it to the environment. Types, the fence, and cartridges that pull out cleanly raise the floor for every agent working here. That floor is what makes long-running agent loops worth leaving unattended.
 
-**Range.** At [CascadiaJS 2026](https://www.youtube.com/watch?v=TV6f2weVgCI) Theo closed with "build bigger." A month later [he refined it](https://www.youtube.com/watch?v=xUnRQ9vLXxo&t=798s): "bigger is probably the wrong word... It's time to think wider." He means range, how much ground your software covers. A team could never match AWS's range without thousands of engineers. Now "you can build a database platform into your product in a day or two." He also says to architect products so users can build the features you are missing. And in his words, "wider prompting requires higher floors." He names the bottleneck too: "building is now like a thirty minute process... but the deploying hasn't went down at all." Composable Layers that carry their own infrastructure are our answer to that gap. If it compiles, it deploys.
+**Range.** At [CascadiaJS 2026](https://www.youtube.com/watch?v=TV6f2weVgCI) Theo closed with "build bigger." A month later [he refined it](https://www.youtube.com/watch?v=xUnRQ9vLXxo&t=798s): "bigger is probably the wrong word... It's time to think wider." He means range, how much ground your software covers. A team could never match AWS's range without thousands of engineers. Now "you can build a database platform into your product in a day or two." He also says to architect products so users can build the features you are missing. And in his words, "wider prompting requires higher floors." He names the bottleneck too: "building is now like a thirty minute process... but the deploying hasn't went down at all." Composable Layers that carry their own infrastructure are our answer to that gap. The compiler checks resource requirements; plans and real-infrastructure checks prove the deployed behavior.
 
 Theo's case for ambition is to prompt further. Lauren's method is to build the environment. We take the ambition from him and the method from her.
 
@@ -81,6 +81,7 @@ Everything built here is real.
 
 ## Outcomes
 
+- Agent-facing pages give the agent useful next actions, not only information. Markdown can carry AgentOnly guidance that HTML leaves out. Capability and MCP next-action links are a direction to prove, not something the projections guarantee today.
 - A project that vendors or clones rat-stack starts with a pnpm and Turborepo workspace, a real Effect CLI, and a trust fence.
 - Agents hit a loud failure when they cheat, including `git … --no-verify` and skipped checks. Consider adding hooks to your harness to stop them cold.
 - Prose explains the why. CI, lefthook, and agent hooks enforce the fence.
@@ -94,8 +95,10 @@ Everything built here is real.
 3. Prove the claims in code, cheapest first:
    1. Importing `apps/infra/alchemy.run.ts` deploys nothing, and removing a binding is a type error.
    2. A database service tag with two vendor Layers, Cloudflare D1 and Hyperdrive in front of PlanetScale Postgres, with Drizzle inside each vendor. D1 is the free bin. PlanetScale has no free tier, and its cheapest database is single-node Postgres. The tag sits above Drizzle, so swapping vendors stays one line.
-4. Test against real infrastructure: import a stack, deploy in `beforeAll`, hit real resources, destroy in `afterAll`, and run the same path for each pull request.
-5. Coming: the generic agent front door in `apps/mischief` (REST, MCP, A2A, code-mode sandbox, rate limits) becomes its own cartridge that a project provides instead of inherits.
+4. Prove behavior against real infrastructure where local fakes differ. The database suite currently uses local SQLite and PGlite; per-PR deployed-resource tests remain a goal, not existing coverage.
+5. Keep the teaching surface aligned with the running application. `/systems` records what each shipped system does, the standard it keeps, and how to check it. Request analytics runs with a server-set persistent `rat_vid` cookie; event bodies exclude request bodies and sensitive query keys.
+6. Prove the signup lifecycle through an external list provider behind job-shaped ports. Submission starts double opt-in; a person confirms their email before joining. Agent-only `joinInterest` intake is coming and must carry explicit consent without bypassing confirmation.
+7. Coming: extract the existing agent front door in `apps/mischief` (REST, MCP, A2A, code-mode sandbox, rate limits) into a cartridge that a project provides instead of inherits.
 
 ## Questions this repo answers in code
 
@@ -103,10 +106,13 @@ Everything built here is real.
 - Does importing `apps/infra/alchemy.run.ts` stay pure? It should deploy nothing. Not yet proven by a test.
 - Can a vendor be swapped by changing one line? `packages/database` has one `DatabaseVendor` with D1 and Hyperdrive Postgres Layers, both tested. No test swaps them yet.
 - Where does a correction to an agent live? Lauren Tan's fence ladder puts code first, then lint and CI, then rules and skills, with the style guide last. The `--no-verify` rung is proven today by `packages/core/test/vcs-command-policy.test.ts`.
+- Can provider details stay outside core? Subscriber delivery lives in `packages/subscriber-delivery`; `no-core-adapters` and its fixture tests enforce the boundary.
+- Can the agent discover its next useful action from a response? Agent-only page guidance is built; next-action links in capability and MCP results still need proof.
+- Can signup stay double opt-in across browser and agent surfaces? Subscriber intake and confirmation ports exist. The agent intake ports and test layers are in core; `joinInterest` and its live confirmation path are not yet verified.
 
 ## Open questions
 
-- Does `ratstack.sh` stay in this repo? For now it does: the [lore wiki](https://ratstack.sh/lore/) is built from `.brain/resources/lore/`, and it cites only public sources.
+- Does `ratstack.sh` stay in this repo? For now it does: the [lore wiki](https://ratstack.sh/lore/) explains the ideas from `.brain/resources/lore/`; [systems](https://ratstack.sh/systems) documents shipped behavior from `.brain/areas/`. Both cite public sources and code.
 
 ## Merge by default
 
@@ -121,7 +127,7 @@ Everything built here is real.
 - Replacing pnpm, Turborepo, Effect, or XState as the default floor
 - Adding product-specific vendor corpora to the shared reference
 - Turning the public repo into a supported starter product
-- Deploys and anything under `apps/infra`
+- Resource destruction, replacement, or deletion, and deploys whose plans include them. `AGENTS.md` owns the full approval rules for infrastructure changes and deploys.
 
 ## Will not do for now
 
