@@ -436,7 +436,7 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
 const shieldWidgetHtml = (siteKey: string | undefined) =>
   siteKey === undefined || siteKey === ""
     ? ""
-    : `<script src="https://postshiba.com/shield/v1/widget.js" async></script>\n<p class="shield"><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
+    : `<script src="https://www.postshiba.com/shield/v1/widget.js" async></script>\n<p class="shield"><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
 
 const tokenmaxxResponse = (
   request: HttpServerRequest.HttpServerRequest,

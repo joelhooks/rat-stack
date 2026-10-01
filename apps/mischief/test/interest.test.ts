@@ -1605,16 +1605,16 @@ it.effect(
               response.headers.get("content-security-policy") ?? "";
 
             expect(html).toContain(
-              '<script src="https://postshiba.com/shield/v1/widget.js" async></script>'
+              '<script src="https://www.postshiba.com/shield/v1/widget.js" async></script>'
             );
             expect(html).toContain(
               '<shield-shiba sitekey="ss_pk_test" email-field="#interest-email"></shield-shiba>'
             );
             expect(policy).toMatch(
-              /script-src https:\/\/static\.cloudflareinsights\.com 'sha256-[A-Za-z0-9+/=]+' https:\/\/postshiba\.com/u
+              /script-src https:\/\/static\.cloudflareinsights\.com 'sha256-[A-Za-z0-9+/=]+' https:\/\/www\.postshiba\.com;/u
             );
             expect(policy).toContain(
-              "connect-src https://cloudflareinsights.com https://postshiba.com"
+              "connect-src https://cloudflareinsights.com https://www.postshiba.com https://postshiba.com"
             );
             expect(policy).toContain("worker-src blob:");
           }),
