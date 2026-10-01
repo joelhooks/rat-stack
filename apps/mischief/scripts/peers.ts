@@ -126,10 +126,8 @@ const peerTable = (peers: readonly Peer[], pins: Pins) => {
     "Why this tier",
     "Effect",
     "Alchemy",
-    "XState",
-    "@xstate/effect",
-    "Checked",
-    "First seen",
+    "XState · bridge",
+    "Seen / checked",
     "Studied",
   ];
 
@@ -139,10 +137,10 @@ const peerTable = (peers: readonly Peer[], pins: Pins) => {
     cell(peer.reason),
     annotatedVersion(peer.versions.effect, pins.effect),
     annotatedVersion(peer.versions.alchemy, pins.alchemy),
-    annotatedVersion(peer.versions.xstate, pins.xstate),
-    annotatedVersion(peer.versions.xstateEffect, pins.xstateEffect),
-    peer.checked,
-    peer.firstSeen,
+    peer.versions.xstate === "—" && peer.versions.xstateEffect === "—"
+      ? "—"
+      : `${annotatedVersion(peer.versions.xstate, pins.xstate)} · ${annotatedVersion(peer.versions.xstateEffect, pins.xstateEffect)}`,
+    `${peer.firstSeen} · ${peer.checked}`,
     peer.studied,
   ]);
 
@@ -151,7 +149,7 @@ const peerTable = (peers: readonly Peer[], pins: Pins) => {
   );
 
   return [
-    "Drift: = matches our pin; ≠ differs from our pin.",
+    "Drift: = matches our pin; ≠ differs from our pin. Pairs: XState then @xstate/effect; first seen then checked.",
     "",
     `| ${columns.map((index) => headers[index]).join(" | ")} |`,
     `| ${columns.map(() => "---").join(" | ")} |`,
