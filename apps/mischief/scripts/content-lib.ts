@@ -1166,7 +1166,7 @@ export const copyPrompts = {
     showText: false,
     text: [
       "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
-      'Explain the "how to burn a trillion tokens" workshop to me, then help me get ready with the "Before you come" steps.',
+      'Explain the "how to burn a trillion tokens and get good results" workshop to me, then help me get ready with the "Before you come" steps.',
       "Do not submit the interest form. Joining the list happens in a browser, because of the human check.",
     ].join("\n"),
   },
@@ -1175,7 +1175,7 @@ export const copyPrompts = {
     label: "Copy prompt",
     showText: true,
     text: [
-      'Check my setup for the "how to burn a trillion tokens" session.',
+      'Check my setup for the "how to burn a trillion tokens and get good results" session.',
       "1. Check that Docker is running (Docker Desktop or OrbStack).",
       "2. Create a private repo from the joelhooks/rat-stack template and clone it: gh repo create my-factory --private --template joelhooks/rat-stack",
       "3. Read https://ratstack.sh/llms.txt",

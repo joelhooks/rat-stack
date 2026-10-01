@@ -1745,7 +1745,7 @@ const tokenmaxxPage = (handler: WebHandler, accept: string) =>
   );
 
 const setupPromptLines = [
-  'Check my setup for the "how to burn a trillion tokens" session.',
+  'Check my setup for the "how to burn a trillion tokens and get good results" session.',
   "1. Check that Docker is running (Docker Desktop or OrbStack).",
   "2. Create a private repo from the joelhooks/rat-stack template and clone it: gh repo create my-factory --private --template joelhooks/rat-stack",
   "3. Read https://ratstack.sh/llms.txt",
