@@ -1,11 +1,11 @@
 ---
 name: find-peers
-description: Find public repos on the same bleeding-edge versions as rat-stack, add new ones to the roster, and learn from them. Run it every week or two, and after every bump.
+description: Refresh public peers, exact stack versions, and usefulness tiers every week or two and after each shared-line bump. Study source before adopting patterns.
 ---
 
 # Find peers
 
-A peer is a public repo that pins at least two of the same prerelease lines we do. Peers hit breaking changes first and write idioms before the docs do.
+A peer is a public repo that shares at least two of our stack lines. Peers hit breaking changes first and write idioms before the docs do. Effect 4 remains a shared line after its stable release; drift between beta, RC, and stable is recorded, not hidden.
 
 ## Run
 
@@ -13,11 +13,31 @@ A peer is a public repo that pins at least two of the same prerelease lines we d
 pnpm find-peers
 ```
 
-The script reads our prerelease pins from the workspace `package.json` files, searches Sourcegraph once per line, and prints a table of repos ranked by how many lines they share. Scoped packages that move with their parent, such as `@effect/vitest` with `effect`, count once. A repo missing from `.brain/resources/peers.svx` is marked `new`. It takes about twenty seconds. Pass `--min 1` to see repos that share only one line.
+The script reads our prerelease pins (and the Effect 4 major line when stable) from the workspace `package.json` files, searches Sourcegraph once per line, and prints a table of repos ranked by how many lines they share. Scoped packages that move with their parent, such as `@effect/vitest` with `effect`, count once. A repo missing from `.brain/data/peers.json` is marked `new`. It takes about twenty seconds. Pass `--min 1` to see repos that share only one line.
 
-## Update the roster
+## Refresh peers, versions, and tiers
 
-Add each `new` repo to the table in `.brain/resources/peers.svx`, with today's date and its shared lines, and update the lines note at the top if our pins moved. Never remove a row; a peer that fell behind still shows how it got there.
+Refresh the structured rows in `.brain/data/peers.json` every week or two and after every bump of a shared line (Effect, Alchemy, XState, or `@xstate/effect`). The gardener pass owns this step; no external scheduler is required. Run discovery, add new peers, and revisit existing peers even when discovery finds nothing new.
+
+Rat-stack's own pins are read from its root, infra, and core manifests at content-build time, so a bump changes the comparison without a hand-edited baseline. For every peer, resolve its default branch to a commit and read its actual manifests or lockfiles at that commit. Record all four lines, the checked date, and source links. Preserve exact pins; label ranges, workspace/catalog references, and missing dependencies honestly. Resolve references from the workspace catalog or lockfile where possible; never turn a range into an invented pin. Show differences beside rat-stack's pins; version drift is expected, not a reason by itself to demote a peer.
+
+Keep every peer in `.brain/data/peers.json`, including its first-seen date, tier, one-line evidence-based reason, versions, checked date, default branch and commit, manifest/lockfile source paths, and study links. The content build reads that one dataset, sorts by tier then repository name, and renders `.brain/resources/peers.svx`: S, A, and B in the main table; C through F in a collapsed **Also seen** list. Edit structured rows, never hand-edit rendered table rows. Never delete a peer that fell behind.
+
+## Tier rubric
+
+Tiers rank usefulness to rat-stack, not stars or exact version alignment:
+
+- **S:** an upstream reference for our stack, or a pattern actually adopted here. Link the upstream source or adoption evidence; a recommendation alone is not an adoption.
+- **A:** recently active, close to our stack, and studied with a relevant source-backed finding. Verify activity on the default branch (within the last 30 days); link the study.
+- **B:** relevant shared lines or a concrete stack seam worth tailing, but not enough study/adoption evidence for A or S.
+- **C:** screened with no relevant pattern for the current work. Preserve the screening evidence; revisit when our work changes.
+- **D:** off-stack now, with no current relevant seam identified. State which lines or seam disappeared.
+- **E:** stale (no default-branch activity for at least 90 days) and no current relevant pattern identified. Age alone does not demote a useful upstream or adopted reference.
+- **F:** inaccessible or archived with no usable source-backed reference left. Record the access/archive evidence; a temporary fetch failure is unknown, not F.
+
+C separates an explicit negative screening result from an unstudied B. D, E, and F distinguish stack mismatch, inactivity, and unusable evidence rather than pretending they are quality scores. When evidence is missing, say what is unknown and do not invent a claim. Reconsider tiers on every refresh and explain changes in the report.
+
+Put the rubric and full ranking (peer, tier, reason, and versions) at the top of the report so Joel can give feedback after shipping. No separate approval round is required.
 
 ## Learn from the new ones
 

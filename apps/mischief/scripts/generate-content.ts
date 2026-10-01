@@ -56,6 +56,7 @@ import {
   withMarkdownTitle,
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
+import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
 
@@ -1114,10 +1115,40 @@ const program = Effect.gen(function* generateContent() {
       sourcePath
     );
 
+  const peerSourcePath = ".brain/resources/peers.svx";
+  const peerDataPath = ".brain/data/peers.json";
+
+  const peerInputs = yield* Effect.all({
+    core: readText("packages/core/package.json"),
+    data: readText(peerDataPath),
+    infra: readText("apps/infra/package.json"),
+    root: readText("package.json"),
+    template: readText(peerSourcePath),
+  });
+
+  const peerRows = yield* Schema.decodeEffect(Schema.fromJsonString(PeerRows))(
+    peerInputs.data
+  ).pipe(
+    Effect.mapError((cause) => buildError("peers decode", peerDataPath, cause))
+  );
+
+  const peersMarkdown = yield* Effect.try({
+    catch: (cause) => buildError("peers render", peerDataPath, cause),
+    try: () =>
+      renderPeers(
+        peerInputs.template,
+        peerRows,
+        peerPins(peerInputs.root, peerInputs.infra, peerInputs.core)
+      ),
+  });
+
   const lawTexts: readonly PublicSpec[] = yield* Effect.forEach(
     lawSpecs,
     (spec) =>
       readText(spec.sourcePath).pipe(
+        Effect.map((source) =>
+          spec.sourcePath === peerSourcePath ? peersMarkdown : source
+        ),
         Effect.map((rawText) => ({
           ...spec,
           rawText,
