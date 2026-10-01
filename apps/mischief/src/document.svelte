@@ -1,5 +1,7 @@
 <script>
   let {
+    AgentPointer,
+    agentPointerHtml,
     bodyHtml,
     discoveryLinks,
     houseAdHtml = "",
@@ -68,9 +70,7 @@
 
 <main>
   {#if path !== "/tokenmaxx"}
-    <p class="agent-pointer visually-hidden" aria-hidden="true">
-      For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.
-    </p>
+    <AgentPointer {agentPointerHtml} />
   {/if}
   {@html houseAdHtml}
   {#if breadcrumbHref && breadcrumbLabel && breadcrumbName}

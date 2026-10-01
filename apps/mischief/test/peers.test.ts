@@ -90,7 +90,9 @@ it.prop(
       pins
     );
 
-    expect(markdown).toContain(`| ${effect} | 2.0.0-beta.79 |`);
+    expect(markdown.replaceAll(/[ \t]+/gu, " ")).toContain(
+      `| ${effect} | 2.0.0-beta.79 |`
+    );
     expect(markdown).toContain(
       `4.0.0-rc.117 ${effect === "4.0.0-rc.117" ? "=" : "≠"}`
     );
@@ -118,7 +120,9 @@ it.prop(
       pins
     );
 
-    const [roster, alsoSeen] = annotated.split("<details>");
+    const [roster, alsoSeen] = annotated
+      .replaceAll(/[ \t]+/gu, " ")
+      .split("<details>");
 
     expect(roster).not.toContain("| XState · bridge |");
     expect(roster).not.toContain("| @xstate/effect |");
@@ -150,7 +154,9 @@ it.prop(
       pins
     );
 
-    expect(bridgeOnly).toContain("| XState · bridge |");
+    expect(bridgeOnly.replaceAll(/[ \t]+/gu, " ")).toContain(
+      "| XState · bridge |"
+    );
     expect(bridgeOnly).toContain("— · 0.1.0-alpha.2 =");
   }
 );

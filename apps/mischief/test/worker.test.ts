@@ -774,7 +774,7 @@ it.effect("publishes lore to human and agent surfaces", () =>
       );
       expect(llms).toContain("## Lore");
       expect(llms).toContain(`[${page.title}](${page.routePath})`);
-      expect(llmsFull).toContain(page.text);
+      expect(llmsFull).toContain(page.bodyMarkdown);
       expect(sitemap).toContain(`https://ratstack.sh${page.routePath}`);
 
       const searchResponse = yield* postMcp(
@@ -1359,8 +1359,10 @@ it.effect(
         expect(rendered.status).toBe(200);
         expect(plain.headers.get("content-type")).toContain("text/markdown");
         expect(rendered.headers.get("content-type")).toContain("text/html");
-        expect(markdown).toContain("port →");
-        expect(markdown).not.toContain("For agents:");
+        expect(markdown).toContain("[port](/lore/hexagonal-architecture) →");
+        expect(markdown).toContain(
+          "> For agents: start with the [agent guide](https://ratstack.sh/llms.txt)."
+        );
         expect(html).toContain(
           '<link rel="alternate" type="text/markdown" href="/glossary"'
         );
@@ -1368,7 +1370,7 @@ it.effect(
           '</glossary>; rel="alternate"; type="text/markdown"'
         );
         expect(html).toContain(
-          'For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.'
+          'class="agent-pointer visually-hidden" aria-hidden="true"'
         );
         expect(html.indexOf("For agents:")).toBeLessThan(
           html.indexOf('<h1 id="glossary"')

@@ -342,15 +342,30 @@ importers:
       '@resvg/resvg-js':
         specifier: 2.6.2
         version: 2.6.2
+      '@types/mdast':
+        specifier: 4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
+      '@types/unist':
+        specifier: 3.0.3
+        version: 3.0.3
+      htmlparser2:
+        specifier: 10.1.0
+        version: 10.1.0
       mdsvex:
         specifier: 0.12.8
         version: 0.12.8(svelte@5.57.1)
       remark-gfm:
         specifier: 4.0.1
         version: 4.0.1
+      remark-parse:
+        specifier: 11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: 11.0.0
+        version: 11.0.0
       satori:
         specifier: 0.33.5
         version: 0.33.5
@@ -369,6 +384,9 @@ importers:
       vitest:
         specifier: 5.0.1
         version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
 
   apps/web:
     dependencies:
@@ -7595,7 +7613,7 @@ snapshots:
 
   '@types/mdast@4.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/ms@2.1.0': {}
 

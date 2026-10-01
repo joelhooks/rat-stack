@@ -43,14 +43,20 @@
     "@effect/platform-node": "4.0.0-rc.117",
     "@effect/vitest": "4.0.0-rc.117",
     "@resvg/resvg-js": "2.6.2",
+    "@types/mdast": "4.0.4",
     "@types/node": "24.13.6",
+    "@types/unist": "3.0.3",
+    "htmlparser2": "10.1.0",
     "mdsvex": "0.12.8",
     "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "remark-stringify": "11.0.0",
     "satori": "0.33.5",
     "shiki": "3.23.0",
     "svelte": "5.57.1",
     "typescript": "7.0.2",
     "unified": "11.0.5",
-    "vitest": "5.0.1"
+    "vitest": "5.0.1",
+    "yaml": "2.9.0"
   }
 }

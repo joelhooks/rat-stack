@@ -7,6 +7,7 @@ import {
   parseLorePage,
   renderBibliography,
 } from "../scripts/content-lib.ts";
+import { parseContentMarkdown, visitContentNodes } from "../scripts/svx-ast.ts";
 import { loreSources } from "../src/bundled-content.generated.js";
 
 it.layer(NodeServices.layer)((test) => {
@@ -105,9 +106,21 @@ it.effect(
       );
       expect(rendered.html).toContain("&lt;guide&gt;");
       expect(rendered.html).toContain("&lt;sink&gt; &amp;");
-      expect(rendered.markdown).toContain(
-        '[The "sink" \\[options\\] \\<guide\\>](<https://example.com/?a=1&b=2>)'
-      );
+      const references: { title: string; url: string }[] = [];
+      visitContentNodes(parseContentMarkdown(rendered.markdown), (node) => {
+        if (node.type === "link") {
+          references.push({
+            title: node.children
+              .map((child) => (child.type === "text" ? child.value : ""))
+              .join(""),
+            url: node.url,
+          });
+        }
+      });
+      expect(references).toEqual([
+        { title: source.title, url: source.url },
+        { title: source.title, url: source.url },
+      ]);
       expect(rendered.markdown).toContain("\n2. ");
       expect(renderBibliography([])).toEqual({ html: "", markdown: "" });
     })
