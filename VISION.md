@@ -97,7 +97,7 @@ Everything built here is real.
    2. A database service tag with two vendor Layers, Cloudflare D1 and Hyperdrive in front of PlanetScale Postgres, with Drizzle inside each vendor. D1 is the free bin. PlanetScale has no free tier, and its cheapest database is single-node Postgres. The tag sits above Drizzle, so swapping vendors stays one line.
 4. Prove behavior against real infrastructure where local fakes differ. The database suite currently uses local SQLite and PGlite; per-PR deployed-resource tests remain a goal, not existing coverage.
 5. Keep the teaching surface aligned with the running application. `/systems` records what each shipped system does, the standard it keeps, and how to check it. Request analytics runs with a server-set persistent `rat_vid` cookie; event bodies exclude request bodies and sensitive query keys.
-6. Prove the signup lifecycle through an external list provider behind job-shaped ports. Submission starts double opt-in; a person confirms their email before joining. Agent-only `joinInterest` intake is coming and must carry explicit consent without bypassing confirmation.
+6. Prove the signup lifecycle through an external list provider behind job-shaped ports. Submission starts double opt-in; a person confirms their email before joining. Agents apply through `joinInterest` over MCP, HTTP, or the CLI with a single-use page ticket and the person's approval of the exact card; confirmation is still required.
 7. Coming: extract the existing agent front door in `apps/mischief` (REST, MCP, A2A, code-mode sandbox, rate limits) into a cartridge that a project provides instead of inherits.
 
 ## Questions this repo answers in code
@@ -108,7 +108,7 @@ Everything built here is real.
 - Where does a correction to an agent live? Lauren Tan's fence ladder puts code first, then lint and CI, then rules and skills, with the style guide last. The `--no-verify` rung is proven today by `packages/core/test/vcs-command-policy.test.ts`.
 - Can provider details stay outside core? Subscriber delivery lives in `packages/subscriber-delivery`; `no-core-adapters` and its fixture tests enforce the boundary.
 - Can the agent discover its next useful action from a response? Agent-only page guidance is built; next-action links in capability and MCP results still need proof.
-- Can signup stay double opt-in across browser and agent surfaces? Subscriber intake and confirmation ports exist. The agent intake ports and test layers are in core; `joinInterest` and its live confirmation path are not yet verified.
+- Can signup stay double opt-in across browser and agent surfaces? Yes, so far: both surfaces start the same email confirmation. On 2026-10-01 a live `joinInterest` run sent one confirmation email, refused a reused ticket, and sent no second email for a repeat.
 
 ## Open questions
 

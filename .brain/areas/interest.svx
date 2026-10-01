@@ -1,10 +1,15 @@
 ---
 title: "Interest signup"
-description: "Browser signup starts email confirmation; delivery stays behind job-shaped ports outside core."
+description: "Browser and agent signup start email confirmation; delivery stays behind job-shaped ports outside core."
 group: system
 terms:
   - "interest signup"
 sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts
+    title: "Agent join intake"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Ticket check, scoring, contact storage, and the uniform answer for agent applications."
+    accessed: "2026-10-01"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-machine.ts
     title: "Interest lifecycle machine"
     publisher: "GitHub joelhooks/rat-stack"
@@ -41,19 +46,21 @@ sources:
 
 A person submits the [browser signup form](/tokenmaxx#interested). In confirmation mode, a request starts pending confirmation; the person follows the email link and confirms in the browser before the signup is confirmed. The core interest machine owns the local pending → confirmed lifecycle. Capture-only mode records the request without sending mail; it is not a confirmed signup.
 
+An agent can also apply for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps: ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
+
 `SubscriberIntake` and `SubscriberConfirm` are job-shaped ports in core. `packages/subscriber-delivery` implements external delivery outside core, and the Worker provides the adapter at composition. See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
 
 ## The standard
 
 - Submission is not confirmation. A person's email confirmation is required before joining.
-- Consent is explicit: the person chooses to submit the signup form. An agent must not infer permission to subscribe someone from their address or an unrelated request.
+- Consent is explicit: the person submits the signup form or approves the agent's card. An agent must not infer permission to subscribe someone from their address or an unrelated request.
 - Rate-limited and honeypot submissions receive a neutral answer rather than revealing whether an address is on file. Invalid addresses and expired confirmation links have deliberate refusal responses.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
-- Today, joining remains a person's browser step. Agent-assisted intake is coming; it must retain explicit consent and the person's email confirmation.
+- An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact payload. A ticket works once.
 
 ## How to check
 
-- Read `apps/mischief/src/interest/routes.ts` and `handlers.ts` for submission, neutral answers, and browser confirmation. Check the Worker composition and configured mode before interpreting a capture as a pending signup.
+- Read `apps/mischief/src/interest/routes.ts` and `handlers.ts` for submission, neutral answers, and browser confirmation, and `packages/core/src/join-intake.ts` for agent applications. Check the Worker composition and configured mode before interpreting a capture as a pending signup.
 - Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation seams. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
 - With an authorized test address, use the browser form, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
-- Check [OpenAPI](/openapi.json) and the [agent guide](/llms.txt) before treating any planned agent intake as available. Do not bypass confirmation.
+- Check [OpenAPI](/openapi.json) for `joinInterest` and read the agent view of [/tokenmaxx](/tokenmaxx) for the application steps. Do not bypass confirmation.
