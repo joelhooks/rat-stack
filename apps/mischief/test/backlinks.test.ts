@@ -5,8 +5,12 @@ import {
   addInboundCounts,
   backlinkContext,
   buildBacklinkIndex,
-  renderBacklinks,
 } from "../scripts/backlink-lib.ts";
+import {
+  createComponentRegistry,
+  renderSvxMarkdown,
+} from "../scripts/component-registry.ts";
+import { linkedFromComponent } from "../scripts/reference-components.ts";
 import { parseContentMarkdown, visitContentNodes } from "../scripts/svx-ast.ts";
 import {
   loreSources,
@@ -96,7 +100,17 @@ it.effect(
         title: "A <title>",
       };
 
-      const rendered = renderBacklinks([entry]);
+      const registry = createComponentRegistry({
+        LinkedFrom: linkedFromComponent(new Map([["/lore/b", [entry]]])),
+      });
+
+      const source = '<LinkedFrom page="/lore/b" />';
+
+      const rendered = {
+        html: renderSvxMarkdown(source, "human", {}, registry),
+        markdown: renderSvxMarkdown(source, "agent", {}, registry),
+      };
+
       expect(rendered.html).toContain(
         "&lt;script&gt; &amp; &quot;quoted&quot;"
       );
@@ -104,7 +118,16 @@ it.effect(
       expect(rendered.markdown).toContain("→ One-line summary → [Read page]");
       expect(rendered.markdown).not.toMatch(/<sup|inbound-count/u);
       expect(
-        renderBacklinks([{ ...entry, context: context.repeat(8) }]).html
+        renderSvxMarkdown(
+          source,
+          "human",
+          {},
+          createComponentRegistry({
+            LinkedFrom: linkedFromComponent(
+              new Map([["/lore/b", [{ ...entry, context: context.repeat(8) }]]])
+            ),
+          })
+        )
       ).toContain("<details><summary>Link context</summary>");
     })
 );

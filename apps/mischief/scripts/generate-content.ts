@@ -26,15 +26,12 @@ import { render } from "svelte/server";
 import { agentNextActions } from "../src/agent-guide.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
-import {
-  addInboundCounts,
-  buildBacklinkIndex,
-  renderBacklinks,
-} from "./backlink-lib.ts";
+import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
 import {
   agentPointerHtml,
   componentContext,
   createComponentRegistry,
+  renderSvxMarkdown,
   renderAgentPage,
   renderComponent,
 } from "./component-registry.ts";
@@ -73,6 +70,11 @@ import { readDailyLog } from "./daily-log.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
+  groupUnlinkedMentions,
+  linkedFromComponent,
+  unlinkedMentionsComponent,
+} from "./reference-components.ts";
+import {
   contentCodeSpans,
   contentRoot,
   countHtmlElements,
@@ -83,6 +85,7 @@ import {
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
+  UnlinkedMentionsSchema,
 } from "./unlinked-mentions.ts";
 import type { UnlinkedProse } from "./unlinked-mentions.ts";
 
@@ -2654,8 +2657,37 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       sourcePath
     );
 
-  const pageFooterMarkdown = (route: string) =>
-    renderBacklinks(backlinkIndex.get(route) ?? []).markdown;
+  const publishedMentions = yield* fileSystem
+    .readFileString(path.join(root, unlinkedMentionsPath))
+    .pipe(
+      Effect.mapError((cause) =>
+        buildError("read unlinked mentions", unlinkedMentionsPath, cause)
+      ),
+      Effect.flatMap(
+        Schema.decodeEffect(Schema.fromJsonString(UnlinkedMentionsSchema))
+      )
+    );
+
+  const unlinkedByTarget = groupUnlinkedMentions(publishedMentions);
+
+  const referenceRegistry = createComponentRegistry({
+    LinkedFrom: linkedFromComponent(backlinkIndex),
+    UnlinkedMentions: unlinkedMentionsComponent(unlinkedByTarget),
+  });
+
+  const referenceSource = (route: string) =>
+    `<LinkedFrom page="${escapeHtml(route)}" />\n\n<UnlinkedMentions page="${escapeHtml(route)}" />`;
+
+  const pageFooterMarkdown = (route: string) => {
+    const markdown = renderSvxMarkdown(
+      referenceSource(route),
+      "agent",
+      { pagePath: route },
+      referenceRegistry
+    );
+
+    return markdown === "" ? "" : `\n\n${markdown}`;
+  };
 
   const pageFooterHtml = (route: string, sourcePath: string) => {
     const lines: string[] = [];
@@ -2667,7 +2699,14 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       );
     }
 
-    lines.push(renderBacklinks(backlinkIndex.get(route) ?? []).html);
+    lines.push(
+      renderSvxMarkdown(
+        referenceSource(route),
+        "human",
+        { pagePath: route, sourcePath },
+        referenceRegistry
+      ).trim()
+    );
 
     return lines.length === 0 ? "" : `<hr>${lines.join("")}`;
   };

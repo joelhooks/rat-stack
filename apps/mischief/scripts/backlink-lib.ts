@@ -19,9 +19,6 @@ const escapeHtml = (value: string) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-const markdownLabel = (value: string) =>
-  value.replaceAll(/(?<character>[\\[\]<>])/gu, "\\$<character>");
-
 const routeFor = (href: string) => {
   const route =
     href.replace(/^https:\/\/ratstack\.sh(?=\/)/u, "").split(/[?#]/u)[0] ?? "";
@@ -103,29 +100,6 @@ export const buildBacklinkIndex = (
 
   return index;
 };
-
-const renderContext = (context: string) => {
-  if (context === "") {
-    return "";
-  }
-
-  const text = `<p>${escapeHtml(context)}</p>`;
-
-  return context.length > 160
-    ? `<details><summary>Link context</summary>${text}</details>`
-    : text;
-};
-
-export const renderBacklinks = (entries: readonly BacklinkReference[]) => ({
-  html:
-    entries.length === 0
-      ? ""
-      : `<section class="bibliography linked-from" aria-labelledby="linked-from"><h2 id="linked-from">Linked from</h2><ol>${entries.map((entry) => `<li><a href="${escapeHtml(entry.route)}">${escapeHtml(entry.title)}</a>. ${escapeHtml(entry.description)}${renderContext(entry.context)}</li>`).join("")}</ol></section>`,
-  markdown:
-    entries.length === 0
-      ? ""
-      : `\n\n## Linked from\n\n${entries.map((entry) => `- ${markdownLabel(entry.title)} → ${markdownLabel(entry.description)} → [Read page](<https://ratstack.sh${entry.route}>)`).join("\n")}\n`,
-});
 
 const skippedCountTags = new Set([
   "h1",
