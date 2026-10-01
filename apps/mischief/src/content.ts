@@ -1,5 +1,6 @@
 import { agentNextActions } from "./agent-guide.js";
 import {
+  agentPointerMarkdown,
   cartridgesImageJpegBase64,
   homeMarkdownTemplate,
   glossaryIndexMarkdown,
@@ -19,6 +20,7 @@ import { canonicalMarkdownLinks } from "./markdown-links.js";
 export { loreGraphSnapshot } from "./bundled-content.generated.js";
 
 export {
+  authMarkdown,
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
@@ -55,6 +57,7 @@ export type ContentKind = "law" | "skill" | "lore";
 export type LoreGroup = "idea" | "concept" | "source" | "person" | "system";
 
 export interface ContentResource {
+  readonly bodyMarkdown: string;
   readonly description: string;
   readonly digest: string;
   readonly documentHtml: string;
@@ -228,10 +231,10 @@ ${llmsLoreLinks.replaceAll(originToken, origin)}
 
 export const llmsFullText = (origin: string) =>
   [
-    llmsText(origin),
+    llmsText(origin).replace("\n", `\n\n${agentPointerMarkdown}\n`),
     ...contentResources.map(
       (resource) =>
-        `\n---\n\n# ${resource.routePath}\n\nSource: ${resource.sourcePath}\nSHA-256: ${resource.digest}\n\n${canonicalMarkdownLinks(resource.text, resource.routePath, origin)}`
+        `\n---\n\n# ${resource.routePath}\n\nSource: ${resource.sourcePath}\nSHA-256: ${resource.digest}\n\n${canonicalMarkdownLinks(resource.bodyMarkdown, resource.routePath, origin)}`
     ),
   ].join("\n");
 
@@ -420,18 +423,6 @@ export const ardManifest = (origin: string) => ({
   },
   specVersion: "1.0",
 });
-
-export const authMarkdown = `# ratstack.sh auth.md
-
-You do not need an account or token to use ratstack.sh.
-
-## Access
-
-- Send normal HTTPS requests to the public MCP, A2A, and HTTP routes.
-- Do not send credentials. Ratstack does not issue or accept access tokens.
-- Public API access needs no account or token. Interest signup is separate and requires email confirmation.
-- Ratstack does not use OAuth.
-`;
 
 export interface SearchMatch {
   readonly description: string;

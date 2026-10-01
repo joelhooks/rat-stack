@@ -1,5 +1,12 @@
 import { Schema } from "effect";
 
+import {
+  createComponentRegistry,
+  renderSvxMarkdown,
+} from "./component-registry.ts";
+import type { ComponentDefinition } from "./component-registry.ts";
+import { parseContentMarkdown } from "./svx-ast.ts";
+
 export const PeerTier = Schema.Literals(["S", "A", "B", "C", "D", "E", "F"]);
 
 export const PeerVersions = Schema.Struct({
@@ -163,11 +170,12 @@ const peerTable = (peers: readonly Peer[], pins: Pins) => {
   ].join("\n");
 };
 
-export const renderPeers = (
-  template: string,
-  peers: readonly Peer[],
-  pins: Pins
-) => {
+const shared = (markdown: string): ComponentDefinition => ({
+  agent: () => parseContentMarkdown(markdown).children,
+  human: () => parseContentMarkdown(markdown).children,
+});
+
+export const peerComponentRegistry = (peers: readonly Peer[], pins: Pins) => {
   const { tailing, alsoSeen } = partitionPeers(peers);
 
   const pinTable = [
@@ -188,12 +196,19 @@ export const renderPeers = (
     )
     .join("\n");
 
-  return template
-    .replace("<PeerPins />", pinTable)
-    .replace("<PeerRoster />", peerTable(tailing, pins))
-    .replace(
-      "<PeersAlsoSeen />",
+  return createComponentRegistry({
+    PeerPins: shared(pinTable),
+    PeerRoster: shared(peerTable(tailing, pins)),
+    PeerSources: shared(sources),
+    PeersAlsoSeen: shared(
       `<details>\n<summary>Also seen: C–F (${alsoSeen.length} peers)</summary>\n\n${peerTable(alsoSeen, pins)}\n\n</details>`
-    )
-    .replace("<PeerSources />", sources);
+    ),
+  });
 };
+
+export const renderPeers = (
+  template: string,
+  peers: readonly Peer[],
+  pins: Pins
+) =>
+  renderSvxMarkdown(template, "human", {}, peerComponentRegistry(peers, pins));

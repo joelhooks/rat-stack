@@ -27,6 +27,7 @@ import {
   validateInternalLinks,
   withMarkdownTitle,
 } from "../scripts/content-lib.ts";
+import { parseContentMarkdown } from "../scripts/svx-ast.ts";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
@@ -106,6 +107,27 @@ it.effect("keeps house ads off the workshop and confirmation flow", () =>
 );
 
 const fakePng = (size: number) => new Uint8Array(size).fill(size);
+
+const semanticTree = (markdown: string) =>
+  JSON.stringify(parseContentMarkdown(markdown), [
+    "type",
+    "children",
+    "value",
+    "depth",
+    "ordered",
+    "spread",
+    "start",
+    "lang",
+    "meta",
+    "url",
+    "title",
+    "alt",
+    "identifier",
+    "label",
+    "referenceType",
+    "checked",
+    "align",
+  ]);
 
 const root = (path: Path.Path) => path.resolve(import.meta.dirname, "../../..");
 
@@ -636,7 +658,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
     })
   );
 
-  test.effect("keeps tag-free source documents byte-identical for agents", () =>
+  test.effect("preserves tag-free source semantics through the registry", () =>
     Effect.gen(function* tagFreeSourcesRoundTrip() {
       const fileSystem = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -647,7 +669,9 @@ it.layer(NodeServices.layer)("generated content", (test) => {
           path.join(repository, source)
         );
 
-        expect(deriveAgentMarkdown(text), source).toBe(text);
+        expect(semanticTree(deriveAgentMarkdown(text)), source).toBe(
+          semanticTree(text)
+        );
       }
     })
   );
@@ -769,7 +793,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
 
           expect(
             page?.description === entry.summary ||
-              agents.includes(`| ${entry.summary} |`),
+              agents.includes(entry.summary),
             entry.term
           ).toBe(true);
         }

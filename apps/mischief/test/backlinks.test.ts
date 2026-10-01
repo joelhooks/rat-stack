@@ -7,6 +7,7 @@ import {
   buildBacklinkIndex,
   renderBacklinks,
 } from "../scripts/backlink-lib.ts";
+import { parseContentMarkdown, visitContentNodes } from "../scripts/svx-ast.ts";
 import {
   loreSources,
   skillSources,
@@ -124,8 +125,15 @@ it.effect("published counts and reference lists agree with the graph", () =>
           .map((edge) => edge.from.url)
       );
 
+      const publishedLinks = new Set<string>();
+      visitContentNodes(parseContentMarkdown(page.text), (node) => {
+        if (node.type === "link") {
+          publishedLinks.add(node.url);
+        }
+      });
+
       for (const url of incoming) {
-        expect(page.text, page.routePath).toContain(`(<${url}>)`);
+        expect(publishedLinks, page.routePath).toContain(url);
       }
 
       expect(page.text).not.toContain("<sup");

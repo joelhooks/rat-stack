@@ -1877,7 +1877,7 @@ it.effect("offers a labeled prompt for a consent-first agent application", () =>
         /<a href="https:\/\/ratstack\.sh\/tokenmaxx"[^>]*>workshop page<\/a>/u
       );
       expect(html).toContain("Answer five questions; most are optional.");
-      expect(markdown).not.toContain("Submit only after I approve it.");
+      expect(markdown).toContain("Submit only after I approve it.");
     })
   )
 );

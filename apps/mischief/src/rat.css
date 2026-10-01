@@ -488,6 +488,7 @@ main > pre:has(+ .copy-actions) {
   padding: 0 0.6ch;
 }
 
+.agent-pointer,
 .visually-hidden {
   clip-path: inset(50%);
   height: 1px;

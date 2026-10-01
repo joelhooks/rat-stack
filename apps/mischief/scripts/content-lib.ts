@@ -1,5 +1,28 @@
 import { Schema } from "effect";
 
+import { bibliographySourceSchema } from "./component-data.ts";
+import type { BibliographySource, CopyPromptSpec } from "./component-data.ts";
+import {
+  componentContext,
+  createComponentRegistry,
+  renderComponent,
+  renderSvxMarkdown,
+} from "./component-registry.ts";
+import type { ComponentInput } from "./component-registry.ts";
+import { buildError, ContentBuildError } from "./content-error.ts";
+import {
+  contentHeadings,
+  contentLinkHrefs,
+  contentRoot,
+  countHtmlElements,
+  frontmatterData,
+  htmlTokens,
+  parseContentMarkdown,
+  scanLeadingFrontmatterFence,
+  stringifyContentMarkdown,
+  visitContentNodes,
+} from "./svx-ast.ts";
+
 const tierLetters = new Set(["S", "A", "B", "C", "D", "E", "F"]);
 
 const pairedTableHeaders = new Set(["Seen / checked", "XState · bridge"]);
@@ -7,21 +30,7 @@ const pairedTableHeaders = new Set(["Seen / checked", "XState · bridge"]);
 const tierOfCell = (header: string, text: string) =>
   header === "Tier" && tierLetters.has(text) ? text : undefined;
 
-export class ContentBuildError extends Schema.TaggedError<ContentBuildError>()(
-  "ContentBuildError",
-  {
-    cause: Schema.Defect(),
-    sourcePath: Schema.String,
-    stage: Schema.String,
-  }
-) {
-  override get message() {
-    return `${this.stage} failed for ${this.sourcePath}`;
-  }
-}
-
-export const buildError = (stage: string, sourcePath: string, cause: unknown) =>
-  new ContentBuildError({ cause, sourcePath, stage });
+export { buildError, ContentBuildError } from "./content-error.ts";
 
 export interface ResponsiveTableNode {
   readonly type: string;
@@ -197,15 +206,7 @@ export interface LoreTermTarget {
   readonly term: string;
 }
 
-const bibliographySourceSchema = Schema.Struct({
-  accessed: Schema.String,
-  note: Schema.String,
-  publisher: Schema.String,
-  title: Schema.String,
-  url: Schema.String,
-});
-
-export type BibliographySource = typeof bibliographySourceSchema.Type;
+export type { BibliographySource } from "./component-data.ts";
 
 export interface LorePageMetadata {
   readonly bibliography: readonly BibliographySource[];
@@ -235,107 +236,13 @@ const loreFrontmatterSchema = Schema.Struct({
   url: Schema.optional(Schema.String),
 });
 
-const loreScalar = (frontmatter: string, field: string) => {
-  const match = new RegExp(
-    `^${field}:[ \\t]*(?:"(?<double>(?:[^"\\\\]|\\\\.)*)"|'(?<single>(?:[^']|'')*)'|(?<plain>[^\\r\\n]+))$`,
-    "mu"
-  ).exec(frontmatter);
-
-  const double = match?.groups?.double;
-
-  if (double !== undefined) {
-    return Schema.decodeUnknownSync(Schema.String)(JSON.parse(`"${double}"`));
-  }
-
-  return match?.groups?.single?.replaceAll("''", "'") ?? match?.groups?.plain;
-};
-
-const loreList = (frontmatter: string, field: string, sourcePath: string) => {
-  const lines = frontmatter.split(/\r?\n/u);
-
-  const fieldLine = lines.findIndex((line) =>
-    new RegExp(`^${field}:[ \\t]*`, "u").test(line)
+export const frontmatterTerms = (rawText: string, sourcePath: string) =>
+  Schema.decodeUnknownSync(Schema.Array(Schema.String))(
+    frontmatterData(rawText, sourcePath).terms ?? []
   );
 
-  if (fieldLine === -1) {
-    return [];
-  }
-
-  const inline = lines[fieldLine]?.slice(field.length + 1).trim();
-
-  if (inline === "[]") {
-    return [];
-  }
-
-  if (inline !== "") {
-    throw buildError(
-      "frontmatter",
-      sourcePath,
-      new Error(`${field} must be a list`)
-    );
-  }
-
-  const values: string[] = [];
-
-  for (const line of lines.slice(fieldLine + 1)) {
-    const item = /^[ \t]+-[ \t]*(?<value>.+?)[ \t]*$/u.exec(line)?.groups
-      ?.value;
-
-    if (item === undefined) {
-      break;
-    }
-
-    let value = item;
-
-    if (item.startsWith('"') && item.endsWith('"')) {
-      value = item.slice(1, -1).replaceAll('\\"', '"');
-    } else if (item.startsWith("'") && item.endsWith("'")) {
-      value = item.slice(1, -1).replaceAll("''", "'");
-    }
-
-    values.push(value);
-  }
-
-  return values;
-};
-
-const loreSources = (frontmatter: string, sourcePath: string) => {
-  const block =
-    /^sources:[ \t]*\r?\n(?<entries>(?:[ \t]+[^\r\n]*\r?\n?)*)/mu.exec(
-      frontmatter
-    )?.groups?.entries;
-
-  if (block === undefined) {
-    return loreList(frontmatter, "sources", sourcePath);
-  }
-
-  return block
-    .split(/^[ \t]+-[ \t]+/mu)
-    .slice(1)
-    .map((entry) => {
-      if (!/^[a-z]+:/u.test(entry) || entry.startsWith("https:")) {
-        return loreScalar(`value: ${entry.trim()}`, "value");
-      }
-
-      const fields = entry.replaceAll(/^[ \t]+/gmu, "");
-
-      return {
-        accessed: loreScalar(fields, "accessed"),
-        note: loreScalar(fields, "note"),
-        publisher: loreScalar(fields, "publisher"),
-        title: loreScalar(fields, "title"),
-        url: loreScalar(fields, "url"),
-      };
-    });
-};
-
-export const frontmatterTerms = (rawText: string, sourcePath: string) => {
-  const frontmatter =
-    /^---[ \t]*\r?\n(?<fields>[\s\S]*?)\r?\n---/u.exec(rawText)?.groups
-      ?.fields ?? "";
-
-  return loreList(frontmatter, "terms", sourcePath);
-};
+export const frontmatterValue = (rawText: string, field: string) =>
+  Schema.decodeUnknownSync(Schema.String)(frontmatterData(rawText)[field]);
 
 type LoreFrontmatter = typeof loreFrontmatterSchema.Type;
 
@@ -345,19 +252,12 @@ type MutableLorePageMetadata = {
 
 const decodeLoreFrontmatter = (
   sourcePath: string,
-  frontmatter: string
+  rawText: string
 ): LoreFrontmatter => {
   try {
-    return Schema.decodeUnknownSync(loreFrontmatterSchema)({
-      date: loreScalar(frontmatter, "date"),
-      description: loreScalar(frontmatter, "description"),
-      group: loreScalar(frontmatter, "group"),
-      sources: loreSources(frontmatter, sourcePath),
-      speaker: loreScalar(frontmatter, "speaker"),
-      terms: loreList(frontmatter, "terms", sourcePath),
-      title: loreScalar(frontmatter, "title"),
-      url: loreScalar(frontmatter, "url"),
-    });
+    return Schema.decodeUnknownSync(loreFrontmatterSchema)(
+      frontmatterData(rawText, sourcePath)
+    );
   } catch (error) {
     if (Schema.is(ContentBuildError)(error)) {
       throw error;
@@ -409,11 +309,7 @@ const validateSystemPlacement = (
     return;
   }
 
-  const headings = new Set(
-    [...rawText.matchAll(/^## (?<heading>.+?)[ \t]*$/gmu)].map(
-      (match) => match.groups?.heading
-    )
-  );
+  const headings = new Set(contentHeadings(rawText, 2));
 
   const missing = SYSTEM_SECTIONS.filter((section) => !headings.has(section));
 
@@ -508,12 +404,7 @@ export const parseLorePage = (
     );
   }
 
-  const block =
-    /^---[ \t]*\r?\n(?<frontmatter>[\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/u.exec(
-      rawText
-    )?.groups?.frontmatter;
-
-  if (block === undefined) {
+  if (scanLeadingFrontmatterFence(rawText, sourcePath).yaml === undefined) {
     throw buildError(
       "frontmatter",
       sourcePath,
@@ -521,7 +412,7 @@ export const parseLorePage = (
     );
   }
 
-  const decoded = decodeLoreFrontmatter(sourcePath, block);
+  const decoded = decodeLoreFrontmatter(sourcePath, rawText);
   validateLoreDescription(sourcePath, decoded);
 
   const terms = validateLoreTerms(sourcePath, decoded);
@@ -868,27 +759,27 @@ export const loreLinkTargets = (
   markdown: string,
   knownRoutes: ReadonlySet<string>
 ): readonly string[] => {
-  const body = markdown
-    .replaceAll("__RATSTACK_ORIGIN__", "https://ratstack.sh")
-    .replaceAll(/```[\s\S]*?```/gu, "")
-    .replaceAll(/`[^`\n]+`/gu, "");
-
   const targets = new Set<string>();
 
-  const links =
-    /\[[^\]]+\]\((?<href>(?:https:\/\/ratstack\.sh)?\/(?:lore|systems)\/[^)\s]+)(?:\s+[^)]*)?\)/gu;
+  for (const href of contentLinkHrefs(
+    markdown.replaceAll("__RATSTACK_ORIGIN__", "https://ratstack.sh"),
+    false
+  )) {
+    const target = new URL(href, "https://ratstack.sh");
 
-  for (const match of body.matchAll(links)) {
-    const href = match.groups?.href;
-
-    if (href === undefined) {
+    if (
+      target.origin !== "https://ratstack.sh" ||
+      !(
+        target.pathname.startsWith("/lore/") ||
+        target.pathname.startsWith("/systems/")
+      )
+    ) {
       continue;
     }
 
-    const route = new URL(href, "https://ratstack.sh").pathname.replace(
-      /\/$/u,
-      ""
-    );
+    const route = target.pathname.endsWith("/")
+      ? target.pathname.slice(0, -1)
+      : target.pathname;
 
     if (!knownRoutes.has(route)) {
       throw buildError(
@@ -1091,50 +982,7 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
   ].join("\n");
 };
 
-const linkHrefs = (source: string) => {
-  const body = source
-    .replaceAll(/```[\s\S]*?```/gu, "")
-    .replaceAll(/~~~[\s\S]*?~~~/gu, "")
-    .replaceAll(/`[^`\n]+`/gu, "");
-
-  const links = new Set<string>();
-
-  const markdownLink =
-    /\]\(\s*(?:<(?<angle>[^>]+)>|(?<plain>[^)\s]+))(?:\s+[^)]*)?\)/gu;
-
-  const referenceLink =
-    /^\s*\[[^\]]+\]:\s*(?:<(?<angle>[^>]+)>|(?<plain>\S+))/gmu;
-
-  const htmlAttribute =
-    /\b(?:href|src)\s*=\s*(?:"(?<double>[^"]*)"|'(?<single>[^']*)')/giu;
-
-  const autoLink = /<(?<url>(?:https?:)?\/\/[^>\s]+)>/giu;
-
-  for (const match of body.matchAll(markdownLink)) {
-    const href = match.groups?.angle ?? match.groups?.plain;
-
-    if (href !== undefined) {
-      links.add(href);
-    }
-  }
-
-  for (const pattern of [referenceLink, htmlAttribute, autoLink]) {
-    for (const match of body.matchAll(pattern)) {
-      const href =
-        match.groups?.angle ??
-        match.groups?.plain ??
-        match.groups?.double ??
-        match.groups?.single ??
-        match.groups?.url;
-
-      if (href !== undefined) {
-        links.add(href);
-      }
-    }
-  }
-
-  return [...links];
-};
+const linkHrefs = contentLinkHrefs;
 
 export const internalRouteForLink = (
   href: string,
@@ -1176,97 +1024,9 @@ export const validateInternalLinks = (options: {
   }
 };
 
-const audienceTag =
-  /<(?:AgentOnly|HumanOnly|Diagram|CopyPrompt)(?:\s[^>]*)?>|<\/(?:AgentOnly|HumanOnly|Diagram)>/u;
+export { copyPrompts } from "./component-data.ts";
 
-export interface CopyPromptSpec {
-  readonly agentFence: boolean;
-  readonly label: string;
-  readonly showText: boolean;
-  readonly showLabel?: boolean;
-  readonly text: string;
-}
-
-export const copyPrompts = {
-  connect: {
-    agentFence: false,
-    label: "Copy prompt",
-    showLabel: true,
-    showText: false,
-    text: [
-      "Read __RATSTACK_ORIGIN__/llms.txt and use rat-stack as the reference",
-      "for how we build: Effect for the hard parts, Alchemy for the",
-      "infrastructure, and a fence that makes the easy path the right",
-      "one. Search its rules and skills before you write code, follow",
-      "its patterns, and tell me when my code breaks them.",
-    ].join("\n"),
-  },
-  cursor: {
-    agentFence: false,
-    label: "Copy",
-    showLabel: true,
-    showText: false,
-    text: '{ "mcpServers": { "rat-stack": { "url": "__RATSTACK_ORIGIN__/mcp" } } }',
-  },
-  mcp: {
-    agentFence: false,
-    label: "Copy",
-    showLabel: true,
-    showText: false,
-    text: "# Claude Code\nclaude mcp add --transport http rat-stack __RATSTACK_ORIGIN__/mcp\n\n# Codex\ncodex mcp add rat-stack --url __RATSTACK_ORIGIN__/mcp",
-  },
-  page: {
-    agentFence: false,
-    label: "copy this prompt for your agent",
-    showText: false,
-    text: [
-      "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
-      'Explain the "how to burn a trillion tokens and get good results" workshop to me.',
-      "Ask me the five application questions from the agent view of the page. Do not inspect my machine.",
-      "Show me an editable card of exactly what you would send, including skipped fields and permissions. Submit only after I approve it.",
-    ].join("\n"),
-  },
-  setup: {
-    agentFence: true,
-    label: "Copy prompt",
-    showText: true,
-    text: [
-      'Check my setup for the "how to burn a trillion tokens and get good results" session.',
-      "1. Check that Docker is running (Docker Desktop or OrbStack).",
-      "2. Create a private repo from the joelhooks/rat-stack template and clone it: gh repo create my-factory --private --template joelhooks/rat-stack",
-      "3. Read https://ratstack.sh/llms.txt",
-      "4. Tell me what is missing.",
-    ].join("\n"),
-  },
-  skills: {
-    agentFence: false,
-    label: "Copy",
-    showLabel: true,
-    showText: false,
-    text: "npx skills add joelhooks/rat-stack",
-  },
-} satisfies Record<string, CopyPromptSpec>;
-
-const copyPromptTag = /[ \t]*<CopyPrompt id="(?<id>[a-z-]+)"\s*\/>/gu;
-
-const promptSpec = (id: string) => {
-  const spec = Object.entries(copyPrompts).find(([key]) => key === id)?.[1];
-
-  if (spec === undefined) {
-    throw new Error(`unknown CopyPrompt id ${id}`);
-  }
-
-  return spec;
-};
-
-const agentBlock =
-  /<AgentOnly>\s*\r?\n(?<content>[\s\S]*?)\r?\n\s*<\/AgentOnly>/gu;
-
-const humanBlock =
-  /<HumanOnly>\s*\r?\n(?<content>[\s\S]*?)\r?\n\s*<\/HumanOnly>/gu;
-
-const diagramBlock =
-  /<Diagram\s+alt="(?<alt>[^"]*)">\s*\r?\n(?<fence>```text\r?\n[\s\S]*?\r?\n```)\s*\r?\n<\/Diagram>/gu;
+export type { CopyPromptSpec } from "./component-data.ts";
 
 const escapeHtml = (value: string) =>
   value
@@ -1276,22 +1036,29 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-const bibliographyText = (source: BibliographySource) =>
-  `${source.publisher}. ${source.note} Accessed ${source.accessed}.`;
+export const renderBibliography = (sources: readonly BibliographySource[]) => {
+  const registry = createComponentRegistry();
+  const context = componentContext({ sources });
 
-const markdownLabel = (value: string) =>
-  value.replaceAll(/[[\]\\*_`<>]/gu, "\\$&");
+  const input = {
+    attributes: {},
+    children: contentRoot([]),
+    name: "Sources",
+    placement: "block",
+  } satisfies ComponentInput;
 
-export const renderBibliography = (sources: readonly BibliographySource[]) => ({
-  html:
-    sources.length === 0
-      ? ""
-      : `<section class="bibliography" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>${sources.map((source) => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.title)}</a>. ${escapeHtml(bibliographyText(source))}</li>`).join("")}</ol></section>`,
-  markdown:
-    sources.length === 0
-      ? ""
-      : `\n\n## Sources\n\n${sources.map((source, index) => `${index + 1}. [${markdownLabel(source.title)}](<${source.url}>)\n   ${markdownLabel(bibliographyText(source))}`).join("\n\n")}\n`,
-});
+  return {
+    html: stringifyContentMarkdown(
+      contentRoot(renderComponent(registry, "human", input, context))
+    ).trim(),
+    markdown:
+      sources.length === 0
+        ? ""
+        : `\n\n${stringifyContentMarkdown(
+            contentRoot(renderComponent(registry, "agent", input, context))
+          )}`,
+  };
+};
 
 const skippedByBraceEscaper = new Set(["code", "pre"]);
 
@@ -1330,12 +1097,12 @@ export const withMarkdownTitle = (
   title: string,
   bodyHtml: string
 ): string =>
-  /<h1(?:\s|>)/iu.test(bodyHtml)
+  countHtmlElements(bodyHtml, "h1") > 0
     ? source
-    : `# ${title}\n\n${source.replace(/^---\r?\n[\s\S]*?\r?\n---\s*\r?\n/u, "")}`;
+    : `# ${title}\n\n${scanLeadingFrontmatterFence(source, title).body.trimStart()}`;
 
 export const assertDocumentTitle = (html: string, sourcePath: string) => {
-  const count = [...html.matchAll(/<h1(?:\s|>)/giu)].length;
+  const count = countHtmlElements(html, "h1");
 
   if (count !== 1) {
     throw buildError(
@@ -1346,52 +1113,38 @@ export const assertDocumentTitle = (html: string, sourcePath: string) => {
   }
 };
 
-export const deriveAgentMarkdown = (source: string): string => {
-  if (!audienceTag.test(source)) {
-    return source;
-  }
-
-  const withoutHuman = source
-    .replaceAll(humanBlock, "")
-    .replaceAll(copyPromptTag, (_match: string, id: string) => {
-      const spec = promptSpec(id);
-
-      return spec.agentFence ? `\`\`\`text\n${spec.text}\n\`\`\`` : "";
-    });
-
-  const withDiagramText = withoutHuman.replaceAll(
-    diagramBlock,
-    (_match: string, alt: string, fence: string) => `${fence}\nDiagram: ${alt}`
-  );
-
-  return withDiagramText.replaceAll(agentBlock, "$<content>");
-};
+export const deriveAgentMarkdown = (
+  source: string,
+  registry = createComponentRegistry()
+): string => renderSvxMarkdown(source, "agent", {}, registry);
 
 export const deriveHtmlMarkdown = (
   source: string,
-  renderPrompt: (spec: CopyPromptSpec) => string = () => ""
-): string => {
-  if (!audienceTag.test(source)) {
-    return source;
-  }
-
-  const withPrompts = source.replaceAll(
-    copyPromptTag,
-    (_match: string, id: string) => ` ${renderPrompt(promptSpec(id))}`
+  renderPrompt: (spec: CopyPromptSpec) => string = () => "",
+  registry = createComponentRegistry()
+): string =>
+  renderSvxMarkdown(
+    source,
+    "human",
+    { renderCopyPrompt: renderPrompt },
+    registry
   );
 
-  const withDiagrams = withPrompts.replaceAll(
-    diagramBlock,
-    (_match: string, alt: string, fence: string) =>
-      `<figure role="img" aria-label="${escapeHtml(alt)}">\n\n${fence}\n\n<figcaption>${escapeHtml(alt)}</figcaption></figure>`
-  );
+export const hasAudienceSyntax = (source: string) => {
+  let found = false;
+  visitContentNodes(parseContentMarkdown(source), (node) => {
+    if (
+      node.type === "html" &&
+      htmlTokens(node.value).some(
+        (token) => token.name.charAt(0) >= "A" && token.name.charAt(0) <= "Z"
+      )
+    ) {
+      found = true;
+    }
+  });
 
-  const withoutAgent = withDiagrams.replaceAll(agentBlock, "");
-
-  return withoutAgent.replaceAll(humanBlock, "$<content>");
+  return found;
 };
-
-export const hasAudienceSyntax = (source: string) => audienceTag.test(source);
 
 interface IcoImage {
   readonly bytes: Uint8Array;

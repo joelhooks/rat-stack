@@ -16,14 +16,12 @@ import {
 } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { compile as compileMdsvex } from "mdsvex";
-import remarkGfm from "remark-gfm";
 import satori from "satori";
 import { createHighlighter } from "shiki";
 import type { Highlighter } from "shiki";
 import type { Component } from "svelte";
 import { compile as compileSvelte } from "svelte/compiler";
 import { render } from "svelte/server";
-import type { Plugin } from "unified";
 
 import { agentNextActions } from "../src/agent-guide.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
@@ -34,11 +32,18 @@ import {
   renderBacklinks,
 } from "./backlink-lib.ts";
 import {
+  agentPointerHtml,
+  componentContext,
+  createComponentRegistry,
+  renderAgentPage,
+  renderComponent,
+} from "./component-registry.ts";
+import {
   assertDocumentTitle,
   assertLoreTerms,
   assertGlossaryLinks,
   frontmatterTerms,
-  glossaryAgentMarkdown,
+  frontmatterValue,
   glossaryEntries,
   glossaryMarkdown,
   escapeSvelteBraces,
@@ -68,6 +73,14 @@ import { readDailyLog } from "./daily-log.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
+  contentCodeSpans,
+  contentRoot,
+  countHtmlElements,
+  stringifyContentMarkdown,
+  stripHtmlComments,
+  normalizeHtmlAttributeNewlines,
+} from "./svx-ast.ts";
+import {
   collectUnlinkedProse,
   findUnlinkedMentions,
 } from "./unlinked-mentions.ts";
@@ -80,25 +93,38 @@ const repoUrl = "https://github.com/joelhooks/rat-stack";
 const repoPathToken =
   /^(?:\.brain|\.pi|\.cursor|\.claude|apps|packages|scripts|skills|vendor)\/[\w./-]+$|^[\w.-]+\.(?:md|ts|js|json|yml|yaml|toml|schema)$/u;
 
-const fencedBlock = /```[\s\S]*?```/gu;
-
-const inlineCode = /`(?<span>[^`\n]+)`/gu;
-
 const emptyTargets: ReadonlyMap<string, string> = new Map();
 
-const codeSpans = (text: string): readonly string[] => {
-  const spans = new Set<string>();
+const codeSpans = (text: string): readonly string[] => [
+  ...new Set(
+    contentCodeSpans(text)
+      .map((span) => span.trim())
+      .filter((span) => span !== "")
+  ),
+];
 
-  for (const match of text.replaceAll(fencedBlock, "").matchAll(inlineCode)) {
-    const span = match.groups?.span?.trim();
+const componentRegistry = createComponentRegistry();
 
-    if (span !== undefined && span !== "") {
-      spans.add(span);
-    }
-  }
+const pointerInput = {
+  attributes: {},
+  children: contentRoot([]),
+  name: "AgentPointer",
+  placement: "block",
+} as const;
 
-  return [...spans];
-};
+const pointerContext = componentContext();
+
+const agentPointerMarkdown = stringifyContentMarkdown(
+  contentRoot(
+    renderComponent(componentRegistry, "agent", pointerInput, pointerContext)
+  )
+);
+
+const agentPointerHumanHtml = stringifyContentMarkdown(
+  contentRoot(
+    renderComponent(componentRegistry, "human", pointerInput, pointerContext)
+  )
+).trim();
 
 const escapeHtml = (value: string) =>
   value
@@ -128,6 +154,8 @@ interface OgPage {
 }
 
 interface DocumentProps {
+  readonly AgentPointer?: ServerComponent;
+  readonly agentPointerHtml?: string;
   readonly bodyHtml: string;
   readonly discoveryLinks: ReturnType<typeof markdownDiscoveryLinks>;
   readonly houseAdHtml?: string;
@@ -187,7 +215,7 @@ const slugHeading = (value: string) =>
     .replaceAll(/[^a-z0-9]+/gu, "-")
     .replaceAll(/^-+|-+$/gu, "");
 
-const stableHeadingIds: Plugin<[], HastNode> = () => {
+const stableHeadingIds = (): ((tree: HastNode) => void) => {
   const used = new Map<string, number>();
 
   const visit = (node: HastNode): void => {
@@ -208,7 +236,7 @@ const stableHeadingIds: Plugin<[], HastNode> = () => {
 };
 
 const linkCodeSpans =
-  (targets: ReadonlyMap<string, string>): Plugin<[], HastNode> =>
+  (targets: ReadonlyMap<string, string>): (() => (tree: HastNode) => void) =>
   () => {
     const visit = (node: HastNode, insideBlock: boolean): void => {
       const children = node.children ?? [];
@@ -540,16 +568,12 @@ const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
     const component = yield* loadCompiledComponent(source, sourcePath);
 
     return (spec: CopyPromptSpec) =>
-      render(component, {
-        props: spec,
-      })
-        .body.replaceAll(/<!--[\s\S]*?-->/gu, "")
-        .replaceAll(/data-text="[^"]*"/gu, (attribute) =>
-          attribute.replaceAll("\n", "&#10;")
-        )
+      normalizeHtmlAttributeNewlines(
+        stripHtmlComments(render(component, { props: spec }).body),
+        "data-text"
+      )
         .replaceAll("{", "&#123;")
         .replaceAll("}", "&#125;")
-        .replaceAll(/\n\s*\n+/gu, "\n")
         .trim();
   }
 );
@@ -597,8 +621,6 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
             collectUnlinkedProse(unlinkedProse),
             escapeSvelteBraces,
           ],
-          // SAFETY: remark-gfm is a unified remark plugin; mdsvex types its options with `Plugin` from the unified version it bundles.
-          remarkPlugins: [remarkGfm as Plugin],
         }).then(decodeMdsvexOutput),
     });
 
@@ -663,15 +685,35 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
   props: DocumentProps,
   sourcePath: string
 ) {
+  const fileSystem = yield* FileSystem.FileSystem;
+
+  const pointerSource = yield* fileSystem
+    .readFileString(
+      new URL("../src/agent-pointer.svelte", import.meta.url).pathname
+    )
+    .pipe(
+      Effect.mapError((cause) =>
+        buildError("read", "agent-pointer.svelte", cause)
+      )
+    );
+
+  const AgentPointer = yield* loadCompiledComponent(
+    pointerSource,
+    "agent-pointer.svelte"
+  );
+
   const rendered = yield* Effect.try({
     catch: (cause) => buildError("Svelte document render", sourcePath, cause),
     try: () =>
       render(shell, {
         props: {
           ...props,
-          bodyHtml: /<h1(?:\s|>)/iu.test(props.bodyHtml)
-            ? props.bodyHtml
-            : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`,
+          AgentPointer,
+          agentPointerHtml: agentPointerHumanHtml,
+          bodyHtml:
+            countHtmlElements(props.bodyHtml, "h1") > 0
+              ? props.bodyHtml
+              : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`,
         },
       }),
   });
@@ -679,10 +721,10 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
   const document = `<!doctype html>
 <html lang="en">
 <head>${rendered.head}</head>
-<body>${rendered.body}</body>
+<body>${props.path === "/tokenmaxx" ? "" : `<!-- ${agentPointerHtml} -->`}${rendered.body}</body>
 </html>`;
 
-  if (/<script\b/iu.test(document)) {
+  if (countHtmlElements(document, "script") > 0) {
     return yield* new ContentBuildError({
       cause: new Error("Static documents must not contain client scripts"),
       sourcePath,
@@ -714,16 +756,6 @@ const entryList = (
         `- [${resource.title ?? resource.name ?? resource.routePath}](${resource.routePath}) — ${resource.description}`
     )
     .join("\n");
-
-const frontmatterValue = (text: string, field: string) => {
-  const value = new RegExp(`^${field}:\\s*(.+)$`, "mu").exec(text)?.[1]?.trim();
-
-  if (value === undefined || value === "") {
-    throw new Error(`Missing ${field} frontmatter`);
-  }
-
-  return value;
-};
 
 const sourceLiteral = (value: Schema.Json) =>
   JSON.stringify(value, null, 2).replaceAll(
@@ -996,9 +1028,9 @@ const program = Effect.gen(function* generateContent() {
     "apps/mischief/src/document.svelte"
   );
 
-  const emojiSvg = (yield* readText("assets/emoji/1f400.svg"))
-    .replaceAll(/<!--[\s\S]*?-->\s*/gu, "")
-    .trim();
+  const emojiSvg = stripHtmlComments(
+    yield* readText("assets/emoji/1f400.svg")
+  ).trim();
 
   const regularFont = yield* fileSystem
     .readFile(path.join(root, "assets/fonts/JetBrainsMono-Regular.ttf"))
@@ -1897,9 +1929,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/"
   );
 
-  const homeMarkdownTemplate = appendLoreMarkdown(
-    withHouseAdPointer(homeMarkdownAgentSource, "/"),
-    homeBody.linkedLoreRoutes
+  const homeMarkdownTemplate = renderAgentPage(
+    appendLoreMarkdown(
+      withHouseAdPointer(homeMarkdownAgentSource, "/"),
+      homeBody.linkedLoreRoutes
+    ),
+    "/",
+    "rat-stack"
   );
 
   const noVerifyBody = yield* compileMarkdownBody(
@@ -1911,9 +1947,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     trapRoutePath
   );
 
-  const noVerifyAgentMarkdown = appendLoreMarkdown(
-    noVerifyMarkdown,
-    noVerifyBody.linkedLoreRoutes
+  const noVerifyAgentMarkdown = renderAgentPage(
+    appendLoreMarkdown(noVerifyMarkdown, noVerifyBody.linkedLoreRoutes),
+    trapRoutePath,
+    "No verify"
   );
 
   const tokenmaxxSource = yield* readText("apps/mischief/content/tokenmaxx.md");
@@ -1927,7 +1964,17 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     tokenmaxxRoutePath
   );
 
-  const tokenmaxxAgentMarkdown = deriveAgentMarkdown(tokenmaxxSource);
+  const tokenmaxxAgentMarkdown = renderAgentPage(
+    tokenmaxxSource,
+    tokenmaxxRoutePath,
+    "Tokenmaxx"
+  );
+
+  const authMarkdown = renderAgentPage(
+    yield* readText("apps/mischief/content/auth.md"),
+    "/auth.md",
+    "ratstack.sh auth.md"
+  );
 
   const tokenmaxxImageJpegBase64 = Buffer.from(
     yield* fileSystem
@@ -1977,9 +2024,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/skills"
   );
 
-  const skillIndexMarkdown = appendLoreMarkdown(
-    withHouseAdPointer(skillIndexSourceMarkdown, "/skills"),
-    skillIndexBody.linkedLoreRoutes
+  const skillIndexMarkdown = renderAgentPage(
+    appendLoreMarkdown(
+      withHouseAdPointer(skillIndexSourceMarkdown, "/skills"),
+      skillIndexBody.linkedLoreRoutes
+    ),
+    "/skills",
+    "Learn the stack"
   );
 
   const loreIndexBody = yield* compileMarkdownBody(
@@ -1991,9 +2042,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/lore"
   );
 
-  const loreIndexMarkdown = withHouseAdPointer(
-    loreIndexSourceMarkdown,
-    "/lore"
+  const loreIndexMarkdown = renderAgentPage(
+    withHouseAdPointer(loreIndexSourceMarkdown, "/lore"),
+    "/lore",
+    "Lore"
   );
 
   const systemsIndexBody = yield* compileMarkdownBody(
@@ -2005,9 +2057,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/systems"
   );
 
-  const systemsIndexMarkdown = withHouseAdPointer(
-    systemsIndexSourceMarkdown,
-    "/systems"
+  const systemsIndexMarkdown = renderAgentPage(
+    withHouseAdPointer(systemsIndexSourceMarkdown, "/systems"),
+    "/systems",
+    "Systems"
   );
 
   const glossaryPages = [
@@ -2029,8 +2082,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     glossaryTerms,
     new Set(glossaryPages.map((page) => page.routePath))
   );
-  const glossaryIndexMarkdown = glossaryAgentMarkdown(glossaryTerms);
   const glossarySourceMarkdown = glossaryMarkdown(glossaryTerms);
+
+  const glossaryIndexMarkdown = renderAgentPage(
+    glossarySourceMarkdown,
+    "/glossary",
+    "Glossary"
+  );
 
   const glossaryIndexBody = yield* compileMarkdownBody(
     glossarySourceMarkdown,
@@ -2839,13 +2897,20 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           contentVersion
         );
 
+        const bodyMarkdown = deriveAgentMarkdown(
+          `${spec.text}${pageFooterMarkdown(spec.routePath)}`
+        );
+
+        const text = renderAgentPage(bodyMarkdown, spec.routePath, spec.title);
+
         return {
+          bodyMarkdown,
           description: spec.description,
-          digest: digest(`${spec.text}${pageFooterMarkdown(spec.routePath)}`),
+          digest: digest(text),
           documentHtml,
           routePath: spec.routePath,
           sourcePath: spec.sourcePath,
-          text: `${spec.text}${pageFooterMarkdown(spec.routePath)}`,
+          text,
           title: spec.title,
         };
       }),
@@ -2870,12 +2935,17 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           contentVersion
         );
 
-        const text = withHouseAdPointer(
-          `${skill.text}${pageFooterMarkdown(skill.routePath)}`,
-          skill.routePath
+        const bodyMarkdown = deriveAgentMarkdown(
+          withHouseAdPointer(
+            `${skill.text}${pageFooterMarkdown(skill.routePath)}`,
+            skill.routePath
+          )
         );
 
+        const text = renderAgentPage(bodyMarkdown, skill.routePath, skill.name);
+
         return {
+          bodyMarkdown,
           description: skill.description,
           digest: digest(text),
           documentHtml,
@@ -2906,12 +2976,17 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           contentVersion
         );
 
-        const text = withHouseAdPointer(
-          `${lore.text}${pageFooterMarkdown(lore.routePath)}`,
-          lore.routePath
+        const bodyMarkdown = deriveAgentMarkdown(
+          withHouseAdPointer(
+            `${lore.text}${pageFooterMarkdown(lore.routePath)}`,
+            lore.routePath
+          )
         );
 
+        const text = renderAgentPage(bodyMarkdown, lore.routePath, lore.title);
+
         return {
+          bodyMarkdown,
           description: lore.description,
           digest: digest(text),
           documentHtml,
@@ -3054,7 +3129,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const staticContentVersion = contentVersion;
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(`${homeMarkdownTemplate}${pageFooterMarkdown("/")}`)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const cartridgesImageJpegBase64 = ${sourceLiteral(cartridgesImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(`${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(`${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const systemsIndexMarkdown = ${sourceLiteral(`${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`)} as const;\n\nexport const systemsIndexDocumentHtml = ${sourceLiteral(systemsIndexDocumentHtml)} as const;\n\nexport const glossaryTerms = ${sourceLiteral(glossaryTerms.map(({ term, summary, routePath }) => ({ routePath, summary, term })))} as const;\n\nexport const glossaryIndexMarkdown = ${sourceLiteral(glossaryIndexMarkdown)} as const;\n\nexport const glossaryIndexDocumentHtml = ${sourceLiteral(glossaryIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const agentPointerMarkdown = ${sourceLiteral(agentPointerMarkdown)} as const;\n\nexport const authMarkdown = ${sourceLiteral(authMarkdown)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(`${homeMarkdownTemplate}${pageFooterMarkdown("/")}`)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const cartridgesImageJpegBase64 = ${sourceLiteral(cartridgesImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(`${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(`${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const systemsIndexMarkdown = ${sourceLiteral(`${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`)} as const;\n\nexport const systemsIndexDocumentHtml = ${sourceLiteral(systemsIndexDocumentHtml)} as const;\n\nexport const glossaryTerms = ${sourceLiteral(glossaryTerms.map(({ term, summary, routePath }) => ({ routePath, summary, term })))} as const;\n\nexport const glossaryIndexMarkdown = ${sourceLiteral(glossaryIndexMarkdown)} as const;\n\nexport const glossaryIndexDocumentHtml = ${sourceLiteral(glossaryIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem
