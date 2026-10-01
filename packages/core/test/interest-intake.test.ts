@@ -1,5 +1,6 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Layer, Option, Redacted } from "effect";
+import { Effect, Fiber, Layer, Option, Redacted } from "effect";
+import { TestClock } from "effect/testing";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 
 import { drovrIntakeLayer, DrovrIntake } from "../src/interest-intake.js";
@@ -12,7 +13,7 @@ const intakeRequest: IntakeRequest = {
   submissionId: "11111111-1111-4111-8111-111111111111",
 };
 
-const respondWith = (status: number, body: string) =>
+const respondWith = (status: number, body: string | null) =>
   Layer.succeed(
     HttpClient.HttpClient,
     HttpClient.make((request) =>
@@ -52,21 +53,39 @@ const submitVia = (
 
 const refused: IntakeResult = { kind: "refused" };
 
-it.effect("accepts only a 202 with accepted true", () =>
+it.effect("accepts any 2xx, whatever its body", () =>
   Effect.gen(function* accepts() {
-    expect(
-      yield* submitVia(respondWith(202, JSON.stringify({ accepted: true })))
-    ).toEqual({
-      kind: "accepted",
-    });
-    expect(
-      yield* submitVia(respondWith(202, JSON.stringify({ accepted: false })))
-    ).toEqual(refused);
-    expect(yield* submitVia(respondWith(202, "not json"))).toEqual(refused);
-    expect(
-      yield* submitVia(respondWith(200, JSON.stringify({ accepted: true })))
-    ).toEqual(refused);
+    for (const [status, body] of [
+      [202, JSON.stringify({ accepted: true })],
+      [202, "not json"],
+      [200, JSON.stringify({ accepted: true })],
+      [204, null],
+    ] as const) {
+      expect(yield* submitVia(respondWith(status, body))).toEqual({
+        kind: "accepted",
+      });
+    }
   })
+);
+
+it.effect(
+  "asks for an immediate retry when drovr is slower than the timeout",
+  () =>
+    Effect.gen(function* timesOut() {
+      const hanging = Layer.succeed(
+        HttpClient.HttpClient,
+        HttpClient.make(() => Effect.never)
+      );
+
+      const fiber = yield* Effect.forkChild(submitVia(hanging));
+
+      yield* TestClock.adjust("20 seconds");
+
+      expect(yield* Fiber.join(fiber)).toEqual({
+        afterSeconds: 0,
+        kind: "retry",
+      });
+    })
 );
 
 it.effect("asks for a retry on a 503 that names its delay", () =>
@@ -85,11 +104,9 @@ it.effect("asks for a retry on a 503 that names its delay", () =>
 it.effect("refuses every other status and a dead network", () =>
   Effect.gen(function* failsClosed() {
     for (const status of [400, 401, 403, 404, 409, 422, 429, 500, 502]) {
-      expect(
-        yield* submitVia(
-          respondWith(status, JSON.stringify({ accepted: true }))
-        )
-      ).toEqual(refused);
+      expect(yield* submitVia(respondWith(status, JSON.stringify({})))).toEqual(
+        refused
+      );
     }
 
     expect(yield* submitVia(failing)).toEqual(refused);

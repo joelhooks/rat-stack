@@ -26,15 +26,18 @@ export class DrovrIntake extends Context.Service<
   { readonly submit: (request: IntakeRequest) => Effect.Effect<IntakeResult> }
 >()("@rat-stack/core/DrovrIntake") {}
 
-const INTAKE_TIMEOUT = "5 seconds";
+const INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND = "20 seconds";
+
+const accepted: IntakeResult = { kind: "accepted" };
 
 const refused: IntakeResult = { kind: "refused" };
 
-const Accepted = Schema.Struct({ accepted: Schema.Literal(true) });
+const timedOutReplaySameSubmission: IntakeResult = {
+  afterSeconds: 0,
+  kind: "retry",
+};
 
 const Unavailable = Schema.Struct({ retryAfterSeconds: Schema.Finite });
-
-const decodeAccepted = Schema.decodeUnknownEffect(Accepted);
 
 const decodeUnavailable = Schema.decodeUnknownEffect(Unavailable);
 
@@ -58,11 +61,17 @@ export const drovrIntakeLayer = (settings: IntakeSettings) =>
           HttpClientRequest.bodyJsonUnsafe(intake)
         );
 
-        const response = yield* http.execute(request).pipe(
-          Effect.timeout(INTAKE_TIMEOUT),
+        const outcome = yield* http.execute(request).pipe(
           Effect.map(Option.some),
-          Effect.catchCause(() => Effect.succeed(Option.none()))
+          Effect.catchCause(() => Effect.succeed(Option.none())),
+          Effect.timeoutOption(INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND)
         );
+
+        if (Option.isNone(outcome)) {
+          return timedOutReplaySameSubmission;
+        }
+
+        const response = outcome.value;
 
         if (Option.isNone(response)) {
           return refused;
@@ -70,12 +79,8 @@ export const drovrIntakeLayer = (settings: IntakeSettings) =>
 
         const { status } = response.value;
 
-        if (status === 202) {
-          return yield* response.value.json.pipe(
-            Effect.flatMap(decodeAccepted),
-            Effect.as<IntakeResult>({ kind: "accepted" }),
-            Effect.orElseSucceed(() => refused)
-          );
+        if (status >= 200 && status < 300) {
+          return accepted;
         }
 
         if (status === 503) {

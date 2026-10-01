@@ -91,7 +91,7 @@ const expectedSecurityHeaders = {
 } as const;
 
 const expectedContentSecurityPolicy =
-  "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; script-src https://static.cloudflareinsights.com; connect-src https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+  "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; script-src https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
 const expectSecurityHeaders = (response: Response, html: boolean) => {
   for (const [name, value] of Object.entries(expectedSecurityHeaders)) {

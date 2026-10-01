@@ -146,6 +146,18 @@ const jsonArrayStream = (items: readonly unknown[]) =>
     encoder.encode("\n]\n"),
   ]);
 
+const toConfirmPageFromEmailLink = (
+  request: HttpServerRequest.HttpServerRequest
+) =>
+  Effect.succeed(
+    HttpServerResponse.empty({
+      headers: {
+        location: `/tokenmaxx/confirm${new URL(request.url, "https://ratstack.sh").search}`,
+      },
+      status: 308,
+    })
+  );
+
 const notFound = HttpServerResponse.text("Not found.\n", {
   contentType: "text/plain; charset=utf-8",
   status: 404,
@@ -189,6 +201,8 @@ export const interestRoutes = (options: InterestOptions) => {
   );
 
   const formRoutes = Layer.mergeAll(
+    HttpRouter.add("GET", "/confirm", toConfirmPageFromEmailLink),
+    HttpRouter.add("POST", "/confirm", toConfirmPageFromEmailLink),
     HttpRouter.add("POST", "/tokenmaxx/interest", (request) =>
       Effect.gen(function* submitInterest() {
         const params = yield* request.urlParamsBody;

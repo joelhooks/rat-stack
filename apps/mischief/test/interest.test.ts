@@ -1509,6 +1509,34 @@ const pageStates = [
   },
 ] as const;
 
+it.effect("sends the email's /confirm link to the confirm page", () =>
+  Effect.gen(function* confirmAlias() {
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* redirects() {
+          for (const request of [
+            new Request("https://ratstack.sh/confirm?token=a%2Bb"),
+            form("/confirm", { token: "t" }),
+          ]) {
+            const response = yield* call(handler, request);
+
+            expect(response.status).toBe(308);
+          }
+
+          const get = yield* call(
+            handler,
+            new Request("https://ratstack.sh/confirm?token=a%2Bb")
+          );
+
+          expect(get.headers.get("location")).toBe(
+            "/tokenmaxx/confirm?token=a%2Bb"
+          );
+        }),
+      { confirm: confirmFake("pending", "confirmed"), mode: "drovr" }
+    );
+  })
+);
+
 it.effect("renders each confirm page from drovr's token state", () =>
   Effect.gen(function* confirmStates() {
     yield* withInterest(
@@ -1614,7 +1642,7 @@ it.effect(
               /script-src https:\/\/static\.cloudflareinsights\.com 'sha256-[A-Za-z0-9+/=]+' https:\/\/www\.postshiba\.com;/u
             );
             expect(policy).toContain(
-              "connect-src https://cloudflareinsights.com https://www.postshiba.com https://postshiba.com"
+              "connect-src 'self' https://cloudflareinsights.com https://www.postshiba.com https://postshiba.com"
             );
             expect(policy).toContain("worker-src blob:");
           }),
