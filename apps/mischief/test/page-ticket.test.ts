@@ -2,7 +2,11 @@ import { expect, it } from "@effect/vitest";
 import { IntakeTicket, PAGE_TICKET_SOURCE } from "@rat-stack/core/intake";
 import { PAGE_TICKET_PLACEHOLDER } from "@rat-stack/intake-live";
 import { Context, Effect, Layer, Option } from "effect";
-import { HttpRouter, HttpServerRequest } from "effect/unstable/http";
+import {
+  HttpRouter,
+  HttpServerRequest,
+  HttpServerResponse,
+} from "effect/unstable/http";
 
 import { mischiefRoutes, tokenmaxxResponse } from "../src/app.js";
 import { withAvailablePageTicket } from "../src/interest/page-ticket.js";
@@ -35,6 +39,22 @@ it.effect(
         );
 
         expect(response.headers["cache-control"]).toBe("no-store");
+
+        const webResponse = HttpServerResponse.toWeb(response);
+        const body = yield* Effect.promise(webResponse.text.bind(webResponse));
+        expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
+
+        if (accept === "text/markdown") {
+          const pageTicket =
+            /```text\n(?<ticket>\S+)\n```/u.exec(body)?.groups?.ticket ?? "";
+
+          expect(pageTicket.length).toBeGreaterThan(0);
+          expect(body).toContain(`"ticket": "${pageTicket}"`);
+          expect(body).toContain(`--ticket '${pageTicket}'`);
+          expect(
+            (yield* tickets.verify(pageTicket, "served-page")).source
+          ).toBe(PAGE_TICKET_SOURCE);
+        }
       }
     }).pipe(Effect.provide(IntakeTicket.testLayer))
 );
