@@ -13,22 +13,13 @@ In honor of [Lauren Tan](https://x.com/poteto), who [joined the four comma club]
 
 ## The idea
 
-The [first Loopcraft](https://youtu.be/uC6slhCTXlA) built one loop: an agent working one issue at a time. This one goes up a level, to the harness that runs many loops at once. It has two jobs.
-
-|  | Software factory | Science factory |
-| --- | --- | --- |
-| Shape | Serial. Each step builds on the last. | Parallel. Many attempts at once. |
-| What decides quality | The worst step. One bad step breaks the chain. | The best attempt. Dead ends are results, not waste. |
-| What it needs | Fences that raise the floor | Wide fan-out and a hard judge |
-
-Most harnesses get this wrong in one direction or the other: they fence exploration until nothing new survives, or they let exploration straight into the shipped path. We'll build one that knows the difference. Background reading: [Science is a strong-link problem](https://www.experimental-history.com/p/science-is-a-strong-link-problem).
+The [first Loopcraft](https://youtu.be/uC6slhCTXlA) built one loop: an agent working one issue at a time. This one goes up a level, to the harness that runs many loops at once.
 
 ## What we'll build
 
 - **Time.** Loops that wake themselves, wait on real conditions, and survive restarts.
 - **Hands.** Agents in panes that a supervisor can watch, steer, and prove are working.
 - **A software factory.** Lanes, a boss per lane, workers, and results checked before they land.
-- **A science factory.** Fan out N attempts at one problem, keep every branch, judge, land the best.
 - **Self-improvement.** Mistakes on the shipped path become fences. Stale fences get deleted.
 
 The factory needs something to build, so each of us builds a rat's nest: a small personal cloud inside a Linux container. It's the McGuffin. It also happens to be a place your harness could live afterward.
@@ -38,7 +29,6 @@ The factory needs something to build, so each of us builds a rat's nest: a small
 - Your own fork of the harness, changed to fit how you work.
 - A rat's nest running in a container on your machine.
 - One software factory run that landed verified work.
-- One science factory run: several branches, one judged winner, every dead end kept.
 - One fence you added from a real mistake, and one you deleted.
 
 ## The harness

@@ -2471,7 +2471,7 @@ ${groupedSkills}
 
   const tokenmaxxMetadata = {
     description:
-      "Loopcraft: the outer loop. A four-hour working session building agent harnesses: a software factory and a science factory.",
+      "Loopcraft: the outer loop. A four-hour working session building agent harnesses.",
     noindex: true,
     path: tokenmaxxRoutePath,
     title: "how to burn a trillion tokens",
