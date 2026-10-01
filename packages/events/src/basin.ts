@@ -2,7 +2,14 @@ import * as Cloudflare from "alchemy/Cloudflare";
 import * as Output from "alchemy/Output";
 import { Random } from "alchemy/Random";
 import * as RuntimeContext from "alchemy/RuntimeContext";
-import { Effect, Layer, Redacted, Schema } from "effect";
+import {
+  Config,
+  ConfigProvider,
+  Effect,
+  Layer,
+  Redacted,
+  Schema,
+} from "effect";
 
 import { EventSinkError } from "./event-sink-error.js";
 import { EventSink } from "./event-sink.js";
@@ -17,6 +24,9 @@ export const EVENTS_TABLE = "events_raw";
 
 const encodeRawEvent = Schema.encodeEffect(RawEventSchema);
 
+export const unstructuredRow = (event: typeof RawEventSchema.Type) =>
+  encodeRawEvent(event).pipe(Effect.map((value) => ({ value })));
+
 export const basinFoundation = ({ id }: BasinOptions) =>
   Effect.gen(function* declareBasinFoundation() {
     const bucket = yield* Cloudflare.R2.Bucket(`${id}EventsBucket`, {});
@@ -30,47 +40,56 @@ export const basinFoundation = ({ id }: BasinOptions) =>
     return { bucket, salt, stream } as const;
   });
 
+const sinkToken = Config.Redacted("EVENTS_SINK_TOKEN").pipe(
+  Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())
+);
+
+export interface IcebergSinkOptions extends BasinOptions {
+  readonly bucketName: Output.Output<string>;
+  readonly streamName: Output.Output<string>;
+}
+
+export const icebergSink = ({
+  bucketName,
+  id,
+  streamName,
+}: IcebergSinkOptions) =>
+  Effect.gen(function* declareIcebergSink() {
+    const token = yield* sinkToken;
+
+    const catalog = yield* Cloudflare.R2.DataCatalog(`${id}EventsCatalog`, {
+      bucketName,
+      token,
+    });
+
+    const sink = yield* Cloudflare.Pipelines.Sink(`${id}EventsSink`, {
+      config: {
+        bucket: catalog.bucketName,
+        namespace: "default",
+        tableName: EVENTS_TABLE,
+        token,
+      },
+      format: { compression: "zstd", type: "parquet" },
+      type: "r2_data_catalog",
+    });
+
+    return yield* Cloudflare.Pipelines.Pipeline(`${id}EventsPipeline`, {
+      sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${streamName}`,
+    });
+  });
+
 export const Basin = ({ id }: BasinOptions) =>
   Layer.unwrap(
     Effect.gen(function* buildBasinEvents() {
-      const { accountId } = yield* yield* Cloudflare.CloudflareEnvironment;
       const { bucket, salt, stream } = yield* basinFoundation({ id });
 
-      const token = yield* Cloudflare.ApiToken.AccountApiToken(
-        `${id}EventsCatalogToken`,
-        {
-          accountId,
-          policies: [
-            {
-              effect: "allow",
-              permissionGroups: [
-                "Workers R2 Data Catalog Write",
-                "Workers R2 Storage Write",
-              ],
-              resources: { [`com.cloudflare.api.account.${accountId}`]: "*" },
-            },
-          ],
-        }
-      );
-
-      const catalog = yield* Cloudflare.R2.DataCatalog(`${id}EventsCatalog`, {
-        bucketName: bucket.bucketName,
-        token: token.value,
-      });
-
-      const sink = yield* Cloudflare.Pipelines.Sink(`${id}EventsSink`, {
-        config: {
-          bucket: catalog.bucketName,
-          namespace: "default",
-          tableName: EVENTS_TABLE,
-          token: token.value,
-        },
-        type: "r2_data_catalog",
-      });
-
-      yield* Cloudflare.Pipelines.Pipeline(`${id}EventsPipeline`, {
-        sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${stream.name}`,
-      });
+      if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
+        yield* icebergSink({
+          bucketName: bucket.bucketName,
+          id,
+          streamName: stream.name,
+        });
+      }
 
       const saltValue = yield* salt.text;
       const writer = yield* Cloudflare.Pipelines.WriteStream(stream);
@@ -78,7 +97,7 @@ export const Basin = ({ id }: BasinOptions) =>
       return Layer.mergeAll(
         Layer.succeed(EventSink, {
           send: (events) =>
-            Effect.all(events.map((event) => encodeRawEvent(event))).pipe(
+            Effect.all(events.map((event) => unstructuredRow(event))).pipe(
               Effect.flatMap((records) => writer.send(records)),
               Effect.mapError((cause) => new EventSinkError({ cause })),
               Effect.provide(RuntimeContext.RuntimeContext.phantom)
