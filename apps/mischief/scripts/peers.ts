@@ -83,26 +83,87 @@ const versionCell = (value: string, pin: string) => {
   return `${cell(value)} ${matches ? "=" : "≠"}`;
 };
 
-const peerTable = (peers: readonly Peer[], pins: Pins) =>
-  [
-    "| Tier | Repo | Why this tier | Effect | Alchemy | XState | @xstate/effect | Checked | First seen | Studied |",
-    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-    ...peers.map(
-      (peer) =>
-        `| ${[
-          peer.tier,
-          `[${peer.repo}](https://github.com/${peer.repo})`,
-          cell(peer.reason),
-          versionCell(peer.versions.effect, pins.effect),
-          versionCell(peer.versions.alchemy, pins.alchemy),
-          versionCell(peer.versions.xstate, pins.xstate),
-          versionCell(peer.versions.xstateEffect, pins.xstateEffect),
-          peer.checked,
-          peer.firstSeen,
-          peer.studied,
-        ].join(" | ")} |`
+const footnoteNumber = (number: number) =>
+  String(number).replaceAll(
+    /\d/gu,
+    (digit) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[Number(digit)] ?? digit
+  );
+
+const peerTable = (peers: readonly Peer[], pins: Pins) => {
+  const notes: string[] = [];
+
+  const annotatedVersion = (value: string, pin: string) => {
+    const markers: string[] = [];
+
+    const plain = value.replaceAll(
+      /\s*\((?<note>[^)]+)\)/gu,
+      (_match, note: string) => {
+        if (!notes.includes(note)) {
+          notes.push(note);
+        }
+
+        markers.push(footnoteNumber(notes.indexOf(note) + 1));
+
+        return "";
+      }
+    );
+
+    const compared = versionCell(plain, pin);
+
+    const formatted = plain.includes(" ")
+      ? compared.replaceAll(
+          /\d+\.\d+\.\d+(?:-[a-z]+\.\d+)?/gu,
+          (version) => `\`${version}\``
+        )
+      : compared;
+
+    return `${formatted}${markers.join("")}`;
+  };
+
+  const headers = [
+    "Tier",
+    "Repo",
+    "Why this tier",
+    "Effect",
+    "Alchemy",
+    "XState",
+    "@xstate/effect",
+    "Checked",
+    "First seen",
+    "Studied",
+  ];
+
+  const rows = peers.map((peer) => [
+    peer.tier,
+    `[${peer.repo}](https://github.com/${peer.repo})`,
+    cell(peer.reason),
+    annotatedVersion(peer.versions.effect, pins.effect),
+    annotatedVersion(peer.versions.alchemy, pins.alchemy),
+    annotatedVersion(peer.versions.xstate, pins.xstate),
+    annotatedVersion(peer.versions.xstateEffect, pins.xstateEffect),
+    peer.checked,
+    peer.firstSeen,
+    peer.studied,
+  ]);
+
+  const columns = headers.flatMap((_header, index) =>
+    rows.length > 0 && rows.every((row) => row[index] === "—") ? [] : [index]
+  );
+
+  return [
+    "Drift: = matches our pin; ≠ differs from our pin.",
+    "",
+    `| ${columns.map((index) => headers[index]).join(" | ")} |`,
+    `| ${columns.map(() => "---").join(" | ")} |`,
+    ...rows.map(
+      (row) => `| ${columns.map((index) => row[index]).join(" | ")} |`
+    ),
+    "",
+    ...notes.map(
+      (note, index) => `${footnoteNumber(index + 1)} ${cell(note)}  `
     ),
   ].join("\n");
+};
 
 export const renderPeers = (
   template: string,

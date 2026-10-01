@@ -88,13 +88,18 @@ export const responsiveTables = () => {
 
           for (const [column, cell] of tableChildren(row, "td").entries()) {
             const header = headers[column]?.trim() ?? "";
-            const tier = tierOfCell(header, responsiveTableText(cell).trim());
+            const text = responsiveTableText(cell).trim();
+            const tier = tierOfCell(header, text);
 
             cell.properties = {
               ...cell.properties,
               dataLabel: header === "" ? `Column ${column + 1}` : header,
               role: "cell",
             };
+
+            if (/^(?:[@\w./-]+)(?:\s[=≠])?[⁰¹²³⁴⁵⁶⁷⁸⁹]*$/u.test(text)) {
+              cell.properties.className = ["table-token"];
+            }
 
             if (tier !== undefined) {
               cell.properties.dataTier = tier;
@@ -107,7 +112,10 @@ export const responsiveTables = () => {
         children: [child],
         properties: {
           ariaLabel: `${label} table`,
-          className: ["table-wrapper"],
+          className:
+            headers.length >= 6
+              ? ["table-wrapper", "table-wide"]
+              : ["table-wrapper"],
           role: "region",
           tabIndex: 0,
         },

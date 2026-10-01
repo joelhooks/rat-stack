@@ -98,5 +98,40 @@ it.prop(
     expect(markdown).toContain(
       "https://github.com/example/peer/blob/abc123/package.json"
     );
+
+    const annotated = renderPeers(
+      "<PeerRoster />\n<PeersAlsoSeen />",
+      [
+        {
+          ...row,
+          versions: {
+            ...row.versions,
+            effect: `${effect} (workspace override)`,
+          },
+        },
+        {
+          ...row,
+          tier: "C",
+          versions: { ...row.versions, xstate: "6.0.0-alpha.59" },
+        },
+      ],
+      pins
+    );
+
+    const [roster, alsoSeen] = annotated.split("<details>");
+
+    expect(roster).not.toContain("| XState |");
+    expect(roster).not.toContain("| @xstate/effect |");
+    expect(alsoSeen).toContain("| XState |");
+    expect(alsoSeen).not.toContain("| @xstate/effect |");
+    expect(roster).toContain("¹ workspace override");
+    expect(roster).not.toContain("(workspace override)");
+    expect(roster).toContain(`${effect} =¹`);
+    expect(roster).toContain(
+      "Drift: = matches our pin; ≠ differs from our pin."
+    );
+    expect(alsoSeen).toContain(
+      "Drift: = matches our pin; ≠ differs from our pin."
+    );
   }
 );
