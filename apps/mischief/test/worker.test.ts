@@ -640,7 +640,7 @@ it.effect(
           "text/html"
         );
         expect(resourceHtml).toContain(
-          "<title>Effect 4 examples | rat-stack</title>"
+          `<title>${resource.title} | rat-stack</title>`
         );
         expect(resourceHtml).toContain(
           '<h1 id="effect-4-reference-projects-studied-2026-09-18">'

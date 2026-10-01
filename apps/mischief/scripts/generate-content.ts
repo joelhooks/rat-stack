@@ -753,17 +753,17 @@ const lawSpecs: readonly SourceSpec[] = [
   },
   {
     description:
-      "Working examples for the exact Effect version used by this repo.",
+      "Dated Effect 4 source studies from September 2026; current versions live in pins.md.",
     routePath: "/resources/effect-4-reference-projects.svx",
     sourcePath: ".brain/resources/effect-4-reference-projects.svx",
-    title: "Effect 4 examples",
+    title: "Effect 4 study: September 2026",
   },
   {
     description:
-      "Why one typed action powers the command line, HTTP, MCP, and sandbox.",
+      "Historical Effect rc.115 proposal and implementation receipts from 2026-09-18; use the one-capability-every-surface lore page for the current pattern.",
     routePath: "/resources/schema-projections-and-code-mode.svx",
     sourcePath: ".brain/resources/schema-projections-and-code-mode.svx",
-    title: "One action, four interfaces",
+    title: "Schema projections: 2026-09-18 history",
   },
   {
     description: "How the current lint rules draw their syntax boundaries.",
