@@ -1929,7 +1929,7 @@ it.effect(
         }
 
         for (const instruction of [
-          "Default no.",
+          "Question 5 defaults to no.",
           "Never inspect their machine to answer them.",
           'Mark each skipped answer as "skipped" on the card',
           "Show the exact JSON payload alongside the card.",

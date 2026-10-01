@@ -30,7 +30,7 @@ Ask the person these five questions verbatim. Never inspect their machine to ans
 4. May we email you about the workshop?
 5. Separately, may Joel share your email with selected attendees?
 
-Default no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
+Question 5 defaults to no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
 
 Joel reads the approved answers and picks 2–3 people. Confirmation is not a seat.
 
@@ -66,7 +66,7 @@ Choose one surface, not all three. Submit the approved payload once. Do not swit
 
 - **MCP:** connect to https://ratstack.sh/mcp and call `joinInterest` with the approved JSON payload as its arguments.
 - **HTTP API:** POST the approved JSON payload to https://ratstack.sh/api/joinInterest with `Content-Type: application/json`.
-- **CLI:** use `rat-stack joinInterest` with the same approved fields; answers and consent are JSON flags.
+- **CLI:** from a rat-stack checkout, run `rat-stack joinInterest` with the same approved fields; answers and consent are JSON flags.
 
 ```sh
 rat-stack joinInterest \
