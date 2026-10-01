@@ -15,7 +15,10 @@ const SENSITIVE_KEY_PARTS = [
 export const isSensitiveKey = (key: string) => {
   const lowered = key.toLowerCase();
 
-  return SENSITIVE_KEY_PARTS.some((part) => lowered.includes(part));
+  return (
+    lowered === "t" ||
+    SENSITIVE_KEY_PARTS.some((part) => lowered.includes(part))
+  );
 };
 
 export const capturedQuery = (params: URLSearchParams) => {

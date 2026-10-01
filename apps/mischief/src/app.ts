@@ -16,6 +16,7 @@ import {
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as HttpHeaders from "effect/unstable/http/Headers";
+import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -73,6 +74,7 @@ import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
+import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
 import { contentSecurityPolicy } from "./security.js";
@@ -185,6 +187,7 @@ const searchNotFound = (request: HttpServerRequest.HttpServerRequest) => {
 };
 
 const machinePath = (pathname: string) =>
+  pathname === UNSUBSCRIBE_PATH ||
   pathname === "/api" ||
   pathname.startsWith("/api/") ||
   pathname === "/mcp" ||
@@ -1172,6 +1175,7 @@ const shieldKeyFor = (options: MischiefRouteOptions) =>
 
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
+    unsubscribeRoutes,
     contentRoutes(shieldKeyFor(options)),
     joinRequestMiddleware({
       rateLimits: options.rateLimits,
@@ -1192,6 +1196,15 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
       ? Layer.empty
       : staticCaching(options.staticCache),
     webBotAuthRoutes(options.webBotAuth ?? { enabled: false })
+  ).pipe(
+    Layer.provideMerge(
+      Layer.succeed(
+        HttpMiddleware.TracerDisabledWhen,
+        (request) =>
+          new URL(request.url, "https://ratstack.sh").pathname ===
+          UNSUBSCRIBE_PATH
+      )
+    )
   );
 
 export const routes = mischiefRoutes();
