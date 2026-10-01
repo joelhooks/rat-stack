@@ -198,3 +198,51 @@ it.effect(
       expect(result?.code).not.toContain('data-tier="A"');
     })
 );
+
+it.effect(
+  "stacks paired facts without losing dates, drift marks or footnotes",
+  () =>
+    Effect.gen(function* compilesPairedTable() {
+      const result = yield* Effect.promise(
+        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
+        () =>
+          compile(
+            "| XState · bridge | Seen / checked | Studied | Repo |\n| --- | --- | --- | --- |\n| 6.0.0-alpha.59 =¹ · 0.1.0-alpha.2 = | 2026-09-23 · 2026-10-01 | [same-version-repos](/study) | [oscarmarina/blockquote-web-components](https://github.com/oscarmarina/blockquote-web-components) |\n",
+            {
+              rehypePlugins: [responsiveTables],
+              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
+              remarkPlugins: [remarkGfm as Plugin],
+            }
+          ).then(decodeCompiledTable)
+      );
+
+      expect(result.code).toContain(
+        'class="table-pair-header">Seen / checked</th>'
+      );
+      expect(result.code).toContain(
+        'data-label="XState · bridge" role="cell" class="table-pair"'
+      );
+
+      const tokens = [
+        ...result.code.matchAll(
+          /<span\s+class="table-token"\s*>(?<value>[^<]+)<\/span>/gu
+        ),
+      ].map((match) => match.groups?.value);
+
+      expect(tokens).toEqual([
+        "6.0.0-alpha.59 =¹",
+        "0.1.0-alpha.2 =",
+        "2026-09-23",
+        "2026-10-01",
+        "oscarmarina/",
+        "blockquote-web-components",
+      ]);
+      expect(result.code).toContain("<wbr>");
+      expect(result.code).toContain(
+        'href="https://github.com/oscarmarina/blockquote-web-components"'
+      );
+      expect(result.code).toContain(
+        '<td data-label="Studied" role="cell"><a href="/study">same-version-repos</a></td>'
+      );
+    })
+);

@@ -2,6 +2,8 @@ import { Schema } from "effect";
 
 const tierLetters = new Set(["S", "A", "B", "C", "D", "E", "F"]);
 
+const pairedTableHeaders = new Set(["Seen / checked", "XState · bridge"]);
+
 const tierOfCell = (header: string, text: string) =>
   header === "Tier" && tierLetters.has(text) ? text : undefined;
 
@@ -43,6 +45,59 @@ const childrenOfTable = (node: ResponsiveTableNode) =>
     ["thead", "tbody", "tfoot"].includes(child.tagName ?? "")
   );
 
+const tableToken = (value: string): ResponsiveTableNode => ({
+  children: [{ type: "text", value }],
+  properties: { className: ["table-token"] },
+  tagName: "span",
+  type: "element",
+});
+
+const formatTableHeader = (cell: ResponsiveTableNode) => {
+  cell.properties = { ...cell.properties, role: "columnheader", scope: "col" };
+
+  if (pairedTableHeaders.has(responsiveTableText(cell).trim())) {
+    cell.properties.className = ["table-pair-header"];
+  }
+};
+
+const formatTableCellTokens = (
+  cell: ResponsiveTableNode,
+  header: string,
+  text: string
+) => {
+  const pair = pairedTableHeaders.has(header) ? text.split(" · ") : [];
+
+  if (pair.length === 2) {
+    cell.properties = { ...cell.properties, className: ["table-pair"] };
+    cell.children = pair.map(tableToken);
+  } else if (
+    header !== "Studied" &&
+    /^(?:[@\w./-]+)(?:\s[=≠])?[⁰¹²³⁴⁵⁶⁷⁸⁹]*$/u.test(text)
+  ) {
+    cell.properties = { ...cell.properties, className: ["table-token"] };
+  }
+
+  if (header === "Repo") {
+    for (const link of tableChildren(cell, "a")) {
+      const [owner, repo, ...rest] = responsiveTableText(link).split("/");
+
+      if (
+        owner !== undefined &&
+        owner !== "" &&
+        repo !== undefined &&
+        repo !== "" &&
+        rest.length === 0
+      ) {
+        link.children = [
+          tableToken(`${owner}/`),
+          { children: [], properties: {}, tagName: "wbr", type: "element" },
+          tableToken(repo),
+        ];
+      }
+    }
+  }
+};
+
 export const responsiveTables = () => {
   let heading = "";
 
@@ -79,11 +134,7 @@ export const responsiveTables = () => {
           row.properties = { ...row.properties, role: "row" };
 
           for (const cell of tableChildren(row, "th")) {
-            cell.properties = {
-              ...cell.properties,
-              role: "columnheader",
-              scope: "col",
-            };
+            formatTableHeader(cell);
           }
 
           for (const [column, cell] of tableChildren(row, "td").entries()) {
@@ -97,9 +148,7 @@ export const responsiveTables = () => {
               role: "cell",
             };
 
-            if (/^(?:[@\w./-]+)(?:\s[=≠])?[⁰¹²³⁴⁵⁶⁷⁸⁹]*$/u.test(text)) {
-              cell.properties.className = ["table-token"];
-            }
+            formatTableCellTokens(cell, header, text);
 
             if (tier !== undefined) {
               cell.properties.dataTier = tier;

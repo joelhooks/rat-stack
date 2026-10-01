@@ -120,9 +120,14 @@ it.prop(
 
     const [roster, alsoSeen] = annotated.split("<details>");
 
-    expect(roster).not.toContain("| XState |");
+    expect(roster).not.toContain("| XState · bridge |");
     expect(roster).not.toContain("| @xstate/effect |");
-    expect(alsoSeen).toContain("| XState |");
+    expect(alsoSeen).toContain("| XState · bridge |");
+    expect(alsoSeen).toContain("6.0.0-alpha.59 = · —");
+    expect(roster).toContain("| Seen / checked |");
+    expect(roster).toContain(`${row.firstSeen} · ${row.checked}`);
+    expect(roster).not.toContain("| Checked |");
+    expect(roster).not.toContain("| First seen |");
     expect(alsoSeen).not.toContain("| @xstate/effect |");
     expect(roster).toContain("¹ workspace override");
     expect(roster).not.toContain("(workspace override)");
@@ -133,5 +138,19 @@ it.prop(
     expect(alsoSeen).toContain(
       "Drift: = matches our pin; ≠ differs from our pin."
     );
+
+    const bridgeOnly = renderPeers(
+      "<PeerRoster />",
+      [
+        {
+          ...row,
+          versions: { ...row.versions, xstateEffect: "0.1.0-alpha.2" },
+        },
+      ],
+      pins
+    );
+
+    expect(bridgeOnly).toContain("| XState · bridge |");
+    expect(bridgeOnly).toContain("— · 0.1.0-alpha.2 =");
   }
 );

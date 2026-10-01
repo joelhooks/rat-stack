@@ -110,8 +110,27 @@ td code {
   word-break: normal;
 }
 
-.table-wide .table-token {
+.table-wide td.table-token,
+.table-wide .table-pair {
   width: 1%;
+}
+
+.table-pair > .table-token {
+  display: block;
+}
+
+.table-wide th,
+.table-wide td {
+  padding-inline: 0.375rem;
+}
+
+.table-wide td[data-label="Why this tier"] {
+  box-sizing: border-box;
+  min-width: 28ch;
+}
+
+.table-wide td[data-label="Studied"] {
+  overflow-wrap: anywhere;
 }
 
 th,
@@ -125,6 +144,10 @@ td {
 
 th {
   white-space: nowrap;
+}
+
+.table-pair-header {
+  white-space: normal;
 }
 
 @media (max-width: 40rem) {
@@ -148,8 +171,17 @@ th {
     grid-column: content;
   }
 
-  .table-wide .table-token {
+  .table-wide td.table-token,
+  .table-wide .table-pair {
     width: auto;
+  }
+
+  .table-wide td[data-label="Why this tier"] {
+    min-width: 0;
+  }
+
+  td[data-label="Repo"] {
+    white-space: normal;
   }
 
   table {
