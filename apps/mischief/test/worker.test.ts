@@ -12,7 +12,10 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 
 import { mischiefRoutes } from "../src/app.js";
 import type { StaticResponseCache } from "../src/app.js";
-import { loreSources } from "../src/bundled-content.generated.js";
+import {
+  loreSources,
+  tokenmaxxCopyScriptHash,
+} from "../src/bundled-content.generated.js";
 import {
   a2aAgentCard,
   agentSkillPath,
@@ -34,6 +37,7 @@ import type {
   NativeRateLimitBinding,
   RateLimitBindings,
 } from "../src/rate-limits.js";
+import { contentSecurityPolicy } from "../src/security.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -93,13 +97,21 @@ const expectedSecurityHeaders = {
 const expectedContentSecurityPolicy =
   "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; script-src https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
-const expectSecurityHeaders = (response: Response, html: boolean) => {
+const expectSecurityHeaders = (
+  response: Response,
+  html: boolean,
+  copy = false
+) => {
   for (const [name, value] of Object.entries(expectedSecurityHeaders)) {
     expect(response.headers.get(name), name).toBe(value);
   }
 
+  const policy = copy
+    ? contentSecurityPolicy("'none'", false, tokenmaxxCopyScriptHash)
+    : expectedContentSecurityPolicy;
+
   expect(response.headers.get("content-security-policy")).toBe(
-    html ? expectedContentSecurityPolicy : null
+    html ? policy : null
   );
 };
 
@@ -514,7 +526,11 @@ it.effect(
         expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
         expect(html).toContain("│  defineContract");
-        expect(html).not.toContain("<svg");
+        expect(html).toContain("robot-head");
+        expect(html).toContain("Copy prompt for your agent");
+        expect(markdown).not.toContain("Copy prompt for your agent");
+        expect(markdown).not.toContain("<button");
+        expect(markdown).not.toContain("<CopyPrompt");
         expect(html).not.toContain("prefers-color-scheme");
         expect(html).not.toMatch(/(?:html|body)\s*\{[^}]*background/u);
         expect(html).toContain(
@@ -538,7 +554,10 @@ it.effect(
         expect(html).toContain(
           '<meta name="twitter:card" content="summary_large_image"'
         );
-        expect(html).not.toContain("<script");
+        expect(html).toContain("navigator.clipboard.writeText");
+        expect(htmlResponse.headers.get("content-security-policy")).toContain(
+          "sha256-"
+        );
         expect(skillsHtmlResponse.headers.get("content-type")).toContain(
           "text/html"
         );
@@ -942,7 +961,7 @@ it.effect("sets security headers on every response", () =>
         handler.bind(undefined, new Request("http://localhost/not-found"))
       );
 
-      expectSecurityHeaders(htmlResponse, true);
+      expectSecurityHeaders(htmlResponse, true, true);
       expectSecurityHeaders(markdownResponse, false);
       expectSecurityHeaders(openapiResponse, false);
       expectSecurityHeaders(notFoundResponse, false);
@@ -1266,7 +1285,7 @@ it.effect(
 
           expect(firstHtml.headers.get("x-ratstack-cache")).toBe("MISS");
           expect(secondHtml.headers.get("x-ratstack-cache")).toBe("HIT");
-          expectSecurityHeaders(secondHtml, true);
+          expectSecurityHeaders(secondHtml, true, true);
           expect(secondHtmlBody).toBe(firstHtmlBody);
           expect(firstHtml.headers.get("cache-control")).toContain(
             "s-maxage=31536000"

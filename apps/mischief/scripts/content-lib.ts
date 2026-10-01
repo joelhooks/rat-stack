@@ -1116,10 +1116,40 @@ export interface CopyPromptSpec {
   readonly agentFence: boolean;
   readonly label: string;
   readonly showText: boolean;
+  readonly showLabel?: boolean;
+  readonly robot?: boolean;
   readonly text: string;
 }
 
 export const copyPrompts = {
+  connect: {
+    agentFence: false,
+    label: "Copy prompt for your agent",
+    robot: true,
+    showLabel: true,
+    showText: false,
+    text: [
+      "Read __RATSTACK_ORIGIN__/llms.txt and use rat-stack as the reference",
+      "for how we build: Effect for the hard parts, Alchemy for the",
+      "infrastructure, and a fence that makes the easy path the right",
+      "one. Search its rules and skills before you write code, follow",
+      "its patterns, and tell me when my code breaks them.",
+    ].join("\n"),
+  },
+  cursor: {
+    agentFence: false,
+    label: "Copy Cursor config",
+    showLabel: true,
+    showText: false,
+    text: '{ "mcpServers": { "rat-stack": { "url": "__RATSTACK_ORIGIN__/mcp" } } }',
+  },
+  mcp: {
+    agentFence: false,
+    label: "Copy MCP commands",
+    showLabel: true,
+    showText: false,
+    text: "# Claude Code\nclaude mcp add --transport http rat-stack __RATSTACK_ORIGIN__/mcp\n\n# Codex\ncodex mcp add rat-stack --url __RATSTACK_ORIGIN__/mcp",
+  },
   page: {
     agentFence: false,
     label: "Copy a prompt for your agent",
@@ -1141,6 +1171,13 @@ export const copyPrompts = {
       "3. Read https://ratstack.sh/llms.txt",
       "4. Tell me what is missing.",
     ].join("\n"),
+  },
+  skills: {
+    agentFence: false,
+    label: "Copy skills command",
+    showLabel: true,
+    showText: false,
+    text: "npx skills add joelhooks/rat-stack",
   },
 } satisfies Record<string, CopyPromptSpec>;
 

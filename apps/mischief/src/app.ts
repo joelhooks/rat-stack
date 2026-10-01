@@ -508,7 +508,19 @@ const contentRoutes = (shieldSiteKey: string | undefined) =>
 
       return Effect.succeed(
         acceptsHtml(request)
-          ? html(renderStaticDocument(origin, homeDocumentHtml))
+          ? HttpServerResponse.text(
+              `${renderStaticDocument(origin, homeDocumentHtml)}<script>${tokenmaxxCopyScript}</script>`,
+              {
+                contentType: "text/html; charset=utf-8",
+                headers: {
+                  "content-security-policy": contentSecurityPolicy(
+                    "'none'",
+                    false,
+                    tokenmaxxCopyScriptHash
+                  ),
+                },
+              }
+            )
           : markdown(markdownDocument(origin))
       );
     }),

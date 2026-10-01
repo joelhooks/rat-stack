@@ -262,8 +262,8 @@ for (const button of document.querySelectorAll("button[data-text]")) {
       if (shown) getSelection().selectAllChildren(shown);
       return;
     }
-    if (label) label.textContent = "Copied";
-    status.textContent = "Copied";
+    if (label) label.textContent = "copied ✓";
+    status.textContent = "copied ✓";
     done.hidden = false;
     idle.hidden = true;
     setTimeout(() => {
@@ -524,9 +524,14 @@ const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
 
     return (spec: CopyPromptSpec) =>
       render(component, {
-        props: { label: spec.label, showText: spec.showText, text: spec.text },
+        props: spec,
       })
         .body.replaceAll(/<!--[\s\S]*?-->/gu, "")
+        .replaceAll(/data-text="[^"]*"/gu, (attribute) =>
+          attribute.replaceAll("\n", "&#10;")
+        )
+        .replaceAll("{", "&#123;")
+        .replaceAll("}", "&#125;")
         .replaceAll(/\n\s*\n+/gu, "\n")
         .trim();
   }
@@ -1747,6 +1752,8 @@ one. Search its rules and skills before you write code, follow
 its patterns, and tell me when my code breaks them.
 \`\`\`
 
+<CopyPrompt id="connect" />
+
 Or connect the MCP server directly:
 
 \`\`\`sh
@@ -1757,17 +1764,23 @@ claude mcp add --transport http rat-stack ${originToken}/mcp
 codex mcp add rat-stack --url ${originToken}/mcp
 \`\`\`
 
+<CopyPrompt id="mcp" />
+
 Cursor reads \`~/.cursor/mcp.json\`:
 
 \`\`\`json
 { "mcpServers": { "rat-stack": { "url": "${originToken}/mcp" } } }
 \`\`\`
 
+<CopyPrompt id="cursor" />
+
 Install the skills into any agent that reads a skills folder:
 
 \`\`\`sh
 npx skills add joelhooks/rat-stack
 \`\`\`
+
+<CopyPrompt id="skills" />
 
 Every MCP client works. Clients on protocol 2026-07-28 are served without sessions; older clients get a session of their own, held by a Durable Object.
 

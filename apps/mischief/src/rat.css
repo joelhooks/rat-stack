@@ -254,6 +254,35 @@ button {
   margin-left: 0.5rem;
 }
 
+.copy-actions {
+  margin: -0.5rem 0 1.5rem;
+}
+
+.agent-actions {
+  text-align: right;
+}
+
+.agent-actions .copy-status {
+  display: block;
+  margin-left: 0;
+}
+
+.copy-agent {
+  padding: 0.75rem 1rem;
+}
+
+.copy:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .copy-agent {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
 .hp {
   height: 0;
   left: -9999px;
