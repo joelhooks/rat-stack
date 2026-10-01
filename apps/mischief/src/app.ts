@@ -1,6 +1,7 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
 import { InterestMode } from "@rat-stack/core/interest";
+import type { InterestTokens } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
 import { Cause, Context, Effect, Layer, Predicate, Schema } from "effect";
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
@@ -59,6 +60,8 @@ import {
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
+import { joinRequestMiddleware } from "./interest/join-request.js";
+import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
@@ -275,7 +278,11 @@ const staticCaching = (cache: StaticResponseCache) =>
         const request = yield* HttpServerRequest.HttpServerRequest;
         const path = new URL(request.url, "https://ratstack.sh").pathname;
 
-        if (request.method !== "GET" || !staticPaths.has(path)) {
+        if (
+          request.method !== "GET" ||
+          path === "/tokenmaxx" ||
+          !staticPaths.has(path)
+        ) {
           return yield* httpEffect;
         }
 
@@ -414,27 +421,31 @@ const shieldWidgetHtml = (siteKey: string | undefined) =>
     ? ""
     : `<script src="https://www.postshiba.com/shield/v1/widget.js" async></script>\n<p class="shield"><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
 
-const tokenmaxxResponse = (
+export const tokenmaxxResponse = (
   request: HttpServerRequest.HttpServerRequest,
-  shieldSiteKey: string | undefined
+  shieldSiteKey?: string
 ) =>
-  HttpServerResponse.text(
-    acceptsHtml(request)
-      ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
-          .replaceAll(
-            "__SHIELD_SHIBA_WIDGET__",
-            shieldWidgetHtml(shieldSiteKey)
-          )
-          .replaceAll(
-            "__COPY_SCRIPT__",
-            `<script>${tokenmaxxCopyScript}</script>`
-          )
-      : tokenmaxxMarkdown,
-    {
+  Effect.gen(function* tokenmaxxPage() {
+    const body = yield* withAvailablePageTicket(
+      acceptsHtml(request)
+        ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
+            .replaceAll(
+              "__SHIELD_SHIBA_WIDGET__",
+              shieldWidgetHtml(shieldSiteKey)
+            )
+            .replaceAll(
+              "__COPY_SCRIPT__",
+              `<script>${tokenmaxxCopyScript}</script>`
+            )
+        : tokenmaxxMarkdown
+    );
+
+    return HttpServerResponse.text(body, {
       contentType: acceptsHtml(request)
         ? "text/html; charset=utf-8"
         : "text/markdown; charset=utf-8",
       headers: {
+        "cache-control": "no-store",
         "content-security-policy": contentSecurityPolicy(
           "'self'",
           shieldSiteKey !== undefined && shieldSiteKey !== "",
@@ -443,13 +454,13 @@ const tokenmaxxResponse = (
         vary: "Accept",
         "x-robots-tag": "noindex",
       },
-    }
-  );
+    });
+  });
 
 const contentRoutes = (shieldSiteKey: string | undefined) =>
   Layer.mergeAll(
     HttpRouter.add("GET", "/tokenmaxx", (request) =>
-      Effect.succeed(tokenmaxxResponse(request, shieldSiteKey))
+      tokenmaxxResponse(request, shieldSiteKey)
     ),
     HttpRouter.add(
       "GET",
@@ -1067,6 +1078,7 @@ export interface WebBotAuthOptions {
 
 export interface MischiefRouteOptions {
   readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
+  readonly joinTokens?: Context.Context<InterestTokens> | undefined;
   readonly legacyMcp?: LegacyMcpRouter;
   readonly rateLimits?: RateLimits;
   readonly shieldSiteKey?: string | undefined;
@@ -1116,6 +1128,10 @@ const shieldKeyFor = (options: MischiefRouteOptions) =>
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
     contentRoutes(shieldKeyFor(options)),
+    joinRequestMiddleware({
+      rateLimits: options.rateLimits,
+      tokens: options.joinTokens,
+    }),
     apiRoutes,
     options.interest === undefined
       ? Layer.empty

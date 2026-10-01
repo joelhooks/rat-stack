@@ -1,4 +1,5 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
+import { joinInterest } from "@rat-stack/core/join-interest";
 import { LoreGraph } from "@rat-stack/lore";
 
 import { loreGraphSnapshot } from "../content.js";
@@ -76,4 +77,5 @@ export const capabilities = [
   mentions,
   path,
   execute,
+  joinInterest,
 ] as const;

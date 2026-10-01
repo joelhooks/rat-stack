@@ -50,7 +50,12 @@ export type {
 
 export { SubscriberIntake } from "./interest-intake.js";
 
-export type { IntakeRequest, IntakeResult } from "./interest-intake.js";
+export type {
+  AgentIntake,
+  AgentIntakeRequest,
+  IntakeRequest,
+  IntakeResult,
+} from "./interest-intake.js";
 
 export { SubscriberConfirm } from "./interest-confirm-port.js";
 
