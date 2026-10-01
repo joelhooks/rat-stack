@@ -17,10 +17,24 @@ export const EVENTS_TABLE = "events_raw";
 
 const encodeRawEvent = Schema.encodeEffect(RawEventSchema);
 
+export const basinFoundation = ({ id }: BasinOptions) =>
+  Effect.gen(function* declareBasinFoundation() {
+    const bucket = yield* Cloudflare.R2.Bucket(`${id}EventsBucket`, {});
+
+    const stream = yield* Cloudflare.Pipelines.Stream(`${id}EventsStream`, {
+      http: { enabled: false },
+    });
+
+    const salt = yield* Random(`${id}VisitorSalt`);
+
+    return { bucket, salt, stream } as const;
+  });
+
 export const Basin = ({ id }: BasinOptions) =>
   Layer.unwrap(
     Effect.gen(function* buildBasinEvents() {
       const { accountId } = yield* yield* Cloudflare.CloudflareEnvironment;
+      const { bucket, salt, stream } = yield* basinFoundation({ id });
 
       const token = yield* Cloudflare.ApiToken.AccountApiToken(
         `${id}EventsCatalogToken`,
@@ -39,15 +53,9 @@ export const Basin = ({ id }: BasinOptions) =>
         }
       );
 
-      const bucket = yield* Cloudflare.R2.Bucket(`${id}EventsBucket`, {});
-
       const catalog = yield* Cloudflare.R2.DataCatalog(`${id}EventsCatalog`, {
         bucketName: bucket.bucketName,
         token: token.value,
-      });
-
-      const stream = yield* Cloudflare.Pipelines.Stream(`${id}EventsStream`, {
-        http: { enabled: false },
       });
 
       const sink = yield* Cloudflare.Pipelines.Sink(`${id}EventsSink`, {
@@ -64,7 +72,6 @@ export const Basin = ({ id }: BasinOptions) =>
         sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${stream.name}`,
       });
 
-      const salt = yield* Random(`${id}VisitorSalt`);
       const saltValue = yield* salt.text;
       const writer = yield* Cloudflare.Pipelines.WriteStream(stream);
 

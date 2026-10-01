@@ -8,7 +8,7 @@ import {
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
-import { Basin } from "@rat-stack/events/basin";
+import { Basin, basinFoundation } from "@rat-stack/events/basin";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Schema } from "effect";
@@ -221,7 +221,17 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   const legacyMcp = yield* LegacyMcp;
   const interests = yield* Interest;
   const interestIndex = yield* InterestIndex;
-  const events = yield* Layer.build(Basin({ id: "Mischief" }));
+
+  const eventsEnabled = yield* Config.Boolean("EVENTS_ENABLED").pipe(
+    Config.withDefault(false)
+  );
+
+  const events = eventsEnabled
+    ? yield* Layer.build(Basin({ id: "Mischief" }))
+    : yield* basinFoundation({ id: "Mischief" }).pipe(
+        Effect.andThen(Effect.succeedNone),
+        Effect.map(Option.getOrUndefined)
+      );
 
   return yield* makeMischief(
     {
