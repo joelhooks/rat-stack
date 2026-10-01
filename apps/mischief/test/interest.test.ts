@@ -1634,3 +1634,43 @@ it.effect(
       );
     })
 );
+
+it.effect("GET reads the token state and never confirms; POST confirms", () =>
+  Effect.gen(function* getNeverConfirms() {
+    const reads: string[] = [];
+    const confirms: string[] = [];
+
+    const spy = Layer.succeed(DrovrConfirm, {
+      confirm: (token: string) =>
+        Effect.sync(() => {
+          confirms.push(token);
+
+          return "confirmed" as const;
+        }),
+      state: (token: string) =>
+        Effect.sync(() => {
+          reads.push(token);
+
+          return "pending" as const;
+        }),
+    });
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* getThenPost() {
+          yield* call(
+            handler,
+            new Request("https://ratstack.sh/tokenmaxx/confirm?token=abc")
+          );
+
+          expect(reads).toEqual(["abc"]);
+          expect(confirms).toEqual([]);
+
+          yield* call(handler, form("/tokenmaxx/confirm", { token: "abc" }));
+
+          expect(confirms).toEqual(["abc"]);
+        }),
+      { confirm: spy, mode: "drovr" }
+    );
+  })
+);
