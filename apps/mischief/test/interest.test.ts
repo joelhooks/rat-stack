@@ -821,6 +821,9 @@ it.effect("shows the consent line the capture records evidence against", () =>
 
       expect(html).toContain(CONSENT_LINE);
       expect(html).not.toContain("We build agent harnesses, not apps");
+      expect(html).toContain(
+        "We build a strong harness that raises the floor for your apps."
+      );
       expect(CONSENT_VERSION).toBe("interest-consent-v1");
     })
   )
