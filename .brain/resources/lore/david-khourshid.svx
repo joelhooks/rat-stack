@@ -1,0 +1,23 @@
+---
+title: "David Khourshid"
+description: "David Khourshid teaches state machines with XState and argues for model-based and property-based testing."
+group: person
+terms:
+  - "David Khourshid"
+  - "David K"
+sources:
+  - https://css-tricks.com/model-based-testing-in-react-with-state-machines/
+  - https://frontendmasters.com/courses/xstate-v2/testing/
+  - https://stately.ai/docs/graph
+  - https://x.com/davidkpiano/status/2105670489091834297
+---
+
+# David Khourshid
+
+David Khourshid wrote [Model-Based Testing in React with State Machines](https://css-tricks.com/model-based-testing-in-react-with-state-machines/) for CSS-Tricks in 2019. It explains how to generate tests from a state machine instead of writing each case by hand.
+
+In the testing lesson of his Frontend Masters course on XState, he describes a test model as "a state machine, and the state machine represents all of your given when then statements in a single state machine." He adds that model-based testing lets you "test any application whether they're using state machines or not." [Testing, State Machines in JavaScript with XState, v2](https://frontendmasters.com/courses/xstate-v2/testing/)
+
+XState carries that idea in `xstate/graph` with `createTestModel` and `getShortestPaths`. [Graph & Paths](https://stately.ai/docs/graph)
+
+On 2026-10-01 he told Joel, "I need to get you on the MBT/PBT train." [X](https://x.com/davidkpiano/status/2105670489091834297) This repo took the ride: see [model-based testing](/lore/model-based-testing) and [property-based testing](/lore/property-based-testing).

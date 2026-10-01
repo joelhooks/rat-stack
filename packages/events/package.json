@@ -1,0 +1,46 @@
+{
+  "name": "@rat-stack/events",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./basin": {
+      "types": "./src/basin.ts",
+      "import": "./dist/basin.js",
+      "default": "./dist/basin.js"
+    },
+    "./memory": {
+      "types": "./src/memory.ts",
+      "import": "./dist/memory.js",
+      "default": "./dist/memory.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "check": "pnpm run typecheck",
+    "pretest": "pnpm run --silent build"
+  },
+  "dependencies": {
+    "alchemy": "2.0.0-beta.79",
+    "effect": "4.0.0-rc.117"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260917.1",
+    "@effect/vitest": "4.0.0-rc.117",
+    "@types/node": "24.13.6",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

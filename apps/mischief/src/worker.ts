@@ -6,9 +6,13 @@ import {
   drovrIntakeLayer,
 } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
+import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
+import type { EventSink, VisitorSalt } from "@rat-stack/events";
+import { Basin } from "@rat-stack/events/basin";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Schema } from "effect";
+import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -40,9 +44,17 @@ const cloudflareStaticCache = {
     caches.default.put(request, response),
 };
 
+const inBackground = (effect: Effect.Effect<void>) =>
+  Effect.gen(function* registerBackgroundWork() {
+    const execution = yield* Cloudflare.WorkerExecutionContext;
+
+    yield* execution.waitUntil(effect);
+  });
+
 export const makeMischief = (
   legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
-  interestDirectory: Layer.Layer<InterestDirectory>
+  interestDirectory: Layer.Layer<InterestDirectory>,
+  events?: Context.Context<EventSink | VisitorSalt>
 ) =>
   Effect.gen(function* makeMischiefInit() {
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
@@ -110,6 +122,11 @@ export const makeMischief = (
     const postShibaCluster = yield* Config.option(
       Config.String("POSTSHIBA_CLUSTER")
     );
+
+    const identityMode = yield* Config.schema(
+      IdentityModeSchema,
+      "EVENTS_IDENTITY_MODE"
+    ).pipe(Config.withDefault("daily" as const));
 
     const environment = yield* Cloudflare.WorkerEnvironment;
 
@@ -184,8 +201,15 @@ export const makeMischief = (
       },
     }).pipe(Layer.provide(layerWorkerLoader(loader, sandboxLimits)));
 
+    const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
+
     return {
-      fetch: yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie),
+      fetch:
+        events === undefined
+          ? app
+          : withEventCapture({ identityMode, runInBackground: inBackground })(
+              app
+            ).pipe(Effect.provideContext(events)),
     };
   });
 
@@ -197,6 +221,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   const legacyMcp = yield* LegacyMcp;
   const interests = yield* Interest;
   const interestIndex = yield* InterestIndex;
+  const events = yield* Layer.build(Basin({ id: "Mischief" }));
 
   return yield* makeMischief(
     {
@@ -216,7 +241,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     interestDirectoryLayer(
       (address) => interests.getByName(address),
       () => interestIndex.getByName("index")
-    )
+    ),
+    events
   );
 }).pipe(Effect.provide(Cloudflare.Workers.RateLimitBinding));
 

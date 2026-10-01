@@ -1,0 +1,28 @@
+---
+title: "Capture first, shape later"
+description: "Record every event in a form that can never be rejected, then decide its shape when you query it."
+group: idea
+terms:
+  - "capture first"
+  - "shape later"
+sources:
+  - https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
+  - https://github.com/snowplow-incubator/snowplow-event-recovery
+  - https://segment.com/docs/connections/spec/identify/
+  - https://webkit.org/tracking-prevention/
+  - https://github.com/joelhooks/rat-stack/tree/main/packages/events
+---
+
+An event you didn't store can't be analyzed later. Shape decisions change, but a lost event stays lost. So the capture path stores everything it is allowed to store, and shaping happens at read time.
+
+Cloudflare Basin makes this concrete. Its docs say events that do not match a structured stream's schema "are accepted during ingestion but will be dropped during processing," and that "schema modifications are not supported after stream creation." An unstructured stream instead accepts "any valid JSON without validation" into "a single value column." [Manage streams](https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/)
+
+Snowplow reached the same rule years earlier: its pipelines are "non-lossy," and when validation or enrichment fails the payloads are "stored into a bad rows storage solution … instead of being discarded." [snowplow-event-recovery](https://github.com/snowplow-incubator/snowplow-event-recovery)
+
+In rat-stack, the `packages/events` cartridge sends one JSON envelope per request to an unstructured Basin stream. A pipeline copies it unchanged (`SELECT *`) into an Iceberg table, and queries shape it later. The only rejections are size and rate limits.
+
+Capture first is not capture everything. The envelope holds request facts: method, path, status, referrer origin and path, and a query string with credential, email, code, and session keys removed. The request body is never read. The IP is stored only as a salted hash. Visitor identity is a setting: `daily` hashes the IP, user agent, and day with no cookie, and `persistent` keeps one first-party id per browser.
+
+The persistent id is set by the server, not by script. WebKit "deletes all cookies created in JavaScript and all other script-writeable storage after 7 days of no user interaction." [Tracking Prevention in WebKit](https://webkit.org/tracking-prevention/) Following Segment's identify guidance, people are joined later by a stable database id rather than an email address, "because database IDs never change." [Spec: Identify](https://segment.com/docs/connections/spec/identify/)
+
+The rules are checked as properties, not examples. See [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing).
