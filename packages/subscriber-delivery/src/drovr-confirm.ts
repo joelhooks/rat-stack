@@ -1,8 +1,7 @@
+import { SubscriberConfirm } from "@rat-stack/core/interest";
+import type { ConfirmState } from "@rat-stack/core/interest";
 import { Effect, Layer, Option, Redacted, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/unstable/http";
-
-import { DrovrConfirm } from "./interest-confirm-port.js";
-import type { ConfirmState } from "./interest-confirm-port.js";
 
 export const TOKEN_STATE_PATH = "/intake/token-state";
 
@@ -23,11 +22,11 @@ const decodeState = Schema.decodeUnknownEffect(StateBody);
 
 export const drovrConfirmLayer = (settings: ConfirmSettings) =>
   Layer.effect(
-    DrovrConfirm,
-    Effect.gen(function* makeDrovrConfirm() {
+    SubscriberConfirm,
+    Effect.gen(function* makeSubscriberConfirm() {
       const http = yield* HttpClient.HttpClient;
 
-      const call = Effect.fn("DrovrConfirm.call")(function* call(
+      const call = Effect.fn("SubscriberConfirm.call")(function* call(
         path: string,
         token: string
       ) {

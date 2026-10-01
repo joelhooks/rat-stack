@@ -1,4 +1,6 @@
 import { expect, it } from "@effect/vitest";
+import { SubscriberConfirm } from "@rat-stack/core/interest";
+import type { ConfirmState } from "@rat-stack/core/interest";
 import { Effect, Layer, Option, Predicate, Redacted } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 
@@ -6,9 +8,7 @@ import {
   CONFIRM_PATH,
   TOKEN_STATE_PATH,
   drovrConfirmLayer,
-} from "../src/interest-confirm-client.js";
-import { DrovrConfirm } from "../src/interest-confirm-port.js";
-import type { ConfirmState } from "../src/interest-confirm-port.js";
+} from "../src/drovr-confirm.js";
 
 interface Seen {
   readonly auth: string | undefined;
@@ -53,10 +53,10 @@ const configured = {
 
 const run = <A>(
   client: Layer.Layer<HttpClient.HttpClient>,
-  use: (confirm: DrovrConfirm["Service"]) => Effect.Effect<A>,
+  use: (confirm: SubscriberConfirm["Service"]) => Effect.Effect<A>,
   settings: Parameters<typeof drovrConfirmLayer>[0] = configured
 ) =>
-  DrovrConfirm.use(use).pipe(
+  SubscriberConfirm.use(use).pipe(
     Effect.provide(drovrConfirmLayer(settings).pipe(Layer.provide(client)))
   );
 

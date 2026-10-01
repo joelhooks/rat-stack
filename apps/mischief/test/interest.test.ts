@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import {
   CAPTURE_ANSWER,
-  DrovrConfirm,
+  SubscriberConfirm,
   REGISTER_ANSWER,
   CONSENT_LINE,
   CONSENT_VERSION,
@@ -10,10 +10,10 @@ import {
   InterestTokens,
   RecordedMail,
   digestsMatch,
-  postShibaMailerLayer,
   recordingMailerLayer,
 } from "@rat-stack/core/interest";
-import type { ConfirmState, DrovrIntake } from "@rat-stack/core/interest";
+import type { ConfirmState, SubscriberIntake } from "@rat-stack/core/interest";
+import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
 import { Effect, Layer, Redacted, Schema } from "effect";
 import type { Context } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -87,8 +87,8 @@ const fakeHttp = Layer.succeed(
 
 const recordingServices = (
   mode: "capture" | "doi" | "drovr",
-  intake: Layer.Layer<DrovrIntake>,
-  confirm: Layer.Layer<DrovrConfirm>
+  intake: Layer.Layer<SubscriberIntake>,
+  confirm: Layer.Layer<SubscriberConfirm>
 ) =>
   Layer.mergeAll(
     InterestDirectory.memory,
@@ -105,8 +105,8 @@ const withInterest = <A, E, R>(
     services: Context.Context<RecordedMail>
   ) => Effect.Effect<A, E, R>,
   options: {
-    readonly confirm?: Layer.Layer<DrovrConfirm>;
-    readonly intake?: Layer.Layer<DrovrIntake>;
+    readonly confirm?: Layer.Layer<SubscriberConfirm>;
+    readonly intake?: Layer.Layer<SubscriberIntake>;
     readonly limit?: NativeRateLimitBinding;
     readonly mode?: "capture" | "doi" | "drovr";
     readonly operator?: boolean;
@@ -119,7 +119,7 @@ const withInterest = <A, E, R>(
         recordingServices(
           options.mode ?? "doi",
           options.intake ?? fakeIntakeLayer,
-          options.confirm ?? DrovrConfirm.unconfigured
+          options.confirm ?? SubscriberConfirm.unconfigured
         )
       );
 
@@ -624,7 +624,7 @@ it.effect(
             InterestTokens.layer(tokenSecret),
             InterestMode.layer("doi"),
             fakeIntakeLayer,
-            DrovrConfirm.unconfigured,
+            SubscriberConfirm.unconfigured,
             postShibaMailerLayer({
               apiKey: Redacted.make("not-a-real-key"),
               cluster: "cluster",
@@ -1483,7 +1483,7 @@ const confirmFake = (
   state: ConfirmState,
   outcome: Exclude<ConfirmState, "pending">
 ) =>
-  Layer.succeed(DrovrConfirm, {
+  Layer.succeed(SubscriberConfirm, {
     confirm: () => Effect.succeed(outcome),
     state: () => Effect.succeed(state),
   });
@@ -1701,7 +1701,7 @@ it.effect("GET reads the token state and never confirms; POST confirms", () =>
     const reads: string[] = [];
     const confirms: string[] = [];
 
-    const spy = Layer.succeed(DrovrConfirm, {
+    const spy = Layer.succeed(SubscriberConfirm, {
       confirm: (token: string) =>
         Effect.sync(() => {
           confirms.push(token);

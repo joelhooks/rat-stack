@@ -1,16 +1,18 @@
 import { expect, it } from "@effect/vitest";
+import {
+  InterestMailer,
+  RecordedMail,
+  recordingMailerLayer,
+} from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import type { HttpClientRequest } from "effect/unstable/http";
 
 import {
-  InterestMailer,
   plainTextToHtml,
   postShibaMailerLayer,
-  recordingMailerLayer,
   sendsUrl,
-} from "../src/interest-mailer.js";
-import { RecordedMail } from "../src/recorded-mail.js";
+} from "../src/postshiba.js";
 
 const mail = {
   from: "workshop@example.test",
