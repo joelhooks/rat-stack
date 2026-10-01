@@ -51,6 +51,7 @@
     <a href="/">home</a> ·
     <a href="/skills">skills</a> ·
     <a href="/lore">lore</a> ·
+    <a href="/systems">systems</a> ·
     <a href="/llms.txt">agent guide</a> ·
     <a href="/openapi.json">API docs</a> ·
     <a href="https://github.com/joelhooks/rat-stack">source</a>

@@ -43,6 +43,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | Cartridge | `packages/<name>/src/` | One Layer with its own infrastructure; it must pass the cartridge test in `VISION.md`. |
 | Machine | `packages/core/src/<name>-machine.ts` | Own one finite domain lifecycle. |
 | Feature | `apps/web/src/features/<name>/` | Thin route and view that read client atoms. |
+| System page | `.brain/areas/<name>.svx` | Public page at `/systems/<name>` for one system rat-stack ships: what it does, the standard it keeps, and how to check it. The content build rejects a system page without those three sections or outside `.brain/areas/`. |
 | Client | `apps/web/src/client/<name>.ts` | Own AtomRpc queries, named commands, and the local replica. |
 
 ## Commands

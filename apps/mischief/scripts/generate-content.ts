@@ -41,6 +41,8 @@ import {
   loreTermTargets,
   parseDebtLintOutput,
   parseLorePage,
+  sectionOf,
+  SYSTEMS_DIRECTORY,
   validateInternalLinks,
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
@@ -1166,6 +1168,7 @@ const program = Effect.gen(function* generateContent() {
           ...lawSpecs.map((spec) => spec.sourcePath),
           "skills",
           ".brain/resources/lore",
+          SYSTEMS_DIRECTORY,
         ],
         { cwd: root }
       )
@@ -1370,37 +1373,47 @@ const program = Effect.gen(function* generateContent() {
 
   const loreDirectory = ".brain/resources/lore";
 
-  const loreEntries = yield* fileSystem
-    .readDirectory(path.join(root, loreDirectory))
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("read directory", loreDirectory, cause)
-      )
-    );
+  const readLoreDirectory = (directory: string) =>
+    Effect.gen(function* readLoreDirectoryPages() {
+      const entries = yield* fileSystem
+        .readDirectory(path.join(root, directory))
+        .pipe(
+          Effect.mapError((cause) =>
+            buildError("read directory", directory, cause)
+          )
+        );
 
-  const loreTexts = yield* Effect.forEach(
-    loreEntries.filter((entry) => entry.endsWith(".svx")).toSorted(),
-    (filename) =>
-      Effect.gen(function* readLorePage() {
-        const sourcePath = `${loreDirectory}/${filename}`;
-        const rawText = yield* readText(sourcePath);
+      return yield* Effect.forEach(
+        entries.filter((entry) => entry.endsWith(".svx")).toSorted(),
+        (filename) =>
+          Effect.gen(function* readLorePage() {
+            const sourcePath = `${directory}/${filename}`;
+            const rawText = yield* readText(sourcePath);
 
-        const metadata = yield* Effect.try({
-          catch: (cause) =>
-            Schema.is(ContentBuildError)(cause)
-              ? cause
-              : buildError("frontmatter", sourcePath, cause),
-          try: () => parseLorePage(sourcePath, rawText),
-        });
+            const metadata = yield* Effect.try({
+              catch: (cause) =>
+                Schema.is(ContentBuildError)(cause)
+                  ? cause
+                  : buildError("frontmatter", sourcePath, cause),
+              try: () => parseLorePage(sourcePath, rawText),
+            });
 
-        return {
-          ...metadata,
-          rawText,
-          text: deriveAgentMarkdown(rawText),
-        };
-      }),
-    { concurrency: "unbounded" }
-  );
+            return {
+              ...metadata,
+              rawText,
+              text: deriveAgentMarkdown(rawText),
+            };
+          }),
+        { concurrency: "unbounded" }
+      );
+    });
+
+  const loreTexts = (yield* Effect.forEach(
+    [loreDirectory, SYSTEMS_DIRECTORY],
+    readLoreDirectory
+  )).flat();
+
+  const systemTexts = loreTexts.filter((lore) => lore.group === "system");
 
   yield* validateLoreTermClaims(loreTexts, loreDirectory);
 
@@ -1412,6 +1425,7 @@ const program = Effect.gen(function* generateContent() {
     ["/", "Home"],
     ["/skills", "Skill index"],
     ["/lore", "Lore index"],
+    ["/systems", "Systems index"],
     ["/llms.txt", "Agent guide"],
     ["/llms-full.txt", "Full agent guide"],
     [trapRoutePath, "Generated page"],
@@ -1420,6 +1434,7 @@ const program = Effect.gen(function* generateContent() {
   titles.set("/", "Home");
   titles.set("/skills", "Learn the stack");
   titles.set("/lore", "Rat Stack lore");
+  titles.set("/systems", "Rat Stack systems");
   titles.set("/llms.txt", "Agent guide");
   titles.set("/llms-full.txt", "Full agent guide");
   titles.set(trapRoutePath, "No verify");
@@ -1441,7 +1456,7 @@ const program = Effect.gen(function* generateContent() {
     servedRoutes.set(lore.slug, lore.routePath);
     servedRoutes.set(lore.sourcePath, lore.routePath);
     titles.set(lore.routePath, lore.title);
-    pageKinds.set(lore.routePath, "Lore");
+    pageKinds.set(lore.routePath, sectionOf(lore.group).kind);
   }
 
   const loreMarkdownLinks = (routes: ReadonlySet<string>) =>
@@ -1538,6 +1553,7 @@ const program = Effect.gen(function* generateContent() {
 
   const loreRoutes = new Set([
     "/lore",
+    "/systems",
     ...loreTexts.map((lore) => lore.routePath),
   ]);
 
@@ -1760,6 +1776,15 @@ const program = Effect.gen(function* generateContent() {
     }),
   ].join("\n");
 
+  const systemsIndexSourceMarkdown = [
+    "# Rat Stack systems",
+    "",
+    "The systems rat-stack ships. Each page says what the system does, the standard it keeps, and how to check that standard.",
+    "",
+    entryList(systemTexts),
+    "",
+  ].join("\n");
+
   const groupedSkills = skillGroups
     .flatMap((group) => {
       const members = skillBodies.flatMap(({ skill }) =>
@@ -1831,6 +1856,7 @@ Every MCP client works. Clients on protocol 2026-07-28 are served without sessio
 - [Short agent guide](${originToken}/llms.txt)
 - [All public agent docs](${originToken}/llms-full.txt)
 - [Lore wiki](${originToken}/lore)
+- [Systems](${originToken}/systems)
 
 ## Four ideas
 
@@ -2020,6 +2046,17 @@ ${groupedSkills}
 
   const loreIndexMarkdown = loreIndexSourceMarkdown;
 
+  const systemsIndexBody = yield* compileMarkdownBody(
+    systemsIndexSourceMarkdown,
+    "ratstack-systems.md",
+    highlighter,
+    emptyTargets,
+    loreTermIndex,
+    "/systems"
+  );
+
+  const systemsIndexMarkdown = systemsIndexSourceMarkdown;
+
   const llmsSourceMarkdown = [
     "# ratstack.sh",
     "",
@@ -2037,6 +2074,8 @@ ${groupedSkills}
     entryList(publicSpecs),
     "",
     loreIndexSourceMarkdown,
+    "",
+    systemsIndexSourceMarkdown,
     "",
     "## Skills",
     "",
@@ -2058,6 +2097,7 @@ ${groupedSkills}
     "/",
     "/skills",
     "/lore",
+    "/systems",
     "/auth.md",
     "/llms.txt",
     "/llms-full.txt",
@@ -2091,6 +2131,7 @@ ${groupedSkills}
       "/",
       "/skills",
       "/lore",
+      "/systems",
       trapRoutePath,
       ...publicSpecs.map((spec) => spec.routePath),
       ...skillTexts.map((skill) => skill.routePath),
@@ -2124,6 +2165,14 @@ ${groupedSkills}
       pageRoute: "/lore",
       sourcePath: "ratstack-lore.md",
       text: `${loreIndexSourceMarkdown}\n${loreIndexMarkdown}`.replaceAll(
+        originToken,
+        "https://ratstack.sh"
+      ),
+    },
+    {
+      pageRoute: "/systems",
+      sourcePath: "ratstack-systems.md",
+      text: systemsIndexSourceMarkdown.replaceAll(
         originToken,
         "https://ratstack.sh"
       ),
@@ -2204,6 +2253,13 @@ ${groupedSkills}
       wovenLinks: loreIndexBody.linkedLoreTerms,
     },
     {
+      routePath: "/systems",
+      routes: systemsIndexBody.linkedLoreRoutes,
+      sourcePath: "ratstack-systems.md",
+      text: systemsIndexSourceMarkdown,
+      wovenLinks: systemsIndexBody.linkedLoreTerms,
+    },
+    {
       routePath: "/llms.txt",
       routes: llmsBody.linkedLoreRoutes,
       sourcePath: "ratstack-llms.md",
@@ -2268,6 +2324,12 @@ ${groupedSkills}
     "ratstack-lore.md",
     loreIndexSourceMarkdown,
     loreIndexBody.linkedLoreRoutes
+  );
+  recordPageLinks(
+    "/systems",
+    "ratstack-systems.md",
+    systemsIndexSourceMarkdown,
+    systemsIndexBody.linkedLoreRoutes
   );
 
   for (const { spec, linkedLoreRoutes } of lawBodies) {
@@ -2445,6 +2507,11 @@ ${groupedSkills}
     "ratstack-lore.md"
   )}`;
 
+  const systemsIndexBodyHtml = `${systemsIndexBody.bodyHtml}${pageFooterHtml(
+    "/systems",
+    "ratstack-systems.md"
+  )}`;
+
   const homeBodyHtml = homeBody.bodyHtml;
 
   const staticSourcePathGroups = yield* Effect.forEach(
@@ -2491,6 +2558,8 @@ ${groupedSkills}
       skillIndexBodyHtml,
       loreIndexMarkdown,
       loreIndexBodyHtml,
+      systemsIndexMarkdown,
+      systemsIndexBodyHtml,
       llmsLoreLinks,
       emojiSvg,
       stylesheet,
@@ -2523,6 +2592,13 @@ ${groupedSkills}
       "Short, source-grounded notes on the ideas and decisions behind rat-stack.",
     path: "/lore",
     title: "Rat Stack lore | rat-stack",
+  } as const;
+
+  const systemsIndexMetadata = {
+    description:
+      "The systems rat-stack ships, the standard each keeps, and how to check it.",
+    path: "/systems",
+    title: "Rat Stack systems | rat-stack",
   } as const;
 
   const noVerifyMetadata = {
@@ -2571,6 +2647,11 @@ ${groupedSkills}
       description: loreIndexMetadata.description,
       routePath: "/lore",
       title: "Rat Stack lore",
+    },
+    {
+      description: systemsIndexMetadata.description,
+      routePath: "/systems",
+      title: "Rat Stack systems",
     },
     ...publicSpecs.map(({ description, routePath, title }) => ({
       description,
@@ -2689,8 +2770,8 @@ ${groupedSkills}
         const documentHtml = yield* makeDocument(
           bodyHtml,
           {
-            breadcrumbHref: "/lore",
-            breadcrumbLabel: "lore",
+            breadcrumbHref: sectionOf(lore.group).href,
+            breadcrumbLabel: sectionOf(lore.group).label,
             breadcrumbName: lore.title,
             description: lore.description,
             path: lore.routePath,
@@ -2738,6 +2819,13 @@ ${groupedSkills}
     contentVersion
   );
 
+  const systemsIndexDocumentHtml = yield* makeDocument(
+    systemsIndexBodyHtml,
+    systemsIndexMetadata,
+    "ratstack-systems.md",
+    contentVersion
+  );
+
   const noVerifyDocumentHtml = yield* makeDocument(
     noVerifyBodyHtml,
     noVerifyMetadata,
@@ -2768,7 +2856,7 @@ ${groupedSkills}
 
   const staticContentVersion = contentVersion;
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(homeMarkdownTemplate)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(noVerifyAgentMarkdown)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(skillIndexMarkdown)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(loreIndexMarkdown)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(homeMarkdownTemplate)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(noVerifyAgentMarkdown)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(skillIndexMarkdown)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(loreIndexMarkdown)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const systemsIndexMarkdown = ${sourceLiteral(systemsIndexMarkdown)} as const;\n\nexport const systemsIndexDocumentHtml = ${sourceLiteral(systemsIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem

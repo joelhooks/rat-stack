@@ -1,0 +1,69 @@
+---
+title: "Analytics"
+description: "One event per HTTP request, stored unchanged in an Iceberg table on R2 and shaped at query time."
+group: system
+terms:
+  - "request analytics"
+  - "events_raw"
+sources:
+  - https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
+  - https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/
+  - https://developers.cloudflare.com/basin-pipelines/observability/metrics/
+  - https://developers.cloudflare.com/basin-sql/query-data/
+  - https://developers.cloudflare.com/basin-sql/sql-reference/scalar-functions/
+  - https://github.com/joelhooks/rat-stack/tree/main/packages/events
+---
+
+## What it does
+
+The `packages/events` [cartridge](/lore/cartridges) records one JSON event for every HTTP request the Worker answers. It follows [capture first, shape later](/lore/capture-first): the event is stored as sent, and questions are answered at query time.
+
+1. `withEventCapture` wraps the Worker's fetch handler and sends the event in the background after the response is built.
+2. The event goes through a Worker binding to an unstructured Cloudflare Pipelines stream. Public HTTP ingest is off.
+3. A pipeline runs `INSERT INTO <sink> SELECT * FROM <stream>`.
+4. A Basin Catalog sink writes Parquet files to the Apache Iceberg table `default.events_raw` in an R2 bucket, by default every 300 seconds. [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/)
+
+An event holds a visitor id, a UUIDv7 message id, a server block (host, received time, country, salted IP hash, user agent), and a body. A request body holds the method, path, status, duration, accept and content types, whether the request carried a signed agent header, the referrer's origin and path, and the query string with credential, email, code, and session keys removed.
+
+## The standard
+
+- Every HTTP response gets exactly one event, and recording it never changes the response.
+- The request body never reaches an event, and credential, email, code, and session query keys never survive.
+- An IP address is stored only as a salted hash.
+- In `persistent` mode, a browser keeps one id across visits through a first-party HttpOnly cookie set by the server. In `daily` mode, no cookie is set and an id never repeats on a later day.
+- Each row the Worker writes is `{ "value": <event> }`. An unstructured stream has one required column, `value`, and an event sent without it is accepted at ingest and then dropped as `missing_field`.
+- The sink token is read only while deploying and is never bound into the Worker.
+
+## Switches
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `EVENTS_ENABLED` | `false` | Off declares only the bucket, the stream, and the salt, so their state survives, and records nothing. On adds the catalog, the sink, and the pipeline. |
+| `EVENTS_SINK_TOKEN` | unset | A Cloudflare API token with R2 Admin Read & Write. Required when `EVENTS_ENABLED` is on. Export it in the deploy shell: it is read from the process environment, so a value in `.env` or an `--env-file` is not seen. |
+| `EVENTS_IDENTITY_MODE` | `persistent` | `persistent` or `daily` visitor ids. |
+
+The token is supplied, not minted, because the deploy credential is not allowed to create API tokens. A Basin Catalog sink requires R2 Admin Read & Write. [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/)
+
+## How to check
+
+- **Capture is on.** In `persistent` mode, an HTML response to a browser with no `rat_vid` cookie sets one.
+- **Nothing is dropped.** The `pipelinesUserErrorsAdaptiveGroups` dataset in the GraphQL Analytics API shows zero errors for the pipeline, and `pipelinesSinkAdaptiveGroups` shows records and files written. [Metrics and analytics](https://developers.cloudflare.com/basin-pipelines/observability/metrics/)
+- **Rows land.** Find the warehouse with `wrangler basin catalog get <bucket>`, then query it with `wrangler basin sql query <warehouse> "<sql>"`. Wrangler reads its token from `WRANGLER_BASIN_SQL_AUTH_TOKEN`. [Query data](https://developers.cloudflare.com/basin-sql/query-data/)
+
+```sql
+SELECT json_get_str(value, 'body', 'path') AS path, count(*) AS requests
+FROM default.events_raw
+GROUP BY path
+ORDER BY requests DESC
+LIMIT 20;
+```
+
+The event is JSON in the `value` column, so queries read fields with the JSON functions such as `json_get_str`. [Scalar functions](https://developers.cloudflare.com/basin-sql/sql-reference/scalar-functions/)
+
+## Tests
+
+The cartridge is tested with [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing). The properties cover one event per request, an unchanged response, no request body, and no sensitive query keys. The visitor model follows ids across devices, cookies, and days.
+
+## Removing it
+
+The README's Keep or cut table lists every file and setting under "No analytics."

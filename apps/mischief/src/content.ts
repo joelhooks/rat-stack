@@ -7,6 +7,7 @@ import {
   originToken,
   skillIndexMarkdown,
   skillSources,
+  systemsIndexMarkdown,
   tokenmaxxImageJpegBase64,
 } from "./bundled-content.generated.js";
 
@@ -23,6 +24,7 @@ export {
   ratSvg,
   skillIndexDocumentHtml,
   staticContentVersion,
+  systemsIndexDocumentHtml,
   tokenmaxxDocumentHtml,
   tokenmaxxCopyScript,
   tokenmaxxCopyScriptHash,
@@ -39,7 +41,7 @@ export const ogImagePath = (routePath: string): `/${string}` =>
 
 export type ContentKind = "law" | "skill" | "lore";
 
-export type LoreGroup = "idea" | "concept" | "source" | "person";
+export type LoreGroup = "idea" | "concept" | "source" | "person" | "system";
 
 export interface ContentResource {
   readonly description: string;
@@ -75,7 +77,7 @@ export interface LoreResource extends ContentResource {
 export const loreResources: readonly LoreResource[] = loreSources.map(
   (source) => ({
     ...source,
-    id: `ratstack://lore/${source.slug}`,
+    id: `ratstack:/${source.routePath}`,
     kind: "lore" as const,
     name: source.slug,
   })
@@ -198,6 +200,10 @@ ${(["idea", "concept", "source", "person"] as const)
   })
   .join("\n\n")}
 
+## Systems
+
+${entryList(loreResources.filter((resource) => resource.group === "system"))}
+
 ## Skills
 
 ${entryList(skills)}
@@ -219,6 +225,8 @@ export const llmsFullText = (origin: string) =>
 export const skillIndex = () => skillIndexMarkdown;
 
 export const loreIndex = () => loreIndexMarkdown;
+
+export const systemsIndex = () => systemsIndexMarkdown;
 
 export const robotsText = `User-agent: *
 Allow: /
@@ -251,6 +259,7 @@ export const publicPaths = [
   "/sitemap.xml",
   "/skills",
   "/lore",
+  "/systems",
   "/.well-known/agent-card.json",
   "/.well-known/agent.json",
   "/.well-known/agent-skills/index.json",

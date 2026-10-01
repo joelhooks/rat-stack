@@ -20,6 +20,8 @@ import {
   loreLinkTargets,
   parseDebtLintOutput,
   parseLorePage,
+  SYSTEM_SECTIONS,
+  SYSTEMS_DIRECTORY,
   validateInternalLinks,
 } from "../scripts/content-lib.ts";
 import {
@@ -229,6 +231,40 @@ it.effect("rejects malformed lore frontmatter and filename slugs", () =>
       )
     ).toThrow(ContentBuildError);
   })
+);
+
+it.effect(
+  "serves system pages from the areas folder only when they keep every section",
+  () =>
+    Effect.sync(() => {
+      const systemPath = `${SYSTEMS_DIRECTORY}/one-system.svx`;
+      const lorePath = ".brain/resources/lore/one-system.svx";
+      const frontmatter = `---\ntitle: "One system"\ndescription: "A short sentence."\ngroup: system\nterms:\n  - "one system"\nsources: []\n---\n`;
+
+      const sections = SYSTEM_SECTIONS.map(
+        (section) => `## ${section}\n\nText.\n`
+      );
+
+      const page = `${frontmatter}\n${sections.join("\n")}`;
+
+      expect(parseLorePage(systemPath, page).routePath).toBe(
+        "/systems/one-system"
+      );
+      expect(() => parseLorePage(lorePath, page)).toThrow(ContentBuildError);
+      expect(() =>
+        parseLorePage(systemPath, page.replace("group: system", "group: idea"))
+      ).toThrow(ContentBuildError);
+
+      for (const [index] of SYSTEM_SECTIONS.entries()) {
+        const withoutOne = `${frontmatter}\n${sections
+          .filter((_, other) => other !== index)
+          .join("\n")}`;
+
+        expect(() => parseLorePage(systemPath, withoutOne)).toThrow(
+          ContentBuildError
+        );
+      }
+    })
 );
 
 it.effect("rejects links to missing lore pages with their source path", () =>
@@ -623,6 +659,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/",
         "/skills",
         "/lore",
+        "/systems",
         "/--no-verify",
         "/tokenmaxx",
         ...lawSources.map((source) => source.routePath),

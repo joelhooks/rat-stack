@@ -28,6 +28,8 @@ import {
   loreIndex,
   loreIndexDocumentHtml,
   loreResources,
+  systemsIndex,
+  systemsIndexDocumentHtml,
   linkHeader,
   llmsFullText,
   llmsText,
@@ -236,6 +238,7 @@ const negotiatedHtmlPaths = new Set<string>([
   "/",
   "/skills",
   "/lore",
+  "/systems",
   ...lawResources.map((resource) => resource.routePath),
   ...loreResources.map((resource) => resource.routePath),
   ...skills.map((skill) => skill.routePath),
@@ -516,6 +519,15 @@ const contentRoutes = (shieldSiteKey: string | undefined) =>
         acceptsHtml(request)
           ? html(renderStaticDocument(originOf(request), loreIndexDocumentHtml))
           : markdown(loreIndex())
+      )
+    ),
+    HttpRouter.add("GET", "/systems", (request) =>
+      Effect.succeed(
+        acceptsHtml(request)
+          ? html(
+              renderStaticDocument(originOf(request), systemsIndexDocumentHtml)
+            )
+          : markdown(systemsIndex())
       )
     ),
     HttpRouter.add(

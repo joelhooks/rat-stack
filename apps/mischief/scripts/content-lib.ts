@@ -16,7 +16,20 @@ export class ContentBuildError extends Schema.TaggedError<ContentBuildError>()(
 export const buildError = (stage: string, sourcePath: string, cause: unknown) =>
   new ContentBuildError({ cause, sourcePath, stage });
 
-export type LoreGroup = "idea" | "concept" | "source" | "person";
+export type LoreGroup = "idea" | "concept" | "source" | "person" | "system";
+
+export const SYSTEMS_DIRECTORY = ".brain/areas";
+
+export const sectionOf = (group: LoreGroup) =>
+  group === "system"
+    ? ({ href: "/systems", kind: "System", label: "systems" } as const)
+    : ({ href: "/lore", kind: "Lore", label: "lore" } as const);
+
+export const SYSTEM_SECTIONS = [
+  "What it does",
+  "The standard",
+  "How to check",
+] as const;
 
 export interface LoreTermTarget {
   readonly routePath: string;
@@ -27,7 +40,7 @@ export interface LorePageMetadata {
   readonly date?: string;
   readonly description: string;
   readonly group: LoreGroup;
-  readonly routePath: `/lore/${string}`;
+  readonly routePath: `/lore/${string}` | `/systems/${string}`;
   readonly slug: string;
   readonly sourcePath: string;
   readonly sources: readonly string[];
@@ -40,7 +53,7 @@ export interface LorePageMetadata {
 const loreFrontmatterSchema = Schema.Struct({
   date: Schema.optional(Schema.String),
   description: Schema.String,
-  group: Schema.Literals(["idea", "concept", "source", "person"]),
+  group: Schema.Literals(["idea", "concept", "source", "person", "system"]),
   sources: Schema.Array(Schema.String),
   speaker: Schema.optional(Schema.String),
   terms: Schema.optional(Schema.Array(Schema.String)),
@@ -157,6 +170,44 @@ const validateLoreDescription = (
   }
 };
 
+const validateSystemPlacement = (
+  sourcePath: string,
+  decoded: LoreFrontmatter,
+  rawText: string
+) => {
+  const inSystems = sourcePath.startsWith(`${SYSTEMS_DIRECTORY}/`);
+
+  if (inSystems !== (decoded.group === "system")) {
+    throw buildError(
+      "frontmatter",
+      sourcePath,
+      new Error(
+        `system pages live in ${SYSTEMS_DIRECTORY} with group: system, and nothing else does`
+      )
+    );
+  }
+
+  if (!inSystems) {
+    return;
+  }
+
+  const headings = new Set(
+    [...rawText.matchAll(/^## (?<heading>.+?)[ \t]*$/gmu)].map(
+      (match) => match.groups?.heading
+    )
+  );
+
+  const missing = SYSTEM_SECTIONS.filter((section) => !headings.has(section));
+
+  if (missing.length > 0) {
+    throw buildError(
+      "frontmatter",
+      sourcePath,
+      new Error(`system pages need sections: ${missing.join(", ")}`)
+    );
+  }
+};
+
 const validateLoreGroup = (sourcePath: string, decoded: LoreFrontmatter) => {
   if (decoded.group !== "source") {
     return;
@@ -256,12 +307,14 @@ export const parseLorePage = (
   const terms = validateLoreTerms(sourcePath, decoded);
 
   validateLoreGroup(sourcePath, decoded);
+  validateSystemPlacement(sourcePath, decoded, rawText);
   validateLoreSources(sourcePath, decoded);
 
   const metadata: MutableLorePageMetadata = {
     description: decoded.description,
     group: decoded.group,
-    routePath: `/lore/${slug}`,
+    routePath:
+      decoded.group === "system" ? `/systems/${slug}` : `/lore/${slug}`,
     slug,
     sourcePath,
     sources: decoded.sources,
@@ -443,7 +496,7 @@ export const loreLinkTargets = (
   const targets = new Set<string>();
 
   const links =
-    /\[[^\]]+\]\((?<href>(?:https:\/\/ratstack\.sh)?\/lore\/[^)\s]+)(?:\s+[^)]*)?\)/gu;
+    /\[[^\]]+\]\((?<href>(?:https:\/\/ratstack\.sh)?\/(?:lore|systems)\/[^)\s]+)(?:\s+[^)]*)?\)/gu;
 
   for (const match of body.matchAll(links)) {
     const href = match.groups?.href;

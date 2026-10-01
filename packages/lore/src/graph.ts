@@ -5,6 +5,7 @@ export const LoreGroupSchema = Schema.Literals([
   "concept",
   "source",
   "person",
+  "system",
 ]);
 
 export const LorePageReferenceSchema = Schema.Struct({
@@ -208,9 +209,11 @@ const mentionIn = (page: LoreBuildPage, target: LoreNode) => {
   return null;
 };
 
+const loreNodeId = (page: LoreBuildPage) => `ratstack:/${page.routePath}`;
+
 const pageReference = (page: LoreBuildPage): LorePageReference => ({
   group: page.lore?.group ?? page.group,
-  id: page.lore === undefined ? page.id : `ratstack://lore/${page.lore.slug}`,
+  id: page.lore === undefined ? page.id : loreNodeId(page),
   title: page.title,
   url: page.url,
 });
@@ -230,7 +233,7 @@ export const buildLoreGraph = ({
             {
               description: page.lore.description,
               group: page.lore.group,
-              id: `ratstack://lore/${page.lore.slug}`,
+              id: loreNodeId(page),
               slug: page.lore.slug,
               terms: [...page.lore.terms],
               title: page.title,

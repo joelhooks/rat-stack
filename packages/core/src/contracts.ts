@@ -51,6 +51,7 @@ export const LoreGroup = Schema.Literals([
   "concept",
   "source",
   "person",
+  "system",
 ]);
 
 export const LorePageReference = Schema.Struct({
