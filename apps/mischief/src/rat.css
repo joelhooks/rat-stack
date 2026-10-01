@@ -345,16 +345,13 @@ main > pre:has(+ .copy-actions) {
 
 .workshop-callout {
   align-items: baseline;
+  background: color-mix(in srgb, var(--accent) 5%, white);
   border-left: 3px solid var(--accent);
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.5ch;
-  margin: 0 0 var(--space-section);
+  margin: calc(var(--space-section) - var(--space-small)) 0 var(--space-section);
   padding: 0.5rem 0.75rem;
-}
-
-main > .workshop-callout {
-  grid-column: popout;
 }
 
 .workshop-callout-label {
