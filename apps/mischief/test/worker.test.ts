@@ -526,9 +526,8 @@ it.effect(
         expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
         expect(html).toContain("│  defineContract");
-        expect(html).toContain("robot-head");
-        expect(html).toContain("Copy prompt for your agent");
-        expect(markdown).not.toContain("Copy prompt for your agent");
+        expect(html).toContain('class="copy-label">Copy prompt</span>');
+        expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");
         expect(markdown).not.toContain("<CopyPrompt");
         expect(html).not.toContain("prefers-color-scheme");
