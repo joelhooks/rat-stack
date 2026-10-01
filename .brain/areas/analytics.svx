@@ -51,7 +51,7 @@ An event holds a visitor id, a UUIDv7 message id, a server block (host, received
 
 ## The standard
 
-- Every HTTP response gets exactly one event, and recording it never changes the response.
+- With capture enabled, every HTTP response gets exactly one event. Capture preserves the response body and status; persistent HTML responses may add the visitor cookie.
 - The request body never reaches an event, and credential, email, code, and session query keys never survive.
 - An IP address is stored only as a salted hash.
 - In `persistent` mode, a browser keeps one id across visits through a first-party HttpOnly cookie set by the server. In `daily` mode, no cookie is set and an id never repeats on a later day.
@@ -64,13 +64,15 @@ An event holds a visitor id, a UUIDv7 message id, a server block (host, received
 | --- | --- | --- |
 | `EVENTS_ENABLED` | `false` | Off declares only the bucket, the stream, and the salt, so their state survives, and records nothing. On adds the catalog, the sink, and the pipeline. |
 | `EVENTS_SINK_TOKEN` | unset | A Cloudflare API token with R2 Admin Read & Write. Required when `EVENTS_ENABLED` is on. Export it in the deploy shell: it is read from the process environment, so a value in `.env` or an `--env-file` is not seen. |
-| `EVENTS_IDENTITY_MODE` | `persistent` | `persistent` or `daily` visitor ids. |
+| `EVENTS_IDENTITY_MODE` | `persistent` in the site schema | `persistent` or `daily` visitor ids. The Worker falls back to `daily` when the setting is absent. |
 
 The token is supplied, not minted, because the deploy credential is not allowed to create API tokens. A Basin Catalog sink requires R2 Admin Read & Write. [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/)
 
 ## How to check
 
 - **Capture is on.** In `persistent` mode, an HTML response to a browser with no `rat_vid` cookie sets one.
+A cookie proves the persistent capture wrapper is enabled, not that rows reached the warehouse.
+
 - **Nothing is dropped.** The `pipelinesUserErrorsAdaptiveGroups` dataset in the GraphQL Analytics API shows zero errors for the pipeline, and `pipelinesSinkAdaptiveGroups` shows records and files written. [Metrics and analytics](https://developers.cloudflare.com/basin-pipelines/observability/metrics/)
 - **Rows land.** Find the warehouse with `wrangler basin catalog get <bucket>`, then query it with `wrangler basin sql query <warehouse> "<sql>"`. Wrangler reads its token from `WRANGLER_BASIN_SQL_AUTH_TOKEN`. [Query data](https://developers.cloudflare.com/basin-sql/query-data/)
 
@@ -86,7 +88,7 @@ The event is JSON in the `value` column, so queries read fields with the JSON fu
 
 ## Tests
 
-The cartridge is tested with [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing). The properties cover one event per request, an unchanged response, no request body, and no sensitive query keys. The visitor model follows ids across devices, cookies, and days.
+The cartridge is tested with [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing). The properties cover one event per request, preserved response body and status, persistent-cookie behavior, no request body, and no sensitive query keys. The visitor model follows ids across devices, cookies, and days.
 
 ## Removing it
 
