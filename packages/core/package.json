@@ -19,6 +19,11 @@
       "import": "./dist/contracts.js",
       "default": "./dist/contracts.js"
     },
+    "./intake": {
+      "types": "./src/intake.ts",
+      "import": "./dist/intake.js",
+      "default": "./dist/intake.js"
+    },
     "./interest": {
       "types": "./src/interest.ts",
       "import": "./dist/interest.js",
