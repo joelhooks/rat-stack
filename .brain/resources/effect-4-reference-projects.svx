@@ -1,6 +1,8 @@
 # Effect 4 reference projects (studied 2026-09-18)
 
-Source study of high-quality Effect v4 codebases, used to pressure-test the rat-stack floor. Clones inspected locally under `~/.repo-autopsy/`; versions read from each repo's lockfile or catalog on the day of study.
+Historical source study from 2026-09-18, with a 2026-09-20 follow-up. Version matches below describe those dates, not current compatibility. See [current pins](/pins.md), the current reference machine `packages/core/src/inspect-machine.ts`, and [lifecycles are machines](/lore/lifecycles-are-machines).
+
+Versions came from the linked repos' lockfiles or catalogs on the day of study.
 
 For the browser client, Alchemy resources, database, auth, and Worker tests, see [Effect + Alchemy peer patterns](./same-version-repos.svx).
 
@@ -44,7 +46,7 @@ None of the reference apps use XState. t3code models lifecycle as decider, proje
 
 Issue https://github.com/statelyai/xstate/issues/5725 (Joel's account, labelled agent-generated, no PR by decision). Patch gist https://gist.github.com/joelhooks/99d193172a03609e67b4ef5849e8bbb1. Watch the issue for maintainer response before touching the lint plugin again.
 
-Local branch `xstate-effect-typed-lint-plugin` in `~/.repo-autopsy/statelyai/xstate`, one commit on top of `next` at 0748e1b, exported to `/tmp/0001-chore-xstate-effect-typed-oxlint-plugin-and-a-note-o.patch`. It ports the oxlint plugin to TypeScript on `@oxlint/plugins@^1.76.0` (same version as their pinned oxlint), repoints `.oxlintrc.json`, the lint fixture config, `lint.test.ts`, and two docs mentions, and corrects the README and `docs/testing-and-errors.md` claim that `join` fails with "the machine's typed error": a machine's `ErrorFrom` is `unknown`, and `docs/observing-actors.md` now says so and recommends final states plus `orDie` or `catchAll`. Verified in their tree: `manypkg check`, frozen install with `postinstall`, `lint.test.ts` 2/2, `pnpm lint`, `oxfmt --check`. Lock diff is 9 lines, spliced by hand because a non-frozen `pnpm install` here strips every `tarball:` field their lock keeps. Draft PR body at `/tmp/xstate-effect-pr-body.md`; draft publish-failure issue at `/tmp/xstate-effect-publish-issue.md`.
+The [public patch gist](https://gist.github.com/joelhooks/99d193172a03609e67b4ef5849e8bbb1) records the proposed changes against XState `next` at `0748e1b`. It ports the oxlint plugin to TypeScript on `@oxlint/plugins@^1.76.0` (same version as their pinned oxlint), repoints `.oxlintrc.json`, the lint fixture config, `lint.test.ts`, and two docs mentions, and corrects the README and `docs/testing-and-errors.md` claim that `join` fails with "the machine's typed error": a machine's `ErrorFrom` is `unknown`, and `docs/observing-actors.md` now says so and recommends final states plus `orDie` or `catchAll`. Verified in their tree: `manypkg check`, frozen install with `postinstall`, `lint.test.ts` 2/2, `pnpm lint`, `oxfmt --check`. Lock diff is 9 lines, spliced by hand because a non-frozen `pnpm install` here strips every `tarball:` field their lock keeps. The public issue and patch above are the contribution record.
 
 ## Split, not consensus
 
@@ -56,7 +58,7 @@ Local branch `xstate-effect-typed-lint-plugin` in `~/.repo-autopsy/statelyai/xst
 - **Reference service.** `packages/core/src/file-inspector.ts`: `Context.Service` with `make` capturing `FileSystem`, methods with `R = never`, `static layer`. The machine's actor uses `FileInspector.use(...)`, so `RequirementsFrom` is `FileInspector` and `cli.ts` is the one composition root: `Layer.provideMerge(FileInspector.layer, NodeServices.layer)`.
 - **Config service.** opencode's pattern on rc.115 in `packages/core/src/config-service.ts` (`Config.all` needs one cast for a generic record; `Layer.succeed(this, input)` replaces `this.of`). `AppConfig` mirrors `.env.schema`. Tests use `ConfigProvider.layer(ConfigProvider.fromUnknown({...}))`.
 - **`@effect/vitest`.** All Effect tests are `it.effect` or `it.layer(TestLayer)(name, (test) => ...)`. Temp files come from `FileSystem.makeTempDirectoryScoped`, no `node:fs`. Rule `effect-tests/no-manual-effect-runtime-in-tests` (t3code port, no debt ceiling) bans `Effect.run*` and `ManagedRuntime.make` in test files. `it` is renamed `test` inside `it.layer` callbacks because `no-shadow` is on.
-- **Mirrors.** `vendor-agent-sources.sh` derives refs from the package pins and links `.agent-sources/effect` (pi-effect's path) to the pinned mirror; the beta.99 copy that the pi-effect hydrate could not fix is parked at `/tmp/agent-sources-effect-beta99`. AGENTS.md now points at `node_modules/effect/AGENTS.md` first.
+- **Mirrors.** `vendor-agent-sources.sh` derives refs from the package pins and links `.agent-sources/effect` (pi-effect's path) to the pinned mirror; this resolved the stale beta.99 mirror. AGENTS.md now points at `node_modules/effect/AGENTS.md` first.
 - **Gotchas hit.** `classSelfMismatch` fires on any generic service factory. `no-barrel-file` counts `export * as` re-exports against Effect's whole module graph, so namespaces are exported as a const object. pnpm 11's `verify-deps-before-run` re-serializes a lockfile it did not write (drops `tarball:` fields), which matters when preparing patches for repos whose lock keeps them.
 
 ## Sweep 2026-09-20
