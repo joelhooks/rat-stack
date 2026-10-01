@@ -10,7 +10,7 @@ sources:
   - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts
   - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-mailer.ts
   - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-client.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/subscriber-delivery/src/delivery.ts
   - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts
 ---
 
@@ -28,16 +28,16 @@ Hexagonal names what rat-stack's Effect layer already does and the principle its
 
 On the driving side, [one capability, every surface](/lore/one-capability-every-surface) starts with a contract, binds a handler, and projects CLI, HTTP, MCP, RPC, and code mode. The [no-hand-rolled-surface rule](https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-boundaries.ts) keeps surface construction in the projection package.
 
-On the driven side, Effect `Context.Service` definitions provide ports for [sending interest mail](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-mailer.ts), [subscriber intake](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts), and [confirmation](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts). Layers provide recording or HTTP mail, unconfigured or [HTTP confirmation](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-client.ts), and [in-memory storage](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-machine.ts). [Tests](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/interest.test.ts) provide memory, recording, and fake services. [Worker wiring](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts) builds the production HTTP adapters alongside `InterestMode`; it does not swap the whole adapter set on each mode.
+On the driven side, Effect `Context.Service` definitions provide ports for [sending interest mail](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-mailer.ts), [subscriber intake (`SubscriberIntake`)](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts), and [confirmation (`SubscriberConfirm`)](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts). Layers provide recording or HTTP mail, unconfigured or [HTTP confirmation](https://github.com/joelhooks/rat-stack/blob/main/packages/subscriber-delivery/src/delivery.ts), and [in-memory storage](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-machine.ts). [Tests](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/interest.test.ts) provide memory, recording, and fake services. [Worker wiring](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts) builds the production HTTP adapters alongside `InterestMode`; it does not swap the whole adapter set on each mode.
 
 The subscriber cutover is not a pure adapter swap. The [handler](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/handlers.ts) branches on mode, and the [confirm routes](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/routes.ts) do too. The [form template](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) keeps its fields and POST target across modes, but [rendering](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) inserts a human-check widget when a site key is configured. Its complete markup is not guaranteed identical.
 
-## Boundaries being fixed
+## Boundaries fixed
 
-Three leaks are being fixed, not claimed as finished:
+Three leaks have been fixed:
 
-- HTTP adapters live beside ports in core. **Being fixed:** move the mail, intake, and confirmation HTTP adapters out of core into an adapter package.
-- Two ports are named for the vendor rather than the job. **Being fixed:** rename them for subscriber intake and confirmation.
-- No lint rule keeps core free of adapters. **Being fixed:** add a boundary rule rejecting HTTP-client and adapter/vendor imports from core, with a failing-case test.
+- HTTP adapters lived beside ports in core. **Fixed:** the mail, intake, and confirmation HTTP adapters now live in [`@rat-stack/subscriber-delivery`](https://github.com/joelhooks/rat-stack/tree/main/packages/subscriber-delivery/src), composed by `src/delivery.ts`.
+- Two ports were named for the vendor rather than the job. **Fixed:** [`SubscriberIntake`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts) and [`SubscriberConfirm`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts) name the jobs.
+- No lint rule kept core free of adapters. **Fixed:** [`no-core-adapters`](https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-boundaries.ts) rejects HTTP-client and adapter/vendor imports from core, with [failing-case tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts).
 
-Those are directions until the fixes land. Unlike Cockburn's technology-independent inside, this checkout still houses HTTP adapter code in core and keeps mode choices in handlers and routes. [Cartridges](/lore/cartridges) adds rat-stack's own packaging and removal test, including infrastructure supplied through `Layer.provide`. [A Layer as constructor](/lore/layer-constructor-pattern) explains the construction mechanism.
+Core no longer houses those HTTP adapters; mode choices remain in handlers and routes. [Cartridges](/lore/cartridges) adds rat-stack's own packaging and removal test, including infrastructure supplied through `Layer.provide`. [A Layer as constructor](/lore/layer-constructor-pattern) explains the construction mechanism.
