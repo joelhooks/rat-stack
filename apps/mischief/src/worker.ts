@@ -2,7 +2,7 @@ import {
   InterestMode,
   InterestTokens,
   postShibaMailerLayer,
-  DrovrConfirm,
+  drovrConfirmLayer,
   drovrIntakeLayer,
 } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
@@ -94,6 +94,8 @@ export const makeMischief = (
       Config.String("DROVR_INTAKE_URL")
     );
 
+    const drovrApiBase = yield* Config.option(Config.String("DROVR_API_BASE"));
+
     const drovrIntakeCredential = yield* Config.option(
       Config.Redacted("DROVR_INTAKE_CREDENTIAL")
     );
@@ -136,7 +138,10 @@ export const makeMischief = (
               credential: drovrIntakeCredential,
               url: drovrIntakeUrl,
             }).pipe(Layer.provide(FetchHttpClient.layer)),
-            DrovrConfirm.unconfigured,
+            drovrConfirmLayer({
+              base: drovrApiBase,
+              credential: drovrIntakeCredential,
+            }).pipe(Layer.provide(FetchHttpClient.layer)),
             postShibaMailerLayer({
               apiKey: Option.getOrElse(postShibaApiKey, () =>
                 Redacted.make("")

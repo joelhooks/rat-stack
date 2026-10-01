@@ -68,6 +68,12 @@ export type {
 
 export { DrovrConfirm } from "./interest-confirm-port.js";
 
+export {
+  CONFIRM_PATH,
+  TOKEN_STATE_PATH,
+  drovrConfirmLayer,
+} from "./interest-confirm-client.js";
+
 export type { ConfirmState } from "./interest-confirm-port.js";
 
 export { normalizeClientIp } from "./interest-ip.js";
