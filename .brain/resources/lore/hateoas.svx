@@ -31,6 +31,11 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Audience variants; used for retaining AgentOnly guidance in markdown."
     accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts
+    title: "rat-stack/packages/core/src/join-intake.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Agent-assisted intake; used for page-ticket verification and submission handling."
+    accessed: "2026-10-01"
 ---
 
 HATEOAS means hypermedia as the engine of application state. Roy Fielding names it as one of REST's four uniform-interface constraints in his dissertation, [chapter 5, section 5.1.5](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5). In [section 5.3.3](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_3_3), the application moves between states by choosing among the transitions in the representations it receives. Fielding explicitly includes automated agents, not just human-operated browsers.
@@ -47,7 +52,7 @@ This is Joel's application of the idea, not a quotation from Fielding. Links and
 
 [Content negotiation](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) serves markdown by default and HTML when requested. It also recognizes browser and crawler user agents; a browser can receive HTML without an explicit Accept header. `/llms.txt` is the agent front door. The [content generator](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) gives that guide links to rules, lore, skills, and the full docs, and builds HTML "Linked from" backlinks from the lore graph.
 
-[Audience variants](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts) retain `AgentOnly` blocks in agent markdown and remove them from HTML. **Built:** inline next-action guidance on `/tokenmaxx`. Its [AgentOnly blocks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md) link to the agent guide and related lore, explain the harness pieces, and guide preparation. Today, joining the list remains a person's step in a browser, not an agent submission. **Direction:** next-action links in capability and MCP responses; projecting a capability does not by itself supply those links.
+[Audience variants](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts) retain `AgentOnly` blocks in agent markdown and remove them from HTML. **Built:** inline next-action guidance on `/tokenmaxx`. Its [AgentOnly blocks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md) link to the agent guide and related lore, explain the harness pieces, and guide preparation. Agents can now submit a person-approved editable card through `joinInterest` over MCP, HTTP, or CLI, using a single-use page ticket from the [/tokenmaxx agent view](/tokenmaxx); [intake verifies the ticket](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts), email confirmation is still required, and confirmation is not a seat. **Direction:** next-action links in capability and MCP responses; projecting a capability does not by itself supply those links.
 
 [Interest signup](/systems/interest) records the current consent and confirmation boundary. Coming: agent-assisted interest intake with explicit consent and a person's email confirmation. The [agent guide](/llms.txt) gives the search → read → graph workflow.
 
