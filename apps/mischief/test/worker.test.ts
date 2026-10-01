@@ -507,7 +507,7 @@ it.effect(
         );
         expect(html).toContain('<h1 id="rat-stack">🐀 Rat Stack</h1>');
         expect(html.match(/<h1\b/gu)).toHaveLength(1);
-        expect(html).not.toContain("<strong>🐀 Rat Stack</strong>");
+        expect(html).toContain("<strong>🐀 Rat Stack</strong>");
         expect(skillHtml).toContain("<strong>🐀 Rat Stack</strong>");
         expect(skillHtml.match(/<h1\b/gu)).toHaveLength(1);
         expect(html).toContain("<pre><code>");
@@ -1308,6 +1308,49 @@ it.effect(
       cache
     );
   }
+);
+
+it.effect(
+  "negotiates the glossary and points agents at the same markdown in HTML and HTTP",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* glossaryDiscovery() {
+        const plain = yield* Effect.promise(
+          handler.bind(undefined, new Request("http://localhost/glossary"))
+        );
+
+        const rendered = yield* Effect.promise(
+          handler.bind(
+            undefined,
+            new Request("http://localhost/glossary", {
+              headers: { accept: "text/html" },
+            })
+          )
+        );
+
+        const markdown = yield* Effect.promise(plain.text.bind(plain));
+        const html = yield* Effect.promise(rendered.text.bind(rendered));
+
+        expect(plain.status).toBe(200);
+        expect(rendered.status).toBe(200);
+        expect(plain.headers.get("content-type")).toContain("text/markdown");
+        expect(rendered.headers.get("content-type")).toContain("text/html");
+        expect(markdown).toContain("port →");
+        expect(markdown).not.toContain("For agents:");
+        expect(html).toContain(
+          '<link rel="alternate" type="text/markdown" href="/glossary"'
+        );
+        expect(rendered.headers.get("link")).toContain(
+          '</glossary>; rel="alternate"; type="text/markdown"'
+        );
+        expect(html).toContain(
+          'For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.'
+        );
+        expect(html.indexOf("For agents:")).toBeLessThan(
+          html.indexOf('<h1 id="glossary"')
+        );
+      })
+    )
 );
 
 it.effect("serves every public GET route and exact skill discovery bytes", () =>

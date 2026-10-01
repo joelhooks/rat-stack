@@ -1,6 +1,7 @@
 import {
   cartridgesImageJpegBase64,
   homeMarkdownTemplate,
+  glossaryIndexMarkdown,
   lawSources,
   loreIndexMarkdown,
   llmsLoreLinks,
@@ -11,6 +12,7 @@ import {
   systemsIndexMarkdown,
   tokenmaxxImageJpegBase64,
 } from "./bundled-content.generated.js";
+import { markdownDiscoveryLinks } from "./content-links.js";
 
 export { loreGraphSnapshot } from "./bundled-content.generated.js";
 
@@ -18,6 +20,7 @@ export {
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
+  glossaryIndexDocumentHtml,
   loreIndexDocumentHtml,
   noVerifyDocumentHtml,
   noVerifyMarkdown,
@@ -159,6 +162,7 @@ The reference for building an app and its cloud as one typed program: Effect, Al
 ## Read this repo
 
 - [Home](${origin}/): short overview
+- [Glossary](${origin}/glossary): A–Z terms, summaries, and pages
 - [All public docs](${origin}/llms-full.txt): rules, lore, and skills in one response
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
 - [MCP server](${origin}/mcp): tools for search, reading, and sandboxed code
@@ -228,6 +232,8 @@ export const llmsFullText = (origin: string) =>
     ),
   ].join("\n");
 
+export const glossaryIndex = () => glossaryIndexMarkdown;
+
 export const skillIndex = () => skillIndexMarkdown;
 
 export const loreIndex = () => loreIndexMarkdown;
@@ -266,6 +272,7 @@ export const publicPaths = [
   "/skills",
   "/lore",
   "/systems",
+  "/glossary",
   "/.well-known/agent-card.json",
   "/.well-known/agent.json",
   "/.well-known/agent-skills/index.json",
@@ -285,15 +292,23 @@ ${publicPaths.map((path) => `  <url><loc>${origin}${path}</loc></url>`).join("\n
 </urlset>
 `;
 
-export const linkHeader = [
+const serviceLinkHeaders = [
   `</.well-known/api-catalog>; rel="api-catalog"`,
   `</.well-known/mcp.json>; rel="service-desc"; type="application/json"`,
   `</.well-known/agent-card.json>; rel="service-desc"; type="application/a2a+json"`,
   `</.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json"`,
   `</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-  `</llms.txt>; rel="describedby"; type="text/markdown"`,
-  `</>; rel="alternate"; type="text/markdown"`,
-].join(", ");
+];
+
+export const linkHeaderForPage = (pagePath: string) =>
+  [
+    ...serviceLinkHeaders,
+    ...markdownDiscoveryLinks(pagePath).map(
+      (link) => `<${link.href}>; rel="${link.rel}"; type="${link.type}"`
+    ),
+  ].join(", ");
+
+export const linkHeader = linkHeaderForPage("/");
 
 export const agentSkillsIndex = () => ({
   $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",

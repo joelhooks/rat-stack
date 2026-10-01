@@ -1,6 +1,7 @@
 <script>
   let {
     bodyHtml,
+    discoveryLinks,
     noindex = false,
     breadcrumbHref,
     breadcrumbLabel,
@@ -15,7 +16,6 @@
 
   const canonicalUrl = `${origin}${path}`;
 
-  const isHome = path === "/";
 </script>
 
 <svelte:head>
@@ -40,6 +40,9 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
   <link rel="canonical" href={canonicalUrl} />
+  {#each discoveryLinks as link}
+    <link rel={link.rel} type={link.type} href={link.href} />
+  {/each}
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -47,17 +50,16 @@
 
 <header>
   <nav aria-label="Primary navigation" class="site-nav">
-    {#if !isHome}<a class="brand" href="/"><strong>🐀 Rat Stack</strong></a>{/if}
+    <a class="brand" href="/"><strong>🐀 Rat Stack</strong></a>
     <div class="site-links">
       <ul>
         <li><a href="/skills">skills</a></li>
         <li><a href="/lore">lore</a></li>
         <li><a href="/systems">systems</a></li>
+        <li><a href="/glossary">glossary</a></li>
       </ul>
       <ul>
         <li><a href="/llms.txt">agent guide</a></li>
-        <li><a href="/openapi.json">API docs</a></li>
-        <li><a href="https://github.com/joelhooks/rat-stack">source</a></li>
       </ul>
     </div>
   </nav>
@@ -70,10 +72,34 @@
   </nav>
 {/if}
 
-<main>{@html bodyHtml}</main>
+<main>
+  {#if path !== "/tokenmaxx"}
+    <p class="agent-pointer">
+      For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.
+    </p>
+  {/if}
+  {@html bodyHtml}
+</main>
 
 <footer>
   <hr />
+  <div class="site-reference">
+    <section aria-label="Explore">
+      <h2>Explore</h2>
+      <ul>
+        <li><a href="/glossary">glossary</a></li>
+        <li><a href="/log.md">change log</a></li>
+      </ul>
+    </section>
+    <section aria-label="Reference">
+      <h2>Reference</h2>
+      <ul>
+        <li><a href="/llms.txt">agent guide</a></li>
+        <li><a href="/openapi.json">API docs</a></li>
+        <li><a href="https://github.com/joelhooks/rat-stack">source</a></li>
+      </ul>
+    </section>
+  </div>
   <p>
     Markdown by default. HTML when you ask for it.
     <a href="/llms.txt">Agents start here</a>.

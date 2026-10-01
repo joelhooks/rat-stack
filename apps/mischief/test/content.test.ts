@@ -7,6 +7,7 @@ import { compile as compileSvelte } from "svelte/compiler";
 
 import {
   assertDocumentTitle,
+  assertGlossaryLinks,
   assertLoreTerms,
   assertSkillGroups,
   ContentBuildError,
@@ -32,6 +33,9 @@ import {
   homeDocumentHtml,
   interestConfirmDocumentHtml,
   interestResultDocumentHtml,
+  glossaryTerms,
+  glossaryIndexMarkdown,
+  glossaryIndexDocumentHtml,
   lawSources,
   loreIndexDocumentHtml,
   loreIndexMarkdown,
@@ -631,6 +635,93 @@ it.layer(NodeServices.layer)("generated content", (test) => {
     })
   );
 
+  test.effect(
+    "every generated HTML head points to its markdown and agent guide",
+    () =>
+      Effect.sync(() => {
+        const pages = [
+          { documentHtml: homeDocumentHtml, routePath: "/" },
+          { documentHtml: glossaryIndexDocumentHtml, routePath: "/glossary" },
+          { documentHtml: skillIndexDocumentHtml, routePath: "/skills" },
+          { documentHtml: loreIndexDocumentHtml, routePath: "/lore" },
+          { documentHtml: systemsIndexDocumentHtml, routePath: "/systems" },
+          { documentHtml: noVerifyDocumentHtml, routePath: "/--no-verify" },
+          { documentHtml: tokenmaxxDocumentHtml, routePath: "/tokenmaxx" },
+          { documentHtml: interestResultDocumentHtml, routePath: "/tokenmaxx" },
+          {
+            documentHtml: interestConfirmDocumentHtml,
+            routePath: "/tokenmaxx",
+          },
+          ...lawSources,
+          ...skillSources,
+          ...loreSources,
+        ];
+
+        for (const page of pages) {
+          const head = page.documentHtml.split("</head>")[0] ?? "";
+          expect(head, page.routePath).toContain(
+            `<link rel="alternate" type="text/markdown" href="${page.routePath}"`
+          );
+          expect(head, page.routePath).toContain(
+            '<link rel="describedby" type="text/markdown" href="/llms.txt"'
+          );
+        }
+      })
+  );
+
+  test.effect(
+    "every glossary entry resolves, and planted missing pages fail",
+    () =>
+      Effect.sync(() => {
+        const routes = new Set<string>([
+          ...loreSources.map((page) => page.routePath),
+          ...skillSources.map((page) => page.routePath),
+        ]);
+
+        expect(() => {
+          assertGlossaryLinks(glossaryTerms, routes);
+        }).not.toThrow();
+
+        for (const entry of glossaryTerms) {
+          const missing = new Set(routes);
+          missing.delete(entry.routePath);
+          expect(() => {
+            assertGlossaryLinks([entry], missing);
+          }).toThrow(ContentBuildError);
+        }
+
+        expect(glossaryIndexDocumentHtml).toContain(
+          'href="/lore/hexagonal-architecture"'
+        );
+        expect(glossaryIndexMarkdown).toContain("# Glossary");
+        expect(llmsText("https://ratstack.sh")).toContain(
+          "https://ratstack.sh/glossary"
+        );
+      })
+  );
+
+  test.effect(
+    "glossary summaries come from page descriptions or the noun table",
+    () =>
+      Effect.sync(() => {
+        const agents =
+          lawSources.find((page) => page.routePath === "/AGENTS.md")?.text ??
+          "";
+
+        for (const entry of glossaryTerms) {
+          const page = [...loreSources, ...skillSources].find(
+            (candidate) => candidate.routePath === entry.routePath
+          );
+
+          expect(
+            page?.description === entry.summary ||
+              agents.includes(`| ${entry.summary} |`),
+            entry.term
+          ).toBe(true);
+        }
+      })
+  );
+
   test.effect("serves markdown without the origin placeholder", () =>
     Effect.sync(() => {
       const servedVerbatim = [
@@ -739,6 +830,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/skills",
         "/lore",
         "/systems",
+        "/glossary",
         "/--no-verify",
         "/tokenmaxx",
         ...lawSources.map((source) => source.routePath),

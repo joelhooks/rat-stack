@@ -262,6 +262,14 @@ const loreSources = (frontmatter: string, sourcePath: string) => {
     });
 };
 
+export const frontmatterTerms = (rawText: string, sourcePath: string) => {
+  const frontmatter =
+    /^---[ \t]*\r?\n(?<fields>[\s\S]*?)\r?\n---/u.exec(rawText)?.groups
+      ?.fields ?? "";
+
+  return loreList(frontmatter, "terms", sourcePath);
+};
+
 type LoreFrontmatter = typeof loreFrontmatterSchema.Type;
 
 type MutableLorePageMetadata = {
@@ -525,6 +533,131 @@ export const assertLoreTerms = (
       owners.set(normalized, page.sourcePath);
     }
   }
+};
+
+export interface GlossaryEntry {
+  readonly term: string;
+  readonly summary: string;
+  readonly routePath: string;
+}
+
+interface GlossaryPage {
+  readonly title: string;
+  readonly description: string;
+  readonly routePath: string;
+  readonly terms: readonly string[];
+}
+
+const glossaryNounRoutes = new Map([
+  ["Contract", "/systems/capabilities"],
+  ["Capability", "/systems/capabilities"],
+  ["Projection", "/lore/one-capability-every-surface"],
+  ["Cartridge", "/lore/cartridges"],
+  ["Machine", "/lore/lifecycles-are-machines"],
+  ["Feature", "/skills/uncomplect"],
+  ["Client", "/skills/uncomplect"],
+]);
+
+export const glossaryEntries = (
+  pages: readonly GlossaryPage[],
+  agents: string
+): readonly GlossaryEntry[] => {
+  const entries = new Map<string, GlossaryEntry>();
+
+  const add = (entry: GlossaryEntry) =>
+    entries.set(entry.term.trim().toLowerCase(), entry);
+
+  for (const page of pages) {
+    add({
+      routePath: page.routePath,
+      summary: page.description,
+      term: page.title,
+    });
+  }
+
+  for (const page of pages) {
+    for (const term of page.terms) {
+      add({ routePath: page.routePath, summary: page.description, term });
+    }
+  }
+
+  for (const [term, routePath] of glossaryNounRoutes) {
+    const summary = agents
+      .split(/\r?\n/u)
+      .find((line) => line.startsWith(`| ${term} |`))
+      ?.split("|")
+      .at(3)
+      ?.trim();
+
+    if (summary === undefined || summary === "") {
+      throw buildError(
+        "glossary noun",
+        "AGENTS.md",
+        new Error(`Missing noun: ${term}`)
+      );
+    }
+
+    add({ routePath, summary, term });
+  }
+
+  for (const [term, routePath] of [
+    ["port", "/lore/hexagonal-architecture"],
+    ["adapter", "/lore/hexagonal-architecture"],
+    ["Layer", "/lore/layer-constructor-pattern"],
+  ]) {
+    const page = pages.find((candidate) => candidate.routePath === routePath);
+
+    if (page !== undefined && term !== undefined) {
+      add({ routePath: page.routePath, summary: page.description, term });
+    }
+  }
+
+  return [...entries.values()].toSorted((left, right) =>
+    left.term.localeCompare(right.term, "en", { sensitivity: "base" })
+  );
+};
+
+export const assertGlossaryLinks = (
+  entries: readonly GlossaryEntry[],
+  pageRoutes: ReadonlySet<string>
+): void => {
+  for (const entry of entries) {
+    if (!pageRoutes.has(entry.routePath)) {
+      throw buildError(
+        "glossary link",
+        entry.term,
+        new Error(`Missing page: ${entry.routePath}`)
+      );
+    }
+  }
+};
+
+export const glossaryAgentMarkdown = (entries: readonly GlossaryEntry[]) =>
+  [
+    "# Glossary",
+    "",
+    ...entries.map(
+      (entry) => `- ${entry.term} → ${entry.summary} → ${entry.routePath}`
+    ),
+    "",
+  ].join("\n");
+
+export const glossaryMarkdown = (entries: readonly GlossaryEntry[]) => {
+  const lines = ["# Glossary", ""];
+  let previousLetter = "";
+
+  for (const entry of entries) {
+    const letter = entry.term.charAt(0).toUpperCase();
+
+    if (letter !== previousLetter) {
+      lines.push(`## ${letter}`, "");
+      previousLetter = letter;
+    }
+
+    lines.push(`- [${entry.term}](${entry.routePath}) → ${entry.summary}`, "");
+  }
+
+  return lines.join("\n");
 };
 
 export const loreTermTargets = (
