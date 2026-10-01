@@ -243,7 +243,9 @@ it.effect(
         const markdown = yield* text(response);
 
         expect(response.headers.get("content-type")).toContain("text/markdown");
-        expect(markdown).toContain("# 🐀 how to burn a trillion tokens");
+        expect(markdown).toContain(
+          "# 🐀 how to burn a trillion tokens and get good results"
+        );
         expect(markdown).not.toContain("<form");
       })
     )
