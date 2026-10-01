@@ -1368,6 +1368,11 @@ it.effect(
         expect(html.indexOf("For agents:")).toBeLessThan(
           html.indexOf('<h1 id="glossary"')
         );
+        expect(html).toContain(
+          '<p class="agent-pointer visually-hidden" aria-hidden="true">'
+        );
+        expect(html).toContain('<a href="/resources/peers.svx">peers</a>');
+        expect(rendered.headers.get("cache-control")).toBe("no-cache");
       })
     )
 );

@@ -75,7 +75,7 @@
 
 <main>
   {#if path !== "/tokenmaxx"}
-    <p class="agent-pointer">
+    <p class="agent-pointer visually-hidden" aria-hidden="true">
       For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.
     </p>
   {/if}
@@ -90,6 +90,7 @@
       <ul>
         <li><a href="/glossary">glossary</a></li>
         <li><a href="/log">change log</a></li>
+        <li><a href="/resources/peers.svx">peers</a></li>
       </ul>
     </section>
     <section aria-label="Reference">

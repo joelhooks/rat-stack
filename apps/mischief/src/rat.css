@@ -373,8 +373,13 @@ button {
   padding: 0 0.6ch;
 }
 
-.agent-pointer {
-  font-size: 0.875rem;
+.visually-hidden {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .site-reference {

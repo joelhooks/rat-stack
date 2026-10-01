@@ -248,6 +248,8 @@ const negotiatedHtmlPaths = new Set<string>([
   ...skills.map((skill) => skill.routePath),
 ]);
 
+const htmlRevalidateEveryVisit = "no-cache";
+
 const staticCacheControl =
   "public, max-age=60, s-maxage=31536000, stale-while-revalidate=86400";
 
@@ -1005,12 +1007,13 @@ const securityHeadersMiddleware = HttpRouter.middleware(
           : secured;
 
         return contentType.startsWith("text/html")
-          ? HttpServerResponse.setHeader(
-              embeddable,
-              "content-security-policy",
-              response.headers["content-security-policy"] ??
-                contentSecurityPolicy("'none'")
-            )
+          ? HttpServerResponse.setHeaders(embeddable, {
+              "cache-control":
+                response.headers["cache-control"] ?? htmlRevalidateEveryVisit,
+              "content-security-policy":
+                response.headers["content-security-policy"] ??
+                contentSecurityPolicy("'none'"),
+            })
           : embeddable;
       })
     ),
