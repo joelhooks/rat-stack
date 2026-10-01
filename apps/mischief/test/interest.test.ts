@@ -1584,7 +1584,7 @@ it.effect(
 );
 
 it.effect(
-  "embeds the Shield widget and widens the CSP only when a site key is set",
+  "embeds the Shield widget and widens the CSP only in drovr mode with a site key",
   () =>
     Effect.gen(function* widget() {
       const page = (handler: WebHandler) =>
@@ -1618,7 +1618,40 @@ it.effect(
             );
             expect(policy).toContain("worker-src blob:");
           }),
-        { shieldSiteKey: "ss_pk_test" }
+        { mode: "drovr", shieldSiteKey: "ss_pk_test" }
+      );
+
+      for (const mode of ["doi", "capture"] as const) {
+        yield* withInterest(
+          (handler) =>
+            Effect.gen(function* withKeyOutsideDrovr() {
+              const response = yield* page(handler);
+              const html = yield* text(response);
+
+              const policy =
+                response.headers.get("content-security-policy") ?? "";
+
+              expect(html).not.toContain("shield-shiba");
+              expect(html).not.toContain("__SHIELD_SHIBA_WIDGET__");
+              expect(policy).not.toContain("postshiba");
+              expect(policy).not.toContain("worker-src");
+            }),
+          { mode, shieldSiteKey: "ss_pk_test" }
+        );
+      }
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* drovrWithoutKey() {
+            const response = yield* page(handler);
+            const html = yield* text(response);
+
+            expect(html).not.toContain("shield-shiba");
+            expect(
+              response.headers.get("content-security-policy") ?? ""
+            ).not.toContain("postshiba");
+          }),
+        { mode: "drovr" }
       );
 
       yield* withInterest((handler) =>
