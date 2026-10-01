@@ -105,14 +105,13 @@ export const registerInterest = implement(
     })
 );
 
+export const refusalMessage = (reason: "expired" | "invalid") =>
+  reason === "expired"
+    ? "Confirmation links expire in 72 hours. Return to the signup form to request a new link."
+    : "Return to the signup form to request a confirmation link.";
+
 const refusal = (reason: "expired" | "invalid") =>
-  new InterestLinkRefused({
-    message:
-      reason === "expired"
-        ? "That link has expired. Ask for a new confirmation email from the workshop page."
-        : "That link is not valid. Ask for a new confirmation email from the workshop page.",
-    reason,
-  });
+  new InterestLinkRefused({ message: refusalMessage(reason), reason });
 
 export const confirmInterest = implement(confirmInterestContract, ({ token }) =>
   Effect.gen(function* confirmInterestHandler() {

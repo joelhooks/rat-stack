@@ -28,20 +28,31 @@ const page = (body: string, status: number) =>
     status,
   });
 
+const backToWorkshop = {
+  href: "/tokenmaxx",
+  label: "Back to the workshop page",
+} as const;
+
 export const resultPage = (
   origin: string,
   result: {
     readonly heading: string;
+    readonly link?: { readonly href: string; readonly label: string };
     readonly message: string;
     readonly status: number;
   }
-) =>
-  page(
+) => {
+  const link = result.link ?? backToWorkshop;
+
+  return page(
     renderStaticDocument(origin, interestResultDocumentHtml)
       .replaceAll("__INTEREST_HEADING__", escapeHtml(result.heading))
-      .replaceAll("__INTEREST_MESSAGE__", escapeHtml(result.message)),
+      .replaceAll("__INTEREST_MESSAGE__", escapeHtml(result.message))
+      .replaceAll("__INTEREST_LINK_HREF__", escapeHtml(link.href))
+      .replaceAll("__INTEREST_LINK_LABEL__", escapeHtml(link.label)),
     result.status
   );
+};
 
 export const confirmPage = (origin: string, token: string) =>
   page(

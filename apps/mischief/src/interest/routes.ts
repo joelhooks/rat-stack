@@ -3,11 +3,12 @@ import {
   InterestDirectory,
   InterestGate,
   InterestRequest,
+  InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type { InterestMailer, InterestTokens } from "@rat-stack/core/interest";
+import type { InterestMailer } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Effect, Layer, Option, Schema } from "effect";
+import { Clock, Effect, Layer, Option, Schema } from "effect";
 import type { Context } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import type * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
@@ -19,6 +20,7 @@ import type { RateLimits } from "../rate-limits.js";
 import {
   confirmInterest,
   interestCapabilities,
+  refusalMessage,
   registerInterest,
 } from "./handlers.js";
 import { confirmPage, resultPage } from "./pages.js";
@@ -72,6 +74,11 @@ const bearerOf = (request: HttpServerRequest.HttpServerRequest) => {
   return header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
 };
 
+const signupLink = {
+  href: "/tokenmaxx#interested",
+  label: "Return to signup",
+} as const;
+
 const notFound = HttpServerResponse.text("Not found.\n", {
   contentType: "text/plain; charset=utf-8",
   status: 404,
@@ -116,14 +123,33 @@ export const interestRoutes = (options: InterestOptions) => {
       }).pipe(Effect.orDie)
     ),
     HttpRouter.add("GET", "/tokenmaxx/confirm", (request) =>
-      Effect.succeed(
-        confirmPage(
-          originOf(request),
+      Effect.gen(function* promptConfirm() {
+        const token =
           new URL(request.url, "https://ratstack.sh").searchParams.get(
             "token"
-          ) ?? ""
-        )
-      )
+          ) ?? "";
+
+        const tokens = yield* InterestTokens;
+        const now = yield* Clock.currentTimeMillis;
+
+        return yield* tokens.verify(token, now).pipe(
+          Effect.match({
+            onFailure: (failure) =>
+              resultPage(originOf(request), {
+                heading:
+                  failure.reason === "expired"
+                    ? "This link has expired"
+                    : "This link isn't valid",
+                link: signupLink,
+                message: refusalMessage(
+                  failure.reason === "expired" ? "expired" : "invalid"
+                ),
+                status: 410,
+              }),
+            onSuccess: () => confirmPage(originOf(request), token),
+          })
+        );
+      }).pipe(Effect.provideContext(options.services), Effect.orDie)
     ),
     HttpRouter.add("POST", "/tokenmaxx/confirm", (request) =>
       Effect.gen(function* confirmAddress() {
@@ -134,12 +160,17 @@ export const interestRoutes = (options: InterestOptions) => {
           .pipe(
             Effect.match({
               onFailure: (failure) => ({
-                heading: "That link did not work",
+                heading:
+                  failure.reason === "expired"
+                    ? "This link has expired"
+                    : "This link isn't valid",
+                link: signupLink,
                 message: failure.message,
                 status: 410,
               }),
               onSuccess: ({ message }) => ({
-                heading: "You are on the list",
+                heading: "You're confirmed",
+                link: { href: "/", label: "Return to ratstack.sh" },
                 message,
                 status: 200,
               }),

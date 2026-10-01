@@ -4,10 +4,10 @@ import { Schema } from "effect";
 import { InterestLinkRefused } from "./interest-link-refused.js";
 import { InvalidInterestAddress } from "./invalid-interest-address.js";
 
-export const REGISTER_ANSWER =
-  "If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours.";
+export const REGISTER_ANSWER = "Check your email for a link to confirm.";
 
-export const CONFIRM_ANSWER = "You are on the list. Thank you.";
+export const CONFIRM_ANSWER =
+  "You'll get one email when the date is set, and that's it.";
 
 export const registerInterestContract = defineContract("registerInterest", {
   description:

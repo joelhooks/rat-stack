@@ -143,6 +143,9 @@ const sent = (services: Context.Context<RecordedMail>) =>
 const json = (response: Response) =>
   Effect.promise(response.json.bind(response));
 
+const visible = (html: string) =>
+  html.replaceAll("&#39;", "'").replaceAll("&quot;", '"');
+
 const linkIn = (body: string) =>
   /https:\/\/ratstack\.sh\/tokenmaxx\/confirm\?token=[^\s]+/u.exec(body)?.[0] ??
   "";
@@ -173,8 +176,12 @@ it.effect(
         expect(html).toContain('name="website"');
         expect(html).toContain("how to burn a trillion tokens");
         expect(html).toContain(
-          "If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours."
+          'Email me once when the date is set for "how to burn a trillion tokens."'
         );
+        expect(html).toContain("Join the interest list");
+        expect(html).not.toContain("Tell me when the date is set");
+        expect(html).toContain('<h2 id="interested">Interested?</h2>');
+        expect(html).toContain("Your email");
       })
     )
 );
@@ -275,7 +282,7 @@ it.effect(
         ]);
         expect(pendingBody).toBe(freshBody);
         expect(confirmedBody).toBe(freshBody);
-        expect(freshBody).toContain("a confirmation email is on its way");
+        expect(freshBody).toContain("Check your email for a link to confirm.");
       })
     )
 );
@@ -299,7 +306,7 @@ it.effect(
 
           expect(answered.status).toBe(200);
           expect(yield* text(answered)).toContain(
-            "a confirmation email is on its way"
+            "Check your email for a link to confirm."
           );
           expect(yield* sent(services)).toHaveLength(0);
           expect(limit.keys).toEqual(["198.51.100.9"]);
@@ -349,7 +356,7 @@ it.effect(
 
         expect(answered.status).toBe(200);
         expect(yield* text(answered)).toContain(
-          "a confirmation email is on its way"
+          "Check your email for a link to confirm."
         );
         expect(yield* sent(services)).toHaveLength(0);
       })
@@ -466,7 +473,7 @@ it.effect(
         expect(promptHtml).toContain('action="/tokenmaxx/confirm"');
         expect(promptHtml).toContain(`value="${token}"`);
         expect(confirmed.status).toBe(200);
-        expect(confirmedHtml).toContain("You are on the list");
+        expect(visible(confirmedHtml)).toContain("<h1>You're confirmed</h1>");
         expect(afterBody).toMatchObject({
           confirmed: [{ address: "reader@example.com" }],
           pending: 0,
@@ -504,7 +511,9 @@ it.effect("refuses a link whose token was changed", () =>
       );
 
       expect(refused.status).toBe(410);
-      expect(yield* text(refused)).toContain("That link is not valid");
+      expect(visible(yield* text(refused))).toContain(
+        "<h1>This link isn't valid</h1>"
+      );
     })
   )
 );
@@ -543,8 +552,7 @@ it.effect(
 
         expect(answered.status).toBe(200);
         expect(yield* Effect.promise(answered.json.bind(answered))).toEqual({
-          message:
-            "If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours.",
+          message: "Check your email for a link to confirm.",
         });
         expect(yield* sent(services)).toHaveLength(1);
       })
@@ -612,7 +620,7 @@ it.effect(
 
         expect(answered.status).toBe(200);
         expect(yield* text(answered)).toContain(
-          "a confirmation email is on its way"
+          "Check your email for a link to confirm."
         );
         expect(postedMailRequests).toHaveLength(0);
 
@@ -631,4 +639,104 @@ it.effect("compares operator tokens by digest", () =>
     expect(yield* digestsMatch("a", "a")).toBe(true);
     expect(yield* digestsMatch("a", "b")).toBe(false);
   })
+);
+
+it.effect("answers a submission with the approved sentence", () =>
+  withInterest((handler) =>
+    Effect.gen(function* answer() {
+      const page = yield* call(
+        handler,
+        form("/tokenmaxx/interest", { email: "reader@example.com" })
+      );
+
+      const html = visible(yield* text(page));
+
+      expect(html).toContain("<h1>Check your email</h1>");
+      expect(html).toContain("<p>Check your email for a link to confirm.</p>");
+    })
+  )
+);
+
+it.effect("renders the four confirm pages with the approved copy", () =>
+  withInterest((handler, services) =>
+    Effect.gen(function* confirmPages() {
+      yield* call(
+        handler,
+        form("/tokenmaxx/interest", { email: "reader@example.com" })
+      );
+      const [mail] = yield* sent(services);
+      const link = linkIn(mail?.text ?? "");
+      const token = decodeURIComponent(link.split("token=")[1] ?? "");
+
+      const pending = visible(
+        yield* text(yield* call(handler, new Request(link)))
+      );
+
+      expect(pending).toContain("<h1>Confirm your email</h1>");
+      expect(pending).toContain(
+        '<p>You asked to hear about "how to burn a trillion tokens," a four-hour workshop on agent harnesses at ratstack.sh. Confirm your email to get one email when the date is set, and that\'s it.</p>'
+      );
+      expect(pending).toContain(
+        '<button type="submit">Confirm my email</button>'
+      );
+
+      const confirmed = visible(
+        yield* text(yield* call(handler, form("/tokenmaxx/confirm", { token })))
+      );
+
+      expect(confirmed).toContain("<h1>You're confirmed</h1>");
+      expect(confirmed).toContain(
+        "<p>You'll get one email when the date is set, and that's it.</p>"
+      );
+      expect(confirmed).toContain('<a href="/">Return to ratstack.sh</a>');
+
+      const expiredToken = yield* InterestTokens.use((tokens) =>
+        tokens.sign({ address: "reader@example.com", expiresAt: 1 })
+      ).pipe(Effect.provide(InterestTokens.layer(tokenSecret)));
+
+      const expiredGet = yield* call(
+        handler,
+        new Request(
+          `https://ratstack.sh/tokenmaxx/confirm?token=${encodeURIComponent(expiredToken)}`
+        )
+      );
+
+      const expiredPost = yield* call(
+        handler,
+        form("/tokenmaxx/confirm", { token: expiredToken })
+      );
+
+      for (const response of [expiredGet, expiredPost]) {
+        const html = visible(yield* text(response));
+
+        expect(response.status).toBe(410);
+        expect(html).toContain("<h1>This link has expired</h1>");
+        expect(html).toContain(
+          "<p>Confirmation links expire in 72 hours. Return to the signup form to request a new link.</p>"
+        );
+        expect(html).toContain(
+          '<a href="/tokenmaxx#interested">Return to signup</a>'
+        );
+      }
+
+      for (const response of [
+        yield* call(
+          handler,
+          new Request("https://ratstack.sh/tokenmaxx/confirm?token=garbage")
+        ),
+        yield* call(handler, form("/tokenmaxx/confirm", { token: "garbage" })),
+      ]) {
+        const html = visible(yield* text(response));
+
+        expect(response.status).toBe(410);
+        expect(html).toContain("<h1>This link isn't valid</h1>");
+        expect(html).toContain(
+          "<p>Return to the signup form to request a confirmation link.</p>"
+        );
+        expect(html).toContain(
+          '<a href="/tokenmaxx#interested">Return to signup</a>'
+        );
+      }
+    })
+  )
 );

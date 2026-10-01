@@ -370,22 +370,23 @@ const tokenmaxxFormHtml = `
 <input id="interest-email" type="email" name="email" required autocomplete="email" maxlength="254" /></p>
 <p class="hp" aria-hidden="true"><label for="interest-website">Leave this empty</label><br />
 <input id="interest-website" type="text" name="website" tabindex="-1" autocomplete="off" /></p>
-<p><button type="submit">Tell me when the date is set</button></p>
-<p>If that address can join the list, a confirmation email is on its way. Unconfirmed addresses expire after 72 hours.</p>
+<p><button type="submit">Join the interest list</button></p>
+<p>Email me once when the date is set for "how to burn a trillion tokens."</p>
 </form>
 `;
 
 const interestResultBody = `
 <h1>__INTEREST_HEADING__</h1>
 <p>__INTEREST_MESSAGE__</p>
-<p><a href="/tokenmaxx">Back to the workshop page</a></p>
+<p><a href="__INTEREST_LINK_HREF__">__INTEREST_LINK_LABEL__</a></p>
 `;
 
 const interestConfirmBody = `
 <h1>Confirm your email</h1>
+<p>You asked to hear about "how to burn a trillion tokens," a four-hour workshop on agent harnesses at ratstack.sh. Confirm your email to get one email when the date is set, and that's it.</p>
 <form method="post" action="/tokenmaxx/confirm">
 <input type="hidden" name="token" value="__INTEREST_TOKEN__" />
-<p><button type="submit">Yes, tell me when the date is set</button></p>
+<p><button type="submit">Confirm my email</button></p>
 </form>
 <p><a href="/tokenmaxx">Back to the workshop page</a></p>
 `;
