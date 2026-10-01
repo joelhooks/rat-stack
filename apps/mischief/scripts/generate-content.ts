@@ -41,6 +41,7 @@ import {
   loreTermTargets,
   parseDebtLintOutput,
   parseLorePage,
+  responsiveTables,
   sectionOf,
   SYSTEMS_DIRECTORY,
   validateInternalLinks,
@@ -172,37 +173,6 @@ const stableHeadingIds: Plugin<[], HastNode> = () => {
       used.set(base, count + 1);
       const id = count === 0 ? base : `${base}-${count + 1}`;
       node.properties = { ...node.properties, id };
-    }
-
-    for (const child of node.children ?? []) {
-      visit(child);
-    }
-  };
-
-  return visit;
-};
-
-const childrenTagged = (node: HastNode, tagName: string) =>
-  (node.children ?? []).filter((child) => child.tagName === tagName);
-
-const tableCellLabels: Plugin<[], HastNode> = () => {
-  const visit = (node: HastNode): void => {
-    if (node.tagName === "table") {
-      const headers = childrenTagged(node, "thead")
-        .flatMap((section) => childrenTagged(section, "tr"))
-        .flatMap((row) => childrenTagged(row, "th").map(nodeText));
-
-      for (const body of childrenTagged(node, "tbody")) {
-        for (const row of childrenTagged(body, "tr")) {
-          for (const [index, cell] of childrenTagged(row, "td").entries()) {
-            const label = headers[index];
-
-            if (label !== undefined) {
-              cell.properties = { ...cell.properties, dataLabel: label };
-            }
-          }
-        }
-      }
     }
 
     for (const child of node.children ?? []) {
@@ -682,7 +652,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
           },
           rehypePlugins: [
             stableHeadingIds,
-            tableCellLabels,
+            responsiveTables,
             linkCodeSpans(targets),
             linkStackEntities,
             linkLoreTerms(

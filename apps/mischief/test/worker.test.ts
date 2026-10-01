@@ -526,9 +526,7 @@ it.effect(
         expect(html).toContain("ui-monospace");
         expect(html).toMatch(/pre\s*\{[^}]*overflow-x:\s*auto;/u);
         expect(html).toMatch(/figure pre[^{]*\{[^}]*font-size:\s*clamp\(/u);
-        expect(html).toMatch(
-          /table\s*\{[^}]*display:\s*block;[^}]*overflow-x:\s*auto;/u
-        );
+        expect(html).toMatch(/\.table-wrapper\s*\{[^}]*overflow-x:\s*auto;/u);
         expect(html).not.toContain('rel="stylesheet"');
         expect(html).not.toContain("<img");
         expect(html).toMatch(
@@ -628,7 +626,7 @@ it.effect(
         expect(resourceHtml).toContain(
           '<h1 id="effect-4-reference-projects-studied-2026-09-18">'
         );
-        expect(resourceHtml).toContain("<table>");
+        expect(resourceHtml).toMatch(/<table\b[^>]*>/u);
         expect(resourceHtml).not.toContain("<script");
 
         const favicon = yield* Effect.promise(
@@ -899,7 +897,7 @@ it.effect("serves the debt ledger across page and agent surfaces", () =>
       expect(markdown).toContain("no reason given");
       expect(markdown).toContain("tools/oxlint/anti-slop/");
       expect(htmlResponse.headers.get("content-type")).toContain("text/html");
-      expect(page).toContain("<table>");
+      expect(page).toMatch(/<table\b[^>]*>/u);
       expect(fullText).toContain(`# ${debt.routePath}`);
       expect(llmsText("https://ratstack.sh")).toContain(
         `[debt.md](${debt.routePath})`
