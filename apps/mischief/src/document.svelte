@@ -67,12 +67,6 @@
   <hr />
 </header>
 
-{#if breadcrumbHref && breadcrumbLabel && breadcrumbName}
-  <nav aria-label="Breadcrumb">
-    <a href={breadcrumbHref}>{breadcrumbLabel}</a> / {breadcrumbName}
-  </nav>
-{/if}
-
 <main>
   {#if path !== "/tokenmaxx"}
     <p class="agent-pointer visually-hidden" aria-hidden="true">
@@ -80,6 +74,11 @@
     </p>
   {/if}
   {@html houseAdHtml}
+  {#if breadcrumbHref && breadcrumbLabel && breadcrumbName}
+    <nav aria-label="Breadcrumb" class="breadcrumb">
+      <a href={breadcrumbHref}>{breadcrumbLabel}</a> / {breadcrumbName}
+    </nav>
+  {/if}
   {@html bodyHtml}
 </main>
 
