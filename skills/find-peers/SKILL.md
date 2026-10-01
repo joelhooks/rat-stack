@@ -5,7 +5,7 @@ description: Refresh public peers, exact stack versions, and usefulness tiers ev
 
 # Find peers
 
-A peer is a public repo that shares at least two of our stack lines. Peers hit breaking changes first and write idioms before the docs do. Effect 4 remains a shared line after its stable release; drift between beta, RC, and stable is recorded, not hidden.
+A peer is a public repo that shares our stack lines or a concrete stack seam. Default discovery asks for two lines; a relevant XState runtime or integration can qualify without Alchemy. Peers hit breaking changes first and write idioms before the docs do. Effect 4 remains a shared line after its stable release; drift between beta, RC, and stable is recorded, not hidden.
 
 ## Run
 
@@ -22,6 +22,14 @@ Refresh the structured rows in `.brain/data/peers.json` every week or two and af
 Rat-stack's own pins are read from its root, infra, and core manifests at content-build time, so a bump changes the comparison without a hand-edited baseline. For every peer, resolve its default branch to a commit and read its actual manifests or lockfiles at that commit. Record all four lines, the checked date, and source links. Preserve exact pins; label ranges, workspace/catalog references, and missing dependencies honestly. Resolve references from the workspace catalog or lockfile where possible; never turn a range into an invented pin. Show differences beside rat-stack's pins; version drift is expected, not a reason by itself to demote a peer.
 
 Keep every peer in `.brain/data/peers.json`, including its first-seen date, tier, one-line evidence-based reason, versions, checked date, default branch and commit, manifest/lockfile source paths, and study links. The content build reads that one dataset, sorts by tier then repository name, and renders `.brain/resources/peers.svx`: S, A, and B in the main table; C through F in a collapsed **Also seen** list. Edit structured rows, never hand-edit rendered table rows. Never delete a peer that fell behind.
+
+## Targeted XState discovery
+
+Run `pnpm find-peers --min 1`, then supplement Sourcegraph with GitHub code search. Search `"@xstate/effect"` across manifests and lockfiles, and `xstate alpha filename:package.json` plus `xstate "6.0.0-alpha" filename:pnpm-lock.yaml`. GitHub's token search produces false positives: an unrelated dependency may supply the alpha version. Read the actual file before counting a match.
+
+GitHub search under an authenticated account may include private repos. Filter `repository.isPrivate` and `repository.isFork` in the results; confirm public visibility, non-fork status and no mirror via repository metadata. Exclude rat-stack itself, vendored `.repos`/`.agent_sources` trees and historical archives. A template-derived application with its own behavior is not a mirror.
+
+Resolve the default branch (not always `main`) to a commit, read the manifests there, and resolve ranges/catalogs with that commit's lockfile. Search results are candidates, not version receipts. Keep relevant single-line seams as B; preserve explicit negative screening as C. Do not claim that no public pin exists from an empty, truncated or failed search. If a completed targeted pass finds no verified public consumer for a line, record its query, checked date and verified result count in structured search evidence and derive the dated page statement from it; recheck that evidence on the next refresh.
 
 ## Tier rubric
 
