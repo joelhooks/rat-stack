@@ -10,9 +10,33 @@ html {
 
 body {
   box-sizing: border-box;
-  margin: 0 auto;
+  margin: 0;
+  padding-block: 1rem;
+}
+
+body > :not(main) {
+  margin-inline: auto;
   max-width: 80ch;
-  padding: 1rem;
+  width: calc(100% - 2rem);
+}
+
+main {
+  display: grid;
+  grid-template-columns:
+    [full-bleed-start] minmax(1rem, 1fr)
+    [popout-start] minmax(0, 24ch)
+    [content-start] min(80ch, calc(100% - 2rem)) [content-end]
+    minmax(0, 24ch) [popout-end]
+    minmax(1rem, 1fr) [full-bleed-end];
+}
+
+main > * {
+  grid-column: content;
+  min-width: 0;
+}
+
+main > .table-wrapper {
+  grid-column: popout;
 }
 
 code {
@@ -39,11 +63,28 @@ pre code {
   padding: 0;
 }
 
+.table-wrapper {
+  container-name: table;
+  container-type: inline-size;
+  margin-block: 1rem;
+  overflow-x: auto;
+}
+
+.table-wrapper:focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
 table {
   border-collapse: collapse;
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
+  width: 100%;
+}
+
+th code,
+td code {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
 }
 
 th,
@@ -67,9 +108,20 @@ th {
   figure pre {
     font-size: clamp(7px, 2.2vw, 1em);
   }
+}
+
+@container table (max-width: 40rem) {
+  table {
+    display: block;
+  }
 
   thead {
-    display: none;
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
   }
 
   tbody,

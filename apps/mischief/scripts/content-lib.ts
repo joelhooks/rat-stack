@@ -16,6 +16,100 @@ export class ContentBuildError extends Schema.TaggedError<ContentBuildError>()(
 export const buildError = (stage: string, sourcePath: string, cause: unknown) =>
   new ContentBuildError({ cause, sourcePath, stage });
 
+export interface ResponsiveTableNode {
+  readonly type: string;
+  readonly tagName?: string;
+  readonly value?: string;
+  properties?: Record<
+    string,
+    boolean | number | string | null | undefined | readonly (string | number)[]
+  >;
+  children?: ResponsiveTableNode[];
+}
+
+const responsiveTableText = (node: ResponsiveTableNode): string =>
+  node.value ?? (node.children ?? []).map(responsiveTableText).join("");
+
+const tableChildren = (node: ResponsiveTableNode, tagName: string) =>
+  (node.children ?? []).filter((child) => child.tagName === tagName);
+
+const childrenOfTable = (node: ResponsiveTableNode) =>
+  (node.children ?? []).filter((child) =>
+    ["thead", "tbody", "tfoot"].includes(child.tagName ?? "")
+  );
+
+export const responsiveTables = () => {
+  let heading = "";
+
+  const visit = (node: ResponsiveTableNode): void => {
+    if (node.tagName !== undefined && /^h[1-6]$/u.test(node.tagName)) {
+      heading = responsiveTableText(node).trim();
+    }
+
+    const children = node.children ?? [];
+
+    for (const [index, child] of children.entries()) {
+      if (child.tagName !== "table") {
+        visit(child);
+        continue;
+      }
+
+      const headers = tableChildren(child, "thead")
+        .flatMap((section) => tableChildren(section, "tr"))
+        .flatMap((row) => tableChildren(row, "th"))
+        .map(responsiveTableText);
+
+      const caption = tableChildren(child, "caption")
+        .map(responsiveTableText)
+        .join("")
+        .trim();
+
+      const label = caption || heading || headers.join(" / ") || "Data";
+      child.properties = { ...child.properties, role: "table" };
+
+      for (const section of childrenOfTable(child)) {
+        section.properties = { ...section.properties, role: "rowgroup" };
+
+        for (const row of tableChildren(section, "tr")) {
+          row.properties = { ...row.properties, role: "row" };
+
+          for (const cell of tableChildren(row, "th")) {
+            cell.properties = {
+              ...cell.properties,
+              role: "columnheader",
+              scope: "col",
+            };
+          }
+
+          for (const [column, cell] of tableChildren(row, "td").entries()) {
+            const header = headers[column]?.trim() ?? "";
+
+            cell.properties = {
+              ...cell.properties,
+              dataLabel: header === "" ? `Column ${column + 1}` : header,
+              role: "cell",
+            };
+          }
+        }
+      }
+
+      children[index] = {
+        children: [child],
+        properties: {
+          ariaLabel: `${label} table`,
+          className: ["table-wrapper"],
+          role: "region",
+          tabIndex: 0,
+        },
+        tagName: "div",
+        type: "element",
+      };
+    }
+  };
+
+  return visit;
+};
+
 export type LoreGroup = "idea" | "concept" | "source" | "person" | "system";
 
 export const SYSTEMS_DIRECTORY = ".brain/areas";
