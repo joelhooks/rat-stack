@@ -1,14 +1,19 @@
+import { Schema } from "effect";
 import { unified } from "unified";
 
 import type { GlossaryEntry } from "./content-lib.ts";
 
-export interface UnlinkedMention {
-  readonly from: string;
-  readonly title: string;
-  readonly target: string;
-  readonly term: string;
-  readonly context: string;
-}
+export const UnlinkedMentionsSchema = Schema.Array(
+  Schema.Struct({
+    context: Schema.String,
+    from: Schema.String,
+    target: Schema.String,
+    term: Schema.String,
+    title: Schema.String,
+  })
+);
+
+export type UnlinkedMention = (typeof UnlinkedMentionsSchema.Type)[number];
 
 interface MentionNode {
   readonly type: string;
