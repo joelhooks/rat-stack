@@ -1,0 +1,43 @@
+---
+title: "Hexagonal architecture"
+description: "Ports name the application's jobs; adapters connect them to the outside world."
+group: idea
+terms:
+  - "hexagonal architecture"
+  - "ports and adapters"
+sources:
+  - https://alistair.cockburn.us/hexagonal-architecture/
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-mailer.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/subscriber-delivery/src/delivery.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts
+---
+
+Alistair Cockburn's [2005 article](https://alistair.cockburn.us/hexagonal-architecture/) calls the pattern "Ports and Adapters," with "Hexagonal Architecture" as its alternative name. An application can be driven by users, programs, tests, or batch scripts, and tested without its eventual devices and databases. A technology-specific adapter translates an outside interaction through a port; the application need not know what is on the other side. The distinction is inside versus outside, not a prescribed number of sides.
+
+## Rat-stack's stance
+
+Joel Hooks:
+
+> I think hexagonal and ports and adapters, generally speaking, is an extremely good fit and matches what we are kind of doing anyway inside of our effect layer. So if we were putting a name on the architecture or a principle from which we derive our own version of the architecture, hexagonal would be it. We are not zealots. However, we do recognize really good ideas when we see them.
+
+Hexagonal names what rat-stack's Effect layer already does and the principle its own version comes from. It is not wholesale adoption, a diagram made into law, or mandated folder names.
+
+## How rat-stack does it
+
+On the driving side, [one capability, every surface](/lore/one-capability-every-surface) starts with a contract, binds a handler, and projects CLI, HTTP, MCP, RPC, and code mode. The [no-hand-rolled-surface rule](https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-boundaries.ts) keeps surface construction in the projection package.
+
+On the driven side, Effect `Context.Service` definitions provide ports for [sending interest mail](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-mailer.ts), [subscriber intake (`SubscriberIntake`)](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts), and [confirmation (`SubscriberConfirm`)](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts). Layers provide recording or HTTP mail, unconfigured or [HTTP confirmation](https://github.com/joelhooks/rat-stack/blob/main/packages/subscriber-delivery/src/delivery.ts), and [in-memory storage](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-machine.ts). [Tests](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/interest.test.ts) provide memory, recording, and fake services. [Worker wiring](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts) builds the production HTTP adapters alongside `InterestMode`; it does not swap the whole adapter set on each mode.
+
+The subscriber cutover is not a pure adapter swap. The [handler](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/handlers.ts) branches on mode, and the [confirm routes](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/routes.ts) do too. The [form template](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) keeps its fields and POST target across modes, but [rendering](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) inserts a human-check widget when a site key is configured. Its complete markup is not guaranteed identical.
+
+## Boundaries fixed
+
+Three leaks have been fixed:
+
+- HTTP adapters lived beside ports in core. **Fixed:** the mail, intake, and confirmation HTTP adapters now live in [`@rat-stack/subscriber-delivery`](https://github.com/joelhooks/rat-stack/tree/main/packages/subscriber-delivery/src), composed by `src/delivery.ts`.
+- Two ports were named for the vendor rather than the job. **Fixed:** [`SubscriberIntake`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts) and [`SubscriberConfirm`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts) name the jobs.
+- No lint rule kept core free of adapters. **Fixed:** [`no-core-adapters`](https://github.com/joelhooks/rat-stack/blob/main/scripts/oxlint-plugin-boundaries.ts) rejects HTTP-client and adapter/vendor imports from core, with [failing-case tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts).
+
+Core no longer houses those HTTP adapters; mode choices remain in handlers and routes. [Cartridges](/lore/cartridges) adds rat-stack's own packaging and removal test, including infrastructure supplied through `Layer.provide`. [A Layer as constructor](/lore/layer-constructor-pattern) explains the construction mechanism.
