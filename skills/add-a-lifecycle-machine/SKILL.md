@@ -92,7 +92,7 @@ export const runThingMachine = Effect.fn("runThingMachine")(function* (
 ) {
   const actor = yield* createEffectActor(thingMachine, { input: { id } });
   yield* watchActor("thingMachine", actor);
-  // @effect-diagnostics-next-line anyUnknownInErrorContext:off
+  // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- join exposes unknown machine failures; unexpected failures become defects with orDie.
   const outcome = yield* join(actor).pipe(Effect.orDie);
   if (outcome === undefined) {
     return yield* Effect.die(new Error("machine completed without an outcome"));
