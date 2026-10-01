@@ -1,9 +1,9 @@
 import {
-  DrovrConfirm,
+  SubscriberConfirm,
   InterestMode,
   InterestTokens,
-  postShibaMailerLayer,
 } from "@rat-stack/core/interest";
+import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect, Layer, Redacted } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
@@ -35,7 +35,7 @@ export default class InterestCaptureWorker extends Cloudflare.Worker<InterestCap
         ),
         InterestTokens.layer(Redacted.make("local-token-secret")),
         fakeIntakeLayer,
-        DrovrConfirm.unconfigured,
+        SubscriberConfirm.unconfigured,
         InterestMode.layer("capture"),
         postShibaMailerLayer({
           apiKey: Redacted.make(""),

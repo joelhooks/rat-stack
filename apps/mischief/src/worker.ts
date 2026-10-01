@@ -1,14 +1,9 @@
-import {
-  InterestMode,
-  InterestTokens,
-  postShibaMailerLayer,
-  drovrConfirmLayer,
-  drovrIntakeLayer,
-} from "@rat-stack/core/interest";
+import { InterestMode, InterestTokens } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
+import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Schema } from "effect";
@@ -18,7 +13,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -152,26 +146,28 @@ export const makeMischief = (
             interestDirectory,
             InterestTokens.layer(interestTokenSecret.value),
             InterestMode.layer(interestMode),
-            drovrIntakeLayer({
-              credential: drovrIntakeCredential,
-              url: drovrIntakeUrl,
-            }).pipe(Layer.provide(FetchHttpClient.layer)),
-            drovrConfirmLayer({
-              base: drovrApiBase,
-              credential: drovrIntakeCredential,
-            }).pipe(Layer.provide(FetchHttpClient.layer)),
-            postShibaMailerLayer({
-              apiKey: Option.getOrElse(postShibaApiKey, () =>
-                Redacted.make("")
-              ),
-              cluster: Option.getOrElse(postShibaCluster, () => ""),
-              enabled:
-                interestSendEnabled &&
-                Option.isSome(postShibaApiKey) &&
-                Option.isSome(postShibaTeam) &&
-                Option.isSome(postShibaCluster),
-              team: Option.getOrElse(postShibaTeam, () => ""),
-            }).pipe(Layer.provide(FetchHttpClient.layer))
+            subscriberDeliveryLayer({
+              confirm: {
+                base: drovrApiBase,
+                credential: drovrIntakeCredential,
+              },
+              intake: {
+                credential: drovrIntakeCredential,
+                url: drovrIntakeUrl,
+              },
+              mailer: {
+                apiKey: Option.getOrElse(postShibaApiKey, () =>
+                  Redacted.make("")
+                ),
+                cluster: Option.getOrElse(postShibaCluster, () => ""),
+                enabled:
+                  interestSendEnabled &&
+                  Option.isSome(postShibaApiKey) &&
+                  Option.isSome(postShibaTeam) &&
+                  Option.isSome(postShibaCluster),
+                team: Option.getOrElse(postShibaTeam, () => ""),
+              },
+            })
           )
         );
 

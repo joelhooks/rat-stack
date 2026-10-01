@@ -34,6 +34,7 @@
     "@rat-stack/core": "workspace:*",
     "@rat-stack/events": "workspace:*",
     "@rat-stack/lore": "workspace:*",
+    "@rat-stack/subscriber-delivery": "workspace:*",
     "alchemy": "2.0.0-beta.79",
     "effect": "4.0.0-rc.117"
   },

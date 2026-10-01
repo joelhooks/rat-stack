@@ -4,7 +4,7 @@ import {
   CONFIRM_ANSWER,
   CONFIRMATION_WINDOW_MS,
   CONSENT_VERSION,
-  DrovrIntake,
+  SubscriberIntake,
   InterestDirectory,
   InterestGate,
   InterestLinkRefused,
@@ -152,7 +152,7 @@ export const registerInterest = implement(
         }
 
         const tokens = yield* InterestTokens;
-        const intake = yield* DrovrIntake;
+        const intake = yield* SubscriberIntake;
 
         const [ipHash, uaHash, submissionId] = yield* Effect.all([
           tokens.digest("ip", clientIp.value),
@@ -182,6 +182,12 @@ export const registerInterest = implement(
             attempts += 1;
             yield* Effect.sleep(Duration.seconds(result.afterSeconds));
           } else {
+            if (result.kind === "retry") {
+              yield* Effect.logWarning("drovr intake busy", {
+                retryAfterSeconds: result.afterSeconds,
+              });
+            }
+
             return yield* tryAgain;
           }
         }

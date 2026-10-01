@@ -894,6 +894,60 @@ const noCrossLayerImports = defineRule({
   },
 });
 
+const noCoreAdapters = defineRule({
+  create(context) {
+    const filename = workspacePath(context.filename);
+
+    if (!isWithin(filename, "packages/core/src")) {
+      return {};
+    }
+
+    const report = (node: ESTree.Node, source: ESTree.Expression) => {
+      const specifier = isStringModule(source);
+
+      if (specifier === null) {
+        return;
+      }
+
+      const target = normalizeWorkspacePath(filename, specifier);
+
+      const domainModule =
+        target !== null &&
+        (isWithin(target, "packages/core") ||
+          isWithin(target, "packages/capability"));
+
+      const domainLibrary = /^(?:effect|xstate|@xstate\/effect)(?:\/|$)/u.test(
+        specifier
+      );
+
+      const httpModule = /^effect\/unstable\/http(?:[^/]*)(?:\/|$)/u.test(
+        specifier
+      );
+
+      const adapterModule = /(?:^|\/)(?:adapters?|vendors?)(?:\/|$)/u.test(
+        target ?? specifier
+      );
+
+      if ((!domainModule && !domainLibrary) || httpModule || adapterModule) {
+        context.report({ messageId: "coreAdapter", node });
+      }
+    };
+
+    return moduleSourceVisitors(context, report);
+  },
+  meta: {
+    docs: {
+      description:
+        "Core owns ports and domain logic; HTTP clients and vendor implementations belong in adapter cartridges.",
+    },
+    messages: {
+      coreAdapter:
+        "Core cannot import HTTP clients or adapters. Provide a domain port from the composition root instead.",
+    },
+    type: "problem",
+  },
+});
+
 const noBrowserServerImports = defineRule({
   create(context) {
     const filename = workspacePath(context.filename);
@@ -1414,6 +1468,7 @@ export default definePlugin({
   rules: {
     "no-browser-globals-on-server": noBrowserGlobalsOnServer,
     "no-browser-server-imports": noBrowserServerImports,
+    "no-core-adapters": noCoreAdapters,
     "no-cross-layer-imports": noCrossLayerImports,
     "no-devtools-in-production": noDevtoolsInProduction,
     "no-feature-transport": noFeatureTransport,

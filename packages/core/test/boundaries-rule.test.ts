@@ -37,6 +37,7 @@ const lintFixture = (area: string, source: string): LintResult => {
       rules: {
         "rat-stack-boundaries/no-browser-globals-on-server": "error",
         "rat-stack-boundaries/no-browser-server-imports": "error",
+        "rat-stack-boundaries/no-core-adapters": "error",
         "rat-stack-boundaries/no-cross-layer-imports": "error",
         "rat-stack-boundaries/no-devtools-in-production": "error",
         "rat-stack-boundaries/no-feature-transport": "error",
@@ -72,6 +73,47 @@ const expectRuleSoft = (result: LintResult, message: string) => {
 };
 
 describe("architecture boundary rules", () => {
+  it("keeps clients and vendor adapters out of core through every import form", () => {
+    const sources = [
+      'import { HttpClient } from "effect/unstable/http";',
+      'import * as client from "effect/unstable/http/HttpClient";',
+      'export { HttpClientRequest } from "effect/unstable/http";',
+      'export * from "@rat-stack/subscriber-delivery";',
+      'const adapter = import("@rat-stack/subscriber-delivery");',
+      'const adapter = require("@rat-stack/subscriber-delivery");',
+      'type Client = import("effect/unstable/http/HttpClient").HttpClient;',
+      'import { provider } from "../../adapters/provider.js";',
+      'import { provider } from "./vendor/provider.js";',
+      'import { vendor } from "postshiba";',
+    ];
+
+    for (const source of sources) {
+      expectRuleSoft(
+        lintFixture("packages/core/src", source),
+        "Core cannot import HTTP clients or adapters."
+      );
+    }
+  });
+
+  it("permits ports, lifecycle libraries, and clients in adapter code", () => {
+    for (const source of [
+      'import { Effect } from "effect";',
+      'import { types } from "xstate";',
+      'import { createEffectActor } from "@xstate/effect";',
+      'import { defineContract } from "@rat-stack/capability/contract";',
+      'import { SubscriberIntake } from "./interest-intake.js";',
+    ]) {
+      expect(lintFixture("packages/core/src", source).status).toBe(0);
+    }
+
+    expect(
+      lintFixture(
+        "packages/subscriber-delivery/src",
+        'import { HttpClient } from "effect/unstable/http";'
+      ).status
+    ).toBe(0);
+  });
+
   it("wires browser boundary rules to the feature and client globs", () => {
     const configSource = readFileSync(
       path.join(repoRoot, "oxlint.config.ts"),

@@ -1,7 +1,7 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import {
   CONFIRM_ANSWER,
-  DrovrConfirm,
+  SubscriberConfirm,
   InterestDirectory,
   InterestGate,
   InterestMode,
@@ -9,7 +9,10 @@ import {
   InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type { DrovrIntake, InterestMailer } from "@rat-stack/core/interest";
+import type {
+  SubscriberIntake,
+  InterestMailer,
+} from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
 import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
@@ -32,8 +35,8 @@ export interface InterestOptions {
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
-    | DrovrConfirm
-    | DrovrIntake
+    | SubscriberConfirm
+    | SubscriberIntake
     | InterestDirectory
     | InterestMailer
     | InterestMode
@@ -248,7 +251,7 @@ export const interestRoutes = (options: InterestOptions) => {
           ) ?? "";
 
         if (mode === "drovr") {
-          const state = yield* (yield* DrovrConfirm).state(token);
+          const state = yield* (yield* SubscriberConfirm).state(token);
 
           if (state === "pending") {
             return confirmPage(originOf(request), token);
@@ -290,7 +293,7 @@ export const interestRoutes = (options: InterestOptions) => {
         const params = yield* request.urlParamsBody;
 
         if (mode === "drovr") {
-          const outcome = yield* (yield* DrovrConfirm).confirm(
+          const outcome = yield* (yield* SubscriberConfirm).confirm(
             formValue(params, "token") ?? ""
           );
 

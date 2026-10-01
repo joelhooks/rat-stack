@@ -26,19 +26,9 @@ export type {
   RemoveSelector,
 } from "./interest-directory.js";
 
-export {
-  InterestMailer,
-  plainTextToHtml,
-  postShibaMailerLayer,
-  recordingMailerLayer,
-  sendsUrl,
-} from "./interest-mailer.js";
+export { InterestMailer, recordingMailerLayer } from "./interest-mailer.js";
 
-export type {
-  InterestMail,
-  MailResult,
-  PostShibaSettings,
-} from "./interest-mailer.js";
+export type { InterestMail, MailResult } from "./interest-mailer.js";
 
 export {
   CONFIRMATION_WINDOW_MS,
@@ -58,21 +48,11 @@ export type {
   InterestRecord,
 } from "./interest-machine.js";
 
-export { DrovrIntake, drovrIntakeLayer } from "./interest-intake.js";
+export { SubscriberIntake } from "./interest-intake.js";
 
-export type {
-  IntakeRequest,
-  IntakeResult,
-  IntakeSettings,
-} from "./interest-intake.js";
+export type { IntakeRequest, IntakeResult } from "./interest-intake.js";
 
-export { DrovrConfirm } from "./interest-confirm-port.js";
-
-export {
-  CONFIRM_PATH,
-  TOKEN_STATE_PATH,
-  drovrConfirmLayer,
-} from "./interest-confirm-client.js";
+export { SubscriberConfirm } from "./interest-confirm-port.js";
 
 export type { ConfirmState } from "./interest-confirm-port.js";
 
