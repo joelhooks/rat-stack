@@ -25,6 +25,7 @@ BRAIN.md
 .env.*.local
 env.d.ts
 apps/mischief/src/bundled-content.generated.ts
+.brain/data/unlinked-mentions.generated.json
 
 # build temp directories left by an interrupted generate
 apps/mischief/src/.bundled-content.*/

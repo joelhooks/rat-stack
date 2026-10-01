@@ -46,6 +46,8 @@ Check the dataset's oldest peer checked date on every gardener pass. If it is fo
 
 ## 4. Garden
 
+Run `pnpm --filter @rat-stack/mischief generate`, read `.brain/data/unlinked-mentions.generated.json`, and turn useful unlinked mentions into explicit source links after checking their context; leave incidental matches alone.
+
 Look for tech debt and patterns that should not spread: duplicated logic, a second way to do something that already has a paved path, `unknown` passed inward, dead exports, tests that assert nothing.
 
 For each one:
