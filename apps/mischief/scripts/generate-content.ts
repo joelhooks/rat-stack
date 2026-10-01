@@ -58,6 +58,7 @@ import {
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
 import { linkStackEntities } from "./content-links.ts";
+import { readDailyLog } from "./daily-log.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 
@@ -94,9 +95,6 @@ const escapeHtml = (value: string) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
-
-const svelteSafeText = (value: string) =>
-  value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const svelteServerUrl = import.meta.resolve("svelte/internal/server");
 
@@ -234,8 +232,13 @@ const linkCodeSpans =
     };
   };
 
-const compileName = (spec: SourceSpec) =>
-  /\.(?:md|svx)$/u.test(spec.sourcePath) ? spec.sourcePath : spec.title;
+const compileName = (spec: SourceSpec) => {
+  if (/\.(?:md|svx)$/u.test(spec.sourcePath)) {
+    return spec.sourcePath;
+  }
+
+  return /\.(?:md|svx)$/u.test(spec.title) ? spec.title : `${spec.title}.md`;
+};
 
 const tagline =
   "An Effect stack so pure (aspirational) Kit Langton will blush.";
@@ -1097,53 +1100,6 @@ const program = Effect.gen(function* generateContent() {
   const debtMarkdown = debtLedgerMarkdown(debtLint.entries);
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-  const gitLog = yield* spawner
-    .string(
-      ChildProcess.make(
-        "git",
-        [
-          "log",
-          "-n",
-          "80",
-          "--date=short",
-          "--format=%ad%x09%H%x09%h%x09%s",
-          "--",
-          ...lawSpecs.map((spec) => spec.sourcePath),
-          "skills",
-          ".brain/resources/lore",
-          SYSTEMS_DIRECTORY,
-        ],
-        { cwd: root }
-      )
-    )
-    .pipe(Effect.orElseSucceed(() => ""));
-
-  const logEntries = gitLog
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .flatMap((line) => {
-      const [date, hash, short, ...subject] = line.split("\t");
-
-      return date === undefined || hash === undefined || short === undefined
-        ? []
-        : [{ date, hash, short, subject: svelteSafeText(subject.join("\t")) }];
-    });
-
-  const logText = [
-    "# Change log",
-    "",
-    "Newest first. Every commit that touched a file served on this site: source files, skills, and public Brain pages. Built from git history at generation time, so a shallow clone lists fewer entries.",
-    "",
-    ...(logEntries.length === 0
-      ? ["No git history was available when this build ran."]
-      : logEntries.flatMap((entry) => [
-          `## [${entry.date}] ${entry.subject}`,
-          "",
-          `Commit [${entry.short}](${repoUrl}/commit/${entry.hash}).`,
-          "",
-        ])),
-  ].join("\n");
-
   const packageDirectoryGroups = yield* Effect.forEach(
     ["apps", "packages"],
     (directory) =>
@@ -1228,7 +1184,7 @@ const program = Effect.gen(function* generateContent() {
     ]),
   ].join("\n");
 
-  const publicSpecs: readonly PublicSpec[] = [
+  const publicSpecsForLog = (logText: string): readonly PublicSpec[] => [
     ...lawTexts.slice(0, 4),
     {
       description:
@@ -1241,6 +1197,14 @@ const program = Effect.gen(function* generateContent() {
     },
     {
       description: "What changed in the files served here, newest first.",
+      rawText: logText,
+      routePath: "/log",
+      sourcePath: "git history",
+      text: logText,
+      title: "Change log",
+    },
+    {
+      description: "The generated change log as Markdown.",
       rawText: logText,
       routePath: "/log.md",
       sourcePath: "git history",
@@ -1355,6 +1319,14 @@ const program = Effect.gen(function* generateContent() {
     [loreDirectory, SYSTEMS_DIRECTORY],
     readLoreDirectory
   )).flat();
+
+  const logText = yield* readDailyLog(root, [
+    ...lawSpecs,
+    ...skillTexts.map((skill) => ({ ...skill, title: skill.name })),
+    ...loreTexts,
+  ]);
+
+  const publicSpecs = publicSpecsForLog(logText);
 
   const systemTexts = loreTexts.filter((lore) => lore.group === "system");
 
@@ -2450,7 +2422,7 @@ ${groupedSkills}
 
     if (change !== undefined) {
       lines.push(
-        `<p>Last changed ${change.date} in <a href="${repoUrl}/commit/${change.hash}">${change.short}</a>. <a href="${repoUrl}/blob/main/${sourcePath}">Source on GitHub</a>. <a href="/log.md">Change log</a>.</p>`
+        `<p>Last changed ${change.date} in <a href="${repoUrl}/commit/${change.hash}">${change.short}</a>. <a href="${repoUrl}/blob/main/${sourcePath}">Source on GitHub</a>. <a href="/log">Change log</a>.</p>`
       );
     }
 

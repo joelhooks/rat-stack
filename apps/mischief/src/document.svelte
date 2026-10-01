@@ -89,7 +89,7 @@
       <h2>Explore</h2>
       <ul>
         <li><a href="/glossary">glossary</a></li>
-        <li><a href="/log.md">change log</a></li>
+        <li><a href="/log">change log</a></li>
       </ul>
     </section>
     <section aria-label="Reference">

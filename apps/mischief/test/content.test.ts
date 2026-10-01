@@ -714,7 +714,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         for (const page of pages) {
           const head = page.documentHtml.split("</head>")[0] ?? "";
           expect(head, page.routePath).toContain(
-            `<link rel="alternate" type="text/markdown" href="${page.routePath}"`
+            `<link rel="alternate" type="text/markdown" href="${page.routePath === "/log" ? "/log.md" : page.routePath}"`
           );
           expect(head, page.routePath).toContain(
             '<link rel="describedby" type="text/markdown" href="/llms.txt"'
