@@ -305,7 +305,7 @@ main > pre:has(+ .copy-actions) {
   outline-offset: 3px;
 }
 
-.house-ad {
+.workshop-callout {
   align-items: center;
   border: 1px solid currentColor;
   display: flex;
@@ -314,30 +314,30 @@ main > pre:has(+ .copy-actions) {
   padding: 1rem;
 }
 
-.house-ad-rat {
+.workshop-callout-mark {
   font-size: 2rem;
 }
 
-.house-ad-message {
+.workshop-callout-text {
   flex: 1;
 }
 
-.house-ad-message p {
+.workshop-callout-text p {
   margin: 0.25rem 0 0;
 }
 
-.house-ad a {
+.workshop-callout a {
   flex: 0 1 14rem;
 }
 
 @media (max-width: 640px) {
-  .house-ad {
+  .workshop-callout {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .house-ad a {
+  .workshop-callout a {
     flex: auto;
   }
 }

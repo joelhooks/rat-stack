@@ -2,9 +2,9 @@
   let { href, label, line, link } = $props();
 </script>
 
-<aside class="house-ad" aria-label={label}>
-  <span class="house-ad-rat" aria-hidden="true">🐀</span>
-  <div class="house-ad-message">
+<aside class="workshop-callout" aria-label={label}>
+  <span class="workshop-callout-mark" aria-hidden="true">🐀</span>
+  <div class="workshop-callout-text">
     <strong>{label}</strong>
     <p>{line}</p>
   </div>
