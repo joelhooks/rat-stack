@@ -40,7 +40,8 @@ The factory needs something to build, so each of us builds a rat's nest: a small
 <tr><td><a href="https://github.com/joelhooks/pi-bellwether">pi-bellwether</a></td><td>Hands: agents in panes, supervised</td></tr>
 <tr><td><a href="https://github.com/joelhooks/pi-muster">pi-muster</a></td><td>Factories: lanes, workers, verified results</td></tr>
 <tr><td><a href="https://github.com/joelhooks/rat-stack">rat-stack</a></td><td>The floor: Effect, Alchemy, and the fence</td></tr>
-<tr><td><a href="https://github.com/mattpocock/skills">Matt Pocock's skills</a></td><td>Skills to combine and fork</td></tr>
+<tr><td><a href="/lore/matt-pocock-skills">Matt Pocock's skills</a></td><td>Skills to combine and fork</td></tr>
+<tr><td><a href="/lore/lauren-tan-skills">Lauren Tan's skills</a></td><td>Memory, orchestration, and verification skills</td></tr>
 </tbody></table>
 
 ## Before you come
