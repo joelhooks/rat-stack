@@ -443,3 +443,8 @@ td[data-tier="E"] {
 td[data-tier="F"] {
   background: #7fffff;
 }
+
+.error-code {
+  font-family: ui-monospace, monospace;
+  font-size: clamp(3rem, 12vw, 5rem);
+}

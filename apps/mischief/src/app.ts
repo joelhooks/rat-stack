@@ -2,7 +2,7 @@ import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
 import { InterestMode } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Context, Effect, Layer, Schema } from "effect";
+import { Cause, Context, Effect, Layer, Predicate, Schema } from "effect";
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as HttpHeaders from "effect/unstable/http/Headers";
@@ -13,6 +13,7 @@ import * as HttpApiBuilder from "effect/unstable/httpapi/HttpApiBuilder";
 import * as HttpApiSchema from "effect/unstable/httpapi/HttpApiSchema";
 
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
+import { errorPageTemplates } from "./bundled-content.generated.js";
 import { capabilities, contentLayer, search } from "./capabilities/index.js";
 import {
   a2aAgentCard,
@@ -38,8 +39,6 @@ import {
   markdownDocument,
   mcpServerCard,
   mcpVersionText,
-  noVerifyDocumentHtml,
-  noVerifyMarkdown,
   ogImagePath,
   ogImages,
   publicPaths,
@@ -57,6 +56,8 @@ import {
   tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./content.js";
+import { renderErrorPage } from "./error-page.js";
+import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
 import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
@@ -80,22 +81,6 @@ const json = (body: Schema.Json, contentType = "application/json") =>
     contentType,
     headers: { "access-control-allow-origin": "*" },
   });
-
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-
-const escapeMarkdown = (value: string) =>
-  value
-    .replaceAll("\\", "\\\\")
-    .replaceAll("[", "\\[")
-    .replaceAll("]", "\\]")
-    .replaceAll("(", "\\(")
-    .replaceAll(")", "\\)");
 
 const originOf = (request: HttpServerRequest.HttpServerRequest) =>
   new URL(request.url, "https://ratstack.sh").origin;
@@ -156,48 +141,34 @@ const pathQuery = (pathname: string) => {
     .join(" ");
 };
 
+const errorResponse = (
+  request: HttpServerRequest.HttpServerRequest,
+  page: ErrorPage
+) =>
+  HttpServerResponse.text(
+    renderErrorPage(page, originOf(request), acceptsHtml(request)),
+    {
+      contentType: acceptsHtml(request)
+        ? "text/html; charset=utf-8"
+        : "text/markdown; charset=utf-8",
+      status: page.code,
+    }
+  );
+
 const searchNotFound = (request: HttpServerRequest.HttpServerRequest) => {
   const { pathname } = new URL(request.url, "https://ratstack.sh");
   const query = pathQuery(pathname);
 
   return search.handler({ limit: 3, query }).pipe(
-    Effect.map(({ matches }) => {
-      if (acceptsHtml(request)) {
-        const list = matches
-          .map(
-            (match) =>
-              `<li><a href="${escapeHtml(match.routePath)}">${escapeHtml(match.title)}</a><p>${escapeHtml(match.description)}</p></li>`
-          )
-          .join("");
-
-        const empty = matches.length === 0 ? "<p>No close match.</p>" : "";
-        const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>That bin got pulled out | rat-stack</title></head><body><main><h1>That bin got pulled out.</h1>${empty}<ol>${list}</ol><p><a href="/">Home</a> · <a href="/llms.txt">Agent guide</a></p></main></body></html>`;
-
-        return HttpServerResponse.text(body, {
-          contentType: "text/html; charset=utf-8",
-          status: 404,
-        });
-      }
-
-      const list = matches.map(
-        (match) =>
-          `- [${escapeMarkdown(match.title)}](${match.routePath}) — ${escapeMarkdown(match.description)}`
-      );
-
-      const body = [
-        "That bin got pulled out.",
-        "",
-        ...(list.length === 0 ? ["No close match."] : list),
-        "",
-        "[Home](/) · [Agent guide](/llms.txt)",
-        "",
-      ].join("\n");
-
-      return HttpServerResponse.text(body, {
-        contentType: "text/markdown; charset=utf-8",
-        status: 404,
-      });
-    })
+    Effect.map(({ matches }) =>
+      errorResponse(request, {
+        code: 404,
+        matches,
+        message: "That bin got pulled out.",
+        path: pathname,
+        title: "Not found",
+      })
+    )
   );
 };
 
@@ -430,17 +401,13 @@ export const mcpLayer = (
 const mcp = mcpLayer(modernMcpProtocols);
 
 const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
-  HttpServerResponse.text(
-    acceptsHtml(request)
-      ? renderStaticDocument(originOf(request), noVerifyDocumentHtml)
-      : noVerifyMarkdown,
-    {
-      contentType: acceptsHtml(request)
-        ? "text/html; charset=utf-8"
-        : "text/markdown; charset=utf-8",
-      status: 403,
-    }
-  );
+  errorResponse(request, {
+    code: 403,
+    details: errorPageTemplates.noVerifyDetails,
+    message: "The rat looks disappointed.",
+    path: new URL(request.url, "https://ratstack.sh").pathname,
+    title: "Forbidden",
+  });
 
 const shieldWidgetHtml = (siteKey: string | undefined) =>
   siteKey === undefined || siteKey === ""
@@ -987,6 +954,79 @@ const securityHeaders = {
   "x-frame-options": "DENY",
 };
 
+const errorTitles = new Map([
+  [400, "Bad request"],
+  [401, "Unauthorized"],
+  [403, "Forbidden"],
+  [404, "Not found"],
+  [410, "Gone"],
+  [422, "Invalid request"],
+  [429, "Too many requests"],
+  [500, "Internal server error"],
+  [503, "Service unavailable"],
+]);
+
+const acceptsJson = (request: HttpServerRequest.HttpServerRequest) =>
+  acceptedMediaTypes(request.headers.accept).some(
+    (type) => type === "application/json" || type === "application/problem+json"
+  );
+
+export const errorPages = HttpRouter.middleware(
+  (httpEffect) =>
+    Effect.gen(function* renderRequestError() {
+      const request = yield* HttpServerRequest.HttpServerRequest;
+      const { pathname } = new URL(request.url, "https://ratstack.sh");
+      const machine = machinePath(pathname) || acceptsJson(request);
+
+      const response = yield* httpEffect.pipe(
+        Effect.catchCause((cause) =>
+          machine || Cause.hasInterrupts(cause)
+            ? Effect.failCause(cause)
+            : Effect.succeed(
+                errorResponse(request, {
+                  code: 500,
+                  message: "Something went wrong. Please try again.",
+                  path: pathname,
+                  title: "Internal server error",
+                })
+              )
+        )
+      );
+
+      const contentType = response.headers["content-type"] ?? "";
+
+      if (
+        machine ||
+        response.status < 400 ||
+        (Predicate.isTagged(response.body, "Uint8Array") &&
+          new TextDecoder()
+            .decode(response.body.body)
+            .includes('class="error-code"')) ||
+        (!contentType.startsWith("text/html") &&
+          (response.status < 500 || !contentType.startsWith("text/plain")))
+      ) {
+        return response;
+      }
+
+      const page = errorResponse(request, {
+        code: response.status,
+        message:
+          response.status >= 500
+            ? "Something went wrong. Please try again."
+            : "This request could not be completed.",
+        path: pathname,
+        title: errorTitles.get(response.status) ?? "Request failed",
+      });
+
+      return HttpServerResponse.setHeaders(page, {
+        ...response.headers,
+        "content-type":
+          page.headers["content-type"] ?? "text/markdown; charset=utf-8",
+      });
+    }),
+  { global: true }
+);
+
 const securityHeadersMiddleware = HttpRouter.middleware(
   (httpEffect) =>
     httpEffect.pipe(
@@ -1082,6 +1122,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
       : interestRoutes({ ...options.interest, rateLimits: options.rateLimits }),
     mcp,
     securityHeadersMiddleware,
+    errorPages,
     options.rateLimits === undefined && options.legacyMcp === undefined
       ? Layer.empty
       : requestProtection(options),

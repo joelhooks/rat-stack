@@ -1120,10 +1120,15 @@ it.effect(
         expect(markdownResponse.headers.get("content-type")).toContain(
           "text/markdown"
         );
-        expect(markdown.startsWith("That bin got pulled out.")).toBe(true);
+        expect(markdown.startsWith("# 404 Not found")).toBe(true);
+        expect(markdown).toContain("That bin got pulled out.");
+        expect(markdown).toContain("/add-a-lifecycle-machine.md");
         expect(markdown).toContain("/skills/add-a-lifecycle-machine");
-        expect(markdown).toContain("[Home](/)");
-        expect(markdown).toContain("[Agent guide](/llms.txt)");
+        expect(page).toContain("<header>");
+        expect(page).toContain("<footer>");
+        expect(page).toContain('class="error-code">404</span>');
+        expect(page).not.toContain('class="house-ad"');
+        expect(page).not.toContain("<ol></ol>");
         expect(htmlResponse.status).toBe(404);
         expect(htmlResponse.headers.get("content-type")).toContain("text/html");
         expect(page).toContain("That bin got pulled out.");

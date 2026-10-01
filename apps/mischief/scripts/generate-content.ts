@@ -2862,6 +2862,67 @@ ${groupedSkills}
     { concurrency: "unbounded" }
   );
 
+  const errorPageMarkdown = yield* readText(
+    "apps/mischief/content/error-page.md"
+  );
+
+  const errorActionsMarkdown =
+    "- [Home](/)\n- [Glossary](/glossary)\n- [Lore](/lore)\n- [Systems](/systems)\n- [Change log](/log)\n- [Agent guide](/llms.txt)\n";
+
+  const errorSuggestionMarkdown =
+    "1. [ERROR_LINK_TITLE](ERROR_LINK_PATH) — ERROR_LINK_DESCRIPTION\n";
+
+  const errorBody = yield* compileMarkdownBody(
+    errorPageMarkdown,
+    "error-page.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/error"
+  );
+
+  const errorActions = yield* compileMarkdownBody(
+    errorActionsMarkdown,
+    "error-actions.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/error"
+  );
+
+  const errorSuggestion = yield* compileMarkdownBody(
+    errorSuggestionMarkdown,
+    "error-suggestion.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/error"
+  );
+
+  const noVerifyErrorDetails = {
+    html: noVerifyBody.bodyHtml,
+    markdown: noVerifyAgentMarkdown,
+  };
+
+  const errorPageDocumentHtml = yield* renderDocument(
+    shell,
+    {
+      bodyHtml: errorBody.bodyHtml.replaceAll(
+        "ERROR_CODE ERROR_TITLE</h1>",
+        '<span class="error-code">ERROR_CODE</span> ERROR_TITLE</h1>'
+      ),
+      description: "ERROR_MESSAGE",
+      discoveryLinks: markdownDiscoveryLinks("/"),
+      noindex: true,
+      ogImageUrl: `${originToken}/og/home.png`,
+      origin: originToken,
+      path: "/",
+      stylesheet,
+      title: "ERROR_CODE ERROR_TITLE | rat-stack",
+    },
+    "error-page.md"
+  );
+
   const homeDocumentHtml = yield* makeDocument(
     homeBodyHtml,
     homeMetadata,
@@ -2944,7 +3005,10 @@ ${groupedSkills}
     const temporaryOutput = path.join(temporaryDirectory, "output.ts");
 
     yield* fileSystem
-      .writeFileString(temporaryOutput, generated)
+      .writeFileString(
+        temporaryOutput,
+        `${generated}\nexport const errorPageTemplates = ${sourceLiteral({ actionsHtml: errorActions.bodyHtml, actionsMarkdown: errorActionsMarkdown, documentHtml: errorPageDocumentHtml, markdown: errorPageMarkdown, noVerifyDetails: noVerifyErrorDetails, suggestionHtml: errorSuggestion.bodyHtml, suggestionMarkdown: errorSuggestionMarkdown })} as const;\n`
+      )
       .pipe(
         Effect.mapError((cause) => buildError("write", temporaryOutput, cause))
       );

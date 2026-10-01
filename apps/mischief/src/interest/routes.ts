@@ -234,7 +234,10 @@ export const interestRoutes = (options: InterestOptions) => {
             Effect.provideContext(options.services)
           );
 
-        return resultPage(originOf(request), answered);
+        return resultPage(originOf(request), {
+          ...answered,
+          path: new URL(request.url, "https://ratstack.sh").pathname,
+        });
       }).pipe(Effect.orDie)
     ),
     HttpRouter.add("GET", "/tokenmaxx/confirm", (request) =>
@@ -324,7 +327,10 @@ export const interestRoutes = (options: InterestOptions) => {
             Effect.provideContext(options.services)
           );
 
-        return resultPage(originOf(request), answered);
+        return resultPage(originOf(request), {
+          ...answered,
+          path: new URL(request.url, "https://ratstack.sh").pathname,
+        });
       }).pipe(Effect.provideContext(options.services), Effect.orDie)
     ),
     HttpRouter.add("GET", "/operator/interest", (request) =>
