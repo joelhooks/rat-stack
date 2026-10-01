@@ -2084,6 +2084,7 @@ ${groupedSkills}
     "/.well-known/http-message-signatures-directory",
     "/no-verify",
     trapRoutePath,
+    tokenmaxxRoutePath,
     ...publicSpecs.map((spec) => spec.routePath),
     ...skillTexts.flatMap((skill) => [
       skill.routePath,
