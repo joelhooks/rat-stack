@@ -1,18 +1,16 @@
 <script>
-  let { label, showText = false, showLabel = false, robot = false, text } = $props();
+  let { label, showText = false, text } = $props();
 </script>
 
 {#snippet control()}
-  <button type="button" class:copy-agent={robot} class="copy" data-text={text} aria-label={label} hidden>
-    {#if robot}
-      <svg class="icon robot-head" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2" /></svg>
-    {:else}
-    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M7.5 14.5C7.5 11.2002 7.5 9.55025 8.52513 8.52513C9.55025 7.5 11.2002 7.5 14.5 7.5C17.7998 7.5 19.4497 7.5 20.4749 8.52513C21.5 9.55025 21.5 11.2002 21.5 14.5C21.5 17.7998 21.5 19.4497 20.4749 20.4749C19.4497 21.5 17.7998 21.5 14.5 21.5C11.2002 21.5 9.55025 21.5 8.52513 20.4749C7.5 19.4497 7.5 17.7998 7.5 14.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M7.5 16.5C6.10355 16.5 5.40533 16.5 4.84402 16.3036C3.83866 15.9518 3.0482 15.1613 2.69641 14.156C2.5 13.5947 2.5 12.8964 2.5 11.5V9.5C2.5 6.20017 2.5 4.55025 3.52513 3.52513C4.55025 2.5 6.20017 2.5 9.5 2.5H11.5C12.8964 2.5 13.5947 2.5 14.156 2.69641C15.1613 3.0482 15.9518 3.83866 16.3036 4.84402C16.5 5.40533 16.5 6.10355 16.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-    {/if}
-    <svg class="icon icon-done" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" hidden><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-    {#if showText || showLabel}<span class="copy-label">{label}</span>{/if}
-  </button>
-  <span class="copy-status" role="status" aria-live="polite"></span>
+  <span class="copy-actions">
+    <button type="button" class="copy" data-text={text} aria-label={label} hidden>
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2" /></svg>
+      <svg class="icon icon-done" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" hidden><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <span class="copy-label">{label}</span>
+    </button>
+    <span class="copy-status" role="status" aria-live="polite"></span>
+  </span>
 {/snippet}
 
 {#if showText}
@@ -20,8 +18,6 @@
     <pre><code>{text}</code></pre>
     {@render control()}
   </div>
-{:else if robot || showLabel}
-  <div class="copy-actions" class:agent-actions={robot}>{@render control()}</div>
 {:else}
   {@render control()}
 {/if}

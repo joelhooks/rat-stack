@@ -273,8 +273,8 @@ for (const button of document.querySelectorAll("button[data-text]")) {
       if (shown) getSelection().selectAllChildren(shown);
       return;
     }
-    if (label) label.textContent = "copied ✓";
-    status.textContent = "copied ✓";
+    if (label) label.textContent = "Copied ✓";
+    status.textContent = "Copied ✓";
     done.hidden = false;
     idle.hidden = true;
     setTimeout(() => {

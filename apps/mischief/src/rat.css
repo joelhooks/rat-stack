@@ -249,14 +249,35 @@ button {
 }
 
 .prompt pre {
-  margin: 0 0 0.5rem;
+  margin: 0;
   white-space: pre-wrap;
+}
+
+main > pre:has(+ .copy-actions) {
+  margin-bottom: 0;
 }
 
 .copy {
   align-items: center;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  color: inherit;
   display: inline-flex;
   gap: 0.4rem;
+  min-height: 24px;
+  min-width: 24px;
+  padding: 0.25rem 0.75rem;
+}
+
+.copy .icon {
+  height: 1em;
+  width: 1em;
+}
+
+.copy:hover,
+.copy:focus-visible {
+  background: #eff1f5;
 }
 
 .copy[hidden],
@@ -265,36 +286,23 @@ button {
 }
 
 .copy-status {
-  margin-left: 0.5rem;
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .copy-actions {
-  margin: -0.5rem 0 1.5rem;
-}
-
-.agent-actions {
-  text-align: right;
-}
-
-.agent-actions .copy-status {
-  display: block;
-  margin-left: 0;
-}
-
-.copy-agent {
-  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.5rem 0 0;
 }
 
 .copy:focus-visible {
   outline: 3px solid currentColor;
   outline-offset: 3px;
-}
-
-@media (max-width: 480px) {
-  .copy-agent {
-    justify-content: center;
-    width: 100%;
-  }
 }
 
 .house-ad {

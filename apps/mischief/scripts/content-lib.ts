@@ -1127,15 +1127,13 @@ export interface CopyPromptSpec {
   readonly label: string;
   readonly showText: boolean;
   readonly showLabel?: boolean;
-  readonly robot?: boolean;
   readonly text: string;
 }
 
 export const copyPrompts = {
   connect: {
     agentFence: false,
-    label: "Copy prompt for your agent",
-    robot: true,
+    label: "Copy prompt",
     showLabel: true,
     showText: false,
     text: [
@@ -1148,14 +1146,14 @@ export const copyPrompts = {
   },
   cursor: {
     agentFence: false,
-    label: "Copy Cursor config",
+    label: "Copy",
     showLabel: true,
     showText: false,
     text: '{ "mcpServers": { "rat-stack": { "url": "__RATSTACK_ORIGIN__/mcp" } } }',
   },
   mcp: {
     agentFence: false,
-    label: "Copy MCP commands",
+    label: "Copy",
     showLabel: true,
     showText: false,
     text: "# Claude Code\nclaude mcp add --transport http rat-stack __RATSTACK_ORIGIN__/mcp\n\n# Codex\ncodex mcp add rat-stack --url __RATSTACK_ORIGIN__/mcp",
@@ -1184,7 +1182,7 @@ export const copyPrompts = {
   },
   skills: {
     agentFence: false,
-    label: "Copy skills command",
+    label: "Copy",
     showLabel: true,
     showText: false,
     text: "npx skills add joelhooks/rat-stack",
