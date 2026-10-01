@@ -22,6 +22,7 @@ export const registerInterestContract = defineContract("registerInterest", {
   failure: InvalidInterestAddress,
   input: Schema.Struct({
     email: Schema.String,
+    shieldToken: Schema.optional(Schema.String),
     website: Schema.optional(Schema.String),
   }),
   output: Schema.Struct({

@@ -17,6 +17,25 @@ it.layer(secretLayer)("interest tokens", (test) => {
     })
   );
 
+  test.effect("pins the intake hash inputs on known vectors", () =>
+    Effect.gen(function* vectors() {
+      const tokens = yield* InterestTokens;
+
+      expect(yield* tokens.digest("ip", "203.0.113.7")).toBe(
+        "e295f7dea7d32095f5777ddd5055afa39f7c998c4150111a49309d804ca48948"
+      );
+      expect(yield* tokens.digest("ip", "2001:db8::1")).toBe(
+        "327acd121081caff67caade5be7cd0f0aeb30fbcb898590b705a4bdadedc13d4"
+      );
+      expect(yield* tokens.digest("ua", "Mozilla/5.0 (test)")).toBe(
+        "6d946c32da47f1ef5128df1c83ce5fbc04b9f7c6c275bff1e02116f0ae112263"
+      );
+      expect(yield* tokens.digest("ua", "")).toBe(
+        "35d07b0fc84172b90ca57c5c10ecba4258ebccb041c6cdc9fb6732e62fe777a8"
+      );
+    })
+  );
+
   test.effect(
     "hashes with a label so the ip and user agent hashes cannot collide",
     () =>

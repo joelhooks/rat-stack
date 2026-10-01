@@ -2,6 +2,8 @@ import {
   InterestMode,
   InterestTokens,
   postShibaMailerLayer,
+  DrovrConfirm,
+  drovrIntakeLayer,
 } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import { Stage } from "alchemy";
@@ -72,7 +74,7 @@ export const makeMischief = (
     ).pipe(Config.withDefault(false));
 
     const interestMode = yield* Config.schema(
-      Schema.Literals(["capture", "doi"]),
+      Schema.Literals(["capture", "doi", "drovr"]),
       "INTEREST_MODE"
     ).pipe(Config.withDefault("doi" as const));
 
@@ -82,6 +84,18 @@ export const makeMischief = (
 
     const interestOperatorToken = yield* Config.option(
       Config.Redacted("INTEREST_OPERATOR_TOKEN")
+    );
+
+    const shieldSiteKey = yield* Config.option(
+      Config.String("SHIELD_SHIBA_SITE_KEY")
+    );
+
+    const drovrIntakeUrl = yield* Config.option(
+      Config.String("DROVR_INTAKE_URL")
+    );
+
+    const drovrIntakeCredential = yield* Config.option(
+      Config.Redacted("DROVR_INTAKE_CREDENTIAL")
     );
 
     const postShibaApiKey = yield* Config.option(
@@ -118,6 +132,11 @@ export const makeMischief = (
             interestDirectory,
             InterestTokens.layer(interestTokenSecret.value),
             InterestMode.layer(interestMode),
+            drovrIntakeLayer({
+              credential: drovrIntakeCredential,
+              url: drovrIntakeUrl,
+            }).pipe(Layer.provide(FetchHttpClient.layer)),
+            DrovrConfirm.unconfigured,
             postShibaMailerLayer({
               apiKey: Option.getOrElse(postShibaApiKey, () =>
                 Redacted.make("")
@@ -148,6 +167,7 @@ export const makeMischief = (
       interest,
       legacyMcp,
       rateLimits,
+      shieldSiteKey: Option.getOrUndefined(shieldSiteKey),
       staticCache: cloudflareStaticCache,
       webBotAuth: {
         enabled: webBotAuthEnabled,

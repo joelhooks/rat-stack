@@ -1,4 +1,5 @@
 import {
+  DrovrConfirm,
   InterestMode,
   InterestTokens,
   postShibaMailerLayer,
@@ -12,6 +13,7 @@ import { interestDirectoryLayer } from "../../src/interest/directory.js";
 import Interest from "../../src/interest/interest-durable-object.js";
 import InterestIndex from "../../src/interest/interest-index-durable-object.js";
 import { interestRoutes } from "../../src/interest/routes.js";
+import { fakeIntakeLayer } from "./fake-intake.js";
 
 export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
   "InterestWorker",
@@ -32,6 +34,8 @@ export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
           () => index.getByName("index")
         ),
         InterestTokens.layer(Redacted.make("local-token-secret")),
+        fakeIntakeLayer,
+        DrovrConfirm.unconfigured,
         InterestMode.layer("doi"),
         postShibaMailerLayer({
           apiKey: Redacted.make(""),

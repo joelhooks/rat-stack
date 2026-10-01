@@ -1,5 +1,7 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import {
+  CONFIRM_ANSWER,
+  DrovrConfirm,
   InterestDirectory,
   InterestGate,
   InterestMode,
@@ -7,7 +9,7 @@ import {
   InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type { InterestMailer } from "@rat-stack/core/interest";
+import type { DrovrIntake, InterestMailer } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
 import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
@@ -30,7 +32,12 @@ export interface InterestOptions {
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
-    InterestDirectory | InterestMailer | InterestMode | InterestTokens
+    | DrovrConfirm
+    | DrovrIntake
+    | InterestDirectory
+    | InterestMailer
+    | InterestMode
+    | InterestTokens
   >;
 }
 
@@ -38,17 +45,17 @@ const originOf = (request: HttpServerRequest.HttpServerRequest) =>
   new URL(request.url, "https://ratstack.sh").origin;
 
 const clientIpOf = (request: HttpServerRequest.HttpServerRequest) =>
-  request.headers["cf-connecting-ip"] ?? "unknown";
+  request.headers["cf-connecting-ip"];
 
 const userAgentOf = (request: HttpServerRequest.HttpServerRequest) =>
-  request.headers["user-agent"] ?? "unknown";
+  request.headers["user-agent"] ?? "";
 
 const gateFor = (rateLimits: RateLimits | undefined) =>
   Layer.succeed(InterestGate, {
-    allow: (ip: string) =>
+    allow: (ip: string | undefined) =>
       rateLimits === undefined
         ? Effect.succeed(true)
-        : rateLimits.limit("INTEREST_PER_IP", ip),
+        : rateLimits.limit("INTEREST_PER_IP", ip ?? "unknown"),
   });
 
 const requestFor = (request: HttpServerRequest.HttpServerRequest) =>
@@ -100,6 +107,33 @@ const invalidLink = (origin: string) =>
     message: refusalMessage("invalid"),
     status: 410,
   });
+
+const expiredLink = (origin: string) =>
+  resultPage(origin, {
+    heading: "This link has expired",
+    link: signupLink,
+    message: refusalMessage("expired"),
+    status: 410,
+  });
+
+const confirmedPage = (origin: string) =>
+  resultPage(origin, {
+    heading: "You're confirmed",
+    link: { href: "/", label: "Return to ratstack.sh" },
+    message: CONFIRM_ANSWER,
+    status: 200,
+  });
+
+const pageForOutcome = (
+  origin: string,
+  outcome: "confirmed" | "expired" | "invalid"
+) => {
+  if (outcome === "confirmed") {
+    return confirmedPage(origin);
+  }
+
+  return outcome === "expired" ? expiredLink(origin) : invalidLink(origin);
+};
 
 const encoder = new TextEncoder();
 
@@ -161,7 +195,11 @@ export const interestRoutes = (options: InterestOptions) => {
         const website = formValue(params, "website");
 
         const answered = yield* registerInterest
-          .handler({ email: formValue(params, "email") ?? "", website })
+          .handler({
+            email: formValue(params, "email") ?? "",
+            shieldToken: formValue(params, "shield_shiba_token"),
+            website,
+          })
           .pipe(
             Effect.match({
               onFailure: (failure) => ({
@@ -184,7 +222,9 @@ export const interestRoutes = (options: InterestOptions) => {
     ),
     HttpRouter.add("GET", "/tokenmaxx/confirm", (request) =>
       Effect.gen(function* promptConfirm() {
-        if ((yield* InterestMode) === "capture") {
+        const mode = yield* InterestMode;
+
+        if (mode === "capture") {
           return invalidLink(originOf(request));
         }
 
@@ -192,6 +232,16 @@ export const interestRoutes = (options: InterestOptions) => {
           new URL(request.url, "https://ratstack.sh").searchParams.get(
             "token"
           ) ?? "";
+
+        if (mode === "drovr") {
+          const state = yield* (yield* DrovrConfirm).state(token);
+
+          if (state === "pending") {
+            return confirmPage(originOf(request), token);
+          }
+
+          return pageForOutcome(originOf(request), state);
+        }
 
         const tokens = yield* InterestTokens;
         const now = yield* Clock.currentTimeMillis;
@@ -217,11 +267,21 @@ export const interestRoutes = (options: InterestOptions) => {
     ),
     HttpRouter.add("POST", "/tokenmaxx/confirm", (request) =>
       Effect.gen(function* confirmAddress() {
-        if ((yield* InterestMode) === "capture") {
+        const mode = yield* InterestMode;
+
+        if (mode === "capture") {
           return invalidLink(originOf(request));
         }
 
         const params = yield* request.urlParamsBody;
+
+        if (mode === "drovr") {
+          const outcome = yield* (yield* DrovrConfirm).confirm(
+            formValue(params, "token") ?? ""
+          );
+
+          return pageForOutcome(originOf(request), outcome);
+        }
 
         const answered = yield* confirmInterest
           .handler({ token: formValue(params, "token") ?? "" })
