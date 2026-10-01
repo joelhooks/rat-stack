@@ -43,6 +43,17 @@ main > .table-wrapper {
   width: min-content;
 }
 
+.table-wrapper.table-wide {
+  max-width: none;
+  width: min(180ch, calc(100vw - 4rem));
+  margin-inline: calc((100% - min(180ch, calc(100vw - 4rem))) / 2);
+}
+
+main > .table-wrapper.table-wide {
+  grid-column: full-bleed;
+  margin-inline: 0;
+}
+
 code {
   background: #eff1f5;
   border: 1px solid #ccd0da;
@@ -83,11 +94,16 @@ table {
   width: auto;
 }
 
+.table-token,
 th code,
 td code {
   overflow-wrap: normal;
   white-space: nowrap;
   word-break: normal;
+}
+
+.table-wide .table-token {
+  width: 1%;
 }
 
 th,
@@ -114,6 +130,20 @@ th {
 }
 
 @media (max-width: 42rem) {
+  .table-wrapper.table-wide {
+    margin-inline: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  main > .table-wrapper.table-wide {
+    grid-column: content;
+  }
+
+  .table-wide .table-token {
+    width: auto;
+  }
+
   table {
     display: block;
   }

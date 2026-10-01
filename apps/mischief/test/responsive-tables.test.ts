@@ -30,7 +30,9 @@ it.effect(
         const tables = [...html.matchAll(/<table\b[^>]*>/gu)];
 
         const regions = [
-          ...html.matchAll(/<div\b[^>]*class="table-wrapper"[^>]*>/gu),
+          ...html.matchAll(
+            /<div\b[^>]*class="table-wrapper(?: table-wide)?"[^>]*>/gu
+          ),
         ];
 
         expect(regions).toHaveLength(tables.length);
@@ -161,6 +163,8 @@ it.effect(
       expect(result?.code).toContain('role="row"');
       expect(result?.code).toContain('role="columnheader"');
       expect(result?.code).toContain('scope="col"');
+      expect(result.code).not.toContain("table-wide");
+      expect(result.code).toContain('class="table-token"');
     })
 );
 
@@ -172,7 +176,7 @@ it.effect(
         // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
         () =>
           compile(
-            "| Tier | Repo |\n| --- | --- |\n| S | upstream |\n| C | screened |\n| SS | not a tier |\n\n| Grade | Repo |\n| --- | --- |\n| A | other table |\n",
+            "| Tier | Repo | Effect | Alchemy | Checked | First seen |\n| --- | --- | --- | --- | --- | --- |\n| S | upstream | 4.0.0-rc.118 ≠¹ | 2.0.0-beta.79 | 2026-10-01 | 2026-09-23 |\n| C | screened | — | — | — | — |\n| SS | not a tier | — | — | — | — |\n\n| Grade | Repo |\n| --- | --- |\n| A | other table |\n",
             {
               rehypePlugins: [responsiveTables],
               // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
@@ -181,6 +185,13 @@ it.effect(
           ).then(decodeCompiledTable)
       );
 
+      expect(result.code).toContain('class="table-wrapper table-wide"');
+      expect(result.code).toContain(
+        'data-label="Effect" role="cell" class="table-token"'
+      );
+      expect(result.code).toContain(
+        'data-label="Checked" role="cell" class="table-token"'
+      );
       expect(result?.code).toContain('data-tier="S"');
       expect(result?.code).toContain('data-tier="C"');
       expect(result?.code).not.toContain('data-tier="SS"');
