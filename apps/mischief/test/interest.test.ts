@@ -1,4 +1,5 @@
 import { expect, it } from "@effect/vitest";
+import { IntakeTicket } from "@rat-stack/core/intake";
 import {
   CAPTURE_ANSWER,
   SubscriberConfirm,
@@ -132,7 +133,10 @@ const withInterest = <A, E, R>(
           },
           rateLimits: rateLimitsFrom(bindingsWith(options.limit ?? allowing)),
           shieldSiteKey: options.shieldSiteKey,
-        }).pipe(Layer.provide(TestSandbox)),
+        }).pipe(
+          Layer.provide(TestSandbox),
+          Layer.provide(IntakeTicket.testLayer)
+        ),
         { disableLogger: true }
       );
 
