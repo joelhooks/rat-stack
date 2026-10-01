@@ -189,6 +189,43 @@ describe("toHttpApi routes", () => {
     });
   });
 
+  it("documents bodyless decode failures for every routed endpoint", () => {
+    for (const path of Object.values(routes.openApi().paths)) {
+      for (const operation of [path.get, path.put, path.post]) {
+        if (operation === undefined) {
+          continue;
+        }
+
+        const badRequest = operation.responses["400"];
+        expect(badRequest).toMatchObject({ description: "BadRequest" });
+        expect(badRequest).not.toHaveProperty("content");
+      }
+    }
+  });
+
+  it.effect(
+    "schema-failing requests retain the advertised empty 400 body",
+    () =>
+      Effect.gen(function* decodeRefusal() {
+        const handler = yield* serve(
+          HttpApiBuilder.layer(routes.api).pipe(Layer.provide(routes.layer))
+        );
+
+        const [status, contentType, body] = yield* fetchText(
+          handler,
+          at("/echo", {
+            body: "{}",
+            headers: { "content-type": "application/json" },
+            method: "POST",
+          })
+        );
+
+        expect(status).toBe(400);
+        expect(contentType).toBeNull();
+        expect(body).toBe("");
+      }).pipe(Effect.scoped)
+  );
+
   it("refuses a path parameter that is not an input field, at compile time and at projection", () => {
     // @ts-expect-error -- a path parameter must name an input field; this call proves the type check, and toHttpApi's throw covers contracts only known as AnyContract.
     const strayContract = defineContract("stray", {

@@ -152,7 +152,7 @@ type RoutedEndpointOf<
     : never,
   never,
   OutputOf<C>,
-  FailureOf<C>
+  FailureOf<C> | typeof HttpApiError.BadRequestNoContent
 >;
 
 export type EndpointOf<C> =
@@ -169,7 +169,7 @@ type PostEndpointOf<C> = ReturnType<
     InputOf<C>,
     never,
     OutputOf<C>,
-    FailureOf<C>
+    FailureOf<C> | typeof HttpApiError.BadRequestNoContent
   >
 >;
 
@@ -476,7 +476,11 @@ export const toHttpApi = <
   const hostErrors = options?.errors ?? [];
 
   const endpoints = capabilities.map(({ contract }) => {
-    const error = [...httpFailure(contract), ...hostErrors];
+    const error = [
+      HttpApiError.BadRequestNoContent,
+      ...httpFailure(contract),
+      ...hostErrors,
+    ];
 
     return contract.http === undefined
       ? post(contract.name, `/${contract.name}`, {
