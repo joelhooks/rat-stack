@@ -24,6 +24,11 @@
       "import": "./dist/intake.js",
       "default": "./dist/intake.js"
     },
+    "./join-interest": {
+      "types": "./src/join-interest.ts",
+      "import": "./dist/join-interest.js",
+      "default": "./dist/join-interest.js"
+    },
     "./interest": {
       "types": "./src/interest.ts",
       "import": "./dist/interest.js",

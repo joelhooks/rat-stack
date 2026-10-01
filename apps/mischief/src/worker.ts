@@ -3,6 +3,7 @@ import type { InterestDirectory } from "@rat-stack/core/interest";
 import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
+import { intakeLiveLayer } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
@@ -13,6 +14,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
+import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -23,6 +25,8 @@ import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
+import { agentSignupLayer } from "./interest/join-layer.js";
+import type { AgentSignupOptions } from "./interest/join-layer.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
@@ -48,7 +52,8 @@ const inBackground = (effect: Effect.Effect<void>) =>
 export const makeMischief = (
   legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
   interestDirectory: Layer.Layer<InterestDirectory>,
-  events?: Context.Context<EventSink | VisitorSalt>
+  events?: Context.Context<EventSink | VisitorSalt>,
+  agentSignup?: AgentSignupOptions
 ) =>
   Effect.gen(function* makeMischiefInit() {
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
@@ -103,6 +108,10 @@ export const makeMischief = (
 
     const drovrApiBase = yield* Config.option(Config.String("DROVR_API_BASE"));
 
+    const drovrAgentIntakeCredential = yield* Config.option(
+      Config.Redacted("DROVR_AGENT_INTAKE_CREDENTIAL")
+    );
+
     const drovrIntakeCredential = yield* Config.option(
       Config.Redacted("DROVR_INTAKE_CREDENTIAL")
     );
@@ -147,6 +156,10 @@ export const makeMischief = (
             InterestTokens.layer(interestTokenSecret.value),
             InterestMode.layer(interestMode),
             subscriberDeliveryLayer({
+              agentIntake: {
+                credential: drovrAgentIntakeCredential,
+                url: drovrIntakeUrl,
+              },
               confirm: {
                 base: drovrApiBase,
                 credential: drovrIntakeCredential,
@@ -182,8 +195,14 @@ export const makeMischief = (
             services: interestServices,
           };
 
+    const joinServices =
+      agentSignup !== undefined && interestServices !== undefined
+        ? yield* Layer.build(agentSignupLayer(agentSignup, interestServices))
+        : undefined;
+
     const workerRoutes = mischiefRoutes({
       interest,
+      joinTokens: interestServices,
       legacyMcp,
       rateLimits,
       shieldSiteKey: Option.getOrUndefined(shieldSiteKey),
@@ -195,7 +214,14 @@ export const makeMischief = (
           Option.getOrUndefined
         ),
       },
-    }).pipe(Layer.provide(layerWorkerLoader(loader, sandboxLimits)));
+    }).pipe(
+      Layer.provide(layerWorkerLoader(loader, sandboxLimits)),
+      Layer.provide(
+        joinServices === undefined
+          ? Layer.empty
+          : Layer.succeedContext(joinServices)
+      )
+    );
 
     const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
 
@@ -217,6 +243,26 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   const legacyMcp = yield* LegacyMcp;
   const interests = yield* Interest;
   const interestIndex = yield* InterestIndex;
+
+  const tokenSecret = yield* Config.option(
+    Config.Redacted("INTEREST_TOKEN_SECRET")
+  );
+
+  const typesafeApiKey = yield* Config.option(
+    Config.Redacted("TYPESAFE_API_KEY")
+  );
+
+  const agentSignup = Option.isNone(tokenSecret)
+    ? undefined
+    : ({
+        contacts: (submissionId: string) =>
+          interests.getByName(`join:${submissionId}`),
+        intake: intakeLiveLayer({
+          interests: (name) => interests.getByName(name),
+          tokenSecret: tokenSecret.value,
+          typesafeApiKey,
+        }).pipe(Layer.provide(FetchHttpClient.layer)),
+      } satisfies AgentSignupOptions | undefined);
 
   const eventsEnabled = yield* Config.Boolean("EVENTS_ENABLED").pipe(
     Config.withDefault(false)
@@ -248,7 +294,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
       (address) => interests.getByName(address),
       () => interestIndex.getByName("index")
     ),
-    events
+    events,
+    agentSignup
   );
 }).pipe(Effect.provide(Cloudflare.Workers.RateLimitBinding));
 

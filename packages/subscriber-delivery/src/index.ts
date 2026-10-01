@@ -1,3 +1,5 @@
+export { drovrAgentIntakeLayer } from "./drovr-agent-intake.js";
+
 export { subscriberDeliveryLayer } from "./delivery.js";
 
 export type { SubscriberDeliverySettings } from "./delivery.js";

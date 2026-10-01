@@ -1502,6 +1502,7 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
       expect(Object.keys(document.paths).toSorted()).toEqual([
         "/api/backlinks",
         "/api/execute",
+        "/api/joinInterest",
         "/api/mentions",
         "/api/neighbors",
         "/api/path",
@@ -1990,6 +1991,7 @@ it.effect(
         expect(toolNames?.toSorted()).toEqual([
           "backlinks",
           "execute",
+          "joinInterest",
           "mentions",
           "neighbors",
           "path",

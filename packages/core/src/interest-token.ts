@@ -40,7 +40,7 @@ export class InterestTokens extends Context.Service<
   InterestTokens,
   {
     readonly digest: (
-      label: "ip" | "ua",
+      label: "ip" | "ua" | "agent" | "agent-contact-key",
       value: string
     ) => Effect.Effect<string>;
     readonly sign: (claims: InterestClaims) => Effect.Effect<string>;
@@ -104,7 +104,7 @@ export class InterestTokens extends Context.Service<
               crypto.subtle.verify(
                 "HMAC",
                 key,
-                signature,
+                new Uint8Array(signature),
                 encoder.encode(payload)
               )
           );
@@ -125,7 +125,7 @@ export class InterestTokens extends Context.Service<
         });
 
         const digest = Effect.fn("InterestTokens.digest")(function* digest(
-          label: "ip" | "ua",
+          label: "ip" | "ua" | "agent" | "agent-contact-key",
           value: string
         ) {
           const key = yield* loadKey;

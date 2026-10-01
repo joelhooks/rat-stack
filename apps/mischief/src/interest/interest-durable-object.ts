@@ -99,6 +99,11 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
         intakeErase: () => storage(state.storage.deleteAll()),
         intakeKey,
         intakeStore,
+        joinErase: () =>
+          storage(state.storage.delete("join-contact")).pipe(Effect.asVoid),
+        joinRead: () => storage(state.storage.get<string>("join-contact")),
+        joinSave: (sealed: string) =>
+          storage(state.storage.put("join-contact", sealed)),
         mailFailed: (address: string) => run(address, "mailFailed"),
         register: (address: string, capture?: CaptureRequest) =>
           run(address, "register", capture),

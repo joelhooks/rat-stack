@@ -11,6 +11,23 @@ export interface IntakeRequest {
   readonly submissionId: string;
 }
 
+export interface AgentIntakeRequest {
+  readonly email: string;
+  readonly submissionId: string;
+  readonly source: "agent";
+  readonly agentRef: string;
+  readonly ticket?: string;
+  readonly score?: number;
+  readonly hold?: boolean;
+  readonly signals?: readonly string[];
+  readonly clientBucket: IntakeRequest["clientBucket"];
+}
+
+export interface AgentIntake {
+  readonly enabled: boolean;
+  readonly submit: (request: AgentIntakeRequest) => Effect.Effect<IntakeResult>;
+}
+
 export type IntakeResult =
   | { readonly kind: "accepted" }
   | { readonly kind: "refused" }
@@ -18,5 +35,8 @@ export type IntakeResult =
 
 export class SubscriberIntake extends Context.Service<
   SubscriberIntake,
-  { readonly submit: (request: IntakeRequest) => Effect.Effect<IntakeResult> }
+  {
+    readonly submit: (request: IntakeRequest) => Effect.Effect<IntakeResult>;
+    readonly agent?: AgentIntake;
+  }
 >()("@rat-stack/core/SubscriberIntake") {}

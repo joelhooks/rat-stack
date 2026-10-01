@@ -6,6 +6,7 @@ import { FileInspector } from "@rat-stack/core";
 import { Console, Effect, Layer } from "effect";
 
 import { runCommand } from "./command.js";
+import { remoteJoinInterestLayer } from "./join-interest.js";
 
 const program = runCommand(process.argv.slice(2)).pipe(
   // oxlint-disable-next-line promise/prefer-await-to-callbacks -- Oxlint mistakes this Effect handler for an async Promise callback.
@@ -15,6 +16,7 @@ const program = runCommand(process.argv.slice(2)).pipe(
   Effect.provide(
     Layer.mergeAll(
       Layer.provideMerge(FileInspector.layer, NodeServices.layer),
+      remoteJoinInterestLayer,
       Approval.denyAll
     )
   )
