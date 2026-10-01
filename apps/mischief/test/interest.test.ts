@@ -541,7 +541,7 @@ it.effect("refuses a link whose token was changed", () =>
 
       expect(refused.status).toBe(410);
       expect(visible(yield* text(refused))).toContain(
-        "<h1>This link isn't valid</h1>"
+        "This link isn't valid</h1>"
       );
     })
   )
@@ -747,7 +747,7 @@ it.effect("renders the four confirm pages with the approved copy", () =>
         const html = visible(yield* text(response));
 
         expect(response.status).toBe(410);
-        expect(html).toContain("<h1>This link has expired</h1>");
+        expect(html).toContain("This link has expired</h1>");
         expect(html).toContain(
           "<p>Confirmation links expire in 72 hours. Return to the signup form to request a new link.</p>"
         );
@@ -766,7 +766,7 @@ it.effect("renders the four confirm pages with the approved copy", () =>
         const html = visible(yield* text(response));
 
         expect(response.status).toBe(410);
-        expect(html).toContain("<h1>This link isn't valid</h1>");
+        expect(html).toContain("This link isn't valid</h1>");
         expect(html).toContain(
           "<p>Return to the signup form to request a confirmation link.</p>"
         );
@@ -1023,7 +1023,7 @@ it.effect(
             const html = visible(yield* text(response));
 
             expect(response.status).toBe(410);
-            expect(html).toContain("<h1>This link isn't valid</h1>");
+            expect(html).toContain("This link isn't valid</h1>");
             expect(html).toContain(
               "<p>Return to the signup form to request a confirmation link.</p>"
             );
@@ -1498,13 +1498,13 @@ const pageStates = [
     status: 200,
   },
   {
-    heading: "<h1>This link has expired</h1>",
+    heading: "This link has expired</h1>",
     link: '<a href="/tokenmaxx#interested">Return to signup</a>',
     state: "expired",
     status: 410,
   },
   {
-    heading: "<h1>This link isn't valid</h1>",
+    heading: "This link isn't valid</h1>",
     link: '<a href="/tokenmaxx#interested">Return to signup</a>',
     state: "invalid",
     status: 410,
@@ -1606,7 +1606,7 @@ it.effect(
 
           expect(response.status).toBe(410);
           expect(visible(yield* text(response))).toContain(
-            "<h1>This link isn't valid</h1>"
+            "This link isn't valid</h1>"
           );
         }),
       { mode: "drovr" }

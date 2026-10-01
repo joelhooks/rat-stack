@@ -4,6 +4,7 @@ import {
   interestConfirmDocumentHtml,
   interestResultDocumentHtml,
 } from "../bundled-content.generated.js";
+import { renderErrorPage } from "../error-page.js";
 import { renderStaticDocument } from "../html.js";
 import { contentSecurityPolicy } from "../security.js";
 
@@ -34,10 +35,31 @@ export const resultPage = (
     readonly heading: string;
     readonly link?: { readonly href: string; readonly label: string };
     readonly message: string;
+    readonly path?: string;
     readonly status: number;
   }
 ) => {
   const { link } = result;
+
+  if (result.status >= 400) {
+    return page(
+      renderErrorPage(
+        {
+          code: result.status,
+          matches:
+            link === undefined
+              ? []
+              : [{ description: "", routePath: link.href, title: link.label }],
+          message: result.message,
+          path: result.path ?? "/tokenmaxx/confirm",
+          title: result.heading,
+        },
+        origin,
+        true
+      ),
+      result.status
+    );
+  }
 
   const linkHtml =
     link === undefined
