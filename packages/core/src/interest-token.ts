@@ -136,7 +136,7 @@ export class InterestTokens extends Context.Service<
               crypto.subtle.sign(
                 "HMAC",
                 key,
-                encoder.encode(`interest-${label}-hash:${value}`)
+                encoder.encode(`ratstack:intake:${label}:v1\0${value}`)
               )
           );
 

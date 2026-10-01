@@ -58,16 +58,19 @@ export type {
   InterestRecord,
 } from "./interest-machine.js";
 
-export {
-  SHIELD_VERIFY_URL,
-  ShieldReceiptSchema,
-  ShieldVerifier,
-  shieldVerifierLayer,
-} from "./interest-shield.js";
+export { DrovrIntake, drovrIntakeLayer } from "./interest-intake.js";
 
-export { ShieldRefused } from "./shield-refused.js";
+export type {
+  IntakeRequest,
+  IntakeResult,
+  IntakeSettings,
+} from "./interest-intake.js";
 
-export type { ShieldReceipt } from "./interest-shield.js";
+export { DrovrConfirm } from "./interest-confirm-port.js";
+
+export type { ConfirmState } from "./interest-confirm-port.js";
+
+export { normalizeClientIp } from "./interest-ip.js";
 
 export { InterestGate } from "./interest-gate.js";
 

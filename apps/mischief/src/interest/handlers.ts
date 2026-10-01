@@ -4,6 +4,7 @@ import {
   CONFIRM_ANSWER,
   CONFIRMATION_WINDOW_MS,
   CONSENT_VERSION,
+  DrovrIntake,
   InterestDirectory,
   InterestGate,
   InterestLinkRefused,
@@ -12,37 +13,43 @@ import {
   InterestRequest,
   InterestTokens,
   InvalidInterestAddress,
-  ShieldVerifier,
   REGISTER_ANSWER,
   confirmInterestContract,
   interestOutcome,
   normalizeAddress,
+  normalizeClientIp,
   registerInterestContract,
   sha256Hex,
 } from "@rat-stack/core/interest";
-import type { InterestRecord, ShieldReceipt } from "@rat-stack/core/interest";
-import { Clock, Effect, Option } from "effect";
+import type { InterestRecord } from "@rat-stack/core/interest";
+import { Clock, Duration, Effect, Option } from "effect";
 
 import {
   confirmationTemplate,
   confirmationText,
 } from "./confirmation-email.js";
 
-const answerFor = (mode: "capture" | "doi") =>
+const answerFor = (mode: "capture" | "doi" | "drovr") =>
   ({ message: mode === "capture" ? CAPTURE_ANSWER : REGISTER_ANSWER }) as const;
 
-const shieldRefusal = new InvalidInterestAddress({
+const tryAgain = new InvalidInterestAddress({
   message: "We couldn't verify that. Please try again.",
 });
 
-const captureRequest = Effect.fn("captureRequest")(function* captureRequest(
-  shield: ShieldReceipt
-) {
+const INTAKE_MAX_RETRIES = 2;
+
+const INTAKE_MAX_WAIT_SECONDS = 3;
+
+const captureRequest = Effect.fn("captureRequest")(function* captureRequest() {
   const request = yield* InterestRequest;
   const tokens = yield* InterestTokens;
 
+  const ip = normalizeClientIp(request.ip).pipe(
+    Option.getOrElse(() => request.ip ?? "")
+  );
+
   const [ipHash, uaHash, submissionId] = yield* Effect.all([
-    tokens.digest("ip", request.ip),
+    tokens.digest("ip", ip),
     tokens.digest("ua", request.userAgent),
     // @effect-diagnostics-next-line cryptoRandomUUIDInEffect:off -- Web Crypto is the Worker runtime; the Effect Crypto service needs a platform layer this Worker does not provide.
     Effect.sync(() => crypto.randomUUID()),
@@ -51,7 +58,6 @@ const captureRequest = Effect.fn("captureRequest")(function* captureRequest(
   return {
     consentVersion: CONSENT_VERSION,
     ipHash,
-    shield,
     submissionId,
     uaHash,
   } as const;
@@ -130,26 +136,61 @@ export const registerInterest = implement(
 
       const directory = yield* InterestDirectory;
 
-      if (mode === "capture") {
-        const verifier = yield* ShieldVerifier;
+      if (mode === "drovr") {
+        const challenge = (shieldToken ?? "").trim();
 
-        const verified = yield* verifier.verify(shieldToken ?? "", email).pipe(
-          Effect.tapError((failure) =>
-            Effect.logInfo(`interest shield refused: ${failure.reason}`)
-          ),
-          Effect.mapError(() => shieldRefusal)
-        );
+        if (challenge === "") {
+          return yield* tryAgain;
+        }
 
-        const receipt: ShieldReceipt = {
-          ...verified,
+        const clientIp = normalizeClientIp(request.ip);
+
+        if (Option.isNone(clientIp)) {
+          yield* Effect.logInfo("interest intake refused: no client ip");
+
+          return registered;
+        }
+
+        const tokens = yield* InterestTokens;
+        const intake = yield* DrovrIntake;
+
+        const [ipHash, uaHash, submissionId] = yield* Effect.all([
+          tokens.digest("ip", clientIp.value),
+          tokens.digest("ua", request.userAgent),
           // @effect-diagnostics-next-line cryptoRandomUUIDInEffect:off -- Web Crypto is the Worker runtime; the Effect Crypto service needs a platform layer this Worker does not provide.
-          verificationId: crypto.randomUUID(),
-        };
+          Effect.sync(() => crypto.randomUUID()),
+        ]);
 
-        yield* directory.register(
-          address.value,
-          yield* captureRequest(receipt)
-        );
+        let attempts = 0;
+        let accepted = false;
+
+        while (!accepted) {
+          const result = yield* intake.submit({
+            challenge,
+            clientBucket: { ipHash, uaHash },
+            email,
+            submissionId,
+          });
+
+          if (result.kind === "accepted") {
+            accepted = true;
+          } else if (
+            result.kind === "retry" &&
+            attempts < INTAKE_MAX_RETRIES &&
+            result.afterSeconds <= INTAKE_MAX_WAIT_SECONDS
+          ) {
+            attempts += 1;
+            yield* Effect.sleep(Duration.seconds(result.afterSeconds));
+          } else {
+            return yield* tryAgain;
+          }
+        }
+
+        return registered;
+      }
+
+      if (mode === "capture") {
+        yield* directory.register(address.value, yield* captureRequest());
 
         return registered;
       }

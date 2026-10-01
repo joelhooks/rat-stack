@@ -1,6 +1,8 @@
 import { expect, it } from "@effect/vitest";
 import {
   CAPTURE_ANSWER,
+  DrovrConfirm,
+  REGISTER_ANSWER,
   CONSENT_LINE,
   CONSENT_VERSION,
   InterestDirectory,
@@ -11,6 +13,7 @@ import {
   postShibaMailerLayer,
   recordingMailerLayer,
 } from "@rat-stack/core/interest";
+import type { ConfirmState, DrovrIntake } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted, Schema } from "effect";
 import type { Context } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -33,10 +36,7 @@ import type {
   RateLimitBindings,
 } from "../src/rate-limits.js";
 import { rateLimitsFrom } from "../src/rate-limits.js";
-import {
-  PASSING_SHIELD_TOKEN,
-  fakeShieldLayer,
-} from "./fixtures/fake-shield.js";
+import { fakeIntake, fakeIntakeLayer } from "./fixtures/fake-intake.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -85,12 +85,17 @@ const fakeHttp = Layer.succeed(
   })
 );
 
-const recordingServices = (mode: "capture" | "doi") =>
+const recordingServices = (
+  mode: "capture" | "doi" | "drovr",
+  intake: Layer.Layer<DrovrIntake>,
+  confirm: Layer.Layer<DrovrConfirm>
+) =>
   Layer.mergeAll(
     InterestDirectory.memory,
     InterestTokens.layer(tokenSecret),
     InterestMode.layer(mode),
-    fakeShieldLayer,
+    intake,
+    confirm,
     recordingMailerLayer
   );
 
@@ -100,15 +105,22 @@ const withInterest = <A, E, R>(
     services: Context.Context<RecordedMail>
   ) => Effect.Effect<A, E, R>,
   options: {
+    readonly confirm?: Layer.Layer<DrovrConfirm>;
+    readonly intake?: Layer.Layer<DrovrIntake>;
     readonly limit?: NativeRateLimitBinding;
-    readonly mode?: "capture" | "doi";
+    readonly mode?: "capture" | "doi" | "drovr";
     readonly operator?: boolean;
+    readonly shieldSiteKey?: string;
   } = {}
 ) =>
   Effect.scoped(
     Effect.gen(function* interestHandler() {
       const services = yield* Layer.build(
-        recordingServices(options.mode ?? "doi")
+        recordingServices(
+          options.mode ?? "doi",
+          options.intake ?? fakeIntakeLayer,
+          options.confirm ?? DrovrConfirm.unconfigured
+        )
       );
 
       const { dispose, handler } = HttpRouter.toWebHandler(
@@ -119,6 +131,7 @@ const withInterest = <A, E, R>(
             services,
           },
           rateLimits: rateLimitsFrom(bindingsWith(options.limit ?? allowing)),
+          shieldSiteKey: options.shieldSiteKey,
         }).pipe(Layer.provide(TestSandbox)),
         { disableLogger: true }
       );
@@ -610,7 +623,8 @@ it.effect(
             InterestDirectory.memory,
             InterestTokens.layer(tokenSecret),
             InterestMode.layer("doi"),
-            fakeShieldLayer,
+            fakeIntakeLayer,
+            DrovrConfirm.unconfigured,
             postShibaMailerLayer({
               apiKey: Redacted.make("not-a-real-key"),
               cluster: "cluster",
@@ -769,10 +783,7 @@ const submission = (
   headers: Readonly<Record<string, string>> = {}
 ) =>
   new Request("https://ratstack.sh/tokenmaxx/interest", {
-    body: new URLSearchParams({
-      email,
-      shield_shiba_token: PASSING_SHIELD_TOKEN,
-    }).toString(),
+    body: new URLSearchParams({ email }).toString(),
     headers: {
       "cf-connecting-ip": "203.0.113.50",
       "content-type": "application/x-www-form-urlencoded",
@@ -850,10 +861,7 @@ it.effect(
           const jsonAnswer = yield* call(
             handler,
             new Request("https://ratstack.sh/api/registerInterest", {
-              body: JSON.stringify({
-                email: "capture-json@example.com",
-                shieldToken: PASSING_SHIELD_TOKEN,
-              }),
+              body: JSON.stringify({ email: "capture-json@example.com" }),
               headers: { "content-type": "application/json" },
               method: "POST",
             })
@@ -1124,4 +1132,505 @@ it.effect(
         }),
       capturing
     )
+);
+
+const drovrMode = (script: ReturnType<typeof fakeIntake>) =>
+  Effect.gen(function* withScript() {
+    const intake = yield* script;
+
+    return {
+      ...intake,
+      options: { intake: intake.layer, mode: "drovr" } as const,
+    };
+  });
+
+const widgetSubmission = (
+  fields: Readonly<Record<string, string>>,
+  headers: Readonly<Record<string, string>> = {}
+) =>
+  new Request("https://ratstack.sh/tokenmaxx/interest", {
+    body: new URLSearchParams(fields).toString(),
+    headers: {
+      "cf-connecting-ip": "203.0.113.50",
+      "content-type": "application/x-www-form-urlencoded",
+      "user-agent": "drovr-test-agent/1.0",
+      ...headers,
+    },
+    method: "POST",
+  });
+
+const tryAgain = "We couldn't verify that. Please try again.";
+
+it.effect(
+  "forwards a Shield-checked sign-up to drovr and shows the approved answer",
+  () =>
+    Effect.gen(function* forwards() {
+      const { calls, options } = yield* drovrMode(
+        fakeIntake([{ kind: "accepted" }])
+      );
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* accepted() {
+            const response = yield* call(
+              handler,
+              widgetSubmission({
+                email: "Reader@Example.com",
+                shield_shiba_token: "challenge-1",
+              })
+            );
+
+            const html = visible(yield* text(response));
+            const [forwarded] = yield* calls;
+
+            expect(response.status).toBe(200);
+            expect(html).toContain("<h1>Check your email</h1>");
+            expect(html).toContain(`<p>${REGISTER_ANSWER}</p>`);
+            expect(REGISTER_ANSWER).toBe(
+              "Check your email for a link to confirm."
+            );
+            expect(forwarded?.challenge).toBe("challenge-1");
+            expect(forwarded?.email).toBe("Reader@Example.com");
+            expect(forwarded?.submissionId).toMatch(/^[0-9a-f-]{36}$/u);
+            expect(forwarded?.clientBucket.ipHash).toMatch(/^[0-9a-f]{64}$/u);
+            expect(forwarded?.clientBucket.uaHash).toMatch(/^[0-9a-f]{64}$/u);
+            expect(JSON.stringify(forwarded)).not.toContain("203.0.113.50");
+            expect(JSON.stringify(forwarded)).not.toContain("drovr-test-agent");
+          }),
+        options
+      );
+    })
+);
+
+it.effect("mints a fresh submission id per submission", () =>
+  Effect.gen(function* freshIds() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([{ kind: "accepted" }])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* twice() {
+          for (const email of ["one@example.com", "two@example.com"]) {
+            yield* call(
+              handler,
+              widgetSubmission({ email, shield_shiba_token: "challenge" })
+            );
+          }
+
+          const [first, second] = yield* calls;
+
+          expect(first?.submissionId).not.toBe(second?.submissionId);
+        }),
+      options
+    );
+  })
+);
+
+it.effect("retries a 503 with the same submission id and then succeeds", () =>
+  Effect.gen(function* retried() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([
+        { afterSeconds: 0, kind: "retry" },
+        { afterSeconds: 0, kind: "retry" },
+        { kind: "accepted" },
+      ])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* retrying() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "retry@example.com",
+              shield_shiba_token: "challenge",
+            })
+          );
+
+          const all = yield* calls;
+
+          expect(response.status).toBe(200);
+          expect(all).toHaveLength(3);
+          expect(
+            new Set(all.map(({ submissionId }) => submissionId)).size
+          ).toBe(1);
+        }),
+      options
+    );
+  })
+);
+
+it.effect(
+  "gives up after the bounded retries and asks the visitor to try again",
+  () =>
+    Effect.gen(function* exhausted() {
+      const { calls, options } = yield* drovrMode(
+        fakeIntake([{ afterSeconds: 0, kind: "retry" }])
+      );
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* exhaustedRetries() {
+            const response = yield* call(
+              handler,
+              widgetSubmission({
+                email: "busy@example.com",
+                shield_shiba_token: "challenge",
+              })
+            );
+
+            expect(response.status).toBe(422);
+            expect(visible(yield* text(response))).toContain(tryAgain);
+            expect(yield* calls).toHaveLength(3);
+          }),
+        options
+      );
+    })
+);
+
+it.effect("does not wait out a long retry delay", () =>
+  Effect.gen(function* longDelay() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([{ afterSeconds: 600, kind: "retry" }])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* refusesLongDelay() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "slow@example.com",
+              shield_shiba_token: "challenge",
+            })
+          );
+
+          expect(response.status).toBe(422);
+          expect(yield* calls).toHaveLength(1);
+        }),
+      options
+    );
+  })
+);
+
+it.effect("refuses on any other drovr answer without showing a reason", () =>
+  Effect.gen(function* refusedByDrovr() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([{ kind: "refused" }])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* refuses() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "no@example.com",
+              shield_shiba_token: "challenge",
+            })
+          );
+
+          const html = visible(yield* text(response));
+
+          expect(response.status).toBe(422);
+          expect(html).toContain(tryAgain);
+          expect(html).not.toContain("Check your email for a link");
+          expect(yield* calls).toHaveLength(1);
+        }),
+      options
+    );
+  })
+);
+
+it.effect(
+  "refuses locally, without calling drovr, when the Shield token is missing",
+  () =>
+    Effect.gen(function* noToken() {
+      const { calls, options } = yield* drovrMode(
+        fakeIntake([{ kind: "accepted" }])
+      );
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* missingToken() {
+            const missing = yield* call(
+              handler,
+              widgetSubmission({ email: "none@example.com" })
+            );
+
+            const blank = yield* call(
+              handler,
+              widgetSubmission({
+                email: "none@example.com",
+                shield_shiba_token: "  ",
+              })
+            );
+
+            expect([missing.status, blank.status]).toEqual([422, 422]);
+            expect(yield* calls).toEqual([]);
+          }),
+        options
+      );
+    })
+);
+
+it.effect(
+  "answers a missing client address uniformly without calling drovr",
+  () =>
+    Effect.gen(function* noIp() {
+      const { calls, options } = yield* drovrMode(
+        fakeIntake([{ kind: "accepted" }])
+      );
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* missingIp() {
+            const request = new Request(
+              "https://ratstack.sh/tokenmaxx/interest",
+              {
+                body: new URLSearchParams({
+                  email: "noip@example.com",
+                  shield_shiba_token: "challenge",
+                }).toString(),
+                headers: {
+                  "content-type": "application/x-www-form-urlencoded",
+                },
+                method: "POST",
+              }
+            );
+
+            const response = yield* call(handler, request);
+
+            expect(response.status).toBe(200);
+            expect(visible(yield* text(response))).toContain(REGISTER_ANSWER);
+            expect(yield* calls).toEqual([]);
+          }),
+        options
+      );
+    })
+);
+
+it.effect("short-circuits the honeypot and the rate limit before drovr", () =>
+  Effect.gen(function* beforeDrovr() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([{ kind: "accepted" }])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* honeypot() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "bot@example.com",
+              shield_shiba_token: "challenge",
+              website: "filled",
+            })
+          );
+
+          expect(response.status).toBe(200);
+          expect(yield* calls).toEqual([]);
+        }),
+      options
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* limited() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "fast@example.com",
+              shield_shiba_token: "challenge",
+            })
+          );
+
+          expect(response.status).toBe(200);
+          expect(yield* calls).toEqual([]);
+        }),
+      { ...options, limit: countingLimit(0).binding }
+    );
+  })
+);
+
+it.effect("refuses an invalid address before calling drovr", () =>
+  Effect.gen(function* badAddress() {
+    const { calls, options } = yield* drovrMode(
+      fakeIntake([{ kind: "accepted" }])
+    );
+
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* invalid() {
+          const response = yield* call(
+            handler,
+            widgetSubmission({
+              email: "not an address",
+              shield_shiba_token: "challenge",
+            })
+          );
+
+          expect(response.status).toBe(422);
+          expect(yield* calls).toEqual([]);
+        }),
+      options
+    );
+  })
+);
+
+const confirmFake = (
+  state: ConfirmState,
+  outcome: Exclude<ConfirmState, "pending">
+) =>
+  Layer.succeed(DrovrConfirm, {
+    confirm: () => Effect.succeed(outcome),
+    state: () => Effect.succeed(state),
+  });
+
+const pageStates = [
+  {
+    heading: "<h1>You're confirmed</h1>",
+    link: '<a href="/">Return to ratstack.sh</a>',
+    state: "confirmed",
+    status: 200,
+  },
+  {
+    heading: "<h1>This link has expired</h1>",
+    link: '<a href="/tokenmaxx#interested">Return to signup</a>',
+    state: "expired",
+    status: 410,
+  },
+  {
+    heading: "<h1>This link isn't valid</h1>",
+    link: '<a href="/tokenmaxx#interested">Return to signup</a>',
+    state: "invalid",
+    status: 410,
+  },
+] as const;
+
+it.effect("renders each confirm page from drovr's token state", () =>
+  Effect.gen(function* confirmStates() {
+    yield* withInterest(
+      (handler) =>
+        Effect.gen(function* pending() {
+          const html = visible(
+            yield* text(
+              yield* call(
+                handler,
+                new Request("https://ratstack.sh/tokenmaxx/confirm?token=t")
+              )
+            )
+          );
+
+          expect(html).toContain("<h1>Confirm your email</h1>");
+          expect(html).toContain(
+            '<button type="submit">Confirm my email</button>'
+          );
+          expect(html).toContain('value="t"');
+        }),
+      { confirm: confirmFake("pending", "confirmed"), mode: "drovr" }
+    );
+
+    for (const { heading, link, state, status } of pageStates) {
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* renders() {
+            const get = yield* call(
+              handler,
+              new Request("https://ratstack.sh/tokenmaxx/confirm?token=t")
+            );
+
+            const post = yield* call(
+              handler,
+              form("/tokenmaxx/confirm", { token: "t" })
+            );
+
+            for (const response of [get, post]) {
+              const html = visible(yield* text(response));
+
+              expect(response.status).toBe(status);
+              expect(html).toContain(heading);
+              expect(html).toContain(link);
+            }
+          }),
+        {
+          confirm: confirmFake(state, state),
+          mode: "drovr",
+        }
+      );
+    }
+  })
+);
+
+it.effect(
+  "shows the invalid page when drovr's confirm port is not configured",
+  () =>
+    withInterest(
+      (handler) =>
+        Effect.gen(function* unconfigured() {
+          const response = yield* call(
+            handler,
+            new Request("https://ratstack.sh/tokenmaxx/confirm?token=t")
+          );
+
+          expect(response.status).toBe(410);
+          expect(visible(yield* text(response))).toContain(
+            "<h1>This link isn't valid</h1>"
+          );
+        }),
+      { mode: "drovr" }
+    )
+);
+
+it.effect(
+  "embeds the Shield widget and widens the CSP only when a site key is set",
+  () =>
+    Effect.gen(function* widget() {
+      const page = (handler: WebHandler) =>
+        call(
+          handler,
+          new Request("https://ratstack.sh/tokenmaxx", {
+            headers: { accept: "text/html" },
+          })
+        );
+
+      yield* withInterest(
+        (handler) =>
+          Effect.gen(function* withKey() {
+            const response = yield* page(handler);
+            const html = yield* text(response);
+
+            const policy =
+              response.headers.get("content-security-policy") ?? "";
+
+            expect(html).toContain(
+              '<script src="https://postshiba.com/shield/v1/widget.js" async></script>'
+            );
+            expect(html).toContain(
+              '<shield-shiba sitekey="ss_pk_test" email-field="#interest-email"></shield-shiba>'
+            );
+            expect(policy).toContain(
+              "script-src https://static.cloudflareinsights.com https://postshiba.com"
+            );
+            expect(policy).toContain(
+              "connect-src https://cloudflareinsights.com https://postshiba.com"
+            );
+            expect(policy).toContain("worker-src blob:");
+          }),
+        { shieldSiteKey: "ss_pk_test" }
+      );
+
+      yield* withInterest((handler) =>
+        Effect.gen(function* withoutKey() {
+          const response = yield* page(handler);
+          const html = yield* text(response);
+          const policy = response.headers.get("content-security-policy") ?? "";
+
+          expect(html).not.toContain("shield-shiba");
+          expect(html).not.toContain("__SHIELD_SHIBA_WIDGET__");
+          expect(policy).not.toContain("postshiba");
+        })
+      );
+    })
 );

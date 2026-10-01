@@ -5,7 +5,6 @@ import * as Test from "alchemy/Test/Vitest";
 import { Effect, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 
-import { PASSING_SHIELD_TOKEN } from "./fixtures/fake-shield.js";
 import InterestCaptureWorker from "./fixtures/interest-capture-worker.js";
 
 const { test } = Test.make({
@@ -34,10 +33,7 @@ const Counts = Schema.Struct({
 
 const submit = (url: string, email: string) =>
   HttpClientRequest.post(new URL("/tokenmaxx/interest", url)).pipe(
-    HttpClientRequest.bodyUrlParams({
-      email,
-      shield_shiba_token: PASSING_SHIELD_TOKEN,
-    }),
+    HttpClientRequest.bodyUrlParams({ email }),
     HttpClientRequest.setHeaders({
       "cf-connecting-ip": "203.0.113.9",
       "user-agent": "capture-test-agent",
