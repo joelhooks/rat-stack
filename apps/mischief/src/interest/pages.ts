@@ -28,11 +28,6 @@ const page = (body: string, status: number) =>
     status,
   });
 
-const backToWorkshop = {
-  href: "/tokenmaxx",
-  label: "Back to the workshop page",
-} as const;
-
 export const resultPage = (
   origin: string,
   result: {
@@ -42,14 +37,18 @@ export const resultPage = (
     readonly status: number;
   }
 ) => {
-  const link = result.link ?? backToWorkshop;
+  const { link } = result;
+
+  const linkHtml =
+    link === undefined
+      ? ""
+      : `<p><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></p>`;
 
   return page(
     renderStaticDocument(origin, interestResultDocumentHtml)
       .replaceAll("__INTEREST_HEADING__", escapeHtml(result.heading))
       .replaceAll("__INTEREST_MESSAGE__", escapeHtml(result.message))
-      .replaceAll("__INTEREST_LINK_HREF__", escapeHtml(link.href))
-      .replaceAll("__INTEREST_LINK_LABEL__", escapeHtml(link.label)),
+      .replaceAll("__INTEREST_LINK__", linkHtml),
     result.status
   );
 };

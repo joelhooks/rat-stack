@@ -653,6 +653,10 @@ it.effect("answers a submission with the approved sentence", () =>
 
       expect(html).toContain("<h1>Check your email</h1>");
       expect(html).toContain("<p>Check your email for a link to confirm.</p>");
+      expect(html).not.toContain("Back to the workshop page");
+      expect(html).toMatch(
+        /<main>\s*<!---->\s*<h1>Check your email<\/h1>\s*<p>Check your email for a link to confirm\.<\/p>\s*<!----><\/main>/u
+      );
     })
   )
 );
@@ -679,6 +683,7 @@ it.effect("renders the four confirm pages with the approved copy", () =>
       expect(pending).toContain(
         '<button type="submit">Confirm my email</button>'
       );
+      expect(pending).not.toContain("Back to the workshop page");
 
       const confirmed = visible(
         yield* text(yield* call(handler, form("/tokenmaxx/confirm", { token })))

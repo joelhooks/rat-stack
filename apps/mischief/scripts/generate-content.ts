@@ -378,7 +378,7 @@ const tokenmaxxFormHtml = `
 const interestResultBody = `
 <h1>__INTEREST_HEADING__</h1>
 <p>__INTEREST_MESSAGE__</p>
-<p><a href="__INTEREST_LINK_HREF__">__INTEREST_LINK_LABEL__</a></p>
+__INTEREST_LINK__
 `;
 
 const interestConfirmBody = `
@@ -388,7 +388,6 @@ const interestConfirmBody = `
 <input type="hidden" name="token" value="__INTEREST_TOKEN__" />
 <p><button type="submit">Confirm my email</button></p>
 </form>
-<p><a href="/tokenmaxx">Back to the workshop page</a></p>
 `;
 
 const noVerifyMarkdown = `# No verify.
