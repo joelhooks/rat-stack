@@ -66,6 +66,11 @@ import { linkStackEntities } from "./content-links.ts";
 import { readDailyLog } from "./daily-log.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
+import {
+  collectUnlinkedProse,
+  findUnlinkedMentions,
+} from "./unlinked-mentions.ts";
+import type { UnlinkedProse } from "./unlinked-mentions.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
 
@@ -559,6 +564,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
   ) {
     const linkedLoreRoutes = new Set<string>();
     const linkedLoreTerms = new Map<string, string>();
+    const unlinkedProse: UnlinkedProse[] = [];
 
     const renderPrompt = source.includes("<CopyPrompt")
       ? yield* copyPromptRenderer()
@@ -587,6 +593,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
               12,
               linkedLoreTerms
             ),
+            collectUnlinkedProse(unlinkedProse),
             escapeSvelteBraces,
           ],
           // SAFETY: remark-gfm is a unified remark plugin; mdsvex types its options with `Plugin` from the unified version it bundles.
@@ -611,6 +618,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
         target,
         term,
       })),
+      unlinkedProse,
     };
   }
 );
@@ -1563,7 +1571,7 @@ const program = Effect.gen(function* generateContent() {
     })),
     ({ spec, targets }) =>
       Effect.gen(function* renderPublicBody() {
-        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms } =
+        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms, unlinkedProse } =
           yield* compileMarkdownBody(
             spec.rawText,
             compileName(spec),
@@ -1581,6 +1589,7 @@ const program = Effect.gen(function* generateContent() {
             ...spec,
             text: appendLoreMarkdown(spec.text, linkedLoreRoutes),
           },
+          unlinkedProse,
         };
       }),
     { concurrency: "unbounded" }
@@ -1593,7 +1602,7 @@ const program = Effect.gen(function* generateContent() {
     })),
     ({ skill, targets }) =>
       Effect.gen(function* renderSkillBody() {
-        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms } =
+        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms, unlinkedProse } =
           yield* compileMarkdownBody(
             skill.rawText,
             skill.sourcePath,
@@ -1611,6 +1620,7 @@ const program = Effect.gen(function* generateContent() {
             ...skill,
             text: appendLoreMarkdown(skill.text, linkedLoreRoutes),
           },
+          unlinkedProse,
         };
       }),
     { concurrency: "unbounded" }
@@ -1623,7 +1633,7 @@ const program = Effect.gen(function* generateContent() {
     })),
     ({ lore, targets }) =>
       Effect.gen(function* renderLoreBody() {
-        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms } =
+        const { bodyHtml, linkedLoreRoutes, linkedLoreTerms, unlinkedProse } =
           yield* compileMarkdownBody(
             lore.rawText,
             lore.sourcePath,
@@ -1646,6 +1656,7 @@ const program = Effect.gen(function* generateContent() {
               linkedLoreRoutes
             ),
           },
+          unlinkedProse,
         };
       }),
     { concurrency: "unbounded" }
@@ -2496,6 +2507,44 @@ ${groupedSkills}
       title: lore.title,
     })),
   ];
+
+  const mentionPages = [
+    { prose: homeBody.unlinkedProse, route: "/", title: "rat-stack" },
+    {
+      prose: noVerifyBody.unlinkedProse,
+      route: trapRoutePath,
+      title: noVerifyMetadata.title,
+    },
+    ...lawBodies.map(({ spec, unlinkedProse }) => ({
+      prose: unlinkedProse,
+      route: spec.routePath,
+      title: spec.title,
+    })),
+    ...skillBodies.map(({ skill, unlinkedProse }) => ({
+      prose: unlinkedProse,
+      route: skill.routePath,
+      title: skill.name,
+    })),
+    ...loreBodies.map(({ lore, unlinkedProse }) => ({
+      prose: unlinkedProse,
+      route: lore.routePath,
+      title: lore.title,
+    })),
+  ];
+
+  const unlinkedMentions = findUnlinkedMentions(mentionPages, glossaryTerms);
+  const unlinkedMentionsPath = ".brain/data/unlinked-mentions.generated.json";
+
+  yield* fileSystem
+    .writeFileString(
+      path.join(root, unlinkedMentionsPath),
+      `${JSON.stringify(unlinkedMentions, null, 2)}\n`
+    )
+    .pipe(
+      Effect.mapError((cause) =>
+        buildError("unlinked mentions report", unlinkedMentionsPath, cause)
+      )
+    );
 
   const backlinkIndex = buildBacklinkIndex(
     backlinkPages,
