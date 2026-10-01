@@ -1,0 +1,36 @@
+import type { ContactRef } from "@rat-stack/core/intake";
+import { Layer } from "effect";
+import type { Option, Redacted } from "effect";
+
+import { hmacIntakeTicketLayer } from "./hmac-tickets.js";
+import { doIntakeVault } from "./intake-vault.js";
+import type { IntakeVaultStub } from "./intake-vault.js";
+import { jevAbuseScoreLayer } from "./jev-abuse-score.js";
+import { sealedIntakeEventsLayer } from "./sealed-intake-events.js";
+import { doTicketBindings } from "./ticket-bindings.js";
+import type { TicketBindingStub } from "./ticket-bindings.js";
+
+export interface IntakeLiveSettings {
+  readonly interests: (name: string) => IntakeVaultStub & TicketBindingStub;
+  readonly tokenSecret: Redacted.Redacted;
+  readonly typesafeApiKey: Option.Option<Redacted.Redacted>;
+}
+
+export const ticketInstance = (nonce: string) => `ticket:${nonce}`;
+
+export const intakeInstance = (actor: ContactRef) => `intake:${actor}`;
+
+export const intakeLiveLayer = (settings: IntakeLiveSettings) =>
+  Layer.mergeAll(
+    hmacIntakeTicketLayer(settings.tokenSecret).pipe(
+      Layer.provide(
+        doTicketBindings((nonce) => settings.interests(ticketInstance(nonce)))
+      )
+    ),
+    sealedIntakeEventsLayer.pipe(
+      Layer.provide(
+        doIntakeVault((actor) => settings.interests(intakeInstance(actor)))
+      )
+    ),
+    jevAbuseScoreLayer({ apiKey: settings.typesafeApiKey })
+  );

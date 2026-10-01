@@ -1,14 +1,20 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Schema } from "effect";
-import { TestClock } from "effect/testing";
-import { Arbitrary } from "effect/unstable/arbitrary";
-
 import {
   IntakeTicket,
   PAGE_TICKET_SOURCE,
   TICKET_TTL_MILLIS,
   TicketSourceSchema,
-} from "../src/intake.js";
+} from "@rat-stack/core/intake";
+import { Effect, Layer, Redacted, Schema } from "effect";
+import { TestClock } from "effect/testing";
+import { Arbitrary } from "effect/unstable/arbitrary";
+
+import {
+  hmacIntakeTicketLayer,
+  PAGE_TICKET_PLACEHOLDER,
+  TicketBindings,
+  withPageTicket,
+} from "../src/index.js";
 
 const sources = [
   PAGE_TICKET_SOURCE,
@@ -28,29 +34,17 @@ const Step = Schema.Union([
   }),
   Schema.Struct({ kind: Schema.Literal("forge") }),
   Schema.Struct({
+    at: Schema.Literals([0, 7, 30, 1000]),
+    kind: Schema.Literal("tamper"),
+    ticket: Schema.Literals([0, 1, 2]),
+  }),
+  Schema.Struct({
     hours: Schema.Literals([1, 24, 71, 72]),
     kind: Schema.Literal("wait"),
   }),
 ]);
 
 const steps = Arbitrary.array(Arbitrary.schema(Step), { maxLength: 40 });
-
-const channelCharacter = Schema.Literals([
-  "a",
-  "z",
-  "0",
-  "9",
-  "-",
-  "A",
-  "_",
-  " ",
-  "/",
-  "é",
-]);
-
-const candidateChannel = Arbitrary.array(Arbitrary.schema(channelCharacter), {
-  maxLength: 40,
-}).pipe(Arbitrary.map((characters) => characters.join("")));
 
 interface ModelTicket {
   boundTo: number | undefined;
@@ -113,6 +107,21 @@ const runAgainstModel = (generated: readonly (typeof Step.Type)[]) =>
         continue;
       }
 
+      if (step.kind === "tamper") {
+        const position = step.at % ticket.value.length;
+        const original = ticket.value.charAt(position);
+        const replacement = original === "A" ? "B" : "A";
+
+        const tampered = `${ticket.value.slice(0, position)}${replacement}${ticket.value.slice(position + 1)}`;
+
+        const refused = yield* Effect.flip(
+          tickets.verify(tampered, `submission-${step.at}`)
+        );
+
+        expect(refused.reason).toBe("unknown");
+        continue;
+      }
+
       const reason = expectedReason(ticket, step.submission, now);
 
       const verifying = tickets.verify(
@@ -132,12 +141,17 @@ const runAgainstModel = (generated: readonly (typeof Step.Type)[]) =>
     }
   });
 
-describe("intake tickets", () => {
+const secret = Redacted.make("interest-token-secret-for-tests");
+
+const hmacTickets = (key: Redacted.Redacted) =>
+  hmacIntakeTicketLayer(key).pipe(Layer.provide(TicketBindings.memoryLayer));
+
+describe("hmac intake tickets", () => {
   it.effect.prop(
-    "agree with the model: one submission per ticket, retries pass, expiry after 72 hours",
+    "agree with the ticket model, and refuse forged and tampered tickets",
     { generated: steps },
     ({ generated }) =>
-      runAgainstModel(generated).pipe(Effect.provide(IntakeTicket.testLayer)),
+      runAgainstModel(generated).pipe(Effect.provide(hmacTickets(secret))),
     { arbitrary: { runs: 300 } }
   );
 
@@ -156,22 +170,44 @@ describe("intake tickets", () => {
       expect(
         (yield* Effect.flip(tickets.verify(ticket, "submission-b"))).reason
       ).toBe("reused");
-    }).pipe(Effect.provide(IntakeTicket.testLayer))
+    }).pipe(Effect.provide(hmacTickets(secret)))
   );
 
-  it.effect.prop(
-    "accept only short lowercase channel names as a source",
-    { candidate: candidateChannel },
-    ({ candidate }) =>
-      Effect.sync(() => {
-        const accepted = Schema.is(TicketSourceSchema)(candidate);
+  it.effect("refuse a ticket signed under another secret", () =>
+    Effect.gen(function* otherSecret() {
+      const minted = yield* Effect.gen(function* mintElsewhere() {
+        const elsewhere = yield* IntakeTicket;
 
-        const isChannelName =
-          candidate.length >= 1 &&
-          candidate.length <= 32 &&
-          candidate.replaceAll(/[a-z0-9-]/gu, "") === "";
+        return yield* elsewhere.mint(PAGE_TICKET_SOURCE);
+      }).pipe(Effect.provide(hmacTickets(Redacted.make("another-secret"))));
 
-        expect(accepted).toBe(isChannelName);
-      })
+      const tickets = yield* IntakeTicket;
+
+      const refused = yield* Effect.flip(
+        tickets.verify(minted, "submission-0")
+      );
+
+      expect(refused.reason).toBe("unknown");
+    }).pipe(Effect.provide(hmacTickets(secret)))
+  );
+
+  it.effect("fill every page placeholder with one fresh page ticket", () =>
+    Effect.gen(function* pageTicket() {
+      const tickets = yield* IntakeTicket;
+
+      const page = yield* withPageTicket(
+        `ticket ${PAGE_TICKET_PLACEHOLDER} again ${PAGE_TICKET_PLACEHOLDER}`
+      );
+
+      const [, first, , second] = page.split(" ");
+
+      expect(first).toBe(second);
+      expect(page).not.toContain(PAGE_TICKET_PLACEHOLDER);
+      expect(yield* tickets.verify(first ?? "", "submission-0")).toStrictEqual({
+        mintedAt: 0,
+        source: PAGE_TICKET_SOURCE,
+      });
+      expect(yield* withPageTicket("no placeholder")).toBe("no placeholder");
+    }).pipe(Effect.provide(hmacTickets(secret)))
   );
 });
