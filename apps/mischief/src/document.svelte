@@ -64,7 +64,6 @@
       </ul>
     </div>
   </nav>
-  <hr />
 </header>
 
 <main>

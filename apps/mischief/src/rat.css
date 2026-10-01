@@ -516,8 +516,8 @@ td[data-tier="F"] {
   border-color: var(--accent);
 }
 
-header hr {
-  margin: var(--space-small) 0;
+body > header {
+  margin-bottom: var(--space-small);
 }
 
 .breadcrumb {
