@@ -370,6 +370,10 @@ main > .workshop-callout {
     flex-direction: column;
   }
 
+  .workshop-callout-title {
+    flex: none;
+  }
+
   .workshop-callout a {
     margin-left: 0;
   }
