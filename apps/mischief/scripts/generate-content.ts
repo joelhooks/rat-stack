@@ -26,6 +26,7 @@ import { render } from "svelte/server";
 import type { Plugin } from "unified";
 
 import {
+  assertDocumentTitle,
   assertLoreTerms,
   escapeSvelteBraces,
   assertSkillGroups,
@@ -44,6 +45,7 @@ import {
   sectionOf,
   SYSTEMS_DIRECTORY,
   validateInternalLinks,
+  withMarkdownTitle,
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
 
@@ -761,7 +763,15 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
 ) {
   const rendered = yield* Effect.try({
     catch: (cause) => buildError("Svelte document render", sourcePath, cause),
-    try: () => render(shell, { props: { ...props } }),
+    try: () =>
+      render(shell, {
+        props: {
+          ...props,
+          bodyHtml: /<h1(?:\s|>)/iu.test(props.bodyHtml)
+            ? props.bodyHtml
+            : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`,
+        },
+      }),
   });
 
   const document = `<!doctype html>
@@ -777,6 +787,13 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
       stage: "Svelte document render",
     });
   }
+
+  yield* Effect.try({
+    catch: (cause) => buildError("document title", sourcePath, cause),
+    try: () => {
+      assertDocumentTitle(document, sourcePath);
+    },
+  });
 
   return document;
 });
@@ -1750,7 +1767,10 @@ const program = Effect.gen(function* generateContent() {
           linkedLoreTerms,
           lore: {
             ...lore,
-            text: appendLoreMarkdown(lore.text, linkedLoreRoutes),
+            text: appendLoreMarkdown(
+              withMarkdownTitle(lore.text, lore.title, bodyHtml),
+              linkedLoreRoutes
+            ),
           },
         };
       }),
