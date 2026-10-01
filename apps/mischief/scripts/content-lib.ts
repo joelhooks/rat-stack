@@ -892,6 +892,27 @@ export const escapeSvelteBraces = () => (tree: LoreHastNode) => {
   visit(tree);
 };
 
+export const withMarkdownTitle = (
+  source: string,
+  title: string,
+  bodyHtml: string
+): string =>
+  /<h1(?:\s|>)/iu.test(bodyHtml)
+    ? source
+    : `# ${title}\n\n${source.replace(/^---\r?\n[\s\S]*?\r?\n---\s*\r?\n/u, "")}`;
+
+export const assertDocumentTitle = (html: string, sourcePath: string) => {
+  const count = [...html.matchAll(/<h1(?:\s|>)/giu)].length;
+
+  if (count !== 1) {
+    throw buildError(
+      "document title",
+      sourcePath,
+      new Error(`Expected exactly one H1, found ${count}`)
+    );
+  }
+};
+
 export const deriveAgentMarkdown = (source: string): string => {
   if (!audienceTag.test(source)) {
     return source;

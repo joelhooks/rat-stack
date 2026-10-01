@@ -6,6 +6,7 @@ import { compile as compileMdsvex } from "mdsvex";
 import { compile as compileSvelte } from "svelte/compiler";
 
 import {
+  assertDocumentTitle,
   assertLoreTerms,
   assertSkillGroups,
   ContentBuildError,
@@ -23,18 +24,26 @@ import {
   SYSTEM_SECTIONS,
   SYSTEMS_DIRECTORY,
   validateInternalLinks,
+  withMarkdownTitle,
 } from "../scripts/content-lib.ts";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
+  interestConfirmDocumentHtml,
+  interestResultDocumentHtml,
   lawSources,
+  loreIndexDocumentHtml,
   loreIndexMarkdown,
   loreSources,
   ogImages,
+  noVerifyDocumentHtml,
   originToken,
+  skillIndexDocumentHtml,
   skillIndexMarkdown,
   skillSources,
+  systemsIndexDocumentHtml,
+  tokenmaxxDocumentHtml,
 } from "../src/bundled-content.generated.js";
 import { llmsText, searchContent } from "../src/content.js";
 
@@ -411,6 +420,76 @@ const tagFreeSources = [
 ];
 
 it.layer(NodeServices.layer)("generated content", (test) => {
+  test.effect("every generated HTML page has exactly one document title", () =>
+    Effect.sync(() => {
+      const pages = [
+        homeDocumentHtml,
+        skillIndexDocumentHtml,
+        loreIndexDocumentHtml,
+        systemsIndexDocumentHtml,
+        noVerifyDocumentHtml,
+        tokenmaxxDocumentHtml,
+        interestResultDocumentHtml,
+        interestConfirmDocumentHtml,
+        ...lawSources.map((page) => page.documentHtml),
+        ...skillSources.map((page) => page.documentHtml),
+        ...loreSources.map((page) => page.documentHtml),
+      ];
+
+      for (const [index, html] of pages.entries()) {
+        expect(() => {
+          assertDocumentTitle(html, `page ${index}`);
+        }).not.toThrow();
+      }
+
+      const page = homeDocumentHtml;
+      const missingTitle = page.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/iu, "");
+
+      const duplicateTitle = page.replace(
+        "</main>",
+        "<h1>Planted title</h1></main>"
+      );
+
+      expect(() => {
+        assertDocumentTitle(missingTitle, "planted missing H1");
+      }).toThrow("document title failed for planted missing H1");
+      expect(() => {
+        assertDocumentTitle(duplicateTitle, "planted duplicate H1");
+      }).toThrow("document title failed for planted duplicate H1");
+    })
+  );
+
+  test.effect(
+    "front-matter titles reach HTML and agent markdown without duplicating body titles",
+    () =>
+      Effect.sync(() => {
+        for (const slug of [
+          "cartridges",
+          "analytics",
+          "capabilities",
+          "fence",
+          "database",
+          "auth",
+        ]) {
+          const page = loreSources.find((entry) => entry.slug === slug);
+
+          expect(page).toBeDefined();
+          expect(page?.text.startsWith(`# ${page.title}\n`)).toBe(true);
+          expect(page?.documentHtml).toContain(`>${page?.title}</h1>`);
+        }
+
+        const existing = "# Existing title\n\nBody.";
+        const missing = "---\ntitle: Missing title\n---\n\n## First section";
+
+        expect(
+          withMarkdownTitle(existing, "Front matter", "<h1>Existing title</h1>")
+        ).toBe(existing);
+        expect(
+          withMarkdownTitle(missing, "Missing title", "<h2>First section</h2>")
+        ).toBe("# Missing title\n\n## First section");
+      })
+  );
+
   test.effect("the Oxlint ledger rule reads directives from comments", () =>
     Effect.gen(function* readsOnlyCommentDirectives() {
       const fileSystem = yield* FileSystem.FileSystem;
