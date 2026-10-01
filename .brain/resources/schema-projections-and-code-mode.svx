@@ -1,7 +1,7 @@
 ---
 title: One Schema, many surfaces (CLI, REST/OpenAPI, MCP, code mode)
 type: resource
-status: applied
+status: historical
 created: 2026-09-18
 updated: 2026-09-18
 tags: [effect, mcp, openapi, cli, code-mode, executor, kody, architecture]
@@ -16,6 +16,8 @@ related:
 ---
 
 # One Schema, many surfaces
+
+Historical research and implementation receipts from 2026-09-18, against Effect rc.115. This is not the current build recipe. Read [One capability, every surface](/lore/one-capability-every-surface) for today's `defineContract` → `implement` pattern, including browser RPC, and [current pins](/pins.md). API names, proposed RPC timing, test counts, and sandbox permissions below describe that date, not today's guarantees. Do not use the historical sandbox discussion as permission guidance.
 
 Joel (2026-09-18): rat-stack is meant to build agent-first tools. The interesting
 question is whether one Effect Schema definition can project into a CLI, a REST
@@ -129,7 +131,7 @@ projections. Nothing here needs a new schema language.
 
 ## Applied 2026-09-18 (slices 1 and 2)
 
-- `packages/capability`: `defineCapability` and `toCommand`, `toHttpApi`, `toToolkit`. Twelve tests run each surface for real (CLI under `TestConsole`, HTTP via `HttpApiTest.groups`, MCP through an in-memory web handler with `RpcClient`).
+- `packages/capability` at that date: the now-removed `defineCapability` API (since split into `defineContract` and `implement`) and `toCommand`, `toHttpApi`, `toToolkit`. Twelve tests run each surface for real (CLI under `TestConsole`, HTTP via `HttpApiTest.groups`, MCP through an in-memory web handler with `RpcClient`).
 - `packages/core`: `FileStats` became a Schema; `inspectFile` is the first capability; the lifecycle machine moved here from the CLI so every surface runs it.
 - `apps/cli`: `stats` is `toCommand(inspectFile)`, plus `openapi`, `serve --port` (API, `/openapi.json`, Scalar at `/docs`), and `mcp` over stdio with logs on stderr. The e2e suite drives the built binary's MCP server over stdio and checks `readOnlyHint`.
 - Type lessons. A heterogeneous list of capabilities needs a handler typed `(input: never) => Effect<unknown, unknown, unknown>` (contravariant parameters) and extractors that infer every type parameter at once. Schemas are bounded by `PlainSchema` (no decoding or encoding services) because projections decode at process edges. `HttpApiEndpoint.post` guards the error schema with a non-exported conditional type, so the runtime call goes through a loosely typed alias while `EndpointOf` names the precise type. The lint config bans namespaces and same-name redeclaration, so the API is plain named exports.
@@ -138,7 +140,7 @@ projections. Nothing here needs a new schema language.
 ## Applied 2026-09-18 (slices 3 and 4)
 
 - `catalog.ts`: `toCatalog` (JSON Schema per channel via `Tool.getJsonSchemaFromSchema`, the same schemas MCP and OpenAPI publish), `toTypeScript` (a `.d.ts` for the `tools` object with `$defs` as named aliases and `@throws` on the failure), `searchCatalog` (token overlap over name, input fields, description; deterministic, no dependencies).
-- `sandbox.ts`: a `Sandbox` service and `layerSubprocess`. The runner is passed with `node --permission --input-type=module -e <source>` so the permission model never has to allow a file read (`--allow-fs-read` needs the real path, which on macOS `/tmp` is not). File system, child processes, and workers are denied; `fetch` is not. Protocol is newline-delimited JSON over stdio through `ChildProcessSpawner`, a `Queue` feeding `handle.stdin`, and `Stream.decodeText` + `splitLines` on stdout.
+- The historical, now-removed `sandbox.ts` (today split into `sandbox-service.ts` and `sandbox-subprocess.ts`): a `Sandbox` service and `layerSubprocess`. The runner is passed with `node --permission --input-type=module -e <source>` so the permission model never has to allow a file read (`--allow-fs-read` needs the real path, which on macOS `/tmp` is not). File system, child processes, and workers are denied; `fetch` is not. Protocol is newline-delimited JSON over stdio through `ChildProcessSpawner`, a `Queue` feeding `handle.stdin`, and `Stream.decodeText` + `splitLines` on stdout.
 - `to-code-mode.ts`: `search` and `execute` as two ordinary `Tool`s. `execute`'s description carries the generated declarations. Every `tools.<name>(input)` call decodes through the capability's input schema, runs the handler with the captured context, and encodes the output or the declared failure back; the program sees `InvalidInput`, `UnknownCapability`, or the failure's `_tag`.
 - `apps/cli`: `mcp --code-mode` and `catalog [--types]`. The e2e suite runs a code-mode program against the built binary over stdio.
 - Gotchas. `it.effect` runs on the `TestClock`, so a sandbox timeout never fires under it, and `test.live` inside an `it.layer` block behaved the same; the timeout test is a top-level `it.live` with the layer provided inline. A ternary over two differently typed `Layer`s cannot be piped further; pick the `Layer.launch` per branch instead. The `no-array-sort` lint rule plus an ES2022 lib left no legal way to sort; the workspace target and lib are ES2023 now.
@@ -147,14 +149,14 @@ projections. Nothing here needs a new schema language.
 
 Scaffolded `joelhooks/rat-stack-scaffold-test` from the template (`gh repo create --template`), cloned it, and installed with a fresh pnpm store (`npm_config_store_dir` pointed at an empty directory). Install took 15.6s; corepack picked pnpm 11.3.0 from `packageManager` even with 11.10.0 on PATH. The `prepare` script patched tsc for `@effect/tsgo` and installed the lefthook hook. `pnpm turbo run check test build` passed: 14 tasks, 57 tests. `stats README.md`, `catalog --types`, and `pnpm env:check` all worked on the built output. Nothing needed fixing. The throwaway repo `joelhooks/rat-stack-scaffold-test` still exists (agent tooling blocks `gh repo delete`; Joel removes it). Rerun this after any dependency or vendor change; it is the only test of the template as a template.
 
-## Seed
+## Original seed plan (before slices 3 and 4)
 
 `inspectFile` (input `{ path }`, output `FileStats`, failure `FileStatsError`)
 is the one capability shipped, projected to `stats`, `POST /inspectFile`, and
 the `inspectFile` MCP tool. Slices 3 and 4 (catalog IR with generated types,
 `search` + `execute`, subprocess sandbox) are next.
 
-## Cautions
+## Historical cautions (2026-09-18)
 
 - Every module involved is `effect/unstable/*`. Pin and vendor as now; expect
   renames between rc's.
