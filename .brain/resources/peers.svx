@@ -12,7 +12,7 @@ Read from rat-stack's root, infra, and core manifests at build time. `=` means a
 
 <PeerPins />
 
-Each peer has a checked date and a default-branch commit linked below. `—` means no direct declaration in the inspected project manifests, not proof of no transitive dependency. Catalogs resolve to their declared versions; ranges are labeled and lockfile resolutions are shown where available. Vendored source mirrors and historical test fixtures do not count as current project pins. No peer in this snapshot directly declares `@xstate/effect`.
+Each peer has a checked date and a default-branch commit linked below. `—` means no direct declaration in the inspected project manifests, not proof of no transitive dependency. Catalogs resolve to their declared versions; ranges are labeled and lockfile resolutions are shown where available. Vendored source mirrors and historical test fixtures do not count as current project pins. Targeted discovery also checks XState 6 alpha and `@xstate/effect` independently of Alchemy; single-line peers qualify when their machine or runtime seam is relevant.
 
 Refresh peers, versions, and tiers every week or two and after every shared-line bump. The repo-native gardener pass owns the refresh. Update the dataset, not table rows in this page.
 

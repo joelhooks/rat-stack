@@ -368,5 +368,411 @@
       "xstate": "—",
       "xstateEffect": "—"
     }
+  },
+  {
+    "repo": "BleedingDev/dx-feature-tracker",
+    "tier": "B",
+    "reason": "Rat-stack-derived cost tracker pins Effect 4, XState 6 and the Effect actor bridge; worth tailing its CLI/MCP seam.",
+    "versions": {
+      "effect": "4.0.0-rc.117",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.59",
+      "xstateEffect": "0.1.0-alpha.2"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "989d6ab05ef3f870acc6a3740618cb3890c3f6c7",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "packages/core/package.json",
+        "path": "packages/core/package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "statelyai/agent",
+    "tier": "B",
+    "reason": "XState 6 agent control-flow and typed request boundary are relevant; no adoption or focused study recorded.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.57 (development pin; peer range starts here and excludes 6.0.0)",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "next",
+    "commit": "752290e6621ec95ce80c7ab0c989a10a914a45e7",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "readme.md",
+        "path": "readme.md"
+      }
+    ]
+  },
+  {
+    "repo": "statelyai/schema",
+    "tier": "B",
+    "reason": "Statechart schema conversion on XState 6 is a relevant typed-machine seam; not yet studied.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.25",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "f08e45a242548425e9d2a5a58b868729ee5c9e20",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "davidkpiano/rivet-xstate",
+    "tier": "B",
+    "reason": "XState 6 pure transitions inside persisted Rivet actors are a relevant durability seam; not yet studied.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.21",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "ee63b77248c99f2cd77a1323516f9d900c4f17cc",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "restatedev/xstate-transitions",
+    "tier": "B",
+    "reason": "XState 6 pure transitions as Restate virtual objects are a relevant replay/durability seam; not yet studied.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.48 (workspace catalog)",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "359a47ca8c82deae14f1ef3178469d7a81d6fc53",
+    "sources": [
+      {
+        "label": "packages/xstate-transitions/package.json",
+        "path": "packages/xstate-transitions/package.json"
+      },
+      {
+        "label": "pnpm-workspace.yaml",
+        "path": "pnpm-workspace.yaml"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "julia-script/graph-engineering",
+    "tier": "B",
+    "reason": "Effect 4 CLI and XState 6 runtime for durable engineering workflows share our lifecycle seam; not yet studied.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.50",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "0748374f7816725543b33eff8ba2f808e58b5a25",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "packages/runtime/package.json",
+        "path": "packages/runtime/package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "SandroMaglione/mai-macros",
+    "tier": "B",
+    "reason": "Application-owned machines package pins Effect 4 and XState 6; vendored .repos mirrors are excluded.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.18",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "d2f53266d88d9dd235f8171cfdfbbdede8597739",
+    "sources": [
+      {
+        "label": "apps/mobile/package.json",
+        "path": "apps/mobile/package.json"
+      },
+      {
+        "label": "packages/machines/package.json",
+        "path": "packages/machines/package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      }
+    ]
+  },
+  {
+    "repo": "Ernxst/veyor",
+    "tier": "B",
+    "reason": "Typed software-factory workflows share Effect 4 and XState 6 in core; worth tailing, not yet studied.",
+    "versions": {
+      "effect": "4.0.0-beta.103",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.27",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "d547e3f8286b09c9f0464e25c18f0ebee22f1868",
+    "sources": [
+      {
+        "label": "packages/core/package.json",
+        "path": "packages/core/package.json"
+      },
+      {
+        "label": "bun.lock",
+        "path": "bun.lock"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "joelhooks/expanded-cinema",
+    "tier": "B",
+    "reason": "Active melt-01 app pins Effect 4 and XState 6, with Alchemy infra; archived experiment pins are excluded.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.77",
+      "xstate": "6.0.0-alpha.53",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "6eeab03cccd034a46932d76d7e71c0e943b9cdd5",
+    "sources": [
+      {
+        "label": "apps/melt-01/package.json",
+        "path": "apps/melt-01/package.json"
+      },
+      {
+        "label": "packages/infra/package.json",
+        "path": "packages/infra/package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "OzakIOne/vitesakuga",
+    "tier": "B",
+    "reason": "TanStack application shares Effect 4, Alchemy 2 and locked XState 6; worth tailing, not yet studied.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.79",
+      "xstate": "6.0.0-alpha.63 (locked from ^6.0.0-alpha.63)",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Not yet studied",
+    "branch": "master",
+    "commit": "0f11f0cfdfd794a372593188a7a9ad438cc27e11",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "oscarmarina/blockquote-web-components",
+    "tier": "C",
+    "reason": "Screened: Web Component controller pins XState 6, but no Effect or server lifecycle seam in inspected manifests.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.60 (locked from ^6.0.0-alpha.59)",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Manifest/README screening only",
+    "branch": "main",
+    "commit": "9d982d909aeb2c49d39034e0b51e5fc5628d2d1d",
+    "sources": [
+      {
+        "label": "packages/controllers/blockquote-controller-xstate/package.json",
+        "path": "packages/controllers/blockquote-controller-xstate/package.json"
+      },
+      {
+        "label": "package-lock.json",
+        "path": "package-lock.json"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "SMILEY4/strategy-game",
+    "tier": "C",
+    "reason": "Screened: browser strategy-game UI pins XState 6; no Effect integration in its webapp manifest.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.49 (locked from ^6.0.0-alpha.49)",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Manifest/README screening only",
+    "branch": "develop",
+    "commit": "907b532efc76c9f3c482432e1a6b528f3c384cb5",
+    "sources": [
+      {
+        "label": "webapp/package.json",
+        "path": "webapp/package.json"
+      },
+      {
+        "label": "webapp/package-lock.json",
+        "path": "webapp/package-lock.json"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "monaxovdulov/tutu-diff-hackaton",
+    "tier": "C",
+    "reason": "Screened: travel-demo UI uses XState 6, but no Effect lifecycle integration in its project manifest.",
+    "versions": {
+      "effect": "—",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.40",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-10-01",
+    "studied": "Manifest/README screening only",
+    "branch": "main",
+    "commit": "62da1ea88a08327f9d0277eb422b10cc44c6eb57",
+    "sources": [
+      {
+        "label": "package.json",
+        "path": "package.json"
+      },
+      {
+        "label": "pnpm-lock.yaml",
+        "path": "pnpm-lock.yaml"
+      },
+      {
+        "label": "README.md",
+        "path": "README.md"
+      }
+    ]
   }
 ]
