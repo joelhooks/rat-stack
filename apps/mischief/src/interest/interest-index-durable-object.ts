@@ -11,7 +11,8 @@ type Entries = Readonly<Record<string, InterestRecord>>;
 const liveEntries = (entries: Entries, now: number): Entries =>
   Object.fromEntries(
     Object.entries(entries).filter(
-      ([, record]) => record.status === "confirmed" || record.expiresAt > now
+      ([, record]) =>
+        record.status !== "pending" || (record.expiresAt ?? 0) > now
     )
   );
 
@@ -40,6 +41,24 @@ export default class InterestIndex extends Cloudflare.DurableObject<InterestInde
         });
       });
 
+      const forget = Effect.fn("InterestIndex.forget")(function* forget(
+        address: string
+      ) {
+        const entries = yield* load;
+
+        if (!(address in entries)) {
+          return false;
+        }
+
+        const rest = Object.fromEntries(
+          Object.entries(entries).filter(([key]) => key !== address)
+        );
+
+        yield* state.storage.put(ENTRIES_KEY, rest);
+
+        return true;
+      });
+
       const records = Effect.gen(function* currentRecords() {
         const now = yield* Clock.currentTimeMillis;
 
@@ -47,6 +66,8 @@ export default class InterestIndex extends Cloudflare.DurableObject<InterestInde
       });
 
       return {
+        forget: (address: string) =>
+          forget(address).pipe(Effect.provideContext(runtime)),
         note: (record: InterestRecord) =>
           note(record).pipe(Effect.provideContext(runtime)),
         records: () => records.pipe(Effect.provideContext(runtime)),

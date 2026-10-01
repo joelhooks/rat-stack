@@ -22,21 +22,39 @@ export const CONFIRMATION_WINDOW_MS = 72 * 60 * 60 * 1000;
 
 export const RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
+export const CaptureRequestSchema = Schema.Struct({
+  consentVersion: Schema.String,
+  ipHash: Schema.String,
+  submissionId: Schema.String,
+  uaHash: Schema.String,
+});
+
+export type CaptureRequest = typeof CaptureRequestSchema.Type;
+
+export const CaptureEvidenceSchema = Schema.Struct({
+  ...CaptureRequestSchema.fields,
+  capturedAt: Schema.Finite,
+});
+
 export const InterestRecordSchema = Schema.Struct({
   address: Schema.String,
+  capture: Schema.optionalKey(CaptureEvidenceSchema),
   confirmedAt: Schema.optionalKey(Schema.Finite),
-  expiresAt: Schema.Finite,
+  expiresAt: Schema.optionalKey(Schema.Finite),
   lastSentAt: Schema.optionalKey(Schema.Finite),
   requestedAt: Schema.Finite,
-  status: Schema.Literals(["pending", "confirmed"]),
+  status: Schema.Literals(["captured", "confirmed", "pending"]),
 });
 
 export type InterestRecord = typeof InterestRecordSchema.Type;
 
 export type InterestOutcome = Data.TaggedEnum<{
+  Captured: { readonly record: InterestRecord };
   Confirmed: { readonly record: InterestRecord };
   ConfirmRefused: { readonly reason: "expired" | "unknown" };
-  Quiet: { readonly reason: "confirmed" | "cooldown" | "mail-failed" };
+  Quiet: {
+    readonly reason: "confirmed" | "cooldown" | "mail-failed" | "on-file";
+  };
   SendConfirmation: { readonly record: InterestRecord };
 }>;
 
@@ -104,12 +122,11 @@ const cooldownElapsed = (record: InterestRecord, now: number) =>
   record.lastSentAt === undefined ||
   now - record.lastSentAt >= RESEND_COOLDOWN_MS;
 
-const withoutLastSent = (record: InterestRecord): InterestRecord => ({
-  address: record.address,
-  expiresAt: record.expiresAt,
-  requestedAt: record.requestedAt,
-  status: record.status,
-});
+const withoutLastSent = (record: InterestRecord): InterestRecord => {
+  const { lastSentAt, ...rest } = record;
+
+  return lastSentAt === undefined ? record : rest;
+};
 
 const settle = (context: InterestContext, outcome: InterestOutcome): Step => ({
   context: { ...context, outcome },
@@ -127,13 +144,28 @@ const persist = (
 
 const quiet = (
   context: InterestContext,
-  reason: "confirmed" | "cooldown" | "mail-failed"
+  reason: "confirmed" | "cooldown" | "mail-failed" | "on-file"
 ) => settle(context, interestOutcome.Quiet({ reason }));
 
 const refuse = (context: InterestContext, reason: "expired" | "unknown") =>
   settle(context, interestOutcome.ConfirmRefused({ reason }));
 
-const register = (context: InterestContext, now: number) => {
+const register = (
+  context: InterestContext,
+  now: number,
+  capture: CaptureRequest | undefined
+) => {
+  if (capture !== undefined) {
+    const record: InterestRecord = {
+      address: context.address,
+      capture: { ...capture, capturedAt: now },
+      requestedAt: now,
+      status: "captured",
+    };
+
+    return persist(context, record, interestOutcome.Captured({ record }));
+  }
+
   const record = freshRecord(context.address, now);
 
   return persist(context, record, interestOutcome.SendConfirmation({ record }));
@@ -154,7 +186,10 @@ export const interestMachine = setupEffect({
     events: {
       CONFIRM: Schema.Struct({ now: Schema.Finite }),
       MAIL_FAILED: Schema.Struct({}),
-      REGISTER: Schema.Struct({ now: Schema.Finite }),
+      REGISTER: Schema.Struct({
+        capture: Schema.UndefinedOr(CaptureRequestSchema),
+        now: Schema.Finite,
+      }),
     },
     input: MachineInput,
   },
@@ -168,6 +203,13 @@ export const interestMachine = setupEffect({
   initial: "hydrating",
   output: ({ context }) => context.outcome,
   states: {
+    captured: {
+      on: {
+        CONFIRM: ({ context }) => refuse(context, "unknown"),
+        MAIL_FAILED: ({ context }) => quiet(context, "mail-failed"),
+        REGISTER: ({ context }) => quiet(context, "on-file"),
+      },
+    },
     confirmed: {
       on: {
         CONFIRM: ({ context }) =>
@@ -182,7 +224,8 @@ export const interestMachine = setupEffect({
       on: {
         CONFIRM: ({ context }) => refuse(context, "expired"),
         MAIL_FAILED: ({ context }) => quiet(context, "mail-failed"),
-        REGISTER: ({ context, event }) => register(context, event.now),
+        REGISTER: ({ context, event }) =>
+          register(context, event.now, event.capture),
       },
     },
     hydrating: {
@@ -197,7 +240,13 @@ export const interestMachine = setupEffect({
           return { target: "confirmed" };
         }
 
-        return { target: record.expiresAt <= now ? "expired" : "pending" };
+        if (record.status === "captured") {
+          return { target: "captured" };
+        }
+
+        return {
+          target: (record.expiresAt ?? 0) <= now ? "expired" : "pending",
+        };
       },
     },
     pending: {
@@ -226,6 +275,10 @@ export const interestMachine = setupEffect({
           ),
         REGISTER: ({ context, event }) =>
           withRecord(context, (record) => {
+            if (event.capture !== undefined) {
+              return quiet(context, "on-file");
+            }
+
             if (!cooldownElapsed(record, event.now)) {
               return quiet(context, "cooldown");
             }
@@ -255,13 +308,18 @@ export const interestMachine = setupEffect({
       on: {
         CONFIRM: ({ context }) => refuse(context, "unknown"),
         MAIL_FAILED: ({ context }) => quiet(context, "mail-failed"),
-        REGISTER: ({ context, event }) => register(context, event.now),
+        REGISTER: ({ context, event }) =>
+          register(context, event.now, event.capture),
       },
     },
   },
 });
 
-const eventFor = (command: InterestCommand, now: number) => {
+const eventFor = (
+  command: InterestCommand,
+  now: number,
+  capture: CaptureRequest | undefined
+) => {
   switch (command) {
     case "confirm": {
       return { now, type: "CONFIRM" } as const;
@@ -272,7 +330,7 @@ const eventFor = (command: InterestCommand, now: number) => {
     }
 
     case "register": {
-      return { now, type: "REGISTER" } as const;
+      return { capture, now, type: "REGISTER" } as const;
     }
 
     default: {
@@ -282,7 +340,11 @@ const eventFor = (command: InterestCommand, now: number) => {
 };
 
 export const runInterestMachine = Effect.fn("runInterestMachine")(
-  function* runInterestMachine(address: string, command: InterestCommand) {
+  function* runInterestMachine(
+    address: string,
+    command: InterestCommand,
+    capture?: CaptureRequest
+  ) {
     const store = yield* InterestStore;
     const now = yield* Clock.currentTimeMillis;
     const record = yield* store.load;
@@ -293,7 +355,7 @@ export const runInterestMachine = Effect.fn("runInterestMachine")(
 
     yield* watchActor("interestMachine", actor);
 
-    yield* send(actor, eventFor(command, now));
+    yield* send(actor, eventFor(command, now, capture));
 
     // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- A machine's ErrorFrom is unknown (statelyai/xstate#5725); a machine-level error here is a programming error and orDie closes it.
     const outcome = yield* join(actor).pipe(Effect.orDie);

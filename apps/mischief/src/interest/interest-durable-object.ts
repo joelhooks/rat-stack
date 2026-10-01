@@ -1,5 +1,5 @@
 import { InterestStore, runInterestMachine } from "@rat-stack/core/interest";
-import type { InterestRecord } from "@rat-stack/core/interest";
+import type { CaptureRequest, InterestRecord } from "@rat-stack/core/interest";
 import * as Cloudflare from "alchemy/Cloudflare";
 import type { RuntimeContext } from "alchemy/RuntimeContext";
 import * as Effect from "effect/Effect";
@@ -27,16 +27,20 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
 
       const run = (
         address: string,
-        command: "confirm" | "mailFailed" | "register"
+        command: "confirm" | "mailFailed" | "register",
+        capture?: CaptureRequest
       ) =>
-        runInterestMachine(address, command).pipe(
+        runInterestMachine(address, command, capture).pipe(
           Effect.provideService(InterestStore, store)
         );
 
       return {
         confirm: (address: string) => run(address, "confirm"),
+        forget: () =>
+          state.storage.delete(RECORD_KEY).pipe(Effect.provideContext(runtime)),
         mailFailed: (address: string) => run(address, "mailFailed"),
-        register: (address: string) => run(address, "register"),
+        register: (address: string, capture?: CaptureRequest) =>
+          run(address, "register", capture),
       };
     });
   })

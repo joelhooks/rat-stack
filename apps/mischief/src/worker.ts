@@ -1,7 +1,12 @@
-import { InterestTokens, postShibaMailerLayer } from "@rat-stack/core/interest";
+import {
+  InterestMode,
+  InterestTokens,
+  postShibaMailerLayer,
+} from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import { Schema } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -66,6 +71,11 @@ export const makeMischief = (
       "INTEREST_SEND_ENABLED"
     ).pipe(Config.withDefault(false));
 
+    const interestMode = yield* Config.schema(
+      Schema.Literals(["capture", "doi"]),
+      "INTEREST_MODE"
+    ).pipe(Config.withDefault("doi" as const));
+
     const interestTokenSecret = yield* Config.option(
       Config.Redacted("INTEREST_TOKEN_SECRET")
     );
@@ -107,6 +117,7 @@ export const makeMischief = (
           Layer.mergeAll(
             interestDirectory,
             InterestTokens.layer(interestTokenSecret.value),
+            InterestMode.layer(interestMode),
             postShibaMailerLayer({
               apiKey: Option.getOrElse(postShibaApiKey, () =>
                 Redacted.make("")

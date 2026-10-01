@@ -2,12 +2,14 @@ import { toHttpApi } from "@rat-stack/capability/http-api";
 import {
   InterestDirectory,
   InterestGate,
+  InterestMode,
   InterestRequest,
+  InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type { InterestMailer, InterestTokens } from "@rat-stack/core/interest";
+import type { InterestMailer } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Effect, Layer, Option, Schema } from "effect";
+import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import type * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
@@ -19,6 +21,7 @@ import type { RateLimits } from "../rate-limits.js";
 import {
   confirmInterest,
   interestCapabilities,
+  refusalMessage,
   registerInterest,
 } from "./handlers.js";
 import { confirmPage, resultPage } from "./pages.js";
@@ -27,7 +30,7 @@ export interface InterestOptions {
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
-    InterestDirectory | InterestMailer | InterestTokens
+    InterestDirectory | InterestMailer | InterestMode | InterestTokens
   >;
 }
 
@@ -36,6 +39,9 @@ const originOf = (request: HttpServerRequest.HttpServerRequest) =>
 
 const clientIpOf = (request: HttpServerRequest.HttpServerRequest) =>
   request.headers["cf-connecting-ip"] ?? "unknown";
+
+const userAgentOf = (request: HttpServerRequest.HttpServerRequest) =>
+  request.headers["user-agent"] ?? "unknown";
 
 const gateFor = (rateLimits: RateLimits | undefined) =>
   Layer.succeed(InterestGate, {
@@ -49,6 +55,7 @@ const requestFor = (request: HttpServerRequest.HttpServerRequest) =>
   Layer.succeed(InterestRequest, {
     ip: clientIpOf(request),
     origin: originOf(request),
+    userAgent: userAgentOf(request),
   });
 
 const interestApi = toHttpApi("ratstack.sh-interest", interestCapabilities, {
@@ -57,7 +64,11 @@ const interestApi = toHttpApi("ratstack.sh-interest", interestCapabilities, {
     {
       failure: Schema.Never,
       from: (request: HttpServerRequest.HttpServerRequest) =>
-        Effect.succeed({ ip: clientIpOf(request), origin: originOf(request) }),
+        Effect.succeed({
+          ip: clientIpOf(request),
+          origin: originOf(request),
+          userAgent: userAgentOf(request),
+        }),
       tag: InterestRequest,
     },
   ],
@@ -72,13 +83,69 @@ const bearerOf = (request: HttpServerRequest.HttpServerRequest) => {
   return header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
 };
 
+const signupLink = {
+  href: "/tokenmaxx#interested",
+  label: "Return to signup",
+} as const;
+
+const DeleteBody = Schema.Union([
+  Schema.Struct({ addresses: Schema.Array(Schema.String) }),
+  Schema.Struct({ submissionIds: Schema.Array(Schema.String) }),
+]);
+
+const invalidLink = (origin: string) =>
+  resultPage(origin, {
+    heading: "This link isn't valid",
+    link: signupLink,
+    message: refusalMessage("invalid"),
+    status: 410,
+  });
+
+const encoder = new TextEncoder();
+
+const jsonArrayStream = (items: readonly unknown[]) =>
+  Stream.fromIterable([
+    encoder.encode("[\n"),
+    ...items.map((item, position) =>
+      encoder.encode(`${position === 0 ? "" : ",\n"}${JSON.stringify(item)}`)
+    ),
+    encoder.encode("\n]\n"),
+  ]);
+
 const notFound = HttpServerResponse.text("Not found.\n", {
   contentType: "text/plain; charset=utf-8",
   status: 404,
 });
 
+const operatorHeaders = {
+  "cache-control": "no-store",
+  "x-robots-tag": "noindex",
+} as const;
+
 export const interestRoutes = (options: InterestOptions) => {
   const gate = gateFor(options.rateLimits);
+
+  const guarded = <E, R>(
+    request: HttpServerRequest.HttpServerRequest,
+    respond: () => Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
+  ) =>
+    Effect.gen(function* guard() {
+      const { operatorToken } = options;
+
+      if (operatorToken === undefined) {
+        return notFound;
+      }
+
+      if (!(yield* digestsMatch(bearerOf(request), operatorToken))) {
+        return HttpServerResponse.text("Unauthorized.\n", {
+          contentType: "text/plain; charset=utf-8",
+          headers: { "www-authenticate": "Bearer" },
+          status: 401,
+        });
+      }
+
+      return yield* respond();
+    }).pipe(Effect.provideContext(options.services), Effect.orDie);
 
   const apiRoutes = HttpApiBuilder.layer(interestApi.api).pipe(
     Layer.provide(interestApi.layer),
@@ -116,17 +183,44 @@ export const interestRoutes = (options: InterestOptions) => {
       }).pipe(Effect.orDie)
     ),
     HttpRouter.add("GET", "/tokenmaxx/confirm", (request) =>
-      Effect.succeed(
-        confirmPage(
-          originOf(request),
+      Effect.gen(function* promptConfirm() {
+        if ((yield* InterestMode) === "capture") {
+          return invalidLink(originOf(request));
+        }
+
+        const token =
           new URL(request.url, "https://ratstack.sh").searchParams.get(
             "token"
-          ) ?? ""
-        )
-      )
+          ) ?? "";
+
+        const tokens = yield* InterestTokens;
+        const now = yield* Clock.currentTimeMillis;
+
+        return yield* tokens.verify(token, now).pipe(
+          Effect.match({
+            onFailure: (failure) =>
+              resultPage(originOf(request), {
+                heading:
+                  failure.reason === "expired"
+                    ? "This link has expired"
+                    : "This link isn't valid",
+                link: signupLink,
+                message: refusalMessage(
+                  failure.reason === "expired" ? "expired" : "invalid"
+                ),
+                status: 410,
+              }),
+            onSuccess: () => confirmPage(originOf(request), token),
+          })
+        );
+      }).pipe(Effect.provideContext(options.services), Effect.orDie)
     ),
     HttpRouter.add("POST", "/tokenmaxx/confirm", (request) =>
       Effect.gen(function* confirmAddress() {
+        if ((yield* InterestMode) === "capture") {
+          return invalidLink(originOf(request));
+        }
+
         const params = yield* request.urlParamsBody;
 
         const answered = yield* confirmInterest
@@ -134,12 +228,17 @@ export const interestRoutes = (options: InterestOptions) => {
           .pipe(
             Effect.match({
               onFailure: (failure) => ({
-                heading: "That link did not work",
+                heading:
+                  failure.reason === "expired"
+                    ? "This link has expired"
+                    : "This link isn't valid",
+                link: signupLink,
                 message: failure.message,
                 status: 410,
               }),
               onSuccess: ({ message }) => ({
-                heading: "You are on the list",
+                heading: "You're confirmed",
+                link: { href: "/", label: "Return to ratstack.sh" },
                 message,
                 status: 200,
               }),
@@ -149,31 +248,73 @@ export const interestRoutes = (options: InterestOptions) => {
           );
 
         return resultPage(originOf(request), answered);
-      }).pipe(Effect.orDie)
+      }).pipe(Effect.provideContext(options.services), Effect.orDie)
     ),
     HttpRouter.add("GET", "/operator/interest", (request) =>
-      Effect.gen(function* readInterest() {
-        const { operatorToken } = options;
+      guarded(request, () =>
+        Effect.gen(function* readInterest() {
+          const directory = yield* InterestDirectory;
 
-        if (operatorToken === undefined) {
-          return notFound;
-        }
-
-        if (!(yield* digestsMatch(bearerOf(request), operatorToken))) {
-          return HttpServerResponse.text("Unauthorized.\n", {
-            contentType: "text/plain; charset=utf-8",
-            headers: { "www-authenticate": "Bearer" },
-            status: 401,
+          return HttpServerResponse.jsonUnsafe(yield* directory.summary, {
+            headers: operatorHeaders,
           });
-        }
+        })
+      )
+    ),
+    HttpRouter.add("GET", "/operator/interest/captures", (request) =>
+      guarded(request, () =>
+        Effect.gen(function* exportCaptures() {
+          const directory = yield* InterestDirectory;
+          const records = yield* directory.captures;
 
-        const directory = yield* InterestDirectory;
-        const summary = yield* directory.summary;
+          return HttpServerResponse.stream(
+            jsonArrayStream(
+              records.flatMap(({ address, capture }) =>
+                capture === undefined
+                  ? []
+                  : [
+                      {
+                        address,
+                        capturedAt: capture.capturedAt,
+                        consentVersion: capture.consentVersion,
+                        ipHash: capture.ipHash,
+                        submissionId: capture.submissionId,
+                        uaHash: capture.uaHash,
+                      },
+                    ]
+              )
+            ),
+            {
+              contentType: "application/json; charset=utf-8",
+              headers: operatorHeaders,
+            }
+          );
+        })
+      )
+    ),
+    HttpRouter.add("POST", "/operator/interest/delete", (request) =>
+      guarded(request, () =>
+        Effect.gen(function* deleteCaptures() {
+          const body = yield* request.json.pipe(
+            Effect.flatMap(Schema.decodeUnknownEffect(DeleteBody)),
+            Effect.option
+          );
 
-        return HttpServerResponse.jsonUnsafe(summary, {
-          headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
-        });
-      }).pipe(Effect.provideContext(options.services), Effect.orDie)
+          if (Option.isNone(body)) {
+            return HttpServerResponse.text("Bad request.\n", {
+              contentType: "text/plain; charset=utf-8",
+              status: 400,
+            });
+          }
+
+          const directory = yield* InterestDirectory;
+
+          return HttpServerResponse.jsonUnsafe(
+            yield* directory.remove(body.value),
+            { headers: operatorHeaders }
+          );
+        })
+      )
     )
   );
 

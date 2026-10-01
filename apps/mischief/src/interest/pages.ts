@@ -32,16 +32,26 @@ export const resultPage = (
   origin: string,
   result: {
     readonly heading: string;
+    readonly link?: { readonly href: string; readonly label: string };
     readonly message: string;
     readonly status: number;
   }
-) =>
-  page(
+) => {
+  const { link } = result;
+
+  const linkHtml =
+    link === undefined
+      ? ""
+      : `<p><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></p>`;
+
+  return page(
     renderStaticDocument(origin, interestResultDocumentHtml)
       .replaceAll("__INTEREST_HEADING__", escapeHtml(result.heading))
-      .replaceAll("__INTEREST_MESSAGE__", escapeHtml(result.message)),
+      .replaceAll("__INTEREST_MESSAGE__", escapeHtml(result.message))
+      .replaceAll("__INTEREST_LINK__", linkHtml),
     result.status
   );
+};
 
 export const confirmPage = (origin: string, token: string) =>
   page(

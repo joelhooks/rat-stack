@@ -13,14 +13,14 @@ import Interest from "../../src/interest/interest-durable-object.js";
 import InterestIndex from "../../src/interest/interest-index-durable-object.js";
 import { interestRoutes } from "../../src/interest/routes.js";
 
-export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
-  "InterestWorker",
+export default class InterestCaptureWorker extends Cloudflare.Worker<InterestCaptureWorker>()(
+  "InterestCaptureWorker",
   {
     compatibility: { date: "2026-05-28" },
     dev: { port: 0 },
     main: import.meta.url,
   },
-  Effect.gen(function* makeInterestWorker() {
+  Effect.gen(function* makeInterestCaptureWorker() {
     const interests = yield* Interest;
 
     const index = yield* InterestIndex;
@@ -32,7 +32,7 @@ export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
           () => index.getByName("index")
         ),
         InterestTokens.layer(Redacted.make("local-token-secret")),
-        InterestMode.layer("doi"),
+        InterestMode.layer("capture"),
         postShibaMailerLayer({
           apiKey: Redacted.make(""),
           cluster: "",

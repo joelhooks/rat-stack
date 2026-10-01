@@ -48,7 +48,11 @@ test.provider(
       const empty = yield* operatorRead(url);
 
       expect(empty.status).toBe(200);
-      expect(yield* empty.json).toEqual({ confirmed: [], pending: 0 });
+      expect(yield* empty.json).toEqual({
+        captured: 0,
+        confirmed: [],
+        pending: 0,
+      });
 
       const submitted = yield* postForm(url, "/tokenmaxx/interest", {
         email: "reader@example.com",
@@ -60,7 +64,11 @@ test.provider(
       const pending = yield* operatorRead(url);
 
       expect(pending.status).toBe(200);
-      expect(yield* pending.json).toEqual({ confirmed: [], pending: 1 });
+      expect(yield* pending.json).toEqual({
+        captured: 0,
+        confirmed: [],
+        pending: 1,
+      });
 
       const now = yield* Clock.currentTimeMillis;
 

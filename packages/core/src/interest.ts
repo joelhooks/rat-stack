@@ -1,7 +1,10 @@
 export { normalizeAddress } from "./interest-address.js";
 
 export {
+  CAPTURE_ANSWER,
   CONFIRM_ANSWER,
+  CONSENT_LINE,
+  CONSENT_VERSION,
   REGISTER_ANSWER,
   confirmInterestContract,
   registerInterestContract,
@@ -11,9 +14,17 @@ export { InterestLinkRefused } from "./interest-link-refused.js";
 
 export { InvalidInterestAddress } from "./invalid-interest-address.js";
 
-export { InterestDirectory, summarize } from "./interest-directory.js";
+export {
+  InterestDirectory,
+  removeRecords,
+  summarize,
+} from "./interest-directory.js";
 
-export type { InterestSummary } from "./interest-directory.js";
+export type {
+  InterestSummary,
+  RemoveCounts,
+  RemoveSelector,
+} from "./interest-directory.js";
 
 export {
   InterestMailer,
@@ -31,6 +42,7 @@ export type {
 
 export {
   CONFIRMATION_WINDOW_MS,
+  CaptureEvidenceSchema,
   InterestRecordSchema,
   InterestStore,
   RESEND_COOLDOWN_MS,
@@ -41,11 +53,16 @@ export {
 
 export type {
   InterestCommand,
+  CaptureRequest,
   InterestOutcome,
   InterestRecord,
 } from "./interest-machine.js";
 
 export { InterestGate } from "./interest-gate.js";
+
+export { InterestMode } from "./interest-mode.js";
+
+export type { InterestModeName } from "./interest-mode.js";
 
 export { InterestRequest } from "./interest-request.js";
 

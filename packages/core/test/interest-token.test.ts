@@ -17,6 +17,21 @@ it.layer(secretLayer)("interest tokens", (test) => {
     })
   );
 
+  test.effect(
+    "hashes with a label so the ip and user agent hashes cannot collide",
+    () =>
+      Effect.gen(function* hashes() {
+        const tokens = yield* InterestTokens;
+        const ip = yield* tokens.digest("ip", "same-value");
+        const again = yield* tokens.digest("ip", "same-value");
+        const agent = yield* tokens.digest("ua", "same-value");
+
+        expect(ip).toMatch(/^[0-9a-f]{64}$/u);
+        expect(again).toBe(ip);
+        expect(agent).not.toBe(ip);
+      })
+  );
+
   test.effect("refuses a token at or after its expiry", () =>
     Effect.gen(function* refusesExpired() {
       const tokens = yield* InterestTokens;
@@ -92,3 +107,19 @@ it.layer(secretLayer)("interest tokens", (test) => {
     })
   );
 });
+
+it.effect("hashes differently under a different secret", () =>
+  Effect.gen(function* secretMatters() {
+    const first = yield* InterestTokens.use((tokens) =>
+      tokens.digest("ip", "value")
+    ).pipe(Effect.provide(secretLayer));
+
+    const second = yield* InterestTokens.use((tokens) =>
+      tokens.digest("ip", "value")
+    ).pipe(
+      Effect.provide(InterestTokens.layer(Redacted.make("test-secret-two")))
+    );
+
+    expect(first).not.toBe(second);
+  })
+);
