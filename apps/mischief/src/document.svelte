@@ -68,7 +68,7 @@
   </nav>
 </header>
 
-<main>
+<main data-path={path}>
   {#if path !== "/tokenmaxx"}
     <AgentPointer {agentPointerHtml} />
   {/if}

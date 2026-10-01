@@ -594,3 +594,11 @@ main > .workshop-callout + h1,
 main > .breadcrumb + h1 {
   margin-top: 0;
 }
+
+main[data-path="/lore/lauren-tan-skills"] ul {
+  list-style: "🥔 ";
+}
+
+main[data-path="/lore/lauren-tan-skills"] ul ul {
+  list-style: disc;
+}

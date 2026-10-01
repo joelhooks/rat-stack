@@ -710,7 +710,7 @@ it.effect("answers a submission with the approved sentence", () =>
       expect(html).toContain("<p>Check your email for a link to confirm.</p>");
       expect(html).not.toContain("Back to the workshop page");
       expect(html.replaceAll(/<!--[\s\S]*?-->/gu, "")).toMatch(
-        /<main>\s*<h1>Check your email<\/h1>\s*<p>Check your email for a link to confirm\.<\/p>\s*<\/main>/u
+        /<main(?: [^>]*)?>\s*<h1>Check your email<\/h1>\s*<p>Check your email for a link to confirm\.<\/p>\s*<\/main>/u
       );
     })
   )
