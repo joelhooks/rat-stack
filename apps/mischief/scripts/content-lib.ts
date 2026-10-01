@@ -1217,12 +1217,13 @@ export const copyPrompts = {
   },
   page: {
     agentFence: false,
-    label: "Copy a prompt for your agent",
+    label: "copy this prompt for your agent",
     showText: false,
     text: [
       "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
-      'Explain the "how to burn a trillion tokens and get good results" workshop to me, then help me get ready with the "Before you come" steps.',
-      "Do not submit the interest form. Joining the list happens in a browser, because of the human check.",
+      'Explain the "how to burn a trillion tokens and get good results" workshop to me.',
+      "Ask me the five application questions from the agent view of the page. Do not inspect my machine.",
+      "Show me an editable card of exactly what you would send, including skipped fields and permissions. Submit only after I approve it.",
     ].join("\n"),
   },
   setup: {

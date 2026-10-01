@@ -1855,22 +1855,27 @@ it.effect(
     )
 );
 
-it.effect(
-  "renders the page prompt as an icon button that forbids submitting the form",
-  () =>
-    withInterest((handler) =>
-      Effect.gen(function* pagePrompt() {
-        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+it.effect("offers a labeled prompt for a consent-first agent application", () =>
+  withInterest((handler) =>
+    Effect.gen(function* pagePrompt() {
+      const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
 
-        const markdown = yield* text(
-          yield* tokenmaxxPage(handler, "text/markdown")
-        );
+      const markdown = yield* text(
+        yield* tokenmaxxPage(handler, "text/markdown")
+      );
 
-        expect(html).toContain('aria-label="Copy a prompt for your agent"');
-        expect(html).toContain("Do not submit the interest form.");
-        expect(markdown).not.toContain("Do not submit the interest form.");
-      })
-    )
+      expect(html).toContain('aria-label="copy this prompt for your agent"');
+      expect(html).toContain(
+        '<span class="copy-label">copy this prompt for your agent</span>'
+      );
+      expect(html).toContain("Submit only after I approve it.");
+      expect(html).toMatch(
+        /<a href="https:\/\/ratstack\.sh\/tokenmaxx"[^>]*>workshop page<\/a>/u
+      );
+      expect(html).toContain("Answer five questions; most are optional.");
+      expect(markdown).not.toContain("Submit only after I approve it.");
+    })
+  )
 );
 
 it.effect(
@@ -1890,14 +1895,61 @@ it.effect(
           "/lore/poteto-lauren-tan-2500-prs-dune",
           "/lore/lauren-tan-skills",
           "/lore/matt-pocock-skills",
-          "/tokenmaxx#interested",
         ]) {
           expect(markdown).toContain(`](${link})`);
         }
 
-        expect(markdown).toContain("There is no agent path yet.");
+        expect(markdown).toContain("Apply through your agent");
         expect(html).not.toContain("Next actions for an agent");
-        expect(html).not.toContain("There is no agent path yet.");
+        expect(html).not.toContain("Apply through your agent");
+      })
+    )
+);
+
+it.effect(
+  "serves the approval card, five questions and ticket only to agents",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* applicationViews() {
+        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+
+        const markdown = yield* text(
+          yield* tokenmaxxPage(handler, "text/markdown")
+        );
+
+        for (const question of [
+          "What are you building?",
+          "What do you run today?",
+          "What do you want to leave with?",
+          "May we email you about the workshop?",
+          "Separately, may Joel share your email with selected attendees?",
+        ]) {
+          expect(markdown).toContain(question);
+          expect(html).not.toContain(question);
+        }
+
+        for (const instruction of [
+          "Default no.",
+          "Never inspect their machine to answer them.",
+          'Mark each skipped answer as "skipped" on the card',
+          "Show the exact JSON payload alongside the card.",
+          "after any edit, ask for approval again.",
+          "If contact permission is not true, do not submit.",
+          "Confirmation is not a seat.",
+          "__INTAKE_PAGE_TICKET__",
+          "https://ratstack.sh/mcp",
+          "https://ratstack.sh/api/joinInterest",
+          "rat-stack joinInterest",
+          '"consent": { "contact": true, "share": false }',
+        ]) {
+          expect(markdown).toContain(instruction);
+          expect(html).not.toContain(instruction);
+        }
+
+        expect(markdown).not.toContain("There is no agent path yet.");
+        expect(markdown).not.toContain(
+          "Joining the list is a person's step in a browser"
+        );
       })
     )
 );

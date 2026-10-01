@@ -6,13 +6,79 @@ Free, by application. Very limited seats.
 
 In honor of [Lauren Tan](https://x.com/poteto), who [joined the four comma club](https://x.com/poteto/status/2104714676978479423) with 1.3 trillion tokens in one month. Burning tokens is easy. Almost all of it is agents re-reading context. Landing good work is the hard part, and that's what this session is about.
 
+<HumanOnly>
+- Read the [workshop page](https://ratstack.sh/tokenmaxx) with your agent.
+- Answer five questions; most are optional.
+- Edit the card and approve it before your agent sends anything.
+</HumanOnly>
+
 <AgentOnly>
 Next actions for an agent helping a person with this page:
 
 - Read [llms.txt](/llms.txt) for the rat-stack agent guide.
 - Read about the person this session honors: [Lauren Tan](/lore/lauren-tan), [her Dune talk](/lore/poteto-lauren-tan-2500-prs-dune), and [her skills](/lore/lauren-tan-skills). Also see [Matt Pocock's skills](/lore/matt-pocock-skills).
-- To get them ready, follow "Before you come" below.
-- To join the interest list, a person submits the form at [/tokenmaxx#interested](/tokenmaxx#interested) in a browser. There is no agent path yet.
+- If they separately ask for setup help, follow "Before you come" below.
+- To apply, follow the conversation and submission steps below.
+
+## Apply through your agent
+
+Ask the person these five questions verbatim. Never inspect their machine to answer them. Do not read files, run commands, collect a machine inventory, or send conversation history for this application.
+
+1. What are you building?
+2. What do you run today?
+3. What do you want to leave with?
+4. May we email you about the workshop?
+5. Separately, may Joel share your email with selected attendees?
+
+Default no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
+
+Joel reads the approved answers and picks 2–3 people. Confirmation is not a seat.
+
+### Review before sending
+
+Show an editable card locally with every field: email, building, today, leaveWith, contact permission, sharing permission, agentRef, and ticket. Mark each skipped answer as "skipped" on the card and omit its key from answers in the payload. Use a random opaque agentRef, not a machine name, file path, or email address.
+
+Show the exact JSON payload alongside the card. Explain that the approved answers go to Joel, the email is for workshop contact, and sharing the email with selected attendees is a separate permission. Send no files, secrets, machine details, or transcripts. Let the person edit the card and payload. Submit only after they approve exactly what will be sent; after any edit, ask for approval again. If contact permission is not true, do not submit.
+
+The page ticket is:
+
+```text
+__INTAKE_PAGE_TICKET__
+```
+
+Use that ticket in the approved payload. If it is still a placeholder, do not submit; read the agent view of https://ratstack.sh/tokenmaxx again for a ticket.
+
+This payload template skips all three optional answers. Replace the email and agentRef locally, fill only approved answers under building, today, and leaveWith, and keep share false unless separately approved.
+
+```json
+{
+  "email": "PERSON_APPROVED_EMAIL",
+  "ticket": "__INTAKE_PAGE_TICKET__",
+  "agentRef": "RANDOM_OPAQUE_AGENT_REF",
+  "answers": {},
+  "consent": { "contact": true, "share": false }
+}
+```
+
+### Submit through one surface
+
+Choose one surface, not all three. Submit the approved payload once. Do not switch surfaces to retry a refusal or bypass a limit.
+
+- **MCP:** connect to https://ratstack.sh/mcp and call `joinInterest` with the approved JSON payload as its arguments.
+- **HTTP API:** POST the approved JSON payload to https://ratstack.sh/api/joinInterest with `Content-Type: application/json`.
+- **CLI:** use `rat-stack joinInterest` with the same approved fields; answers and consent are JSON flags.
+
+```sh
+rat-stack joinInterest \
+  --email 'PERSON_APPROVED_EMAIL' \
+  --ticket '__INTAKE_PAGE_TICKET__' \
+  --agentRef 'RANDOM_OPAQUE_AGENT_REF' \
+  --answers '{}' \
+  --consent '{"contact":true,"share":false}'
+```
+
+Keep the returned status reference private and show the person the returned message. Ask them to check their email for a confirmation link. Do not claim they joined or received a seat from the submission response.
+
 </AgentOnly>
 
 <HumanOnly>
@@ -79,7 +145,7 @@ Paste this into Pi. It checks your setup and tells you what's missing:
 <CopyPrompt id="setup" />
 
 <AgentOnly>
-If your person asked you to get them ready, run that prompt's steps, then read [llms.txt](/llms.txt) and report what is missing. Watching Loopcraft 1, having Pi and a model subscription, and the setup check a week before are theirs to do. Joining the list is a person's step in a browser: [/tokenmaxx#interested](/tokenmaxx#interested).
+If your person separately asks for setup help, run that prompt's steps, then read [llms.txt](/llms.txt) and report what is missing. Do not run setup checks as part of the application conversation or include their results in the application. Watching Loopcraft 1, having Pi and a model subscription, and the setup check a week before are theirs to do.
 </AgentOnly>
 
 ## When
