@@ -107,6 +107,21 @@ describe("toHttpApi", () => {
     expect(JSON.stringify(document)).not.toContain('"429"');
   });
 
+  it("documents bodyless decode failures for every projected POST", () => {
+    for (const projected of [
+      projection,
+      noArgsProjection,
+      checkedInputProjection,
+      approvalProjection,
+    ]) {
+      for (const path of Object.values(projected.openApi().paths)) {
+        const badRequest = path.post?.responses["400"];
+        expect(badRequest).toMatchObject({ description: "BadRequest" });
+        expect(badRequest).not.toHaveProperty("content");
+      }
+    }
+  });
+
   it("advertises empty input and checked constraints in OpenAPI", () => {
     const emptyInput =
       noArgsProjection.openApi().paths["/v1/noArgs"]?.post?.requestBody
