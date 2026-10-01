@@ -31,6 +31,7 @@ import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
+  homeMarkdownTemplate,
   interestConfirmDocumentHtml,
   interestResultDocumentHtml,
   glossaryTerms,
@@ -48,8 +49,61 @@ import {
   skillSources,
   systemsIndexDocumentHtml,
   tokenmaxxDocumentHtml,
+  tokenmaxxMarkdown,
 } from "../src/bundled-content.generated.js";
 import { llmsText, searchContent } from "../src/content.js";
+import { houseAdCopy } from "../src/house-ad-copy.ts";
+
+it.effect("places one workshop pointer after each promoted page title", () =>
+  Effect.sync(() => {
+    const pages = [
+      homeDocumentHtml,
+      loreIndexDocumentHtml,
+      systemsIndexDocumentHtml,
+      skillIndexDocumentHtml,
+      ...loreSources.map((page) => page.documentHtml),
+      ...skillSources.map((page) => page.documentHtml),
+    ];
+
+    for (const page of pages) {
+      expect(page.match(/<aside class="house-ad"/gu)).toHaveLength(1);
+      expect(page).toMatch(
+        /<\/h1>\s*(?:<!--[\s\S]*?-->\s*)*<aside class="house-ad"/u
+      );
+      expect(page).toContain(houseAdCopy.line);
+      expect(page).toContain(`href="${houseAdCopy.href}"`);
+    }
+
+    const agentPages = [
+      homeMarkdownTemplate,
+      loreIndexMarkdown,
+      skillIndexMarkdown,
+      ...loreSources.map((page) => page.text),
+      ...skillSources.map((page) => page.text),
+    ];
+
+    for (const page of agentPages) {
+      expect(page).toContain(
+        `${houseAdCopy.label}: [${houseAdCopy.line}](${houseAdCopy.href}).`
+      );
+      expect(page).not.toContain("<aside");
+    }
+  })
+);
+
+it.effect("keeps house ads off the workshop and confirmation flow", () =>
+  Effect.sync(() => {
+    for (const page of [
+      tokenmaxxDocumentHtml,
+      interestConfirmDocumentHtml,
+      interestResultDocumentHtml,
+      tokenmaxxMarkdown,
+    ]) {
+      expect(page).not.toContain('class="house-ad"');
+      expect(page).not.toContain(`${houseAdCopy.label}: [${houseAdCopy.line}]`);
+    }
+  })
+);
 
 const fakePng = (size: number) => new Uint8Array(size).fill(size);
 

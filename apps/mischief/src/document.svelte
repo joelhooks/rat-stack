@@ -2,6 +2,7 @@
   let {
     bodyHtml,
     discoveryLinks,
+    houseAdHtml = "",
     noindex = false,
     breadcrumbHref,
     breadcrumbLabel,
@@ -78,7 +79,7 @@
       For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.
     </p>
   {/if}
-  {@html bodyHtml}
+  {@html bodyHtml.replace(/<\/h1>/iu, `</h1>${houseAdHtml}`)}
 </main>
 
 <footer>

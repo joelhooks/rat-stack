@@ -283,6 +283,43 @@ button {
   }
 }
 
+.house-ad {
+  align-items: center;
+  border: 1px solid currentColor;
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+  padding: 1rem;
+}
+
+.house-ad-rat {
+  font-size: 2rem;
+}
+
+.house-ad-message {
+  flex: 1;
+}
+
+.house-ad-message p {
+  margin: 0.25rem 0 0;
+}
+
+.house-ad a {
+  flex: 0 1 14rem;
+}
+
+@media (max-width: 640px) {
+  .house-ad {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .house-ad a {
+    flex: auto;
+  }
+}
+
 .hp {
   height: 0;
   left: -9999px;

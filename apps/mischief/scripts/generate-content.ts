@@ -26,6 +26,7 @@ import { render } from "svelte/server";
 import type { Plugin } from "unified";
 
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
+import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
   assertDocumentTitle,
   assertLoreTerms,
@@ -57,6 +58,7 @@ import {
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
 import { linkStackEntities } from "./content-links.ts";
+import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
@@ -119,6 +121,7 @@ interface OgPage {
 interface DocumentProps {
   readonly bodyHtml: string;
   readonly discoveryLinks: ReturnType<typeof markdownDiscoveryLinks>;
+  readonly houseAdHtml?: string;
   readonly noindex?: boolean;
   readonly stylesheet: string;
   readonly breadcrumbHref?: string;
@@ -996,6 +999,15 @@ const program = Effect.gen(function* generateContent() {
       )
     );
 
+  const houseAdSourcePath = "apps/mischief/src/house-ad.svelte";
+
+  const houseAdComponent = yield* loadCompiledComponent(
+    yield* readText(houseAdSourcePath),
+    houseAdSourcePath
+  );
+
+  const houseAdHtml = render(houseAdComponent, { props: houseAdCopy }).body;
+
   const makeDocument = (
     bodyHtml: string,
     metadata: Omit<
@@ -1010,6 +1022,7 @@ const program = Effect.gen(function* generateContent() {
       {
         bodyHtml,
         discoveryLinks: markdownDiscoveryLinks(metadata.path),
+        houseAdHtml: hasHouseAd(metadata.path) ? houseAdHtml : "",
         ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
         origin: originToken,
         stylesheet,
@@ -1903,7 +1916,7 @@ ${groupedSkills}
   );
 
   const homeMarkdownTemplate = appendLoreMarkdown(
-    homeMarkdownAgentSource,
+    withHouseAdPointer(homeMarkdownAgentSource, "/"),
     homeBody.linkedLoreRoutes
   );
 
@@ -1983,7 +1996,7 @@ ${groupedSkills}
   );
 
   const skillIndexMarkdown = appendLoreMarkdown(
-    skillIndexSourceMarkdown,
+    withHouseAdPointer(skillIndexSourceMarkdown, "/skills"),
     skillIndexBody.linkedLoreRoutes
   );
 
@@ -1996,7 +2009,10 @@ ${groupedSkills}
     "/lore"
   );
 
-  const loreIndexMarkdown = loreIndexSourceMarkdown;
+  const loreIndexMarkdown = withHouseAdPointer(
+    loreIndexSourceMarkdown,
+    "/lore"
+  );
 
   const systemsIndexBody = yield* compileMarkdownBody(
     systemsIndexSourceMarkdown,
@@ -2007,7 +2023,10 @@ ${groupedSkills}
     "/systems"
   );
 
-  const systemsIndexMarkdown = systemsIndexSourceMarkdown;
+  const systemsIndexMarkdown = withHouseAdPointer(
+    systemsIndexSourceMarkdown,
+    "/systems"
+  );
 
   const glossaryPages = [
     ...loreTexts,
@@ -2078,6 +2097,7 @@ ${groupedSkills}
   const llmsLoreLinks = loreMarkdownLinks(llmsBody.linkedLoreRoutes);
 
   const knownRoutes = new Set([
+    tokenmaxxRoutePath,
     "/lore/cartridges/snes-sfam-cartridges.jpg",
     "/glossary",
     "/og/glossary.png",
@@ -2757,14 +2777,16 @@ ${groupedSkills}
           contentVersion
         );
 
+        const text = withHouseAdPointer(skill.text, skill.routePath);
+
         return {
           description: skill.description,
-          digest: digest(skill.text),
+          digest: digest(text),
           documentHtml,
           name: skill.name,
           routePath: skill.routePath,
           sourcePath: skill.sourcePath,
-          text: skill.text,
+          text,
         };
       }),
     { concurrency: "unbounded" }
@@ -2788,9 +2810,11 @@ ${groupedSkills}
           contentVersion
         );
 
+        const text = withHouseAdPointer(lore.text, lore.routePath);
+
         return {
           description: lore.description,
-          digest: digest(lore.text),
+          digest: digest(text),
           documentHtml,
           group: lore.group,
           routePath: lore.routePath,
@@ -2798,7 +2822,7 @@ ${groupedSkills}
           sourcePath: lore.sourcePath,
           sources: lore.sources,
           terms: lore.terms,
-          text: lore.text,
+          text,
           title: lore.title,
         };
       }),
