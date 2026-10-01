@@ -1,0 +1,54 @@
+---
+title: "Hosted agent front door"
+description: "Discovery documents, HTTP, MCP, A2A, and bounded code mode expose the public reference to agents."
+group: system
+terms:
+  - "hosted agent front door"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "Hosted application routes"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Discovery, content negotiation, and protocol routing."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/content.ts
+    title: "Agent discovery content"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "MCP versions, connection examples, and discovery cards."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+    title: "Hosted capability registry"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The hosted content and execute capability list."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts
+    title: "Code-mode Worker loader"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Isolated execution and outbound network limits."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts
+    title: "Native rate limits"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Request counters and per-stage namespaces."
+    accessed: "2026-10-01"
+---
+
+## What it does
+
+`apps/mischief` hosts the public documentation and its agent interfaces. Discovery cards describe MCP and A2A; [OpenAPI](/openapi.json) describes the HTTP capability surface. The [agent guide](/llms.txt) explains connection and search → read → graph traversal. The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
+
+MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless; older clients initialize sessions backed by a Durable Object. A2A answers documentation questions through search and read. Browser RPC is a separate projection, not another agent interface.
+
+## The standard
+
+- Domain calls use the shared capability schemas and handlers. Discovery and static pages are routing, not extra domain handlers.
+- Public API access needs no account or access token; [interest signup](/systems/interest) has its own consent and confirmation boundary.
+- `execute` runs an async function body in a fresh Dynamic Worker with `globalOutbound: null`. Imports, exports, and `fetch` are unavailable. It can call declared capabilities, not arbitrary network services.
+- API and MCP allow 120 requests per IP per 60 seconds. Execute also allows 6 per IP and 300 total per 60 seconds. Native Cloudflare counters apply separately per location.
+- These routes exist today. Extracting a generic front-door cartridge is coming; it is not the status of the hosted routes.
+
+## How to check
+
+- Read the [MCP connection card](/.well-known/mcp.json), [A2A card](/.well-known/agent-card.json), and [OpenAPI](/openapi.json). Compare their descriptions with `apps/mischief/src/capabilities/index.ts`.
+- Use the worked `tools/list` request in [llms.txt](/llms.txt), then search and read a public document.
+- Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
+- Local tests do not prove a new deploy. Confirm the live cards and capability list before advertising a new agent path.
