@@ -24,9 +24,9 @@ main {
   display: grid;
   grid-template-columns:
     [full-bleed-start] minmax(1rem, 1fr)
-    [popout-start] minmax(0, 24ch)
+    [popout-start] minmax(0, 14ch)
     [content-start] min(80ch, calc(100% - 2rem)) [content-end]
-    minmax(0, 24ch) [popout-end]
+    minmax(0, 14ch) [popout-end]
     minmax(1rem, 1fr) [full-bleed-end];
 }
 
@@ -37,6 +37,10 @@ main > * {
 
 main > .table-wrapper {
   grid-column: popout;
+  justify-self: center;
+  max-width: 100%;
+  min-width: min(80ch, 100%);
+  width: min-content;
 }
 
 code {
@@ -64,8 +68,6 @@ pre code {
 }
 
 .table-wrapper {
-  container-name: table;
-  container-type: inline-size;
   margin-block: 1rem;
   overflow-x: auto;
 }
@@ -77,7 +79,8 @@ pre code {
 
 table {
   border-collapse: collapse;
-  width: 100%;
+  min-width: 100%;
+  width: auto;
 }
 
 th code,
@@ -110,7 +113,7 @@ th {
   }
 }
 
-@container table (max-width: 40rem) {
+@media (max-width: 42rem) {
   table {
     display: block;
   }

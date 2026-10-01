@@ -689,7 +689,19 @@ interface LoreHastNode {
   properties?: { readonly href?: string };
 }
 
-const skippedByLoreLinker = new Set(["a", "code", "pre"]);
+export const isPlainEffect = (term: string, precedingText: string) =>
+  term.toLowerCase() === "effect" &&
+  (term !== "Effect" || /(?:^|[.!?]\s*)$/u.test(precedingText.trim()));
+
+const matchesLoreTermForm = (
+  target: LoreTermTarget,
+  term: string | undefined,
+  precedingText: string
+) =>
+  target.term.toLowerCase() !== "effect" ||
+  (term === target.term && !isPlainEffect(term, precedingText));
+
+const skippedByLoreLinker = new Set(["a", "code", "pre", "th"]);
 
 export const linkLoreTerms = (
   targets: readonly LoreTermTarget[],
@@ -742,6 +754,7 @@ export const linkLoreTerms = (
 
         if (
           target === undefined ||
+          !matchesLoreTermForm(target, term, child.value.slice(0, start)) ||
           target.routePath === selfRoute ||
           linkedTerms.has(target.term.toLowerCase()) ||
           linkedTermRoutes.has(target.routePath) ||
