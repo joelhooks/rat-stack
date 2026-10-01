@@ -1936,7 +1936,6 @@ it.effect(
           "after any edit, ask for approval again.",
           "If contact permission is not true, do not submit.",
           "Confirmation is not a seat.",
-          "__INTAKE_PAGE_TICKET__",
           "https://ratstack.sh/mcp",
           "https://ratstack.sh/api/joinInterest",
           "rat-stack joinInterest",
@@ -1946,6 +1945,8 @@ it.effect(
           expect(html).not.toContain(instruction);
         }
 
+        expect(markdown).not.toContain("__INTAKE_PAGE_TICKET__");
+        expect(html).not.toContain("__INTAKE_PAGE_TICKET__");
         expect(markdown).not.toContain("There is no agent path yet.");
         expect(markdown).not.toContain(
           "Joining the list is a person's step in a browser"
