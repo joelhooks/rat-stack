@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import { TestClock } from "effect/testing";
 
 import { InterestDirectory } from "../src/interest-directory.js";
@@ -146,6 +146,132 @@ it.layer(InterestDirectory.memory)("interest lifecycle", (test) => {
 
       expect(during.pending - before.pending).toBe(2);
       expect(after.pending).toBe(0);
+    })
+  );
+
+  const capture = {
+    consentVersion: "test-consent",
+    ipHash: "ip-hash",
+    submissionId: "submission-1",
+    uaHash: "ua-hash",
+  } as const;
+
+  test.effect(
+    "captures a new address with its evidence, no expiry, and no mail",
+    () =>
+      Effect.gen(function* capturesNew() {
+        const directory = yield* InterestDirectory;
+        yield* TestClock.adjust(HOUR_MS);
+
+        const now = yield* Clock.currentTimeMillis;
+
+        const outcome = yield* directory.register(
+          "cap-new@example.com",
+          capture
+        );
+
+        expect(outcome).toEqual(
+          interestOutcome.Captured({
+            record: {
+              address: "cap-new@example.com",
+              capture: { ...capture, capturedAt: now },
+              requestedAt: now,
+              status: "captured",
+            },
+          })
+        );
+      })
+  );
+
+  test.effect(
+    "keeps a capture, its evidence, and its count after the confirmation window",
+    () =>
+      Effect.gen(function* keepsCapture() {
+        const directory = yield* InterestDirectory;
+        yield* directory.register("cap-keep@example.com", capture);
+        yield* TestClock.adjust(CONFIRMATION_WINDOW_MS * 10);
+
+        const again = yield* directory.register("cap-keep@example.com", {
+          ...capture,
+          submissionId: "submission-2",
+        });
+
+        const kept = (yield* directory.captures).find(
+          (record) => record.address === "cap-keep@example.com"
+        );
+
+        expect(again).toEqual(interestOutcome.Quiet({ reason: "on-file" }));
+        expect(kept?.capture?.submissionId).toBe("submission-1");
+        expect((yield* directory.summary).captured).toBeGreaterThanOrEqual(1);
+      })
+  );
+
+  test.effect("refuses a confirmation for a captured address", () =>
+    Effect.gen(function* refusesCaptured() {
+      const directory = yield* InterestDirectory;
+      yield* directory.register("cap-confirm@example.com", capture);
+
+      expect(yield* directory.confirm("cap-confirm@example.com")).toEqual(
+        interestOutcome.ConfirmRefused({ reason: "unknown" })
+      );
+    })
+  );
+
+  test.effect(
+    "leaves a pending address untouched when a capture-mode submission repeats it",
+    () =>
+      Effect.gen(function* leavesPending() {
+        const directory = yield* InterestDirectory;
+        yield* directory.register("cap-pending@example.com");
+        yield* TestClock.adjust(RESEND_COOLDOWN_MS);
+
+        expect(
+          yield* directory.register("cap-pending@example.com", capture)
+        ).toEqual(interestOutcome.Quiet({ reason: "on-file" }));
+        expect(
+          (yield* directory.captures).some(
+            (record) => record.address === "cap-pending@example.com"
+          )
+        ).toBe(false);
+      })
+  );
+
+  test.effect(
+    "captures an address whose earlier confirmation window ran out",
+    () =>
+      Effect.gen(function* capturesExpired() {
+        const directory = yield* InterestDirectory;
+        yield* directory.register("cap-expired@example.com");
+        yield* TestClock.adjust(CONFIRMATION_WINDOW_MS);
+
+        expect(
+          interestOutcome.$is("Captured")(
+            yield* directory.register("cap-expired@example.com", capture)
+          )
+        ).toBe(true);
+      })
+  );
+
+  test.effect("removes records by address and by submission id", () =>
+    Effect.gen(function* removes() {
+      const directory = yield* InterestDirectory;
+      yield* directory.register("rm-a@example.com", capture);
+      yield* directory.register("rm-b@example.com", {
+        ...capture,
+        submissionId: "submission-b",
+      });
+
+      expect(
+        yield* directory.remove({ submissionIds: ["submission-b", "nope"] })
+      ).toEqual({ deleted: 1, notFound: 1, requested: 2 });
+      expect(
+        yield* directory.remove({ addresses: ["RM-A@example.com"] })
+      ).toEqual({ deleted: 1, notFound: 0, requested: 1 });
+      expect(
+        (yield* directory.captures).some(({ address: entry }) =>
+          entry.startsWith("rm-")
+        )
+      ).toBe(false);
     })
   );
 });

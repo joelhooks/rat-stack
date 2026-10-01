@@ -1,13 +1,17 @@
 import { expect, it } from "@effect/vitest";
 import {
+  CAPTURE_ANSWER,
+  CONSENT_LINE,
+  CONSENT_VERSION,
   InterestDirectory,
+  InterestMode,
   InterestTokens,
   RecordedMail,
   digestsMatch,
   postShibaMailerLayer,
   recordingMailerLayer,
 } from "@rat-stack/core/interest";
-import { Effect, Layer, Redacted } from "effect";
+import { Effect, Layer, Redacted, Schema } from "effect";
 import type { Context } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
@@ -77,11 +81,13 @@ const fakeHttp = Layer.succeed(
   })
 );
 
-const recordingServices = Layer.mergeAll(
-  InterestDirectory.memory,
-  InterestTokens.layer(tokenSecret),
-  recordingMailerLayer
-);
+const recordingServices = (mode: "capture" | "doi") =>
+  Layer.mergeAll(
+    InterestDirectory.memory,
+    InterestTokens.layer(tokenSecret),
+    InterestMode.layer(mode),
+    recordingMailerLayer
+  );
 
 const withInterest = <A, E, R>(
   use: (
@@ -90,12 +96,15 @@ const withInterest = <A, E, R>(
   ) => Effect.Effect<A, E, R>,
   options: {
     readonly limit?: NativeRateLimitBinding;
+    readonly mode?: "capture" | "doi";
     readonly operator?: boolean;
   } = {}
 ) =>
   Effect.scoped(
     Effect.gen(function* interestHandler() {
-      const services = yield* Layer.build(recordingServices);
+      const services = yield* Layer.build(
+        recordingServices(options.mode ?? "doi")
+      );
 
       const { dispose, handler } = HttpRouter.toWebHandler(
         mischiefRoutes({
@@ -468,8 +477,8 @@ it.effect(
 
         const afterBody = yield* json(yield* operator(operatorToken));
 
-        expect(beforeBody).toEqual({ confirmed: [], pending: 1 });
-        expect(afterPrompt).toEqual({ confirmed: [], pending: 1 });
+        expect(beforeBody).toEqual({ captured: 0, confirmed: [], pending: 1 });
+        expect(afterPrompt).toEqual({ captured: 0, confirmed: [], pending: 1 });
         expect(promptHtml).toContain('action="/tokenmaxx/confirm"');
         expect(promptHtml).toContain(`value="${token}"`);
         expect(confirmed.status).toBe(200);
@@ -595,6 +604,7 @@ it.effect(
           Layer.mergeAll(
             InterestDirectory.memory,
             InterestTokens.layer(tokenSecret),
+            InterestMode.layer("doi"),
             postShibaMailerLayer({
               apiKey: Redacted.make("not-a-real-key"),
               cluster: "cluster",
@@ -744,4 +754,359 @@ it.effect("renders the four confirm pages with the approved copy", () =>
       }
     })
   )
+);
+
+const capturing = { mode: "capture" } as const;
+
+const submission = (
+  email: string,
+  headers: Readonly<Record<string, string>> = {}
+) =>
+  new Request("https://ratstack.sh/tokenmaxx/interest", {
+    body: new URLSearchParams({ email }).toString(),
+    headers: {
+      "cf-connecting-ip": "203.0.113.50",
+      "content-type": "application/x-www-form-urlencoded",
+      "user-agent": "capture-test-agent/1.0",
+      ...headers,
+    },
+    method: "POST",
+  });
+
+const operatorGet = (path: string, bearer = operatorToken) =>
+  new Request(`https://ratstack.sh${path}`, {
+    headers: { authorization: `Bearer ${bearer}` },
+  });
+
+const operatorPost = (path: string, body: Schema.Json) =>
+  new Request(`https://ratstack.sh${path}`, {
+    body: JSON.stringify(body),
+    headers: {
+      authorization: `Bearer ${operatorToken}`,
+      "content-type": "application/json",
+    },
+    method: "POST",
+  });
+
+const Captures = Schema.Array(
+  Schema.Struct({
+    address: Schema.String,
+    capturedAt: Schema.Finite,
+    consentVersion: Schema.String,
+    ipHash: Schema.String,
+    submissionId: Schema.String,
+    uaHash: Schema.String,
+  })
+);
+
+const captures = (handler: WebHandler) =>
+  call(handler, operatorGet("/operator/interest/captures")).pipe(
+    Effect.flatMap(json),
+    Effect.flatMap(Schema.decodeUnknownEffect(Captures))
+  );
+
+it.effect("shows the consent line the capture records evidence against", () =>
+  withInterest((handler) =>
+    Effect.gen(function* consentLine() {
+      const html = visible(
+        yield* text(
+          yield* call(
+            handler,
+            new Request("https://ratstack.sh/tokenmaxx", {
+              headers: { accept: "text/html" },
+            })
+          )
+        )
+      );
+
+      expect(html).toContain(CONSENT_LINE);
+      expect(html).not.toContain("We build agent harnesses, not apps");
+      expect(CONSENT_VERSION).toBe("interest-consent-v1");
+    })
+  )
+);
+
+it.effect(
+  "captures a new address without sending mail and answers with the capture line",
+  () =>
+    withInterest(
+      (handler, services) =>
+        Effect.gen(function* captureRegistration() {
+          const html = yield* call(handler, submission("capture@example.com"));
+          const body = visible(yield* text(html));
+
+          const jsonAnswer = yield* call(
+            handler,
+            new Request("https://ratstack.sh/api/registerInterest", {
+              body: JSON.stringify({ email: "capture-json@example.com" }),
+              headers: { "content-type": "application/json" },
+              method: "POST",
+            })
+          );
+
+          expect(html.status).toBe(200);
+          expect(body).toContain(
+            "<p>Thanks. We'll email you a link to confirm.</p>"
+          );
+          expect(yield* json(jsonAnswer)).toEqual({ message: CAPTURE_ANSWER });
+          expect(CAPTURE_ANSWER).toBe(
+            "Thanks. We'll email you a link to confirm."
+          );
+          expect(yield* sent(services)).toEqual([]);
+
+          const summary = yield* json(
+            yield* call(handler, operatorGet("/operator/interest"))
+          );
+
+          expect(summary).toEqual({ captured: 2, confirmed: [], pending: 0 });
+        }),
+      capturing
+    )
+);
+
+it.effect(
+  "answers every capture-mode submission with the same page, whatever its state",
+  () =>
+    withInterest(
+      (handler) =>
+        Effect.gen(function* identicalCaptureAnswer() {
+          const answers = [
+            yield* call(handler, submission("same@example.com")),
+            yield* call(handler, submission("same@example.com")),
+            yield* call(handler, submission("SAME@example.com")),
+            yield* call(handler, submission("other@example.com")),
+            yield* call(
+              handler,
+              form("/tokenmaxx/interest", {
+                email: "bot@example.com",
+                website: "filled",
+              })
+            ),
+          ];
+
+          const bodies = yield* Effect.all(
+            answers.map((answer) => text(answer))
+          );
+
+          expect(answers.map((answer) => answer.status)).toEqual([
+            200, 200, 200, 200, 200,
+          ]);
+          expect(new Set(bodies).size).toBe(1);
+        }),
+      capturing
+    )
+);
+
+it.effect(
+  "keeps the first capture on a repeat submission and records no raw IP or user agent",
+  () =>
+    withInterest(
+      (handler) =>
+        Effect.gen(function* captureEvidence() {
+          yield* call(handler, submission("evidence@example.com"));
+          yield* call(
+            handler,
+            submission("EVIDENCE@example.com", {
+              "cf-connecting-ip": "198.51.100.77",
+              "user-agent": "another-agent/2.0",
+            })
+          );
+          yield* call(handler, submission("second@example.com"));
+
+          const all = yield* captures(handler);
+
+          const first = all.find(
+            ({ address }) => address === "evidence@example.com"
+          );
+
+          const second = all.find(
+            ({ address }) => address === "second@example.com"
+          );
+
+          expect(all).toHaveLength(2);
+          expect(first?.consentVersion).toBe(CONSENT_VERSION);
+          expect(first?.submissionId).toMatch(/^[0-9a-f-]{36}$/u);
+          expect(first?.capturedAt).toBeGreaterThan(0);
+          expect(first?.ipHash).toMatch(/^[0-9a-f]{64}$/u);
+          expect(first?.uaHash).toMatch(/^[0-9a-f]{64}$/u);
+          expect(first?.ipHash).not.toBe(first?.uaHash);
+          expect(first?.ipHash).toBe(second?.ipHash);
+          expect(first?.uaHash).toBe(second?.uaHash);
+          expect(first?.submissionId).not.toBe(second?.submissionId);
+
+          const raw = JSON.stringify(all);
+
+          for (const value of [
+            "203.0.113.50",
+            "198.51.100.77",
+            "capture-test-agent",
+            "another-agent",
+          ]) {
+            expect(raw).not.toContain(value);
+          }
+        }),
+      capturing
+    )
+);
+
+it.effect("hashes different IPs and user agents to different values", () =>
+  withInterest(
+    (handler) =>
+      Effect.gen(function* differentHashes() {
+        yield* call(handler, submission("a@example.com"));
+        yield* call(
+          handler,
+          submission("b@example.com", {
+            "cf-connecting-ip": "198.51.100.77",
+            "user-agent": "another-agent/2.0",
+          })
+        );
+
+        const [a, b] = yield* captures(handler);
+
+        expect(a?.ipHash).not.toBe(b?.ipHash);
+        expect(a?.uaHash).not.toBe(b?.uaHash);
+      }),
+    capturing
+  )
+);
+
+it.effect(
+  "shows the invalid-link page for every confirm request in capture mode",
+  () =>
+    withInterest(
+      (handler) =>
+        Effect.gen(function* captureConfirm() {
+          const token = yield* InterestTokens.use((tokens) =>
+            tokens.sign({
+              address: "valid@example.com",
+              expiresAt: 60_000,
+            })
+          ).pipe(Effect.provide(InterestTokens.layer(tokenSecret)));
+
+          const responses = [
+            yield* call(
+              handler,
+              new Request(
+                `https://ratstack.sh/tokenmaxx/confirm?token=${encodeURIComponent(token)}`
+              )
+            ),
+            yield* call(handler, form("/tokenmaxx/confirm", { token })),
+          ];
+
+          for (const response of responses) {
+            const html = visible(yield* text(response));
+
+            expect(response.status).toBe(410);
+            expect(html).toContain("<h1>This link isn't valid</h1>");
+            expect(html).toContain(
+              "<p>Return to the signup form to request a confirmation link.</p>"
+            );
+            expect(html).toContain(
+              '<a href="/tokenmaxx#interested">Return to signup</a>'
+            );
+          }
+        }),
+      capturing
+    )
+);
+
+it.effect("keeps the capture export and delete behind the operator token", () =>
+  withInterest(
+    (handler) =>
+      Effect.gen(function* guardedCaptureRoutes() {
+        const statuses = [
+          (yield* call(
+            handler,
+            operatorGet("/operator/interest/captures", "wrong")
+          )).status,
+          (yield* call(
+            handler,
+            new Request("https://ratstack.sh/operator/interest/captures")
+          )).status,
+          (yield* call(
+            handler,
+            new Request("https://ratstack.sh/operator/interest/delete", {
+              body: JSON.stringify({ addresses: ["a@example.com"] }),
+              headers: { "content-type": "application/json" },
+              method: "POST",
+            })
+          )).status,
+          (yield* call(
+            handler,
+            operatorPost("/operator/interest/delete", { nothing: true })
+          )).status,
+        ];
+
+        expect(statuses).toEqual([401, 401, 401, 400]);
+      }),
+    capturing
+  )
+);
+
+it.effect(
+  "deletes captures by submission id or by address and answers with counts only",
+  () =>
+    withInterest(
+      (handler) =>
+        Effect.gen(function* deleteCaptures() {
+          yield* call(handler, submission("one@example.com"));
+          yield* call(handler, submission("two@example.com"));
+          yield* call(handler, submission("three@example.com"));
+
+          const all = yield* captures(handler);
+          const one = all.find(({ address }) => address === "one@example.com");
+
+          const byId = yield* call(
+            handler,
+            operatorPost("/operator/interest/delete", {
+              submissionIds: [one?.submissionId ?? "", "no-such-id"],
+            })
+          );
+
+          const byIdBody = yield* text(byId);
+
+          const byAddress = yield* call(
+            handler,
+            operatorPost("/operator/interest/delete", {
+              addresses: [
+                "TWO@example.com",
+                "missing@example.com",
+                "not an address",
+              ],
+            })
+          );
+
+          const byAddressBody = yield* text(byAddress);
+
+          expect(JSON.parse(byIdBody)).toEqual({
+            deleted: 1,
+            notFound: 1,
+            requested: 2,
+          });
+          expect(JSON.parse(byAddressBody)).toEqual({
+            deleted: 1,
+            notFound: 2,
+            requested: 3,
+          });
+          expect(`${byIdBody}${byAddressBody}`).not.toContain("@");
+          expect(
+            (yield* captures(handler)).map(({ address }) => address)
+          ).toEqual(["three@example.com"]);
+
+          const summary = yield* json(
+            yield* call(handler, operatorGet("/operator/interest"))
+          );
+
+          expect(summary).toEqual({ captured: 1, confirmed: [], pending: 0 });
+
+          const again = yield* call(handler, submission("one@example.com"));
+
+          expect(again.status).toBe(200);
+          expect(
+            (yield* captures(handler)).map(({ address }) => address)
+          ).toContain("one@example.com");
+        }),
+      capturing
+    )
 );

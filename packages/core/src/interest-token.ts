@@ -39,6 +39,10 @@ const importKey = (secret: Redacted.Redacted) =>
 export class InterestTokens extends Context.Service<
   InterestTokens,
   {
+    readonly digest: (
+      label: "ip" | "ua",
+      value: string
+    ) => Effect.Effect<string>;
     readonly sign: (claims: InterestClaims) => Effect.Effect<string>;
     readonly verify: (
       token: string,
@@ -120,7 +124,28 @@ export class InterestTokens extends Context.Service<
             : claims;
         });
 
-        return { sign, verify } as const;
+        const digest = Effect.fn("InterestTokens.digest")(function* digest(
+          label: "ip" | "ua",
+          value: string
+        ) {
+          const key = yield* loadKey;
+
+          const mac = yield* Effect.promise(
+            // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
+            () =>
+              crypto.subtle.sign(
+                "HMAC",
+                key,
+                encoder.encode(`interest-${label}-hash:${value}`)
+              )
+          );
+
+          return [...new Uint8Array(mac)]
+            .map((byte) => byte.toString(16).padStart(2, "0"))
+            .join("");
+        });
+
+        return { digest, sign, verify } as const;
       })
     );
 }

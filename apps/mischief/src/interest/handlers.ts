@@ -1,10 +1,14 @@
 import { implement } from "@rat-stack/capability/implement";
 import {
+  CAPTURE_ANSWER,
   CONFIRM_ANSWER,
+  CONFIRMATION_WINDOW_MS,
+  CONSENT_VERSION,
   InterestDirectory,
   InterestGate,
   InterestLinkRefused,
   InterestMailer,
+  InterestMode,
   InterestRequest,
   InterestTokens,
   InvalidInterestAddress,
@@ -15,6 +19,7 @@ import {
   registerInterestContract,
   sha256Hex,
 } from "@rat-stack/core/interest";
+import type { InterestRecord } from "@rat-stack/core/interest";
 import { Clock, Effect, Option } from "effect";
 
 import {
@@ -22,16 +27,33 @@ import {
   confirmationText,
 } from "./confirmation-email.js";
 
-const registered = { message: REGISTER_ANSWER } as const;
+const answerFor = (mode: "capture" | "doi") =>
+  ({ message: mode === "capture" ? CAPTURE_ANSWER : REGISTER_ANSWER }) as const;
+
+const captureRequest = Effect.fn("captureRequest")(function* captureRequest() {
+  const request = yield* InterestRequest;
+  const tokens = yield* InterestTokens;
+
+  const [ipHash, uaHash, submissionId] = yield* Effect.all([
+    tokens.digest("ip", request.ip),
+    tokens.digest("ua", request.userAgent),
+    // @effect-diagnostics-next-line cryptoRandomUUIDInEffect:off -- Web Crypto is the Worker runtime; the Effect Crypto service needs a platform layer this Worker does not provide.
+    Effect.sync(() => crypto.randomUUID()),
+  ]);
+
+  return {
+    consentVersion: CONSENT_VERSION,
+    ipHash,
+    submissionId,
+    uaHash,
+  } as const;
+});
 
 const confirmLinkFor = (origin: string, token: string) =>
   `${origin}/tokenmaxx/confirm?token=${encodeURIComponent(token)}`;
 
 const sendConfirmation = Effect.fn("sendConfirmation")(
-  function* sendConfirmation(
-    address: string,
-    record: { readonly expiresAt: number; readonly lastSentAt?: number }
-  ) {
+  function* sendConfirmation(address: string, record: InterestRecord) {
     const request = yield* InterestRequest;
     const tokens = yield* InterestTokens;
     const mailer = yield* InterestMailer;
@@ -39,7 +61,8 @@ const sendConfirmation = Effect.fn("sendConfirmation")(
 
     const token = yield* tokens.sign({
       address,
-      expiresAt: record.expiresAt,
+      expiresAt:
+        record.expiresAt ?? record.requestedAt + CONFIRMATION_WINDOW_MS,
     });
 
     const idempotencyKey = yield* sha256Hex(
@@ -75,6 +98,9 @@ export const registerInterest = implement(
   registerInterestContract,
   ({ email, website }) =>
     Effect.gen(function* registerInterestHandler() {
+      const mode = yield* InterestMode;
+      const registered = answerFor(mode);
+
       if (website !== undefined && website.trim() !== "") {
         return registered;
       }
@@ -95,6 +121,13 @@ export const registerInterest = implement(
       }
 
       const directory = yield* InterestDirectory;
+
+      if (mode === "capture") {
+        yield* directory.register(address.value, yield* captureRequest());
+
+        return registered;
+      }
+
       const outcome = yield* directory.register(address.value);
 
       if (interestOutcome.$is("SendConfirmation")(outcome)) {
@@ -130,6 +163,8 @@ export const confirmInterest = implement(confirmInterestContract, ({ token }) =>
     const outcome = yield* directory.confirm(claims.address);
 
     return yield* interestOutcome.$match(outcome, {
+      Captured: () =>
+        Effect.die(new Error("a confirmation cannot capture an address")),
       ConfirmRefused: ({ reason }) =>
         Effect.fail(refusal(reason === "expired" ? "expired" : "invalid")),
       Confirmed: () => Effect.succeed({ message: CONFIRM_ANSWER } as const),
