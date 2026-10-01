@@ -1,0 +1,37 @@
+---
+title: "Agents explore, tests remember"
+description: "Let agent users explore scenarios; turn a good bug reproduction into a repeatable test."
+group: idea
+terms:
+  - "agents explore, tests remember"
+sources:
+  - https://x.com/joelhooks/status/2105660110068699302
+  - https://x.com/andrestaltz/status/2105716416444010671
+  - https://github.com/joelhooks/rat-stack/commit/222edd833ccc19f41da236f6556a5a09dace1582
+---
+
+[Joel Hooks, October 1, 2026](https://x.com/joelhooks/status/2105660110068699302):
+
+> "run up to 50 agent users using luna:max and have them click through various scenarios. chaos testing. go nuts, fix all the bad stuff"
+>
+> real engineering
+
+[André Staltz replied](https://x.com/andrestaltz/status/2105716416444010671):
+
+> @joelhooks And when those agents find good reproduction steps for a bug, convert that into playwright tests.
+
+The proposal gives agent users the exploratory work: click through scenarios and find failures. A good reproduction then becomes a deterministic Playwright regression test. Exploration discovers a path; the test remembers it without needing the explorer to find it again. This is a direction, not a claim that rat-stack already runs fifty agent users or has this Playwright workflow built.
+
+## Rat-stack's reading
+
+These connections are our reading, not claims Staltz made in that reply:
+
+- [Model-based testing](/lore/model-based-testing) generates sequences of actions and checks the system against a model. Agent users can propose action sequences for exploration; that alone is not model-based testing, because it supplies neither the model nor the assertions.
+- [Property-based testing](/lore/property-based-testing) shrinks a failure to a small counterexample. Keep the smallest useful failing case from exploration, rather than every step the agent happened to take.
+- [The fence](/lore/the-fence) puts a correction into an enforceable check. A reproduced mistake becomes a test when it exposes a genuine behavior gap, not a test that merely pins the patch. See [tests that earn their place](/lore/tests-that-earn-their-place).
+
+## A human-driven example
+
+A human-driven signup proof found a five-second intake timeout and a confirmation email's `/confirm` link returning 404. These were not discoveries by agent users, and the resulting tests are Effect tests, not Playwright tests.
+
+[Commit 222edd8](https://github.com/joelhooks/rat-stack/commit/222edd833ccc19f41da236f6556a5a09dace1582) raised the timeout to twenty seconds and made timeout request an immediate retry. Its [intake test](https://github.com/joelhooks/rat-stack/blob/222edd833ccc19f41da236f6556a5a09dace1582/packages/core/test/interest-intake.test.ts) uses `TestClock` and a hanging fake HTTP client to check that retry outcome. Its [route test](https://github.com/joelhooks/rat-stack/blob/222edd833ccc19f41da236f6556a5a09dace1582/apps/mischief/test/interest.test.ts) checks that GET and POST to `/confirm` return 308 and that the GET redirect preserves the token query. The discovery became checks that do not depend on repeating the live proof.
