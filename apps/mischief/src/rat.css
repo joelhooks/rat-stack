@@ -324,3 +324,37 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+td[data-tier] {
+  color: #000;
+  font-weight: bold;
+  text-align: center;
+}
+
+td[data-tier="S"] {
+  background: #ff7f7f;
+}
+
+td[data-tier="A"] {
+  background: #ffbf7f;
+}
+
+td[data-tier="B"] {
+  background: #ffdf7f;
+}
+
+td[data-tier="C"] {
+  background: #ffff7f;
+}
+
+td[data-tier="D"] {
+  background: #bfff7f;
+}
+
+td[data-tier="E"] {
+  background: #7fff7f;
+}
+
+td[data-tier="F"] {
+  background: #7fffff;
+}

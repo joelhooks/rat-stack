@@ -1,5 +1,10 @@
 import { Schema } from "effect";
 
+const tierLetters = new Set(["S", "A", "B", "C", "D", "E", "F"]);
+
+const tierOfCell = (header: string, text: string) =>
+  header === "Tier" && tierLetters.has(text) ? text : undefined;
+
 export class ContentBuildError extends Schema.TaggedError<ContentBuildError>()(
   "ContentBuildError",
   {
@@ -83,12 +88,17 @@ export const responsiveTables = () => {
 
           for (const [column, cell] of tableChildren(row, "td").entries()) {
             const header = headers[column]?.trim() ?? "";
+            const tier = tierOfCell(header, responsiveTableText(cell).trim());
 
             cell.properties = {
               ...cell.properties,
               dataLabel: header === "" ? `Column ${column + 1}` : header,
               role: "cell",
             };
+
+            if (tier !== undefined) {
+              cell.properties.dataTier = tier;
+            }
           }
         }
       }

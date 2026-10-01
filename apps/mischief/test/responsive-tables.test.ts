@@ -163,3 +163,27 @@ it.effect(
       expect(result?.code).toContain('scope="col"');
     })
 );
+
+it.effect(
+  "marks only single-letter cells under a Tier header with their tier",
+  () =>
+    Effect.gen(function* compilesTierTable() {
+      const result = yield* Effect.promise(
+        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
+        () =>
+          compile(
+            "| Tier | Repo |\n| --- | --- |\n| S | upstream |\n| C | screened |\n| SS | not a tier |\n\n| Grade | Repo |\n| --- | --- |\n| A | other table |\n",
+            {
+              rehypePlugins: [responsiveTables],
+              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
+              remarkPlugins: [remarkGfm as Plugin],
+            }
+          ).then(decodeCompiledTable)
+      );
+
+      expect(result?.code).toContain('data-tier="S"');
+      expect(result?.code).toContain('data-tier="C"');
+      expect(result?.code).not.toContain('data-tier="SS"');
+      expect(result?.code).not.toContain('data-tier="A"');
+    })
+);
