@@ -46,7 +46,7 @@ The page ticket is:
 __INTAKE_PAGE_TICKET__
 ```
 
-Use that ticket in the approved payload. If it is still a placeholder, do not submit; read the agent view of https://ratstack.sh/tokenmaxx again for a ticket.
+Use that ticket in the approved payload. If it is still a placeholder or empty, do not submit; read the agent view of https://ratstack.sh/tokenmaxx again for a ticket.
 
 This payload template skips all three optional answers. Replace the email and agentRef locally, fill only approved answers under building, today, and leaveWith, and keep share false unless separately approved.
 

@@ -9,7 +9,10 @@ import {
 } from "effect/unstable/http";
 
 import { mischiefRoutes, tokenmaxxResponse } from "../src/app.js";
-import { withAvailablePageTicket } from "../src/interest/page-ticket.js";
+import {
+  SIGNUP_UNAVAILABLE,
+  withAvailablePageTicket,
+} from "../src/interest/page-ticket.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 it.effect(
@@ -59,6 +62,120 @@ it.effect(
     }).pipe(Effect.provide(IntakeTicket.testLayer))
 );
 
+it.effect("worker-built routes retain the ticket service for requests", () =>
+  Effect.gen(function* workerTicketContext() {
+    const joinServices = yield* Layer.build(IntakeTicket.testLayer);
+
+    const tickets = yield* IntakeTicket.pipe(
+      Effect.provideContext(joinServices)
+    );
+
+    const routes = mischiefRoutes().pipe(
+      Layer.provide(TestSandbox),
+      Layer.provide(Layer.succeedContext(joinServices))
+    );
+
+    const { handler, dispose } = HttpRouter.toWebHandler(routes);
+    yield* Effect.addFinalizer(() => Effect.promise(dispose));
+
+    const response = yield* Effect.promise(
+      handler.bind(
+        undefined,
+        new Request("https://ratstack.sh/tokenmaxx", {
+          headers: { accept: "text/markdown" },
+        }),
+        Context.empty()
+      )
+    );
+
+    const body = yield* Effect.promise(response.text.bind(response));
+
+    const ticket =
+      /```text\n(?<ticket>\S+)\n```/u.exec(body)?.groups?.ticket ?? "";
+
+    expect(ticket.length).toBeGreaterThan(0);
+    expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
+    expect(body).toContain(`"ticket": "${ticket}"`);
+    expect(body).toContain(`--ticket '${ticket}'`);
+    expect((yield* tickets.verify(ticket, "worker-request")).source).toBe(
+      PAGE_TICKET_SOURCE
+    );
+
+    const htmlResponse = yield* Effect.promise(
+      handler.bind(
+        undefined,
+        new Request("https://ratstack.sh/tokenmaxx", {
+          headers: { accept: "text/html" },
+        }),
+        Context.empty()
+      )
+    );
+
+    const html = yield* Effect.promise(htmlResponse.text.bind(htmlResponse));
+    expect(html).not.toContain(ticket);
+    expect(html).not.toContain(PAGE_TICKET_PLACEHOLDER);
+    expect(html).not.toContain("The page ticket is:");
+    expect(html).not.toContain('"ticket":');
+  }).pipe(Effect.scoped)
+);
+
+it.effect(
+  "unavailable minting removes the submit section without affecting HTML",
+  () =>
+    Effect.gen(function* unavailableTickets() {
+      const tickets = yield* IntakeTicket;
+
+      for (const mode of ["absent", "mint-fails", "empty"] as const) {
+        const joinServices = yield* Layer.build(
+          mode === "absent"
+            ? Layer.empty
+            : Layer.succeed(IntakeTicket, {
+                mint: () =>
+                  mode === "empty"
+                    ? Effect.succeed("")
+                    : Effect.die("ticket mint unavailable"),
+                verify: tickets.verify,
+              })
+        );
+
+        const routes = mischiefRoutes().pipe(
+          Layer.provide(TestSandbox),
+          Layer.provide(Layer.succeedContext(joinServices))
+        );
+
+        const { handler, dispose } = HttpRouter.toWebHandler(routes);
+        yield* Effect.addFinalizer(() => Effect.promise(dispose));
+
+        for (const accept of ["text/markdown", "text/html"]) {
+          const response = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request("https://ratstack.sh/tokenmaxx", {
+                headers: { accept },
+              }),
+              Context.empty()
+            )
+          );
+
+          const body = yield* Effect.promise(response.text.bind(response));
+          expect(response.status).toBe(200);
+          expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
+          expect(body).not.toContain('"ticket":');
+          expect(body).not.toContain("--ticket");
+          expect(body).not.toContain("The page ticket is:");
+
+          if (accept === "text/markdown") {
+            expect(body).toContain(SIGNUP_UNAVAILABLE);
+            expect(body).toContain("What are you building?");
+          } else {
+            expect(body).not.toContain(SIGNUP_UNAVAILABLE);
+            expect(body).not.toContain("What are you building?");
+          }
+        }
+      }
+    }).pipe(Effect.scoped, Effect.provide(IntakeTicket.testLayer))
+);
+
 it.effect("the cache layer cannot read or write the tokenmaxx page", () =>
   Effect.gen(function* neverCacheTickets() {
     let reads = 0;
@@ -100,6 +217,8 @@ it.effect("the cache layer cannot read or write the tokenmaxx page", () =>
 
     expect(reads).toBe(0);
     expect(writes).toBe(0);
-    expect(yield* withAvailablePageTicket(PAGE_TICKET_PLACEHOLDER)).toBe("");
+    expect(yield* withAvailablePageTicket(PAGE_TICKET_PLACEHOLDER)).toBe(
+      SIGNUP_UNAVAILABLE
+    );
   }).pipe(Effect.scoped)
 );
