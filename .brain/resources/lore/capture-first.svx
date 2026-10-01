@@ -1,6 +1,6 @@
 ---
 title: "Capture first, shape later"
-description: "Record every event in a form that can never be rejected, then decide its shape when you query it."
+description: "Store events without rejecting them for an evolving event shape, then decide their shape when you query."
 group: idea
 terms:
   - "capture first"
@@ -39,7 +39,7 @@ Cloudflare Basin makes this concrete. Its docs say events that do not match a st
 
 Snowplow reached the same rule years earlier: its pipelines are "non-lossy," and when validation or enrichment fails the payloads are "stored into a bad rows storage solution … instead of being discarded." [snowplow-event-recovery](https://github.com/snowplow-incubator/snowplow-event-recovery)
 
-In rat-stack, the `packages/events` cartridge sends one JSON envelope per request to an unstructured Basin stream. A pipeline copies it unchanged (`SELECT *`) into an Iceberg table, and queries shape it later. The only rejections are size and rate limits.
+In rat-stack, the `packages/events` cartridge sends one JSON envelope per request to an unstructured Basin stream. A pipeline copies it unchanged (`SELECT *`) into an Iceberg table, and queries shape it later. Size and rate limits still apply. The stream also requires the `{ "value": <event> }` row wrapper; omitting it drops rows during processing. [Analytics](/systems/analytics) documents that boundary.
 
 Capture first is not capture everything. The envelope holds request facts: method, path, status, referrer origin and path, and a query string with credential, email, code, and session keys removed. The request body is never read. The IP is stored only as a salted hash. Visitor identity is a setting: `daily` hashes the IP, user agent, and day with no cookie, and `persistent` keeps one first-party id per browser.
 
