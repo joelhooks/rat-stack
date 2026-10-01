@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2024-06-24
 url: https://youtu.be/7sJc3Z4mh1w
 sources:
-  - https://youtu.be/7sJc3Z4mh1w
+  - url: https://youtu.be/7sJc3Z4mh1w
+    title: "Effect: The Origin Story by Michael Arnaldi (Effect Days 2024) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for Effect’s origins in tests, dependencies, and resource safety."
+    accessed: "2026-10-01"
 ---
 
 # Effect Days 2024: The origin story

@@ -6,11 +6,31 @@ terms:
   - HATEOAS
   - "hypermedia as the engine of application state"
 sources:
-  - https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5
-  - https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_3_3
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts
+  - url: https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5
+    title: "Fielding Dissertation: CHAPTER 5: Representational State Transfer (REST)"
+    publisher: "Roy Fielding · UC Irvine"
+    note: "Uniform-interface constraints; used for the definition of HATEOAS."
+    accessed: "2026-10-01"
+  - url: https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_3_3
+    title: "Fielding Dissertation: CHAPTER 5: Representational State Transfer (REST)"
+    publisher: "Roy Fielding · UC Irvine"
+    note: "Application-state transitions; used for hypermedia guidance to automated agents."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "rat-stack/apps/mischief/src/app.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Content negotiation; used for markdown and HTML agent surfaces."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts
+    title: "rat-stack/apps/mischief/scripts/generate-content.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Content generation; used for llms.txt navigation and lore backlinks."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts
+    title: "rat-stack/apps/mischief/scripts/content-lib.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Audience variants; used for retaining AgentOnly guidance in markdown."
+    accessed: "2026-10-01"
 ---
 
 HATEOAS means hypermedia as the engine of application state. Roy Fielding names it as one of REST's four uniform-interface constraints in his dissertation, [chapter 5, section 5.1.5](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5). In [section 5.3.3](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_3_3), the application moves between states by choosing among the transitions in the representations it receives. Fielding explicitly includes automated agents, not just human-operated browsers.

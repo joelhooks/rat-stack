@@ -6,9 +6,21 @@ terms:
   - "lifecycles are machines"
   - "lifecycle machine"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/inspect-machine.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/inspect-machine.test.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
+    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Lifecycle rule; used for declared Effect actors and explicit states."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/inspect-machine.ts
+    title: "rat-stack/packages/core/src/inspect-machine.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Inspection machine; used as the working actor and scope example."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/inspect-machine.test.ts
+    title: "rat-stack/packages/core/test/inspect-machine.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Machine tests; used for the inspection lifecycle's behavior."
+    accessed: "2026-10-01"
 ---
 
 Use an XState machine when a domain operation has finite states, retries, cancellation, or a lifecycle that needs to be resumed or inspected. Model the states and transitions explicitly instead of accumulating booleans whose combinations have no meaning.

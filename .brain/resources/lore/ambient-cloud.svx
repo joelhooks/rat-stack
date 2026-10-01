@@ -5,7 +5,11 @@ group: concept
 terms:
   - "ambient cloud"
 sources:
-  - https://youtu.be/MtKHzAH6uXM?t=2580
+  - url: https://youtu.be/MtKHzAH6uXM?t=2580
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Ambient-cloud discussion; used for Sam's login and cloud-wallet framing."
+    accessed: "2026-10-01"
 ---
 
 # Ambient cloud

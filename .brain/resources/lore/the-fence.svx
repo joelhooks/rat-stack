@@ -8,10 +8,26 @@ terms:
   - "trust ladder"
   - "agent-friendly framework"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-  - https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml
-  - https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lint-rule-limits.svx
+  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
+    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Repo law; used for enforcing rules rather than relying on prose."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts
+    title: "rat-stack/oxlint.config.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Lint configuration; used for type-aware boundary and pattern checks."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml
+    title: "rat-stack/lefthook.yml at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Commit hooks; used for the validation gate."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lint-rule-limits.svx
+    title: "rat-stack/.brain/resources/lint-rule-limits.svx at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Rule-limit note; used for the limits of syntax-based enforcement."
+    accessed: "2026-10-01"
 ---
 
 “Cheating is uncomfortable” means the repo should stop a bad shortcut, not merely ask an agent to behave. Type-aware Oxlint checks project boundaries and patterns. Effect language-service diagnostics run through TypeScript. Lefthook runs checks before a commit, and harness hooks block `git … --no-verify`. The fence wins over prose: if a rule and a paragraph disagree, follow the enforced rule and fix the paragraph.

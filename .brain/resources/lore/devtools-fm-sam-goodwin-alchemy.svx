@@ -6,7 +6,11 @@ speaker: "Sam Goodwin"
 date: 2026-05-11
 url: https://youtu.be/MtKHzAH6uXM
 sources:
-  - https://youtu.be/MtKHzAH6uXM
+  - url: https://youtu.be/MtKHzAH6uXM
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Recording; used for Alchemy’s Effect model, plans, bindings, and cloud-library idea."
+    accessed: "2026-10-01"
 ---
 
 # Sam Goodwin on Alchemy

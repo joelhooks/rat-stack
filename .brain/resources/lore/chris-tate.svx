@@ -5,8 +5,16 @@ group: person
 terms:
   - "Chris Tate"
 sources:
-  - https://x.com/ctatedev/status/2101022101750571357
-  - https://x.com/ctatedev/status/2100461595788722518
+  - url: https://x.com/ctatedev/status/2101022101750571357
+    title: "Chris Tate on X: \"New experiment: json-render + jev The future Generative UI is instant Your components, your actions, your design system Rendered in milliseconds\" / X"
+    publisher: "Chris Tate"
+    note: "Generative UI demo; used for components and actions rendered in milliseconds."
+    accessed: "2026-10-01"
+  - url: https://x.com/ctatedev/status/2100461595788722518
+    title: "Chris Tate on X: \"Jev feels like a model primitive for reflexes Fast decisions between perception and action This seems very native to robotics\" / X"
+    publisher: "Chris Tate"
+    note: "Jev discussion; used for fast judgment between perception and action."
+    accessed: "2026-10-01"
 ---
 
 # Chris Tate

@@ -6,7 +6,11 @@ terms:
   - "Layer constructor"
   - "layer as constructor"
 sources:
-  - https://youtu.be/MtKHzAH6uXM?t=1125
+  - url: https://youtu.be/MtKHzAH6uXM?t=1125
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Layer composition discussion; used for infrastructure carried with a service."
+    accessed: "2026-10-01"
 ---
 
 # A Layer as constructor

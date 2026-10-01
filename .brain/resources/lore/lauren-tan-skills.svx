@@ -8,10 +8,26 @@ terms:
   - noodle
   - "verification skill"
 sources:
-  - https://github.com/poteto/brainmaxxing
-  - https://github.com/poteto/noodle
-  - https://github.com/poteto/how
-  - https://github.com/poteto/verification-skill-example
+  - url: https://github.com/poteto/brainmaxxing
+    title: "GitHub - poteto/brainmaxxing: stupid simple persistent memory and skill improvement · GitHub"
+    publisher: "GitHub poteto/brainmaxxing"
+    note: "Memory repository; used for the vault and learning-loop skills."
+    accessed: "2026-10-01"
+  - url: https://github.com/poteto/noodle
+    title: "GitHub - poteto/noodle: Orchestrate agents using skills · GitHub"
+    publisher: "GitHub poteto/noodle"
+    note: "Orchestration repository; used for scheduled markdown skills."
+    accessed: "2026-10-01"
+  - url: https://github.com/poteto/how
+    title: "GitHub - poteto/how: skill for explaining architecture · GitHub"
+    publisher: "GitHub poteto/how"
+    note: "Architecture explanation skill; used for exploration and critique modes."
+    accessed: "2026-10-01"
+  - url: https://github.com/poteto/verification-skill-example
+    title: "GitHub - poteto/verification-skill-example: Example: project-local verification skill + large-app feature map (fictional Atlas / Harbor Labs) · GitHub"
+    publisher: "GitHub poteto/verification-skill-example"
+    note: "Verification example; used for scoped skills and a behavior-level feature map."
+    accessed: "2026-10-01"
 ---
 
 # Lauren Tan's skills

@@ -6,11 +6,31 @@ terms:
   - "capability contract"
   - "capability registry"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts
-  - https://github.com/joelhooks/rat-stack/tree/main/packages/capability/test
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts
+    title: "rat-stack/packages/capability/src/contract.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Contract definition; used for schemas, annotations, and approval settings."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
+    title: "rat-stack/packages/capability/src/implement.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Handler binding; used for schema validation and declared failures."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+    title: "rat-stack/apps/mischief/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Hosted registry; used to identify the capabilities served by ratstack.sh."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts
+    title: "rat-stack/apps/cli/src/surfaces.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "CLI composition; used to show the local projections."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/capability/test
+    title: "rat-stack/packages/capability/test at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Projection tests; used to check validation, approvals, and sandbox calls."
+    accessed: "2026-10-01"
 ---
 
 ## What it does

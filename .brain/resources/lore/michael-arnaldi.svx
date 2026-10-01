@@ -5,10 +5,26 @@ group: person
 terms:
   - "Michael Arnaldi"
 sources:
-  - https://youtu.be/7sJc3Z4mh1w
-  - https://youtu.be/gc5P36t6kD0
-  - https://youtu.be/und9h4xiIz4
-  - https://youtu.be/BqUnsDnMnMo
+  - url: https://youtu.be/7sJc3Z4mh1w
+    title: "Effect: The Origin Story by Michael Arnaldi (Effect Days 2024) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Origin-story talk; used for Effect's beginnings and design pressures."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/gc5P36t6kD0
+    title: "#81 TypeScript & Effects with Michael Arnaldi - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "TypeScript conversation; used for the typed Effect model."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/und9h4xiIz4
+    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "JavaScript conversation; used for laziness and error handling."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/BqUnsDnMnMo
+    title: "Effect Meetup (Part 1 of 3) - SAN FRANCISCO 11/02/2023 - WHY EFFECT? BY MICHAEL ARNALDI - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Effect meetup; used for production reliability and observability."
+    accessed: "2026-10-01"
 ---
 
 # Michael Arnaldi

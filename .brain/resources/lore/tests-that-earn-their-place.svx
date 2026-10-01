@@ -6,8 +6,16 @@ terms:
   - "tests that earn their place"
   - "tautological tests"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/core/test
+  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
+    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Testing law; used for rejecting tautologies and change detectors."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/test
+    title: "rat-stack/packages/core/test at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Core tests; used for behavior checks and planted-violation fixtures."
+    accessed: "2026-10-01"
 ---
 
 The testing law is short:

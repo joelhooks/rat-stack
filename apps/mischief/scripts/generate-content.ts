@@ -42,6 +42,7 @@ import {
   loreTermTargets,
   parseDebtLintOutput,
   parseLorePage,
+  renderBibliography,
   responsiveTables,
   sectionOf,
   SYSTEMS_DIRECTORY,
@@ -1721,24 +1722,16 @@ const program = Effect.gen(function* generateContent() {
             lore.routePath
           );
 
-        const sourceLinks = lore.sources
-          .map(
-            (source) =>
-              `<a href="${escapeHtml(source)}">${escapeHtml(source)}</a>`
-          )
-          .join(", ");
-
-        const sourceHtml =
-          sourceLinks === "" ? "" : `<p>Sources: ${sourceLinks}</p>`;
+        const bibliography = renderBibliography(lore.bibliography);
 
         return {
-          bodyHtml: `${bodyHtml}${sourceHtml}`,
+          bodyHtml: `${bodyHtml}${bibliography.html}`,
           linkedLoreRoutes,
           linkedLoreTerms,
           lore: {
             ...lore,
             text: appendLoreMarkdown(
-              withMarkdownTitle(lore.text, lore.title, bodyHtml),
+              `${withMarkdownTitle(lore.text, lore.title, bodyHtml)}${bibliography.markdown}`,
               linkedLoreRoutes
             ),
           },

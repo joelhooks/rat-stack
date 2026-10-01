@@ -6,8 +6,16 @@ terms:
   - "plan model"
   - "infrastructure plan"
 sources:
-  - https://youtu.be/MtKHzAH6uXM?t=1560
-  - https://youtu.be/YEn4A7XxgF4?t=742
+  - url: https://youtu.be/MtKHzAH6uXM?t=1560
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Output-value discussion; used for connecting resources before deployment."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/YEn4A7XxgF4?t=742
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Pure-program discussion; used for a reviewable plan and concrete deployment."
+    accessed: "2026-10-01"
 ---
 
 # The plan model

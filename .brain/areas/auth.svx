@@ -6,10 +6,26 @@ terms:
   - "Better Auth"
   - "signed-in person"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/current-person-middleware.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/test/auth.test.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/apps/web/test/production-bundle.test.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+    title: "rat-stack/packages/auth/src/auth.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Auth composition; used for Better Auth and database adapter selection."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/current-person-middleware.ts
+    title: "rat-stack/packages/auth/src/current-person-middleware.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Session middleware; used for CurrentPerson and wire-level failures."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/test/auth.test.ts
+    title: "rat-stack/packages/auth/test/auth.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Auth tests; used for sign-in, sessions, protected calls, and test people."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/web/test/production-bundle.test.ts
+    title: "rat-stack/apps/web/test/production-bundle.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Production bundle test; used to verify devtools and test people stay out."
+    accessed: "2026-10-01"
 ---
 
 ## What it does

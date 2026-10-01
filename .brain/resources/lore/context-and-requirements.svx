@@ -6,8 +6,16 @@ terms:
   - "context and requirements"
   - "Effect requirements"
 sources:
-  - https://youtu.be/YEn4A7XxgF4?t=714
-  - https://youtu.be/gc5P36t6kD0?t=2955
+  - url: https://youtu.be/YEn4A7XxgF4?t=714
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Requirements-channel discussion; used for static infrastructure permissions."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/gc5P36t6kD0?t=2955
+    title: "#81 TypeScript & Effects with Michael Arnaldi - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Effect type explanation; used for output, failure, and service requirements."
+    accessed: "2026-10-01"
 ---
 
 # Context and requirements

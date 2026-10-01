@@ -5,7 +5,11 @@ group: concept
 terms:
   - "Distilled"
 sources:
-  - https://youtu.be/fPSxB7ZgSJw?t=3319
+  - url: https://youtu.be/fPSxB7ZgSJw?t=3319
+    title: "Alchemy, Infrastructure as Effects | Office Hours 27 🔥 - YouTube"
+    publisher: "Sam Goodwin"
+    note: "SDK discussion; used for Effect-native clients and tagged provider errors."
+    accessed: "2026-10-01"
 ---
 
 # Distilled

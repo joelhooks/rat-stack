@@ -5,9 +5,21 @@ group: idea
 terms:
   - "agents explore, tests remember"
 sources:
-  - https://x.com/joelhooks/status/2105660110068699302
-  - https://x.com/andrestaltz/status/2105716416444010671
-  - https://github.com/joelhooks/rat-stack/commit/222edd833ccc19f41da236f6556a5a09dace1582
+  - url: https://x.com/joelhooks/status/2105660110068699302
+    title: 'joel ⛈️ on X: ""run up to 50 agent users using luna:max and have them click through various scenarios. chaos testing. go nuts, fix all the bad stuff" real engineering" / X'
+    publisher: "Joel Hooks"
+    note: "Exploration proposal; used for agents clicking through scenarios to find failures."
+    accessed: "2026-10-01"
+  - url: https://x.com/andrestaltz/status/2105716416444010671
+    title: 'André Staltz on X: "@joelhooks And when those agents find good reproduction steps for a bug, convert that into playwright tests." / X'
+    publisher: "André Staltz"
+    note: "Reply; used for converting good reproductions into repeatable tests."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/commit/222edd833ccc19f41da236f6556a5a09dace1582
+    title: "Commit 222edd8"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Signup fix; used for the human-driven timeout and confirmation-route example."
+    accessed: "2026-10-01"
 ---
 
 [Joel Hooks, October 1, 2026](https://x.com/joelhooks/status/2105660110068699302):

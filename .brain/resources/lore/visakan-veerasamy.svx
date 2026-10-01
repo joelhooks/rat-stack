@@ -5,9 +5,21 @@ group: person
 terms:
   - "Visakan Veerasamy"
 sources:
-  - https://visakanv.com/
-  - https://visakanv.com/friendly-ambitious-nerd/
-  - https://x.com/visakanv/status/1225025217237417987
+  - url: https://visakanv.com/
+    title: "@visakanv – ❤️ friendly, ambitious nerd ⚡️"
+    publisher: "Visakan Veerasamy"
+    note: "Author's site; used for the friendly, ambitious nerd social graph."
+    accessed: "2026-10-01"
+  - url: https://visakanv.com/friendly-ambitious-nerd/
+    title: "Friendly Ambitious Nerd – @visakanv"
+    publisher: "Visakan Veerasamy"
+    note: "Book page; used for the collection of essays and threads."
+    accessed: "2026-10-01"
+  - url: https://x.com/visakanv/status/1225025217237417987
+    title: "Visakan Veerasamy (@visakanv) on X"
+    publisher: "Visakan Veerasamy"
+    note: "Book announcement; used for the original Friendly Ambitious Nerd description."
+    accessed: "2026-10-01"
 ---
 
 # Visakan Veerasamy

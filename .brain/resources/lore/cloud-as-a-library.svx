@@ -6,8 +6,16 @@ terms:
   - "cloud as a library"
   - "cloud becomes a library"
 sources:
-  - https://youtu.be/MtKHzAH6uXM?t=1790
-  - https://youtu.be/xUnRQ9vLXxo?t=913
+  - url: https://youtu.be/MtKHzAH6uXM?t=1790
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Cloud-as-library discussion; used for Sam's central phrase."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/xUnRQ9vLXxo?t=913
+    title: "Everything we knew about software has changed — Theo Browne, @t3dotgg ​ - YouTube"
+    publisher: "Theo Browne"
+    note: "Closing argument; used for Theo's related build-your-own-AWS framing."
+    accessed: "2026-10-01"
 ---
 
 # Cloud as a library

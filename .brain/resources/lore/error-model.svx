@@ -6,8 +6,16 @@ terms:
   - "Effect error model"
   - "typed failures"
 sources:
-  - https://youtu.be/und9h4xiIz4?t=1418
-  - https://youtu.be/und9h4xiIz4?t=1512
+  - url: https://youtu.be/und9h4xiIz4?t=1418
+    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Error-channel discussion; used for predictable typed failures."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/und9h4xiIz4?t=1512
+    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Defect discussion; used to distinguish defects from expected errors."
+    accessed: "2026-10-01"
 ---
 
 # The error model

@@ -130,7 +130,18 @@ export interface LoreTermTarget {
   readonly term: string;
 }
 
+const bibliographySourceSchema = Schema.Struct({
+  accessed: Schema.String,
+  note: Schema.String,
+  publisher: Schema.String,
+  title: Schema.String,
+  url: Schema.String,
+});
+
+export type BibliographySource = typeof bibliographySourceSchema.Type;
+
 export interface LorePageMetadata {
+  readonly bibliography: readonly BibliographySource[];
   readonly date?: string;
   readonly description: string;
   readonly group: LoreGroup;
@@ -148,7 +159,9 @@ const loreFrontmatterSchema = Schema.Struct({
   date: Schema.optional(Schema.String),
   description: Schema.String,
   group: Schema.Literals(["idea", "concept", "source", "person", "system"]),
-  sources: Schema.Array(Schema.String),
+  sources: Schema.Array(
+    Schema.Union([Schema.String, bibliographySourceSchema])
+  ),
   speaker: Schema.optional(Schema.String),
   terms: Schema.optional(Schema.Array(Schema.String)),
   title: Schema.String,
@@ -157,11 +170,17 @@ const loreFrontmatterSchema = Schema.Struct({
 
 const loreScalar = (frontmatter: string, field: string) => {
   const match = new RegExp(
-    `^${field}:[ \\t]*(?:"(?<double>[^"]*)"|'(?<single>[^']*)'|(?<plain>[^\\r\\n]+))$`,
+    `^${field}:[ \\t]*(?:"(?<double>(?:[^"\\\\]|\\\\.)*)"|'(?<single>(?:[^']|'')*)'|(?<plain>[^\\r\\n]+))$`,
     "mu"
   ).exec(frontmatter);
 
-  return match?.groups?.double ?? match?.groups?.single ?? match?.groups?.plain;
+  const double = match?.groups?.double;
+
+  if (double !== undefined) {
+    return Schema.decodeUnknownSync(Schema.String)(JSON.parse(`"${double}"`));
+  }
+
+  return match?.groups?.single?.replaceAll("''", "'") ?? match?.groups?.plain;
 };
 
 const loreList = (frontmatter: string, field: string, sourcePath: string) => {
@@ -213,6 +232,36 @@ const loreList = (frontmatter: string, field: string, sourcePath: string) => {
   return values;
 };
 
+const loreSources = (frontmatter: string, sourcePath: string) => {
+  const block =
+    /^sources:[ \t]*\r?\n(?<entries>(?:[ \t]+[^\r\n]*\r?\n?)*)/mu.exec(
+      frontmatter
+    )?.groups?.entries;
+
+  if (block === undefined) {
+    return loreList(frontmatter, "sources", sourcePath);
+  }
+
+  return block
+    .split(/^[ \t]+-[ \t]+/mu)
+    .slice(1)
+    .map((entry) => {
+      if (!/^[a-z]+:/u.test(entry) || entry.startsWith("https:")) {
+        return loreScalar(`value: ${entry.trim()}`, "value");
+      }
+
+      const fields = entry.replaceAll(/^[ \t]+/gmu, "");
+
+      return {
+        accessed: loreScalar(fields, "accessed"),
+        note: loreScalar(fields, "note"),
+        publisher: loreScalar(fields, "publisher"),
+        title: loreScalar(fields, "title"),
+        url: loreScalar(fields, "url"),
+      };
+    });
+};
+
 type LoreFrontmatter = typeof loreFrontmatterSchema.Type;
 
 type MutableLorePageMetadata = {
@@ -228,7 +277,7 @@ const decodeLoreFrontmatter = (
       date: loreScalar(frontmatter, "date"),
       description: loreScalar(frontmatter, "description"),
       group: loreScalar(frontmatter, "group"),
-      sources: loreList(frontmatter, "sources", sourcePath),
+      sources: loreSources(frontmatter, sourcePath),
       speaker: loreScalar(frontmatter, "speaker"),
       terms: loreList(frontmatter, "terms", sourcePath),
       title: loreScalar(frontmatter, "title"),
@@ -346,7 +395,9 @@ const validateLoreTerms = (sourcePath: string, decoded: LoreFrontmatter) => {
 
 const validateLoreSources = (sourcePath: string, decoded: LoreFrontmatter) => {
   for (const source of [
-    ...decoded.sources,
+    ...decoded.sources.map((entry) =>
+      Schema.is(Schema.String)(entry) ? entry : entry.url
+    ),
     ...(decoded.url === undefined ? [] : [decoded.url]),
   ]) {
     let parsed: URL;
@@ -404,14 +455,36 @@ export const parseLorePage = (
   validateSystemPlacement(sourcePath, decoded, rawText);
   validateLoreSources(sourcePath, decoded);
 
+  const bibliography = decoded.sources.map((source) => {
+    if (
+      Schema.is(Schema.String)(source) ||
+      [source.title, source.note, source.publisher].some(
+        (value) => value.trim() === "" || /[\r\n]/u.test(value)
+      ) ||
+      !/^\d{4}-\d{2}-\d{2}$/u.test(source.accessed) ||
+      /https?:\/\//u.test(source.title)
+    ) {
+      throw buildError(
+        "bibliography",
+        sourcePath,
+        new Error(
+          "every source requires title, publisher, note, and accessed date; enrich legacy URL strings before building"
+        )
+      );
+    }
+
+    return source;
+  });
+
   const metadata: MutableLorePageMetadata = {
+    bibliography,
     description: decoded.description,
     group: decoded.group,
     routePath:
       decoded.group === "system" ? `/systems/${slug}` : `/lore/${slug}`,
     slug,
     sourcePath,
-    sources: decoded.sources,
+    sources: bibliography.map((source) => source.url),
     terms,
     title: decoded.title,
   };
@@ -953,6 +1026,23 @@ const escapeHtml = (value: string) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+
+const bibliographyText = (source: BibliographySource) =>
+  `${source.publisher}. ${source.note} Accessed ${source.accessed}.`;
+
+const markdownLabel = (value: string) =>
+  value.replaceAll(/[[\]\\*_`<>]/gu, "\\$&");
+
+export const renderBibliography = (sources: readonly BibliographySource[]) => ({
+  html:
+    sources.length === 0
+      ? ""
+      : `<section class="bibliography" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>${sources.map((source) => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.title)}</a>. ${escapeHtml(bibliographyText(source))}</li>`).join("")}</ol></section>`,
+  markdown:
+    sources.length === 0
+      ? ""
+      : `\n\n## Sources\n\n${sources.map((source, index) => `${index + 1}. [${markdownLabel(source.title)}](<${source.url}>)\n   ${markdownLabel(bibliographyText(source))}`).join("\n\n")}\n`,
+});
 
 const skippedByBraceEscaper = new Set(["code", "pre"]);
 

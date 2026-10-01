@@ -6,8 +6,16 @@ terms:
   - binding
   - bindings
 sources:
-  - https://youtu.be/YEn4A7XxgF4?t=2229
-  - https://youtu.be/fPSxB7ZgSJw?t=3496
+  - url: https://youtu.be/YEn4A7XxgF4?t=2229
+    title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Binding explanation; used for permissions and environment configuration."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/fPSxB7ZgSJw?t=3496
+    title: "Alchemy, Infrastructure as Effects | Office Hours 27 🔥 - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Policy derivation discussion; used for least privilege from application methods."
+    accessed: "2026-10-01"
 ---
 
 # Bindings

@@ -6,12 +6,36 @@ terms:
   - "pre-commit gate"
   - "debt ledger"
 sources:
-  - https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts
-  - https://github.com/joelhooks/rat-stack/blob/main/tsconfig.base.json
-  - https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml
-  - https://github.com/joelhooks/rat-stack/blob/main/scripts/vcs-command-policy.js
-  - https://github.com/joelhooks/rat-stack/blob/main/scripts/hooks/block-git-no-verify.mjs
-  - https://github.com/joelhooks/rat-stack/blob/main/.github/workflows/ci.yml
+  - url: https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts
+    title: "rat-stack/oxlint.config.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Lint configuration; used for the enforced rule groups."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/tsconfig.base.json
+    title: "rat-stack/tsconfig.base.json at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Compiler configuration; used for Effect diagnostics at error severity."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml
+    title: "rat-stack/lefthook.yml at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Commit hooks; used for the pre-commit check and test gate."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/scripts/vcs-command-policy.js
+    title: "rat-stack/scripts/vcs-command-policy.js at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Command policy; used for the shared hook-bypass prohibition."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/scripts/hooks/block-git-no-verify.mjs
+    title: "rat-stack/scripts/hooks/block-git-no-verify.mjs at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Harness hook; used for the failing bypass check."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.github/workflows/ci.yml
+    title: "rat-stack/.github/workflows/ci.yml at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "CI workflow; used for the cold-install validation gate."
+    accessed: "2026-10-01"
 ---
 
 ## What it does

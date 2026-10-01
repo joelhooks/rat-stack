@@ -6,11 +6,31 @@ terms:
   - "capture first"
   - "shape later"
 sources:
-  - https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
-  - https://github.com/snowplow-incubator/snowplow-event-recovery
-  - https://segment.com/docs/connections/spec/identify/
-  - https://webkit.org/tracking-prevention/
-  - https://github.com/joelhooks/rat-stack/tree/main/packages/events
+  - url: https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
+    title: "Manage streams"
+    publisher: "Cloudflare docs"
+    note: "Stream validation rules; used for capture-first unstructured ingestion."
+    accessed: "2026-10-01"
+  - url: https://github.com/snowplow-incubator/snowplow-event-recovery
+    title: "GitHub - snowplow-incubator/snowplow-event-recovery · GitHub"
+    publisher: "GitHub snowplow-incubator/snowplow-event-recovery"
+    note: "Event recovery design; used for retaining failed payloads rather than discarding them."
+    accessed: "2026-10-01"
+  - url: https://segment.com/docs/connections/spec/identify/
+    title: "Spec: Identify"
+    publisher: "Segment docs"
+    note: "Identify guidance; used for joining people with stable database ids."
+    accessed: "2026-10-01"
+  - url: https://webkit.org/tracking-prevention/
+    title: "Tracking Prevention in WebKit"
+    publisher: "WebKit"
+    note: "Storage expiry rules; used for the server-set persistent visitor cookie."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/events
+    title: "rat-stack/packages/events at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Events implementation; used for the envelope, redaction, and identity modes."
+    accessed: "2026-10-01"
 ---
 
 An event you didn't store can't be analyzed later. Shape decisions change, but a lost event stays lost. So the capture path stores everything it is allowed to store, and shaping happens at read time.

@@ -6,7 +6,11 @@ speaker: "John De Goes, Michael Arnaldi, and Johannes Schickling"
 date: 2026-08-07
 url: https://youtu.be/irmz5X3c7Do
 sources:
-  - https://youtu.be/irmz5X3c7Do
+  - url: https://youtu.be/irmz5X3c7Do
+    title: "Software Engineering in the Age of AI || John De Goes || Cause & Effect 10 - YouTube"
+    publisher: "John De Goes, Michael Arnaldi, and Johannes Schickling"
+    note: "Recording; used for engineering judgment and executable quality rules as code gets cheaper."
+    accessed: "2026-10-01"
 ---
 
 # Cause & Effect 10: Software engineering in the age of AI

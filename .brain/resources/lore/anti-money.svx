@@ -5,7 +5,11 @@ group: concept
 terms:
   - "anti-money"
 sources:
-  - https://youtu.be/MtKHzAH6uXM?t=2355
+  - url: https://youtu.be/MtKHzAH6uXM?t=2355
+    title: "Sam Goodwin - Alchemy - YouTube"
+    publisher: "Sam Goodwin"
+    note: "Anti-money discussion; used for Sam's library-based framing of SaaS value."
+    accessed: "2026-10-01"
 ---
 
 # Anti-money

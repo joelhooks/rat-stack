@@ -6,10 +6,26 @@ terms:
   - "David Khourshid"
   - "David K"
 sources:
-  - https://css-tricks.com/model-based-testing-in-react-with-state-machines/
-  - https://frontendmasters.com/courses/xstate-v2/testing/
-  - https://stately.ai/docs/graph
-  - https://x.com/davidkpiano/status/2105670489091834297
+  - url: https://css-tricks.com/model-based-testing-in-react-with-state-machines/
+    title: "Model-Based Testing in React with State Machines"
+    publisher: "David Khourshid · CSS-Tricks"
+    note: "State-machine testing article; used for David's model-based testing approach."
+    accessed: "2026-10-01"
+  - url: https://frontendmasters.com/courses/xstate-v2/testing/
+    title: "Testing - State Machines in JavaScript with XState, v2 | Master.dev"
+    publisher: "David Khourshid · Master.dev"
+    note: "Testing lesson; used for the XState testing course reference."
+    accessed: "2026-10-01"
+  - url: https://stately.ai/docs/graph
+    title: "Graph & Paths"
+    publisher: "David Khourshid · Stately docs"
+    note: "Path generation docs; used for createTestModel and getShortestPaths."
+    accessed: "2026-10-01"
+  - url: https://x.com/davidkpiano/status/2105670489091834297
+    title: "David K 🎹 on X: \"@joelhooks I need to get you on the MBT/PBT train\" / X"
+    publisher: "David Khourshid"
+    note: "Public reply; used for David's invitation to adopt model and property testing."
+    accessed: "2026-10-01"
 ---
 
 # David Khourshid

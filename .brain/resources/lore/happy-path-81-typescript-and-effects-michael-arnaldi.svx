@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2024-04-05
 url: https://youtu.be/gc5P36t6kD0
 sources:
-  - https://youtu.be/gc5P36t6kD0
+  - url: https://youtu.be/gc5P36t6kD0
+    title: "#81 TypeScript & Effects with Michael Arnaldi - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for Effect’s TypeScript design and typed output, error, and requirements channels."
+    accessed: "2026-10-01"
 ---
 
 # Happy Path 81: TypeScript and effects

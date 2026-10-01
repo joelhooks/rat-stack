@@ -746,7 +746,10 @@ it.effect("publishes lore to human and agent surfaces", () =>
       expect(loreIndexHtml).toContain("Rat Stack lore | rat-stack");
       expect(pageMarkdown).toBe(page.text);
       expect(pageHtml).toContain(`<title>${page.title} | rat-stack</title>`);
-      expect(pageHtml).toContain(`Sources: <a href="${source}">`);
+      expect(pageHtml).toContain('<h2 id="sources">Sources</h2><ol>');
+      expect(pageHtml).toContain(`<a href="${source}">`);
+      expect(pageHtml).not.toContain(`>${source}</a>`);
+      expect(pageHtml).toContain("Accessed 2026-10-01.");
       expect(pageHtml).toContain(
         '<li><strong>Lore</strong>: <a href="/lore/an-mcp-your-users-want">An MCP your users want</a>'
       );

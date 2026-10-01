@@ -6,8 +6,16 @@ terms:
   - "source-first workflow"
   - "read the source"
 sources:
-  - https://youtu.be/Wmp2Tku2PrI?t=531
-  - https://youtu.be/Wmp2Tku2PrI?t=779
+  - url: https://youtu.be/Wmp2Tku2PrI?t=531
+    title: "Vibe Engineering Effect Apps — Michael Arnaldi, Effectful - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Source-first demonstration; used for learning a fast-moving library from its repository."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/Wmp2Tku2PrI?t=779
+    title: "Vibe Engineering Effect Apps — Michael Arnaldi, Effectful - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Workshop explanation; used for the limits of stale model knowledge and large prompts."
+    accessed: "2026-10-01"
 ---
 
 # Source-first workflow

@@ -6,8 +6,16 @@ terms:
   - "Effect design lineage"
   - "Effect's origin story"
 sources:
-  - https://youtu.be/7sJc3Z4mh1w?t=603
-  - https://youtu.be/irmz5X3c7Do?t=2881
+  - url: https://youtu.be/7sJc3Z4mh1w?t=603
+    title: "Effect: The Origin Story by Michael Arnaldi (Effect Days 2024) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Origin-story talk; used for the team's TypeScript requirements."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/irmz5X3c7Do?t=2881
+    title: "Software Engineering in the Age of AI || John De Goes || Cause & Effect 10 - YouTube"
+    publisher: "John De Goes, Michael Arnaldi, and Johannes Schickling"
+    note: "ZIO lineage discussion; used for adaptation rather than direct copying."
+    accessed: "2026-10-01"
 ---
 
 # Effect's design lineage

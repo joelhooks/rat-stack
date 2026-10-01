@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2025-07-14
 url: https://youtu.be/und9h4xiIz4
 sources:
-  - https://youtu.be/und9h4xiIz4
+  - url: https://youtu.be/und9h4xiIz4
+    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for composable errors, dependencies, and resource cleanup."
+    accessed: "2026-10-01"
 ---
 
 # Why JavaScript is broken: Effect and TypeScript

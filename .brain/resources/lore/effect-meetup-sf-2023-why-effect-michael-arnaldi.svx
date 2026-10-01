@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2023-12-11
 url: https://youtu.be/BqUnsDnMnMo
 sources:
-  - https://youtu.be/BqUnsDnMnMo
+  - url: https://youtu.be/BqUnsDnMnMo
+    title: "Effect Meetup (Part 1 of 3) - SAN FRANCISCO 11/02/2023 - WHY EFFECT? BY MICHAEL ARNALDI - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for a shared runtime for production TypeScript concerns."
+    accessed: "2026-10-01"
 ---
 
 # Effect Meetup SF 2023: Why Effect?

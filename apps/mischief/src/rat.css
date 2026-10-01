@@ -153,6 +153,16 @@ figure {
   margin: 1rem 0;
 }
 
+.bibliography ol {
+  padding-inline-start: 2.5ch;
+}
+
+.bibliography li {
+  margin-block: 1rem;
+  padding-inline-start: 0.5ch;
+  overflow-wrap: anywhere;
+}
+
 figure img {
   border: 1px solid #ccd0da;
   display: block;

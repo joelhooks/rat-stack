@@ -6,8 +6,16 @@ terms:
   - "production-grade TypeScript"
   - "production-grade software"
 sources:
-  - https://youtu.be/apklpPEgZgw?t=205
-  - https://youtu.be/BqUnsDnMnMo?t=1357
+  - url: https://youtu.be/apklpPEgZgw?t=205
+    title: "Michael Arnaldi - Effect: Production-Grade TypeScript - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Production-grade definition; used for resilience, testability, and maintainability."
+    accessed: "2026-10-01"
+  - url: https://youtu.be/BqUnsDnMnMo?t=1357
+    title: "Effect Meetup (Part 1 of 3) - SAN FRANCISCO 11/02/2023 - WHY EFFECT? BY MICHAEL ARNALDI - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Remix demonstration; used for Schema, context, metrics, and retries."
+    accessed: "2026-10-01"
 ---
 
 # Production-grade TypeScript

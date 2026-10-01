@@ -6,7 +6,11 @@ speaker: "Michael Arnaldi"
 date: 2026-01-08
 url: https://youtu.be/apklpPEgZgw
 sources:
-  - https://youtu.be/apklpPEgZgw
+  - url: https://youtu.be/apklpPEgZgw
+    title: "Michael Arnaldi - Effect: Production-Grade TypeScript - YouTube"
+    publisher: "Michael Arnaldi"
+    note: "Recording; used for shared primitives for production TypeScript."
+    accessed: "2026-10-01"
 ---
 
 # Effect: Production-Grade TypeScript
