@@ -37,6 +37,8 @@ A cartridge must be labeled, push in with one package and one provision line, pu
 </figure>
 </HumanOnly>
 
+[Analytics](/systems/analytics) is a second running example: `packages/events` owns capture and its Basin resources. Its removal checklist is explicit in [README](/README.md), rather than a claim that deleting one import removes everything. `packages/subscriber-delivery` is a provider adapter behind core's ports, not a proven one-line infrastructure cartridge.
+
 ## Where the pattern comes from
 
 "Cartridge" is this project's metaphor, not Sam Goodwin's wording. Sam describes Layers as a way to carry infrastructure and permissions with a service, and calls the idea "SaaS as NPM." [devtools.fm, 21:15](https://youtu.be/MtKHzAH6uXM?t=1275). He also describes swapping implementations by providing different Layers. [Effect Office Hours 27, 34:35](https://youtu.be/fPSxB7ZgSJw?t=2075).
