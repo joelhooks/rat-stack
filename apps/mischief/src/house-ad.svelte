@@ -3,10 +3,7 @@
 </script>
 
 <aside class="workshop-callout" aria-label={label}>
-  <span class="workshop-callout-mark" aria-hidden="true">🐀</span>
-  <div class="workshop-callout-text">
-    <strong>{label}</strong>
-    <p>{line}</p>
-  </div>
+  <span class="workshop-callout-label">{label}</span>
+  <span class="workshop-callout-title">{line}</span>
   <a href={href}>{link}</a>
 </aside>

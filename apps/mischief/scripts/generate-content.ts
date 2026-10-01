@@ -1718,7 +1718,7 @@ const program = Effect.gen(function* generateContent() {
     .join("\n")
     .trim();
 
-  const homeMarkdownSource = `# 🐀 Rat Stack
+  const homeMarkdownSource = `# Rat Stack
 
 _${linkedTagline}_
 

@@ -336,39 +336,42 @@ main > pre:has(+ .copy-actions) {
 }
 
 .workshop-callout {
-  align-items: center;
-  border: 1px solid currentColor;
+  align-items: baseline;
+  border-left: 3px solid currentColor;
   display: flex;
-  gap: 1rem;
-  margin: 1rem 0 1.5rem;
-  padding: 1rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5ch;
+  margin: 0.5rem 0 1.5rem;
+  padding: 0.4rem 0.75rem;
 }
 
-.workshop-callout-mark {
-  font-size: 2rem;
+main > .workshop-callout {
+  grid-column: popout;
 }
 
-.workshop-callout-text {
-  flex: 1;
+.workshop-callout-label {
+  font-size: 0.8em;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.workshop-callout-text p {
-  margin: 0.25rem 0 0;
+.workshop-callout-title {
+  flex: 1 1 24ch;
 }
 
 .workshop-callout a {
-  flex: 0 1 14rem;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .workshop-callout {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 0.5rem;
   }
 
   .workshop-callout a {
-    flex: auto;
+    margin-left: 0;
   }
 }
 

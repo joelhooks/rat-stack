@@ -517,7 +517,8 @@ it.effect(
         expect(html).toContain(
           "<title>Rat Stack: an app and its cloud as one typed program</title>"
         );
-        expect(html).toContain('<h1 id="rat-stack">🐀 Rat Stack</h1>');
+        expect(html).toContain('<h1 id="rat-stack">Rat Stack</h1>');
+        expect(html.match(/🐀/gu)).toHaveLength(1);
         expect(html.match(/<h1\b/gu)).toHaveLength(1);
         expect(html).toContain("<strong>🐀 Rat Stack</strong>");
         expect(skillHtml).toContain("<strong>🐀 Rat Stack</strong>");
