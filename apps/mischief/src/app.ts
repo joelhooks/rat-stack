@@ -430,201 +430,223 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
     }
   );
 
-const tokenmaxxResponse = (request: HttpServerRequest.HttpServerRequest) =>
+const shieldWidgetHtml = (siteKey: string | undefined) =>
+  siteKey === undefined || siteKey === ""
+    ? ""
+    : `<script src="https://postshiba.com/shield/v1/widget.js" async></script>\n<p><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
+
+const tokenmaxxResponse = (
+  request: HttpServerRequest.HttpServerRequest,
+  shieldSiteKey: string | undefined
+) =>
   HttpServerResponse.text(
     acceptsHtml(request)
-      ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
+      ? renderStaticDocument(
+          originOf(request),
+          tokenmaxxDocumentHtml
+        ).replaceAll("__SHIELD_SHIBA_WIDGET__", shieldWidgetHtml(shieldSiteKey))
       : tokenmaxxMarkdown,
     {
       contentType: acceptsHtml(request)
         ? "text/html; charset=utf-8"
         : "text/markdown; charset=utf-8",
       headers: {
-        "content-security-policy": contentSecurityPolicy("'self'"),
+        "content-security-policy": contentSecurityPolicy(
+          "'self'",
+          shieldSiteKey !== undefined && shieldSiteKey !== ""
+        ),
         vary: "Accept",
         "x-robots-tag": "noindex",
       },
     }
   );
 
-const contentRoutes = Layer.mergeAll(
-  HttpRouter.add("GET", "/tokenmaxx", (request) =>
-    Effect.succeed(tokenmaxxResponse(request))
-  ),
-  HttpRouter.add(
-    "GET",
-    "/tokenmaxx/four-comma-club.jpg",
-    HttpServerResponse.uint8Array(tokenmaxxImageJpeg, {
-      contentType: "image/jpeg",
-      headers: {
-        "cache-control": "public, max-age=86400",
-        "x-robots-tag": "noindex",
-      },
-    })
-  ),
-  HttpRouter.add("GET", "/", (request) => {
-    const origin = originOf(request);
-
-    return Effect.succeed(
-      acceptsHtml(request)
-        ? html(renderStaticDocument(origin, homeDocumentHtml))
-        : markdown(markdownDocument(origin))
-    );
-  }),
-  HttpRouter.add("GET", "/llms.txt", (request) =>
-    Effect.succeed(markdown(llmsText(originOf(request))))
-  ),
-  HttpRouter.add("GET", "/llms-full.txt", (request) =>
-    Effect.succeed(markdown(llmsFullText(originOf(request))))
-  ),
-  HttpRouter.add("GET", "/auth.md", markdown(authMarkdown)),
-  HttpRouter.add("GET", "/skills", (request) =>
-    Effect.succeed(
-      acceptsHtml(request)
-        ? html(renderStaticDocument(originOf(request), skillIndexDocumentHtml))
-        : markdown(skillIndex())
-    )
-  ),
-  HttpRouter.add("GET", "/lore", (request) =>
-    Effect.succeed(
-      acceptsHtml(request)
-        ? html(renderStaticDocument(originOf(request), loreIndexDocumentHtml))
-        : markdown(loreIndex())
-    )
-  ),
-  HttpRouter.add(
-    "GET",
-    "/favicon.svg",
-    HttpServerResponse.text(ratSvg, {
-      contentType: "image/svg+xml; charset=utf-8",
-    })
-  ),
-  HttpRouter.add(
-    "GET",
-    "/favicon.ico",
-    HttpServerResponse.uint8Array(faviconIcoBytes, {
-      contentType: "image/x-icon",
-    })
-  ),
-  HttpRouter.add(
-    "GET",
-    "/apple-touch-icon.png",
-    HttpServerResponse.uint8Array(appleTouchIconBytes, {
-      contentType: "image/png",
-    })
-  ),
-  ...ogImageBytes.map((image) =>
+const contentRoutes = (shieldSiteKey: string | undefined) =>
+  Layer.mergeAll(
+    HttpRouter.add("GET", "/tokenmaxx", (request) =>
+      Effect.succeed(tokenmaxxResponse(request, shieldSiteKey))
+    ),
     HttpRouter.add(
       "GET",
-      image.path,
-      HttpServerResponse.uint8Array(image.bytes, { contentType: "image/png" })
-    )
-  ),
-  HttpRouter.add(
-    "GET",
-    "/robots.txt",
-    HttpServerResponse.text(robotsText, {
-      contentType: "text/plain; charset=utf-8",
-    })
-  ),
-  HttpRouter.add("GET", "/sitemap.xml", (request) =>
-    Effect.succeed(
-      HttpServerResponse.text(sitemapXml(originOf(request)), {
-        contentType: "application/xml; charset=utf-8",
+      "/tokenmaxx/four-comma-club.jpg",
+      HttpServerResponse.uint8Array(tokenmaxxImageJpeg, {
+        contentType: "image/jpeg",
+        headers: {
+          "cache-control": "public, max-age=86400",
+          "x-robots-tag": "noindex",
+        },
       })
-    )
-  ),
-  HttpRouter.add(
-    "GET",
-    "/.well-known/agent-skills/index.json",
-    json(agentSkillsIndex())
-  ),
-  HttpRouter.add("GET", "/.well-known/ai-catalog.json", (request) =>
-    Effect.succeed(json(ardManifest(originOf(request))))
-  ),
-  ...(["/.well-known/agent-card.json", "/.well-known/agent.json"] as const).map(
-    (path) =>
+    ),
+    HttpRouter.add("GET", "/", (request) => {
+      const origin = originOf(request);
+
+      return Effect.succeed(
+        acceptsHtml(request)
+          ? html(renderStaticDocument(origin, homeDocumentHtml))
+          : markdown(markdownDocument(origin))
+      );
+    }),
+    HttpRouter.add("GET", "/llms.txt", (request) =>
+      Effect.succeed(markdown(llmsText(originOf(request))))
+    ),
+    HttpRouter.add("GET", "/llms-full.txt", (request) =>
+      Effect.succeed(markdown(llmsFullText(originOf(request))))
+    ),
+    HttpRouter.add("GET", "/auth.md", markdown(authMarkdown)),
+    HttpRouter.add("GET", "/skills", (request) =>
+      Effect.succeed(
+        acceptsHtml(request)
+          ? html(
+              renderStaticDocument(originOf(request), skillIndexDocumentHtml)
+            )
+          : markdown(skillIndex())
+      )
+    ),
+    HttpRouter.add("GET", "/lore", (request) =>
+      Effect.succeed(
+        acceptsHtml(request)
+          ? html(renderStaticDocument(originOf(request), loreIndexDocumentHtml))
+          : markdown(loreIndex())
+      )
+    ),
+    HttpRouter.add(
+      "GET",
+      "/favicon.svg",
+      HttpServerResponse.text(ratSvg, {
+        contentType: "image/svg+xml; charset=utf-8",
+      })
+    ),
+    HttpRouter.add(
+      "GET",
+      "/favicon.ico",
+      HttpServerResponse.uint8Array(faviconIcoBytes, {
+        contentType: "image/x-icon",
+      })
+    ),
+    HttpRouter.add(
+      "GET",
+      "/apple-touch-icon.png",
+      HttpServerResponse.uint8Array(appleTouchIconBytes, {
+        contentType: "image/png",
+      })
+    ),
+    ...ogImageBytes.map((image) =>
+      HttpRouter.add(
+        "GET",
+        image.path,
+        HttpServerResponse.uint8Array(image.bytes, { contentType: "image/png" })
+      )
+    ),
+    HttpRouter.add(
+      "GET",
+      "/robots.txt",
+      HttpServerResponse.text(robotsText, {
+        contentType: "text/plain; charset=utf-8",
+      })
+    ),
+    HttpRouter.add("GET", "/sitemap.xml", (request) =>
+      Effect.succeed(
+        HttpServerResponse.text(sitemapXml(originOf(request)), {
+          contentType: "application/xml; charset=utf-8",
+        })
+      )
+    ),
+    HttpRouter.add(
+      "GET",
+      "/.well-known/agent-skills/index.json",
+      json(agentSkillsIndex())
+    ),
+    HttpRouter.add("GET", "/.well-known/ai-catalog.json", (request) =>
+      Effect.succeed(json(ardManifest(originOf(request))))
+    ),
+    ...(
+      ["/.well-known/agent-card.json", "/.well-known/agent.json"] as const
+    ).map((path) =>
       HttpRouter.add("GET", path, (request) =>
         Effect.succeed(
           json(a2aAgentCard(originOf(request)), "application/a2a+json")
         )
       )
-  ),
-  HttpRouter.add("POST", "/a2a", (request) =>
-    request.json.pipe(
-      Effect.flatMap(decodeA2aRequest),
-      Effect.flatMap(handleA2aRequest),
-      Effect.map((response) => json(response, "application/a2a+json")),
-      Effect.orElseSucceed(() =>
-        json(a2aError(-32_600, "Invalid Request"), "application/a2a+json")
-      )
-    )
-  ),
-  HttpRouter.add("GET", "/.well-known/api-catalog", (request) =>
-    Effect.succeed(
-      json(apiCatalog(originOf(request)), "application/linkset+json")
-    )
-  ),
-  HttpRouter.add("GET", "/.well-known/mcp.json", (request) =>
-    Effect.succeed(json(mcpServerCard(originOf(request))))
-  ),
-  ...lawResources.map((resource) =>
-    HttpRouter.add("GET", resource.routePath, (request) =>
-      Effect.succeed(
-        acceptsHtml(request)
-          ? html(renderStaticDocument(originOf(request), resource.documentHtml))
-          : markdown(resource.text)
-      )
-    )
-  ),
-  ...loreResources.map((resource) =>
-    HttpRouter.add("GET", resource.routePath, (request) =>
-      Effect.succeed(
-        acceptsHtml(request)
-          ? html(renderStaticDocument(originOf(request), resource.documentHtml))
-          : markdown(resource.text)
-      )
-    )
-  ),
-  ...skills.flatMap((skill) => [
-    HttpRouter.add("GET", skill.routePath, (request) =>
-      Effect.succeed(
-        acceptsHtml(request)
-          ? html(renderStaticDocument(originOf(request), skill.documentHtml))
-          : markdown(skill.text)
+    ),
+    HttpRouter.add("POST", "/a2a", (request) =>
+      request.json.pipe(
+        Effect.flatMap(decodeA2aRequest),
+        Effect.flatMap(handleA2aRequest),
+        Effect.map((response) => json(response, "application/a2a+json")),
+        Effect.orElseSucceed(() =>
+          json(a2aError(-32_600, "Invalid Request"), "application/a2a+json")
+        )
       )
     ),
-    HttpRouter.add("GET", agentSkillPath(skill.name), markdown(skill.text)),
-  ]),
-  ...(["/--no-verify", "/no-verify"] as const).map((path) =>
-    HttpRouter.add("GET", path, (request) =>
-      Effect.succeed(noVerifyResponse(request))
-    )
-  ),
-  HttpRouter.add("GET", "/*", (request) => {
-    const { pathname } = new URL(request.url, "https://ratstack.sh");
+    HttpRouter.add("GET", "/.well-known/api-catalog", (request) =>
+      Effect.succeed(
+        json(apiCatalog(originOf(request)), "application/linkset+json")
+      )
+    ),
+    HttpRouter.add("GET", "/.well-known/mcp.json", (request) =>
+      Effect.succeed(json(mcpServerCard(originOf(request))))
+    ),
+    ...lawResources.map((resource) =>
+      HttpRouter.add("GET", resource.routePath, (request) =>
+        Effect.succeed(
+          acceptsHtml(request)
+            ? html(
+                renderStaticDocument(originOf(request), resource.documentHtml)
+              )
+            : markdown(resource.text)
+        )
+      )
+    ),
+    ...loreResources.map((resource) =>
+      HttpRouter.add("GET", resource.routePath, (request) =>
+        Effect.succeed(
+          acceptsHtml(request)
+            ? html(
+                renderStaticDocument(originOf(request), resource.documentHtml)
+              )
+            : markdown(resource.text)
+        )
+      )
+    ),
+    ...skills.flatMap((skill) => [
+      HttpRouter.add("GET", skill.routePath, (request) =>
+        Effect.succeed(
+          acceptsHtml(request)
+            ? html(renderStaticDocument(originOf(request), skill.documentHtml))
+            : markdown(skill.text)
+        )
+      ),
+      HttpRouter.add("GET", agentSkillPath(skill.name), markdown(skill.text)),
+    ]),
+    ...(["/--no-verify", "/no-verify"] as const).map((path) =>
+      HttpRouter.add("GET", path, (request) =>
+        Effect.succeed(noVerifyResponse(request))
+      )
+    ),
+    HttpRouter.add("GET", "/*", (request) => {
+      const { pathname } = new URL(request.url, "https://ratstack.sh");
 
-    return machinePath(pathname)
-      ? Effect.succeed(
+      return machinePath(pathname)
+        ? Effect.succeed(
+            HttpServerResponse.text("Not found.\n", {
+              contentType: "text/plain; charset=utf-8",
+              status: 404,
+            })
+          )
+        : searchNotFound(request);
+    }),
+    ...(["POST", "PUT", "PATCH", "DELETE", "OPTIONS", "QUERY"] as const).map(
+      (method) =>
+        HttpRouter.add(
+          method,
+          "/*",
           HttpServerResponse.text("Not found.\n", {
             contentType: "text/plain; charset=utf-8",
             status: 404,
           })
         )
-      : searchNotFound(request);
-  }),
-  ...(["POST", "PUT", "PATCH", "DELETE", "OPTIONS", "QUERY"] as const).map(
-    (method) =>
-      HttpRouter.add(
-        method,
-        "/*",
-        HttpServerResponse.text("Not found.\n", {
-          contentType: "text/plain; charset=utf-8",
-          status: 404,
-        })
-      )
-  )
-);
+    )
+  );
 
 const JsonRpcEnvelope = Schema.Struct({
   id: Schema.optional(
@@ -934,6 +956,7 @@ export interface MischiefRouteOptions {
   readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
   readonly legacyMcp?: LegacyMcpRouter;
   readonly rateLimits?: RateLimits;
+  readonly shieldSiteKey?: string | undefined;
   readonly staticCache?: StaticResponseCache | undefined;
   readonly webBotAuth?: WebBotAuthOptions;
 }
@@ -973,7 +996,7 @@ const webBotAuthRoutes = (options: WebBotAuthOptions) =>
 
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
-    contentRoutes,
+    contentRoutes(options.shieldSiteKey),
     apiRoutes,
     options.interest === undefined
       ? Layer.empty

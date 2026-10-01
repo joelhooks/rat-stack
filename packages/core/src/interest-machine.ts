@@ -18,6 +18,8 @@ import {
 } from "effect";
 import { types } from "xstate";
 
+import { ShieldReceiptSchema } from "./interest-shield.js";
+
 export const CONFIRMATION_WINDOW_MS = 72 * 60 * 60 * 1000;
 
 export const RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -25,6 +27,7 @@ export const RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 export const CaptureRequestSchema = Schema.Struct({
   consentVersion: Schema.String,
   ipHash: Schema.String,
+  shield: Schema.optionalKey(ShieldReceiptSchema),
   submissionId: Schema.String,
   uaHash: Schema.String,
 });

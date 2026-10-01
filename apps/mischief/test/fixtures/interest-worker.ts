@@ -12,6 +12,7 @@ import { interestDirectoryLayer } from "../../src/interest/directory.js";
 import Interest from "../../src/interest/interest-durable-object.js";
 import InterestIndex from "../../src/interest/interest-index-durable-object.js";
 import { interestRoutes } from "../../src/interest/routes.js";
+import { fakeShieldLayer } from "./fake-shield.js";
 
 export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
   "InterestWorker",
@@ -32,6 +33,7 @@ export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
           () => index.getByName("index")
         ),
         InterestTokens.layer(Redacted.make("local-token-secret")),
+        fakeShieldLayer,
         InterestMode.layer("doi"),
         postShibaMailerLayer({
           apiKey: Redacted.make(""),

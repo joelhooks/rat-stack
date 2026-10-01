@@ -12,6 +12,7 @@ import {
   InterestRequest,
   InterestTokens,
   InvalidInterestAddress,
+  ShieldVerifier,
   REGISTER_ANSWER,
   confirmInterestContract,
   interestOutcome,
@@ -19,7 +20,7 @@ import {
   registerInterestContract,
   sha256Hex,
 } from "@rat-stack/core/interest";
-import type { InterestRecord } from "@rat-stack/core/interest";
+import type { InterestRecord, ShieldReceipt } from "@rat-stack/core/interest";
 import { Clock, Effect, Option } from "effect";
 
 import {
@@ -30,7 +31,13 @@ import {
 const answerFor = (mode: "capture" | "doi") =>
   ({ message: mode === "capture" ? CAPTURE_ANSWER : REGISTER_ANSWER }) as const;
 
-const captureRequest = Effect.fn("captureRequest")(function* captureRequest() {
+const shieldRefusal = new InvalidInterestAddress({
+  message: "We couldn't verify that. Please try again.",
+});
+
+const captureRequest = Effect.fn("captureRequest")(function* captureRequest(
+  shield: ShieldReceipt
+) {
   const request = yield* InterestRequest;
   const tokens = yield* InterestTokens;
 
@@ -44,6 +51,7 @@ const captureRequest = Effect.fn("captureRequest")(function* captureRequest() {
   return {
     consentVersion: CONSENT_VERSION,
     ipHash,
+    shield,
     submissionId,
     uaHash,
   } as const;
@@ -96,7 +104,7 @@ const sendConfirmation = Effect.fn("sendConfirmation")(
 
 export const registerInterest = implement(
   registerInterestContract,
-  ({ email, website }) =>
+  ({ email, shieldToken, website }) =>
     Effect.gen(function* registerInterestHandler() {
       const mode = yield* InterestMode;
       const registered = answerFor(mode);
@@ -123,7 +131,25 @@ export const registerInterest = implement(
       const directory = yield* InterestDirectory;
 
       if (mode === "capture") {
-        yield* directory.register(address.value, yield* captureRequest());
+        const verifier = yield* ShieldVerifier;
+
+        const verified = yield* verifier.verify(shieldToken ?? "", email).pipe(
+          Effect.tapError((failure) =>
+            Effect.logInfo(`interest shield refused: ${failure.reason}`)
+          ),
+          Effect.mapError(() => shieldRefusal)
+        );
+
+        const receipt: ShieldReceipt = {
+          ...verified,
+          // @effect-diagnostics-next-line cryptoRandomUUIDInEffect:off -- Web Crypto is the Worker runtime; the Effect Crypto service needs a platform layer this Worker does not provide.
+          verificationId: crypto.randomUUID(),
+        };
+
+        yield* directory.register(
+          address.value,
+          yield* captureRequest(receipt)
+        );
 
         return registered;
       }

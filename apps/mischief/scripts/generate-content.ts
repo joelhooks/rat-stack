@@ -368,6 +368,7 @@ const tokenmaxxFormHtml = `
 <form method="post" action="/tokenmaxx/interest">
 <p><label for="interest-email">Your email</label><br />
 <input id="interest-email" type="email" name="email" required autocomplete="email" maxlength="254" /></p>
+__SHIELD_SHIBA_WIDGET__
 <p class="hp" aria-hidden="true"><label for="interest-website">Leave this empty</label><br />
 <input id="interest-website" type="text" name="website" tabindex="-1" autocomplete="off" /></p>
 <p><button type="submit">Join the interest list</button></p>

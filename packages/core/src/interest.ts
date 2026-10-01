@@ -58,6 +58,17 @@ export type {
   InterestRecord,
 } from "./interest-machine.js";
 
+export {
+  SHIELD_VERIFY_URL,
+  ShieldReceiptSchema,
+  ShieldVerifier,
+  shieldVerifierLayer,
+} from "./interest-shield.js";
+
+export { ShieldRefused } from "./shield-refused.js";
+
+export type { ShieldReceipt } from "./interest-shield.js";
+
 export { InterestGate } from "./interest-gate.js";
 
 export { InterestMode } from "./interest-mode.js";

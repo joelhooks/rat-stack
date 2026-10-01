@@ -2,6 +2,7 @@ import {
   InterestMode,
   InterestTokens,
   postShibaMailerLayer,
+  shieldVerifierLayer,
 } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import { Stage } from "alchemy";
@@ -84,6 +85,14 @@ export const makeMischief = (
       Config.Redacted("INTEREST_OPERATOR_TOKEN")
     );
 
+    const shieldSiteKey = yield* Config.option(
+      Config.String("SHIELD_SHIBA_SITE_KEY")
+    );
+
+    const shieldSecret = yield* Config.option(
+      Config.Redacted("SHIELD_SHIBA_SECRET")
+    );
+
     const postShibaApiKey = yield* Config.option(
       Config.Redacted("POSTSHIBA_API_KEY")
     );
@@ -118,6 +127,9 @@ export const makeMischief = (
             interestDirectory,
             InterestTokens.layer(interestTokenSecret.value),
             InterestMode.layer(interestMode),
+            shieldVerifierLayer({ secret: shieldSecret }).pipe(
+              Layer.provide(FetchHttpClient.layer)
+            ),
             postShibaMailerLayer({
               apiKey: Option.getOrElse(postShibaApiKey, () =>
                 Redacted.make("")
@@ -148,6 +160,7 @@ export const makeMischief = (
       interest,
       legacyMcp,
       rateLimits,
+      shieldSiteKey: Option.getOrUndefined(shieldSiteKey),
       staticCache: cloudflareStaticCache,
       webBotAuth: {
         enabled: webBotAuthEnabled,

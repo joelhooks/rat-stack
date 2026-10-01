@@ -7,7 +7,7 @@ import {
   InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type { InterestMailer } from "@rat-stack/core/interest";
+import type { InterestMailer, ShieldVerifier } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
 import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
@@ -30,7 +30,11 @@ export interface InterestOptions {
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
-    InterestDirectory | InterestMailer | InterestMode | InterestTokens
+    | InterestDirectory
+    | InterestMailer
+    | InterestMode
+    | InterestTokens
+    | ShieldVerifier
   >;
 }
 
@@ -161,7 +165,11 @@ export const interestRoutes = (options: InterestOptions) => {
         const website = formValue(params, "website");
 
         const answered = yield* registerInterest
-          .handler({ email: formValue(params, "email") ?? "", website })
+          .handler({
+            email: formValue(params, "email") ?? "",
+            shieldToken: formValue(params, "shield_shiba_token"),
+            website,
+          })
           .pipe(
             Effect.match({
               onFailure: (failure) => ({
@@ -278,6 +286,7 @@ export const interestRoutes = (options: InterestOptions) => {
                         capturedAt: capture.capturedAt,
                         consentVersion: capture.consentVersion,
                         ipHash: capture.ipHash,
+                        shield: capture.shield,
                         submissionId: capture.submissionId,
                         uaHash: capture.uaHash,
                       },

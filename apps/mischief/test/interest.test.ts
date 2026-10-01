@@ -33,6 +33,10 @@ import type {
   RateLimitBindings,
 } from "../src/rate-limits.js";
 import { rateLimitsFrom } from "../src/rate-limits.js";
+import {
+  PASSING_SHIELD_TOKEN,
+  fakeShieldLayer,
+} from "./fixtures/fake-shield.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -86,6 +90,7 @@ const recordingServices = (mode: "capture" | "doi") =>
     InterestDirectory.memory,
     InterestTokens.layer(tokenSecret),
     InterestMode.layer(mode),
+    fakeShieldLayer,
     recordingMailerLayer
   );
 
@@ -605,6 +610,7 @@ it.effect(
             InterestDirectory.memory,
             InterestTokens.layer(tokenSecret),
             InterestMode.layer("doi"),
+            fakeShieldLayer,
             postShibaMailerLayer({
               apiKey: Redacted.make("not-a-real-key"),
               cluster: "cluster",
@@ -763,7 +769,10 @@ const submission = (
   headers: Readonly<Record<string, string>> = {}
 ) =>
   new Request("https://ratstack.sh/tokenmaxx/interest", {
-    body: new URLSearchParams({ email }).toString(),
+    body: new URLSearchParams({
+      email,
+      shield_shiba_token: PASSING_SHIELD_TOKEN,
+    }).toString(),
     headers: {
       "cf-connecting-ip": "203.0.113.50",
       "content-type": "application/x-www-form-urlencoded",
@@ -841,7 +850,10 @@ it.effect(
           const jsonAnswer = yield* call(
             handler,
             new Request("https://ratstack.sh/api/registerInterest", {
-              body: JSON.stringify({ email: "capture-json@example.com" }),
+              body: JSON.stringify({
+                email: "capture-json@example.com",
+                shieldToken: PASSING_SHIELD_TOKEN,
+              }),
               headers: { "content-type": "application/json" },
               method: "POST",
             })
