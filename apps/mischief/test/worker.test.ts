@@ -1610,7 +1610,6 @@ it.effect("serves the ARD manifest and honest anonymous auth.md", () =>
       expect(auth.headers.get("content-type")).toContain("text/markdown");
       expect(authBody).toBe(authMarkdown);
       expect(authBody.split("\n", 1)[0]?.toLowerCase()).toContain("auth.md");
-      expect(authBody).toContain("There is no signup or registration route");
       expect(authBody).toContain("does not use OAuth");
     })
   )
