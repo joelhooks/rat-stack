@@ -1,0 +1,43 @@
+---
+title: "Fence"
+description: "The lint rules, compiler diagnostics, hooks, and gate that make a bad shortcut fail instead of asking an agent to avoid it."
+group: system
+terms:
+  - "pre-commit gate"
+  - "debt ledger"
+sources:
+  - https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/tsconfig.base.json
+  - https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml
+  - https://github.com/joelhooks/rat-stack/blob/main/scripts/vcs-command-policy.js
+  - https://github.com/joelhooks/rat-stack/blob/main/scripts/hooks/block-git-no-verify.mjs
+  - https://github.com/joelhooks/rat-stack/blob/main/.github/workflows/ci.yml
+---
+
+## What it does
+
+The fence is the set of checks that stop a shortcut instead of describing it. [The fence](/lore/the-fence) explains the idea; this page lists what is enforced today.
+
+- **Lint.** Type-aware Oxlint runs Ultracite's core rules, the repo's own plugins in `scripts/oxlint-plugin-*.ts` (boundaries, patterns, no comments, Effect tests, and XState with Effect), and the vendored anti-slop rules, all at `error`. The configuration is `oxlint.config.ts`.
+- **Compiler.** Effect language-service diagnostics are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so they fail `tsc`, not only the editor.
+- **Hooks.** Lefthook runs `pnpm check` and `pnpm test` before every commit.
+- **Command policy.** `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
+- **Gate.** CI runs `pnpm turbo run check test build` on a cold install with a frozen lockfile.
+
+## The standard
+
+- A commit runs check and test, and a failure stops it.
+- No agent harness configured in the repo can bypass the hooks with `--no-verify`.
+- Effect diagnostics fail the typecheck.
+- Code carries no comments, except tool directives with a reason after `--` and a one-line `SAFETY:` invariant above a type assertion.
+- Every lint or diagnostic override names its rule and gives a reason.
+- The number of overrides only shrinks. The [debt ledger](/debt.md) publishes the count by kind.
+- A new lint rule ships with a test that runs real Oxlint against fixtures.
+- Loosening any of this needs the owner's sign-off.
+
+## How to check
+
+- **The gate.** `pnpm turbo run check test build` runs everything CI runs.
+- **The bypass block.** `echo '{"tool_name":"Bash","tool_input":{"command":"git commit --no-verify"}}' | node scripts/hooks/block-git-no-verify.mjs` prints a `deny` decision with the reason.
+- **The rules.** `pnpm --filter @rat-stack/core test` runs the fixture tests for the boundary, pattern, no-comment, and unknown-parameter rules, and the command policy test.
+- **The debt.** `curl -sS https://ratstack.sh/debt.md` shows the current override count.

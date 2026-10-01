@@ -1,0 +1,31 @@
+---
+title: "Auth"
+description: "Email and password sign-in through Better Auth, with the signed-in person provided to each RPC call."
+group: system
+terms:
+  - "Better Auth"
+  - "signed-in person"
+sources:
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/current-person-middleware.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/auth/test/auth.test.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/apps/web/test/production-bundle.test.ts
+---
+
+## What it does
+
+`packages/auth` runs Better Auth, through `@alchemy.run/better-auth`, on whichever vendor the [database](/systems/database) cartridge chose. People sign in with email and password under `/auth`. `CurrentPersonMiddleware` reads the session on each RPC call and provides `CurrentPerson`, the signed-in person's id. `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and in-memory test people.
+
+ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, where devtools calls run as test people.
+
+## The standard
+
+- An RPC call without a valid session fails as `Unauthenticated`. That is the only auth failure that crosses the wire.
+- A session whose user id does not decode as a person id also fails as `Unauthenticated`.
+- Test people and `rat_test_person` never reach production. Lint keeps `@rat-stack/auth/devtools` inside dev folders, the CLI, and tests (`rat-stack-boundaries/no-devtools-in-production`).
+- A production build of the web app contains no dev module, no devtools code, and no test person.
+
+## How to check
+
+- **Sessions and calls.** `pnpm --filter @rat-stack/auth test` signs up, signs in, reads a session, protects an RPC call, and runs devtools calls as a test person.
+- **Production stays clean.** `pnpm --filter @rat-stack/web exec vitest run test/production-bundle.test.ts` builds the web app for production and checks the bundle.

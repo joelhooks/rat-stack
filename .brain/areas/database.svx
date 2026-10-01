@@ -1,0 +1,32 @@
+---
+title: "Database"
+description: "A run log behind one service, stored in Cloudflare D1 or in Postgres through Hyperdrive, chosen by one vendor value."
+group: system
+terms:
+  - "run log"
+  - "database vendor"
+sources:
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/run-log.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/run-log.test.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/database/test/migration-paths.test.ts
+---
+
+## What it does
+
+The database [cartridge](/lore/cartridges), `packages/database`, gives callers one service, `RunLog`. It records a capability run with its outcome and lists a person's recent runs. `DatabaseVendor` chooses where the rows live: Cloudflare D1, or Postgres through Hyperdrive. Each vendor brings its own Drizzle schema, migrations, and resources.
+
+ratstack.sh does not run it. Nothing in the deployed Worker uses the database. Its one consumer is [auth](/systems/auth), which today runs only in the web app's dev server. A clone that needs people and history starts here.
+
+## The standard
+
+- Callers use `RunLog` and never see SQL, Drizzle, or the chosen vendor.
+- Choosing a vendor is one `DatabaseVendor` value.
+- Every input is decoded against its schema before it reaches storage. Bad input fails as `InvalidDatabaseInput`, and a storage failure fails as `DatabaseError`.
+- Run ids are UUIDv7 and times come from the Effect clock, so tests control both.
+- The same tests pass on both vendors.
+- Migrations load when the process starts outside the package.
+
+## How to check
+
+`pnpm --filter @rat-stack/database test` runs the `RunLog` tests twice, against D1 on local SQLite and against Postgres on PGlite. They cover both outcome variants, filtering by person, limits, ordering by time then id, and rejected limits. A second test loads the migrations from outside the package.

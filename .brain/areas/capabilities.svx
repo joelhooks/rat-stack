@@ -1,0 +1,40 @@
+---
+title: "Capabilities"
+description: "Every route, tool, and command rat-stack serves comes from one schema-typed contract and one handler."
+group: system
+terms:
+  - "capability contract"
+  - "capability registry"
+sources:
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+  - https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts
+  - https://github.com/joelhooks/rat-stack/tree/main/packages/capability/test
+---
+
+## What it does
+
+A capability is one named behavior. `defineContract` gives it a name, input, output, and failure as Effect schemas, behavior annotations, and an approval setting. `implement` binds that contract to one server-side handler. The projections in `packages/capability` turn a list of capabilities into a command line, an HTTP API with an OpenAPI document, an MCP toolkit, an RPC group, and code mode. See [one capability, every surface](/lore/one-capability-every-surface) for why.
+
+ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`. The registry lives in `apps/mischief/src/capabilities/index.ts`. The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
+
+## The standard
+
+- Every route, tool, and command comes from a capability. `Rpc.make`, `RpcGroup.make`, `HttpApi*`, `Tool.make`, and `Toolkit.make` outside `packages/capability` fail lint (`rat-stack-boundaries/no-hand-rolled-surface`).
+- Input, output, and failure are Effect schemas. JSON Schema, OpenAPI, and the code-mode declarations are derived from them, never written by hand.
+- Invalid input is rejected before the handler runs.
+- A declared failure comes back typed. On MCP it is a tool error, not a crash.
+- A capability that needs approval adds an `Approval` requirement and an `ApprovalDenied` failure on every surface. Approval is denied by default. HTTP answers a denial with 403.
+- Browser code imports contracts only, never handlers (`rat-stack-boundaries/no-browser-server-imports`).
+- Code mode reaches only capabilities, through their schemas.
+
+## How to check
+
+- **The live surfaces agree.** `curl -sS https://ratstack.sh/openapi.json | jq -r '.paths | keys[]'` lists one route per capability. The MCP `tools/list` request in the [agent guide](/llms.txt) returns the same seven names.
+- **The projections hold the standard.** `pnpm --filter @rat-stack/capability test` covers input rejection before the handler, typed failures as tool errors, approval as a 403 and as a typed tool error, deny by default, and code mode calling capabilities through their schemas.
+- **No hand-rolled surface.** `pnpm lint` fails on any surface built outside `packages/capability`.
+
+## Removing a surface
+
+The README's Keep or cut table lists the files for "No HTTP", "No MCP", and "No code mode." Cutting MCP cuts code mode, because code mode is built on the MCP toolkit.
