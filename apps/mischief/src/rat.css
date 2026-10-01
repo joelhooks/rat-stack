@@ -62,6 +62,16 @@ main > .table-wrapper.table-wide {
   margin-inline: 0;
 }
 
+.block-transclusion {
+  border-inline-start: 2px solid #ccd0da;
+  padding-inline-start: 1rem;
+}
+
+.block-attribution {
+  display: block;
+  margin-block: 0.5rem;
+}
+
 .paragraph-link {
   font-size: 0.8em;
   margin-inline-start: 0.4em;

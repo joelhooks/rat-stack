@@ -155,6 +155,34 @@ export interface HtmlToken {
   readonly start: number;
 }
 
+export const htmlPlainText = (html: string): string => {
+  const text: string[] = [];
+  const boundaries = new Set(["br", "div", "li", "ol", "p", "pre", "ul"]);
+
+  const parser = new Parser(
+    {
+      onclosetag(name) {
+        if (boundaries.has(name)) {
+          text.push("\n");
+        }
+      },
+      onopentag(name) {
+        if (boundaries.has(name)) {
+          text.push("\n");
+        }
+      },
+      ontext(value) {
+        text.push(value);
+      },
+    },
+    { decodeEntities: true, xmlMode: true }
+  );
+
+  parser.end(html);
+
+  return text.join("");
+};
+
 export const htmlTokens = (html: string): readonly HtmlToken[] => {
   const tokens: HtmlToken[] = [];
   let selfClosingName = "";

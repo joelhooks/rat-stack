@@ -9,6 +9,7 @@ import {
   buildBlockIndex,
   paragraphAnchors,
 } from "../scripts/content-blocks.ts";
+import type { ContentBlock } from "../scripts/content-blocks.ts";
 import { buildError, escapeSvelteBraces } from "../scripts/content-lib.ts";
 
 const indexFor = (rawText: string) =>
@@ -65,6 +66,38 @@ it.effect("explicit IDs win and collisions remain unique", () =>
   })
 );
 
+it.effect(
+  "syntax-highlighter markup cannot change a list item's source ID",
+  () =>
+    Effect.gen(function* styledBlockIds() {
+      const source = "- Code claim.\n\n  ```text\n  value\n  ```";
+      const index = yield* indexFor(source);
+
+      const expected = index
+        .get("/lore/source")
+        ?.blocks.map((block) => block.id);
+
+      for (const theme of ["one", "two"]) {
+        const blocks: ContentBlock[] = [];
+
+        yield* Effect.tryPromise({
+          catch: (cause) => buildError("test compile", "fixture.svx", cause),
+          // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this rendering-test Promise boundary.
+          try: async () =>
+            await compile(source, {
+              highlight: {
+                highlighter: (code) =>
+                  `<pre class="${theme}"><code>${code}</code></pre>`,
+              },
+              rehypePlugins: [paragraphAnchors(source, blocks)],
+            }),
+        });
+
+        expect(blocks.map((block) => block.id)).toEqual(expected);
+      }
+    })
+);
+
 const compiledModule = Schema.Struct({
   default: Schema.declare((value): value is Parameters<typeof render>[0] =>
     Predicate.isFunction(value)
@@ -79,7 +112,7 @@ const renderMarkdown = Effect.fn("renderMarkdown")(function* renderMarkdown(
     // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this rendering-test Promise boundary.
     try: async () =>
       await compile(source, {
-        rehypePlugins: [paragraphAnchors(), escapeSvelteBraces],
+        rehypePlugins: [paragraphAnchors(source), escapeSvelteBraces],
       }),
   });
 

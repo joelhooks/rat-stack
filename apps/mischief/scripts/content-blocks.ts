@@ -2,11 +2,16 @@
 import { createHash } from "node:crypto";
 
 import { Effect } from "effect";
+import type { Nodes } from "mdast";
 import { compile } from "mdsvex";
-import remarkGfm from "remark-gfm";
 import type { Plugin } from "unified";
 
 import { buildError } from "./content-lib.ts";
+import {
+  htmlPlainText,
+  parseContentMarkdown,
+  visitContentNodes,
+} from "./svx-ast.ts";
 
 interface BlockNode {
   readonly type: string;
@@ -80,6 +85,62 @@ const explicitId = (node: BlockNode) =>
 const nodeText = (node: BlockNode): string =>
   node.value ?? (node.children ?? []).map(nodeText).join("");
 
+const sourceNodeText = (node: Nodes): string => {
+  if (node.type === "html") {
+    return htmlPlainText(node.value);
+  }
+
+  if (node.type === "paragraph") {
+    return node.children
+      .map((child, index) =>
+        child.type === "text" && index === node.children.length - 1
+          ? child.value.replace(explicitAnchor, "")
+          : sourceNodeText(child)
+      )
+      .join("");
+  }
+
+  if (node.type === "image" || node.type === "imageReference") {
+    return node.alt ?? "";
+  }
+
+  if ("value" in node) {
+    return node.value;
+  }
+
+  if ("children" in node) {
+    const separator =
+      node.type === "list" ||
+      node.type === "listItem" ||
+      node.type === "blockquote"
+        ? "\n"
+        : "";
+
+    return node.children.map(sourceNodeText).join(separator);
+  }
+
+  return node.type === "break" ? "\n" : "";
+};
+
+const sourceBlockTexts = (source: string) => {
+  const texts = new Map<string, string>();
+
+  visitContentNodes(parseContentMarkdown(source), (node) => {
+    const start = node.position?.start.offset;
+    const end = node.position?.end.offset;
+
+    if (
+      (node.type === "paragraph" || node.type === "listItem") &&
+      start !== undefined &&
+      end !== undefined
+    ) {
+      texts.set(`${start}:${end}`, sourceNodeText(node));
+    }
+  });
+
+  return texts;
+};
+
 const uniqueBlockId = (base: string, occupied: ReadonlySet<string>) => {
   let id = base;
   let suffix = 2;
@@ -93,9 +154,10 @@ const uniqueBlockId = (base: string, occupied: ReadonlySet<string>) => {
 };
 
 export const paragraphAnchors =
-  (blocks: ContentBlock[] = []): Plugin<[], BlockNode> =>
+  (source: string, blocks: ContentBlock[] = []): Plugin<[], BlockNode> =>
   () =>
   (tree) => {
+    const texts = sourceBlockTexts(source);
     const used = new Set<string>();
     const explicit = new Set<string>();
     const explicitIds = new Map<BlockNode, string>();
@@ -144,7 +206,10 @@ export const paragraphAnchors =
       if (node.tagName === "p" || node.tagName === "li") {
         const ownId = explicitIds.get(node);
 
-        const text = nodeText(node)
+        const start = node.position?.start.offset;
+        const end = node.position?.end.offset;
+
+        const text = (texts.get(`${start}:${end}`) ?? nodeText(node))
           .normalize("NFC")
           .replaceAll(/\s+/gu, " ")
           .trim();
@@ -157,8 +222,6 @@ export const paragraphAnchors =
           ownId === undefined ? new Set([...used, ...explicit]) : used;
 
         const id = uniqueBlockId(base, occupied);
-        const start = node.position?.start.offset;
-        const end = node.position?.end.offset;
 
         used.add(id);
         node.properties = { ...node.properties, id };
@@ -207,8 +270,7 @@ export const buildBlockIndex = (pages: readonly BlockPage[]) =>
       // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this build-time Promise parser.
       try: async () =>
         await compile(page.rawText, {
-          rehypePlugins: [paragraphAnchors(blocks)],
-          remarkPlugins: [remarkGfm],
+          rehypePlugins: [paragraphAnchors(page.rawText, blocks)],
         }),
     }).pipe(
       Effect.map(
