@@ -60,7 +60,7 @@ An event holds a visitor id, a UUIDv7 message id, a server block (host, received
 
 ## Switches
 
-| Setting | Default | Effect |
+| Setting | Default | What it does |
 | --- | --- | --- |
 | `EVENTS_ENABLED` | `false` | Off declares only the bucket, the stream, and the salt, so their state survives, and records nothing. On adds the catalog, the sink, and the pipeline. |
 | `EVENTS_SINK_TOKEN` | unset | A Cloudflare API token with R2 Admin Read & Write. Required when `EVENTS_ENABLED` is on. Export it in the deploy shell: it is read from the process environment, so a value in `.env` or an `--env-file` is not seen. |

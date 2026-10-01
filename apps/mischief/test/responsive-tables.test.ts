@@ -4,7 +4,8 @@ import { compile } from "mdsvex";
 import remarkGfm from "remark-gfm";
 import type { Plugin } from "unified";
 
-import { responsiveTables } from "../scripts/content-lib.ts";
+import { linkLoreTerms, responsiveTables } from "../scripts/content-lib.ts";
+import { linkStackEntities } from "../scripts/content-links.ts";
 import {
   homeDocumentHtml,
   lawSources,
@@ -55,8 +56,84 @@ it.effect(
     })
 );
 
+it.effect("published table headers never acquire automatic term links", () =>
+  Effect.sync(() => {
+    for (const source of [...lawSources, ...loreSources, ...skillSources]) {
+      for (const [header] of source.documentHtml.matchAll(
+        /<th\b[^>]*>[\s\S]*?<\/th>/gu
+      )) {
+        expect(header).not.toContain("<a ");
+      }
+    }
+  })
+);
+
+it.effect(
+  "short tables use the prose minimum rather than fill the popout",
+  () =>
+    Effect.sync(() => {
+      const css = /<style>(?<css>[\s\S]*?)<\/style>/u.exec(homeDocumentHtml)
+        ?.groups?.css;
+
+      expect(css).toBeDefined();
+      expect(css).toMatch(
+        /main > \.table-wrapper\s*\{[^}]*justify-self: center;/u
+      );
+      expect(css).toMatch(
+        /main > \.table-wrapper\s*\{[^}]*width: min-content;/u
+      );
+      expect(css).toMatch(
+        /main > \.table-wrapper\s*\{[^}]*min-width: min\(80ch, 100%\);/u
+      );
+      expect(css).toMatch(/\btable\s*\{[^}]*width: auto;/u);
+      expect(css).not.toContain("container-type: inline-size");
+    })
+);
+
 const decodeCompiledTable = Schema.decodeUnknownSync(
   Schema.Struct({ code: Schema.String })
+);
+
+it.effect(
+  "links library names but not headers or the ordinary word effect",
+  () =>
+    Effect.gen(function* compilesTermLinks() {
+      const result = yield* Effect.promise(
+        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
+        () =>
+          compile(
+            "| Effect | Alchemy | cartridge |\n| --- | --- | --- |\n| effect | Effect on requests | Effect follows a stop. Effect changes nothing. |\n\nAn ordinary effect.\n\nWe use Effect Schema and a cartridge.\n",
+            {
+              rehypePlugins: [
+                linkStackEntities,
+                linkLoreTerms(
+                  [
+                    { routePath: "/lore/effect", term: "Effect" },
+                    { routePath: "/lore/cartridges", term: "cartridge" },
+                  ],
+                  "/fixture",
+                  new Set<string>()
+                ),
+              ],
+              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
+              remarkPlugins: [remarkGfm as Plugin],
+            }
+          ).then(decodeCompiledTable)
+      );
+
+      expect(result.code).toContain("<th>Effect</th>");
+      expect(result.code).toContain("<th>Alchemy</th>");
+      expect(result.code).toContain("<th>cartridge</th>");
+      expect(result.code).toContain("<td>effect</td>");
+      expect(result.code).toContain("<td>Effect on requests</td>");
+      expect(result.code).toContain(
+        "<td>Effect follows a stop. Effect changes nothing.</td>"
+      );
+      expect(result.code).toContain("An ordinary effect.");
+      expect(result.code).toContain('href="https://effect.website"');
+      expect(result.code).toContain('href="/lore/cartridges"');
+      expect(result.code).not.toContain('href="/lore/effect"');
+    })
 );
 
 it.effect(
