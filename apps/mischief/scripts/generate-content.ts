@@ -27,6 +27,7 @@ import { agentNextActions } from "../src/agent-guide.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
+import { paragraphAnchors } from "./content-blocks.ts";
 import {
   agentPointerHtml,
   componentContext,
@@ -220,15 +221,35 @@ const slugHeading = (value: string) =>
     .replaceAll(/[^a-z0-9]+/gu, "-")
     .replaceAll(/^-+|-+$/gu, "");
 
-const stableHeadingIds = (): ((tree: HastNode) => void) => {
-  const used = new Map<string, number>();
+const stableHeadingIds = (): ((tree: HastNode) => void) => (tree) => {
+  const used = new Set<string>();
+
+  const reserve = (node: HastNode): void => {
+    const id = node.properties?.id;
+
+    if (Predicate.isString(id)) {
+      used.add(id);
+    }
+
+    for (const child of node.children ?? []) {
+      reserve(child);
+    }
+  };
+
+  reserve(tree);
 
   const visit = (node: HastNode): void => {
     if (node.tagName !== undefined && /^h[1-6]$/u.test(node.tagName)) {
       const base = slugHeading(nodeText(node)) || "section";
-      const count = used.get(base) ?? 0;
-      used.set(base, count + 1);
-      const id = count === 0 ? base : `${base}-${count + 1}`;
+      let id = base;
+      let suffix = 2;
+
+      while (used.has(id)) {
+        id = `${base}-${suffix}`;
+        suffix += 1;
+      }
+
+      used.add(id);
       node.properties = { ...node.properties, id };
     }
 
@@ -237,7 +258,7 @@ const stableHeadingIds = (): ((tree: HastNode) => void) => {
     }
   };
 
-  return visit;
+  visit(tree);
 };
 
 const linkCodeSpans =
@@ -606,11 +627,13 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
       ? yield* copyPromptRenderer()
       : undefined;
 
+    const htmlSource = deriveHtmlMarkdown(source, renderPrompt);
+
     const transformed = yield* Effect.tryPromise({
       catch: (cause) => buildError("mdsvex compile", sourcePath, cause),
       // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this Promise boundary.
       try: async () =>
-        await compileMdsvex(deriveHtmlMarkdown(source, renderPrompt), {
+        await compileMdsvex(htmlSource, {
           extensions: [".md", ".svx"],
           filename: sourcePath,
           highlight: {
@@ -618,6 +641,11 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
             optimise: false,
           },
           rehypePlugins: [
+            ...(["/lore/", "/systems/", "/skills/"].some((prefix) =>
+              routePath.startsWith(prefix)
+            )
+              ? [paragraphAnchors()]
+              : []),
             stableHeadingIds,
             responsiveTables,
             linkCodeSpans(targets),

@@ -62,6 +62,21 @@ main > .table-wrapper.table-wide {
   margin-inline: 0;
 }
 
+.paragraph-link {
+  font-size: 0.8em;
+  margin-inline-start: 0.4em;
+  opacity: 0;
+  text-decoration: none;
+}
+
+p:hover > .paragraph-link,
+li:hover > .paragraph-link,
+p:focus-within > .paragraph-link,
+li:focus-within > .paragraph-link,
+.paragraph-link:focus-visible {
+  opacity: 1;
+}
+
 code {
   background: #eff1f5;
   border: 1px solid #ccd0da;
