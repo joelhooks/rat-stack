@@ -10,6 +10,7 @@ const accentSelectors = new Set([
   ".copy:focus-visible",
   ".workshop-callout",
   ".workshop-callout-label",
+  ".workshop-callout-apply",
   ".copy .icon-done",
   ".copy:has(.icon-done:not([hidden]))",
 ]);

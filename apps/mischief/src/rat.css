@@ -344,7 +344,7 @@ main > pre:has(+ .copy-actions) {
 }
 
 .workshop-callout {
-  align-items: baseline;
+  align-items: center;
   background: color-mix(in srgb, var(--accent) 5%, white);
   border-left: 3px solid var(--accent);
   display: flex;
@@ -366,13 +366,41 @@ main > pre:has(+ .copy-actions) {
   flex: 1 1 24ch;
 }
 
-.workshop-callout a {
+.workshop-callout-action {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   margin-left: auto;
+}
+
+.workshop-callout-apply {
+  align-items: center;
+  background: var(--accent-text);
+  border-radius: 0.25rem;
+  color: #fff;
+  display: inline-flex;
+  font-weight: bold;
+  gap: 0.4rem;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0.25rem 0.75rem;
+  text-decoration: none;
   white-space: nowrap;
+}
+
+.workshop-callout-apply:hover {
+  text-decoration: underline;
+}
+
+.workshop-callout-note {
+  color: #595959;
+  font-size: 0.75em;
 }
 
 @media (max-width: 40rem) {
   .workshop-callout {
+    align-items: stretch;
     flex-direction: column;
   }
 
@@ -380,8 +408,12 @@ main > pre:has(+ .copy-actions) {
     flex: none;
   }
 
-  .workshop-callout a {
+  .workshop-callout-action {
     margin-left: 0;
+  }
+
+  .workshop-callout-apply {
+    align-self: stretch;
   }
 }
 

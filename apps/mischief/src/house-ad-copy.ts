@@ -1,6 +1,7 @@
 export const houseAdCopy = {
-  href: "/tokenmaxx",
-  label: "Workshop",
+  href: "/tokenmaxx#interested",
+  label: "Free workshop",
   line: "how to burn a trillion tokens and get good results",
-  link: "Read about the workshop\u00A0→",
+  link: "Apply today",
+  note: "*Very limited seats",
 } as const;
