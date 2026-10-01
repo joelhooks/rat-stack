@@ -79,7 +79,8 @@
       For agents: start with the <a href="/llms.txt">agent guide</a>. Every page is also available as Markdown.
     </p>
   {/if}
-  {@html bodyHtml.replace(/<\/h1>/iu, `</h1>${houseAdHtml}`)}
+  {@html houseAdHtml}
+  {@html bodyHtml}
 </main>
 
 <footer>

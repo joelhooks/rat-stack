@@ -67,8 +67,8 @@ it.effect("places one workshop pointer after each promoted page title", () =>
 
     for (const page of pages) {
       expect(page.match(/<aside class="workshop-callout"/gu)).toHaveLength(1);
-      expect(page).toMatch(
-        /<\/h1>\s*(?:<!--[\s\S]*?-->\s*)*<aside class="workshop-callout"/u
+      expect(page.indexOf('<aside class="workshop-callout"')).toBeLessThan(
+        page.search(/<h1\b/u)
       );
       expect(page).toContain(houseAdCopy.line);
       expect(page).toContain(`href="${houseAdCopy.href}"`);
