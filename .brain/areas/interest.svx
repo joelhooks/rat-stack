@@ -1,0 +1,59 @@
+---
+title: "Interest signup"
+description: "Browser signup starts email confirmation; delivery stays behind job-shaped ports outside core."
+group: system
+terms:
+  - "interest signup"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-machine.ts
+    title: "Interest lifecycle machine"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Local pending, confirmation, and capture states."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts
+    title: "Subscriber intake port"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Job-shaped intake service contract."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts
+    title: "Subscriber confirmation port"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Job-shaped confirmation service contract."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/subscriber-delivery
+    title: "Subscriber delivery adapter"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "External delivery implementations outside core."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/routes.ts
+    title: "Interest HTTP routes"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Browser submission, confirmation, and result routing."
+    accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/handlers.ts
+    title: "Interest handlers"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Neutral answers, mode choices, and delivery composition."
+    accessed: "2026-10-01"
+---
+
+## What it does
+
+A person submits the [browser signup form](/tokenmaxx#interested). In confirmation mode, a request starts pending confirmation; the person follows the email link and confirms in the browser before the signup is confirmed. The core interest machine owns the local pending → confirmed lifecycle. Capture-only mode records the request without sending mail; it is not a confirmed signup.
+
+`SubscriberIntake` and `SubscriberConfirm` are job-shaped ports in core. `packages/subscriber-delivery` implements external delivery outside core, and the Worker provides the adapter at composition. See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
+
+## The standard
+
+- Submission is not confirmation. A person's email confirmation is required before joining.
+- Consent is explicit: the person chooses to submit the signup form. An agent must not infer permission to subscribe someone from their address or an unrelated request.
+- Rate-limited and honeypot submissions receive a neutral answer rather than revealing whether an address is on file. Invalid addresses and expired confirmation links have deliberate refusal responses.
+- Provider details remain outside core; `no-core-adapters` enforces that boundary.
+- Today, joining remains a person's browser step. Agent-assisted intake is coming; it must retain explicit consent and the person's email confirmation.
+
+## How to check
+
+- Read `apps/mischief/src/interest/routes.ts` and `handlers.ts` for submission, neutral answers, and browser confirmation. Check the Worker composition and configured mode before interpreting a capture as a pending signup.
+- Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation seams. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
+- With an authorized test address, use the browser form, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
+- Check [OpenAPI](/openapi.json) and the [agent guide](/llms.txt) before treating any planned agent intake as available. Do not bypass confirmation.

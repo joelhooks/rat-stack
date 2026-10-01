@@ -15,23 +15,23 @@ Use this repo as a working map of the stack. Rat-stack is the example. The piece
 - **Oxlint, Oxfmt, Vitest, and lefthook** keep the same rules in the editor, tests, and commits.
 - **pnpm and Turborepo** connect the packages and cache their checks.
 - **Alchemy** declares and deploys the Cloudflare Worker. Start with `learn-alchemy` to see the whole cloud footprint as one Effect program.
-- **The command line, HTTP, MCP, and sandbox** are four ways to call the same action.
+- **The command line, HTTP, MCP, and sandbox** are four agent interfaces for the same action. RPC is a fifth projection for browser clients, not a fifth agent interface.
 
 ## Trace one action
 
 Start with `inspectFile`.
 
-1. `packages/core/src/inspect-file.ts` defines the action and its schemas.
-2. `packages/core/src/file-inspector.ts` does the file work through an Effect service.
-3. `packages/core/src/inspect-machine.ts` models the work as an XState machine.
-4. `packages/capability/src` turns the action into commands, HTTP routes, MCP tools, and sandbox calls.
-5. `apps/cli/src/surfaces.ts` creates those interfaces.
-6. `apps/cli/src/cli.ts` provides the services they need.
+1. `packages/core/src/contracts.ts` owns `inspectFileContract` and its input, output, and failure schemas.
+2. `packages/core/src/inspect-file.ts` binds that contract to its handler with `implement`.
+3. `packages/core/src/file-inspector.ts` does the file work through an Effect service.
+4. `packages/core/src/inspect-machine.ts` models the lifecycle with XState.
+5. `packages/capability/src` projects the shared contract and implementation into commands, HTTP routes, MCP tools, sandbox calls, and browser RPC.
+6. `apps/cli/src/surfaces.ts` creates the CLI's interfaces; `apps/cli/src/cli.ts` provides their services.
 7. `apps/infra/alchemy.run.ts` declares the cloud resources.
 
 Rat-stack calls the shared action a `Capability`. It has an input schema, an output schema, a schema for expected errors, one Effect handler, and flags that say whether it reads, writes, repeats safely, or needs approval.
 
-The `capabilities` tuple in `packages/core/src/inspect-file.ts` lists every action. Add one there and each interface picks it up. Do not write a second handler for one interface.
+The `capabilities` tuple in `packages/core/src/inspect-file.ts` lists the CLI's example actions. The hosted content registry lives in `apps/mischief/src/capabilities/index.ts`. Add an implementation to the registry used by your composition, and its projections pick it up. Do not write a second handler for one interface.
 
 ## Read before changing a piece
 

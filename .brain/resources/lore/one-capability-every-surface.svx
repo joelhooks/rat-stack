@@ -31,4 +31,6 @@ To add one, define a contract, implement it beside the data or infrastructure it
 
 Michael Arnaldi demonstrates Schema decoding request input and encoding a frontend-safe result while preserving its output type. [Effect Meetup SF, 27:17](https://youtu.be/BqUnsDnMnMo?t=1637). In another conversation, the speakers discuss generated schemas and migrations as work agents can maintain, and a rule that rejects ad hoc JSON parsing. [Cause & Effect 10, 63:49](https://youtu.be/irmz5X3c7Do?t=3829) [67:53](https://youtu.be/irmz5X3c7Do?t=4073).
 
+[Analytics](/systems/analytics) shows a separate infrastructure cartridge; [interest signup](/systems/interest) shows core ports with a delivery adapter outside core. Neither turns static pages or protocol discovery into domain capabilities.
+
 See [lifecycles are machines](/lore/lifecycles-are-machines) for stateful handlers and [cartridges](/lore/cartridges) for the infrastructure boundary. [HATEOAS](/lore/hateoas) covers links that guide an agent's next action; [hexagonal architecture](/lore/hexagonal-architecture) names the ports-and-adapters principle.

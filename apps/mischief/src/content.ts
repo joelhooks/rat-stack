@@ -1,3 +1,4 @@
+import { agentNextActions } from "./agent-guide.js";
 import {
   cartridgesImageJpegBase64,
   homeMarkdownTemplate,
@@ -13,6 +14,7 @@ import {
   tokenmaxxImageJpegBase64,
 } from "./bundled-content.generated.js";
 import { markdownDiscoveryLinks } from "./content-links.js";
+import { canonicalMarkdownLinks } from "./markdown-links.js";
 
 export { loreGraphSnapshot } from "./bundled-content.generated.js";
 
@@ -153,7 +155,7 @@ export const mcpProtocolVersions = [
 ] as const;
 
 export const mcpVersionText = (origin: string) =>
-  `ratstack.sh MCP answers every client at ${origin}/mcp.\nProtocol 2026-07-28 is stateless and has no initialize handshake; send the version header, Mcp-Method header, and params._meta shown in the worked tools/list request.\nOlder clients (2025-11-25 back to 2024-11-05) send initialize as usual and get a session of their own.\nSee ${origin}/llms.txt for the complete curl example.\n`;
+  `ratstack.sh MCP supports protocol versions ${mcpProtocolVersions.join(", ")} at ${origin}/mcp.\nProtocol 2026-07-28 is stateless and has no initialize handshake; send the version header, Mcp-Method header, and params._meta shown in the worked tools/list request.\nOlder clients (2025-11-25 back to 2024-11-05) send initialize as usual and get a session of their own.\nSee ${origin}/llms.txt for the complete curl example.\n`;
 
 export const llmsText = (origin: string) => `# ratstack.sh
 
@@ -163,7 +165,7 @@ The reference for building an app and its cloud as one typed program: Effect, Al
 
 - [Home](${origin}/): short overview
 - [Glossary](${origin}/glossary): A–Z terms, summaries, and pages
-- [All public docs](${origin}/llms-full.txt): rules, lore, and skills in one response
+- [Public content corpus](${origin}/llms-full.txt): rules, lore, and skills in one response
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
 - [MCP server](${origin}/mcp): tools for search, reading, and sandboxed code
 
@@ -190,6 +192,7 @@ curl --request POST '${origin}/api/execute' \\
 # {"logs":[],"result":2}
 \`\`\`
 
+${agentNextActions(origin)}
 ## Source files
 
 ${entryList(lawResources)}
@@ -228,7 +231,7 @@ export const llmsFullText = (origin: string) =>
     llmsText(origin),
     ...contentResources.map(
       (resource) =>
-        `\n---\n\n# ${resource.routePath}\n\nSource: ${resource.sourcePath}\nSHA-256: ${resource.digest}\n\n${resource.text}`
+        `\n---\n\n# ${resource.routePath}\n\nSource: ${resource.sourcePath}\nSHA-256: ${resource.digest}\n\n${canonicalMarkdownLinks(resource.text, resource.routePath, origin)}`
     ),
   ].join("\n");
 
@@ -426,7 +429,7 @@ You do not need an account or token to use ratstack.sh.
 
 - Send normal HTTPS requests to the public MCP, A2A, and HTTP routes.
 - Do not send credentials. Ratstack does not issue or accept access tokens.
-- There is no signup or registration route.
+- Public API access needs no account or token. Interest signup is separate and requires email confirmation.
 - Ratstack does not use OAuth.
 `;
 

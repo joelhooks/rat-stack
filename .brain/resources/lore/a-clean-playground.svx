@@ -24,4 +24,6 @@ The house rule is a clean, organized playground where real work gets done. It do
 
 The clean-playground test asks what remains when one bin is removed. If other packages need a new import path, if bindings spill into unrelated layers, or if the full gate fails, the piece is not pullable yet. `VISION.md` describes the cartridge test; `AGENTS.md` assigns each package one job and sets the gate.
 
+[Analytics](/systems/analytics) supplies another working bin, with an explicit removal checklist. [Interest signup](/systems/interest) keeps delivery in an adapter package outside core; that seam is not a claim of one-line infrastructure removal.
+
 See [cartridges](/lore/cartridges) for the infrastructure example and [the fence](/lore/the-fence) for the checks that make removal honest.

@@ -1,6 +1,6 @@
 ---
 title: "Capabilities"
-description: "Every route, tool, and command rat-stack serves comes from one schema-typed contract and one handler."
+description: "Domain behaviors on generated surfaces share one schema-typed contract and one handler."
 group: system
 terms:
   - "capability contract"
@@ -41,7 +41,7 @@ ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`
 
 ## The standard
 
-- Every route, tool, and command comes from a capability. `Rpc.make`, `RpcGroup.make`, `HttpApi*`, `Tool.make`, and `Toolkit.make` outside `packages/capability` fail lint (`rat-stack-boundaries/no-hand-rolled-surface`).
+- Domain behaviors exposed through generated routes, tools, and commands come from capabilities. Static pages, discovery documents, result pages, and protocol routing are composed separately. `Rpc.make`, `RpcGroup.make`, `HttpApi*`, `Tool.make`, and `Toolkit.make` outside `packages/capability` fail lint (`rat-stack-boundaries/no-hand-rolled-surface`).
 - Input, output, and failure are Effect schemas. JSON Schema, OpenAPI, and the code-mode declarations are derived from them, never written by hand.
 - Invalid input is rejected before the handler runs.
 - A declared failure comes back typed. On MCP it is a tool error, not a crash.

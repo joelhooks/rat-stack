@@ -25,6 +25,7 @@ import { compile as compileSvelte } from "svelte/compiler";
 import { render } from "svelte/server";
 import type { Plugin } from "unified";
 
+import { agentNextActions } from "../src/agent-guide.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
@@ -752,17 +753,17 @@ const lawSpecs: readonly SourceSpec[] = [
   },
   {
     description:
-      "Working examples for the exact Effect version used by this repo.",
+      "Dated Effect 4 source studies from September 2026; current versions live in pins.md.",
     routePath: "/resources/effect-4-reference-projects.svx",
     sourcePath: ".brain/resources/effect-4-reference-projects.svx",
-    title: "Effect 4 examples",
+    title: "Effect 4 study: September 2026",
   },
   {
     description:
-      "Why one typed action powers the command line, HTTP, MCP, and sandbox.",
+      "Historical Effect rc.115 proposal and implementation receipts from 2026-09-18; use the one-capability-every-surface lore page for the current pattern.",
     routePath: "/resources/schema-projections-and-code-mode.svx",
     sourcePath: ".brain/resources/schema-projections-and-code-mode.svx",
-    title: "One action, four interfaces",
+    title: "Schema projections: 2026-09-18 history",
   },
   {
     description: "How the current lint rules draw their syntax boundaries.",
@@ -1384,7 +1385,10 @@ const program = Effect.gen(function* generateContent() {
         return Option.some(served);
       }
 
-      if (!repoPathToken.test(span)) {
+      if (
+        !repoPathToken.test(span) ||
+        span.split("/").includes("node_modules")
+      ) {
         return Option.none();
       }
 
@@ -1677,6 +1681,8 @@ const program = Effect.gen(function* generateContent() {
     "",
     entryList(systemTexts),
     "",
+    "The [interest signup](/systems/interest) page separates submission, confirmation, and delivery. [Devtools](/systems/devtools) stays development-only. The [hosted agent front door](/systems/agent-front-door) records discovery, MCP versions, API, A2A, and sandbox limits; extracting it into a generic cartridge remains future work.",
+    "",
   ].join("\n");
 
   const groupedSkills = skillGroups
@@ -1751,12 +1757,12 @@ npx skills add joelhooks/rat-stack
 
 <CopyPrompt id="skills" />
 
-Every MCP client works. Clients on protocol 2026-07-28 are served without sessions; older clients get a session of their own, held by a Durable Object.
+Supports MCP protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. Clients on protocol 2026-07-28 are served without sessions; older clients get a session of their own, held by a Durable Object.
 
 - [MCP connection details](${originToken}/.well-known/mcp.json)
 - [HTTP API docs](${originToken}/openapi.json)
 - [Short agent guide](${originToken}/llms.txt)
-- [All public agent docs](${originToken}/llms-full.txt)
+- [Public rules, lore, systems, and skills](${originToken}/llms-full.txt)
 - [Lore wiki](${originToken}/lore)
 - [Systems](${originToken}/systems)
 
@@ -1771,9 +1777,9 @@ The [vision](${originToken}/VISION.md) has the sources and the reasoning.
 
 ## The shelf
 
-Every piece is a bin you can push in or pull out.
+These packages have separate jobs. Follow the removal checklists before cutting a bin; a package name alone does not prove one-line removal.
 
-<Diagram alt="A shelf of current rat-stack bins: capability, core, database, auth, devtools, web, infra stack, and fence. The generic agent front door becoming its own cartridge is coming.">
+<Diagram alt="A shelf of current rat-stack bins: capability, core, database, auth, devtools, events, lore, subscriber-delivery, web, infra stack, and fence. The generic agent front door becoming its own cartridge is coming.">
 
 \`\`\`text
   labeled · push in · pull out · self-contained · easy to trash
@@ -1789,6 +1795,11 @@ Every piece is a bin you can push in or pull out.
   └────────────┘ └────────────┘ └────────────┘ └────────────┘
        in             in             in             in
 
+  ┌────────────┐ ┌────────────┐ ┌─────────────────────┐
+  │ events     │ │ lore       │ │ subscriber-delivery │
+  │ analytics  │ │ graph      │ │ delivery adapter    │
+  └────────────┘ └────────────┘ └─────────────────────┘
+
   ┌────────────┐
   │ front door │  coming: its own cartridge
   │ REST · MCP │
@@ -1797,7 +1808,9 @@ Every piece is a bin you can push in or pull out.
 \`\`\`
 </Diagram>
 
-What to notice: these bins exist today. Only the generic agent front door becoming its own cartridge is still coming.
+What to notice: these bins exist today. The hosted REST, MCP, A2A, and sandbox routes already run; extracting their generic front door into its own cartridge is coming.
+
+[Hexagonal architecture](${originToken}/lore/hexagonal-architecture) keeps job-shaped ports in core and provider adapters outside it. [HATEOAS](${originToken}/lore/hateoas) explains links that guide an agent's next action, including agent-only page guidance. [Analytics](${originToken}/systems/analytics) is a running capture system; [interest signup](${originToken}/systems/interest) shows consent and confirmation across a delivery adapter.
 
 ## One capability, every surface
 
@@ -1833,7 +1846,7 @@ This is the whole search capability. Every surface below calls it.
 ${searchCapabilityExcerpt}
 \`\`\`
 
-What to notice: the schemas and handler live together, so the command line, HTTP, MCP, RPC, and sandbox projections cannot quietly disagree. RPC serves the browser.
+What to notice: the schemas and handler share one contract, so the command line, HTTP, MCP, RPC, and sandbox projections cannot quietly disagree. RPC serves the browser.
 
 ## Learn the stack
 
@@ -1860,6 +1873,8 @@ Install them:
 \`npx skills add joelhooks/rat-stack\`
 
 ${groupedSkills}
+
+Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundaries and [agent next actions](/lore/hateoas) for hypermedia guidance. [Systems](/systems) shows the running behavior.
 `;
 
   const homeBody = yield* compileMarkdownBody(
@@ -2024,10 +2039,11 @@ ${groupedSkills}
     "",
     "- [Home](__RATSTACK_ORIGIN__/): short overview",
     "- [Glossary](__RATSTACK_ORIGIN__/glossary): A–Z terms, summaries, and pages",
-    "- [All public docs](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
+    "- [Public content corpus](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
     "- [HTTP API](__RATSTACK_ORIGIN__/openapi.json): routes, inputs, outputs, and errors",
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): tools for search, reading, and sandboxed code",
     "",
+    agentNextActions(originToken),
     "## Source files",
     "",
     entryList(publicSpecs),
@@ -2084,6 +2100,7 @@ ${groupedSkills}
     "/.well-known/http-message-signatures-directory",
     "/no-verify",
     trapRoutePath,
+    tokenmaxxRoutePath,
     ...publicSpecs.map((spec) => spec.routePath),
     ...skillTexts.flatMap((skill) => [
       skill.routePath,

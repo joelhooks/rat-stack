@@ -640,7 +640,7 @@ it.effect(
           "text/html"
         );
         expect(resourceHtml).toContain(
-          "<title>Effect 4 examples | rat-stack</title>"
+          `<title>${resource.title} | rat-stack</title>`
         );
         expect(resourceHtml).toContain(
           '<h1 id="effect-4-reference-projects-studied-2026-09-18">'
@@ -1615,7 +1615,6 @@ it.effect("serves the ARD manifest and honest anonymous auth.md", () =>
       expect(auth.headers.get("content-type")).toContain("text/markdown");
       expect(authBody).toBe(authMarkdown);
       expect(authBody.split("\n", 1)[0]?.toLowerCase()).toContain("auth.md");
-      expect(authBody).toContain("There is no signup or registration route");
       expect(authBody).toContain("does not use OAuth");
     })
   )

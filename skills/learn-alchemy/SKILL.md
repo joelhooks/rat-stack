@@ -17,7 +17,7 @@ Sam Goodwin describes an Effect as a promise with more information: its return v
 - **Provider** supplies the cloud API implementation. `Cloudflare.providers()` appears in the Stack options in `apps/infra/alchemy.run.ts`.
 - **State** records the resources that a Stack already owns. Rat-stack uses `Cloudflare.state()` in `apps/infra/alchemy.run.ts`.
 - **Resource** is a declared cloud object such as a Zone, DNS record, DNSSEC setting, or Worker. Each gets a stable logical name in `apps/infra/alchemy.run.ts`.
-- **Binding** is a typed runtime value attached to a Worker. Rat-stack declares the `CODE_SANDBOX` WorkerLoader and three RateLimit bindings in `apps/mischief/src/worker.ts`.
+- **Binding** is a typed runtime value attached to a Worker. Rat-stack declares the `CODE_SANDBOX` WorkerLoader and four RateLimit bindings in `apps/mischief/src/worker.ts`.
 - **Plan** is the graph diff before a provider changes anything. Read it with the `plan` script in `apps/infra/package.json`.
 - **Stage** names an isolated deployment state. Rat-stack's production stage is `prod`; the unflagged default is `live_$USER`.
 - **Profile** holds provider credentials for the Alchemy CLI. This repo uses an Alchemy profile, not environment variables, for Cloudflare authentication.
@@ -36,22 +36,20 @@ Read `apps/infra/alchemy.run.ts` from top to bottom.
 6. The DNS-AID SVCB and TXT records point agent discovery at the deployed site. They use the adopted Zone's `zoneId`.
 7. `Cloudflare.DNS.Dnssec` keeps DNSSEC active. It is adopted for the same reason as the Zone.
 8. `Mischief` declares the Worker with `ratstack.sh` as its custom domain, `www.ratstack.sh` as a redirect, and port 1337 for dev.
-9. The Worker construction yields its WorkerLoader and RateLimit bindings. `Effect.provide(Cloudflare.Workers.RateLimitBinding)` supplies the RateLimit client layer.
-10. The Stack returns `mischiefUrl`, an output derived from the Worker resource.
+9. The Worker construction yields its WorkerLoader and four RateLimit bindings: `API_PER_IP`, `EXECUTE_GLOBAL`, `EXECUTE_PER_IP`, and `INTEREST_PER_IP`. `Effect.provide(Cloudflare.Workers.RateLimitBinding)` supplies the RateLimit client layer.
+10. `apps/mischief/src/worker.ts` also yields the Interest and InterestIndex Durable Objects. `EVENTS_ENABLED` chooses `Basin` or `basinFoundation`: both keep the bucket, stream, and visitor salt; enabled adds the catalog, sink, and pipeline. Subscriber delivery is provided at the Worker composition boundary, outside core.
+11. The Stack yields `Website` from `apps/web/src/website.ts` and returns both `mischiefUrl` and `websiteUrl`.
 
-The core shape is small:
+The output shape, omitting the production DNS declarations above, is small:
 
 ```ts
 export default Alchemy.Stack(
   "RatStack",
   { providers: Cloudflare.providers(), state: Cloudflare.state() },
   Effect.gen(function* stack() {
-    const dev = yield* Alchemy.ALCHEMY_DEV;
-    if (!dev) {
-      // Zone, DNS, and DNSSEC resources
-    }
     const mischief = yield* Mischief;
-    return { mischiefUrl: mischief.url };
+    const website = yield* Website;
+    return { mischiefUrl: mischief.url, websiteUrl: website.url };
   })
 );
 ```
@@ -63,22 +61,27 @@ What to notice: the Stack is an Effect. Importing it describes work. The CLI run
 `apps/mischief/src/worker.ts` exports `class Mischief extends Cloudflare.Worker<Mischief>()(...) {}` with `main: import.meta.url`, so Alchemy bundles the default Worker export. Its construction Effect yields bindings before it returns the `fetch` implementation. Alchemy populates `Cloudflare.WorkerEnvironment` dynamically; this repo keeps the expected binding shape in local types at that boundary.
 
 ```ts
+const stageRateLimits = rateLimitDeclarations(yield * Stage);
 yield * Cloudflare.WorkerLoader("CODE_SANDBOX");
+yield * Cloudflare.RateLimit("API_PER_IP", stageRateLimits.API_PER_IP);
+yield * Cloudflare.RateLimit("EXECUTE_GLOBAL", stageRateLimits.EXECUTE_GLOBAL);
+yield * Cloudflare.RateLimit("EXECUTE_PER_IP", stageRateLimits.EXECUTE_PER_IP);
 yield *
-  Cloudflare.RateLimit("EXECUTE_GLOBAL", rateLimitDeclarations.EXECUTE_GLOBAL);
+  Cloudflare.RateLimit("INTEREST_PER_IP", stageRateLimits.INTEREST_PER_IP);
 const environment = yield * Cloudflare.WorkerEnvironment;
+// SAFETY: the Worker construction declares every RateLimitBindings member and CODE_SANDBOX before reading this environment.
 const bindings = environment as RateLimitBindings & {
   readonly CODE_SANDBOX: WorkerLoaderBinding;
 };
 ```
 
-`apps/mischief/src/rate-limits.ts` keeps the three native binding names and their numeric namespace IDs together. `rateLimitsFrom` calls the native `.limit({ key })` method and turns a failed runtime call into a defect instead of failing open.
+`apps/mischief/src/rate-limits.ts` keeps the four native binding names and their numeric namespace IDs together. `rateLimitsFrom` calls the native `.limit({ key })` method and turns a failed runtime call into a defect instead of failing open.
 
 `apps/mischief/src/sandbox-worker-loader.ts` consumes the `CODE_SANDBOX` binding. It loads a fresh Dynamic Worker with limits and `globalOutbound: null`, so the code-mode Worker can compute and call declared capabilities without reaching the network.
 
 The constructor pattern is the useful seam. Sam calls it another word for a Layer: declare dependencies in the Effect, use them, then return the implementation. His React analogy is practical here. Dependencies are the hooks at the top. The returned Worker is the component.
 
-What to notice: comment out a binding and the consumer no longer has the runtime value it expects. The infrastructure and application code fail together instead of drifting apart.
+What to notice: declarations and consumers live in one construction Effect. This environment assertion relies on the declared bindings; it is not proof that every missing binding fails typecheck. Check both the plan and runtime behavior.
 
 ## Plan, then deploy
 
