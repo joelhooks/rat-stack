@@ -1,0 +1,372 @@
+[
+  {
+    "repo": "alchemy-run/alchemy",
+    "tier": "S",
+    "reason": "Upstream infrastructure reference; the study cites its RPC and Better Auth patterns.",
+    "versions": {
+      "effect": "4.0.0-rc.118 (workspace override)",
+      "alchemy": "2.0.0-beta.79 (workspace package)",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "e354a4555241c307784264a46fd13cff33c60816",
+    "sources": [
+      {
+        "label": "workspace catalog and overrides",
+        "path": "pnpm-workspace.yaml"
+      },
+      {
+        "label": "Alchemy package version",
+        "path": "packages/alchemy/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "MapleTechLabs/maple",
+    "tier": "A",
+    "reason": "Active Oct 1; studied scoped Drizzle, Worker tests, and vendor boundaries.",
+    "versions": {
+      "effect": "4.0.0-rc.117",
+      "alchemy": "2.0.0-beta.79",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "f2e91c0372b154e9ca4db19debb8324dc50b5c0c",
+    "sources": [
+      {
+        "label": "root catalogs",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "repo": "pingdotgg/t3code",
+    "tier": "A",
+    "reason": "Active Oct 1; studied PlanetScale and Hyperdrive resource wiring.",
+    "versions": {
+      "effect": "4.0.0-rc.115",
+      "alchemy": "2.0.0-beta.79",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[effect-4-reference-projects](effect-4-reference-projects.svx), [same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "bed69f6ea41dab13ec37afbaaa2c911a19865f7a",
+    "sources": [
+      {
+        "label": "Effect catalog",
+        "path": "pnpm-workspace.yaml"
+      },
+      {
+        "label": "relay infra manifest",
+        "path": "infra/relay/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "smithersai/smithers",
+    "tier": "A",
+    "reason": "Active Oct 1; studied its SQLite-backed D1 test adapter.",
+    "versions": {
+      "effect": "4.0.0-rc.115",
+      "alchemy": "2.0.0-beta.76",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "a4ed4c9458cbcd2abe759a659495239c4d2ee4ae",
+    "sources": [
+      {
+        "label": "root Effect pin",
+        "path": "package.json"
+      },
+      {
+        "label": "infra manifest",
+        "path": "packages/smithers/build/infra/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "851-labs/tokenmaxxing",
+    "tier": "B",
+    "reason": "Shared Effect and Alchemy catalog pins warrant tailing; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.117",
+      "alchemy": "2.0.0-beta.79",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "f97c2e4212e1e1b21cb55efbb79dc70e0b62f7f3",
+    "sources": [
+      {
+        "label": "root catalogs",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "repo": "danieljvdm/effect-agent",
+    "tier": "B",
+    "reason": "Shared Effect and Alchemy catalog pins warrant tailing; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.117",
+      "alchemy": "2.0.0-beta.77",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "d3ef7ea8d24e6d7a5d4d057d497badfc72d3f5de",
+    "sources": [
+      {
+        "label": "root catalog",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "repo": "danieljvdm/effect-cf",
+    "tier": "B",
+    "reason": "Effect packages and Alchemy pipeline tooling warrant tailing; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.115 (locked from range); tooling 4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.72 (pipeline tooling)",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "a49a9c9909be169d7ada217ede5c34fc3410faa1",
+    "sources": [
+      {
+        "label": "root catalog range",
+        "path": "package.json"
+      },
+      {
+        "label": "locked Effect rc.115",
+        "path": "bun.lock"
+      },
+      {
+        "label": "pipeline tooling pins",
+        "path": "scripts/bundle-pipelines/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "Heilonng23/openheard",
+    "tier": "B",
+    "reason": "Its infra package declares both shared lines; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.75",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "9fe349a3ce9e45781f689d63d78828e9e912004a",
+    "sources": [
+      {
+        "label": "infra manifest",
+        "path": "packages/infra/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "irfndi/prism-liquidity-agent",
+    "tier": "B",
+    "reason": "Effect and Cloudflare Alchemy manifests warrant tailing; no study recorded yet.",
+    "versions": {
+      "effect": "Root 4.0.0-rc.111; Cloudflare 4.0.0-beta.105; infra 4.0.0-beta.102",
+      "alchemy": "2.0.0-beta.64",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "d15c63ef7a5d426ad71f4bbf4dae05c94ba0bc02",
+    "sources": [
+      {
+        "label": "root",
+        "path": "package.json"
+      },
+      {
+        "label": "Cloudflare",
+        "path": "cloudflare/package.json"
+      },
+      {
+        "label": "infra",
+        "path": "cloudflare/infra/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "plannotator/artifact-server",
+    "tier": "B",
+    "reason": "Its Cloudflare deploy package shares Effect and Alchemy; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.115",
+      "alchemy": "2.0.0-beta.79",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "main",
+    "commit": "5af28ac3e52228e7f1781270ead712148fb583cc",
+    "sources": [
+      {
+        "label": "root",
+        "path": "package.json"
+      },
+      {
+        "label": "Cloudflare deploy",
+        "path": "deploy/cloudflare/package.json"
+      }
+    ]
+  },
+  {
+    "repo": "yehudacohen/typekro",
+    "tier": "B",
+    "reason": "Its root manifest declares both shared lines; no study recorded yet.",
+    "versions": {
+      "effect": "4.0.0-rc.110",
+      "alchemy": "2.0.0-beta.74",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "Not yet studied",
+    "branch": "master",
+    "commit": "9772ef9b2fd29148ae4fb586e31ac4e3e869a609",
+    "sources": [
+      {
+        "label": "root manifest",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "repo": "cameronapak/dotflowy",
+    "tier": "C",
+    "reason": "Screened: Better Auth but no Alchemy integration useful to the studied lane.",
+    "versions": {
+      "effect": "4.0.0-rc.115",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.12",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "8ac23362d5ad1528fbe73a7ad14fc789a117faf4",
+    "sources": [
+      {
+        "label": "root manifest",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "repo": "Dhravya/radish",
+    "tier": "C",
+    "reason": "Symbol-screened without a relevant client or resource pattern in the recorded study.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.77 (locked from ^2.0.0-beta.77)",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "98768e8124ca24ec3f76211daa45290392f6eefa",
+    "sources": [
+      {
+        "label": "root range and pin",
+        "path": "package.json"
+      },
+      {
+        "label": "locked Alchemy beta.77",
+        "path": "bun.lock"
+      }
+    ]
+  },
+  {
+    "repo": "dmmulroy/overseer",
+    "tier": "C",
+    "reason": "Symbol-screened without a relevant client or resource pattern in the recorded study.",
+    "versions": {
+      "effect": "4.0.0-rc.112",
+      "alchemy": "2.0.0-beta.76",
+      "xstate": "—",
+      "xstateEffect": "—"
+    },
+    "checked": "2026-10-01",
+    "firstSeen": "2026-09-23",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "9810d13bb930144ba92a00bc99401fcb886cb8e7",
+    "sources": [
+      {
+        "label": "root manifest",
+        "path": "package.json"
+      }
+    ]
+  },
+  {
+    "branch": "main",
+    "checked": "2026-10-01",
+    "commit": "864a60e23eea6e9a7f765d35716923061a0101ca",
+    "firstSeen": "2026-10-01",
+    "reason": "New discovery: its Cloudflare example shares Effect and Alchemy catalogs; not yet studied.",
+    "repo": "humanlayer/fold",
+    "sources": [
+      {
+        "label": "root catalog",
+        "path": "package.json"
+      },
+      {
+        "label": "Cloudflare example",
+        "path": "examples/alchemy-cloudflare/package.json"
+      }
+    ],
+    "studied": "Not yet studied",
+    "tier": "B",
+    "versions": {
+      "alchemy": "2.0.0-beta.76",
+      "effect": "4.0.0-rc.112",
+      "xstate": "—",
+      "xstateEffect": "—"
+    }
+  }
+]

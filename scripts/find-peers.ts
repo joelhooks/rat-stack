@@ -45,7 +45,7 @@ const decodeMatches = Schema.decodeUnknownSync(
 const { values } = parseArgs({
   options: {
     min: { default: "2", type: "string" },
-    roster: { default: ".brain/resources/peers.svx", type: "string" },
+    roster: { default: ".brain/data/peers.json", type: "string" },
   },
 });
 
@@ -61,9 +61,11 @@ const familyKeyOf = (line: Line): string => {
   return scope === undefined ? keyOf(line) : `${scope}@${line.prefix}`;
 };
 
-const prereleaseLine = (name: string, version: string): Line | undefined => {
-  const prefix = /^[\^~]?(?<prefix>\d+\.\d+\.\d+-[a-z]+)[.\d]*/u.exec(version)
-    ?.groups?.prefix;
+const stackLine = (name: string, version: string): Line | undefined => {
+  const prefix =
+    /^[\^~]?(?<prefix>\d+\.\d+\.\d+-[a-z]+)[.\d]*/u.exec(version)?.groups
+      ?.prefix ??
+    (name === "effect" && /^[\^~]?4\./u.test(version) ? "4." : undefined);
 
   return prefix === undefined ? undefined : { name, prefix };
 };
@@ -78,7 +80,7 @@ const linesIn = (path: string): readonly Line[] => {
   };
 
   return Object.entries(pins).flatMap(
-    ([name, version]) => prereleaseLine(name, version) ?? []
+    ([name, version]) => stackLine(name, version) ?? []
   );
 };
 
@@ -165,9 +167,15 @@ for (const { line, matches } of results) {
   }
 }
 
-const roster = existsSync(values.roster)
-  ? readFileSync(values.roster, "utf-8")
-  : "";
+const roster = new Set(
+  existsSync(values.roster)
+    ? Schema.decodeUnknownSync(
+        Schema.fromJsonString(
+          Schema.Array(Schema.Struct({ repo: Schema.String }))
+        )
+      )(readFileSync(values.roster, "utf-8")).map((peer) => peer.repo)
+    : []
+);
 
 const ranked = [...peers.values()]
   .filter(
@@ -177,7 +185,7 @@ const ranked = [...peers.values()]
   .toSorted((a, b) => b.lines.size - a.lines.size || b.stars - a.stars);
 
 const rows = ranked.map((peer) => {
-  const marker = roster.includes(peer.repo) ? "" : "new";
+  const marker = roster.has(peer.repo) ? "" : "new";
   const shared = [...peer.lines].join(", ");
 
   return `| ${marker} | [${peer.repo}](https://github.com/${peer.repo}) | ${peer.stars} | ${shared} |`;

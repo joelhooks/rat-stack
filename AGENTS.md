@@ -114,6 +114,7 @@ A child project replaces this section on day one with its own product rules. The
 - Lifecycles are machines. Finite modes, retries, and cancellation live in XState machines started with `createEffectActor`; side effects live in declared `fromEffect` actors, never inline.
 - The sandbox is a surface, not a bypass. Anything reachable from a code-mode program must be a capability and goes through that capability's schemas and handler.
 - Gardener rule: add a lint rule before cleaning up a bad pattern; lint baselines only shrink. The routine is `skills/gardener`; before simplifying or replacing a design, run `skills/uncomplect`.
+- Refresh peers, versions, and tiers every week or two and after every bump of Effect, Alchemy, XState, or `@xstate/effect`. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit table rows. Drift is expected. Preserve every peer; show S through B in the main table and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
 - Tautological tests considered harmful.
 - Change-detector tests considered harmful.
 - Do not create regression tests for bug fixes without a genuine gap in behavior testing.

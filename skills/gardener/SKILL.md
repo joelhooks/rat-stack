@@ -38,9 +38,11 @@ For each line that is behind:
 
 Commit each line separately, so a regression bisects to one library.
 
-## 3. Learn from peers
+## 3. Peers refresh
 
-Run the `find-peers` skill after each bump. It finds public repos on the same prerelease lines, keeps the roster in `.brain/resources/peers.svx`, and says how to study the new ones.
+Run the `find-peers` skill every week or two and after every shared-line bump, even when there are no new peers. Read each peer's default-branch manifests or lockfiles and refresh its exact versions, checked date, tier, and evidence-based reason in `.brain/data/peers.json`. The content build reads rat-stack's current pins from its manifests and filters/sorts this one dataset into `.brain/resources/peers.svx`; do not hand-edit table rows. Drift is expected. Keep every peer: S through B in the main table, C through F in the collapsed **Also seen** list. Study relevant new peers using the skill's source-first process.
+
+Check the dataset's oldest peer checked date on every gardener pass. If it is fourteen days old, refresh it before continuing; a shared-line bump always triggers a refresh. This repo-native pass owns the cadence, not an external scheduler. Put the rubric, full ranking, tier changes, and unresolved versions at the top of the report for feedback after shipping; no separate approval round is required.
 
 ## 4. Garden
 
