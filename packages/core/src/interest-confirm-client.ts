@@ -4,9 +4,9 @@ import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { DrovrConfirm } from "./interest-confirm-port.js";
 import type { ConfirmState } from "./interest-confirm-port.js";
 
-export const TOKEN_STATE_PATH = "/PENDING-PACKET/token-state";
+export const TOKEN_STATE_PATH = "/intake/token-state";
 
-export const CONFIRM_PATH = "/PENDING-PACKET/confirm";
+export const CONFIRM_PATH = "/intake/confirm";
 
 export interface ConfirmSettings {
   readonly base: Option.Option<string>;
