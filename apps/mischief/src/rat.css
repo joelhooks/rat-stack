@@ -131,6 +131,64 @@ button {
   padding: 0.25rem 0.75rem;
 }
 
+.interest {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.interest p {
+  margin: 0;
+}
+
+.interest .email {
+  flex: 0 1 28rem;
+  order: 1;
+}
+
+.interest .email input {
+  width: 100%;
+}
+
+.interest .join {
+  order: 2;
+}
+
+.interest .shield {
+  flex-basis: 100%;
+  order: 3;
+}
+
+.interest .note {
+  flex-basis: 100%;
+  order: 4;
+}
+
+.prompt {
+  margin: 1rem 0;
+}
+
+.prompt pre {
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+}
+
+.copy {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.copy[hidden],
+.icon[hidden] {
+  display: none;
+}
+
+.copy-status {
+  margin-left: 0.5rem;
+}
+
 .hp {
   height: 0;
   left: -9999px;

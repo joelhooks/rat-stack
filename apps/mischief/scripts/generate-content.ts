@@ -43,7 +43,7 @@ import {
   parseLorePage,
   validateInternalLinks,
 } from "./content-lib.ts";
-import type { LoreTermTarget } from "./content-lib.ts";
+import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
 
@@ -116,7 +116,9 @@ interface DocumentProps {
   readonly title: string;
 }
 
-type ServerComponent = Component<Partial<DocumentProps>>;
+type ServerComponent = Component<
+  Partial<DocumentProps> & Partial<Omit<CopyPromptSpec, "agentFence">>
+>;
 
 const digest = (text: string) =>
   createHash("sha256").update(text).digest("hex");
@@ -363,16 +365,48 @@ const trapRoutePath = "/--no-verify" as const;
 
 const tokenmaxxRoutePath = "/tokenmaxx" as const;
 
+const copyScript = `
+for (const button of document.querySelectorAll("button[data-text]")) {
+  const label = button.querySelector(".copy-label");
+  const status = button.nextElementSibling;
+  const done = button.querySelector(".icon-done");
+  const idle = button.querySelector(".icon:not(.icon-done)");
+  const original = label ? label.textContent : "";
+  button.hidden = false;
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.text);
+    } catch {
+      const shown = button.parentElement.querySelector("pre");
+      if (shown) getSelection().selectAllChildren(shown);
+      return;
+    }
+    if (label) label.textContent = "Copied";
+    status.textContent = "Copied";
+    done.hidden = false;
+    idle.hidden = true;
+    setTimeout(() => {
+      if (label) label.textContent = original;
+      status.textContent = "";
+      done.hidden = true;
+      idle.hidden = false;
+    }, 2000);
+  });
+}
+`;
+
+const copyScriptHash = `sha256-${createHash("sha256").update(copyScript).digest("base64")}`;
+
 const tokenmaxxFormHtml = `
 <h2 id="interested">Interested?</h2>
-<form method="post" action="/tokenmaxx/interest">
-<p><label for="interest-email">Your email</label><br />
+<form class="interest" method="post" action="/tokenmaxx/interest">
+<p class="email"><label for="interest-email">Your email</label><br />
 <input id="interest-email" type="email" name="email" required autocomplete="email" maxlength="254" /></p>
 __SHIELD_SHIBA_WIDGET__
 <p class="hp" aria-hidden="true"><label for="interest-website">Leave this empty</label><br />
 <input id="interest-website" type="text" name="website" tabindex="-1" autocomplete="off" /></p>
-<p><button type="submit">Join the interest list</button></p>
-<p>Email me once when the date is set for "how to burn a trillion tokens."</p>
+<p class="join"><button type="submit">Join the interest list</button></p>
+<p class="note">Email me once when the date is set for "how to burn a trillion tokens."</p>
 </form>
 `;
 
@@ -593,6 +627,30 @@ const loadCompiledComponent = Effect.fn("loadCompiledComponent")(
   }
 );
 
+const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
+  function* copyPromptRenderer() {
+    const fileSystem = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const sourcePath = "apps/mischief/src/copy-prompt.svelte";
+
+    const source = yield* fileSystem
+      .readFileString(
+        path.join(import.meta.dirname, "../src/copy-prompt.svelte")
+      )
+      .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
+
+    const component = yield* loadCompiledComponent(source, sourcePath);
+
+    return (spec: CopyPromptSpec) =>
+      render(component, {
+        props: { label: spec.label, showText: spec.showText, text: spec.text },
+      })
+        .body.replaceAll(/<!--[\s\S]*?-->/gu, "")
+        .replaceAll(/\n\s*\n+/gu, "\n")
+        .trim();
+  }
+);
+
 const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
   function* compileMarkdownBody(
     source: string,
@@ -605,11 +663,15 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
     const linkedLoreRoutes = new Set<string>();
     const linkedLoreTerms = new Map<string, string>();
 
+    const renderPrompt = source.includes("<CopyPrompt")
+      ? yield* copyPromptRenderer()
+      : undefined;
+
     const transformed = yield* Effect.tryPromise({
       catch: (cause) => buildError("mdsvex compile", sourcePath, cause),
       // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this Promise boundary.
       try: async () =>
-        await compileMdsvex(deriveHtmlMarkdown(source), {
+        await compileMdsvex(deriveHtmlMarkdown(source, renderPrompt), {
           extensions: [".md", ".svx"],
           filename: sourcePath,
           highlight: {
@@ -2371,7 +2433,7 @@ ${groupedSkills}
     "no-verify.md"
   )}`;
 
-  const tokenmaxxBodyHtml = `${tokenmaxxBody.bodyHtml}${tokenmaxxFormHtml}`;
+  const tokenmaxxBodyHtml = `${tokenmaxxBody.bodyHtml}${tokenmaxxFormHtml}__COPY_SCRIPT__`;
 
   const skillIndexBodyHtml = `${skillIndexBody.bodyHtml}${pageFooterHtml(
     "/skills",
@@ -2706,7 +2768,7 @@ ${groupedSkills}
 
   const staticContentVersion = contentVersion;
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(homeMarkdownTemplate)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(noVerifyAgentMarkdown)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(skillIndexMarkdown)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(loreIndexMarkdown)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(homeMarkdownTemplate)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(noVerifyAgentMarkdown)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(skillIndexMarkdown)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(loreIndexMarkdown)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem

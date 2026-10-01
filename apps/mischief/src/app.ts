@@ -48,6 +48,8 @@ import {
   staticContentVersion,
   tokenmaxxDocumentHtml,
   tokenmaxxImageJpeg,
+  tokenmaxxCopyScript,
+  tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./content.js";
 import { renderStaticDocument } from "./html.js";
@@ -434,7 +436,7 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
 const shieldWidgetHtml = (siteKey: string | undefined) =>
   siteKey === undefined || siteKey === ""
     ? ""
-    : `<script src="https://postshiba.com/shield/v1/widget.js" async></script>\n<p><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
+    : `<script src="https://postshiba.com/shield/v1/widget.js" async></script>\n<p class="shield"><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
 
 const tokenmaxxResponse = (
   request: HttpServerRequest.HttpServerRequest,
@@ -442,10 +444,15 @@ const tokenmaxxResponse = (
 ) =>
   HttpServerResponse.text(
     acceptsHtml(request)
-      ? renderStaticDocument(
-          originOf(request),
-          tokenmaxxDocumentHtml
-        ).replaceAll("__SHIELD_SHIBA_WIDGET__", shieldWidgetHtml(shieldSiteKey))
+      ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
+          .replaceAll(
+            "__SHIELD_SHIBA_WIDGET__",
+            shieldWidgetHtml(shieldSiteKey)
+          )
+          .replaceAll(
+            "__COPY_SCRIPT__",
+            `<script>${tokenmaxxCopyScript}</script>`
+          )
       : tokenmaxxMarkdown,
     {
       contentType: acceptsHtml(request)
@@ -454,7 +461,8 @@ const tokenmaxxResponse = (
       headers: {
         "content-security-policy": contentSecurityPolicy(
           "'self'",
-          shieldSiteKey !== undefined && shieldSiteKey !== ""
+          shieldSiteKey !== undefined && shieldSiteKey !== "",
+          tokenmaxxCopyScriptHash
         ),
         vary: "Accept",
         "x-robots-tag": "noindex",

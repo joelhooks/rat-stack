@@ -24,6 +24,8 @@ export {
   skillIndexDocumentHtml,
   staticContentVersion,
   tokenmaxxDocumentHtml,
+  tokenmaxxCopyScript,
+  tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./bundled-content.generated.js";
 

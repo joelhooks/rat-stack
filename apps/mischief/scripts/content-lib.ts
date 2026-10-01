@@ -744,7 +744,51 @@ export const validateInternalLinks = (options: {
 };
 
 const audienceTag =
-  /<(?:AgentOnly|HumanOnly|Diagram)(?:\s[^>]*)?>|<\/(?:AgentOnly|HumanOnly|Diagram)>/u;
+  /<(?:AgentOnly|HumanOnly|Diagram|CopyPrompt)(?:\s[^>]*)?>|<\/(?:AgentOnly|HumanOnly|Diagram)>/u;
+
+export interface CopyPromptSpec {
+  readonly agentFence: boolean;
+  readonly label: string;
+  readonly showText: boolean;
+  readonly text: string;
+}
+
+export const copyPrompts = {
+  page: {
+    agentFence: false,
+    label: "Copy a prompt for your agent",
+    showText: false,
+    text: [
+      "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
+      'Explain the "how to burn a trillion tokens" workshop to me, then help me get ready with the "Before you come" steps.',
+      "Do not submit the interest form. Joining the list happens in a browser, because of the human check.",
+    ].join("\n"),
+  },
+  setup: {
+    agentFence: true,
+    label: "Copy prompt",
+    showText: true,
+    text: [
+      'Check my setup for the "how to burn a trillion tokens" session.',
+      "1. Check that Docker is running (Docker Desktop or OrbStack).",
+      "2. Create a private repo from the joelhooks/rat-stack template and clone it: gh repo create my-factory --private --template joelhooks/rat-stack",
+      "3. Read https://ratstack.sh/llms.txt",
+      "4. Tell me what is missing.",
+    ].join("\n"),
+  },
+} satisfies Record<string, CopyPromptSpec>;
+
+const copyPromptTag = /[ \t]*<CopyPrompt id="(?<id>[a-z-]+)"\s*\/>/gu;
+
+const promptSpec = (id: string) => {
+  const spec = Object.entries(copyPrompts).find(([key]) => key === id)?.[1];
+
+  if (spec === undefined) {
+    throw new Error(`unknown CopyPrompt id ${id}`);
+  }
+
+  return spec;
+};
 
 const agentBlock =
   /<AgentOnly>\s*\r?\n(?<content>[\s\S]*?)\r?\n\s*<\/AgentOnly>/gu;
@@ -800,7 +844,13 @@ export const deriveAgentMarkdown = (source: string): string => {
     return source;
   }
 
-  const withoutHuman = source.replaceAll(humanBlock, "");
+  const withoutHuman = source
+    .replaceAll(humanBlock, "")
+    .replaceAll(copyPromptTag, (_match: string, id: string) => {
+      const spec = promptSpec(id);
+
+      return spec.agentFence ? `\`\`\`text\n${spec.text}\n\`\`\`` : "";
+    });
 
   const withDiagramText = withoutHuman.replaceAll(
     diagramBlock,
@@ -810,12 +860,20 @@ export const deriveAgentMarkdown = (source: string): string => {
   return withDiagramText.replaceAll(agentBlock, "$<content>");
 };
 
-export const deriveHtmlMarkdown = (source: string): string => {
+export const deriveHtmlMarkdown = (
+  source: string,
+  renderPrompt: (spec: CopyPromptSpec) => string = () => ""
+): string => {
   if (!audienceTag.test(source)) {
     return source;
   }
 
-  const withDiagrams = source.replaceAll(
+  const withPrompts = source.replaceAll(
+    copyPromptTag,
+    (_match: string, id: string) => ` ${renderPrompt(promptSpec(id))}`
+  );
+
+  const withDiagrams = withPrompts.replaceAll(
     diagramBlock,
     (_match: string, alt: string, fence: string) =>
       `<figure role="img" aria-label="${escapeHtml(alt)}">\n\n${fence}\n\n<figcaption>${escapeHtml(alt)}</figcaption></figure>`

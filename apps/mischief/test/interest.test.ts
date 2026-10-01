@@ -198,7 +198,7 @@ it.effect(
         );
         expect(html).toContain('<meta name="robots" content="noindex"');
         expect(html).toContain(
-          '<form method="post" action="/tokenmaxx/interest">'
+          '<form class="interest" method="post" action="/tokenmaxx/interest">'
         );
         expect(html).toContain('name="website"');
         expect(html).toContain("how to burn a trillion tokens");
@@ -1610,8 +1610,8 @@ it.effect(
             expect(html).toContain(
               '<shield-shiba sitekey="ss_pk_test" email-field="#interest-email"></shield-shiba>'
             );
-            expect(policy).toContain(
-              "script-src https://static.cloudflareinsights.com https://postshiba.com"
+            expect(policy).toMatch(
+              /script-src https:\/\/static\.cloudflareinsights\.com 'sha256-[A-Za-z0-9+/=]+' https:\/\/postshiba\.com/u
             );
             expect(policy).toContain(
               "connect-src https://cloudflareinsights.com https://postshiba.com"
@@ -1706,4 +1706,176 @@ it.effect("GET reads the token state and never confirms; POST confirms", () =>
       { confirm: spy, mode: "drovr" }
     );
   })
+);
+
+const tokenmaxxPage = (handler: WebHandler, accept: string) =>
+  call(
+    handler,
+    new Request("https://ratstack.sh/tokenmaxx", { headers: { accept } })
+  );
+
+const setupPromptLines = [
+  'Check my setup for the "how to burn a trillion tokens" session.',
+  "1. Check that Docker is running (Docker Desktop or OrbStack).",
+  "2. Create a private repo from the joelhooks/rat-stack template and clone it: gh repo create my-factory --private --template joelhooks/rat-stack",
+  "3. Read https://ratstack.sh/llms.txt",
+  "4. Tell me what is missing.",
+];
+
+const sha256Base64 = (value: string) =>
+  Effect.promise(
+    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
+    () => crypto.subtle.digest("SHA-256", new TextEncoder().encode(value))
+  ).pipe(
+    Effect.map((digest) =>
+      btoa(String.fromCodePoint(...new Uint8Array(digest)))
+    )
+  );
+
+it.effect(
+  "shows the setup prompt in both views, with the button and script only in HTML",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* views() {
+        const htmlResponse = yield* tokenmaxxPage(handler, "text/html");
+        const html = yield* text(htmlResponse);
+
+        const markdown = yield* text(
+          yield* tokenmaxxPage(handler, "text/markdown")
+        );
+
+        for (const line of setupPromptLines) {
+          expect(html).toContain(line.replaceAll('"', "&quot;"));
+          expect(markdown).toContain(line);
+        }
+
+        expect(html).toContain('<button type="button" class="copy"');
+        expect(html).toContain("<script>");
+        expect(html).toContain("<pre><code>");
+        expect(html).not.toContain("__COPY_SCRIPT__");
+        expect(markdown).not.toContain("<button");
+        expect(markdown).not.toContain("<script");
+        expect(markdown).toContain("```text\nCheck my setup");
+      })
+    )
+);
+
+it.effect(
+  "keeps the copy buttons hidden until the script runs, and the prompt visible without it",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* withoutScript() {
+        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+
+        const buttons = [
+          ...html.matchAll(/<button type="button" class="copy"[^>]*>/gu),
+        ];
+
+        expect(buttons).toHaveLength(2);
+
+        for (const [button] of buttons) {
+          expect(button).toContain(" hidden");
+        }
+
+        expect(html).toContain("<pre><code>Check my setup");
+      })
+    )
+);
+
+it.effect(
+  "allows the copy script by hash only and never unsafe-inline scripts",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* strictPolicy() {
+        const response = yield* tokenmaxxPage(handler, "text/html");
+        const html = yield* text(response);
+        const policy = response.headers.get("content-security-policy") ?? "";
+
+        const scriptSrc =
+          /script-src (?<sources>[^;]*)/u.exec(policy)?.groups?.sources ?? "";
+
+        const body =
+          /<script>(?<body>[\s\S]*?)<\/script>/u.exec(html)?.groups?.body ?? "";
+
+        expect(body.length).toBeGreaterThan(0);
+        expect(scriptSrc).toContain(`'sha256-${yield* sha256Base64(body)}'`);
+        expect(scriptSrc).not.toContain("unsafe-inline");
+        expect(scriptSrc).not.toContain("unsafe-eval");
+        expect(policy).toContain("default-src 'none'");
+      })
+    )
+);
+
+it.effect(
+  "renders the page prompt as an icon button that forbids submitting the form",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* pagePrompt() {
+        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+
+        const markdown = yield* text(
+          yield* tokenmaxxPage(handler, "text/markdown")
+        );
+
+        expect(html).toContain('aria-label="Copy a prompt for your agent"');
+        expect(html).toContain("Do not submit the interest form.");
+        expect(markdown).not.toContain("Do not submit the interest form.");
+      })
+    )
+);
+
+it.effect(
+  "gives agents next actions and links, and humans the clean page",
+  () =>
+    withInterest((handler) =>
+      Effect.gen(function* agentLinks() {
+        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+
+        const markdown = yield* text(
+          yield* tokenmaxxPage(handler, "text/markdown")
+        );
+
+        for (const link of [
+          "/llms.txt",
+          "/lore/lauren-tan",
+          "/lore/poteto-lauren-tan-2500-prs-dune",
+          "/lore/lauren-tan-skills",
+          "/lore/matt-pocock-skills",
+          "/tokenmaxx#interested",
+        ]) {
+          expect(markdown).toContain(`](${link})`);
+        }
+
+        expect(markdown).toContain("There is no agent path yet.");
+        expect(html).not.toContain("Next actions for an agent");
+        expect(html).not.toContain("There is no agent path yet.");
+      })
+    )
+);
+
+it.effect("keeps the form's text and field names unchanged", () =>
+  withInterest((handler) =>
+    Effect.gen(function* formMarkup() {
+      const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+
+      const markup = /<form [\s\S]*?<\/form>/u.exec(html)?.[0] ?? "";
+
+      expect(markup).toContain('action="/tokenmaxx/interest"');
+      expect(markup).toContain('method="post"');
+      expect(markup).toContain(
+        '<label for="interest-email">Your email</label>'
+      );
+      expect(markup).toContain('id="interest-email" type="email" name="email"');
+      expect(markup).toContain(
+        '<label for="interest-website">Leave this empty</label>'
+      );
+      expect(markup).toContain(
+        'id="interest-website" type="text" name="website"'
+      );
+      expect(markup).toContain("Join the interest list</button>");
+      expect(markup).toContain(
+        'Email me once when the date is set for "how to burn a trillion tokens."'
+      );
+    })
+  )
 );
