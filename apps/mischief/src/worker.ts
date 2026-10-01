@@ -21,6 +21,7 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
+import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
@@ -225,6 +226,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
     compatibility: { date: "2026-05-28" },
     dev: { port: 1337 },
     domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
+    env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
     main: import.meta.url,
   },
   makeMischiefWorker
