@@ -156,6 +156,20 @@ figure {
   margin: 1rem 0;
 }
 
+.inbound-count {
+  margin-inline-start: 0.25ch;
+  font-size: 0.65em;
+}
+
+.linked-from details {
+  margin-block: 0.5rem;
+}
+
+.linked-from summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
 .bibliography ol {
   padding-inline-start: 2.5ch;
 }

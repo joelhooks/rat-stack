@@ -798,7 +798,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
     Effect.sync(() => {
       const fence = loreSources.find((lore) => lore.slug === "the-fence");
 
-      expect(fence?.documentHtml).toContain("<strong>Source file</strong>");
+      expect(fence?.documentHtml).toContain('id="linked-from"');
       expect(fence?.documentHtml).toContain(
         '<a href="/VISION.md">VISION.md</a>'
       );

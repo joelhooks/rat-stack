@@ -28,6 +28,11 @@ import type { Plugin } from "unified";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
+  addInboundCounts,
+  buildBacklinkIndex,
+  renderBacklinks,
+} from "./backlink-lib.ts";
+import {
   assertDocumentTitle,
   assertLoreTerms,
   assertGlossaryLinks,
@@ -1008,29 +1013,6 @@ const program = Effect.gen(function* generateContent() {
 
   const houseAdHtml = render(houseAdComponent, { props: houseAdCopy }).body;
 
-  const makeDocument = (
-    bodyHtml: string,
-    metadata: Omit<
-      DocumentProps,
-      "bodyHtml" | "discoveryLinks" | "ogImageUrl" | "origin" | "stylesheet"
-    >,
-    sourcePath: string,
-    contentVersion: string
-  ) =>
-    renderDocument(
-      shell,
-      {
-        bodyHtml,
-        discoveryLinks: markdownDiscoveryLinks(metadata.path),
-        houseAdHtml: hasHouseAd(metadata.path) ? houseAdHtml : "",
-        ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
-        origin: originToken,
-        stylesheet,
-        ...metadata,
-      },
-      sourcePath
-    );
-
   const peerSourcePath = ".brain/resources/peers.svx";
   const peerDataPath = ".brain/data/peers.json";
 
@@ -1497,6 +1479,8 @@ const program = Effect.gen(function* generateContent() {
   const loreRoutes = new Set([
     "/lore",
     "/systems",
+    "/skills",
+    ...skillTexts.map((skill) => skill.routePath),
     ...loreTexts.map((lore) => lore.routePath),
   ]);
 
@@ -2444,6 +2428,139 @@ ${groupedSkills}
     loreGraphSnapshot
   );
 
+  const homeMetadata = {
+    description:
+      "The reference for building an app and its cloud as one typed program, with Effect, Alchemy, and a fence that raises the floor.",
+    path: "/",
+    title: "Rat Stack: an app and its cloud as one typed program",
+  } as const;
+
+  const skillIndexMetadata = {
+    description:
+      "Hands-on guides to Effect actions, XState lifecycles, and the seams between stack pieces.",
+    path: "/skills",
+    title: "Learn the stack | rat-stack",
+  } as const;
+
+  const loreIndexMetadata = {
+    description:
+      "Short, source-grounded notes on the ideas and decisions behind rat-stack.",
+    path: "/lore",
+    title: "Rat Stack lore | rat-stack",
+  } as const;
+
+  const systemsIndexMetadata = {
+    description:
+      "The systems rat-stack ships, the standard each keeps, and how to check it.",
+    path: "/systems",
+    title: "Rat Stack systems | rat-stack",
+  } as const;
+
+  const noVerifyMetadata = {
+    description: "The rat looks disappointed. The hook still runs.",
+    path: trapRoutePath,
+    title: "No verify | rat-stack",
+  } as const;
+
+  const backlinkPages = [
+    {
+      bodyHtml: homeBody.bodyHtml,
+      description: tagline,
+      route: "/",
+      title: "rat-stack",
+    },
+    {
+      bodyHtml: noVerifyBody.bodyHtml,
+      description: noVerifyMetadata.description,
+      route: trapRoutePath,
+      title: noVerifyMetadata.title,
+    },
+    {
+      bodyHtml: skillIndexBody.bodyHtml,
+      description: skillIndexMetadata.description,
+      route: "/skills",
+      title: skillIndexMetadata.title,
+    },
+    {
+      bodyHtml: loreIndexBody.bodyHtml,
+      description: loreIndexMetadata.description,
+      route: "/lore",
+      title: loreIndexMetadata.title,
+    },
+    {
+      bodyHtml: systemsIndexBody.bodyHtml,
+      description: systemsIndexMetadata.description,
+      route: "/systems",
+      title: systemsIndexMetadata.title,
+    },
+    {
+      bodyHtml: llmsBody.bodyHtml,
+      description: tagline,
+      route: "/llms.txt",
+      title: "Agent guide",
+    },
+    {
+      bodyHtml: "",
+      description: tagline,
+      route: "/llms-full.txt",
+      title: "Full agent guide",
+    },
+    ...lawBodies.map(({ spec, bodyHtml }) => ({
+      bodyHtml,
+      description: spec.description,
+      route: spec.routePath,
+      title: spec.title,
+    })),
+    ...skillBodies.map(({ skill, bodyHtml }) => ({
+      bodyHtml,
+      description: skill.description,
+      route: skill.routePath,
+      title: skill.name,
+    })),
+    ...loreBodies.map(({ lore, bodyHtml }) => ({
+      bodyHtml,
+      description: lore.description,
+      route: lore.routePath,
+      title: lore.title,
+    })),
+  ];
+
+  const backlinkIndex = buildBacklinkIndex(
+    backlinkPages,
+    loreGraphSnapshot.edges
+      .filter((edge) => edge.kind === "link")
+      .map((edge) => ({
+        from: edge.from.url.slice("https://ratstack.sh".length),
+        to: edge.to.url.slice("https://ratstack.sh".length),
+      }))
+  );
+
+  const makeDocument = (
+    bodyHtml: string,
+    metadata: Omit<
+      DocumentProps,
+      "bodyHtml" | "discoveryLinks" | "ogImageUrl" | "origin" | "stylesheet"
+    >,
+    sourcePath: string,
+    contentVersion: string
+  ) =>
+    renderDocument(
+      shell,
+      {
+        bodyHtml: addInboundCounts(bodyHtml, metadata.path, backlinkIndex),
+        discoveryLinks: markdownDiscoveryLinks(metadata.path),
+        houseAdHtml: hasHouseAd(metadata.path) ? houseAdHtml : "",
+        ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
+        origin: originToken,
+        stylesheet,
+        ...metadata,
+      },
+      sourcePath
+    );
+
+  const pageFooterMarkdown = (route: string) =>
+    renderBacklinks(backlinkIndex.get(route) ?? []).markdown;
+
   const pageFooterHtml = (route: string, sourcePath: string) => {
     const lines: string[] = [];
     const change = lastChanges.get(sourcePath);
@@ -2454,35 +2571,7 @@ ${groupedSkills}
       );
     }
 
-    const targetUrl = `https://ratstack.sh${route}`;
-
-    const sources = loreGraphSnapshot.edges
-      .filter((edge) => edge.kind === "link" && edge.to.url === targetUrl)
-      .map((edge) => edge.from.url.slice("https://ratstack.sh".length))
-      .toSorted();
-
-    if (sources.length > 0) {
-      const grouped = new Map<string, string[]>();
-
-      for (const source of sources) {
-        const kind = pageKinds.get(source) ?? "Page";
-        const entries = grouped.get(kind) ?? [];
-        entries.push(
-          `<a href="${source}">${escapeHtml(titles.get(source) ?? source)}</a>`
-        );
-        grouped.set(kind, entries);
-      }
-
-      const groups = [...grouped]
-        .toSorted(([left], [right]) => left.localeCompare(right))
-        .map(
-          ([kind, links]) =>
-            `<li><strong>${escapeHtml(kind)}</strong>: ${links.join(", ")}</li>`
-        )
-        .join("");
-
-      lines.push(`<p>Linked from:</p><ul>${groups}</ul>`);
-    }
+    lines.push(renderBacklinks(backlinkIndex.get(route) ?? []).html);
 
     return lines.length === 0 ? "" : `<hr>${lines.join("")}`;
   };
@@ -2587,40 +2676,6 @@ ${groupedSkills}
       ...staticSourceText,
     ].join("\u0000")
   ).slice(0, 16);
-
-  const homeMetadata = {
-    description:
-      "The reference for building an app and its cloud as one typed program, with Effect, Alchemy, and a fence that raises the floor.",
-    path: "/",
-    title: "Rat Stack: an app and its cloud as one typed program",
-  } as const;
-
-  const skillIndexMetadata = {
-    description:
-      "Hands-on guides to Effect actions, XState lifecycles, and the seams between stack pieces.",
-    path: "/skills",
-    title: "Learn the stack | rat-stack",
-  } as const;
-
-  const loreIndexMetadata = {
-    description:
-      "Short, source-grounded notes on the ideas and decisions behind rat-stack.",
-    path: "/lore",
-    title: "Rat Stack lore | rat-stack",
-  } as const;
-
-  const systemsIndexMetadata = {
-    description:
-      "The systems rat-stack ships, the standard each keeps, and how to check it.",
-    path: "/systems",
-    title: "Rat Stack systems | rat-stack",
-  } as const;
-
-  const noVerifyMetadata = {
-    description: "The rat looks disappointed. The hook still runs.",
-    path: trapRoutePath,
-    title: "No verify | rat-stack",
-  } as const;
 
   const tokenmaxxMetadata = {
     description:
@@ -2748,11 +2803,11 @@ ${groupedSkills}
 
         return {
           description: spec.description,
-          digest: digest(spec.text),
+          digest: digest(`${spec.text}${pageFooterMarkdown(spec.routePath)}`),
           documentHtml,
           routePath: spec.routePath,
           sourcePath: spec.sourcePath,
-          text: spec.text,
+          text: `${spec.text}${pageFooterMarkdown(spec.routePath)}`,
           title: spec.title,
         };
       }),
@@ -2777,7 +2832,10 @@ ${groupedSkills}
           contentVersion
         );
 
-        const text = withHouseAdPointer(skill.text, skill.routePath);
+        const text = withHouseAdPointer(
+          `${skill.text}${pageFooterMarkdown(skill.routePath)}`,
+          skill.routePath
+        );
 
         return {
           description: skill.description,
@@ -2810,7 +2868,10 @@ ${groupedSkills}
           contentVersion
         );
 
-        const text = withHouseAdPointer(lore.text, lore.routePath);
+        const text = withHouseAdPointer(
+          `${lore.text}${pageFooterMarkdown(lore.routePath)}`,
+          lore.routePath
+        );
 
         return {
           description: lore.description,
@@ -2894,7 +2955,7 @@ ${groupedSkills}
 
   const staticContentVersion = contentVersion;
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(homeMarkdownTemplate)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(noVerifyAgentMarkdown)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const cartridgesImageJpegBase64 = ${sourceLiteral(cartridgesImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(skillIndexMarkdown)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(loreIndexMarkdown)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const systemsIndexMarkdown = ${sourceLiteral(systemsIndexMarkdown)} as const;\n\nexport const systemsIndexDocumentHtml = ${sourceLiteral(systemsIndexDocumentHtml)} as const;\n\nexport const glossaryTerms = ${sourceLiteral(glossaryTerms.map(({ term, summary, routePath }) => ({ routePath, summary, term })))} as const;\n\nexport const glossaryIndexMarkdown = ${sourceLiteral(glossaryIndexMarkdown)} as const;\n\nexport const glossaryIndexDocumentHtml = ${sourceLiteral(glossaryIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const ogImages = ${sourceLiteral(ogImages)} as const;\n\nexport const ratSvg = ${sourceLiteral(emojiSvg)} as const;\n\nexport const faviconIcoBase64 = ${sourceLiteral(faviconIcoBase64)} as const;\n\nexport const appleTouchIconPngBase64 = ${sourceLiteral(appleTouchIconPngBase64)} as const;\n\nexport const homeMarkdownTemplate = ${sourceLiteral(`${homeMarkdownTemplate}${pageFooterMarkdown("/")}`)} as const;\n\nexport const homeDocumentHtml = ${sourceLiteral(homeDocumentHtml)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const noVerifyDocumentHtml = ${sourceLiteral(noVerifyDocumentHtml)} as const;\n\nexport const tokenmaxxCopyScript = ${sourceLiteral(copyScript)} as const;\n\nexport const tokenmaxxCopyScriptHash = ${sourceLiteral(copyScriptHash)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n\nexport const tokenmaxxImageJpegBase64 = ${sourceLiteral(tokenmaxxImageJpegBase64)} as const;\n\nexport const cartridgesImageJpegBase64 = ${sourceLiteral(cartridgesImageJpegBase64)} as const;\n\nexport const interestResultDocumentHtml = ${sourceLiteral(interestResultDocumentHtml)} as const;\n\nexport const interestConfirmDocumentHtml = ${sourceLiteral(interestConfirmDocumentHtml)} as const;\n\nexport const interestConfirmationEmail = ${sourceLiteral(interestConfirmationEmail)} as const;\n\nexport const skillIndexMarkdown = ${sourceLiteral(`${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`)} as const;\n\nexport const skillIndexDocumentHtml = ${sourceLiteral(skillIndexDocumentHtml)} as const;\n\nexport const loreIndexMarkdown = ${sourceLiteral(`${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`)} as const;\n\nexport const llmsLoreLinks = ${sourceLiteral(llmsLoreLinks)} as const;\n\nexport const loreIndexDocumentHtml = ${sourceLiteral(loreIndexDocumentHtml)} as const;\n\nexport const systemsIndexMarkdown = ${sourceLiteral(`${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`)} as const;\n\nexport const systemsIndexDocumentHtml = ${sourceLiteral(systemsIndexDocumentHtml)} as const;\n\nexport const glossaryTerms = ${sourceLiteral(glossaryTerms.map(({ term, summary, routePath }) => ({ routePath, summary, term })))} as const;\n\nexport const glossaryIndexMarkdown = ${sourceLiteral(glossaryIndexMarkdown)} as const;\n\nexport const glossaryIndexDocumentHtml = ${sourceLiteral(glossaryIndexDocumentHtml)} as const;\n\nexport const lawSources = ${sourceLiteral(lawSources)} as const;\n\nexport const skillSources = ${sourceLiteral(skillSources)} as const;\n\nexport const loreSources = ${sourceLiteral(loreSources)} as const;\n\nexport const loreGraphSnapshot = ${sourceLiteral(loreGraphSnapshotJson)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem
