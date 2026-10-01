@@ -1,6 +1,6 @@
 # 🐀 how to burn a trillion tokens
 
-_Loopcraft: the outer loop. A four-hour working session with Joel Hooks and up to three builders._
+_Loopcraft: the outer loop. A four-hour working session with Joel Hooks and up to three builders. We build a strong harness that raises the floor for your apps._
 
 In honor of [Lauren Tan](https://x.com/poteto), who [joined the four comma club](https://x.com/poteto/status/2104714676978479423) with 1.3 trillion tokens in one month. Burning tokens is easy. Almost all of it is agents re-reading context. Landing good work is the hard part, and that's what this session is about.
 
