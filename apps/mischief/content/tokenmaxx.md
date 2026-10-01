@@ -1,4 +1,4 @@
-# 🐀 how to burn a trillion tokens and get good results
+# how to burn a trillion tokens and get good results
 
 _Loopcraft: the outer loop. A four-hour working session with Joel Hooks and up to three builders. We build a strong harness that raises the floor for your apps._ <CopyPrompt id="page" />
 

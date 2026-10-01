@@ -244,11 +244,30 @@ it.effect(
 
         expect(response.headers.get("content-type")).toContain("text/markdown");
         expect(markdown).toContain(
-          "# 🐀 how to burn a trillion tokens and get good results"
+          "# how to burn a trillion tokens and get good results"
         );
         expect(markdown).not.toContain("<form");
       })
     )
+);
+
+it.effect("keeps the only rat in the nav brand on the workshop page", () =>
+  withInterest((handler) =>
+    Effect.gen(function* servesOneRat() {
+      const response = yield* call(
+        handler,
+        new Request("https://ratstack.sh/tokenmaxx", {
+          headers: { accept: "text/html" },
+        })
+      );
+
+      const html = yield* text(response);
+      const body = html.slice(html.indexOf("<body"));
+
+      expect(body.match(/🐀/gu)).toHaveLength(1);
+      expect(body).toContain("<strong>🐀 Rat Stack</strong>");
+    })
+  )
 );
 
 it.effect("serves the credited screenshot", () =>
