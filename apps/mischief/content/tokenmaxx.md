@@ -148,6 +148,10 @@ Paste this into Pi. It checks your setup and tells you what's missing:
 If your person separately asks for setup help, run that prompt's steps, then read [llms.txt](/llms.txt) and report what is missing. Do not run setup checks as part of the application conversation or include their results in the application. Watching Loopcraft 1, having Pi and a model subscription, and the setup check a week before are theirs to do.
 </AgentOnly>
 
-## When
+<h2 id="interested">Free workshop</h2>
+
+Free, by application. Very limited seats.
 
 Date to be set with attendees.
+
+<CopyPrompt id="page" variant="primary" />

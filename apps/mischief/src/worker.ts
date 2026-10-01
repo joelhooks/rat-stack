@@ -98,10 +98,6 @@ export const makeMischief = (
       Config.Redacted("INTEREST_OPERATOR_TOKEN")
     );
 
-    const shieldSiteKey = yield* Config.option(
-      Config.String("SHIELD_SHIBA_SITE_KEY")
-    );
-
     const drovrIntakeUrl = yield* Config.option(
       Config.String("DROVR_INTAKE_URL")
     );
@@ -205,7 +201,6 @@ export const makeMischief = (
       joinTokens: interestServices,
       legacyMcp,
       rateLimits,
-      shieldSiteKey: Option.getOrUndefined(shieldSiteKey),
       staticCache: cloudflareStaticCache,
       webBotAuth: {
         enabled: webBotAuthEnabled,

@@ -27,7 +27,6 @@ import {
   confirmInterest,
   interestCapabilities,
   refusalMessage,
-  registerInterest,
 } from "./handlers.js";
 import { confirmPage, resultPage } from "./pages.js";
 
@@ -206,40 +205,6 @@ export const interestRoutes = (options: InterestOptions) => {
   const formRoutes = Layer.mergeAll(
     HttpRouter.add("GET", "/confirm", toConfirmPageFromEmailLink),
     HttpRouter.add("POST", "/confirm", toConfirmPageFromEmailLink),
-    HttpRouter.add("POST", "/tokenmaxx/interest", (request) =>
-      Effect.gen(function* submitInterest() {
-        const params = yield* request.urlParamsBody;
-        const website = formValue(params, "website");
-
-        const answered = yield* registerInterest
-          .handler({
-            email: formValue(params, "email") ?? "",
-            shieldToken: formValue(params, "shield_shiba_token"),
-            website,
-          })
-          .pipe(
-            Effect.match({
-              onFailure: (failure) => ({
-                heading: "Check the address",
-                message: failure.message,
-                status: 422,
-              }),
-              onSuccess: ({ message }) => ({
-                heading: "Check your email",
-                message,
-                status: 200,
-              }),
-            }),
-            Effect.provide(Layer.merge(requestFor(request), gate)),
-            Effect.provideContext(options.services)
-          );
-
-        return resultPage(originOf(request), {
-          ...answered,
-          path: new URL(request.url, "https://ratstack.sh").pathname,
-        });
-      }).pipe(Effect.orDie)
-    ),
     HttpRouter.add("GET", "/tokenmaxx/confirm", (request) =>
       Effect.gen(function* promptConfirm() {
         const mode = yield* InterestMode;

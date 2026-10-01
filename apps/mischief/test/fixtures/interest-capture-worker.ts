@@ -12,6 +12,7 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { interestDirectoryLayer } from "../../src/interest/directory.js";
 import Interest from "../../src/interest/interest-durable-object.js";
 import InterestIndex from "../../src/interest/interest-index-durable-object.js";
+import { retiredInterestRoutes } from "../../src/interest/retired-routes.js";
 import { interestRoutes } from "../../src/interest/routes.js";
 import { fakeIntakeLayer } from "./fake-intake.js";
 
@@ -48,7 +49,10 @@ export default class InterestCaptureWorker extends Cloudflare.Worker<InterestCap
 
     return {
       fetch: yield* HttpRouter.toHttpEffect(
-        interestRoutes({ operatorToken: "local-operator-token", services })
+        Layer.merge(
+          retiredInterestRoutes,
+          interestRoutes({ operatorToken: "local-operator-token", services })
+        )
       ).pipe(Effect.orDie),
     };
   })

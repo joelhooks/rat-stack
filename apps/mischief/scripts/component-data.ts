@@ -16,12 +16,13 @@ export interface CopyPromptSpec {
   readonly showText: boolean;
   readonly showLabel?: boolean;
   readonly text: string;
+  readonly variant?: "primary";
 }
 
 export const copyPrompts = {
   connect: {
     agentFence: false,
-    label: "Copy prompt",
+    label: "Copy for agent",
     showLabel: true,
     showText: false,
     text: [
@@ -48,7 +49,7 @@ export const copyPrompts = {
   },
   page: {
     agentFence: false,
-    label: "copy this prompt for your agent",
+    label: "Copy for agent",
     showText: false,
     text: [
       "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
@@ -59,7 +60,7 @@ export const copyPrompts = {
   },
   setup: {
     agentFence: true,
-    label: "Copy prompt",
+    label: "Copy for agent",
     showText: true,
     text: [
       'Check my setup for the "how to burn a trillion tokens and get good results" session.',

@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { IntakeTicket, PAGE_TICKET_SOURCE } from "@rat-stack/core/intake";
 import { PAGE_TICKET_PLACEHOLDER } from "@rat-stack/intake-live";
-import { Context, Effect, Layer, Option } from "effect";
+import { Context, Effect, Layer, Option, Ref } from "effect";
 import {
   HttpRouter,
   HttpServerRequest,
@@ -60,6 +60,40 @@ it.effect(
         }
       }
     }).pipe(Effect.provide(IntakeTicket.testLayer))
+);
+
+it.effect("HTML mints no ticket and agent Markdown mints exactly one", () =>
+  Effect.gen(function* countViewTickets() {
+    const tickets = yield* IntakeTicket;
+    const mints = yield* Ref.make(0);
+
+    const counted = Layer.succeed(IntakeTicket, {
+      mint: (source) =>
+        tickets
+          .mint(source)
+          .pipe(Effect.tap(() => Ref.update(mints, (count) => count + 1))),
+      verify: tickets.verify,
+    });
+
+    const { handler, dispose } = HttpRouter.toWebHandler(
+      mischiefRoutes().pipe(Layer.provide(TestSandbox), Layer.provide(counted))
+    );
+
+    yield* Effect.addFinalizer(() => Effect.promise(dispose));
+
+    for (const accept of ["text/html", "text/markdown"]) {
+      const response = yield* Effect.promise(
+        handler.bind(
+          undefined,
+          new Request("https://ratstack.sh/tokenmaxx", { headers: { accept } }),
+          Context.empty()
+        )
+      );
+
+      expect(response.status).toBe(200);
+      expect(yield* Ref.get(mints)).toBe(accept === "text/html" ? 0 : 1);
+    }
+  }).pipe(Effect.scoped, Effect.provide(IntakeTicket.testLayer))
 );
 
 it.effect("worker-built routes retain the ticket service for requests", () =>
