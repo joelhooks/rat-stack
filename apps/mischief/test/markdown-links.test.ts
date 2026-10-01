@@ -34,10 +34,19 @@ it.prop(
 );
 
 it.prop(
-  "bundling leaves code examples and external destinations alone",
-  { file: filename },
-  ({ file }) => {
-    const input = `\`[page](./${file})\`\n\`\`\`md\n[page](./${file})\n\`\`\`\n[external](https://example.test/${file})`;
+  "bundling leaves code examples and already absolute destinations alone",
+  {
+    file: filename,
+    origin: Schema.Literals([
+      "https://ratstack.sh",
+      "https://example.test",
+      "//ratstack.sh",
+      "//example.test",
+    ]),
+  },
+  ({ file, origin }) => {
+    const target = `${origin}/${file}`;
+    const input = `\`[page](./${file})\`\n\`\`\`md\n[page](./${file})\n\`\`\`\n[absolute](${target})\n[angle](<${target}>)\n[ref]: ${target}`;
 
     expect(
       canonicalMarkdownLinks(

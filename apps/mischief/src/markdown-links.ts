@@ -21,7 +21,8 @@ export const canonicalMarkdownLinks = (
     if (
       token.startsWith("`") ||
       token.startsWith("~~~") ||
-      target === undefined
+      target === undefined ||
+      /^(?:[a-z][a-z\d+.-]*:|\/\/)/iu.test(target)
     ) {
       return token;
     }
