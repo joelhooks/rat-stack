@@ -16,7 +16,8 @@ Keep these files:
 - `packages/capability/src/contract.ts`
 - `packages/capability/src/implement.ts`
 - `packages/capability/src/to-command.ts`
-- their tests
+- `packages/capability/src/call-watch.ts` and `packages/capability/src/actor-watch.ts`
+- every module imported by these files or retained core code, and their tests
 - all of `packages/core`
 - the CLI composition needed by the projected command
 
@@ -24,8 +25,10 @@ Keep these files:
 
 For CLI only, delete:
 
-- every other file and matching test in `packages/capability/src` and `packages/capability/test`
-- `apps/cli/src/surfaces.ts`
+- unused projections and their matching tests in `packages/capability/src` and `packages/capability/test`, only after tracing imports from the keep list
+
+Keep `apps/cli/src/surfaces.ts` with only the `toCommand` composition and its imports. Remove these unused CLI surfaces:
+
 - `catalog`, `openapi`, `serve`, and `mcp` commands from `apps/cli/src/command.ts`
 - `apps/cli/test/serve.test.ts`
 - catalog, OpenAPI, MCP, and code-mode cases from `apps/cli/test/cli.e2e.test.ts`
@@ -73,6 +76,8 @@ Delete:
 Code mode imports `to-toolkit.ts`. Cutting MCP therefore cuts code mode too; apply both lists.
 
 ## Cut XState
+
+This recipe applies only to a clone that has already removed interest and every other lifecycle except file inspection. `packages/core/src/interest-machine.ts` also depends on XState and `@xstate/effect`; replacing file inspection alone cannot remove those dependencies. Find every remaining import before removing either package. Keeping a lifecycle means keeping its runtime and `actor-watch.ts`.
 
 Delete:
 
