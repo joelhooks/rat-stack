@@ -195,3 +195,28 @@ button {
   overflow: hidden;
   position: absolute;
 }
+
+.site-nav .brand {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+
+.site-links {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  gap: 0.25rem 3ch;
+}
+
+.site-links ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.site-links li + li::before {
+  content: "·";
+  padding: 0 0.6ch;
+}

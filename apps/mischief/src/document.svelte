@@ -46,15 +46,20 @@
 </svelte:head>
 
 <header>
-  <nav aria-label="Primary navigation">
-    {#if !isHome}<a href="/"><strong>🐀 Rat Stack</strong></a> ·{/if}
-    <a href="/">home</a> ·
-    <a href="/skills">skills</a> ·
-    <a href="/lore">lore</a> ·
-    <a href="/systems">systems</a> ·
-    <a href="/llms.txt">agent guide</a> ·
-    <a href="/openapi.json">API docs</a> ·
-    <a href="https://github.com/joelhooks/rat-stack">source</a>
+  <nav aria-label="Primary navigation" class="site-nav">
+    {#if !isHome}<a class="brand" href="/"><strong>🐀 Rat Stack</strong></a>{/if}
+    <div class="site-links">
+      <ul>
+        <li><a href="/skills">skills</a></li>
+        <li><a href="/lore">lore</a></li>
+        <li><a href="/systems">systems</a></li>
+      </ul>
+      <ul>
+        <li><a href="/llms.txt">agent guide</a></li>
+        <li><a href="/openapi.json">API docs</a></li>
+        <li><a href="https://github.com/joelhooks/rat-stack">source</a></li>
+      </ul>
+    </div>
   </nav>
   <hr />
 </header>
