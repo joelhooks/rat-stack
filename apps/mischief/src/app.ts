@@ -1,7 +1,8 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
+import { InterestMode } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Effect, Layer, Schema } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as HttpHeaders from "effect/unstable/http/Headers";
@@ -994,9 +995,15 @@ const webBotAuthRoutes = (options: WebBotAuthOptions) =>
     webBotAuthResponse(options)
   );
 
+const shieldKeyFor = (options: MischiefRouteOptions) =>
+  options.interest !== undefined &&
+  Context.getOrUndefined(options.interest.services, InterestMode) === "drovr"
+    ? options.shieldSiteKey
+    : undefined;
+
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
-    contentRoutes(options.shieldSiteKey),
+    contentRoutes(shieldKeyFor(options)),
     apiRoutes,
     options.interest === undefined
       ? Layer.empty
