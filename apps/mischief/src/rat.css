@@ -78,11 +78,17 @@ main > .table-wrapper.table-wide {
 }
 
 .code-snippet pre {
+  font-size: inherit;
   overflow-x: auto;
+}
+
+.code-snippet pre code {
+  white-space: normal;
 }
 
 .code-line {
   display: flex;
+  min-block-size: 1lh;
   min-width: max-content;
 }
 
@@ -93,6 +99,10 @@ main > .table-wrapper.table-wide {
   padding-inline-end: 1ch;
   text-align: right;
   user-select: none;
+}
+
+.code-number::before {
+  content: attr(data-line);
 }
 
 .code-text {
@@ -107,6 +117,10 @@ main > .table-wrapper.table-wide {
   color: var(--code-muted);
   display: block;
   padding-inline-start: 5ch;
+}
+
+.code-gap::before {
+  content: attr(data-label);
 }
 
 .block-transclusion {

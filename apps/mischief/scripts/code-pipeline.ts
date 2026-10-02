@@ -99,7 +99,7 @@ export const snippetHtml = (snippet: CodeSnippet) => {
   const lines = snippet.lines
     .map(
       (line) =>
-        `${line.gapBefore > 0 ? `<span class="code-gap" aria-label="${line.gapBefore} omitted lines">⋯ ${line.gapBefore} lines</span>` : ""}<span class="code-line${line.highlighted ? " code-highlighted" : ""}"><span class="code-number" aria-hidden="true">${line.number}</span><span class="code-text">${line.tokens.map((token) => `<span style="color:${tokenColor(token.role)}${token.fontStyle === 1 ? ";font-style:italic" : ""}">${escapeHtml(token.text)}</span>`).join("")}</span></span>`
+        `${line.gapBefore > 0 ? `<span class="code-gap" aria-label="${line.gapBefore} omitted lines" data-label="⋯ ${line.gapBefore} lines"></span>` : ""}<span class="code-line${line.highlighted ? " code-highlighted" : ""}"><span class="code-number" aria-hidden="true" data-line="${line.number}"></span><span class="code-text">${line.tokens.map((token) => `<span style="color:${tokenColor(token.role)}${token.fontStyle === 1 ? ";font-style:italic" : ""}">${escapeHtml(token.text)}</span>`).join("")}</span></span>`
     )
     .join("\n");
 

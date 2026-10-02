@@ -31,7 +31,7 @@ const layer = Layer.mergeAll(
 );
 
 const codeText = (html: string) => {
-  const lines: string[] = [];
+  let text = "";
   let depth = 0;
 
   const parser = new Parser({
@@ -40,17 +40,16 @@ const codeText = (html: string) => {
         depth -= 1;
       }
     },
-    onopentag(name, attributes) {
+    onopentag(name) {
       if (depth > 0) {
         depth += 1;
-      } else if (name === "span" && attributes.class === "code-text") {
+      } else if (name === "code") {
         depth = 1;
-        lines.push("");
       }
     },
     ontext(value) {
       if (depth > 0) {
-        lines[lines.length - 1] = (lines.at(-1) ?? "") + value;
+        text += value;
       }
     },
   });
@@ -58,7 +57,7 @@ const codeText = (html: string) => {
   parser.write(html);
   parser.end();
 
-  return lines.join("\n");
+  return text;
 };
 
 it.effect.prop(

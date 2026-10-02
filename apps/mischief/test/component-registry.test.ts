@@ -341,8 +341,15 @@ class RegistryFixtures extends Context.Service<
       );
 
       const root = new URL("../../../", import.meta.url).pathname;
-      const prepared = yield* prepareCode(yield* collectBuildFences(root)).pipe(Effect.provide([Drift.silent, gitLayer(codeRepositories(root))]));
-      const registry = createComponentRegistry({ ...peersRegistry, Code: codeComponent(prepared.snippets) });
+
+      const prepared = yield* prepareCode(yield* collectBuildFences(root)).pipe(
+        Effect.provide([Drift.silent, gitLayer(codeRepositories(root))])
+      );
+
+      const registry = createComponentRegistry({
+        ...peersRegistry,
+        Code: codeComponent(prepared.snippets),
+      });
 
       const extension = createComponentRegistry({
         ...registry,
@@ -357,9 +364,31 @@ class RegistryFixtures extends Context.Service<
         },
       });
 
-      return RegistryFixtures.of({ extension, registry, snippets: prepared.snippets });
+      return RegistryFixtures.of({
+        extension,
+        registry,
+        snippets: prepared.snippets,
+      });
     })
-  ).pipe(Layer.provide([NodeServices.layer, plainLayer(["text", "markdown", "typescript", "javascript", "bash", "css", "html", "json", "sql", "svelte", "toml", "yaml"])]));
+  ).pipe(
+    Layer.provide([
+      NodeServices.layer,
+      plainLayer([
+        "text",
+        "markdown",
+        "typescript",
+        "javascript",
+        "bash",
+        "css",
+        "html",
+        "json",
+        "sql",
+        "svelte",
+        "toml",
+        "yaml",
+      ]),
+    ])
+  );
 }
 
 it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
@@ -390,11 +419,22 @@ it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
 
           expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
           const code: string[] = [];
-          visitContentNodes(parseContentMarkdown(rendered), (node) => { if (node.type === "code") code.push(node.value); });
+          visitContentNodes(parseContentMarkdown(rendered), (node) => {
+            if (node.type === "code") {
+              code.push(node.value);
+            }
+          });
+
           for (const node of collectCodeFences(source, page.sourcePath)) {
             const snippet = fixtures.snippets.get(codeIdentity(node));
-            if (snippet !== undefined) expect(code, page.sourcePath).toContain(snippet.lines.map((line) => line.text).join("\n"));
+
+            if (snippet !== undefined) {
+              expect(code, page.sourcePath).toContain(
+                snippet.lines.map((line) => line.text).join("\n")
+              );
+            }
           }
+
           expect(
             renderSvxMarkdown(
               `${source}\n\n<Proof />`,
