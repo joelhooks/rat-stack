@@ -1,4 +1,4 @@
-import type { ContactRef } from "@rat-stack/core/intake";
+import type { ContactRef, IntakeEvents } from "@rat-stack/core/intake";
 import { Layer } from "effect";
 import type { Option, Redacted } from "effect";
 
@@ -11,6 +11,7 @@ import { doTicketBindings } from "./ticket-bindings.js";
 import type { TicketBindingStub } from "./ticket-bindings.js";
 
 export interface IntakeLiveSettings {
+  readonly events?: Layer.Layer<IntakeEvents>;
   readonly interests: (name: string) => IntakeVaultStub & TicketBindingStub;
   readonly tokenSecret: Redacted.Redacted;
   readonly typesafeApiKey: Option.Option<Redacted.Redacted>;
@@ -27,10 +28,11 @@ export const intakeLiveLayer = (settings: IntakeLiveSettings) =>
         doTicketBindings((nonce) => settings.interests(ticketInstance(nonce)))
       )
     ),
-    sealedIntakeEventsLayer.pipe(
-      Layer.provide(
-        doIntakeVault((actor) => settings.interests(intakeInstance(actor)))
-      )
-    ),
+    settings.events ??
+      sealedIntakeEventsLayer.pipe(
+        Layer.provide(
+          doIntakeVault((actor) => settings.interests(intakeInstance(actor)))
+        )
+      ),
     jevAbuseScoreLayer({ apiKey: settings.typesafeApiKey })
   );

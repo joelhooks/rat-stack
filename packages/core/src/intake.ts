@@ -11,6 +11,7 @@ export type { AbuseInput, AbuseVerdict } from "./abuse-score.js";
 
 export {
   ContactRefSchema,
+  IntakeContactSchema,
   IntakeEvents,
   IntakeObjectSchema,
   IntakeStatementSchema,
@@ -21,9 +22,11 @@ export {
 
 export type {
   ContactRef,
+  IntakeContact,
   IntakeObject,
   IntakeStatement,
   IntakeVerb,
+  RecordedContact,
 } from "./intake-events.js";
 
 export { IntakeEventsTest } from "./intake-events-test.js";
