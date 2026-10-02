@@ -8,15 +8,15 @@ privacy: "public"
 
 # Effect + Alchemy peer patterns for rat-stack
 
-Source review for the web client, Alchemy resources, database, Better Auth, Worker tests, and boundary enforcement. The candidates came from the [peer roster](./peers.svx), which links back here from each studied repo. See [the layer-startups decision](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/layer-startups.svx) for the choices these patterns should serve.
+Source review for the web client, Alchemy resources, database, Better Auth, Worker tests, and boundary enforcement. The candidates came from the [peer roster](./peers), which links back here from each studied repo. See [the layer-startups decision](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/layer-startups.svx) for the choices these patterns should serve.
 
 ## Pin reality
 
-The original study base, `1c2a738`, pinned Effect `4.0.0-rc.117`, Alchemy `2.0.0-beta.79`, and XState `6.0.0-alpha.59`. Those are historical versions. `packages/core/test/docs-pins.test.ts` guards the version text in `AGENTS.md` and `README.md`. The [Effect reference note](./effect-4-reference-projects.svx) records the versions on its 2026-09-18 study date.
+The original study base, `1c2a738`, pinned Effect `4.0.0-rc.117`, Alchemy `2.0.0-beta.79`, and XState `6.0.0-alpha.59`. Those are historical versions. `packages/core/test/docs-pins.test.ts` guards the version text in `AGENTS.md` and `README.md`. The [Effect reference note](./effect-4-reference-projects) records the versions on its 2026-09-18 study date.
 
 At that study date, only `alchemy-run/alchemy` at `9802260db8f8b5a083c4b85eb7ea31ae1ff8f176` matched both Effect and Alchemy lines: its package is beta.79 and its workspace requires Effect rc.117. Maple is one Effect RC behind at rc.116 / Alchemy beta.79; T3Code is rc.115 / beta.79. OpenSEO is Effect beta.93 / Alchemy beta.61, SolStatus beta.107 / beta.72, Smithers rc.115 / beta.76, Pivot beta.103 / beta.65, and Elianiva beta.101 / beta.64. The roster finds repos sharing stack lines, not necessarily exact pins; treat useful older source as evidence about shapes, not drop-in code.
 
-The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. Alchemy also moved to beta.80. See the [roster](./peers.svx) for checked commits and manifests. Patterns below remain tied to their original source snapshots.
+The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. Alchemy also moved to beta.80. See the [roster](./peers) for checked commits and manifests. Patterns below remain tied to their original source snapshots.
 
 ## Patterns
 

@@ -76,4 +76,4 @@ Effect's [`Layer.provide`](https://github.com/Effect-TS/effect/blob/effect%404.0
 
 [One capability, every surface](/lore/one-capability-every-surface) states the house rule. [Hexagonal architecture](/lore/hexagonal-architecture) names the adapter boundary. [The fence](/lore/the-fence) enforces it.
 
-The [peers](/resources/same-version-repos.svx) page records other Effect and Alchemy projects. It does not claim that they use this design.
+The [peers](/resources/same-version-repos) page records other Effect and Alchemy projects. It does not claim that they use this design.

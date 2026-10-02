@@ -45,6 +45,9 @@ it.effect(
           ...contentResources.map((page) => page.routePath),
         ].toSorted()
       );
+      expect(manifest.pages.every((page) => !page.route.endsWith(".svx"))).toBe(
+        true
+      );
       expect(manifest.pages.some((page) => page.route === "/tokenmaxx")).toBe(
         false
       );
@@ -83,12 +86,47 @@ it.effect(
                   response.text.bind(response)
                 );
 
+                expect(body).not.toMatch(
+                  /(?:href="|\]\()\/[^"\s)]*\.svx(?:[?#"\s)]|$)/u
+                );
                 expect(response.status).toBe(200);
                 expect(body).toBe(
                   expected.replaceAll(originToken, "https://ratstack.sh")
                 );
               }
             }
+
+            for (const page of manifest.pages.filter((entry) =>
+              entry.route.startsWith("/resources/")
+            )) {
+              for (const method of ["GET", "HEAD"]) {
+                const response = yield* Effect.promise(
+                  handler.bind(
+                    undefined,
+                    new Request(
+                      `https://ratstack.sh${page.route}.svx?view=agent`,
+                      { method }
+                    ),
+                    undefined
+                  )
+                );
+
+                expect(response.status).toBe(301);
+                expect(response.headers.get("location")).toBe(
+                  `${page.route}?view=agent`
+                );
+              }
+            }
+
+            const missing = yield* Effect.promise(
+              handler.bind(
+                undefined,
+                new Request("https://ratstack.sh/resources/missing.svx"),
+                undefined
+              )
+            );
+
+            expect(missing.status).toBe(404);
 
             for (const image of manifest.images) {
               const expected = yield* fs.readFile(

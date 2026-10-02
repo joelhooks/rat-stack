@@ -417,7 +417,7 @@ it.effect(
 
         const resource = lawResources.find(
           (candidate) =>
-            candidate.routePath === "/resources/effect-4-reference-projects.svx"
+            candidate.routePath === "/resources/effect-4-reference-projects"
         );
 
         if (resource === undefined) {
@@ -1407,7 +1407,7 @@ it.effect(
         expect(html).toContain(
           '<p class="agent-pointer visually-hidden" aria-hidden="true">'
         );
-        expect(html).toContain('<a href="/resources/peers.svx">peers</a>');
+        expect(html).toContain('<a href="/resources/peers">peers</a>');
         expect(rendered.headers.get("cache-control")).toBe("no-cache");
       })
     )

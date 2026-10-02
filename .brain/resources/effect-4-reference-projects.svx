@@ -4,7 +4,7 @@ Historical source study from 2026-09-18, with a 2026-09-20 follow-up. Version ma
 
 Versions came from the linked repos' lockfiles or catalogs on the day of study.
 
-For the browser client, Alchemy resources, database, auth, and Worker tests, see [Effect + Alchemy peer patterns](./same-version-repos.svx).
+For the browser client, Alchemy resources, database, auth, and Worker tests, see [Effect + Alchemy peer patterns](./same-version-repos).
 
 ## Projects
 

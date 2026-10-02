@@ -67,7 +67,7 @@ it.effect(
       const pages = [
         { routePath: "/README.md", sourcePath: "README.md", title: "Read me" },
         {
-          routePath: "/resources/idea.svx",
+          routePath: "/resources/idea",
           sourcePath: ".brain/resources/idea.svx",
           title: "An idea",
         },
@@ -86,7 +86,7 @@ it.effect(
         "[Read me](/README.md) — new page: [Start reading]"
       );
       expect(markdown).toContain(
-        `[An idea](/resources/idea.svx) — new page: [Add an idea](https://github.com/joelhooks/rat-stack/commit/${ideaHash})`
+        `[An idea](/resources/idea) — new page: [Add an idea](https://github.com/joelhooks/rat-stack/commit/${ideaHash})`
       );
       expect(markdown).not.toContain("Merge the idea");
       expect(markdown).not.toContain("2026-09-22");

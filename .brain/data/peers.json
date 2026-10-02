@@ -11,7 +11,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "ea384f00bf5207c41459189843d590b28d64484f",
     "sources": [
@@ -37,7 +37,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "c7ee3328d6257213671b8670455d97bc7b9f05d2",
     "sources": [
@@ -59,7 +59,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[effect-4-reference-projects](effect-4-reference-projects.svx), [same-version-repos](same-version-repos.svx)",
+    "studied": "[effect-4-reference-projects](effect-4-reference-projects), [same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "54084ae1e6c32809db040e4fa571c80fdf2d8ae4",
     "sources": [
@@ -85,7 +85,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "d8d31e9f4e4c6dd2fba9bd24dda69a38d97729c2",
     "sources": [
@@ -285,7 +285,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "4da69e074edc00b653bf3256f0dea96adadb3093",
     "sources": [
@@ -307,7 +307,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "98768e8124ca24ec3f76211daa45290392f6eefa",
     "sources": [
@@ -333,7 +333,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "9810d13bb930144ba92a00bc99401fcb886cb8e7",
     "sources": [
@@ -787,7 +787,7 @@
     },
     "checked": "2026-10-02",
     "firstSeen": "2026-10-02",
-    "studied": "[same-version-repos](same-version-repos.svx)",
+    "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
     "commit": "a7644af785843bb42546109272970f2f7a82b1d7",
     "sources": [

@@ -379,6 +379,19 @@ const assetRoutes = (
 
         return yield* Effect.gen(function* readStaticAsset() {
           const catalog = yield* store.catalog;
+
+          if (
+            path.endsWith(".svx") &&
+            catalog.pageRoutes.includes(path.slice(0, -4))
+          ) {
+            const query = new URL(request.url, "https://ratstack.sh").search;
+
+            return HttpServerResponse.empty({
+              headers: { location: `${path.slice(0, -4)}${query}` },
+              status: 301,
+            });
+          }
+
           const page = staticAssetPagePath(path, catalog);
           const image = catalog.imagePaths.includes(path);
 
