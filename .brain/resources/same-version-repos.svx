@@ -26,7 +26,7 @@ The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. A
 
 One `RpcGroup` declares the wire contract; the backend serves it and `AtomRpc.Service` turns it into module-scope query and mutation atoms for React. The browser calls a same-origin TanStack `/rpc` route, which forwards to a private `BACKEND` service binding; the backend has no public Workers URL.
 
-**Verdict — adopt for the web bin.** **Cartridge:** keep capability schemas in `packages/core`, the `toRpc` projection in `packages/capability`, and UI atoms in the web app. **Fence:** one schema-derived contract carries payloads and typed failures across the wire, while the binding keeps the backend private. **One paved path:** all browser operations go through `toRpc` and the same `/rpc` transport, not a second hand-written route/API surface.
+**Verdict — adopt for the web bin.** **Cartridge:** keep capability schemas in `packages/core`, the `toRpc` projection in `packages/capability`, and UI atoms in the web app. **Fence:** one schema-derived contract carries payloads and typed failures across the wire, while the [binding](/lore/bindings) keeps the backend private. **One paved path:** all browser operations go through `toRpc` and the same `/rpc` transport, not a second hand-written route/API surface.
 
 ### PlanetScale resources and migrations — adapt
 
@@ -100,7 +100,7 @@ Checked Oct 2. Its catalog selects XState alpha.63 and bridge alpha.5. Effect co
 
 The inspector has a disabled production Layer. Its enabled Layer owns the inspector, and `attach` acquires an actor subscription whose finalizer unsubscribes. The test bridge derives event arbitraries from schemas and projects a snapshot's value and context for model comparisons. Its actor SUT opens a scope and closes it on disposal.
 
-**Verdict — adapt the lifetime checks, not the driver.** Keep `watchActor` and `ActorWatch` as our single inspection path; a second Stately service would bypass that fence. The helper runs tests through `ManagedRuntime`, which our test fence forbids. Use `it.effect.prop` and generated command sequences instead of copying its runtime bridge. No production code was adopted.
+**Verdict — adapt the lifetime checks, not the driver.** Keep `watchActor` and `ActorWatch` in [devtools](/systems/devtools) as our single inspection path; a second Stately service would bypass that fence. The helper runs tests through `ManagedRuntime`, which our test fence forbids. Use `it.effect.prop` and generated command sequences instead of copying its runtime bridge. No production code was adopted.
 
 
 ## Screened, not adopted

@@ -27,7 +27,7 @@ sources:
 
 An example test checks one input you picked. A property test states a rule that must hold for every input, generates many inputs, and when one fails, shrinks it to a small counterexample.
 
-Effect 4 ships its own engine in `effect/unstable/arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`, so the same schema that defines a capability's contract also generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts) `@effect/vitest` exposes it as `it.prop` and `it.effect.prop`.
+Effect 4 ships its own engine in `effect/unstable/arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`, so the same schema that defines a [capability's contract](/systems/capabilities) also generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts) `@effect/vitest` exposes it as `it.prop` and `it.effect.prop`.
 
 The [capture-first](/lore/capture-first) events cartridge is tested this way. For any generated request, exactly one event is recorded, the response body and status are preserved, persistent HTML may add the visitor cookie, and the request body never reaches the event. For any query string, credential and email keys never survive. A failing sink does not change the response body or status. [Analytics](/systems/analytics) documents cookie behavior and the warehouse proof boundary.
 
