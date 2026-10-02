@@ -9,7 +9,7 @@ import {
 
 it.each([
   ["home", homeDocumentHtml, 4],
-  ["tokenmaxx", tokenmaxxDocumentHtml, 3],
+  ["tokenmaxx", tokenmaxxDocumentHtml, 1],
 ])(
   "%s gives every copy control a visible label and live status",
   (_, html, count) => {

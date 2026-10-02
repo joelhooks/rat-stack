@@ -1347,36 +1347,36 @@ it.effect("GET reads the token state and never confirms; POST confirms", () =>
   })
 );
 
-it.effect(
-  "shows the setup prompt in both views, with the button and script only in HTML",
-  () =>
-    withLiveInterest((handler) =>
-      Effect.gen(function* views() {
-        const htmlResponse = yield* tokenmaxxPage(handler, "text/html");
-        const html = yield* text(htmlResponse);
+it.effect("shows the setup prompt in both views, as folded text in HTML", () =>
+  withLiveInterest((handler) =>
+    Effect.gen(function* views() {
+      const htmlResponse = yield* tokenmaxxPage(handler, "text/html");
+      const html = yield* text(htmlResponse);
 
-        const markdown = yield* text(
-          yield* tokenmaxxPage(handler, "text/markdown")
-        );
+      const markdown = yield* text(
+        yield* tokenmaxxPage(handler, "text/markdown")
+      );
 
-        for (const line of setupPromptLines) {
-          expect(html).toContain(line.replaceAll('"', "&quot;"));
-          expect(markdown).toContain(line);
-        }
+      for (const line of setupPromptLines) {
+        expect(html.replaceAll("&quot;", '"')).toContain(line);
+        expect(markdown).toContain(line);
+      }
 
-        expect(html).toContain('<button type="button" class="copy"');
-        expect(html).toContain("<script>");
-        expect(html).toContain("<pre><code>");
-        expect(html).not.toContain("__COPY_SCRIPT__");
-        expect(markdown).not.toContain("<button");
-        expect(markdown).not.toContain("<script");
-        expect(markdown).toContain("```text\nCheck my setup");
-      })
-    )
+      expect(html).toContain(
+        '<details class="prompt-text"><summary>See the prompt</summary>'
+      );
+      expect(html).toContain("<script>");
+      expect(html).toContain("<pre><code>");
+      expect(html).not.toContain("__COPY_SCRIPT__");
+      expect(markdown).not.toContain("<button");
+      expect(markdown).not.toContain("<script");
+      expect(markdown).toContain("```text\nCheck my setup");
+    })
+  )
 );
 
 it.effect(
-  "keeps the copy buttons hidden until the script runs, and the prompt visible without it",
+  "has one copy button, hidden until the script runs, and the setup prompt readable without it",
   () =>
     withLiveInterest((handler) =>
       Effect.gen(function* withoutScript() {
@@ -1388,7 +1388,8 @@ it.effect(
           ),
         ];
 
-        expect(buttons).toHaveLength(3);
+        expect(buttons).toHaveLength(1);
+        expect(buttons[0]?.[0]).toContain("copy-primary");
 
         for (const [button] of buttons) {
           expect(button).toContain(" hidden");

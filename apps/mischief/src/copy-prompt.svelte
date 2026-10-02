@@ -13,7 +13,14 @@
   </span>
 {/snippet}
 
-{#if showText}
+{#if variant === "text"}
+  <div class="prompt">
+    <details class="prompt-text">
+      <summary>See the prompt</summary>
+      <pre><code>{text}</code></pre>
+    </details>
+  </div>
+{:else if showText}
   <div class="prompt">
     {@render control()}
     <details class="prompt-text">

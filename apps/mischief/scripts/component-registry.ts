@@ -13,6 +13,21 @@ import {
   visitContentNodes,
 } from "./svx-ast.ts";
 
+const promptForVariant = (
+  prompt: CopyPromptSpec,
+  variant: "primary" | "text" | undefined
+): CopyPromptSpec => {
+  if (variant === "primary") {
+    return { ...prompt, label: "Copy prompt", variant };
+  }
+
+  if (variant === "text") {
+    return { ...prompt, showText: true, variant };
+  }
+
+  return prompt;
+};
+
 export interface ComponentInput {
   readonly attributes: Readonly<Record<string, string>>;
   readonly children: Root;
@@ -125,8 +140,9 @@ const coreComponents = {
     agent(input) {
       const { id, variant } = Schema.decodeUnknownSync(
         Schema.Struct({
+          audience: Schema.optional(Schema.Literal("agent")),
           id: Schema.String,
-          variant: Schema.optional(Schema.Literal("primary")),
+          variant: Schema.optional(Schema.Literals(["primary", "text"])),
         })
       )(input.attributes);
 
@@ -161,10 +177,11 @@ const coreComponents = {
         : [{ lang: "text", type: "code", value: prompt.text }];
     },
     human(input, context) {
-      const { id, variant } = Schema.decodeUnknownSync(
+      const { audience, id, variant } = Schema.decodeUnknownSync(
         Schema.Struct({
+          audience: Schema.optional(Schema.Literal("agent")),
           id: Schema.String,
-          variant: Schema.optional(Schema.Literal("primary")),
+          variant: Schema.optional(Schema.Literals(["primary", "text"])),
         })
       )(input.attributes);
 
@@ -176,14 +193,12 @@ const coreComponents = {
         throw buildError("CopyPrompt", id, new Error("Unknown prompt id"));
       }
 
+      if (audience === "agent") {
+        return [];
+      }
+
       return [
-        html(
-          context.renderCopyPrompt(
-            variant === "primary"
-              ? { ...prompt, label: "Copy prompt", variant }
-              : prompt
-          )
-        ),
+        html(context.renderCopyPrompt(promptForVariant(prompt, variant))),
       ];
     },
   },

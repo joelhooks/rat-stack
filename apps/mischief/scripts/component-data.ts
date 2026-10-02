@@ -16,7 +16,7 @@ export interface CopyPromptSpec {
   readonly showText: boolean;
   readonly showLabel?: boolean;
   readonly text: string;
-  readonly variant?: "primary";
+  readonly variant?: "primary" | "text";
 }
 
 export const copyPrompts = {

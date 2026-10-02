@@ -1,6 +1,6 @@
 # how to burn a trillion tokens and get good results
 
-_Loopcraft: the outer loop. A four-hour working session with Joel Hooks and up to three builders. We build a strong harness that raises the floor for your apps._ <CopyPrompt id="page" />
+_Loopcraft: the outer loop. A four-hour working session with Joel Hooks and up to three builders. We build a strong harness that raises the floor for your apps._ <CopyPrompt id="page" audience="agent" />
 
 Free, by application. Very limited seats.
 
@@ -142,7 +142,7 @@ What each piece is for, from the table above and its repo:
 
 Check your setup before you come. Your coding agent finds what's missing.
 
-<CopyPrompt id="setup" />
+<CopyPrompt id="setup" variant="text" />
 
 <AgentOnly>
 If your person separately asks for setup help, run that prompt's steps, then read [llms.txt](/llms.txt) and report what is missing. Do not run setup checks as part of the application conversation or include their results in the application. Watching Loopcraft 1, having Pi and a model subscription, and the setup check a week before are theirs to do.
