@@ -106,6 +106,24 @@ describe("toCodeMode", () => {
     expect(declarations).toContain("readonly greet:");
   });
 
+  it.effect("enumerates callable tools and invokes a discovered name", () =>
+    Effect.gen(function* discoversTools() {
+      const client = yield* makeMcpClient(appLayer);
+
+      const result = yield* client["tools/call"]({
+        arguments: {
+          code: 'const names = Object.keys(tools); const callable = names.find((name) => name === "echo"); return { names, value: await tools[callable]({ text: "rat", times: 2 }) };',
+        },
+        name: "execute",
+      });
+
+      expect(result.isError).toBeFalsy();
+      expect(result.structuredContent).toMatchObject({
+        result: { names: ["echo", "greet"], value: { text: "ratrat" } },
+      });
+    })
+  );
+
   it.effect("search returns ranked signatures", () =>
     Effect.gen(function* searches() {
       const client = yield* makeMcpClient(appLayer);
