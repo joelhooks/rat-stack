@@ -1,9 +1,10 @@
 import { InterestMode, InterestTokens } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
+import { IntakeApplications } from "@rat-stack/core/join-interest";
 import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
-import { intakeLiveLayer } from "@rat-stack/intake-live";
+import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
@@ -28,6 +29,7 @@ import {
   imageAssetPaths,
 } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
+import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
@@ -204,6 +206,17 @@ export const makeMischief = (
         ? yield* Layer.build(agentSignupLayer(agentSignup, interestServices))
         : undefined;
 
+    const applications =
+      agentSignup?.applications === undefined || joinServices === undefined
+        ? undefined
+        : yield* IntakeApplications.pipe(
+            Effect.provide(
+              agentSignup.applications.pipe(
+                Layer.provide(Layer.succeedContext(joinServices))
+              )
+            )
+          );
+
     const assetBinding = Schema.decodeUnknownOption(AssetBindingSchema)(
       environment.ASSETS
     );
@@ -216,7 +229,8 @@ export const makeMischief = (
 
     const workerRoutes = mischiefRoutes({
       assets,
-      interest,
+      interest:
+        interest === undefined ? undefined : { ...interest, applications },
       joinTokens: interestServices,
       legacyMcp,
       rateLimits,
@@ -269,6 +283,10 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   const agentSignup = Option.isNone(tokenSecret)
     ? undefined
     : ({
+        applications: intakeApplicationsLayer(
+          () => interestIndex.getByName("index").applicationIds(),
+          (actor) => interests.getByName(intakeInstance(actor))
+        ),
         contacts: (submissionId: string) =>
           interests.getByName(`join:${submissionId}`),
         intake: intakeLiveLayer({
@@ -276,6 +294,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
           tokenSecret: tokenSecret.value,
           typesafeApiKey,
         }).pipe(Layer.provide(FetchHttpClient.layer)),
+        noteApplication: (submissionId) =>
+          interestIndex.getByName("index").noteApplication(submissionId),
       } satisfies AgentSignupOptions | undefined);
 
   const eventsEnabled = yield* Config.Boolean("EVENTS_ENABLED").pipe(

@@ -1,0 +1,50 @@
+---
+title: "Operator application reader and storage migration"
+type: "resource"
+status: "active"
+created_at: "2026-10-01"
+privacy: "public"
+---
+
+# Operator application reader and storage migration
+
+[Interest](../areas/interest.svx) remains double opt-in. Reading an application does not confirm an address or reserve a seat.
+
+## Read path
+
+`GET /operator/interest/applications` uses the existing `INTEREST_OPERATOR_TOKEN` bearer gate. A missing configured token returns 404. A missing or wrong bearer returns 401. All reader responses carry `no-store` and `noindex`.
+
+`intakeApplications` is an operator-only capability. It is not added to the public capability collection, MCP, RPC, HTTP API catalog, or code mode. Core owns the response Schema and reader port. Mischief supplies the storage adapter. The CLI supplies the HTTP adapter.
+
+The reader decrypts the existing `join:<submissionId>` contact record, then reads `intake:<contactRef>` for its AES-GCM key and sealed statement rows. `unsealApplication(rows, key)` in `packages/intake-live/src/read-application.ts` returns typed answers, consent, verdict, submission reference, and submitted time. A future backfill can reuse that function. This change writes no answers to Basin.
+
+`forwarded` means the persisted join contact state is `accepted`. Other existing delivery states map to `held`; `hold` remains the recorded abuse verdict. This distinction avoids claiming a refused or retrying delivery was forwarded.
+
+## Migration
+
+Both kinds of object already use the `Interest` Durable Object class and namespace. No namespace, class, binding, or infrastructure resource is added or renamed.
+
+`Interest.intakeRead()` adds a read-only RPC method. It reads `intake-key` and `intake-statement:*` without creating a key or writing data. Existing keys, rows, ciphertext, and contact envelopes do not change.
+
+`InterestIndex` gains `noteApplication(submissionId)` and `applicationIds()`. New `application:<submissionId>` storage entries contain only the submission reference. The existing `entries` record and its legacy signup methods stay unchanged. Missing application entries enumerate as an empty list. Contact saves note the reference before storing the encrypted contact; state updates overwrite the same index entry. References remain after erasure so the reader can return an erased marker without personal data.
+
+Historical agent submissions have no application index entry. Use `?submissionId=<known-reference>` or the CLI's `--submission-id` to read them without rewriting storage. This lookup does not backfill the index. An indexed submission with no contact, or a contact whose intake key or rows are gone, returns `state: erased` without answers or email. An unknown historical reference returns `state: no-answers` with `no answers: legacy browser signup or erased contact`. The stored data cannot distinguish those two historical cases. No answers are fabricated for the retired browser form.
+
+The object-ID inventory path is deliberately omitted. Known submission references provide the historical lookup without adding a second storage addressing API.
+
+## Privacy and verification
+
+HTTP tracing suppression covers `/operator/interest*`, including Alchemy's outer request bridge through its existing telemetry registration. Basin request capture skips that prefix entirely. The reader disables tracing, logging, and capability observation around plaintext work. Decode and decrypt failures become a data-free unavailable error and HTTP 503. The CLI disables tracing and logging, refuses insecure non-local destinations and URL credentials, and disables HTTP caching and redirects. Successful output goes only to stdout.
+
+`apps/mischief/test/intake-applications.test.ts` exercises the real sealed statement layer and encrypted contact adapter, generated answers and sharing consent, indexed enumeration, historical lookup, erasure, bearer refusal, and empty events/logging/tracing/capability-observer sinks. Corrupt contact input returns a generic failure without exporting its contents. `test/http-privacy.test.ts` checks the actual Alchemy outer bridge. `apps/cli/test/intake.test.ts` checks authorization, historical query construction, and sanitized failures with an in-memory HTTP client.
+
+Expected deployment shape from source: Worker and existing Durable Object code updates only. Existing resources and bindings stay in place. This is not an executed Alchemy plan.
+
+With `INTEREST_OPERATOR_TOKEN` already supplied in the environment:
+
+```sh
+node apps/cli/dist/cli.js intake list --base-url https://ratstack.sh
+node apps/cli/dist/cli.js intake list --base-url https://ratstack.sh --submission-id "$SUBMISSION_ID"
+```
+
+Treat stdout as private application data. Do not redirect it into the public repository or attach it to a report.

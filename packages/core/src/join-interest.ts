@@ -10,6 +10,17 @@ import { MaskedInterestReplay } from "./masked-interest-replay.js";
 
 export { JoinInterest } from "./join-interest-port.js";
 
+export {
+  IntakeApplications,
+  IntakeApplicationsUnavailable,
+  IntakeApplicationSchema,
+  IntakeApplicationsSchema,
+  intakeApplications,
+  intakeApplicationsContract,
+} from "./intake-applications.js";
+
+export type { IntakeApplication } from "./intake-applications.js";
+
 export const MASKED_INTEREST_VALUE = "redacted";
 
 const implementedJoinInterest = implement(joinInterestContract, (input) =>

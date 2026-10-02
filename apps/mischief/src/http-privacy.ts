@@ -13,6 +13,7 @@ export const privateHttpTracingLayer = Layer.effect(
 
       return (
         previous(request) ||
+        url.pathname.startsWith("/operator/interest") ||
         url.pathname === UNSUBSCRIBE_PATH ||
         [...url.searchParams.keys()].some((key) =>
           ["t", "token", "ticket"].includes(key.toLowerCase())

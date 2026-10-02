@@ -31,7 +31,8 @@ const bytesOf = (value: string) =>
   Uint8Array.from(atob(value), (character) => character.codePointAt(0) ?? 0);
 
 export const joinContactStoreLayer = (
-  stub: (submissionId: string) => JoinContactStub
+  stub: (submissionId: string) => JoinContactStub,
+  note: (submissionId: string) => Effect.Effect<void> = () => Effect.void
 ) =>
   Layer.effect(
     JoinContactStore,
@@ -82,6 +83,7 @@ export const joinContactStoreLayer = (
           )
         );
 
+        yield* note(contact.submissionId);
         yield* stub(contact.submissionId).joinSave(
           JSON.stringify({ data: base64(new Uint8Array(data)), iv: base64(iv) })
         );
