@@ -28,11 +28,12 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
-    "typecheck": "pnpm run --silent generate && tsc --noEmit -p tsconfig.json && pnpm run --silent startup:check",
+    "typecheck": "node scripts/prepare-content.ts && tsc --noEmit -p tsconfig.json && pnpm run --silent startup:check",
     "startup:check": "node scripts/startup-budget.ts",
     "startup:profile": "pnpm run --silent generate && pnpm run --silent startup:check && wrangler check startup --worker dist/startup/worker.bundle --outfile dist/startup/worker.cpuprofile",
     "test": "vitest run",
-    "build": "pnpm run --silent generate && tsc -p tsconfig.build.json",
+    "build": "node scripts/prepare-content.ts && tsc -p tsconfig.build.json",
+    "build:check-direct": "node scripts/check-direct-build.ts",
     "check": "pnpm run typecheck",
     "pretest": "pnpm run --silent build"
   },

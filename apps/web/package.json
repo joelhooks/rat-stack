@@ -14,6 +14,7 @@
     }
   },
   "scripts": {
+    "predev": "pnpm --filter @rat-stack/mischief generate",
     "dev": "portless rat-stack vite dev",
     "typecheck": "vite build && tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

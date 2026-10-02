@@ -107,6 +107,7 @@ import {
 } from "./unlinked-mentions.ts";
 import type { UnlinkedProse } from "./unlinked-mentions.ts";
 import { wikiProseWarnings, wikiProseWarningText } from "./wiki-prose.ts";
+import { writeFileAtomically } from "./write-file-atomically.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
 
@@ -2640,16 +2641,14 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const unlinkedMentions = findUnlinkedMentions(mentionPages, glossaryTerms);
   const unlinkedMentionsPath = ".brain/data/unlinked-mentions.generated.json";
 
-  yield* fileSystem
-    .writeFileString(
-      path.join(root, unlinkedMentionsPath),
-      `${JSON.stringify(unlinkedMentions, null, 2)}\n`
+  yield* writeFileAtomically(
+    path.join(root, unlinkedMentionsPath),
+    `${JSON.stringify(unlinkedMentions, null, 2)}\n`
+  ).pipe(
+    Effect.mapError((cause) =>
+      buildError("unlinked mentions report", unlinkedMentionsPath, cause)
     )
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("unlinked mentions report", unlinkedMentionsPath, cause)
-      )
-    );
+  );
 
   const backlinkIndex = buildBacklinkIndex(
     backlinkPages,
@@ -2684,16 +2683,9 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       sourcePath
     );
 
-  const publishedMentions = yield* fileSystem
-    .readFileString(path.join(root, unlinkedMentionsPath))
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("read unlinked mentions", unlinkedMentionsPath, cause)
-      ),
-      Effect.flatMap(
-        Schema.decodeEffect(Schema.fromJsonString(UnlinkedMentionsSchema))
-      )
-    );
+  const publishedMentions = yield* Schema.decodeEffect(UnlinkedMentionsSchema)(
+    unlinkedMentions
+  );
 
   const unlinkedByTarget = groupUnlinkedMentions(publishedMentions);
 
