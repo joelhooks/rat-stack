@@ -1,6 +1,6 @@
 ---
 title: "Interest signup"
-description: "Browser and agent signup start email confirmation; delivery stays behind job-shaped ports outside core."
+description: "Agent-only applications start email confirmation; delivery stays behind job-shaped ports outside core."
 group: system
 terms:
   - "interest signup"
@@ -33,7 +33,7 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/routes.ts
     title: "Interest HTTP routes"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "Browser submission, confirmation, and result routing."
+    note: "Retired submission endpoints, email confirmation, and result routing."
     accessed: "2026-10-01"
   - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/handlers.ts
     title: "Interest handlers"
@@ -44,23 +44,23 @@ sources:
 
 ## What it does
 
-A person submits the [browser signup form](/tokenmaxx#interested). In confirmation mode, a request starts pending confirmation; the person follows the email link and confirms in the browser before the signup is confirmed. The core interest machine owns the local pending → confirmed lifecycle. Capture-only mode records the request without sending mail; it is not a confirmed signup.
+Applications are [agent-only](/tokenmaxx#interested). A person confirms their email through an email link in a browser before the signup is confirmed. Submission is not confirmation, and confirmation is not a seat.
 
-An agent can also apply for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps: ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
+An agent applies for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps: ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
 
 `SubscriberIntake` and `SubscriberConfirm` are job-shaped ports in core. `packages/subscriber-delivery` implements external delivery outside core, and the Worker provides the adapter at composition. See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
 
 ## The standard
 
 - Submission is not confirmation. A person's email confirmation is required before joining.
-- Consent is explicit: the person submits the signup form or approves the agent's card. An agent must not infer permission to subscribe someone from their address or an unrelated request.
-- Rate-limited and honeypot submissions receive a neutral answer rather than revealing whether an address is on file. Invalid addresses and expired confirmation links have deliberate refusal responses.
+- Consent is explicit: the person approves the agent's exact card and contact permission. An agent must not infer permission to subscribe someone from their address or an unrelated request.
+- Agent application refusals receive a neutral answer rather than revealing whether an address is on file. Expired confirmation links have deliberate refusal responses. Retired submission endpoints return 410 without capturing or delivering an application.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
 - An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact payload. A ticket works once.
 
 ## How to check
 
-- Read `apps/mischief/src/interest/routes.ts` and `handlers.ts` for submission, neutral answers, and browser confirmation, and `packages/core/src/join-intake.ts` for agent applications. Check the Worker composition and configured mode before interpreting a capture as a pending signup.
+- Read `apps/mischief/src/interest/routes.ts` for email confirmation, `retired-routes.ts` for 410 responses, and `packages/core/src/join-intake.ts` for agent applications. The only published signup capability is `joinInterest`.
 - Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation seams. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
-- With an authorized test address, use the browser form, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
+- With an authorized test address, approve an agent application, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
 - Check [OpenAPI](/openapi.json) for `joinInterest` and read the agent view of [/tokenmaxx](/tokenmaxx) for the application steps. Do not bypass confirmation.

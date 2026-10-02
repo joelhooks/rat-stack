@@ -6,5 +6,5 @@ export const agentNextActions = (origin: string) => `## Choose the next action
 
 For a new behavior, start with [one capability, every surface](${origin}/lore/one-capability-every-surface) and [add a capability](${origin}/skills/add-a-capability). For stateful work, read [add a lifecycle machine](${origin}/skills/add-a-lifecycle-machine). For a provider, keep job-shaped ports in core and the adapter outside it: [hexagonal architecture](${origin}/lore/hexagonal-architecture). For agent-facing guidance, read [HATEOAS](${origin}/lore/hateoas).
 
-[Interest signup](${origin}/systems/interest) currently requires a person's browser submission and email confirmation. Agent-assisted intake is coming; do not subscribe someone without explicit consent or treat a request as confirmation.
+[Interest signup](${origin}/systems/interest) is agent-only. Read the [workshop application steps](${origin}/tokenmaxx#interested), obtain a fresh page ticket, and submit through \`joinInterest\` only after the person approves the exact card and contact permission. A person confirms their email through the email link in a browser; submission is not confirmation.
 `;

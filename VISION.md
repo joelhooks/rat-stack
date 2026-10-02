@@ -108,7 +108,7 @@ Everything built here is real.
 - Where does a correction to an agent live? Lauren Tan's fence ladder puts code first, then lint and CI, then rules and skills, with the style guide last. The `--no-verify` rung is proven today by `packages/core/test/vcs-command-policy.test.ts`.
 - Can provider details stay outside core? Subscriber delivery lives in `packages/subscriber-delivery`; `no-core-adapters` and its fixture tests enforce the boundary.
 - Can the agent discover its next useful action from a response? Agent-only page guidance is built; next-action links in capability and MCP results still need proof.
-- Can signup stay double opt-in across browser and agent surfaces? Yes, so far: both surfaces start the same email confirmation. On 2026-10-01 a live `joinInterest` run sent one confirmation email, refused a reused ticket, and sent no second email for a repeat.
+- Can agent-only signup stay double opt-in? Yes, so far: agents submit an approved application, and a person confirms their email through an email link in a browser. On 2026-10-01 a live `joinInterest` run sent one confirmation email, refused a reused ticket, and sent no second email for a repeat.
 
 ## Open questions
 

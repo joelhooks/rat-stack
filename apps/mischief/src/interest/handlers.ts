@@ -213,8 +213,8 @@ export const registerInterest = implement(
 
 export const refusalMessage = (reason: "expired" | "invalid") =>
   reason === "expired"
-    ? "Confirmation links expire in 72 hours. Return to the signup form to request a new link."
-    : "Return to the signup form to request a confirmation link.";
+    ? "Confirmation links expire in 72 hours. Return to the workshop page to apply through your agent and request a new link."
+    : "Return to the workshop page to apply through your agent and request a confirmation link.";
 
 const refusal = (reason: "expired" | "invalid") =>
   new InterestLinkRefused({ message: refusalMessage(reason), reason });
@@ -249,7 +249,4 @@ export const confirmInterest = implement(confirmInterestContract, ({ token }) =>
   })
 );
 
-export const interestCapabilities = [
-  registerInterest,
-  confirmInterest,
-] as const;
+export const interestCapabilities = [confirmInterest] as const;

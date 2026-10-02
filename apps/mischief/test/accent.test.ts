@@ -11,6 +11,7 @@ const accentSelectors = new Set([
   ".workshop-callout",
   ".workshop-callout-label",
   ".workshop-callout-apply",
+  ".copy-primary",
   ".copy .icon-done",
   ".copy:has(.icon-done:not([hidden]))",
 ]);

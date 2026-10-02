@@ -305,40 +305,6 @@ button {
   padding: 0.25rem 0.75rem;
 }
 
-.interest {
-  align-items: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-}
-
-.interest p {
-  margin: 0;
-}
-
-.interest .email {
-  flex: 0 1 28rem;
-  order: 1;
-}
-
-.interest .email input {
-  width: 100%;
-}
-
-.interest .join {
-  order: 2;
-}
-
-.interest .shield {
-  flex-basis: 100%;
-  order: 3;
-}
-
-.interest .note {
-  flex-basis: 100%;
-  order: 4;
-}
-
 .prompt {
   margin: 1rem 0;
 }
@@ -365,13 +331,19 @@ main > pre:has(+ .copy-actions) {
   padding: 0.25rem 0.75rem;
 }
 
+.copy-primary {
+  background: var(--accent-text);
+  color: #fff;
+  font-weight: bold;
+}
+
 .copy .icon {
   height: 1em;
   width: 1em;
 }
 
-.copy:hover,
-.copy:focus-visible {
+.copy:not(.copy-primary):hover,
+.copy:not(.copy-primary):focus-visible {
   background: #eff1f5;
 }
 
@@ -601,6 +573,14 @@ td[data-tier="F"] {
 
 .copy:has(.icon-done:not([hidden])) {
   border-color: var(--accent);
+}
+
+.copy-primary .icon-done {
+  color: #fff;
+}
+
+.copy.copy-primary:has(.icon-done:not([hidden])) {
+  border-color: #fff;
 }
 
 body > header {

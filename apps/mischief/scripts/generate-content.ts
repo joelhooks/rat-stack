@@ -356,19 +356,6 @@ for (const button of document.querySelectorAll("button[data-text]")) {
 
 const copyScriptHash = `sha256-${createHash("sha256").update(copyScript).digest("base64")}`;
 
-const tokenmaxxFormHtml = `
-<h2 id="interested">Interested?</h2>
-<form class="interest" method="post" action="/tokenmaxx/interest">
-<p class="email"><label for="interest-email">Your email</label><br />
-<input id="interest-email" type="email" name="email" required autocomplete="email" maxlength="254" /></p>
-__SHIELD_SHIBA_WIDGET__
-<p class="hp" aria-hidden="true"><label for="interest-website">Leave this empty</label><br />
-<input id="interest-website" type="text" name="website" tabindex="-1" autocomplete="off" /></p>
-<p class="join"><button type="submit">Join the interest list</button></p>
-<p class="note">Email me once when the date is set for "how to burn a trillion tokens."</p>
-</form>
-`;
-
 const unsubscribeBody = `
 <h1>Unsubscribe</h1>
 <p>__UNSUBSCRIBE_MESSAGE__</p>
@@ -2847,7 +2834,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "no-verify.md"
   )}`;
 
-  const tokenmaxxBodyHtml = `${tokenmaxxBody.bodyHtml}${tokenmaxxFormHtml}__COPY_SCRIPT__`;
+  const tokenmaxxBodyHtml = `${tokenmaxxBody.bodyHtml}__COPY_SCRIPT__`;
 
   const skillIndexBodyHtml = `${skillIndexBody.bodyHtml}${pageFooterHtml(
     "/skills",

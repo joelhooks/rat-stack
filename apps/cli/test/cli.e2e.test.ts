@@ -122,6 +122,7 @@ describe("built CLI", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("USAGE");
+    expect(result.stdout).not.toContain("registerInterest");
 
     for (const name of ["stats", "catalog", "openapi", "serve", "mcp"]) {
       expect(result.stdout).toContain(name);

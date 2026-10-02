@@ -1,18 +1,10 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
 import { IntakeTicket } from "@rat-stack/core/intake";
-import { InterestMode } from "@rat-stack/core/interest";
 import type { InterestTokens } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
-import {
-  Cause,
-  Context,
-  Effect,
-  Layer,
-  Option,
-  Predicate,
-  Schema,
-} from "effect";
+import type { Context } from "effect";
+import { Cause, Effect, Layer, Option, Predicate, Schema } from "effect";
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as HttpHeaders from "effect/unstable/http/Headers";
@@ -72,6 +64,7 @@ import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
+import { retiredInterestRoutes } from "./interest/retired-routes.js";
 import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
@@ -428,39 +421,30 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
     title: "Forbidden",
   });
 
-const shieldWidgetHtml = (siteKey: string | undefined) =>
-  siteKey === undefined || siteKey === ""
-    ? ""
-    : `<script src="https://www.postshiba.com/shield/v1/widget.js" async></script>\n<p class="shield"><shield-shiba sitekey="${siteKey.replaceAll(/[^\w-]/gu, "")}" email-field="#interest-email"></shield-shiba></p>`;
-
 export const tokenmaxxResponse = (
-  request: HttpServerRequest.HttpServerRequest,
-  shieldSiteKey?: string
+  request: HttpServerRequest.HttpServerRequest
 ) =>
   Effect.gen(function* tokenmaxxPage() {
-    const body = yield* withAvailablePageTicket(
-      acceptsHtml(request)
-        ? renderStaticDocument(originOf(request), tokenmaxxDocumentHtml)
-            .replaceAll(
-              "__SHIELD_SHIBA_WIDGET__",
-              shieldWidgetHtml(shieldSiteKey)
-            )
-            .replaceAll(
-              "__COPY_SCRIPT__",
-              `<script>${tokenmaxxCopyScript}</script>`
-            )
-        : tokenmaxxMarkdown
-    );
+    const isHtml = acceptsHtml(request);
+
+    const body = isHtml
+      ? renderStaticDocument(
+          originOf(request),
+          tokenmaxxDocumentHtml
+        ).replaceAll(
+          "__COPY_SCRIPT__",
+          `<script>${tokenmaxxCopyScript}</script>`
+        )
+      : yield* withAvailablePageTicket(tokenmaxxMarkdown);
 
     return HttpServerResponse.text(body, {
-      contentType: acceptsHtml(request)
+      contentType: isHtml
         ? "text/html; charset=utf-8"
         : "text/markdown; charset=utf-8",
       headers: {
         "cache-control": "no-store",
         "content-security-policy": contentSecurityPolicy(
-          "'self'",
-          shieldSiteKey !== undefined && shieldSiteKey !== "",
+          "'none'",
           tokenmaxxCopyScriptHash
         ),
         vary: "Accept",
@@ -469,14 +453,14 @@ export const tokenmaxxResponse = (
     });
   });
 
-const contentRoutes = (shieldSiteKey: string | undefined) =>
+const contentRoutes = () =>
   Layer.unwrap(
     Effect.gen(function* buildContentRoutes() {
       const tickets = yield* Effect.serviceOption(IntakeTicket);
 
       return Layer.mergeAll(
         HttpRouter.add("GET", "/tokenmaxx", (request) => {
-          const response = tokenmaxxResponse(request, shieldSiteKey);
+          const response = tokenmaxxResponse(request);
 
           return Option.isSome(tickets)
             ? response.pipe(Effect.provideService(IntakeTicket, tickets.value))
@@ -515,7 +499,6 @@ const contentRoutes = (shieldSiteKey: string | undefined) =>
                     headers: {
                       "content-security-policy": contentSecurityPolicy(
                         "'none'",
-                        false,
                         tokenmaxxCopyScriptHash
                       ),
                     },
@@ -1129,7 +1112,6 @@ export interface MischiefRouteOptions {
   readonly joinTokens?: Context.Context<InterestTokens> | undefined;
   readonly legacyMcp?: LegacyMcpRouter;
   readonly rateLimits?: RateLimits;
-  readonly shieldSiteKey?: string | undefined;
   readonly staticCache?: StaticResponseCache | undefined;
   readonly webBotAuth?: WebBotAuthOptions;
 }
@@ -1167,16 +1149,11 @@ const webBotAuthRoutes = (options: WebBotAuthOptions) =>
     webBotAuthResponse(options)
   );
 
-const shieldKeyFor = (options: MischiefRouteOptions) =>
-  options.interest !== undefined &&
-  Context.getOrUndefined(options.interest.services, InterestMode) === "drovr"
-    ? options.shieldSiteKey
-    : undefined;
-
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.mergeAll(
     unsubscribeRoutes,
-    contentRoutes(shieldKeyFor(options)),
+    contentRoutes(),
+    retiredInterestRoutes,
     joinRequestMiddleware({
       rateLimits: options.rateLimits,
       tokens: options.joinTokens,

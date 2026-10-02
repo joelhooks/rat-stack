@@ -123,8 +123,11 @@ const coreComponents = {
   },
   CopyPrompt: {
     agent(input) {
-      const { id } = Schema.decodeUnknownSync(
-        Schema.Struct({ id: Schema.String })
+      const { id, variant } = Schema.decodeUnknownSync(
+        Schema.Struct({
+          id: Schema.String,
+          variant: Schema.optional(Schema.Literal("primary")),
+        })
       )(input.attributes);
 
       const prompt = Object.entries(copyPrompts).find(
@@ -133,6 +136,21 @@ const coreComponents = {
 
       if (prompt === undefined) {
         throw buildError("CopyPrompt", id, new Error("Unknown prompt id"));
+      }
+
+      if (variant === "primary") {
+        return [
+          {
+            children: [
+              {
+                children: [{ type: "text", value: "Apply through your agent" }],
+                type: "link",
+                url: "#apply-through-your-agent",
+              },
+            ],
+            type: "paragraph",
+          },
+        ];
       }
 
       return input.placement === "inline" && !prompt.agentFence
@@ -143,8 +161,11 @@ const coreComponents = {
         : [{ lang: "text", type: "code", value: prompt.text }];
     },
     human(input, context) {
-      const { id } = Schema.decodeUnknownSync(
-        Schema.Struct({ id: Schema.String })
+      const { id, variant } = Schema.decodeUnknownSync(
+        Schema.Struct({
+          id: Schema.String,
+          variant: Schema.optional(Schema.Literal("primary")),
+        })
       )(input.attributes);
 
       const prompt = Object.entries(copyPrompts).find(
@@ -155,7 +176,15 @@ const coreComponents = {
         throw buildError("CopyPrompt", id, new Error("Unknown prompt id"));
       }
 
-      return [html(context.renderCopyPrompt(prompt))];
+      return [
+        html(
+          context.renderCopyPrompt(
+            variant === "primary"
+              ? { ...prompt, label: "Apply through your agent", variant }
+              : prompt
+          )
+        ),
+      ];
     },
   },
   Diagram: {
