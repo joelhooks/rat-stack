@@ -202,6 +202,76 @@ it.effect("negotiates asset views without leaking native asset headers", () =>
 );
 
 it.effect(
+  "keeps per-type asset cache lifetimes across GET, HEAD and validators",
+  () =>
+    withAssetHandler((handler) =>
+      Effect.gen(function* assetCachePolicies() {
+        const standard =
+          "public, max-age=14400, s-maxage=31536000, stale-while-revalidate=86400";
+
+        for (const [path, accept, policy] of [
+          ["/lore/cartridges", "text/markdown", standard],
+          ["/og/home.png", "image/png", standard],
+          [
+            "/tokenmaxx/four-comma-club.jpg",
+            "image/jpeg",
+            "public, max-age=86400",
+          ],
+          [
+            "/lore/cartridges/snes-sfam-cartridges.jpg",
+            "image/jpeg",
+            "public, max-age=86400",
+          ],
+          ["/favicon.ico", "image/x-icon", standard],
+          ["/", "text/html", "no-cache"],
+        ]) {
+          const get = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request(`https://ratstack.sh${path}`, { headers: { accept } })
+            )
+          );
+
+          expect(get.status).toBe(200);
+          expect(get.headers.get("cache-control"), path).toBe(policy);
+
+          for (const method of ["GET", "HEAD"]) {
+            const conditional = yield* Effect.promise(
+              handler.bind(
+                undefined,
+                new Request(`https://ratstack.sh${path}`, {
+                  headers: {
+                    accept,
+                    "if-none-match": get.headers.get("etag") ?? "",
+                  },
+                  method,
+                })
+              )
+            );
+
+            expect(conditional.status).toBe(304);
+            expect(conditional.headers.get("cache-control"), path).toBe(policy);
+          }
+
+          const head = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request(`https://ratstack.sh${path}`, {
+                headers: { accept },
+                method: "HEAD",
+              })
+            )
+          );
+
+          expect(head.status).toBe(200);
+          expect(head.headers.get("cache-control"), path).toBe(policy);
+          expect(yield* Effect.promise(head.text.bind(head))).toBe("");
+        }
+      })
+    )
+);
+
+it.effect(
   "keeps HEAD, validators, tickets and capability routing inside HTTP composition",
   () =>
     withAssetHandler((handler, calls) =>

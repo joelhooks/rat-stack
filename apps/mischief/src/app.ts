@@ -196,6 +196,9 @@ const htmlRevalidateEveryVisit = "no-cache";
 const staticCacheControl =
   "public, max-age=60, s-maxage=31536000, stale-while-revalidate=86400";
 
+const assetCacheControl =
+  "public, max-age=14400, s-maxage=31536000, stale-while-revalidate=86400";
+
 const staticRepresentation = (
   request: HttpServerRequest.HttpServerRequest,
   path: string
@@ -269,7 +272,12 @@ const assetImageResponse = (
 ) => {
   const etag = assetEtag(path, "default");
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
-  let headers = staticHeaders(path, etag, revalidated ? "REVALIDATED" : "MISS");
+
+  let headers = HttpHeaders.set(
+    staticHeaders(path, etag, revalidated ? "REVALIDATED" : "MISS"),
+    "cache-control",
+    path.endsWith(".jpg") ? "public, max-age=86400" : assetCacheControl
+  );
 
   if (path.startsWith("/tokenmaxx/")) {
     headers = HttpHeaders.set(headers, "x-robots-tag", "noindex");
@@ -296,7 +304,7 @@ const assetPageResponse = (
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
 
   let headers = HttpHeaders.fromInput({
-    "cache-control": isHtml ? "no-cache" : staticCacheControl,
+    "cache-control": isHtml ? "no-cache" : assetCacheControl,
     etag,
     vary: "Accept",
     "x-ratstack-cache": revalidated ? "REVALIDATED" : "MISS",
