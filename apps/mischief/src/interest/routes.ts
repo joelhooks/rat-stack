@@ -13,8 +13,13 @@ import type {
   SubscriberIntake,
   InterestMailer,
 } from "@rat-stack/core/interest";
+import {
+  IntakeApplications,
+  intakeApplications,
+  intakeApplicationsContract,
+} from "@rat-stack/core/join-interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
+import { Clock, Effect, Layer, Logger, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as HttpRouter from "effect/http/HttpRouter";
@@ -31,6 +36,7 @@ import {
 import { confirmPage, resultPage } from "./pages.js";
 
 export interface InterestOptions {
+  readonly applications?: IntakeApplications["Service"] | undefined;
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
@@ -307,6 +313,53 @@ export const interestRoutes = (options: InterestOptions) => {
             headers: operatorHeaders,
           });
         })
+      )
+    ),
+    HttpRouter.add("GET", "/operator/interest/applications", (request) =>
+      guarded(request, () =>
+        Effect.gen(function* readApplications() {
+          const params = new URL(request.url, "https://ratstack.sh")
+            .searchParams;
+
+          const submissionId = params.get("submissionId");
+
+          const input = yield* Schema.decodeUnknownEffect(
+            intakeApplicationsContract.input
+          )(submissionId === null ? {} : { submissionId }).pipe(Effect.option);
+
+          if (Option.isNone(input) || params.has("objectId")) {
+            return HttpServerResponse.text("Bad request.\n", {
+              headers: operatorHeaders,
+              status: 400,
+            });
+          }
+
+          if (options.applications === undefined) {
+            return HttpServerResponse.text("Applications unavailable.\n", {
+              headers: operatorHeaders,
+              status: 503,
+            });
+          }
+
+          return yield* intakeApplications.handler(input.value).pipe(
+            Effect.provideService(IntakeApplications, options.applications),
+            Effect.match({
+              onFailure: () =>
+                HttpServerResponse.text("Applications unavailable.\n", {
+                  headers: operatorHeaders,
+                  status: 503,
+                }),
+              onSuccess: (applications) =>
+                HttpServerResponse.jsonUnsafe(applications, {
+                  headers: operatorHeaders,
+                }),
+            })
+          );
+        })
+      ).pipe(
+        Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
+        Effect.withTracerEnabled(false),
+        Effect.provide(Logger.layer([]))
       )
     ),
     HttpRouter.add("GET", "/operator/interest/captures", (request) =>

@@ -98,6 +98,20 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
           state.storage.delete(RECORD_KEY).pipe(Effect.provideContext(runtime)),
         intakeErase: () => storage(state.storage.deleteAll()),
         intakeKey,
+        intakeRead: () =>
+          Effect.all({
+            key: storage(state.storage.get<string>(INTAKE_KEY)),
+            rows: storage(
+              state.storage.list<string>({ prefix: INTAKE_STATEMENT_PREFIX })
+            ).pipe(
+              Effect.map((entries) =>
+                [...entries].map(([id, sealed]) => ({
+                  id: id.slice(INTAKE_STATEMENT_PREFIX.length),
+                  sealed,
+                }))
+              )
+            ),
+          }),
         intakeStore,
         joinErase: () =>
           storage(state.storage.delete("join-contact")).pipe(Effect.asVoid),

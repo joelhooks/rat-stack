@@ -66,10 +66,19 @@ export default class InterestIndex extends Cloudflare.DurableObject<InterestInde
       });
 
       return {
+        applicationIds: () =>
+          state.storage.list<string>({ prefix: "application:" }).pipe(
+            Effect.map((entries) => [...entries.values()]),
+            Effect.provideContext(runtime)
+          ),
         forget: (address: string) =>
           forget(address).pipe(Effect.provideContext(runtime)),
         note: (record: InterestRecord) =>
           note(record).pipe(Effect.provideContext(runtime)),
+        noteApplication: (submissionId: string) =>
+          state.storage
+            .put(`application:${submissionId}`, submissionId)
+            .pipe(Effect.provideContext(runtime)),
         records: () => records.pipe(Effect.provideContext(runtime)),
       };
     });

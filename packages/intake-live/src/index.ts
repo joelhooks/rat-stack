@@ -59,6 +59,8 @@ export {
 
 export type { IntakeRow, IntakeRowSource, RowStamp } from "./intake-rows.js";
 
+export { unsealApplication } from "./read-application.js";
+
 export { PAGE_TICKET_PLACEHOLDER, withPageTicket } from "./page-ticket.js";
 
 export {
