@@ -20,8 +20,17 @@
     "//#typecheck-scripts": {
       "outputs": []
     },
+    "//#lockfile:check": {
+      "cache": false,
+      "outputs": []
+    },
     "check": {
-      "dependsOn": ["typecheck", "//#lint", "//#typecheck-scripts"],
+      "dependsOn": [
+        "//#lockfile:check",
+        "typecheck",
+        "//#lint",
+        "//#typecheck-scripts"
+      ],
       "outputs": []
     },
     "@rat-stack/mischief#generate": {
@@ -145,7 +154,12 @@
       ]
     },
     "@rat-stack/mischief#check": {
-      "dependsOn": ["typecheck", "//#lint", "//#typecheck-scripts"],
+      "dependsOn": [
+        "//#lockfile:check",
+        "typecheck",
+        "//#lint",
+        "//#typecheck-scripts"
+      ],
       "outputs": [],
       "inputs": [
         "$TURBO_DEFAULT$",
