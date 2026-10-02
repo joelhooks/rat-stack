@@ -1,0 +1,42 @@
+---
+title: "Tokenize the whole file before slicing"
+description: "Select lines after tokenization so each excerpt retains the file's lexical context."
+group: concept
+terms:
+  - "whole-file tokenization"
+  - "collapsed gap"
+sources:
+  - url: https://shiki.style/guide/install
+    title: "Shiki installation and usage"
+    publisher: "Primary source"
+    note: "codeToTokens API"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lore/code-snippets.svx
+    title: "Code-snippets design brief"
+    publisher: "Primary source"
+    note: "Whole-file tokenization requirement"
+    accessed: "2026-10-02"
+---
+
+The [code-snippets design brief](/lore/code-snippets) requires whole-file tokenization.
+The highlighter receives the full source before the pipeline selects lines.
+Shiki exposes [`codeToTokens`](https://shiki.style/guide/install) for token output.
+
+An excerpt can start inside a multiline comment or string.
+Tokenizing only the excerpt removes the preceding source from the highlighter's input.
+
+The proposed pipeline:
+1. Tokenizes every source line.
+2. Selects the requested ranges.
+3. Keeps the original line numbers.
+4. Inserts a collapsed gap between separated ranges.
+
+A collapsed gap reports omitted lines.
+It is not a source line.
+
+The planned property compares excerpt tokens with the same lines from whole-file tokenization.
+It includes multiline comments and template strings.
+See [property-based testing](/lore/property-based-testing).
+
+Both renderers consume [one snippet model](/lore/one-snippet-model-two-renderers).
+See [the glossary](/glossary) for whole-file tokenization and collapsed gap.

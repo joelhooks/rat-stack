@@ -1,0 +1,41 @@
+---
+title: "Accumulate independent errors before writing output"
+description: "Check every independent job before any job writes an asset."
+group: concept
+terms:
+  - "error accumulation"
+  - "preflight"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651
+    title: "Effect.validate"
+    publisher: "Effect contributors"
+    note: "Collection failure semantics"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/test/Effect.test.ts#L1167-L1173
+    title: "Effect.validate test"
+    publisher: "Effect contributors"
+    note: "Collected failures"
+    accessed: "2026-10-02"
+---
+
+Effect 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651) evaluates every collection element.
+It returns all failures as a non-empty array when any element fails.
+Successful values are discarded in that case.
+
+The [code-snippets design brief](/lore/code-snippets) uses this operation for preflight.
+Each snippet is an independent job.
+A job stops when a dependent stage fails.
+Other jobs still run.
+
+The proposed order is:
+1. Collect snippet jobs.
+2. Check every job.
+3. Report each failure with [diagnostic context](/lore/errors-are-part-of-the-interface).
+4. Write assets only when preflight succeeds.
+
+This is error accumulation across jobs.
+It does not run highlighting on an invalid request.
+
+The planned property inserts exactly `k` independent failures.
+It expects exactly `k` diagnostics and zero asset writes.
+See [property-based testing](/lore/property-based-testing) and [the glossary](/glossary).
