@@ -17,11 +17,35 @@ import {
   visitContentNodes,
 } from "../scripts/svx-ast.ts";
 import { UnlinkedMentionsSchema } from "../scripts/unlinked-mentions.ts";
-import {
-  lawSources,
-  loreSources,
-  skillSources,
-} from "../src/bundled-content.generated.js";
+import { staticAssetGeneration } from "../src/bundled-content.generated.js";
+import { contentResources, readContent } from "../src/content.js";
+import { lawSources, loreSources, skillSources } from "./generated-content.js";
+
+it.effect(
+  "keeps every Markdown read representation independent of HTML assets",
+  () =>
+    Effect.gen(function* independentMarkdownReads() {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+
+      const assets = path.resolve(
+        import.meta.dirname,
+        "../dist/content/assets",
+        staticAssetGeneration
+      );
+
+      for (const resource of contentResources) {
+        const markdown = yield* fs.readFileString(
+          path.join(assets, `${resource.routePath.slice(1)}.md`)
+        );
+
+        const read = readContent(resource.id);
+        expect(read).toBeDefined();
+        expect(read?.text, resource.id).toBe(markdown);
+        expect(read?.title).toBe(resource.title);
+      }
+    }).pipe(Effect.provide(NodeServices.layer))
+);
 
 it.effect(
   "registry audiences share reference facts and native disclosures escape context",

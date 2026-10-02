@@ -21,6 +21,7 @@ import {
   stripHtmlComments,
   visitContentNodes,
 } from "../scripts/svx-ast.ts";
+import { llmsFullText, llmsText } from "../src/content.ts";
 import {
   authMarkdown,
   homeDocumentHtml,
@@ -40,8 +41,7 @@ import {
   lawSources,
   skillSources,
   loreSources,
-} from "../src/bundled-content.generated.js";
-import { llmsFullText, llmsText } from "../src/content.ts";
+} from "./generated-content.js";
 
 it.effect(
   "keeps audience content inside native HTML wrappers valid at the mdsvex boundary",

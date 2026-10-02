@@ -5,5 +5,6 @@ export class AssetReadError extends Schema.TaggedError<AssetReadError>()(
   {
     cause: Schema.Defect(),
     path: Schema.String,
+    reason: Schema.Literals(["binding", "response", "provider", "empty"]),
   }
 ) {}

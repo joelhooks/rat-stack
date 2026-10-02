@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 
-import { homeDocumentHtml } from "../src/bundled-content.generated.js";
+import { homeDocumentHtml } from "./generated-content.js";
 
 const accentSelectors = new Set([
   ":root",

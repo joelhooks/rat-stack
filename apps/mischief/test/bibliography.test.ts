@@ -8,7 +8,7 @@ import {
   renderBibliography,
 } from "../scripts/content-lib.ts";
 import { parseContentMarkdown, visitContentNodes } from "../scripts/svx-ast.ts";
-import { loreSources } from "../src/bundled-content.generated.js";
+import { loreSources } from "./generated-content.js";
 
 it.layer(NodeServices.layer)((test) => {
   test.effect(

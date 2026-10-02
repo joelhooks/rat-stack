@@ -1,4 +1,4 @@
-import { Context, Effect, Layer, Option, Predicate, Schema } from "effect";
+import { Context, Effect, Layer, Predicate, Schema } from "effect";
 
 import { AssetReadError } from "./static-assets-error.js";
 
@@ -18,7 +18,7 @@ const readAsset = Effect.fn("StaticAssets.read")(function* readAsset(
   path: string
 ) {
   const response = yield* Effect.tryPromise({
-    catch: (cause) => new AssetReadError({ cause, path }),
+    catch: (cause) => new AssetReadError({ cause, path, reason: "provider" }),
     try: binding.fetch.bind(
       binding,
       new Request(new URL(path, "https://assets.invalid"))
@@ -26,25 +26,48 @@ const readAsset = Effect.fn("StaticAssets.read")(function* readAsset(
   });
 
   if (response.status !== 200) {
-    return Option.none<Uint8Array>();
+    return yield* new AssetReadError({
+      cause: response.status,
+      path,
+      reason: "response",
+    });
   }
 
-  const body = yield* Effect.tryPromise({
-    catch: (cause) => new AssetReadError({ cause, path }),
-    try: response.arrayBuffer.bind(response),
-  });
+  const bytes = new Uint8Array(
+    yield* Effect.tryPromise({
+      catch: (cause) => new AssetReadError({ cause, path, reason: "provider" }),
+      try: response.arrayBuffer.bind(response),
+    })
+  );
 
-  return Option.some(new Uint8Array(body));
+  if (bytes.byteLength === 0) {
+    return yield* new AssetReadError({
+      cause: "Asset body is empty",
+      path,
+      reason: "empty",
+    });
+  }
+
+  return bytes;
 });
 
 export class StaticAssets extends Context.Service<
   StaticAssets,
   {
-    readonly read: (
-      path: string
-    ) => Effect.Effect<Option.Option<Uint8Array>, AssetReadError>;
+    readonly read: (path: string) => Effect.Effect<Uint8Array, AssetReadError>;
   }
 >()("mischief/StaticAssets") {
+  static readonly unavailable = StaticAssets.of({
+    read: (path) =>
+      Effect.fail(
+        new AssetReadError({
+          cause: "ASSETS binding is missing",
+          path,
+          reason: "binding",
+        })
+      ),
+  });
+
   static readonly layer = (binding: AssetBinding) =>
     Layer.succeed(
       StaticAssets,

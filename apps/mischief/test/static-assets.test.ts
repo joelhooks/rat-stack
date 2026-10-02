@@ -1,10 +1,14 @@
 import { expect, it } from "@effect/vitest";
 import { IntakeTicket } from "@rat-stack/core/intake";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Schema } from "effect";
+import { Arbitrary } from "effect/unstable/arbitrary";
 import { HttpRouter } from "effect/unstable/http";
 
 import { mischiefRoutes } from "../src/app.js";
-import { tokenmaxxCopyScriptHash } from "../src/bundled-content.generated.js";
+import {
+  staticAssetGeneration,
+  tokenmaxxCopyScriptHash,
+} from "../src/bundled-content.generated.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { StaticAssets } from "../src/static-assets.js";
 import { TestSandbox } from "./test-sandbox.js";
@@ -32,6 +36,60 @@ const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
 const fetchMissing = (): Promise<Response> =>
   Promise.resolve(new Response(null, { status: 404 }));
 
+// oxlint-disable-next-line typescript/promise-function-async -- This fixture matches the native Cache API.
+const cacheMiss = (): Promise<Response | undefined> =>
+  // oxlint-disable-next-line unicorn/no-useless-undefined -- An explicit miss preserves the native API Promise type rather than Promise<void>.
+  Promise.resolve<Response | undefined>(undefined);
+
+// oxlint-disable-next-line typescript/promise-function-async -- A populated Cache API fixture must not conceal a missing asset.
+const cacheHit = (): Promise<Response | undefined> =>
+  Promise.resolve(
+    new Response("Old cached representation", {
+      headers: { "content-type": "text/markdown" },
+    })
+  );
+
+// oxlint-disable-next-line typescript/promise-function-async -- This fixture matches the native Cache API.
+const cachePut = (): Promise<void> => Promise.resolve();
+
+// oxlint-disable-next-line typescript/promise-function-async -- Native binding fixtures expose Promise-returning fetch.
+const fetchFailure = (
+  reason: "response" | "empty" | "provider"
+): Promise<Response> =>
+  reason === "provider"
+    ? Promise.reject(new Error("Asset provider unavailable"))
+    : Promise.resolve(
+        new Response("", { status: reason === "response" ? 404 : 200 })
+      );
+
+it.effect.prop(
+  "keeps misses, empty bodies and provider failures typed",
+  {
+    reason: Arbitrary.schema(
+      Schema.Literals(["response", "empty", "provider"])
+    ),
+  },
+  ({ reason }) =>
+    Effect.gen(function* typedAssetFailures() {
+      const service = yield* StaticAssets.pipe(
+        Effect.provide(
+          StaticAssets.layer({ fetch: fetchFailure.bind(undefined, reason) })
+        )
+      );
+
+      const error = yield* service.read("/index.html").pipe(Effect.flip);
+      expect(error._tag).toBe("AssetReadError");
+      expect(error.reason).toBe(reason);
+      expect(error.path).toBe("/index.html");
+
+      const unavailable = yield* StaticAssets.unavailable
+        .read("/index.html")
+        .pipe(Effect.flip);
+
+      expect(unavailable.reason).toBe("binding");
+    })
+);
+
 const withAssetHandler = <A, E, R>(
   use: (
     handler: (request: Request) => Promise<Response>,
@@ -53,7 +111,13 @@ const withAssetHandler = <A, E, R>(
     return yield* Effect.acquireUseRelease(
       Effect.sync(() =>
         HttpRouter.toWebHandler(
-          mischiefRoutes({ assets }).pipe(
+          mischiefRoutes({
+            assets,
+            staticCache: {
+              match: missing ? cacheHit : cacheMiss,
+              put: cachePut,
+            },
+          }).pipe(
             Layer.provide(TestSandbox),
             Layer.provide(IntakeTicket.testLayer)
           ),
@@ -151,6 +215,8 @@ it.effect(
           )
         );
 
+        expect(first.headers.get("etag")).toContain(staticAssetGeneration);
+
         const conditional = yield* Effect.promise(
           handler.bind(
             undefined,
@@ -209,7 +275,9 @@ it.effect(
             handler.bind(undefined, new Request(`https://ratstack.sh${path}`))
           );
 
-          expect(response.headers.get("x-ratstack-cache")).toBeNull();
+          expect(response.headers.get("x-ratstack-cache")).toBe(
+            path === "/openapi.json" ? "MISS" : null
+          );
         }
 
         expect(calls).toHaveLength(before);
@@ -217,24 +285,35 @@ it.effect(
     )
 );
 
-it.effect("keeps inline content available when the asset binding misses", () =>
+it.effect("fails visibly without caching when the asset binding misses", () =>
   withAssetHandler(
     (handler) =>
-      Effect.gen(function* inlineAssetFallback() {
-        for (const path of ["/", "/lore/cartridges", "/lore/cartridges.md"]) {
+      Effect.gen(function* unavailableStaticContent() {
+        for (const path of [
+          "/",
+          "/lore/cartridges",
+          "/lore/cartridges.md",
+          "/og/home.png",
+          "/favicon.ico",
+        ]) {
           const response = yield* Effect.promise(
             handler.bind(
               undefined,
               new Request(`https://ratstack.sh${path}`, {
-                headers: { accept: "text/html" },
+                headers: {
+                  accept: path.endsWith(".md") ? "text/html" : "text/markdown",
+                  "if-none-match": "*",
+                },
               })
             )
           );
 
           const body = yield* Effect.promise(response.text.bind(response));
 
-          expect(response.status).toBe(200);
+          expect(response.status).toBe(503);
           expect(response.headers.get("vary")).toBe("Accept");
+          expect(response.headers.get("cache-control")).toBe("no-store");
+          expect(body).toContain("Static content is unavailable");
           expect(body).not.toContain("ASSET HTML");
 
           if (path.endsWith(".md")) {
@@ -242,8 +321,8 @@ it.effect("keeps inline content available when the asset binding misses", () =>
               "text/markdown"
             );
           } else {
-            expect(body).toContain("<!doctype html>");
-            expect(response.headers.get("cache-control")).toBe("no-cache");
+            expect(body).toContain("Service unavailable");
+            expect(response.headers.get("cache-control")).toBe("no-store");
           }
         }
       }),

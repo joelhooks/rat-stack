@@ -28,6 +28,8 @@ import {
   withMarkdownTitle,
 } from "../scripts/content-lib.ts";
 import { parseContentMarkdown } from "../scripts/svx-ast.ts";
+import { llmsText, searchContent } from "../src/content.js";
+import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
@@ -51,9 +53,7 @@ import {
   systemsIndexDocumentHtml,
   tokenmaxxDocumentHtml,
   tokenmaxxMarkdown,
-} from "../src/bundled-content.generated.js";
-import { llmsText, searchContent } from "../src/content.js";
-import { houseAdCopy } from "../src/house-ad-copy.ts";
+} from "./generated-content.js";
 
 it.effect("places one workshop pointer after each promoted page title", () =>
   Effect.sync(() => {

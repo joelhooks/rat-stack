@@ -6,7 +6,7 @@ import {
   lawSources,
   loreSources,
   skillSources,
-} from "../src/bundled-content.generated.js";
+} from "./generated-content.js";
 
 const blockerBaitTokens = [
   /^(?:ad|ads|advert|adverts|advertisement)$/u,
