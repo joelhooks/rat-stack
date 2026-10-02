@@ -1,0 +1,39 @@
+---
+title: "Pin the source and report drift separately"
+description: "A pinned excerpt stays fixed while a separate diagnostic compares it with HEAD."
+group: concept
+terms:
+  - "pinned source"
+  - "source drift"
+sources:
+  - url: https://git-scm.com/docs/git-show
+    title: "git show"
+    publisher: "Primary source"
+    note: "Reading objects"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lore/code-snippets.svx
+    title: "Code-snippets design brief"
+    publisher: "Primary source"
+    note: "Pin and drift design"
+    accessed: "2026-10-02"
+---
+
+A pinned source identifies a repository, a full commit SHA, and a path.
+The [code-snippets design brief](/lore/code-snippets) reads that source from local Git objects.
+[`git show`](https://git-scm.com/docs/git-show) documents object inspection.
+
+The proposed snippet keeps its pinned text.
+Source drift compares only the selected pinned lines with HEAD.
+Source drift reports a warning, not replacement text or a failed build.
+
+Keep HEAD out of the immutable snippet cache.
+The cache key identifies the pinned source.
+A separate diagnostic observes source drift.
+
+If a shallow clone lacks the object, tell the author to fetch history.
+Do not fetch it during content generation.
+
+This boundary keeps [build-time work](/lore/build-time-work-stays-out-of-requests) local.
+The configured registry follows [ports and adapters](/lore/hexagonal-architecture).
+
+See [the glossary](/glossary) for pinned source and source drift.
