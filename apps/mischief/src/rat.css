@@ -1,6 +1,11 @@
 :root {
   --accent: #ff1493;
   --accent-text: #c8006e;
+  --code-ink: #4c4f69;
+  --code-keyword: #303446;
+  --code-literal: #5c5f77;
+  --code-muted: #6c6f85;
+  --code-highlight: #e6e9ef;
   --space-tight: 0.375rem;
   --space-small: 0.75rem;
   --space-section: 2rem;
@@ -60,6 +65,48 @@ main > .table-wrapper {
 main > .table-wrapper.table-wide {
   grid-column: full-bleed;
   margin-inline: 0;
+}
+
+.code-snippet {
+  margin: 0;
+  min-width: 0;
+}
+
+.code-snippet figcaption {
+  color: var(--code-muted);
+  font-size: 0.875rem;
+}
+
+.code-snippet pre {
+  overflow-x: auto;
+}
+
+.code-line {
+  display: flex;
+  min-width: max-content;
+}
+
+.code-number {
+  color: var(--code-muted);
+  display: inline-block;
+  min-width: 4ch;
+  padding-inline-end: 1ch;
+  text-align: right;
+  user-select: none;
+}
+
+.code-text {
+  white-space: pre;
+}
+
+.code-highlighted {
+  background: var(--code-highlight);
+}
+
+.code-gap {
+  color: var(--code-muted);
+  display: block;
+  padding-inline-start: 5ch;
 }
 
 .block-transclusion {

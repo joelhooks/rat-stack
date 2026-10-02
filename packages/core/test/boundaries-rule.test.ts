@@ -37,6 +37,7 @@ const lintFixture = (area: string, source: string): LintResult => {
       rules: {
         "rat-stack-boundaries/no-browser-globals-on-server": "error",
         "rat-stack-boundaries/no-browser-server-imports": "error",
+        "rat-stack-boundaries/no-code-snippets-in-runtime": "error",
         "rat-stack-boundaries/no-core-adapters": "error",
         "rat-stack-boundaries/no-cross-layer-imports": "error",
         "rat-stack-boundaries/no-devtools-in-production": "error",
@@ -73,6 +74,28 @@ const expectRuleSoft = (result: LintResult, message: string) => {
 };
 
 describe("architecture boundary rules", () => {
+  it("keeps code-snippets and Shiki out of runtime import graphs", () => {
+    for (const source of [
+      'import { prepareCode } from "@rat-stack/code-snippets";',
+      'const engine = import("shiki");',
+      'export * from "@rat-stack/code-snippets/shiki";',
+    ]) {
+      expectRuleSoft(
+        lintFixture("apps/mischief/src", source),
+        "Code snippets and Shiki are build-only"
+      );
+      expect(lintFixture("apps/mischief/scripts", source).status).toBe(0);
+    }
+
+    expectRule(
+      lintFixture(
+        "packages/code-snippets/src",
+        'import { createHighlighter } from "shiki";'
+      ),
+      "Code-snippets core cannot import Shiki"
+    );
+  });
+
   it("keeps clients and vendor adapters out of core through every import form", () => {
     const sources = [
       'import { HttpClient } from "effect/unstable/http";',

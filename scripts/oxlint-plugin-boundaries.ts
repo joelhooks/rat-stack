@@ -1463,11 +1463,68 @@ const noDevtoolsInProduction = defineRule({
   },
 });
 
+const noCodeSnippetsInRuntime = defineRule({
+  create(context) {
+    const filename = workspacePath(context.filename);
+    const runtime = /^(?:apps|packages)\/[^/]+\/src\//u.test(filename);
+
+    const check = (node: ESTree.Node, source: ESTree.Expression) => {
+      const specifier = isStringModule(source);
+
+      if (specifier === null) {
+        return;
+      }
+
+      const target = normalizeWorkspacePath(filename, specifier);
+
+      const snippets =
+        target !== null && isWithin(target, "packages/code-snippets");
+
+      const engine =
+        specifier === "shiki" ||
+        specifier.startsWith("shiki/") ||
+        specifier.startsWith("@shikijs/");
+
+      if (
+        runtime &&
+        !isWithin(filename, "packages/code-snippets") &&
+        (snippets || engine)
+      ) {
+        context.report({ messageId: "buildOnly", node });
+      }
+
+      if (
+        isWithin(filename, "packages/code-snippets/src") &&
+        !filename.endsWith("/shiki.ts") &&
+        engine
+      ) {
+        context.report({ messageId: "adapterOnly", node });
+      }
+    };
+
+    return moduleSourceVisitors(context, check);
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep code snippets build-only and Shiki behind its adapter.",
+    },
+    messages: {
+      adapterOnly:
+        "Code-snippets core cannot import Shiki; use the Highlighter port.",
+      buildOnly:
+        "Code snippets and Shiki are build-only; keep them out of runtime src modules.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-boundaries" },
   rules: {
     "no-browser-globals-on-server": noBrowserGlobalsOnServer,
     "no-browser-server-imports": noBrowserServerImports,
+    "no-code-snippets-in-runtime": noCodeSnippetsInRuntime,
     "no-core-adapters": noCoreAdapters,
     "no-cross-layer-imports": noCrossLayerImports,
     "no-devtools-in-production": noDevtoolsInProduction,

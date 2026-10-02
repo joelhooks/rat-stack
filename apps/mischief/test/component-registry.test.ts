@@ -1,10 +1,17 @@
 import { NodeServices } from "@effect/platform-node";
 import { it } from "@effect/vitest";
+import { Drift, codeIdentity, prepareCode } from "@rat-stack/code-snippets";
+import type { CodeSnippet } from "@rat-stack/code-snippets";
+import { gitLayer } from "@rat-stack/code-snippets/git";
+import { plainLayer } from "@rat-stack/code-snippets/plain";
 import { Context, Effect, FileSystem, Layer, Schema } from "effect";
 import { mdsvex } from "mdsvex";
 import { compile } from "svelte/compiler";
 import { expect } from "vitest";
 
+import { codeRepositories } from "../scripts/code-config.ts";
+import { collectBuildFences } from "../scripts/code-inputs.ts";
+import { codeComponent, collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
   assertAgentPointerLayout,
   createComponentRegistry,
@@ -305,6 +312,7 @@ it.effect(
 class RegistryFixtures extends Context.Service<
   RegistryFixtures,
   {
+    readonly snippets: ReadonlyMap<string, CodeSnippet>;
     readonly registry: ComponentRegistry;
     readonly extension: ComponentRegistry;
   }
@@ -323,7 +331,7 @@ class RegistryFixtures extends Context.Service<
         yield* read(".brain/data/peers.json")
       );
 
-      const registry = peerComponentRegistry(
+      const peersRegistry = peerComponentRegistry(
         peers,
         peerPins(
           yield* read("package.json"),
@@ -331,6 +339,10 @@ class RegistryFixtures extends Context.Service<
           yield* read("packages/core/package.json")
         )
       );
+
+      const root = new URL("../../../", import.meta.url).pathname;
+      const prepared = yield* prepareCode(yield* collectBuildFences(root)).pipe(Effect.provide([Drift.silent, gitLayer(codeRepositories(root))]));
+      const registry = createComponentRegistry({ ...peersRegistry, Code: codeComponent(prepared.snippets) });
 
       const extension = createComponentRegistry({
         ...registry,
@@ -345,9 +357,9 @@ class RegistryFixtures extends Context.Service<
         },
       });
 
-      return RegistryFixtures.of({ extension, registry });
+      return RegistryFixtures.of({ extension, registry, snippets: prepared.snippets });
     })
-  ).pipe(Layer.provide(NodeServices.layer));
+  ).pipe(Layer.provide([NodeServices.layer, plainLayer(["text", "markdown", "typescript", "javascript", "bash", "css", "html", "json", "sql", "svelte", "toml", "yaml"])]));
 }
 
 it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
@@ -377,6 +389,12 @@ it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
           );
 
           expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
+          const code: string[] = [];
+          visitContentNodes(parseContentMarkdown(rendered), (node) => { if (node.type === "code") code.push(node.value); });
+          for (const node of collectCodeFences(source, page.sourcePath)) {
+            const snippet = fixtures.snippets.get(codeIdentity(node));
+            if (snippet !== undefined) expect(code, page.sourcePath).toContain(snippet.lines.map((line) => line.text).join("\n"));
+          }
           expect(
             renderSvxMarkdown(
               `${source}\n\n<Proof />`,

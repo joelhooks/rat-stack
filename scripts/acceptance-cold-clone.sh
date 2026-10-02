@@ -47,6 +47,11 @@ if ! pnpm install --frozen-lockfile; then
   fail "pnpm install --frozen-lockfile failed"
 fi
 
+step="fetch pinned source objects"
+if ! pnpm sources:fetch; then
+  fail "pnpm sources:fetch failed"
+fi
+
 step="rename workspace"
 acceptance_scope="@acceptance-$((RANDOM * 32768 + RANDOM))"
 replace_refs() {
