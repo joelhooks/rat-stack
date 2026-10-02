@@ -23,7 +23,9 @@ erased AS (
 SELECT
   submission_id,
   min(happened_at) AS submitted_at,
+  max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'name') END) AS name,
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'email') END) AS email,
+  max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'x') END) AS x,
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'agentRef') END) AS agent,
   max(CASE WHEN object = 'tokenmaxx/questions/building' THEN json_get_str(value, 'result') END) AS building,
   max(CASE WHEN object = 'tokenmaxx/questions/today' THEN json_get_str(value, 'result') END) AS today,

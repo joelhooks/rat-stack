@@ -21,6 +21,24 @@ const actorOf = (submission: Submission) =>
 
 const emailOf = (submission: Submission) => `person-${submission}@example.com`;
 
+const nameOf = (submission: Submission) => `Applicant Name ${submission}`;
+
+const xOf = (submission: Submission) => `https://x.com/applicant${submission}`;
+
+const ContactKindSchema = Schema.Literals(["none", "email", "identified"]);
+
+type ContactKind = typeof ContactKindSchema.Type;
+
+const contactFor = (submission: Submission, kind: ContactKind) => {
+  const contact = { agentRef: "agent-under-test", email: emailOf(submission) };
+
+  if (kind === "identified") {
+    return { ...contact, name: nameOf(submission), x: xOf(submission) };
+  }
+
+  return kind === "email" ? contact : undefined;
+};
+
 const answerOf = (submission: Submission, question: QuestionId) =>
   `answer ${question} from ${submission}`;
 
@@ -32,9 +50,9 @@ const idOf = (submission: Submission, slot: number) =>
 const Step = Schema.Union([
   Schema.Struct({
     answered: Schema.Tuple([Schema.Boolean, Schema.Boolean, Schema.Boolean]),
+    contact: ContactKindSchema,
     kind: Schema.Literal("record"),
     submission: Schema.Literals(submissions),
-    withContact: Schema.Boolean,
   }),
   Schema.Struct({
     kind: Schema.Literal("erase"),
@@ -89,6 +107,8 @@ interface Application {
   readonly answers: ReadonlyMap<string, string>;
   readonly email: string | undefined;
   readonly held: boolean;
+  readonly name: string | undefined;
+  readonly x: string | undefined;
 }
 
 const decodeRow = Schema.decodeUnknownSync(IntakeRowSchema);
@@ -122,11 +142,18 @@ const readApplications = (sent: readonly UnstructuredIntakeRow[]) => {
       answers: new Map<string, string>(),
       email: undefined,
       held: false,
+      name: undefined,
+      x: undefined,
     };
 
     if (row.kind === "contact") {
       contacts.set(row.submissionId, (contacts.get(row.submissionId) ?? 0) + 1);
-      applications.set(row.submissionId, { ...held, email: row.email });
+      applications.set(row.submissionId, {
+        ...held,
+        email: row.email,
+        name: row.name,
+        x: row.x,
+      });
       continue;
     }
 
@@ -153,7 +180,7 @@ const readApplications = (sent: readonly UnstructuredIntakeRow[]) => {
 
 interface ModelSubmission {
   answered: Set<QuestionId>;
-  contact: boolean;
+  contact: ContactKind;
 }
 
 const expectedApplications = (
@@ -174,8 +201,10 @@ const expectedApplications = (
           answerOf(submission, question),
         ])
       ),
-      email: recorded.contact ? emailOf(submission) : undefined,
+      email: recorded.contact === "none" ? undefined : emailOf(submission),
       held: heldOf(submission),
+      name: recorded.contact === "identified" ? nameOf(submission) : undefined,
+      x: recorded.contact === "identified" ? xOf(submission) : undefined,
     });
   }
 
@@ -230,9 +259,7 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
       const exit = yield* Effect.exit(
         events.record(
           statementsFor(step.submission, step.answered),
-          step.withContact
-            ? { agentRef: "agent-under-test", email: emailOf(step.submission) }
-            : undefined
+          contactFor(step.submission, step.contact)
         )
       );
 
@@ -246,7 +273,7 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
 
       const recorded = model.get(step.submission) ?? {
         answered: new Set<QuestionId>(),
-        contact: false,
+        contact: "none",
       };
 
       for (const [slot, question] of questions.entries()) {
@@ -255,7 +282,10 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
         }
       }
 
-      recorded.contact ||= step.withContact;
+      if (recorded.contact === "none") {
+        recorded.contact = step.contact;
+      }
+
       model.set(step.submission, recorded);
     }
 
@@ -274,12 +304,18 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
 
       expect(row.source).toBe("live");
       expect(serialized.includes("@example.com")).toBe(row.kind === "contact");
+
+      for (const identifying of ["Applicant Name", "x.com/"]) {
+        expect(
+          row.kind === "contact" || !serialized.includes(identifying)
+        ).toBe(true);
+      }
     }
   });
 
 describe("basin intake events", () => {
   it.effect.prop(
-    "write rows that read back as one application per submission, minus erased contacts, with the email only on the contact row",
+    "write rows that read back as one application per submission, minus erased contacts, with email, name, and x only on the contact row",
     { generated: steps },
     ({ generated }) => runAgainstModel(generated),
     { arbitrary: { runs: 300 } }

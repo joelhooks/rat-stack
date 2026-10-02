@@ -40,7 +40,9 @@ export const IntakeContactRowSchema = Schema.Struct({
   agentRef: Schema.String,
   email: Schema.String,
   kind: Schema.Literal("contact"),
+  name: Schema.optionalKey(Schema.String),
   submissionId: Schema.String,
+  x: Schema.optionalKey(Schema.String),
 });
 
 export const IntakeErasedRowSchema = Schema.Struct({
@@ -103,9 +105,8 @@ export const recordRows = (
   return [
     ...rows,
     {
+      ...contact,
       actor: first.actor,
-      agentRef: contact.agentRef,
-      email: contact.email,
       id: contactRowId(first.context.submissionId),
       intake: first.context.intake,
       kind: "contact",

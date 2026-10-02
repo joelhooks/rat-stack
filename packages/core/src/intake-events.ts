@@ -46,6 +46,8 @@ export type IntakeStatement = typeof IntakeStatementSchema.Type;
 export const IntakeContactSchema = Schema.Struct({
   agentRef: Schema.String,
   email: Schema.String,
+  name: Schema.optionalKey(Schema.String),
+  x: Schema.optionalKey(Schema.String),
 });
 
 export type IntakeContact = typeof IntakeContactSchema.Type;
