@@ -47,7 +47,7 @@ Decided 2026-09-28 while reviewing drovr's PR #1 (per-contract HTTP routes, merg
 
 - A projection option may not answer around the contract. `toHttpApi` takes a `provide` hook (derive a service from the request, or fail with a declared error) instead of raw `HttpApiMiddleware`, because Effect runs middleware around decode and encode: a middleware could return 200 for an invalid query or leak an undeclared failure. The independent review demonstrated both before the rework.
 - Decode refusals render through Effect's `layerSchemaErrorTransform` at the host. Domain failures render only through the contract's declared failure schema; whatever that schema rejects stays an empty 500.
-- A contract without `http` keeps a byte-identical wire (declared failures stay 422). Per-class statuses are opt-in with `http`. Checked on live ratstack.sh after the deploy: failure bodies and OpenAPI paths unchanged.
+- The original route-metadata rollout kept default POST failures at 422. The content-assets change supersedes that rule: plain unions honor member statuses on default POST routes too. Unannotated failures remain 422. See [OpenAPI refusals](/lore/openapi-describes-the-refusal-too).
 
 ## Build order
 

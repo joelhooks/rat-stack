@@ -644,9 +644,9 @@ describe("toHttpApi failures", () => {
   );
 
   it.effect(
-    "answers a contract without http byte for byte as before: one 422 for its union failure",
+    "honors member status on a default POST without changing the error body",
     () =>
-      Effect.gen(function* legacyStatus() {
+      Effect.gen(function* defaultMemberStatus() {
         const legacy = toHttpApi("LegacyApi", [legacyGate]);
 
         const handler = yield* serve(
@@ -663,10 +663,15 @@ describe("toHttpApi failures", () => {
         );
 
         expect(refused).toEqual([
-          422,
+          410,
           "application/json",
           '{"status":410,"title":"Gone"}',
         ]);
+        expect(
+          Object.keys(
+            legacy.openApi().paths["/legacyGate"]?.post?.responses ?? {}
+          )
+        ).toEqual(["200", "400", "409", "410"]);
       }).pipe(Effect.scoped)
   );
 
