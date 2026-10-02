@@ -11,6 +11,7 @@ import { Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
@@ -21,6 +22,7 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
+import { ContentAssetManifest } from "./asset-manifest.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
@@ -34,6 +36,7 @@ import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
 import { layerWorkerLoader, sandboxLimits } from "./sandbox-worker-loader.js";
 import type { WorkerLoaderBinding } from "./sandbox-worker-loader.js";
+import { AssetBindingSchema, StaticAssets } from "./static-assets.js";
 
 const cloudflareStaticCache = {
   // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare provides this global only when a request reaches the Worker.
@@ -197,7 +200,18 @@ export const makeMischief = (
         ? yield* Layer.build(agentSignupLayer(agentSignup, interestServices))
         : undefined;
 
+    const assetBinding = Schema.decodeUnknownOption(AssetBindingSchema)(
+      environment.ASSETS
+    );
+
+    const assets = Option.isNone(assetBinding)
+      ? undefined
+      : yield* StaticAssets.pipe(
+          Effect.provide(StaticAssets.layer(assetBinding.value))
+        );
+
     const workerRoutes = mischiefRoutes({
+      assets,
       interest,
       joinTokens: interestServices,
       legacyMcp,
@@ -304,12 +318,40 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
 
 export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
-  {
-    compatibility: { date: "2026-05-28" },
-    dev: { port: 1337 },
-    domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
-    env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
-    main: import.meta.url,
-  },
+  Effect.gen(function* mischiefProps() {
+    let assets: Cloudflare.Workers.AssetsProps | undefined;
+
+    if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
+      const fs = yield* FileSystem.FileSystem;
+
+      const manifest = yield* Schema.decodeEffect(
+        Schema.fromJsonString(ContentAssetManifest)
+      )(
+        yield* fs
+          .readFileString(
+            new URL("../dist/content/manifest.json", import.meta.url).pathname
+          )
+          .pipe(Effect.orDie)
+      ).pipe(Effect.orDie);
+
+      assets = {
+        directory: new URL(
+          `../dist/content/assets/${manifest.generation}`,
+          import.meta.url
+        ).pathname,
+        htmlHandling: "none",
+        runWorkerFirst: true,
+      };
+    }
+
+    return {
+      assets,
+      compatibility: { date: "2026-05-28" },
+      dev: { port: 1337 },
+      domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
+      env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
+      main: import.meta.url,
+    };
+  }),
   makeMischiefWorker
 ) {}

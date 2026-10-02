@@ -134,7 +134,7 @@ it.effect(
 );
 
 it.effect(
-  "publishes only current routes while retaining previous immutable bytes",
+  "publishes only current routes and prunes the previous generation",
   () =>
     Effect.gen(function* replaceAssetSet() {
       const fs = yield* FileSystem.FileSystem;
@@ -160,10 +160,8 @@ it.effect(
         )
       ).toBe("new");
       expect(
-        yield* fs.readFileString(
-          `${directory}/assets/${previous.generation}/old.md`
-        )
-      ).toBe("old");
+        yield* fs.exists(`${directory}/assets/${previous.generation}/old.md`)
+      ).toBe(false);
       expect(current).toEqual({
         generation: current.generation,
         images: [],

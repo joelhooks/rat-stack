@@ -3,19 +3,10 @@ import { createHash } from "node:crypto";
 
 import { Effect, FileSystem, Path, Schema } from "effect";
 
+import { ContentAssetManifest } from "../src/asset-manifest.ts";
 import { buildError } from "./content-error.ts";
 
-export const ContentAssetManifest = Schema.Struct({
-  generation: Schema.String,
-  images: Schema.Array(Schema.String),
-  pages: Schema.Array(
-    Schema.Struct({
-      html: Schema.String,
-      markdown: Schema.String,
-      route: Schema.String,
-    })
-  ),
-});
+export { ContentAssetManifest } from "../src/asset-manifest.ts";
 
 interface AssetPage {
   readonly routePath: string;
@@ -84,10 +75,23 @@ export const emitAssets = Effect.fn("emitAssets")(
         pages,
       })
     );
-    yield* fs.rename(
-      temporaryManifest,
-      path.join(input.directory, "manifest.json")
-    );
+    const manifestPath = path.join(input.directory, "manifest.json");
+    yield* fs.rename(temporaryManifest, manifestPath);
+
+    for (const entry of yield* fs.readDirectory(
+      path.join(input.directory, "assets")
+    )) {
+      const current = yield* Schema.decodeEffect(
+        Schema.fromJsonString(ContentAssetManifest)
+      )(yield* fs.readFileString(manifestPath));
+
+      if (entry !== generation && entry !== current.generation) {
+        yield* fs.remove(path.join(input.directory, "assets", entry), {
+          force: true,
+          recursive: true,
+        });
+      }
+    }
   },
   Effect.scoped,
   Effect.mapError((cause) => buildError("emit assets", "content assets", cause))

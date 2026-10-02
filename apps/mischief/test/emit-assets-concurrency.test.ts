@@ -25,6 +25,15 @@ it.effect(
         ],
       };
 
+      yield* emitAssets({
+        directory,
+        images: [],
+        pages: [{ documentHtml: "old", routePath: "/old", text: "old" }],
+      });
+      yield* fs.writeFileString(`${directory}/assets/AGENTS.md.html`, "legacy");
+      yield* fs.makeDirectory(`${directory}/assets/lore`, { recursive: true });
+      yield* fs.writeFileString(`${directory}/assets/lore/old.md`, "legacy");
+
       yield* Effect.all([emitAssets(input), emitAssets(input)], {
         concurrency: "unbounded",
       });
@@ -56,6 +65,9 @@ it.effect(
       }
 
       expect(manifest.images).toHaveLength(1);
+      expect(yield* fs.readDirectory(`${directory}/assets`)).toEqual([
+        manifest.generation,
+      ]);
 
       for (const image of manifest.images) {
         expect(
