@@ -1,0 +1,60 @@
+---
+title: "mdsvex left unified"
+description: "The next parser leaves unified; the CommonMark migrator still uses remark."
+group: idea
+terms:
+  - "mdsvex"
+  - "PFM"
+sources:
+  - url: https://github.com/pngwn/MDsveX/discussions/259
+    title: "v1 early feedback"
+    publisher: "GitHub"
+    note: "v1 early feedback"
+    accessed: "2026-10-02"
+  - url: https://www.reddit.com/r/sveltejs/comments/15rz6al/thoughts_on_mdsvex_moving_away_from_unified/
+    title: "evilpingwin on syntax and migration"
+    publisher: "Primary source"
+    note: "evilpingwin on syntax and migration"
+    accessed: "2026-10-02"
+  - url: https://github.com/pngwn/MDsveX/discussions/293
+    title: "Penguin-flavoured markdown"
+    publisher: "GitHub"
+    note: "Penguin-flavoured markdown"
+    accessed: "2026-10-02"
+  - url: https://registry.npmjs.org/mdsvex/1.0.0-next.0
+    title: "Published compiler used in the local reproduction"
+    publisher: "npm"
+    note: "Published compiler used in the local reproduction"
+    accessed: "2026-10-02"
+  - url: https://registry.npmjs.org/@mdsvex/migrate/0.2.0-next.0
+    title: "Published migrator dependencies"
+    publisher: "npm"
+    note: "Published migrator dependencies"
+    accessed: "2026-10-02"
+---
+
+In [Discussion #259](https://github.com/pngwn/MDsveX/discussions/259), pngwn gave four reasons for leaving unified: performance, API instability, poor documentation, and possible changes to allowed syntax extensions. The new parser would have its own plugin system instead of remark and rehype plugins.
+
+[Penguin-flavoured markdown](https://github.com/pngwn/MDsveX/discussions/293), or PFM, proposes syntax changes too. On [Reddit, as evilpingwin](https://www.reddit.com/r/sveltejs/comments/15rz6al/thoughts_on_mdsvex_moving_away_from_unified/), pngwn said GFM's features would remain supported, but the syntax would not always be identical. He promised an automated migration path.
+
+## Where we stopped
+
+Our local check of the published `mdsvex@1.0.0-next.0` stopped on this minimal CommonMark input:
+
+```markdown
+- **`x`** x
+- y
+```
+
+The published migrator converted it to PFM:
+
+```text
+- *`x`* x
+- y
+```
+
+The next.0 compiler printed `Infinite loop detected`. The second list item disappeared. The parser reported zero errors. A separate probe passed a rehype plugin to `compile`; the plugin was never called. These are observations about that published prerelease, not every later commit.
+
+We kept 0.12.8. [The fence](/lore/the-fence) is not permission to rewrite valid prose around a parser defect.
+
+The irony is in the [published migrator](https://registry.npmjs.org/@mdsvex/migrate/0.2.0-next.0): it depends on `unified`, `remark-parse`, and `remark-gfm`. The new renderer leaves that ecosystem; the migration into it still reads CommonMark with remark.

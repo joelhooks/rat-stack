@@ -1,0 +1,60 @@
+---
+title: "There is no ISR on Cloudflare"
+description: "SvelteKit's Vercel ISR setting does not configure Workers Cache; our local bake-off did not prove cache reuse."
+group: idea
+terms:
+  - "ISR"
+  - "Workers Cache"
+sources:
+  - url: https://svelte.dev/docs/kit/adapter-vercel
+    title: "SvelteKit Vercel adapter"
+    publisher: "Primary source"
+    note: "SvelteKit Vercel adapter"
+    accessed: "2026-10-02"
+  - url: https://vercel.com/docs/incremental-static-regeneration
+    title: "Vercel ISR"
+    publisher: "Primary source"
+    note: "Vercel ISR"
+    accessed: "2026-10-02"
+  - url: https://github.com/sveltejs/kit/issues/661
+    title: "Add incremental static regeneration"
+    publisher: "GitHub"
+    note: "Add incremental static regeneration"
+    accessed: "2026-10-02"
+  - url: https://blog.cloudflare.com/workers-cache/
+    title: "Workers Cache announcement"
+    publisher: "Primary source"
+    note: "Workers Cache announcement"
+    accessed: "2026-10-02"
+  - url: https://developers.cloudflare.com/workers/cache/
+    title: "Workers Cache documentation"
+    publisher: "Primary source"
+    note: "Workers Cache documentation"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts
+    title: "apps/mischief/src/static-assets.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/static-assets.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/commit/a337a96
+    title: "Serve static assets through Effect HTTP composition"
+    publisher: "GitHub"
+    note: "Serve static assets through Effect HTTP composition"
+    accessed: "2026-10-02"
+---
+
+There is no SvelteKit `isr` switch for the Cloudflare adapter. [That configuration belongs to adapter-vercel](https://svelte.dev/docs/kit/adapter-vercel). [Vercel ISR](https://vercel.com/docs/incremental-static-regeneration) stores generated content and regenerates it; [Kit #661](https://github.com/sveltejs/kit/issues/661) asks for a general regeneration feature.
+
+The title names that adapter boundary, not a claim that Cloudflare cannot cache rendered pages. [Workers Cache](https://blog.cloudflare.com/workers-cache/) puts a cache in front of a Worker entrypoint. Its [documented stale-while-revalidate behavior](https://developers.cloudflare.com/workers/cache/) serves a stale response while the Worker refreshes it.
+
+## What our bake-off proved
+
+We compared a static-assets gateway, a SvelteKit prerender gateway, and a Workers Cache entrypoint locally. For the cache candidate, we minted a marker inside the rendering entrypoint. Repeated identical requests did not reuse it.
+
+An assets response did carry `CF-Cache-Status: HIT`. That proved asset-cache reuse, not reuse of the rendering entrypoint. The selected Miniflare implementation did not implement Workers Cache handling. Accepting the configuration was not a cache proof.
+
+The cache candidate's local home-page Markdown request measured 8.25 ms cold and 1.69 ms warm median. Cold meant the first application request in a fresh runtime; warm meant 20 sequential requests. Neither number measured an edge cache HIT. We did not prove stale-while-revalidate, purge, or representation isolation across Workers Cache HITs.
+
+We chose [static assets](https://github.com/joelhooks/rat-stack/commit/a337a96) instead. [`apps/mischief/src/static-assets.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts) serves separate HTML and Markdown assets. The dynamic signup page stays outside that static path.
+
+See [Worker init runs twice](/lore/init-runs-twice) for another boundary a local check can miss.

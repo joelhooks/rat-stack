@@ -1,0 +1,84 @@
+---
+title: "One program can replace several tool calls"
+description: "Code mode combines typed content calls inside one bounded execute request."
+group: idea
+terms:
+  - "codemode"
+  - "code mode"
+sources:
+  - url: https://x.com/joelhooks/status/2106018556496457773
+    title: "Joel Hooks on code mode"
+    publisher: "Primary source"
+    note: "Joel Hooks on code mode"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+    title: "apps/mischief/src/capabilities/index.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/capabilities/index.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts
+    title: "packages/capability/src/to-code-mode.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-code-mode.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts
+    title: "apps/mischief/src/sandbox-worker-loader.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/sandbox-worker-loader.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "apps/mischief/src/app.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/app.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts
+    title: "Worker sandbox composition"
+    publisher: "GitHub"
+    note: "Provides the Worker Loader with sandboxLimits."
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts
+    title: "Native execute rate limits"
+    publisher: "GitHub"
+    note: "Six per IP and 300 global per minute."
+    accessed: "2026-10-02"
+  - url: https://ratstack.sh/api/execute
+    title: "Live read-only program observation on 2026-10-02"
+    publisher: "ratstack.sh"
+    note: "Live read-only program observation on 2026-10-02"
+    accessed: "2026-10-02"
+---
+
+ratstack.sh already offers code mode: `POST /api/execute` and the MCP `execute` tool. One request runs an async function body that can combine content calls. [Joel's reply](https://x.com/joelhooks/status/2106018556496457773) asks for this alongside CLI, API, and MCP.
+
+This program ran against the live HTTP endpoint.
+
+Source: callable definitions in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45); the program below is the read-only request we ran, not a copied module.
+
+```js
+const found = await tools.search({ query: "cartridges", limit: 1 });
+const page = await tools.read({ id: found.matches[0].id });
+const graph = await tools.backlinks({ slug: page.routePath.split("/").at(-1) });
+return { title: page.title, id: page.id, links: graph.backlinks.length };
+```
+
+Source: `POST /api/execute` on 2026-10-02 with the program above. The actual response was:
+
+```json
+{"logs":[],"result":{"title":"Cartridges","id":"ratstack://lore/cartridges","links":31}}
+```
+
+Three typed calls, one outer request. The program passes the search result straight to read and reduces the graph result before returning it. That is the useful case for code mode here; we did not benchmark a latency or token saving.
+
+## The sandbox is not another back door
+
+[`apps/mischief/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts) builds `toExecuteCapability(contentCapabilities)`. That list contains search, read, backlinks, neighbors, mentions, and path. `joinInterest` is in the outer API/MCP registry, not the sandbox's callable list.
+
+[`packages/capability/src/to-code-mode.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts) builds the catalog and TypeScript declarations. Every guest call returns to a host invoker that decodes its input and encodes its output or declared failure.
+
+[`sandbox-worker-loader.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts) runs a fresh Dynamic Worker with no outbound network, a 100 ms CPU limit, five subrequests, and a ten-second timeout. Imports, exports, and fetch are unavailable.
+
+The [HTTP and MCP gates](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts), with [native rate limits](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts), also limit execute to six calls per IP and 300 total per minute, separately per Cloudflare location. Combining calls does not waive those limits.
+
+Use the [agent guide](/llms.txt) for the endpoint and invocation format. See [MCP](/lore/mcp-is-another-surface) for the tool transport.
+
+See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

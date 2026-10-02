@@ -118,7 +118,11 @@ const makeRpcDispatcher = (invoke: Invoke) =>
     })
   );
 
-const moduleSource = (code: string, timeoutMs: number): string => `
+const moduleSource = (
+  code: string,
+  timeoutMs: number,
+  names: readonly string[]
+): string => `
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 export default class CodeExecutor extends WorkerEntrypoint {
@@ -134,7 +138,11 @@ export default class CodeExecutor extends WorkerEntrypoint {
       debug: capture("debug"), error: capture("error"),
       info: capture("info"), log: capture("log"), warn: capture("warn")
     };
-    const tools = new Proxy({}, {
+    const names = ${JSON.stringify(names)};
+    const tools = new Proxy(Object.create(null), {
+      ownKeys: () => names,
+      getOwnPropertyDescriptor: (_target, name) =>
+        names.includes(name) ? { configurable: true, enumerable: true } : undefined,
       get: (_target, name) => async (input = {}) => {
         const outcome = await dispatcher.call(String(name), input);
         if (outcome.ok) return outcome.value;
@@ -181,7 +189,7 @@ export const layerWorkerLoader = (
   const timeoutMs = Duration.toMillis(timeout);
   const compatibilityDate = options.compatibilityDate ?? "2026-05-28";
 
-  const run = (code: string, invoke: Invoke) => {
+  const run = (code: string, invoke: Invoke, names: readonly string[] = []) => {
     const execute = Effect.acquireUseRelease(
       Effect.try({
         catch: (cause) =>
@@ -198,7 +206,7 @@ export const layerWorkerLoader = (
               subRequests: options.subRequests ?? 5,
             },
             mainModule: "executor.js",
-            modules: { "executor.js": moduleSource(code, timeoutMs) },
+            modules: { "executor.js": moduleSource(code, timeoutMs, names) },
           }),
       }),
       (worker) =>

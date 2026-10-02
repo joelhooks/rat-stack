@@ -225,7 +225,11 @@ export const toExecuteCapability = <
 
       const sandbox = yield* Sandbox;
 
-      const run = yield* sandbox.run(code, invoke);
+      const run = yield* sandbox.run(
+        code,
+        invoke,
+        catalog.capabilities.map((entry) => entry.name)
+      );
 
       return {
         logs: run.logs,

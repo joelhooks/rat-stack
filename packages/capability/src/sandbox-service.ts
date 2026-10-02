@@ -30,7 +30,8 @@ export class Sandbox extends Context.Service<
   {
     readonly run: (
       code: string,
-      invoke: Invoke
+      invoke: Invoke,
+      names?: readonly string[]
     ) => Effect.Effect<SandboxRun, SandboxError>;
   }
 >()("@rat-stack/capability/Sandbox") {}

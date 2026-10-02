@@ -51,7 +51,11 @@ const bridge = new Script([
   "  const assign = Object.assign;",
   "  const pending = new Map();",
   "  let nextId = 1;",
+  "  const names = [];",
+  "  const configure = (encoded) => names.push(...parse(encoded));",
   "  const tools = new Proxy(Object.create(null), {",
+  "    ownKeys: () => names,",
+  "    getOwnPropertyDescriptor: (_target, name) => names.includes(name) ? { configurable: true, enumerable: true } : undefined,",
   "    get: (_target, name) => {",
   '      if (typeof name !== "string") return undefined;',
   "      return (input) => new Promise((resolve, reject) => {",
@@ -83,7 +87,7 @@ const bridge = new Script([
   '      hostDone(stringify({ type: "error", message: error instanceof Error ? error.message : String(error) }));',
   "    }",
   "  };",
-  "  return { tools, console, deliver, execute };",
+  "  return { tools, console, deliver, execute, configure };",
   "})()",
 ].join(String.fromCharCode(10))).runInContext(context);
 const rl = createInterface({ input: process.stdin });
@@ -97,6 +101,7 @@ rl.on("line", (line) => {
   }
   if (message.type !== "run") return;
   try {
+    bridge.configure(JSON.stringify(message.names));
     const program = new Script("(async function(tools, console) {" + String.fromCharCode(10) + message.code + String.fromCharCode(10) + "})").runInContext(context);
     bridge.execute(program);
     new Script("void 0").runInContext(context);
@@ -139,7 +144,11 @@ const decodeChildMessage = Schema.decodeUnknownEffect(
 );
 
 type HostMessage =
-  | { readonly code: string; readonly type: "run" }
+  | {
+      readonly code: string;
+      readonly names: readonly string[];
+      readonly type: "run";
+    }
   | ({ readonly id: number; readonly type: "result" } & InvokeOutcome);
 
 const encoder = new TextEncoder();
@@ -171,7 +180,8 @@ const makeSubprocess = (options?: SubprocessOptions) =>
 
     const run = Effect.fn("Sandbox.run")(function* run(
       code: string,
-      invoke: Invoke
+      invoke: Invoke,
+      names: readonly string[]
     ) {
       const handle = yield* spawner.spawn(command).pipe(
         Effect.mapError(
@@ -194,7 +204,7 @@ const makeSubprocess = (options?: SubprocessOptions) =>
       const send = (message: HostMessage) =>
         Queue.offer(outbox, encoder.encode(`${JSON.stringify(message)}\n`));
 
-      yield* send({ code, type: "run" });
+      yield* send({ code, names, type: "run" });
 
       const outcome = yield* Stream.decodeText(handle.stdout).pipe(
         Stream.splitLines,
@@ -261,8 +271,8 @@ const makeSubprocess = (options?: SubprocessOptions) =>
     }, Effect.scoped);
 
     return {
-      run: (code: string, invoke: Invoke) =>
-        run(code, invoke).pipe(
+      run: (code: string, invoke: Invoke, names: readonly string[] = []) =>
+        run(code, invoke, names).pipe(
           Effect.timeoutOrElse({
             duration: timeout,
             orElse: () =>
