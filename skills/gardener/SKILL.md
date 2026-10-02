@@ -5,7 +5,7 @@ description: Keep rat-stack current and clean. Bump the bleeding-edge pins, lear
 
 # Tend the garden
 
-Rat-stack runs on prereleases: Effect 4 release candidates, Alchemy 2 betas, XState 6 alphas. They move every few days. Code that other projects copy has to stay on the current line and keep getting simpler. This skill is the routine for both.
+Rat-stack runs on Effect 4 stable, Alchemy 2 betas, and XState 6 alphas. These lines move often. Code that other projects copy has to stay on the current line and keep getting simpler. This skill is the routine for both.
 
 It follows Lauren Tan's gardener loop from her Dune talk: delete tech debt, keep one paved path, and lint against anti-patterns. In her words: "whenever you see tech debt or bad patterns, your instinct should be, I need to write a lint rule against it." Her ladder for where a correction should live, hardest first, is codebase, static analysis, rules, skills, style guide. This skill sits low on that ladder on purpose. Push each finding up it.
 
@@ -13,22 +13,23 @@ Read `AGENTS.md` first. Work in a clean clone off `origin/main`, never in a chec
 
 ## 1. Check the pins
 
-The core pins live in the `package.json` files and in `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`. Compare each against its prerelease line on npm:
+The core pins live in the `package.json` files and in `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`. Compare each against its current line on npm. Run registry queries outside the repo so its development-engine check does not block them:
 
 ```sh
+cd /tmp
 for p in effect @effect/platform-node @effect/vitest @effect/tsgo alchemy xstate @xstate/effect; do
   printf '%-24s ' "$p"; pnpm view "$p" dist-tags --json | tr -d '\n '; echo
 done
 ```
 
-Read the right tag for each line: `rc` for Effect 4, `latest` for Alchemy 2, `alpha` for XState 6 and `@xstate/effect`. `latest` on `effect` and `xstate` is still the old major.
+Read the returned versions, not only the tag names. Effect 4 and its adapters now use `latest`; `rc` points to the older release candidate. Alchemy 2 and `@effect/tsgo` use `latest`. XState 6 uses `alpha`; its `latest` still points to XState 5. For `@xstate/effect`, compare both `alpha` and `latest` on the 0.1 alpha line: `latest` can be newer. Check the bridge's peer ranges before choosing the matching XState pin.
 
 ## 2. Bump one line at a time
 
 For each line that is behind:
 
-1. Replace the pin everywhere it appears. Effect packages move together; `rg -l '4\.0\.0-rc\.<old>' --glob '**/package.json'` finds them.
-2. If the package has a `minimumReleaseAgeExclude` entry, replace the entry instead of adding one.
+1. Replace the pin everywhere it appears. Effect runtime packages and adapters move together; `rg -l -F '"<old-pin>"' --glob '**/package.json'` finds both stable and prerelease pins. Keep each Effect-family bump in its own slice, separate from other dependencies and gardening. XState and its Effect bridge move together.
+2. Respect the release-age policy. Replace an existing `minimumReleaseAgeExclude` entry with the new exact package version; never widen it to a package name or range. Before adding a necessary exact-version exception, inspect the registry integrity, provenance, tarball file list, package scripts, and dependency changes. Record what you checked.
 3. Check peer ranges before installing: `pnpm view alchemy@<pin> peerDependencies`. Alchemy pins exact Drizzle versions and a minimum Effect; follow them.
 4. `pnpm install`, then `pnpm peers check`. Compare against the warnings on `origin/main`; only new warnings count.
 5. Refresh the source mirrors with `./scripts/vendor-agent-sources.sh --refresh` and update the Ref column in `.agent_sources/README.md`. Agents read the mirrors as truth, so a stale mirror teaches old APIs.
