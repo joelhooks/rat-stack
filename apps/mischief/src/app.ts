@@ -8,6 +8,7 @@ import { Cause, Effect, Layer, Option, Predicate, Schema } from "effect";
 import * as McpProtocol from "effect/unstable/ai/McpProtocol";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as HttpHeaders from "effect/unstable/http/Headers";
+import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -61,7 +62,6 @@ import {
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
-import { privateHttpTracingLayer } from "./http-privacy.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { retiredInterestRoutes } from "./interest/retired-routes.js";
@@ -1173,6 +1173,15 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
       ? Layer.empty
       : staticCaching(options.staticCache),
     webBotAuthRoutes(options.webBotAuth ?? { enabled: false })
-  ).pipe(Layer.provideMerge(privateHttpTracingLayer));
+  ).pipe(
+    Layer.provideMerge(
+      Layer.succeed(
+        HttpMiddleware.TracerDisabledWhen,
+        (request) =>
+          new URL(request.url, "https://ratstack.sh").pathname ===
+          UNSUBSCRIBE_PATH
+      )
+    )
+  );
 
 export const routes = mischiefRoutes();
