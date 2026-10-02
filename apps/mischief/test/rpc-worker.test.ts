@@ -8,7 +8,7 @@ import * as HttpRouter from "effect/http/HttpRouter";
 import * as Layer from "effect/Layer";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/rpc";
 
-import { contentLayer } from "../src/capabilities/index.js";
+import { nodeContentLayer as contentLayer } from "../src/node-content.js";
 import { rpcProjection } from "../src/rpc-worker.js";
 
 const rpcServer = RpcServer.layerHttp({

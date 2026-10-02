@@ -1,8 +1,7 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
 import { joinInterest } from "@rat-stack/core/join-interest";
-import { LoreGraph } from "@rat-stack/lore";
 
-import { loreGraphSnapshot } from "../content.js";
+import { ContentStore } from "../content-store.js";
 import { backlinks, mentions, neighbors, path } from "./lore.js";
 import { read } from "./read.js";
 import { search } from "./search.js";
@@ -40,7 +39,7 @@ export const contentCapabilities = [
   path,
 ] as const;
 
-export const contentLayer = LoreGraph.layer(loreGraphSnapshot);
+export const contentLayer = ContentStore.layer;
 
 const generatedExecuteProjection = toExecuteCapability(contentCapabilities);
 

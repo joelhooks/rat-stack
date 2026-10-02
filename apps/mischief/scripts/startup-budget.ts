@@ -3,9 +3,9 @@ import { Context, Effect, FileSystem, Schema } from "effect";
 
 import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
 
-const entryBudgetBytes = 3_300_000;
+const entryBudgetBytes = 900_000;
 
-const javascriptBudgetBytes = 5_000_000;
+const javascriptBudgetBytes = 2_500_000;
 
 class StartupBudgetExceeded extends Schema.TaggedError<StartupBudgetExceeded>()(
   "StartupBudgetExceeded",

@@ -24,8 +24,8 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
     directory: string,
     runtime: {
       readonly generation: string;
-      readonly pages: readonly string[];
-      readonly images: readonly string[];
+      readonly pages?: readonly string[];
+      readonly images?: readonly string[];
     }
   ) {
     const fs = yield* FileSystem.FileSystem;
@@ -55,8 +55,11 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
       return yield* failure("generation", manifestPath, manifest.generation);
     }
 
-    const pages = new Set(runtime.pages);
-    const images = new Set(runtime.images);
+    const pages = new Set(
+      runtime.pages ?? manifest.pages.map((page) => page.route)
+    );
+
+    const images = new Set(runtime.images ?? manifest.images);
 
     if (
       manifest.pages.length !== pages.size ||
@@ -93,6 +96,7 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
     for (const file of [
       ...manifest.pages.flatMap((page) => [page.html, page.markdown]),
       ...manifest.images,
+      ...(manifest.data ?? []),
     ]) {
       const target = path.join(assets, file.slice(1));
 
@@ -108,3 +112,19 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
     return assets;
   }
 );
+
+export const contentAssetsForBuild = (directory: string, generation: string) =>
+  Effect.gen(function* selectContentAssets() {
+    const assets =
+      globalThis.__ALCHEMY_RUNTIME__ === true
+        ? undefined
+        : yield* assetDirectoryForBuild(directory, { generation });
+
+    return assets === undefined
+      ? assets
+      : {
+          directory: assets,
+          htmlHandling: "none" as const,
+          runWorkerFirst: true,
+        };
+  });

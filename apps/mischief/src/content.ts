@@ -1,21 +1,15 @@
 import { agentNextActions } from "./agent-guide.js";
 import {
   agentPointerMarkdown,
-  homeMarkdownTemplate,
-  glossaryIndexMarkdown,
-  lawSources,
-  loreIndexMarkdown,
-  llmsLoreLinks,
-  loreSources,
   originToken,
-  skillIndexMarkdown,
-  skillSources,
-  systemsIndexMarkdown,
 } from "./bundled-content.generated.js";
+import type {
+  ContentCatalogData as ContentCatalog,
+  ContentResource,
+  ContentMetadata,
+} from "./content-data.js";
 import { markdownDiscoveryLinks } from "./content-links.js";
 import { canonicalMarkdownLinks } from "./markdown-links.js";
-
-export { loreGraphSnapshot } from "./bundled-content.generated.js";
 
 export {
   authMarkdown,
@@ -23,8 +17,6 @@ export {
   noVerifyMarkdown,
   staticContentVersion,
   staticAssetGeneration,
-  staticAssetPageRoutes,
-  imageAssetPaths,
   tokenmaxxDocumentHtml,
   tokenmaxxCopyScript,
   tokenmaxxCopyScriptHash,
@@ -34,66 +26,7 @@ export {
 export const ogImagePath = (routePath: string): `/${string}` =>
   `/og${routePath === "/" ? "/home" : routePath}.png`;
 
-export type ContentKind = "law" | "skill" | "lore";
-
-export type LoreGroup = "idea" | "concept" | "source" | "person" | "system";
-
-export interface ContentResource {
-  readonly bodyMarkdown: string;
-  readonly description: string;
-  readonly digest: string;
-  readonly id: string;
-  readonly kind: ContentKind;
-  readonly name: string;
-  readonly routePath: `/${string}`;
-  readonly sourcePath: string;
-  readonly text: string;
-  readonly title: string;
-}
-
-export const lawResources: readonly ContentResource[] = lawSources.map(
-  (source) => ({
-    ...source,
-    id: `ratstack://repo/${
-      source.sourcePath.includes(" ")
-        ? source.routePath.slice(1)
-        : source.sourcePath.replace(/^\.brain\//u, "")
-    }`,
-    kind: "law" as const,
-    name: source.routePath.slice(1),
-  })
-);
-
-export interface LoreResource extends ContentResource {
-  readonly group: LoreGroup;
-  readonly terms: readonly string[];
-}
-
-export const loreResources: readonly LoreResource[] = loreSources.map(
-  (source) => ({
-    ...source,
-    id: `ratstack:/${source.routePath}`,
-    kind: "lore" as const,
-    name: source.slug,
-  })
-);
-
-export const skills: readonly ContentResource[] = skillSources.map(
-  (source) => ({
-    ...source,
-    id: `ratstack://skills/${source.name}`,
-    kind: "skill" as const,
-    title: source.name,
-  })
-);
-
-export const contentResources: readonly ContentResource[] = [
-  ...lawResources,
-  ...loreResources,
-  ...skills,
-];
-
-const entryList = (resources: readonly ContentResource[]) =>
+const entryList = (resources: readonly (typeof ContentMetadata.Type)[]) =>
   resources
     .map(
       (resource) =>
@@ -101,8 +34,8 @@ const entryList = (resources: readonly ContentResource[]) =>
     )
     .join("\n");
 
-export const markdownDocument = (origin: string) =>
-  homeMarkdownTemplate.replaceAll(originToken, origin);
+export const markdownDocument = (origin: string, catalog: ContentCatalog) =>
+  catalog.homeMarkdownTemplate.replaceAll(originToken, origin);
 
 const mcpToolsListBody = JSON.stringify({
   id: "rat-stack-tools",
@@ -141,7 +74,10 @@ export const mcpProtocolVersions = [
 export const mcpVersionText = (origin: string) =>
   `ratstack.sh MCP supports protocol versions ${mcpProtocolVersions.join(", ")} at ${origin}/mcp.\nProtocol 2026-07-28 is stateless and has no initialize handshake; send the version header, Mcp-Method header, and params._meta shown in the worked tools/list request.\nOlder clients (2025-11-25 back to 2024-11-05) send initialize as usual and get a session of their own.\nSee ${origin}/llms.txt for the complete curl example.\n`;
 
-export const llmsText = (origin: string) => `# ratstack.sh
+export const llmsText = (
+  origin: string,
+  catalog: ContentCatalog
+) => `# ratstack.sh
 
 The reference for building an app and its cloud as one typed program: Effect, Alchemy, and a fence that makes the easy path the right one.
 
@@ -188,13 +124,15 @@ curl --request POST '${origin}/api/execute' \\
 ${agentNextActions(origin)}
 ## Source files
 
-${entryList(lawResources)}
+${entryList(catalog.resources.filter((resource) => resource.kind === "law"))}
 
 ## Lore
 
 ${(["idea", "concept", "source", "person"] as const)
   .flatMap((group) => {
-    const pages = loreResources.filter((resource) => resource.group === group);
+    const pages = catalog.resources.filter(
+      (resource) => resource.kind === "lore" && resource.group === group
+    );
 
     return pages.length === 0
       ? []
@@ -208,33 +146,40 @@ ${(["idea", "concept", "source", "person"] as const)
 
 ## Systems
 
-${entryList(loreResources.filter((resource) => resource.group === "system"))}
+${entryList(catalog.resources.filter((resource) => resource.kind === "lore" && resource.group === "system"))}
 
 ## Skills
 
-${entryList(skills)}
+${entryList(catalog.resources.filter((resource) => resource.kind === "skill"))}
 
 ## Lore on this page
 
-${llmsLoreLinks.replaceAll(originToken, origin)}
+${catalog.llmsLoreLinks.replaceAll(originToken, origin)}
 `;
 
-export const llmsFullText = (origin: string) =>
+export const llmsFullText = (
+  origin: string,
+  catalog: ContentCatalog,
+  contentResources: readonly ContentResource[]
+) =>
   [
-    llmsText(origin).replace("\n", `\n\n${agentPointerMarkdown}\n`),
+    llmsText(origin, catalog).replace("\n", `\n\n${agentPointerMarkdown}\n`),
     ...contentResources.map(
       (resource) =>
         `\n---\n\n# ${resource.routePath}\n\nSource: ${resource.sourcePath}\nSHA-256: ${resource.digest}\n\n${canonicalMarkdownLinks(resource.bodyMarkdown, resource.routePath, origin)}`
     ),
   ].join("\n");
 
-export const glossaryIndex = () => glossaryIndexMarkdown;
+export const glossaryIndex = (catalog: ContentCatalog) =>
+  catalog.glossaryIndexMarkdown;
 
-export const skillIndex = () => skillIndexMarkdown;
+export const skillIndex = (catalog: ContentCatalog) =>
+  catalog.skillIndexMarkdown;
 
-export const loreIndex = () => loreIndexMarkdown;
+export const loreIndex = (catalog: ContentCatalog) => catalog.loreIndexMarkdown;
 
-export const systemsIndex = () => systemsIndexMarkdown;
+export const systemsIndex = (catalog: ContentCatalog) =>
+  catalog.systemsIndexMarkdown;
 
 export const robotsText = `User-agent: *
 Allow: /
@@ -257,34 +202,40 @@ Sitemap: https://ratstack.sh/sitemap.xml
 export const agentSkillPath = (name: string) =>
   `/.well-known/agent-skills/${name}/SKILL.md` as const;
 
-export const publicPaths = [
-  "/",
-  "/auth.md",
-  "/llms.txt",
-  "/llms-full.txt",
-  "/openapi.json",
-  "/robots.txt",
-  "/sitemap.xml",
-  "/skills",
-  "/lore",
-  "/systems",
-  "/glossary",
-  "/.well-known/agent-card.json",
-  "/.well-known/agent.json",
-  "/.well-known/agent-skills/index.json",
-  "/.well-known/ai-catalog.json",
-  "/.well-known/api-catalog",
-  "/.well-known/mcp.json",
-  ...lawResources.map((resource) => resource.routePath),
-  ...loreResources.map((resource) => resource.routePath),
-  ...skills.flatMap((skill) => [skill.routePath, agentSkillPath(skill.name)]),
-] as const;
+export const publicPaths = (catalog: ContentCatalog) =>
+  [
+    "/",
+    "/auth.md",
+    "/llms.txt",
+    "/llms-full.txt",
+    "/openapi.json",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/skills",
+    "/lore",
+    "/systems",
+    "/glossary",
+    "/.well-known/agent-card.json",
+    "/.well-known/agent.json",
+    "/.well-known/agent-skills/index.json",
+    "/.well-known/ai-catalog.json",
+    "/.well-known/api-catalog",
+    "/.well-known/mcp.json",
+    ...catalog.resources.flatMap((resource) =>
+      resource.kind === "skill"
+        ? [resource.routePath, agentSkillPath(resource.name)]
+        : [resource.routePath]
+    ),
+  ] as const;
 
 export const sitemapXml = (
-  origin: string
+  origin: string,
+  catalog: ContentCatalog
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${publicPaths.map((path) => `  <url><loc>${origin}${path}</loc></url>`).join("\n")}
+${publicPaths(catalog)
+  .map((path) => `  <url><loc>${origin}${path}</loc></url>`)
+  .join("\n")}
 </urlset>
 `;
 
@@ -306,15 +257,17 @@ export const linkHeaderForPage = (pagePath: string) =>
 
 export const linkHeader = linkHeaderForPage("/");
 
-export const agentSkillsIndex = () => ({
+export const agentSkillsIndex = (catalog: ContentCatalog) => ({
   $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-  skills: skills.map((skill) => ({
-    description: skill.description,
-    digest: `sha256:${skill.digest}`,
-    name: skill.name,
-    type: "skill-md",
-    url: agentSkillPath(skill.name),
-  })),
+  skills: catalog.resources
+    .filter((resource) => resource.kind === "skill")
+    .map((skill) => ({
+      description: skill.description,
+      digest: `sha256:${skill.digest}`,
+      name: skill.name,
+      type: "skill-md",
+      url: agentSkillPath(skill.name),
+    })),
 });
 
 export const apiCatalog = (origin: string) => ({
@@ -413,106 +366,3 @@ export const ardManifest = (origin: string) => ({
   },
   specVersion: "1.0",
 });
-
-export interface SearchMatch {
-  readonly description: string;
-  readonly digest: string;
-  readonly excerpt: string;
-  readonly id: string;
-  readonly kind: ContentKind;
-  readonly routePath: `/${string}`;
-  readonly score: number;
-  readonly title: string;
-}
-
-const occurrences = (value: string, term: string) => {
-  if (term === "") {
-    return 0;
-  }
-
-  let count = 0;
-  let offset = 0;
-
-  while ((offset = value.indexOf(term, offset)) !== -1) {
-    count += 1;
-    offset += term.length;
-  }
-
-  return count;
-};
-
-const loreTermsById = new Map(
-  loreResources.map((resource) => [
-    resource.id,
-    resource.terms.join(" ").toLowerCase(),
-  ])
-);
-
-const excerptAround = (text: string, query: string) => {
-  const normalized = text.toLowerCase();
-  const index = normalized.indexOf(query.toLowerCase());
-  const start = Math.max(0, index === -1 ? 0 : index - 90);
-
-  const excerpt = text
-    .slice(start, start + 260)
-    .replaceAll(/\s+/gu, " ")
-    .trim();
-
-  return `${start > 0 ? "…" : ""}${excerpt}${start + 260 < text.length ? "…" : ""}`;
-};
-
-export const searchContent = (
-  query: string,
-  requestedLimit = 5
-): readonly SearchMatch[] => {
-  const terms = query
-    .toLowerCase()
-    .split(/[^a-z0-9@._/-]+/u)
-    .filter((term) => term.length > 1);
-
-  const limit = Math.max(1, Math.min(20, Math.trunc(requestedLimit)));
-  const queryText = terms.join(" ");
-
-  return contentResources
-    .flatMap((resource) => {
-      const title = resource.title.toLowerCase();
-      const description = resource.description.toLowerCase();
-      const text = resource.text.toLowerCase();
-      const loreTerms = loreTermsById.get(resource.id) ?? "";
-
-      const score =
-        (queryText !== "" && title.includes(queryText) ? 40 : 0) +
-        terms.reduce(
-          (total, term) =>
-            total +
-            occurrences(title, term) * 12 +
-            occurrences(loreTerms, term) * 12 +
-            occurrences(description, term) * 6 +
-            Math.min(10, occurrences(text, term)),
-          0
-        );
-
-      return queryText === "" || score > 0 ? [{ resource, score }] : [];
-    })
-    .toSorted(
-      (left, right) =>
-        right.score - left.score ||
-        left.resource.title.localeCompare(right.resource.title)
-    )
-    .slice(0, limit)
-    .map(({ resource, score }) => ({
-      description: resource.description,
-      digest: resource.digest,
-      excerpt: excerptAround(resource.text, queryText),
-      id: resource.id,
-      kind: resource.kind,
-      routePath: resource.routePath,
-      score,
-      title: resource.title,
-    }));
-};
-
-export const readContent = (id: string): ContentResource | undefined =>
-  contentResources.find(
-    (resource) => resource.id === id || resource.routePath === id
-  );

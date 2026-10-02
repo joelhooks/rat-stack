@@ -1,25 +1,65 @@
+import { defineContract } from "@rat-stack/capability/contract";
 import { toHttpApi } from "@rat-stack/capability/http-api";
+import { implement } from "@rat-stack/capability/implement";
+import { AssetReadError } from "@rat-stack/core/contracts";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as AlchemyHttp from "alchemy/Http";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 
-import { contentLayer, execute } from "../../src/capabilities/index.js";
+import { staticAssetGeneration } from "../../src/bundled-content.generated.js";
+import {
+  contentLayer,
+  execute,
+  search,
+  read,
+} from "../../src/capabilities/index.js";
+import { privateObservability } from "../../src/observability.js";
 import {
   layerWorkerLoader,
   sandboxLimits,
 } from "../../src/sandbox-worker-loader.js";
 import type { WorkerLoaderBinding } from "../../src/sandbox-worker-loader.js";
+import { StaticAssets } from "../../src/static-assets.js";
+import { workerAssetsLayer } from "../../src/worker-content.js";
 
-const projection = toHttpApi("CodeModeTest", [execute], { prefix: "/api" });
+const assetProbeContract = defineContract("assetProbe", {
+  description: "Prime local assets without loading content caches",
+  failure: AssetReadError,
+  input: Schema.Struct({}),
+  output: Schema.Finite,
+});
+
+const assetProbe = implement(assetProbeContract, () =>
+  StaticAssets.use((assets) => assets.read("/favicon.svg")).pipe(
+    Effect.map((bytes) => bytes.byteLength)
+  )
+);
+
+const projection = toHttpApi(
+  "CodeModeTest",
+  [execute, search, read, assetProbe],
+  {
+    prefix: "/api",
+  }
+);
 
 export default class CodeModeWorker extends Cloudflare.Worker<CodeModeWorker>()(
   "CodeModeWorker",
   {
+    assets: {
+      directory: new URL(
+        `../../dist/content/assets/${staticAssetGeneration}`,
+        import.meta.url
+      ).pathname,
+      htmlHandling: "none",
+      runWorkerFirst: true,
+    },
     compatibility: { date: "2026-05-28" },
     dev: { port: 0 },
     main: import.meta.url,
+    observability: privateObservability,
   },
   Effect.gen(function* makeCodeModeWorker() {
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
@@ -38,7 +78,12 @@ export default class CodeModeWorker extends Cloudflare.Worker<CodeModeWorker>()(
       fetch: yield* HttpRouter.toHttpEffect(
         HttpApiBuilder.layer(projection.api).pipe(
           Layer.provide(projection.layer),
-          Layer.provide(contentLayer),
+          Layer.provide(
+            Layer.merge(
+              workerAssetsLayer,
+              contentLayer.pipe(Layer.provide(workerAssetsLayer))
+            )
+          ),
           Layer.provide(AlchemyHttp.Platform),
           Layer.provide(layerWorkerLoader(bindings.CODE_SANDBOX, sandboxLimits))
         )

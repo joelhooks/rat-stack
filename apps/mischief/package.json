@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./node-content": {
+      "types": "./src/node-content.ts",
+      "import": "./src/node-content.ts",
+      "default": "./src/node-content.ts"
+    },
     "./capabilities": {
       "types": "./src/capabilities/index.ts",
       "import": "./src/capabilities/index.ts",

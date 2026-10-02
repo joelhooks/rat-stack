@@ -5,7 +5,7 @@ import { HttpRouter } from "effect/http";
 
 import { ContentAssetManifest, emitAssets } from "../scripts/emit-assets.ts";
 import { mischiefRoutes } from "../src/app.js";
-import { contentResources, ogImagePath } from "../src/content.js";
+import { contentResources, ogImagePath } from "./content-fixture.js";
 import {
   cartridgesImageJpegBase64,
   faviconIcoBase64,

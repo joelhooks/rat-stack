@@ -12,6 +12,12 @@ import * as HttpRouter from "effect/http/HttpRouter";
 
 import { mischiefRoutes } from "../src/app.js";
 import type { StaticResponseCache } from "../src/app.js";
+import { rateLimitsFrom } from "../src/rate-limits.js";
+import type {
+  NativeRateLimitBinding,
+  RateLimitBindings,
+} from "../src/rate-limits.js";
+import { contentSecurityPolicy } from "../src/security.js";
 import {
   a2aAgentCard,
   agentSkillPath,
@@ -27,13 +33,7 @@ import {
   publicPaths,
   robotsText,
   skills,
-} from "../src/content.js";
-import { rateLimitsFrom } from "../src/rate-limits.js";
-import type {
-  NativeRateLimitBinding,
-  RateLimitBindings,
-} from "../src/rate-limits.js";
-import { contentSecurityPolicy } from "../src/security.js";
+} from "./content-fixture.js";
 import { loreSources, tokenmaxxCopyScriptHash } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 

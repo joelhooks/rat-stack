@@ -11,12 +11,17 @@ import {
 } from "../src/bundled-content.generated.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { StaticAssets } from "../src/static-assets.js";
+import { fixtureBytes } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 // oxlint-disable-next-line typescript/promise-function-async -- The native ASSETS fixture implements the platform Promise API.
 const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
   const path = new URL(request.url).pathname;
   calls.push(path);
+
+  if (path.startsWith("/_content/")) {
+    return Promise.resolve(new Response(new Uint8Array(fixtureBytes(path))));
+  }
 
   const body = path.endsWith(".html")
     ? "ASSET HTML __RATSTACK_ORIGIN__"
@@ -350,7 +355,8 @@ it.effect(
           );
         }
 
-        expect(calls).toHaveLength(before);
+        expect(calls).toHaveLength(before + 1);
+        expect(calls.at(-1)).toBe("/_content/search.json");
       })
     )
 );

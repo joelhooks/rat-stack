@@ -1,8 +1,6 @@
 import { expect, it } from "@effect/vitest";
-import {
-  contentCapabilities,
-  contentLayer,
-} from "@rat-stack/mischief/capabilities";
+import { contentCapabilities } from "@rat-stack/mischief/capabilities";
+import { nodeContentLayer as contentLayer } from "@rat-stack/mischief/node-content";
 import { Effect, Layer, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 
@@ -49,6 +47,9 @@ it.effect("serves search over /rpc with no devtools involved", () =>
 
     const body = yield* Effect.promise(response.text.bind(response));
     const [message] = yield* Schema.decodeUnknownEffect(RpcExit)(body);
+
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(body).not.toContain("AssetReadError");
 
     expect(response.status).toBe(200);
     expect(message.exit.value.total).toBe(1);

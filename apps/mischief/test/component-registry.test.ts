@@ -22,7 +22,7 @@ import {
   stripHtmlComments,
   visitContentNodes,
 } from "../scripts/svx-ast.ts";
-import { llmsFullText, llmsText } from "../src/content.ts";
+import { llmsFullText, llmsText } from "./content-fixture.js";
 import {
   authMarkdown,
   homeDocumentHtml,

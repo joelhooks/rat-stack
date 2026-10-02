@@ -3,9 +3,19 @@ import { readFileSync } from "node:fs";
 
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
+import { HttpRouter, HttpServerResponse } from "effect/http";
 
 import { ContentAssetManifest } from "../src/asset-manifest.js";
 import * as runtime from "../src/bundled-content.generated.js";
+import {
+  ContentCatalog,
+  ContentResourceSchema,
+  GraphSnapshot,
+  LawSource,
+  LoreSource,
+  SkillSource,
+  contentPagePath,
+} from "../src/content-data.js";
 import { AssetReadError } from "../src/static-assets-error.js";
 import { StaticAssets } from "../src/static-assets.js";
 
@@ -32,6 +42,22 @@ const assetsRoot = new URL(
 const bytes = (path: string) =>
   readFileSync(new URL(path.slice(1), assetsRoot));
 
+export const fixtureBytes = bytes;
+
+export const { handler: fetchFixtureAsset, dispose: disposeFixtureAssets } =
+  HttpRouter.toWebHandler(
+    HttpRouter.add("GET", "/*", (request) =>
+      Effect.sync(() =>
+        HttpServerResponse.uint8Array(
+          new Uint8Array(
+            bytes(new URL(request.url, "https://assets.invalid").pathname)
+          )
+        )
+      )
+    ),
+    { disableLogger: true }
+  );
+
 const documentFor = (route: string) => {
   const page = manifest.pages.find((candidate) => candidate.route === route);
 
@@ -52,20 +78,66 @@ export const loreIndexDocumentHtml = documentFor("/lore");
 
 export const systemsIndexDocumentHtml = documentFor("/systems");
 
-export const lawSources = runtime.lawSources.map((source) => ({
-  ...source,
-  documentHtml: documentFor(source.routePath),
-}));
+const dataFor = <A>(path: string, schema: Schema.Codec<A, unknown>): A => {
+  const envelope = Schema.decodeUnknownSync(
+    Schema.fromJsonString(
+      Schema.Struct({ data: schema, generation: Schema.String })
+    )
+  )(bytes(path).toString("utf-8"));
 
-export const loreSources = runtime.loreSources.map((source) => ({
-  ...source,
-  documentHtml: documentFor(source.routePath),
-}));
+  if (envelope.generation !== runtime.staticAssetGeneration) {
+    throw new Error("Content fixture belongs to a different generation");
+  }
 
-export const skillSources = runtime.skillSources.map((source) => ({
-  ...source,
-  documentHtml: documentFor(source.routePath),
-}));
+  return envelope.data;
+};
+
+export const catalog = dataFor("/_content/catalog.json", ContentCatalog);
+
+export const contentResources = catalog.resources.map((resource) =>
+  dataFor(contentPagePath(resource.id), ContentResourceSchema)
+);
+
+export const loreGraphSnapshot = dataFor("/_content/graph.json", GraphSnapshot);
+
+export const staticAssetPageRoutes = catalog.pageRoutes;
+
+export const imageAssetPaths = catalog.imagePaths;
+
+export const { homeMarkdownTemplate } = catalog;
+
+export const { glossaryTerms } = catalog;
+
+export const { glossaryIndexMarkdown } = catalog;
+
+export const { skillIndexMarkdown } = catalog;
+
+export const { loreIndexMarkdown } = catalog;
+
+export const { systemsIndexMarkdown } = catalog;
+
+export const { llmsLoreLinks } = catalog;
+
+export const lawSources = contentResources
+  .filter((source) => source.kind === "law")
+  .map((source) => ({
+    ...Schema.decodeUnknownSync(LawSource)(source),
+    documentHtml: documentFor(source.routePath),
+  }));
+
+export const loreSources = contentResources
+  .filter((source) => source.kind === "lore")
+  .map((source) => ({
+    ...Schema.decodeUnknownSync(LoreSource)(source),
+    documentHtml: documentFor(source.routePath),
+  }));
+
+export const skillSources = contentResources
+  .filter((source) => source.kind === "skill")
+  .map((source) => ({
+    ...Schema.decodeUnknownSync(SkillSource)(source),
+    documentHtml: documentFor(source.routePath),
+  }));
 
 export const ratSvg = bytes("/favicon.svg").toString("utf-8");
 

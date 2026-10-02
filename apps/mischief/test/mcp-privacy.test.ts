@@ -19,9 +19,9 @@ import {
 } from "../src/app.js";
 import {
   contentCapabilities,
-  contentLayer,
   executeProjection,
 } from "../src/capabilities/index.js";
+import { nodeContentLayer as contentLayer } from "../src/node-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 it.effect(
@@ -107,7 +107,7 @@ it.effect(
 
           const routes =
             surface === "http"
-              ? mischiefRoutes().pipe(Layer.provide(TestSandbox))
+              ? mischiefRoutes().pipe(Layer.provide(TestSandbox), Layer.orDie)
               : RpcServer.layerHttp({
                   group: rpc.group,
                   path: "/rpc",
@@ -115,18 +115,21 @@ it.effect(
                 }).pipe(
                   Layer.provide(rpc.layer),
                   Layer.provide(RpcSerialization.layerJson),
-                  Layer.provide(contentLayer)
+                  Layer.provide(contentLayer),
+                  Layer.orDie
                 );
 
-          const { handler, dispose } = HttpRouter.toWebHandler(
-            routes.pipe(Layer.provideMerge(Layer.succeedContext(telemetry))),
-            {
-              middleware: withEventCapture({
-                identityMode: "daily",
-                runInBackground: (effect) => effect,
-              }),
-            }
+          const observedRoutes = Layer.provideMerge(
+            routes,
+            Layer.succeedContext(telemetry)
           );
+
+          const { handler, dispose } = HttpRouter.toWebHandler(observedRoutes, {
+            middleware: withEventCapture({
+              identityMode: "daily",
+              runInBackground: (effect) => effect,
+            }),
+          });
 
           yield* Effect.addFinalizer(() => Effect.promise(dispose));
 
@@ -208,6 +211,7 @@ it.effect(
         );
 
         const routes = mcpLayer(protocols).pipe(
+          Layer.provide(contentLayer),
           Layer.provideMerge(
             Layer.mergeAll(TestSandbox, Layer.succeedContext(telemetry))
           )

@@ -1,0 +1,1187 @@
+{
+  "catalog": {
+    "resources": [
+      {
+        "description": "A fixture about Law",
+        "digest": "Law",
+        "routePath": "/LAW.md",
+        "sourcePath": "Law.svx",
+        "title": "Law",
+        "id": "ratstack://repo/Law.svx",
+        "kind": "law",
+        "name": "LAW.md"
+      },
+      {
+        "description": "A fixture about Alpha",
+        "digest": "Alpha",
+        "routePath": "/lore/a",
+        "sourcePath": "Alpha.svx",
+        "title": "Alpha",
+        "group": "idea",
+        "slug": "a",
+        "sources": [],
+        "terms": ["capability", "cartridge"],
+        "id": "ratstack://lore/a",
+        "kind": "lore",
+        "name": "a"
+      },
+      {
+        "description": "A fixture about Beta",
+        "digest": "Beta",
+        "routePath": "/lore/b",
+        "sourcePath": "Beta.svx",
+        "title": "Beta",
+        "group": "concept",
+        "slug": "b",
+        "sources": [],
+        "terms": ["deletion"],
+        "id": "ratstack://lore/b",
+        "kind": "lore",
+        "name": "b"
+      },
+      {
+        "description": "A fixture about Skill",
+        "digest": "Skill",
+        "routePath": "/skills/read-effect",
+        "sourcePath": "Skill.svx",
+        "name": "read-effect",
+        "id": "ratstack://skills/read-effect",
+        "kind": "skill",
+        "title": "read-effect"
+      }
+    ],
+    "pageRoutes": ["/LAW.md", "/lore/a", "/lore/b", "/skills/read-effect"],
+    "imagePaths": [],
+    "homeMarkdownTemplate": "# Fixture",
+    "glossaryIndexMarkdown": "# Glossary",
+    "skillIndexMarkdown": "# Skills",
+    "loreIndexMarkdown": "# Lore",
+    "systemsIndexMarkdown": "# Systems",
+    "llmsLoreLinks": "",
+    "glossaryTerms": []
+  },
+  "graph": {
+    "nodes": [
+      {
+        "description": "A fixture about Alpha",
+        "group": "idea",
+        "id": "ratstack://lore/a",
+        "slug": "a",
+        "terms": ["capability", "cartridge"],
+        "title": "Alpha",
+        "url": "/lore/a"
+      },
+      {
+        "description": "A fixture about Beta",
+        "group": "concept",
+        "id": "ratstack://lore/b",
+        "slug": "b",
+        "terms": ["deletion"],
+        "title": "Beta",
+        "url": "/lore/b"
+      }
+    ],
+    "edges": [
+      {
+        "from": {
+          "group": "idea",
+          "id": "ratstack://lore/a",
+          "title": "Alpha",
+          "url": "/lore/a"
+        },
+        "to": {
+          "group": "concept",
+          "id": "ratstack://lore/b",
+          "title": "Beta",
+          "url": "/lore/b"
+        },
+        "kind": "link"
+      },
+      {
+        "from": {
+          "group": "concept",
+          "id": "ratstack://lore/b",
+          "title": "Beta",
+          "url": "/lore/b"
+        },
+        "to": {
+          "group": "idea",
+          "id": "ratstack://lore/a",
+          "title": "Alpha",
+          "url": "/lore/a"
+        },
+        "kind": "mention",
+        "excerpt": "An unlinked Alpha."
+      }
+    ]
+  },
+  "pages": [
+    {
+      "bodyMarkdown": "A capability has a schema and typed failures.",
+      "description": "A fixture about Law",
+      "digest": "Law",
+      "routePath": "/LAW.md",
+      "sourcePath": "Law.svx",
+      "text": "A capability has a schema and typed failures.",
+      "title": "Law",
+      "id": "ratstack://repo/Law.svx",
+      "kind": "law",
+      "name": "LAW.md"
+    },
+    {
+      "bodyMarkdown": "A capability reads a cartridge. A capability follows a schema.",
+      "description": "A fixture about Alpha",
+      "digest": "Alpha",
+      "routePath": "/lore/a",
+      "sourcePath": "Alpha.svx",
+      "text": "A capability reads a cartridge. A capability follows a schema.",
+      "title": "Alpha",
+      "group": "idea",
+      "slug": "a",
+      "sources": [],
+      "terms": ["capability", "cartridge"],
+      "id": "ratstack://lore/a",
+      "kind": "lore",
+      "name": "a"
+    },
+    {
+      "bodyMarkdown": "A cartridge can be deleted without migrating the schema.",
+      "description": "A fixture about Beta",
+      "digest": "Beta",
+      "routePath": "/lore/b",
+      "sourcePath": "Beta.svx",
+      "text": "A cartridge can be deleted without migrating the schema.",
+      "title": "Beta",
+      "group": "concept",
+      "slug": "b",
+      "sources": [],
+      "terms": ["deletion"],
+      "id": "ratstack://lore/b",
+      "kind": "lore",
+      "name": "b"
+    },
+    {
+      "bodyMarkdown": "Read the Effect source before changing a capability.",
+      "description": "A fixture about Skill",
+      "digest": "Skill",
+      "routePath": "/skills/read-effect",
+      "sourcePath": "Skill.svx",
+      "text": "Read the Effect source before changing a capability.",
+      "name": "read-effect",
+      "id": "ratstack://skills/read-effect",
+      "kind": "skill",
+      "title": "read-effect"
+    }
+  ],
+  "index": [
+    {
+      "description": "A fixture about Law",
+      "digest": "Law",
+      "routePath": "/LAW.md",
+      "sourcePath": "Law.svx",
+      "text": "A capability has a schema and typed failures.",
+      "title": "Law",
+      "id": "ratstack://repo/Law.svx",
+      "kind": "law",
+      "name": "LAW.md"
+    },
+    {
+      "description": "A fixture about Alpha",
+      "digest": "Alpha",
+      "routePath": "/lore/a",
+      "sourcePath": "Alpha.svx",
+      "text": "A capability reads a cartridge. A capability follows a schema.",
+      "title": "Alpha",
+      "group": "idea",
+      "slug": "a",
+      "sources": [],
+      "terms": ["capability", "cartridge"],
+      "id": "ratstack://lore/a",
+      "kind": "lore",
+      "name": "a"
+    },
+    {
+      "description": "A fixture about Beta",
+      "digest": "Beta",
+      "routePath": "/lore/b",
+      "sourcePath": "Beta.svx",
+      "text": "A cartridge can be deleted without migrating the schema.",
+      "title": "Beta",
+      "group": "concept",
+      "slug": "b",
+      "sources": [],
+      "terms": ["deletion"],
+      "id": "ratstack://lore/b",
+      "kind": "lore",
+      "name": "b"
+    },
+    {
+      "description": "A fixture about Skill",
+      "digest": "Skill",
+      "routePath": "/skills/read-effect",
+      "sourcePath": "Skill.svx",
+      "text": "Read the Effect source before changing a capability.",
+      "name": "read-effect",
+      "id": "ratstack://skills/read-effect",
+      "kind": "skill",
+      "title": "read-effect"
+    }
+  ],
+  "searchCases": [
+    {
+      "input": {
+        "limit": 1,
+        "query": ""
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": ""
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 0,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 0,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 0,
+            "title": "read-effect"
+          }
+        ],
+        "total": 4
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": ""
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 0,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 0,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 0,
+            "title": "read-effect"
+          }
+        ],
+        "total": 4
+      }
+    },
+    {
+      "input": {
+        "limit": 1,
+        "query": "capability"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 14,
+            "title": "Alpha"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": "capability"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 14,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 1,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 1,
+            "title": "read-effect"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": "capability"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 14,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 1,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 1,
+            "title": "read-effect"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "input": {
+        "limit": 1,
+        "query": "schema"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 1,
+            "title": "Alpha"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": "schema"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 1,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 1,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 1,
+            "title": "Law"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": "schema"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 1,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 1,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 1,
+            "title": "Law"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "input": {
+        "limit": 1,
+        "query": "effect"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 53,
+            "title": "read-effect"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": "effect"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 53,
+            "title": "read-effect"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": "effect"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 53,
+            "title": "read-effect"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 1,
+        "query": "absent"
+      },
+      "output": {
+        "matches": [],
+        "total": 0
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": "absent"
+      },
+      "output": {
+        "matches": [],
+        "total": 0
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": "absent"
+      },
+      "output": {
+        "matches": [],
+        "total": 0
+      }
+    },
+    {
+      "input": {
+        "limit": 1,
+        "query": "A"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "input": {
+        "limit": 5,
+        "query": "A"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 0,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 0,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 0,
+            "title": "read-effect"
+          }
+        ],
+        "total": 4
+      }
+    },
+    {
+      "input": {
+        "limit": 20,
+        "query": "A"
+      },
+      "output": {
+        "matches": [
+          {
+            "description": "A fixture about Alpha",
+            "digest": "Alpha",
+            "excerpt": "A capability reads a cartridge. A capability follows a schema.",
+            "id": "ratstack://lore/a",
+            "kind": "lore",
+            "routePath": "/lore/a",
+            "score": 0,
+            "title": "Alpha"
+          },
+          {
+            "description": "A fixture about Beta",
+            "digest": "Beta",
+            "excerpt": "A cartridge can be deleted without migrating the schema.",
+            "id": "ratstack://lore/b",
+            "kind": "lore",
+            "routePath": "/lore/b",
+            "score": 0,
+            "title": "Beta"
+          },
+          {
+            "description": "A fixture about Law",
+            "digest": "Law",
+            "excerpt": "A capability has a schema and typed failures.",
+            "id": "ratstack://repo/Law.svx",
+            "kind": "law",
+            "routePath": "/LAW.md",
+            "score": 0,
+            "title": "Law"
+          },
+          {
+            "description": "A fixture about Skill",
+            "digest": "Skill",
+            "excerpt": "Read the Effect source before changing a capability.",
+            "id": "ratstack://skills/read-effect",
+            "kind": "skill",
+            "routePath": "/skills/read-effect",
+            "score": 0,
+            "title": "read-effect"
+          }
+        ],
+        "total": 4
+      }
+    }
+  ],
+  "readCases": [
+    {
+      "input": {
+        "id": "ratstack://repo/Law.svx"
+      },
+      "output": {
+        "description": "A fixture about Law",
+        "digest": "Law",
+        "id": "ratstack://repo/Law.svx",
+        "kind": "law",
+        "routePath": "/LAW.md",
+        "sourcePath": "Law.svx",
+        "text": "A capability has a schema and typed failures.",
+        "title": "Law"
+      }
+    },
+    {
+      "input": {
+        "id": "/LAW.md"
+      },
+      "output": {
+        "description": "A fixture about Law",
+        "digest": "Law",
+        "id": "ratstack://repo/Law.svx",
+        "kind": "law",
+        "routePath": "/LAW.md",
+        "sourcePath": "Law.svx",
+        "text": "A capability has a schema and typed failures.",
+        "title": "Law"
+      }
+    },
+    {
+      "input": {
+        "id": "ratstack://lore/a"
+      },
+      "output": {
+        "description": "A fixture about Alpha",
+        "digest": "Alpha",
+        "id": "ratstack://lore/a",
+        "kind": "lore",
+        "routePath": "/lore/a",
+        "sourcePath": "Alpha.svx",
+        "text": "A capability reads a cartridge. A capability follows a schema.",
+        "title": "Alpha"
+      }
+    },
+    {
+      "input": {
+        "id": "/lore/a"
+      },
+      "output": {
+        "description": "A fixture about Alpha",
+        "digest": "Alpha",
+        "id": "ratstack://lore/a",
+        "kind": "lore",
+        "routePath": "/lore/a",
+        "sourcePath": "Alpha.svx",
+        "text": "A capability reads a cartridge. A capability follows a schema.",
+        "title": "Alpha"
+      }
+    },
+    {
+      "input": {
+        "id": "ratstack://lore/b"
+      },
+      "output": {
+        "description": "A fixture about Beta",
+        "digest": "Beta",
+        "id": "ratstack://lore/b",
+        "kind": "lore",
+        "routePath": "/lore/b",
+        "sourcePath": "Beta.svx",
+        "text": "A cartridge can be deleted without migrating the schema.",
+        "title": "Beta"
+      }
+    },
+    {
+      "input": {
+        "id": "/lore/b"
+      },
+      "output": {
+        "description": "A fixture about Beta",
+        "digest": "Beta",
+        "id": "ratstack://lore/b",
+        "kind": "lore",
+        "routePath": "/lore/b",
+        "sourcePath": "Beta.svx",
+        "text": "A cartridge can be deleted without migrating the schema.",
+        "title": "Beta"
+      }
+    },
+    {
+      "input": {
+        "id": "ratstack://skills/read-effect"
+      },
+      "output": {
+        "description": "A fixture about Skill",
+        "digest": "Skill",
+        "id": "ratstack://skills/read-effect",
+        "kind": "skill",
+        "routePath": "/skills/read-effect",
+        "sourcePath": "Skill.svx",
+        "text": "Read the Effect source before changing a capability.",
+        "title": "read-effect"
+      }
+    },
+    {
+      "input": {
+        "id": "/skills/read-effect"
+      },
+      "output": {
+        "description": "A fixture about Skill",
+        "digest": "Skill",
+        "id": "ratstack://skills/read-effect",
+        "kind": "skill",
+        "routePath": "/skills/read-effect",
+        "sourcePath": "Skill.svx",
+        "text": "Read the Effect source before changing a capability.",
+        "title": "read-effect"
+      }
+    }
+  ],
+  "backlinksCases": [
+    {
+      "input": {
+        "slug": "a"
+      },
+      "output": {
+        "backlinks": [
+          {
+            "kind": "mention",
+            "page": {
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "title": "Beta",
+              "url": "/lore/b"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "slug": "b"
+      },
+      "output": {
+        "backlinks": [
+          {
+            "kind": "link",
+            "page": {
+              "group": "idea",
+              "id": "ratstack://lore/a",
+              "title": "Alpha",
+              "url": "/lore/a"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "mentionsCases": [
+    {
+      "input": {
+        "slug": "a"
+      },
+      "output": {
+        "mentions": [
+          {
+            "excerpt": "An unlinked Alpha.",
+            "page": {
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "title": "Beta",
+              "url": "/lore/b"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "slug": "b"
+      },
+      "output": {
+        "mentions": []
+      }
+    }
+  ],
+  "neighborsCases": [
+    {
+      "input": {
+        "slug": "a",
+        "depth": 1
+      },
+      "output": {
+        "neighbors": [
+          {
+            "distance": 1,
+            "node": {
+              "description": "A fixture about Beta",
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "slug": "b",
+              "terms": ["deletion"],
+              "title": "Beta",
+              "url": "/lore/b"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "slug": "a",
+        "depth": 2
+      },
+      "output": {
+        "neighbors": [
+          {
+            "distance": 1,
+            "node": {
+              "description": "A fixture about Beta",
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "slug": "b",
+              "terms": ["deletion"],
+              "title": "Beta",
+              "url": "/lore/b"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "slug": "b",
+        "depth": 1
+      },
+      "output": {
+        "neighbors": [
+          {
+            "distance": 1,
+            "node": {
+              "description": "A fixture about Alpha",
+              "group": "idea",
+              "id": "ratstack://lore/a",
+              "slug": "a",
+              "terms": ["capability", "cartridge"],
+              "title": "Alpha",
+              "url": "/lore/a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "slug": "b",
+        "depth": 2
+      },
+      "output": {
+        "neighbors": [
+          {
+            "distance": 1,
+            "node": {
+              "description": "A fixture about Alpha",
+              "group": "idea",
+              "id": "ratstack://lore/a",
+              "slug": "a",
+              "terms": ["capability", "cartridge"],
+              "title": "Alpha",
+              "url": "/lore/a"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "pathCases": [
+    {
+      "input": {
+        "from": "a",
+        "to": "a"
+      },
+      "output": {
+        "edges": [],
+        "nodes": [
+          {
+            "description": "A fixture about Alpha",
+            "group": "idea",
+            "id": "ratstack://lore/a",
+            "slug": "a",
+            "terms": ["capability", "cartridge"],
+            "title": "Alpha",
+            "url": "/lore/a"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "from": "a",
+        "to": "b"
+      },
+      "output": {
+        "edges": [
+          {
+            "from": {
+              "group": "idea",
+              "id": "ratstack://lore/a",
+              "title": "Alpha",
+              "url": "/lore/a"
+            },
+            "to": {
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "title": "Beta",
+              "url": "/lore/b"
+            },
+            "kind": "link"
+          }
+        ],
+        "nodes": [
+          {
+            "description": "A fixture about Alpha",
+            "group": "idea",
+            "id": "ratstack://lore/a",
+            "slug": "a",
+            "terms": ["capability", "cartridge"],
+            "title": "Alpha",
+            "url": "/lore/a"
+          },
+          {
+            "description": "A fixture about Beta",
+            "group": "concept",
+            "id": "ratstack://lore/b",
+            "slug": "b",
+            "terms": ["deletion"],
+            "title": "Beta",
+            "url": "/lore/b"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "from": "b",
+        "to": "a"
+      },
+      "output": {
+        "edges": [
+          {
+            "from": {
+              "group": "idea",
+              "id": "ratstack://lore/a",
+              "title": "Alpha",
+              "url": "/lore/a"
+            },
+            "to": {
+              "group": "concept",
+              "id": "ratstack://lore/b",
+              "title": "Beta",
+              "url": "/lore/b"
+            },
+            "kind": "link"
+          }
+        ],
+        "nodes": [
+          {
+            "description": "A fixture about Beta",
+            "group": "concept",
+            "id": "ratstack://lore/b",
+            "slug": "b",
+            "terms": ["deletion"],
+            "title": "Beta",
+            "url": "/lore/b"
+          },
+          {
+            "description": "A fixture about Alpha",
+            "group": "idea",
+            "id": "ratstack://lore/a",
+            "slug": "a",
+            "terms": ["capability", "cartridge"],
+            "title": "Alpha",
+            "url": "/lore/a"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "from": "b",
+        "to": "b"
+      },
+      "output": {
+        "edges": [],
+        "nodes": [
+          {
+            "description": "A fixture about Beta",
+            "group": "concept",
+            "id": "ratstack://lore/b",
+            "slug": "b",
+            "terms": ["deletion"],
+            "title": "Beta",
+            "url": "/lore/b"
+          }
+        ]
+      }
+    }
+  ]
+}
