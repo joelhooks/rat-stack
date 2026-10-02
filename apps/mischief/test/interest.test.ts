@@ -176,7 +176,9 @@ it.effect(
           expect(text).toContain(
             "Joel reads every application and picks 2–3 people."
           );
-          expect(text).toContain("Apply through your agent");
+          expect(text).toContain(
+            "Check your setup before you come. Your coding agent finds what"
+          );
 
           if (accept === "text/html") {
             const buttons = htmlTokens(text).filter(
@@ -201,12 +203,14 @@ it.effect(
             expect(primary[0]?.attributes["data-text"]).toBe(
               copyPrompts.page.text
             );
-            expect(primary[0]?.attributes["aria-label"]).toBe(
-              "Apply through your agent"
-            );
+            expect(primary[0]?.attributes["aria-label"]).toBe("Copy prompt");
             expect(text).toContain('role="status" aria-live="polite"');
             expect(text).toContain('label.textContent = "Copied ✓"');
-            expect(text).toContain("Copy for agent");
+            expect(text).not.toContain("Copy for agent");
+            expect(text).not.toContain("Apply through your agent");
+            expect(text).toContain(
+              '<details class="prompt-text"><summary>See the prompt</summary>'
+            );
             expect(text).not.toContain("What are you building?");
           } else {
             expect(text).toContain(
@@ -677,7 +681,7 @@ it.effect(
         expect(html).toContain(
           '<h2 id="interested">Apply for a free seat</h2>'
         );
-        expect(html).toContain("Apply through your agent");
+        expect(html).toContain('<span class="copy-label">Copy prompt</span>');
       })
     )
 );
@@ -1428,8 +1432,8 @@ it.effect("offers a labeled prompt for a consent-first agent application", () =>
         yield* tokenmaxxPage(handler, "text/markdown")
       );
 
-      expect(html).toContain('aria-label="Copy for agent"');
-      expect(html).toContain('<span class="copy-label">Copy for agent</span>');
+      expect(html).toContain('aria-label="Copy prompt"');
+      expect(html).toContain('<span class="copy-label">Copy prompt</span>');
       expect(html).toContain("Submit only after I approve it.");
       expect(html).toMatch(
         /<a href="https:\/\/ratstack\.sh\/tokenmaxx"[^>]*>workshop page<\/a>/u
@@ -1463,7 +1467,7 @@ it.effect(
 
         expect(markdown).toContain("Apply through your agent");
         expect(html).not.toContain("Next actions for an agent");
-        expect(html).toContain("Apply through your agent");
+        expect(html).toContain('<span class="copy-label">Copy prompt</span>');
       })
     )
 );

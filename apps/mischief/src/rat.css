@@ -314,6 +314,14 @@ button {
   white-space: pre-wrap;
 }
 
+.prompt-text {
+  margin-top: var(--space-tight);
+}
+
+.prompt-text summary {
+  cursor: pointer;
+}
+
 main > pre:has(+ .copy-actions) {
   margin-bottom: 0;
 }

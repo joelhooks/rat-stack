@@ -22,7 +22,7 @@ export interface CopyPromptSpec {
 export const copyPrompts = {
   connect: {
     agentFence: false,
-    label: "Copy for agent",
+    label: "Copy prompt",
     showLabel: true,
     showText: false,
     text: [
@@ -49,7 +49,7 @@ export const copyPrompts = {
   },
   page: {
     agentFence: false,
-    label: "Copy for agent",
+    label: "Copy prompt",
     showText: false,
     text: [
       "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
@@ -60,7 +60,7 @@ export const copyPrompts = {
   },
   setup: {
     agentFence: true,
-    label: "Copy for agent",
+    label: "Copy prompt",
     showText: true,
     text: [
       'Check my setup for the "how to burn a trillion tokens and get good results" session.',

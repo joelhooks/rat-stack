@@ -140,7 +140,7 @@ What each piece is for, from the table above and its repo:
 - Have Pi installed and a model subscription you're happy to spend.
 - We check everyone's setup together a week before. No live install debugging.
 
-Paste this into Pi. It checks your setup and tells you what's missing:
+Check your setup before you come. Your coding agent finds what's missing.
 
 <CopyPrompt id="setup" />
 

@@ -15,8 +15,11 @@
 
 {#if showText}
   <div class="prompt">
-    <pre><code>{text}</code></pre>
     {@render control()}
+    <details class="prompt-text">
+      <summary>See the prompt</summary>
+      <pre><code>{text}</code></pre>
+    </details>
   </div>
 {:else}
   {@render control()}

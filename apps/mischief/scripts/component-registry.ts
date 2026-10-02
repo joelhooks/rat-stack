@@ -180,7 +180,7 @@ const coreComponents = {
         html(
           context.renderCopyPrompt(
             variant === "primary"
-              ? { ...prompt, label: "Apply through your agent", variant }
+              ? { ...prompt, label: "Copy prompt", variant }
               : prompt
           )
         ),
