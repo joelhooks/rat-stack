@@ -29,6 +29,7 @@ const xOf = (submission: Submission) => `https://x.com/applicant${submission}`;
 const geoOf = (submission: Submission) => ({
   asOrganization: `Applicant Network ${submission}`,
   asn: 64_500 + submission,
+  city: "Warszawa",
   country: "PL",
   isEUCountry: true,
   region: "Mazovia",
@@ -328,6 +329,7 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
         "x.com/",
         "Applicant Network",
         "Mazovia",
+        "Warszawa",
       ]) {
         expect(
           row.kind === "contact" || !serialized.includes(identifying)

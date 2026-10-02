@@ -26,6 +26,11 @@ export {
 export type { IntakeLiveSettings } from "./intake-live.js";
 
 export {
+  mirrorIntakeEvents,
+  mirroredIntakeEventsLayer,
+} from "./mirrored-intake-events.js";
+
+export {
   doIntakeVault,
   IntakeVault,
   makeMemoryIntakeVault,

@@ -6,6 +6,7 @@ import { hmacIntakeTicketLayer } from "./hmac-tickets.js";
 import { doIntakeVault } from "./intake-vault.js";
 import type { IntakeVaultStub } from "./intake-vault.js";
 import { jevAbuseScoreLayer } from "./jev-abuse-score.js";
+import { mirroredIntakeEventsLayer } from "./mirrored-intake-events.js";
 import { sealedIntakeEventsLayer } from "./sealed-intake-events.js";
 import { doTicketBindings } from "./ticket-bindings.js";
 import type { TicketBindingStub } from "./ticket-bindings.js";
@@ -21,18 +22,22 @@ export const ticketInstance = (nonce: string) => `ticket:${nonce}`;
 
 export const intakeInstance = (actor: ContactRef) => `intake:${actor}`;
 
-export const intakeLiveLayer = (settings: IntakeLiveSettings) =>
-  Layer.mergeAll(
+export const intakeLiveLayer = (settings: IntakeLiveSettings) => {
+  const vault = sealedIntakeEventsLayer.pipe(
+    Layer.provide(
+      doIntakeVault((actor) => settings.interests(intakeInstance(actor)))
+    )
+  );
+
+  return Layer.mergeAll(
     hmacIntakeTicketLayer(settings.tokenSecret).pipe(
       Layer.provide(
         doTicketBindings((nonce) => settings.interests(ticketInstance(nonce)))
       )
     ),
-    settings.events ??
-      sealedIntakeEventsLayer.pipe(
-        Layer.provide(
-          doIntakeVault((actor) => settings.interests(intakeInstance(actor)))
-        )
-      ),
+    settings.events === undefined
+      ? vault
+      : mirroredIntakeEventsLayer(vault, settings.events),
     jevAbuseScoreLayer({ apiKey: settings.typesafeApiKey })
   );
+};

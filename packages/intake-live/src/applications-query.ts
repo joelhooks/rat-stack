@@ -29,6 +29,7 @@ SELECT
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'agentRef') END) AS agent,
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'geo', 'country') END) AS country,
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'geo', 'region') END) AS region,
+  max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'geo', 'city') END) AS city,
   max(CASE WHEN kind = 'contact' THEN json_get_str(value, 'geo', 'asOrganization') END) AS network,
   max(CASE WHEN object = 'tokenmaxx/questions/building' THEN json_get_str(value, 'result') END) AS building,
   max(CASE WHEN object = 'tokenmaxx/questions/today' THEN json_get_str(value, 'result') END) AS today,
