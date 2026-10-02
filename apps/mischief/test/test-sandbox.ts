@@ -1,6 +1,8 @@
 import { Sandbox, SandboxError } from "@rat-stack/capability/sandbox";
 import { Effect, Layer, Schema } from "effect";
 
+import { FileAssets } from "./generated-content.js";
+
 const SearchWire = Schema.Struct({
   matches: Schema.Array(Schema.Struct({ id: Schema.String })),
 });
@@ -23,7 +25,7 @@ const unwrap = (outcome: {
     ? Effect.succeed(outcome.value)
     : Effect.fail(protocolError(`Capability failed: ${String(outcome.error)}`));
 
-export const TestSandbox = Layer.succeed(Sandbox, {
+const sandboxLayer = Layer.succeed(Sandbox, {
   run: (code, invoke) =>
     Effect.gen(function* runTestProgram() {
       if (!(code.includes("tools.search") && code.includes("tools.read"))) {
@@ -65,3 +67,5 @@ export const TestSandbox = Layer.succeed(Sandbox, {
       };
     }),
 });
+
+export const TestSandbox = Layer.merge(sandboxLayer, FileAssets);

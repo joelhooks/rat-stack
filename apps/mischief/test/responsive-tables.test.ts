@@ -11,7 +11,7 @@ import {
   lawSources,
   loreSources,
   skillSources,
-} from "../src/bundled-content.generated.js";
+} from "./generated-content.js";
 
 it.effect(
   "labels every published table cell and gives each table a focusable region",

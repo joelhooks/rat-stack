@@ -1,7 +1,6 @@
 import { agentNextActions } from "./agent-guide.js";
 import {
   agentPointerMarkdown,
-  cartridgesImageJpegBase64,
   homeMarkdownTemplate,
   glossaryIndexMarkdown,
   lawSources,
@@ -12,7 +11,6 @@ import {
   skillIndexMarkdown,
   skillSources,
   systemsIndexMarkdown,
-  tokenmaxxImageJpegBase64,
 } from "./bundled-content.generated.js";
 import { markdownDiscoveryLinks } from "./content-links.js";
 import { canonicalMarkdownLinks } from "./markdown-links.js";
@@ -21,33 +19,17 @@ export { loreGraphSnapshot } from "./bundled-content.generated.js";
 
 export {
   authMarkdown,
-  appleTouchIconPngBase64,
-  faviconIcoBase64,
-  homeDocumentHtml,
-  glossaryIndexDocumentHtml,
-  loreIndexDocumentHtml,
   noVerifyDocumentHtml,
   noVerifyMarkdown,
-  ogImages,
-  ratSvg,
-  skillIndexDocumentHtml,
   staticContentVersion,
-  systemsIndexDocumentHtml,
+  staticAssetGeneration,
+  staticAssetPageRoutes,
+  imageAssetPaths,
   tokenmaxxDocumentHtml,
   tokenmaxxCopyScript,
   tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./bundled-content.generated.js";
-
-export const cartridgesImageJpeg = Uint8Array.from(
-  atob(cartridgesImageJpegBase64),
-  (character) => character.codePointAt(0) ?? 0
-);
-
-export const tokenmaxxImageJpeg = Uint8Array.from(
-  atob(tokenmaxxImageJpegBase64),
-  (character) => character.codePointAt(0) ?? 0
-);
 
 export const ogImagePath = (routePath: string): `/${string}` =>
   `/og${routePath === "/" ? "/home" : routePath}.png`;
@@ -60,7 +42,6 @@ export interface ContentResource {
   readonly bodyMarkdown: string;
   readonly description: string;
   readonly digest: string;
-  readonly documentHtml: string;
   readonly id: string;
   readonly kind: ContentKind;
   readonly name: string;

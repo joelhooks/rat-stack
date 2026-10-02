@@ -5,13 +5,16 @@ import { HttpRouter } from "effect/unstable/http";
 
 import { ContentAssetManifest, emitAssets } from "../scripts/emit-assets.ts";
 import { mischiefRoutes } from "../src/app.js";
+import { contentResources, ogImagePath } from "../src/content.js";
 import {
   cartridgesImageJpegBase64,
+  faviconIcoBase64,
+  appleTouchIconPngBase64,
+  ratSvg,
   ogImages,
   originToken,
   tokenmaxxImageJpegBase64,
-} from "../src/bundled-content.generated.js";
-import { contentResources, ogImagePath } from "../src/content.js";
+} from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 const manifestAt = (directory: string) =>
@@ -106,13 +109,23 @@ it.effect(
                 response.arrayBuffer.bind(response)
               );
 
-              expect(new Uint8Array(bytes)).toEqual(new Uint8Array(expected));
+              expect(bytes.byteLength).toBe(expected.byteLength);
+              expect(
+                Buffer.from(bytes).equals(Buffer.from(expected)),
+                image
+              ).toBe(true);
             }
           }),
         ({ dispose }) => Effect.promise(dispose)
       );
 
       const images = [
+        { base64: faviconIcoBase64, path: "/favicon.ico" },
+        { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
+        {
+          base64: Buffer.from(ratSvg).toString("base64"),
+          path: "/favicon.svg",
+        },
         ...ogImages.map((image) => ({
           base64: image.pngBase64,
           path: ogImagePath(image.routePath),

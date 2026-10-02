@@ -66,15 +66,14 @@ export const emitAssets = Effect.fn("emitAssets")(
       yield* fs.rename(temporaryImage, output);
     }
 
+    const manifest = {
+      generation,
+      images: input.images.map((image) => image.path),
+      pages,
+    };
+
     const temporaryManifest = path.join(temporary, "manifest.json");
-    yield* fs.writeFileString(
-      temporaryManifest,
-      JSON.stringify({
-        generation,
-        images: input.images.map((image) => image.path),
-        pages,
-      })
-    );
+    yield* fs.writeFileString(temporaryManifest, JSON.stringify(manifest));
     const manifestPath = path.join(input.directory, "manifest.json");
     yield* fs.rename(temporaryManifest, manifestPath);
 
@@ -92,6 +91,8 @@ export const emitAssets = Effect.fn("emitAssets")(
         });
       }
     }
+
+    return manifest;
   },
   Effect.scoped,
   Effect.mapError((cause) => buildError("emit assets", "content assets", cause))

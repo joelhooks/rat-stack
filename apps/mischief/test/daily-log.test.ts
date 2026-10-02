@@ -6,6 +6,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { dailyLogMarkdown, readDailyLog } from "../scripts/daily-log.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { readContent } from "../src/content.ts";
+import { lawSources } from "./generated-content.js";
 
 it.effect(
   "groups a branched git history by day without duplicating merges or leaking identity",
@@ -137,6 +138,8 @@ it("keeps one generated log on both public routes and advertises its markdown va
   const markdown = readContent("/log.md");
   expect(log).toBeDefined();
   expect(markdown?.text).toBe(log?.text);
-  expect(log?.documentHtml).toContain('href="/log"');
+  expect(
+    lawSources.find((page) => page.routePath === "/log")?.documentHtml
+  ).toContain('href="/log"');
   expect(markdownDiscoveryLinks("/log")[0]?.href).toBe("/log.md");
 });

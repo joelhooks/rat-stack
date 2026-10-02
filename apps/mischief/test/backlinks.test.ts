@@ -17,7 +17,7 @@ import {
   skillSources,
   lawSources,
   loreGraphSnapshot,
-} from "../src/bundled-content.generated.js";
+} from "./generated-content.js";
 
 it.effect(
   "counts unique referencing pages and leaves self-links and non-prose alone",

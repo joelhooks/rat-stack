@@ -11,7 +11,7 @@ import {
   findUnlinkedMentions,
 } from "../scripts/unlinked-mentions.ts";
 import type { UnlinkedProse } from "../scripts/unlinked-mentions.ts";
-import { glossaryTerms } from "../src/bundled-content.generated.js";
+import { glossaryTerms } from "./generated-content.js";
 
 const terms = [
   {

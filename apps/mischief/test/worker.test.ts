@@ -13,10 +13,6 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { mischiefRoutes } from "../src/app.js";
 import type { StaticResponseCache } from "../src/app.js";
 import {
-  loreSources,
-  tokenmaxxCopyScriptHash,
-} from "../src/bundled-content.generated.js";
-import {
   a2aAgentCard,
   agentSkillPath,
   ardManifest,
@@ -38,6 +34,7 @@ import type {
   RateLimitBindings,
 } from "../src/rate-limits.js";
 import { contentSecurityPolicy } from "../src/security.js";
+import { loreSources, tokenmaxxCopyScriptHash } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -1230,7 +1227,7 @@ it.effect(
 );
 
 it.effect(
-  "caches each static representation and revalidates with its ETag",
+  "keeps asset representations and validators out of the generic discovery cache",
   () => {
     const cache = makeFakeStaticResponseCache();
 
@@ -1255,6 +1252,18 @@ it.effect(
 
           const markdownResponse = yield* Effect.promise(
             handler.bind(undefined, new Request("http://localhost/"))
+          );
+
+          const cachedMarkdown = yield* Effect.promise(
+            handler.bind(undefined, new Request("http://localhost/"))
+          );
+
+          const markdownBody = yield* Effect.promise(
+            markdownResponse.text.bind(markdownResponse)
+          );
+
+          const cachedMarkdownBody = yield* Effect.promise(
+            cachedMarkdown.text.bind(cachedMarkdown)
           );
 
           const etag = firstHtml.headers.get("etag");
@@ -1289,10 +1298,14 @@ it.effect(
           );
 
           expect(firstHtml.headers.get("x-ratstack-cache")).toBe("MISS");
-          expect(secondHtml.headers.get("x-ratstack-cache")).toBe("HIT");
+          expect(secondHtml.headers.get("x-ratstack-cache")).toBe("MISS");
+          expect(secondHtml.headers.get("cache-control")).toBe("no-cache");
           expectSecurityHeaders(secondHtml, true, true);
           expect(secondHtmlBody).toBe(firstHtmlBody);
-          expect(firstHtml.headers.get("cache-control")).toContain(
+          expect(firstHtml.headers.get("cache-control")).toBe("no-cache");
+          expect(cachedMarkdown.headers.get("x-ratstack-cache")).toBe("MISS");
+          expect(cachedMarkdownBody).toBe(markdownBody);
+          expect(markdownResponse.headers.get("cache-control")).toContain(
             "s-maxage=31536000"
           );
           expect(firstHtml.headers.get("vary")).toBe("Accept");
@@ -1303,7 +1316,7 @@ it.effect(
           expect(revalidated.headers.get("x-ratstack-cache")).toBe(
             "REVALIDATED"
           );
-          expectSecurityHeaders(revalidated, false);
+          expectSecurityHeaders(revalidated, true, true);
           expect(mcp.headers.get("x-ratstack-cache")).toBeNull();
           expect(mcp.headers.get("x-fence")).toBe("electrified");
           expect(favicon.headers.get("x-ratstack-cache")).toBe("MISS");
@@ -1311,22 +1324,38 @@ it.effect(
           expect(favicon.headers.get("cache-control")).toContain(
             "s-maxage=31536000"
           );
-          expect(crawlerHtml.headers.get("x-ratstack-cache")).toBe("HIT");
+          expect(crawlerHtml.headers.get("x-ratstack-cache")).toBe("MISS");
+          expect(crawlerHtml.headers.get("cache-control")).toBe("no-cache");
           expect(crawlerHtml.headers.get("content-type")).toContain(
             "text/html"
           );
-          expect(cache.matchKeys).toHaveLength(5);
-          expect(cache.putKeys).toHaveLength(3);
+          expect(cache.matchKeys).toHaveLength(0);
+          expect(cache.putKeys).toHaveLength(0);
+
+          const discovery = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request("http://localhost/openapi.json")
+            )
+          );
+
+          const cachedDiscovery = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request("http://localhost/openapi.json")
+            )
+          );
+
+          expect(discovery.headers.get("x-ratstack-cache")).toBe("MISS");
+          expect(cachedDiscovery.headers.get("x-ratstack-cache")).toBe("HIT");
+          expect(cache.matchKeys).toHaveLength(2);
+          expect(cache.putKeys).toHaveLength(1);
           expect(cache.matchKeys[0]).toContain("__ratstack_content=");
           expect(cache.matchKeys[0]).toContain(
-            "__ratstack_representation=html"
-          );
-          expect(cache.matchKeys[2]).toContain(
             "__ratstack_representation=default"
           );
-          expect(cache.matchKeys[4]).toContain(
-            "__ratstack_representation=html"
-          );
+          expect(cache.matchKeys[1]).toBe(cache.matchKeys[0]);
+          expect(cache.putKeys[0]).toBe(cache.matchKeys[0]);
         }),
       fakeRateLimitBindings(),
       cache

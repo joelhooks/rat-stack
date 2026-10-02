@@ -3,11 +3,17 @@ import { Context, Effect, FileSystem, Schema } from "effect";
 
 import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
 
-const entryBudgetBytes = 10_000_000;
+const entryBudgetBytes = 3_300_000;
+
+const javascriptBudgetBytes = 5_000_000;
 
 class StartupBudgetExceeded extends Schema.TaggedError<StartupBudgetExceeded>()(
   "StartupBudgetExceeded",
-  { budget: Schema.Finite, bytes: Schema.Finite }
+  {
+    budget: Schema.Finite,
+    bytes: Schema.Finite,
+    scope: Schema.Literals(["entry", "javascript-upload"]),
+  }
 ) {}
 
 const program = Effect.gen(function* measureMischiefBundle() {
@@ -82,14 +88,27 @@ const program = Effect.gen(function* measureMischiefBundle() {
 
   const bytes = new Blob([entry.content]).size;
 
+  const javascriptBytes = bundle.files
+    .filter((file) => file.path.endsWith(".js"))
+    .reduce((total, file) => total + new Blob([file.content]).size, 0);
+
   yield* Effect.log(
-    `Mischief entry: ${bytes} bytes; budget: ${entryBudgetBytes}`
+    `Mischief entry: ${bytes} bytes; budget: ${entryBudgetBytes}; complete JS upload: ${javascriptBytes} bytes; budget: ${javascriptBudgetBytes}`
   );
 
   if (bytes > entryBudgetBytes) {
     return yield* new StartupBudgetExceeded({
       budget: entryBudgetBytes,
       bytes,
+      scope: "entry",
+    });
+  }
+
+  if (javascriptBytes > javascriptBudgetBytes) {
+    return yield* new StartupBudgetExceeded({
+      budget: javascriptBudgetBytes,
+      bytes: javascriptBytes,
+      scope: "javascript-upload",
     });
   }
 

@@ -11,7 +11,6 @@ import { Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
@@ -22,7 +21,12 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
-import { ContentAssetManifest } from "./asset-manifest.js";
+import { assetDirectoryForBuild } from "./asset-deployment.js";
+import {
+  staticAssetGeneration,
+  staticAssetPageRoutes,
+  imageAssetPaths,
+} from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
@@ -322,23 +326,17 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
     let assets: Cloudflare.Workers.AssetsProps | undefined;
 
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
-      const fs = yield* FileSystem.FileSystem;
-
-      const manifest = yield* Schema.decodeEffect(
-        Schema.fromJsonString(ContentAssetManifest)
-      )(
-        yield* fs
-          .readFileString(
-            new URL("../dist/content/manifest.json", import.meta.url).pathname
-          )
-          .pipe(Effect.orDie)
+      const directory = yield* assetDirectoryForBuild(
+        new URL("../dist/content", import.meta.url).pathname,
+        {
+          generation: staticAssetGeneration,
+          images: imageAssetPaths,
+          pages: staticAssetPageRoutes,
+        }
       ).pipe(Effect.orDie);
 
       assets = {
-        directory: new URL(
-          `../dist/content/assets/${manifest.generation}`,
-          import.meta.url
-        ).pathname,
+        directory,
         htmlHandling: "none",
         runWorkerFirst: true,
       };

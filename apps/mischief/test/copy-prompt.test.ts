@@ -5,7 +5,7 @@ import {
   homeMarkdownTemplate,
   tokenmaxxDocumentHtml,
   tokenmaxxMarkdown,
-} from "../src/bundled-content.generated.js";
+} from "./generated-content.js";
 
 it.each([
   ["home", homeDocumentHtml, 4],
