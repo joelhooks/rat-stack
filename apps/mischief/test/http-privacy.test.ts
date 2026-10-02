@@ -104,6 +104,7 @@ it.effect(
 
       for (const target of [
         "/operator/interest/applications",
+        "/operator/interest/applications/erase",
         "/operator/interest/applications?submissionId=private-submission-reference",
         "/tokenmaxx/unsubscribe",
         "/tokenmaxx/unsubscribe?t=private-unsubscribe-value",

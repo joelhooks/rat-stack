@@ -1,6 +1,9 @@
 import { InterestMode, InterestTokens } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
-import { IntakeApplications } from "@rat-stack/core/join-interest";
+import {
+  IntakeApplications,
+  IntakeErasure,
+} from "@rat-stack/core/join-interest";
 import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
@@ -218,6 +221,17 @@ export const makeMischief = (
             )
           );
 
+    const erasure =
+      joinServices === undefined
+        ? undefined
+        : yield* IntakeErasure.pipe(
+            Effect.provide(
+              IntakeErasure.layer.pipe(
+                Layer.provide(Layer.succeedContext(joinServices))
+              )
+            )
+          );
+
     const assetBinding = Schema.decodeUnknownOption(AssetBindingSchema)(
       environment.ASSETS
     );
@@ -231,7 +245,9 @@ export const makeMischief = (
     const workerRoutes = mischiefRoutes({
       assets,
       interest:
-        interest === undefined ? undefined : { ...interest, applications },
+        interest === undefined
+          ? undefined
+          : { ...interest, applications, erasure },
       joinTokens: interestServices,
       legacyMcp,
       rateLimits,

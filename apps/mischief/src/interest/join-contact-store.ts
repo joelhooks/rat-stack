@@ -128,11 +128,12 @@ export const joinContactStoreLayer = (
           submissionId: string
         ) {
           const contact = yield* read(submissionId);
-          yield* stub(submissionId).joinErase();
 
           if (contact !== undefined) {
             yield* events.erase(contact.contactRef);
           }
+
+          yield* stub(submissionId).joinErase();
         }),
         read,
         save,

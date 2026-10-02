@@ -11,6 +11,7 @@ import {
 } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
+  IntakeErasure,
   JoinContactStore,
 } from "@rat-stack/core/join-interest";
 import { withEventCapture } from "@rat-stack/events";
@@ -109,14 +110,24 @@ const makeReaderFixture = Effect.gen(function* makeFixture() {
   );
 
   const indexed = yield* Ref.make<readonly string[]>([]);
+  const failErase = yield* Ref.make(false);
 
   const services = yield* Layer.build(
     joinContactStoreLayer(
       (submissionId) => ({
         joinErase: () =>
-          Ref.update(
-            sealedContacts,
-            (all) => new Map([...all].filter(([id]) => id !== submissionId))
+          Ref.get(failErase).pipe(
+            Effect.flatMap((fail) =>
+              fail
+                ? Effect.die(
+                    "synthetic-private-answer-marker:synthetic@example.test"
+                  )
+                : Ref.update(
+                    sealedContacts,
+                    (all) =>
+                      new Map([...all].filter(([id]) => id !== submissionId))
+                  )
+            )
           ),
         joinRead: () =>
           Ref.get(sealedContacts).pipe(
@@ -169,7 +180,15 @@ const makeReaderFixture = Effect.gen(function* makeFixture() {
     )
   );
 
-  return { contacts, events, indexed, reader, sealedContacts, vault };
+  return {
+    contacts,
+    events,
+    failErase,
+    indexed,
+    reader,
+    sealedContacts,
+    vault,
+  };
 });
 
 const seedContact = (
@@ -257,7 +276,7 @@ it.effect(
   "guards the operator reader and emits neither plaintext nor operator metadata to observers",
   () =>
     Effect.gen(function* privateReader() {
-      const { contacts, events, reader, sealedContacts, vault } =
+      const { contacts, events, failErase, reader, sealedContacts, vault } =
         yield* makeReaderFixture;
 
       const answer = "synthetic-private-answer-marker";
@@ -321,6 +340,10 @@ it.effect(
 
       const routes = interestRoutes({
         applications: reader,
+        erasure: yield* IntakeErasure.pipe(
+          Effect.provide(IntakeErasure.layer),
+          Effect.provideService(JoinContactStore, contacts)
+        ),
         operatorToken: "synthetic-operator",
         services,
       }).pipe(
@@ -368,6 +391,49 @@ it.effect(
         }
       }
 
+      for (const token of [undefined, "wrong", "synthetic-operator"]) {
+        const response = yield* call(
+          handler,
+          new Request(
+            "https://ratstack.sh/operator/interest/applications/erase",
+            {
+              body: JSON.stringify({ submissionIds: 42 }),
+              headers:
+                token === undefined ? {} : { authorization: `Bearer ${token}` },
+              method: "POST",
+            }
+          )
+        );
+
+        expect(response.status).toBe(
+          token === "synthetic-operator" ? 400 : 401
+        );
+        expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(response.headers.get("x-robots-tag")).toBe("noindex");
+      }
+
+      for (const body of [
+        "{",
+        "{}",
+        JSON.stringify({ submissionIds: [] }),
+        JSON.stringify({ submissionIds: [""] }),
+        JSON.stringify({ submissionIds: [42] }),
+      ]) {
+        const response = yield* call(
+          handler,
+          new Request(
+            "https://ratstack.sh/operator/interest/applications/erase",
+            {
+              body,
+              headers: { authorization: "Bearer synthetic-operator" },
+              method: "POST",
+            }
+          )
+        );
+
+        expect(response.status).toBe(400);
+      }
+
       const historical = yield* call(
         handler,
         new Request(
@@ -380,6 +446,73 @@ it.effect(
       expect(
         yield* Effect.promise(historical.json.bind(historical))
       ).toMatchObject([{ state: "no-answers" }]);
+
+      yield* Ref.set(failErase, true);
+
+      const partial = yield* call(
+        handler,
+        new Request(
+          "https://ratstack.sh/operator/interest/applications/erase",
+          {
+            body: JSON.stringify({ submissionIds: ["synthetic-submission"] }),
+            headers: { authorization: "Bearer synthetic-operator" },
+            method: "POST",
+          }
+        )
+      );
+
+      expect(partial.status).toBe(200);
+      expect(yield* Effect.promise(partial.json.bind(partial))).toEqual({
+        alreadyGone: 0,
+        erased: 0,
+        failed: 1,
+      });
+      expect(yield* contacts.read("synthetic-submission")).toBeDefined();
+      expect((yield* vault.contents).size).toBe(0);
+      yield* Ref.set(failErase, false);
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const erased = yield* call(
+          handler,
+          new Request(
+            "https://ratstack.sh/operator/interest/applications/erase",
+            {
+              body: JSON.stringify({
+                submissionIds: ["synthetic-submission", "synthetic-submission"],
+              }),
+              headers: { authorization: "Bearer synthetic-operator" },
+              method: "POST",
+            }
+          )
+        );
+
+        expect(erased.status).toBe(200);
+        expect(yield* Effect.promise(erased.json.bind(erased))).toEqual({
+          alreadyGone: attempt === 0 ? 0 : 1,
+          erased: attempt === 0 ? 1 : 0,
+          failed: 0,
+        });
+
+        const after = yield* call(
+          handler,
+          new Request(
+            "https://ratstack.sh/operator/interest/applications?submissionId=synthetic-submission",
+            {
+              headers: { authorization: "Bearer synthetic-operator" },
+            }
+          )
+        );
+
+        expect(yield* Effect.promise(after.json.bind(after))).toEqual([
+          {
+            reason: "erased",
+            state: "erased",
+            submissionId: "synthetic-submission",
+          },
+        ]);
+        expect(yield* contacts.read("synthetic-submission")).toBeUndefined();
+        expect((yield* vault.contents).size).toBe(0);
+      }
 
       yield* Ref.update(sealedContacts, (all) =>
         new Map(all).set(
@@ -437,5 +570,17 @@ it.effect("disables the route when no operator token is configured", () =>
     );
 
     expect(response.status).toBe(404);
+
+    const erased = yield* call(
+      handler,
+      new Request("https://ratstack.sh/operator/interest/applications/erase", {
+        body: JSON.stringify({ submissionIds: ["synthetic-submission"] }),
+        method: "POST",
+      })
+    );
+
+    expect(erased.status).toBe(404);
+    expect(erased.headers.get("cache-control")).toBe("no-store");
+    expect(erased.headers.get("x-robots-tag")).toBe("noindex");
   }).pipe(Effect.scoped)
 );

@@ -23,6 +23,15 @@ export {
 
 export type { IntakeApplication } from "./intake-applications.js";
 
+export {
+  IntakeErasure,
+  IntakeEraseCountsSchema,
+  intakeErase,
+  intakeEraseContract,
+} from "./intake-erase.js";
+
+export type { IntakeEraseCounts } from "./intake-erase.js";
+
 export const MASKED_INTEREST_VALUE = "redacted";
 
 const implementedJoinInterest = implement(joinInterestContract, (input) =>

@@ -15,6 +15,9 @@ import type {
 } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
+  IntakeErasure,
+  intakeErase,
+  intakeEraseContract,
   intakeApplications,
   intakeApplicationsContract,
 } from "@rat-stack/core/join-interest";
@@ -37,6 +40,7 @@ import { confirmPage, resultPage } from "./pages.js";
 
 export interface InterestOptions {
   readonly applications?: IntakeApplications["Service"] | undefined;
+  readonly erasure?: IntakeErasure["Service"] | undefined;
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
   readonly services: Context.Context<
@@ -351,6 +355,51 @@ export const interestRoutes = (options: InterestOptions) => {
                 }),
               onSuccess: (applications) =>
                 HttpServerResponse.jsonUnsafe(applications, {
+                  headers: operatorHeaders,
+                }),
+            })
+          );
+        })
+      ).pipe(
+        Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
+        Effect.withTracerEnabled(false),
+        Effect.provide(Logger.layer([]))
+      )
+    ),
+    HttpRouter.add("POST", "/operator/interest/applications/erase", (request) =>
+      guarded(request, () =>
+        Effect.gen(function* eraseApplications() {
+          const input = yield* request.json.pipe(
+            Effect.flatMap(
+              Schema.decodeUnknownEffect(intakeEraseContract.input)
+            ),
+            Effect.option
+          );
+
+          if (Option.isNone(input)) {
+            return HttpServerResponse.text("Bad request.\n", {
+              headers: operatorHeaders,
+              status: 400,
+            });
+          }
+
+          if (options.erasure === undefined) {
+            return HttpServerResponse.text("Applications unavailable.\n", {
+              headers: operatorHeaders,
+              status: 503,
+            });
+          }
+
+          return yield* intakeErase.handler(input.value).pipe(
+            Effect.provideService(IntakeErasure, options.erasure),
+            Effect.match({
+              onFailure: () =>
+                HttpServerResponse.text("Applications unavailable.\n", {
+                  headers: operatorHeaders,
+                  status: 503,
+                }),
+              onSuccess: (counts) =>
+                HttpServerResponse.jsonUnsafe(counts, {
                   headers: operatorHeaders,
                 }),
             })

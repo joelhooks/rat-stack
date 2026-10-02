@@ -17,6 +17,8 @@ import {
 import { Command, Flag } from "effect/cli";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 
+import { intakeEraseCommand } from "./intake-erase.js";
+
 export const remoteIntakeApplicationsLayer = (baseUrl: string) =>
   Layer.effect(
     IntakeApplications,
@@ -83,6 +85,7 @@ export const remoteIntakeApplicationsLayer = (baseUrl: string) =>
 
 export const intakeCommand = Command.make("intake").pipe(
   Command.withSubcommands([
+    intakeEraseCommand,
     Command.make(
       "list",
       {
