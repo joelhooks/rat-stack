@@ -33,28 +33,44 @@ sources:
     accessed: "2026-10-02"
 ---
 
-In [Discussion #259](https://github.com/pngwn/MDsveX/discussions/259), pngwn gave four reasons for leaving unified: performance, API instability, poor documentation, and possible changes to allowed syntax extensions. The new parser would have its own plugin system instead of remark and rehype plugins.
+In [Discussion #259](https://github.com/pngwn/MDsveX/discussions/259), pngwn gives four reasons to leave unified:
 
-[Penguin-flavoured markdown](https://github.com/pngwn/MDsveX/discussions/293), or PFM, proposes syntax changes too. On [Reddit, as evilpingwin](https://www.reddit.com/r/sveltejs/comments/15rz6al/thoughts_on_mdsvex_moving_away_from_unified/), pngwn said GFM's features would remain supported, but the syntax would not always be identical. He promised an automated migration path.
+- Performance.
+- API instability.
+- Poor documentation.
+- Possible changes to allowed syntax extensions.
+
+The new parser uses its own plugin system instead of remark and rehype plugins.
+
+[Penguin-flavoured markdown](https://github.com/pngwn/MDsveX/discussions/293), or PFM, also changes syntax. On [Reddit, as evilpingwin](https://www.reddit.com/r/sveltejs/comments/15rz6al/thoughts_on_mdsvex_moving_away_from_unified/), pngwn says GFM's features remain supported. The syntax is not always identical. He promises an automated migration path.
 
 ## Where we stopped
 
-Our local check of the published `mdsvex@1.0.0-next.0` stopped on this minimal CommonMark input:
+Our local check of published `mdsvex@1.0.0-next.0` stops on this minimal CommonMark input:
 
 ```markdown
 - **`x`** x
 - y
 ```
 
-The published migrator converted it to PFM:
+The published migrator converts it to PFM:
 
 ```text
 - *`x`* x
 - y
 ```
 
-The next.0 compiler printed `Infinite loop detected`. The second list item disappeared. The parser reported zero errors. A separate probe passed a rehype plugin to `compile`; the plugin was never called. These are observations about that published prerelease, not every later commit.
+**What to notice:** PFM uses one asterisk for strong text, not CommonMark's two.
 
-We kept 0.12.8. [The fence](/lore/the-fence) is not permission to rewrite valid prose around a parser defect.
+The next.0 check gives these results:
 
-The irony is in the [published migrator](https://registry.npmjs.org/@mdsvex/migrate/0.2.0-next.0): it depends on `unified`, `remark-parse`, and `remark-gfm`. The new renderer leaves that ecosystem; the migration into it still reads CommonMark with remark.
+- The compiler prints `Infinite loop detected`.
+- The second list item disappears.
+- The parser reports zero errors.
+- A supplied rehype plugin is never called.
+
+These observations apply to that published prerelease, not every later commit. We keep 0.12.8. [The fence](/lore/the-fence) does not permit rewriting valid prose around a parser defect.
+
+## The migrator still uses remark
+
+The [published migrator](https://registry.npmjs.org/@mdsvex/migrate/0.2.0-next.0) depends on `unified`, `remark-parse`, and `remark-gfm`. The new renderer leaves that ecosystem. The migration into it still reads CommonMark with remark.

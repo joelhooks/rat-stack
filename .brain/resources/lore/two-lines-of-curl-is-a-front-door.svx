@@ -27,7 +27,7 @@ sources:
     accessed: "2026-10-02"
 ---
 
-Our first observed agent application needed the [Markdown workshop page](/tokenmaxx) and [llms.txt](/llms.txt). The request reconstruction contained three agent requests: two reads, then one POST. It recorded no requests for OpenAPI, AGENTS.md, lore, or MCP.
+Our first observed agent application uses the [Markdown workshop page](/tokenmaxx) and [llms.txt](/llms.txt). The request reconstruction contains three agent requests: two reads, then one POST.
 
 | Relative to the first request | Request |
 | --- | --- |
@@ -35,14 +35,21 @@ Our first observed agent application needed the [Markdown workshop page](/tokenm
 | 0.263 seconds later | GET /llms.txt |
 | 18 minutes 16 seconds later | POST /api/joinInterest |
 
-There was one POST and no retry. The response was 200. The confirmation flow completed 88 seconds after submission.
+**What to notice:** Two reads supply enough instructions to make the call.
+
+The reconstruction records:
+
+- No requests for OpenAPI, AGENTS.md, lore, or MCP.
+- One POST and no retry.
+- A 200 submission response.
+- Confirmation 88 seconds after submission.
 
 ## What the requests do not tell us
 
-The 18-minute gap fits the [page's interview and approval flow](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md). It does not reveal the conversation. We did not record the agent's questions or the person's answers in this reconstruction.
+The 18-minute gap fits the [page's interview and approval flow](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md). It does not reveal the conversation. The reconstruction contains neither the agent's questions nor the person's answers.
 
-Browser activity and agent requests were linked by timing only. The user agent did not name a harness, so we cannot identify which agent ran the calls.
+Browser activity and agent requests are linked by timing only. The user agent does not name a harness. We cannot identify which agent runs the calls.
 
-This is one counts-only observation from our request analytics, not a claim that agents never need [OpenAPI](/lore/openapi-describes-the-refusal-too) or [MCP](/lore/mcp-is-another-surface). Here, two reads supplied enough instructions to make the call.
+This is one counts-only observation from our request analytics. It does not claim that agents never need [OpenAPI](/lore/openapi-describes-the-refusal-too) or [MCP](/lore/mcp-is-another-surface).
 
 [Interest signup](/systems/interest) keeps the consent and confirmation boundary. [HATEOAS](/lore/hateoas) explains why the page carries the next action.
