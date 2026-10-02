@@ -1,7 +1,10 @@
 import * as Alchemy from "alchemy";
 import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
+import * as Schema from "effect/Schema";
 
 import Mischief from "../mischief/src/worker.js";
 import { Website } from "../web/src/website.js";
@@ -74,6 +77,32 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "TXT",
         zoneId: zone.zoneId,
+      });
+
+      const forwardTo = yield* Config.schema(
+        Schema.Redacted(Schema.NonEmptyString),
+        "EMAIL_FORWARD_TO"
+      );
+
+      const routing = yield* Cloudflare.Email.Routing("RatstackEmailRouting", {
+        zone: zone.zoneId,
+      });
+
+      const address = yield* Cloudflare.Email.Address(
+        "WorkshopForwardAddress",
+        {
+          email: Redacted.value(forwardTo),
+        }
+      );
+
+      yield* Cloudflare.Email.Rule("WorkshopForwardRule", {
+        actions: [{ type: "forward", value: [address.email] }],
+        enabled: true,
+        matchers: [
+          { field: "to", type: "literal", value: "workshop@ratstack.sh" },
+        ],
+        name: "workshop",
+        zone: routing.zoneId,
       });
 
       yield* Cloudflare.DNS.Dnssec("RatstackDnssec", {
