@@ -75,9 +75,7 @@ it.effect(
                 Effect.die(new Error("The events request must not purge")),
             },
             passThroughOnException: () => Effect.void,
-            // SAFETY: the capture path only calls waitUntil; nothing reads the raw workerd context.
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the raw workerd context is unused here.
-            raw: {} as Cloudflare.WorkerExecutionContext["Service"]["raw"],
+            raw: {},
             waitUntil: (effect) =>
               Effect.andThen(
                 Ref.update(backgroundRuns, (runs) => runs + 1),

@@ -199,8 +199,8 @@ export interface StaticResponseCache {
 const decodeBase64 = (base64: string) =>
   Uint8Array.from(atob(base64), (character) => character.codePointAt(0) ?? 0);
 
-const ogImageBytes = ogImages.map((image) => ({
-  bytes: decodeBase64(image.pngBase64),
+const ogImageRepresentations = ogImages.map((image) => ({
+  base64: image.pngBase64,
   path: ogImagePath(image.routePath),
 }));
 
@@ -213,7 +213,7 @@ const staticPaths = new Set<string>([
   "/favicon.svg",
   "/favicon.ico",
   "/apple-touch-icon.png",
-  ...ogImageBytes.map((image) => image.path),
+  ...ogImageRepresentations.map((image) => image.path),
 ]);
 
 const negotiatedHtmlPaths = new Set<string>([
@@ -580,13 +580,15 @@ const contentRoutes = () =>
             contentType: "image/png",
           })
         ),
-        ...ogImageBytes.map((image) =>
+        ...ogImageRepresentations.map((image) =>
           HttpRouter.add(
             "GET",
             image.path,
-            HttpServerResponse.uint8Array(image.bytes, {
-              contentType: "image/png",
-            })
+            Effect.sync(() =>
+              HttpServerResponse.uint8Array(decodeBase64(image.base64), {
+                contentType: "image/png",
+              })
+            )
           )
         ),
         HttpRouter.add(
