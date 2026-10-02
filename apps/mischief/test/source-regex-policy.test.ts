@@ -9,7 +9,11 @@ it.effect("keeps svx syntax out of the regular-expression utilities", () =>
   Effect.gen(function* checkSourceRegexPolicy() {
     const fileSystem = yield* FileSystem.FileSystem;
 
-    for (const fileName of ["content-lib.ts", "generate-content.ts"]) {
+    for (const fileName of [
+      "content-lib.ts",
+      "generate-content.ts",
+      "wiki-prose.ts",
+    ]) {
       const file = new URL(`../scripts/${fileName}`, import.meta.url).pathname;
       const source = yield* fileSystem.readFileString(file);
       expect(sourceRegexViolations(source, fileName)).toEqual([]);

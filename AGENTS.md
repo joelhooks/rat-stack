@@ -144,6 +144,21 @@ A child project replaces this section on day one with its own architecture. Reco
 - `apps/cli/src/surfaces.ts` is the only place projections are instantiated; `apps/cli/src/command.ts` maps them to subcommands; `apps/cli/src/cli.ts` is the single composition root that provides `FileInspector` and `NodeServices`.
 - The [README's Keep or cut section](./README.md#keep-or-cut) lists what to delete per surface.
 
+## Wiki writing
+
+Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical English. This is a house style, not certification.
+
+- Aim for sentences of 20 words or fewer. Descriptive sentences may use up to 25 words.
+- Put one idea in each sentence. Use active voice and present tense.
+- Use the same glossary term for the same thing. Remove idioms and filler.
+- Prefer lists to paragraphs. Put one instruction in each step.
+- Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
+- Be plain and strict, not robotic.
+
+Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each point one visual, one or two nearby sentences, and a **What to notice** line. Do not add decorative visuals.
+
+The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It reads parsed Markdown prose, not raw-source patterns. Code, tables, quotes, and frontmatter are excluded. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
+
 ## Web feature blueprint
 
 `apps/web/src/features/<name>/` holds a thin route and view. It reads atoms and calls named commands from `apps/web/src/client/<name>.ts`; components never handle transport, retries, or process startup. The client owns AtomRpc queries and the local replica. The capability in `packages/core` is the shared typed edge, imported by both sides. A cartridge owns durable behavior.

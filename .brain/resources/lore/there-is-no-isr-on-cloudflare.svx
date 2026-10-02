@@ -43,18 +43,45 @@ sources:
     accessed: "2026-10-02"
 ---
 
-There is no SvelteKit `isr` switch for the Cloudflare adapter. [That configuration belongs to adapter-vercel](https://svelte.dev/docs/kit/adapter-vercel). [Vercel ISR](https://vercel.com/docs/incremental-static-regeneration) stores generated content and regenerates it; [Kit #661](https://github.com/sveltejs/kit/issues/661) asks for a general regeneration feature.
+There is no SvelteKit `isr` switch for the Cloudflare adapter. [That configuration belongs to adapter-vercel](https://svelte.dev/docs/kit/adapter-vercel).
 
-The title names that adapter boundary, not a claim that Cloudflare cannot cache rendered pages. [Workers Cache](https://blog.cloudflare.com/workers-cache/) puts a cache in front of a Worker entrypoint. Its [documented stale-while-revalidate behavior](https://developers.cloudflare.com/workers/cache/) serves a stale response while the Worker refreshes it.
+[Vercel ISR](https://vercel.com/docs/incremental-static-regeneration) stores generated content and regenerates it. [Kit #661](https://github.com/sveltejs/kit/issues/661) asks for a general regeneration feature.
 
-## What our bake-off proved
+The title names this adapter boundary. It does not claim that Cloudflare cannot cache rendered pages.
 
-We compared a static-assets gateway, a SvelteKit prerender gateway, and a Workers Cache entrypoint locally. For the cache candidate, we minted a marker inside the rendering entrypoint. Repeated identical requests did not reuse it.
+[Workers Cache](https://blog.cloudflare.com/workers-cache/) puts a cache in front of a Worker entrypoint. Its [stale-while-revalidate behavior](https://developers.cloudflare.com/workers/cache/) serves a stale response while the Worker refreshes it.
 
-An assets response did carry `CF-Cache-Status: HIT`. That proved asset-cache reuse, not reuse of the rendering entrypoint. The selected Miniflare implementation did not implement Workers Cache handling. Accepting the configuration was not a cache proof.
+## What our bake-off proves
 
-The cache candidate's local home-page Markdown request measured 8.25 ms cold and 1.69 ms warm median. Cold meant the first application request in a fresh runtime; warm meant 20 sequential requests. Neither number measured an edge cache HIT. We did not prove stale-while-revalidate, purge, or representation isolation across Workers Cache HITs.
+We compare three local candidates:
 
-We chose [static assets](https://github.com/joelhooks/rat-stack/commit/a337a96) instead. [`apps/mischief/src/static-assets.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts) serves separate HTML and Markdown assets. The dynamic signup page stays outside that static path.
+- A static-assets gateway.
+- A SvelteKit prerender gateway.
+- A Workers Cache entrypoint.
+
+The cache candidate mints a marker inside the rendering entrypoint. Repeated identical requests do not reuse it.
+
+An assets response carries `CF-Cache-Status: HIT`. That proves asset-cache reuse, not rendering-entrypoint reuse. The selected Miniflare implementation does not implement Workers Cache handling.
+
+The cache candidate's home-page Markdown timings are:
+
+| Request | Local time |
+| --- | --- |
+| Cold: first application request in a fresh runtime | 8.25 ms |
+| Warm: median of 20 sequential requests | 1.69 ms |
+
+**What to notice:** Neither number measures an edge cache HIT.
+
+The check does not prove:
+
+- Stale-while-revalidate.
+- Purge.
+- Representation isolation across Workers Cache HITs.
+
+Accepting the configuration is not a cache proof.
+
+## What we choose
+
+We choose [static assets](https://github.com/joelhooks/rat-stack/commit/a337a96). [`apps/mischief/src/static-assets.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts) serves separate HTML and Markdown assets. The dynamic signup page stays outside that path.
 
 See [Worker init runs twice](/lore/init-runs-twice) for another boundary a local check can miss.

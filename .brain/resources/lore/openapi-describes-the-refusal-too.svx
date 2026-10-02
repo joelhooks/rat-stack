@@ -37,18 +37,24 @@ sources:
     accessed: "2026-10-02"
 ---
 
-[OpenAPI](https://spec.openapis.org/oas/v3.1.0.html) describes HTTP paths, operations, request bodies, and responses. Our [/openapi.json](/openapi.json) is the generated contract an agent can read before choosing an HTTP call.
+[OpenAPI](https://spec.openapis.org/oas/v3.1.0.html) describes HTTP paths, operations, request bodies, and responses. An agent can read our generated [/openapi.json](/openapi.json) before choosing an HTTP call.
 
-[`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) builds the `/api` projection and gives its API to `HttpApiBuilder.layer`, with `openapiPath: "/openapi.json"`. Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts) derives the document from that HttpApi.
+[`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) builds the `/api` projection. It passes the API to `HttpApiBuilder.layer`, with `openapiPath: "/openapi.json"`.
 
-## A missing response was still a response
+Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts) derives the document from that HttpApi.
 
-[Commit 8766790](https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e) added `HttpApiError.BadRequestNoContent` to every endpoint built by `toHttpApi`. Request decoding already returned an empty 400; the document needed to say so.
+## The document must describe a decode refusal
 
-This refusal is **not** `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks status 400, no content type, and an empty body. The document has a `BadRequest` response description with no `content` field.
+[Commit 8766790](https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e) adds `HttpApiError.BadRequestNoContent` to every endpoint built by `toHttpApi`. Request decoding already returns an empty 400. The document needs to say so.
 
-That distinction matters to a reader deciding whether to parse the error body. A declared domain failure and a failure to decode the request are different outcomes.
+This refusal is **not** `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
 
-See [schema-driven development](/lore/schemas-define-the-boundary) for the input boundary and [generating surfaces](/lore/one-schema-three-surfaces) for where this document comes from.
+- Status 400.
+- No content type.
+- An empty body.
+
+The document has a `BadRequest` response description with no `content` field. A reader uses that distinction to decide whether to parse the error body.
+
+A declared domain failure differs from a request decode failure. See [schema-driven development](/lore/schemas-define-the-boundary) for that boundary. See [generating surfaces](/lore/one-schema-three-surfaces) for the document's source.
 
 See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

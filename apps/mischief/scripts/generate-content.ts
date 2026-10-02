@@ -97,6 +97,7 @@ import {
   UnlinkedMentionsSchema,
 } from "./unlinked-mentions.ts";
 import type { UnlinkedProse } from "./unlinked-mentions.ts";
+import { wikiProseWarnings, wikiProseWarningText } from "./wiki-prose.ts";
 
 const originToken = "__RATSTACK_ORIGIN__";
 
@@ -1410,6 +1411,16 @@ const program = Effect.gen(function* generateContent() {
     [loreDirectory, SYSTEMS_DIRECTORY],
     readLoreDirectory
   )).flat();
+
+  const proseWarnings = loreTexts.flatMap((page) =>
+    wikiProseWarnings(page.sourcePath, page.rawText)
+  );
+
+  for (const warning of proseWarnings) {
+    yield* Effect.logWarning(wikiProseWarningText(warning));
+  }
+
+  yield* Effect.logInfo(`Wiki prose warnings: ${proseWarnings.length}`);
 
   const logText = yield* readDailyLog(root, [
     ...lawSpecs,

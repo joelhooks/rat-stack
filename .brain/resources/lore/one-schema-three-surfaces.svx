@@ -43,21 +43,36 @@ sources:
     accessed: "2026-10-02"
 ---
 
-[Joel wrote in a reply](https://x.com/joelhooks/status/2106018556496457773):
+[Joel writes in a reply](https://x.com/joelhooks/status/2106018556496457773):
 
 > my approach wrt to the agentic backend is to cover cli/api/mcp with a single openapi schema that is used to generate all three
 
-His example was this repository. The code makes the direction more precise: a capability contract owns Effect schemas; HttpApi, OpenAPI, CLI, and MCP derive from it. The CLI and MCP do not consume the generated OpenAPI JSON.
+His example is this repository. The code makes the direction more precise:
 
-A **surface** is an invocation interface over that shared behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
+- A capability contract owns Effect schemas.
+- HttpApi, OpenAPI, CLI, and MCP derive from that contract.
+- CLI and MCP do not consume the generated OpenAPI JSON.
 
-| Projection | Actual module | What it derives |
-| --- | --- | --- |
-| HTTP | [to-http-api.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts) | HttpApi endpoints, handler Layer, OpenAPI |
-| CLI | [to-command.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-command.ts) | Flags or positional inputs, schema decoding, command handler |
-| MCP tools | [to-toolkit.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts) | Tool schemas, annotations, toolkit handler Layer |
+A **surface** is an invocation interface over shared behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
 
-[`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) composes the projections. [`command.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/command.ts) maps registered capabilities to commands and prints the generated OpenAPI document.
+## One contract feeds the projections
+
+```text
+Contract (Effect schemas + one handler)
+├─ toHttpApi ── HTTP + OpenAPI
+├─ toCommand ── CLI
+└─ toToolkit ── MCP tools
+```
+
+**What to notice:** HttpApi is one projection, not the source of the CLI and MCP projections.
+
+- [to-http-api.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts) derives HttpApi endpoints, the handler Layer, and OpenAPI.
+- [to-command.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-command.ts) derives flags or positional inputs, schema decoding, and the command handler.
+- [to-toolkit.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts) derives tool schemas, annotations, and the toolkit handler Layer.
+
+## Where the CLI composes them
+
+[`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) composes the projections. [`command.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/command.ts) maps registered capabilities to commands. It also prints the generated OpenAPI document.
 
 Source: [`apps/cli/src/surfaces.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 21–25](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/cli/src/surfaces.ts#L21-L25).
 
@@ -69,8 +84,10 @@ export const tools = toToolkit(capabilities);
 export const codeMode = toCodeMode(capabilities);
 ```
 
-One HttpApi definition supplies the HTTP implementation and its OpenAPI document. The broader shared definition is the capability contract. Keeping those levels distinct avoids three independently maintained schemas.
+**What to notice:** Each call receives the same capability list.
 
-See [MCP](/lore/mcp-is-another-surface), [OpenAPI](/lore/openapi-describes-the-refusal-too), and [code mode](/lore/one-program-can-replace-several-tool-calls) for each edge.
+One HttpApi definition supplies the HTTP implementation and its OpenAPI document. The broader shared definition is the capability contract. This split avoids three independently maintained schemas.
+
+See [MCP](/lore/mcp-is-another-surface), [OpenAPI](/lore/openapi-describes-the-refusal-too), and [code mode](/lore/one-program-can-replace-several-tool-calls) for each surface.
 
 See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.
