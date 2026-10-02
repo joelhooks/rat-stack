@@ -65,9 +65,9 @@ The HTTP projection creates an Effect HttpApi. Other projections create CLI comm
 
 [`packages/core/src/join-intake.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts) builds a `Layer.effect(JoinInterest, ...)`. It captures the ticket, scoring, events, contact store, delivery, and token services. It then returns the submission method.
 
-Source: [`packages/core/src/join-intake.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 44–50](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/packages/core/src/join-intake.ts#L44-L50).
+Source: [`packages/core/src/join-intake.ts` at `a646f7ffd00273d85fbe1d905d9cdb194fdc0f60`, lines 58–64](https://github.com/joelhooks/rat-stack/blob/a646f7ffd00273d85fbe1d905d9cdb194fdc0f60/packages/core/src/join-intake.ts#L58-L64).
 
-```ts repo=rat-stack path=packages/core/src/join-intake.ts at=445b1a20b51a5492f8e586daeb9306e8011b7673 lines=44-50
+```ts repo=rat-stack path=packages/core/src/join-intake.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=58-64
 ```
 
 **What to notice:** The Layer captures dependencies before returning the submission method.

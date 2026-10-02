@@ -74,9 +74,9 @@ Contract (Effect schemas + one handler)
 
 [`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) composes the projections. [`command.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/command.ts) maps registered capabilities to commands. It also prints the generated OpenAPI document.
 
-Source: [`apps/cli/src/surfaces.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 21–25](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/cli/src/surfaces.ts#L21-L25).
+Source: [`apps/cli/src/surfaces.ts` at `a646f7ffd00273d85fbe1d905d9cdb194fdc0f60`, lines 21–25](https://github.com/joelhooks/rat-stack/blob/a646f7ffd00273d85fbe1d905d9cdb194fdc0f60/apps/cli/src/surfaces.ts#L21-L25).
 
-```ts repo=rat-stack path=apps/cli/src/surfaces.ts at=445b1a20b51a5492f8e586daeb9306e8011b7673 lines=21-25
+```ts repo=rat-stack path=apps/cli/src/surfaces.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=21-25
 ```
 
 **What to notice:** Each call receives the same capability list.
