@@ -36,6 +36,18 @@ sources:
 
 `apps/mischief` hosts the public documentation and its agent interfaces. Discovery cards describe MCP and A2A; [OpenAPI](/openapi.json) describes the HTTP capability surface. The [agent guide](/llms.txt) explains connection and search → read → graph traversal. The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
 
+### Run a program instead of several calls
+
+Use `POST /api/execute` with a JSON `code` string, or the MCP `execute` tool. [Code mode](/lore/one-program-can-replace-several-tool-calls) runs content capabilities in one program; `joinInterest` stays outside the sandbox.
+
+Source: callable definitions in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45).
+
+```js
+const found = await tools.search({ query: "cartridges", limit: 1 });
+const page = await tools.read({ id: found.matches[0].id });
+return { title: page.title, id: page.id };
+```
+
 MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless; older clients initialize sessions backed by a Durable Object. A2A answers documentation questions through search and read. Browser RPC is a separate projection, not another agent interface.
 
 ## The standard

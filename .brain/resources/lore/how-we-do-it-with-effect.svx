@@ -1,0 +1,80 @@
+---
+title: "Effect keeps the surfaces on one contract"
+description: "Schema owns values, projections build interfaces, and Layers supply implementations."
+group: idea
+terms:
+  - "Effect surfaces"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts
+    title: "packages/capability/src/contract.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/contract.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts
+    title: "packages/capability/src/implement.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/implement.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts
+    title: "packages/capability/src/to-http-api.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-http-api.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts
+    title: "apps/cli/src/surfaces.ts"
+    publisher: "GitHub"
+    note: "apps/cli/src/surfaces.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "apps/mischief/src/app.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/app.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts
+    title: "packages/core/src/join-intake.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/join-intake.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Layer.ts
+    title: "Effect 4 Layer"
+    publisher: "GitHub"
+    note: "Effect 4 Layer"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/HttpApiBuilder.ts
+    title: "Effect 4 HttpApiBuilder"
+    publisher: "GitHub"
+    note: "Effect 4 HttpApiBuilder"
+    accessed: "2026-10-02"
+---
+
+Our shared definition is [`packages/capability/src/contract.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts). Effect Schema owns inputs, outputs, and failures. [`implement.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts) binds the handler and its approval requirement.
+
+The HTTP projection creates an Effect HttpApi. Other projections create CLI commands and an AI toolkit from those same contracts. [`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) and [`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) supply implementations with Layers.
+
+## Follow one edge at a time
+
+- [MCP is another surface](/lore/mcp-is-another-surface): discover and call the toolkit over the protocol.
+- [OpenAPI describes the refusal too](/lore/openapi-describes-the-refusal-too): derive the HTTP document and declare the bodyless decode failure.
+- [One schema, three surfaces](/lore/one-schema-three-surfaces): project the contract instead of maintaining three schemas.
+- [Schemas define the boundary](/lore/schemas-define-the-boundary): decode unknown values and keep domain refusals typed.
+- [One program can replace several tool calls](/lore/one-program-can-replace-several-tool-calls): combine content capabilities without widening their authority.
+
+## Layer supplies the job
+
+[`packages/core/src/join-intake.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts) builds a `Layer.effect(JoinInterest, ...)`. It captures the ticket, scoring, events, contact store, delivery, and token services before returning the submission method.
+
+Source: [`packages/core/src/join-intake.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 44–50](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/packages/core/src/join-intake.ts#L44-L50).
+
+```ts
+const tickets = yield* IntakeTicket;
+const scorer = yield* AbuseScore;
+const events = yield* IntakeEvents;
+const contacts = yield* JoinContactStore;
+const intake = yield* SubscriberIntake;
+const tokens = yield* InterestTokens;
+const crypto = yield* Crypto.Crypto;
+```
+
+Effect's [`Layer.provide`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Layer.ts) supplies a Layer's dependencies. [`HttpApiBuilder.layer`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/HttpApiBuilder.ts) registers the HTTP routes and can expose the OpenAPI document. Neither requires a second copy of the domain handler.
+
+[One capability, every surface](/lore/one-capability-every-surface) states the house rule. [Hexagonal architecture](/lore/hexagonal-architecture) names the adapter boundary; [the fence](/lore/the-fence) enforces it. The [peers](/resources/same-version-repos.svx) page records other Effect and Alchemy projects without claiming they use this same design.

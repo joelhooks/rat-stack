@@ -152,6 +152,7 @@ The reference for building an app and its cloud as one typed program: Effect, Al
 - [Public content corpus](${origin}/llms-full.txt): rules, lore, and skills in one response
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
 - [MCP server](${origin}/mcp): tools for search, reading, and sandboxed code
+- [Code mode](${origin}/api/execute): run a program instead of several calls; POST JSON with a \`code\` string, or call the MCP \`execute\` tool
 
 ## Connect with MCP
 
@@ -165,9 +166,17 @@ Older clients (2025-11-25 back to 2024-11-05) send \`initialize\` as usual. Each
 
 Each IP may make 120 API or MCP requests per 60 seconds. \`execute\` also allows 6 calls per IP and 300 total calls per 60 seconds. Cloudflare counts these limits separately in each location.
 
-## Run code
+## Run code: one program instead of several calls
+
+Use \`POST /api/execute\` or the MCP \`execute\` tool for content capabilities. The program can search, pass the result to read, and return only what you need. It cannot call \`joinInterest\`.
 
 \`execute\` runs the \`code\` value as the body of an async function. \`return\` sets \`result\`, and \`console.log\` output appears in \`logs\`; imports, exports, and \`fetch\` are unavailable.
+
+\`\`\`js
+const found = await tools.search({ query: "cartridges", limit: 1 });
+const page = await tools.read({ id: found.matches[0].id });
+return { title: page.title, id: page.id };
+\`\`\`
 
 \`\`\`sh
 curl --request POST '${origin}/api/execute' \\

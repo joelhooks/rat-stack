@@ -1,0 +1,68 @@
+---
+title: "Schemas define the boundary"
+description: "Schema-driven development defines accepted values and failures before projecting or decoding them."
+group: idea
+terms:
+  - "schema-driven development"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest-contract.ts
+    title: "packages/core/src/join-interest-contract.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/join-interest-contract.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/abuse-score.ts
+    title: "packages/core/src/abuse-score.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/abuse-score.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/masked-interest-replay.ts
+    title: "packages/core/src/masked-interest-replay.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/masked-interest-replay.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest.ts
+    title: "packages/core/src/join-interest.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/join-interest.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/join-interest.test.ts
+    title: "packages/core/test/join-interest.test.ts"
+    publisher: "GitHub"
+    note: "packages/core/test/join-interest.test.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts
+    title: "packages/capability/src/to-code-mode.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-code-mode.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Schema.ts
+    title: "Effect 4 Schema"
+    publisher: "GitHub"
+    note: "Effect 4 Schema"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Arbitrary.ts
+    title: "Effect 4 Arbitrary"
+    publisher: "GitHub"
+    note: "Effect 4 Arbitrary"
+    accessed: "2026-10-02"
+---
+
+Schema-driven development starts with accepted values and declared outcomes. In this repo, the schemas are executable boundaries, not a separately written description of a TypeScript interface.
+
+[`packages/core/src/join-interest-contract.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest-contract.ts) defines `joinInterest`. Contact consent is `Schema.Literal(true)`. Answers are optional bounded strings. The ticket and agent reference are bounded nonempty strings. Sharing consent is optional; it is not implied by contact consent.
+
+[`AbuseVerdictSchema`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/abuse-score.ts) defines a boolean hold, a finite score between 0 and 1, and an array of signal names. The TypeScript `AbuseVerdict` type comes from `typeof AbuseVerdictSchema.Type`.
+
+## Decode before dispatch
+
+Effect's [`Schema.decodeUnknownEffect`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Schema.ts) decodes unknown input or fails with a schema error. Our [code-mode invoker](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts) uses it before calling the handler, then encodes the declared output or failure.
+
+A domain refusal is typed too. [`MaskedInterestReplay`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/masked-interest-replay.ts) is a Schema tagged error. The [handler](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest.ts) returns it when someone tries to replay a redacted card. That is separate from a malformed request's [empty HTTP 400](/lore/openapi-describes-the-refusal-too).
+
+## Generate cases, then state the rule
+
+The [intake property tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/join-interest.test.ts) use `Arbitrary.schema(Scenario)` for combinations of availability, sharing consent, ticket validity, and holds. Another property generates response histories. The schema supplies cases; the tests still have to state the behavior those cases must satisfy.
+
+See [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing).
+
+See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.
