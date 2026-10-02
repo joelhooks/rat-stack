@@ -74,7 +74,7 @@ Each event holds:
 - The HTTP request body never reaches an event.
 - Credential, email, code, and session query keys are removed.
 - Basin stores an IP address only as a salted hash.
-- Geography comes from `request.cf`, which Cloudflare derives at the edge, never from the IP. Latitude, longitude, postal code, and metro code are never stored. City is off unless `captureCity` is set.
+- Geography comes from `request.cf`, which Cloudflare derives at the edge, never from the IP. Latitude, longitude, postal code, and metro code are never stored. City is stored: the Mischief Worker sets `captureCity`.
 - A missing or malformed `request.cf` field is left out; it never fails the request.
 - In `persistent` mode, the server sets a first-party HttpOnly cookie. A browser keeps one id across visits.
 - In `daily` mode, no cookie is set. An id never repeats on a later day.

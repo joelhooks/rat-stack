@@ -270,9 +270,11 @@ export const makeMischief = (
       fetch:
         events === undefined
           ? app
-          : withEventCapture({ identityMode, runInBackground: inBackground })(
-              app
-            ).pipe(Effect.provideContext(events)),
+          : withEventCapture({
+              captureCity: true,
+              identityMode,
+              runInBackground: inBackground,
+            })(app).pipe(Effect.provideContext(events)),
     };
   });
 
