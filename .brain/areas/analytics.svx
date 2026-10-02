@@ -61,7 +61,7 @@ Each event holds:
 
 - A visitor id and UUIDv7 message id.
 - A server block: host, received time, salted IP hash, and user agent.
-- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, whether the country is in the EU, region and region code, time zone, the Cloudflare data center, and the network's AS number and organization.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, whether the country is in the EU, region and region code, city, time zone, the Cloudflare data center, and the network's AS number and organization.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.
