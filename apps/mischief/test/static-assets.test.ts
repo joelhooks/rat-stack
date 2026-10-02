@@ -5,7 +5,10 @@ import { Arbitrary } from "effect/unstable/arbitrary";
 import { HttpRouter } from "effect/unstable/http";
 
 import { mischiefRoutes } from "../src/app.js";
-import { tokenmaxxCopyScriptHash } from "../src/bundled-content.generated.js";
+import {
+  staticAssetGeneration,
+  tokenmaxxCopyScriptHash,
+} from "../src/bundled-content.generated.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { StaticAssets } from "../src/static-assets.js";
 import { TestSandbox } from "./test-sandbox.js";
@@ -211,6 +214,8 @@ it.effect(
             })
           )
         );
+
+        expect(first.headers.get("etag")).toContain(staticAssetGeneration);
 
         const conditional = yield* Effect.promise(
           handler.bind(

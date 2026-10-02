@@ -39,6 +39,7 @@ import {
   sitemapXml,
   skills,
   staticContentVersion,
+  staticAssetGeneration,
   staticAssetPageRoutes,
   imageAssetPaths,
   tokenmaxxDocumentHtml,
@@ -204,6 +205,9 @@ const staticRepresentation = (
 const staticEtag = (path: string, representation: string) =>
   `W/"${staticContentVersion}:${representation}:${encodeURIComponent(path)}"`;
 
+const assetEtag = (path: string, representation: string) =>
+  `W/"${staticAssetGeneration}:${representation}:${encodeURIComponent(path)}"`;
+
 const matchesEtag = (requestValue: string | undefined, etag: string) =>
   requestValue
     ?.split(",")
@@ -263,7 +267,7 @@ const assetImageResponse = (
   path: string,
   bytes: Uint8Array
 ) => {
-  const etag = staticEtag(path, "default");
+  const etag = assetEtag(path, "default");
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
   let headers = staticHeaders(path, etag, revalidated ? "REVALIDATED" : "MISS");
 
@@ -288,7 +292,7 @@ const assetPageResponse = (
   isHtml: boolean,
   bytes: Uint8Array
 ) => {
-  const etag = staticEtag(path, isHtml ? "html" : "default");
+  const etag = assetEtag(path, isHtml ? "html" : "default");
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
 
   let headers = HttpHeaders.fromInput({
