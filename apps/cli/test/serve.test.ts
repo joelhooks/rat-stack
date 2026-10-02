@@ -8,8 +8,8 @@ import {
   devtoolsLayer,
 } from "@rat-stack/devtools";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
-import { HttpClient, HttpRouter, HttpServer } from "effect/unstable/http";
-import { HttpApiClient } from "effect/unstable/httpapi";
+import { HttpClient, HttpRouter, HttpServer } from "effect/http";
+import { HttpApiClient } from "effect/http-api";
 
 import { devtoolsRoutes, http, routes, serverLayer } from "../src/surfaces.js";
 

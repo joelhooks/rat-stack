@@ -1,8 +1,8 @@
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Schema } from "effect";
+import { CliOutput, Command } from "effect/cli";
 import { TestConsole } from "effect/testing";
-import { CliOutput, Command } from "effect/unstable/cli";
 
 import {
   ApprovalDenied,

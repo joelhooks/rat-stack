@@ -2,7 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { SubscriberConfirm } from "@rat-stack/core/interest";
 import type { ConfirmState } from "@rat-stack/core/interest";
 import { Effect, Layer, Option, Predicate, Redacted } from "effect";
-import { HttpClient, HttpClientResponse } from "effect/unstable/http";
+import { HttpClient, HttpClientResponse } from "effect/http";
 
 import {
   CONFIRM_PATH,

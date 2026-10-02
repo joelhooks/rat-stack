@@ -2,7 +2,7 @@ import { toRpc } from "@rat-stack/capability/rpc";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
+import { RpcSerialization, RpcServer } from "effect/rpc";
 
 import { contentCapabilities, contentLayer } from "./capabilities/index.js";
 

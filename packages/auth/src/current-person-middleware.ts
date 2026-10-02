@@ -1,7 +1,7 @@
 import { PersonIdSchema } from "@rat-stack/database";
 import type { RuntimeContext } from "alchemy";
 import { Effect, Layer, Schema } from "effect";
-import * as RpcMiddleware from "effect/unstable/rpc/RpcMiddleware";
+import * as RpcMiddleware from "effect/rpc/RpcMiddleware";
 
 import { Auth } from "./auth.js";
 import { CurrentPerson } from "./current-person.js";

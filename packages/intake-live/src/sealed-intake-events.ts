@@ -6,7 +6,8 @@ import {
   IntakeVerbSchema,
 } from "@rat-stack/core/intake";
 import type { ContactRef, IntakeStatement } from "@rat-stack/core/intake";
-import { Effect, Encoding, Layer, Result, Schema } from "effect";
+import { Effect, Layer, Result, Schema } from "effect";
+import { Base64Url } from "effect/encoding";
 
 import { IntakeVault } from "./intake-vault.js";
 
@@ -43,7 +44,7 @@ const importContactKey = (encodedKey: string) =>
     () =>
       crypto.subtle.importKey(
         "raw",
-        Result.getOrThrow(Encoding.decodeBase64Url(encodedKey)),
+        Result.getOrThrow(Base64Url.decode(encodedKey)),
         "AES-GCM",
         false,
         ["encrypt", "decrypt"]
@@ -51,7 +52,7 @@ const importContactKey = (encodedKey: string) =>
   );
 
 const randomContactKey = Effect.sync(() =>
-  Encoding.encodeBase64Url(crypto.getRandomValues(new Uint8Array(32)))
+  Base64Url.encode(crypto.getRandomValues(new Uint8Array(32)))
 );
 
 const seal = (key: ContactKey, plaintext: string) =>
@@ -72,13 +73,13 @@ const seal = (key: ContactKey, plaintext: string) =>
     sealed.set(iv);
     sealed.set(new Uint8Array(cipher), IV_BYTES);
 
-    return Encoding.encodeBase64Url(sealed);
+    return Base64Url.encode(sealed);
   });
 
 export const unsealResult = (encodedKey: string, sealedResult: string) =>
   Effect.gen(function* unseal() {
     const key = yield* importContactKey(encodedKey);
-    const sealed = Result.getOrThrow(Encoding.decodeBase64Url(sealedResult));
+    const sealed = Result.getOrThrow(Base64Url.decode(sealedResult));
 
     const plain = yield* Effect.promise(
       // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.

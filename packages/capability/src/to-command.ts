@@ -1,5 +1,5 @@
 import { Console, Effect, Option, Predicate, Schema, SchemaAST } from "effect";
-import { Argument, Command, Flag } from "effect/unstable/cli";
+import { Argument, Command, Flag } from "effect/cli";
 
 import { Approval } from "./approval.js";
 import type {

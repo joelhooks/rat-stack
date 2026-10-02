@@ -4,12 +4,12 @@ import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { PersonIdSchema } from "@rat-stack/database";
 import { RuntimeContext } from "alchemy";
 import { Context, Effect, Fiber, Layer, Queue, Schema } from "effect";
-import type * as Headers from "effect/unstable/http/Headers";
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import { RpcClient, RpcServer } from "effect/unstable/rpc";
-import type { RpcGroup } from "effect/unstable/rpc";
-import type * as RpcMessage from "effect/unstable/rpc/RpcMessage";
+import type * as Headers from "effect/http/Headers";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import { RpcClient, RpcServer } from "effect/rpc";
+import type { RpcGroup } from "effect/rpc";
+import type * as RpcMessage from "effect/rpc/RpcMessage";
 
 import {
   Auth,

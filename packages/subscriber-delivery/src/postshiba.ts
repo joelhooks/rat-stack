@@ -1,7 +1,7 @@
 import { InterestMailer, MailerFailed } from "@rat-stack/core/interest";
 import type { InterestMail } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted } from "effect";
-import { HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientRequest } from "effect/http";
 
 export interface PostShibaSettings {
   readonly apiKey: Redacted.Redacted;

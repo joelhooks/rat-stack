@@ -2,11 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { IntakeTicket, PAGE_TICKET_SOURCE } from "@rat-stack/core/intake";
 import { PAGE_TICKET_PLACEHOLDER } from "@rat-stack/intake-live";
 import { Context, Effect, Layer, Option, Ref } from "effect";
-import {
-  HttpRouter,
-  HttpServerRequest,
-  HttpServerResponse,
-} from "effect/unstable/http";
+import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 
 import { mischiefRoutes, tokenmaxxResponse } from "../src/app.js";
 import {
@@ -60,6 +56,58 @@ it.effect(
         }
       }
     }).pipe(Effect.provide(IntakeTicket.testLayer))
+);
+
+it.effect(
+  "shared route layers remain reachable without crossing entrypoints",
+  () =>
+    Effect.gen(function* isolatedEntrypoints() {
+      const memoMap = yield* Layer.makeMemoMap;
+
+      const shared = mischiefRoutes().pipe(
+        Layer.provide(TestSandbox),
+        Layer.provide(IntakeTicket.testLayer)
+      );
+
+      const first = yield* HttpRouter.toHttpEffect(
+        Layer.merge(
+          shared,
+          HttpRouter.add("GET", "/first-only", HttpServerResponse.text("first"))
+        )
+      ).pipe(Effect.provideService(Layer.CurrentMemoMap, memoMap));
+
+      const second = yield* HttpRouter.toHttpEffect(
+        Layer.merge(
+          shared,
+          HttpRouter.add(
+            "GET",
+            "/second-only",
+            HttpServerResponse.text("second")
+          )
+        )
+      ).pipe(Effect.provideService(Layer.CurrentMemoMap, memoMap));
+
+      for (const [entrypoint, own, other] of [
+        [first, "/first-only", "/second-only"],
+        [second, "/second-only", "/first-only"],
+      ] as const) {
+        for (const [path, status] of [
+          [own, 200],
+          [other, 404],
+          ["/llms.txt", 200],
+          ["/tokenmaxx", 200],
+        ] as const) {
+          const response = yield* entrypoint.pipe(
+            Effect.provideService(
+              HttpServerRequest.HttpServerRequest,
+              HttpServerRequest.fromWeb(new Request(`http://localhost${path}`))
+            )
+          );
+
+          expect(response.status, path).toBe(status);
+        }
+      }
+    })
 );
 
 it.effect("HTML mints no ticket and agent Markdown mints exactly one", () =>

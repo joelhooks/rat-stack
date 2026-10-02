@@ -83,11 +83,11 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "effect": "4.0.0-rc.117"
+    "effect": "4.0.0"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-rc.117",
-    "@effect/vitest": "4.0.0-rc.117",
+    "@effect/platform-node": "4.0.0",
+    "@effect/vitest": "4.0.0",
     "@types/node": "24.13.6",
     "typescript": "7.0.2",
     "vitest": "5.0.1"

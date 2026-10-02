@@ -38,12 +38,12 @@
     "@rat-stack/intake-live": "workspace:*",
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
-    "alchemy": "2.0.0-beta.79",
-    "effect": "4.0.0-rc.117"
+    "alchemy": "2.0.0-beta.80",
+    "effect": "4.0.0"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-rc.117",
-    "@effect/vitest": "4.0.0-rc.117",
+    "@effect/platform-node": "4.0.0",
+    "@effect/vitest": "4.0.0",
     "@resvg/resvg-js": "2.6.2",
     "@types/mdast": "4.0.4",
     "@types/node": "24.13.6",

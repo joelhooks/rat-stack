@@ -5,7 +5,7 @@ import { InvalidTicket } from "./invalid-ticket.js";
 export const TICKET_TTL_MILLIS = 72 * 60 * 60 * 1000;
 
 export const TicketSourceSchema = Schema.String.check(
-  Schema.isLengthBetween(1, 32),
+  Schema.isBetweenLength(1, 32),
   Schema.isPattern(/^[a-z0-9-]+$/u)
 ).pipe(Schema.brand("TicketSource"));
 

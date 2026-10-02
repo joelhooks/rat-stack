@@ -1,8 +1,8 @@
 import { Context, Effect, Schema } from "effect";
-import { HttpServerResponse } from "effect/unstable/http";
-import type { HttpServerRequest } from "effect/unstable/http";
-import { HttpApiSchema } from "effect/unstable/httpapi";
-import type { HttpApiError } from "effect/unstable/httpapi";
+import { HttpServerResponse } from "effect/http";
+import type { HttpServerRequest } from "effect/http";
+import { HttpApiSchema } from "effect/http-api";
+import type { HttpApiError } from "effect/http-api";
 
 export interface CallerService {
   readonly name: string;

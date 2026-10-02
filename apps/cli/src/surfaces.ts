@@ -12,9 +12,9 @@ import {
 import { capabilities } from "@rat-stack/core";
 import { devtools, devtoolsLayer } from "@rat-stack/devtools";
 import { Effect, Layer, Logger } from "effect";
-import { McpProtocol, McpServer } from "effect/unstable/ai";
-import { HttpRouter } from "effect/unstable/http";
-import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
+import { McpProtocol, McpServer } from "effect/ai";
+import { HttpRouter } from "effect/http";
+import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 
 import { VERSION } from "./version.js";
 

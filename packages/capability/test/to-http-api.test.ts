@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
-import { Etag, HttpPlatform } from "effect/unstable/http";
-import { HttpApiTest } from "effect/unstable/httpapi";
+import { Etag, HttpPlatform } from "effect/http";
+import { HttpApiTest } from "effect/http-api";
 
 import { Approval, ApprovalDenied, toHttpApi } from "../src/index.js";
 import {

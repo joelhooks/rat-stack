@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import { resolveVisitor, webCryptoLayer } from "../src/index.js";
 import type { IdentityMode } from "../src/index.js";

@@ -1,6 +1,6 @@
 import { Duration, Effect, Layer, Option, Queue, Schema, Stream } from "effect";
 import type { Cause } from "effect";
-import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { SandboxError } from "./sandbox-error.js";
 import { Sandbox } from "./sandbox-service.js";

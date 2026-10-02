@@ -1,8 +1,8 @@
 import { useAtomValue } from "@effect/atom-react";
 import { ResourceNotFound } from "@rat-stack/core/contracts";
 import * as Option from "effect/Option";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
 import * as Schema from "effect/Schema";
-import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 
 import { readDoc } from "../../client/docs.js";
 import { ClientOnly } from "../shared/client-only.js";

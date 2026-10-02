@@ -1,6 +1,6 @@
 import { useAtomValue } from "@effect/atom-react";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
 import * as Schema from "effect/Schema";
-import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import type { FormEvent } from "react";
 import { useState } from "react";
 

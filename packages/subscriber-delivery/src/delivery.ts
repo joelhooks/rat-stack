@@ -1,5 +1,5 @@
 import { Layer, Option } from "effect";
-import { FetchHttpClient } from "effect/unstable/http";
+import { FetchHttpClient } from "effect/http";
 
 import { drovrAgentIntakeLayer } from "./drovr-agent-intake.js";
 import { drovrConfirmLayer } from "./drovr-confirm.js";

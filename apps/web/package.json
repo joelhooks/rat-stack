@@ -21,7 +21,7 @@
     "check": "pnpm run typecheck"
   },
   "dependencies": {
-    "@effect/atom-react": "4.0.0-rc.117",
+    "@effect/atom-react": "4.0.0",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
@@ -29,15 +29,15 @@
     "@rat-stack/mischief": "workspace:*",
     "@tanstack/react-router": "1.167.4",
     "@tanstack/react-start": "1.166.15",
-    "alchemy": "2.0.0-beta.79",
-    "effect": "4.0.0-rc.117",
+    "alchemy": "2.0.0-beta.80",
+    "effect": "4.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "scheduler": "0.27.0"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-rc.117",
-    "@effect/vitest": "4.0.0-rc.117",
+    "@effect/platform-node": "4.0.0",
+    "@effect/vitest": "4.0.0",
     "@types/node": "24.13.6",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",

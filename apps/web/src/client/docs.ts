@@ -1,9 +1,9 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { readContract, searchContract } from "@rat-stack/core/contracts";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as AtomRpc from "effect/unstable/reactivity/AtomRpc";
-import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
+import * as AtomRpc from "effect/reactivity/AtomRpc";
+import { RpcClient, RpcSerialization } from "effect/rpc";
 
 const { group } = toRpcGroup([searchContract, readContract]);
 

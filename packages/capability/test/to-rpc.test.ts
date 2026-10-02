@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Schema } from "effect";
-import { HttpRouter } from "effect/unstable/http";
-import { RpcSerialization, RpcServer, RpcTest } from "effect/unstable/rpc";
-import type * as Rpc from "effect/unstable/rpc/Rpc";
+import { HttpRouter } from "effect/http";
+import { RpcSerialization, RpcServer, RpcTest } from "effect/rpc";
+import type * as Rpc from "effect/rpc/Rpc";
 
 import {
   Approval,

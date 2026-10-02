@@ -1,8 +1,8 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- See to-toolkit.ts: a projection over a heterogeneous list erases error and requirement types at the boundary and recovers them for callers.
 import { Data, Effect, Layer, Predicate, Schema, SchemaAST } from "effect";
 import type { Context, JsonSchema } from "effect";
-import { HttpServerRequest } from "effect/unstable/http";
-import type { HttpServerResponse } from "effect/unstable/http";
+import { HttpServerRequest } from "effect/http";
+import type { HttpServerResponse } from "effect/http";
 import {
   HttpApi,
   HttpApiBuilder,
@@ -11,7 +11,7 @@ import {
   HttpApiGroup,
   HttpApiMiddleware,
   OpenApi,
-} from "effect/unstable/httpapi";
+} from "effect/http-api";
 
 import { ApprovalDenied } from "./approval.js";
 import { failureSchemaOf } from "./contract.js";
@@ -241,7 +241,7 @@ export interface ProvideMiddleware<
   Failure extends Schema.Top,
   Requirements,
 > {
-  readonly "~effect/httpapi/HttpApiMiddleware": {
+  readonly "~effect/http-api/HttpApiMiddleware": {
     readonly clientError: never;
     readonly error: Failure;
     readonly provides: Id;

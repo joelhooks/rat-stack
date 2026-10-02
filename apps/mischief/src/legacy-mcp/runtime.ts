@@ -1,7 +1,7 @@
 import type { Sandbox } from "@rat-stack/capability/sandbox";
 import { Context, Effect, Layer } from "effect";
-import * as HttpEffect from "effect/unstable/http/HttpEffect";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import * as HttpEffect from "effect/http/HttpEffect";
+import * as HttpRouter from "effect/http/HttpRouter";
 
 import { legacyMcpProtocols, mcpLayer } from "../app.js";
 

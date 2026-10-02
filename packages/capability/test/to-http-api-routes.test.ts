@@ -5,8 +5,8 @@ import {
   HttpPlatform,
   HttpRouter,
   HttpServerResponse,
-} from "effect/unstable/http";
-import { HttpApiBuilder, HttpApiTest } from "effect/unstable/httpapi";
+} from "effect/http";
+import { HttpApiBuilder, HttpApiTest } from "effect/http-api";
 
 import { defineContract, implement, toHttpApi } from "../src/index.js";
 import { NotFound, echo } from "./fixtures.js";

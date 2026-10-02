@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
-import { McpServer } from "effect/unstable/ai";
+import { McpServer } from "effect/ai";
 
 import { Approval } from "../src/index.js";
 import { layerSubprocess } from "../src/sandbox-subprocess.js";

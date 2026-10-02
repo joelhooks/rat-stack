@@ -1,12 +1,12 @@
 import { expect, it } from "@effect/vitest";
 import { ResourceNotFound } from "@rat-stack/core/contracts";
 import * as Effect from "effect/Effect";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
+import * as HttpRouter from "effect/http/HttpRouter";
 import * as Layer from "effect/Layer";
-import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
+import { RpcClient, RpcSerialization, RpcServer } from "effect/rpc";
 
 import { contentLayer } from "../src/capabilities/index.js";
 import { rpcProjection } from "../src/rpc-worker.js";

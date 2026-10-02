@@ -1,7 +1,7 @@
 import { SubscriberIntake } from "@rat-stack/core/interest";
 import type { IntakeRequest, IntakeResult } from "@rat-stack/core/interest";
 import { Effect, Layer, Option, Redacted, Schema } from "effect";
-import { HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientRequest } from "effect/http";
 
 export interface IntakeSettings {
   readonly credential: Option.Option<Redacted.Redacted>;

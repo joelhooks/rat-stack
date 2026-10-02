@@ -1,17 +1,17 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { devtoolsContracts } from "@rat-stack/devtools/contracts";
 import * as Effect from "effect/Effect";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
+import * as Atom from "effect/reactivity/Atom";
+import type * as AtomRegistry from "effect/reactivity/AtomRegistry";
+import * as AtomRpc from "effect/reactivity/AtomRpc";
 import * as Ref from "effect/Ref";
+import { RpcClient, RpcSerialization } from "effect/rpc";
 import * as Schedule from "effect/Schedule";
 import * as Schema from "effect/Schema";
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as Atom from "effect/unstable/reactivity/Atom";
-import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
-import * as AtomRpc from "effect/unstable/reactivity/AtomRpc";
-import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
 
 const { group } = toRpcGroup(devtoolsContracts);
 

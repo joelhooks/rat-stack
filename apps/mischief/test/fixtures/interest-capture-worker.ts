@@ -6,8 +6,8 @@ import {
 import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect, Layer, Redacted } from "effect";
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as HttpRouter from "effect/http/HttpRouter";
 
 import { interestDirectoryLayer } from "../../src/interest/directory.js";
 import Interest from "../../src/interest/interest-durable-object.js";

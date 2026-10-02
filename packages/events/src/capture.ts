@@ -1,6 +1,6 @@
 import { Clock, Crypto, DateTime, Effect, Schema } from "effect";
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { EventSink } from "./event-sink.js";
 import {

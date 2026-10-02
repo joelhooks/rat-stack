@@ -5,7 +5,7 @@ import type {
   IntakeAnswers,
 } from "@rat-stack/core/intake";
 import { Clock, Effect, Layer, Option, Redacted, Schema } from "effect";
-import { HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientRequest } from "effect/http";
 
 import { codeSignals } from "./code-signals.js";
 import type { Signal } from "./code-signals.js";

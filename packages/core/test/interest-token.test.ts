@@ -1,5 +1,6 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Encoding, Redacted } from "effect";
+import { Effect, Redacted } from "effect";
+import { Base64Url } from "effect/encoding";
 
 import { InterestTokens } from "../src/interest-token.js";
 
@@ -67,7 +68,7 @@ it.layer(secretLayer)("interest tokens", (test) => {
       const token = yield* tokens.sign(claims);
       const [, signature] = token.split(".");
 
-      const forged = Encoding.encodeBase64Url(
+      const forged = Base64Url.encode(
         JSON.stringify({
           address: "someone-else@example.com",
           expiresAt: 10_000,

@@ -16,9 +16,9 @@ import type {
 import { CallWatch } from "@rat-stack/capability/call-watch";
 import type { CallWatchService } from "@rat-stack/capability/call-watch";
 import { Clock, Effect, Layer, Schema, Stream } from "effect";
+import { Tool } from "effect/ai";
+import { RpcTest } from "effect/rpc";
 import { TestClock } from "effect/testing";
-import { Tool } from "effect/unstable/ai";
-import { RpcTest } from "effect/unstable/rpc";
 
 import {
   ActorLog,

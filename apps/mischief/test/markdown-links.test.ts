@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import { canonicalMarkdownLinks } from "../src/markdown-links.js";
 

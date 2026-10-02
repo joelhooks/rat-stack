@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect, Layer, Option, Ref, Scope } from "effect";
 import type { Schema } from "effect";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import * as HttpRouter from "effect/http/HttpRouter";
 
 import { mischiefRoutes } from "../src/app.js";
 import type { LegacyMcpRouter } from "../src/app.js";

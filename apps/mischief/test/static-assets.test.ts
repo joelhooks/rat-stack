@@ -1,8 +1,8 @@
 import { expect, it } from "@effect/vitest";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import { Effect, Layer, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
-import { HttpRouter } from "effect/unstable/http";
+import * as Arbitrary from "effect/Arbitrary";
+import { HttpRouter } from "effect/http";
 
 import { mischiefRoutes } from "../src/app.js";
 import {

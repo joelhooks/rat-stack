@@ -10,25 +10,33 @@ allowBuilds:
   protobufjs: true
   workerd: true
 
-# Exact prerelease pins that pnpm's release-age check would otherwise hold back.
+# Exact fresh pins that pnpm's release-age check would otherwise hold back.
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
-  - "@alchemy.run/better-auth@2.0.0-beta.79"
-  - alchemy@2.0.0-beta.79
-  - "@effect/atom-react@4.0.0-rc.117"
+  # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
+  - "@alchemy.run/better-auth@2.0.0-beta.80"
+  - alchemy@2.0.0-beta.80
+  - effect@4.0.0
+  - "@effect/atom-react@4.0.0"
+  - "@effect/platform-node@4.0.0"
+  - "@effect/platform-node-shared@4.0.0"
+  - "@effect/sql-pg@4.0.0"
+  - "@effect/sql-d1@4.0.0"
+  - "@effect/sql-sqlite-do@4.0.0"
+  - "@effect/vitest@4.0.0"
   - xstate@6.0.0-alpha.59
   - "@xstate/effect@0.1.0-alpha.2"
-  - "@distilled.cloud/aws@1.0.0-rc.12"
-  - "@distilled.cloud/axiom@1.0.0-rc.12"
-  - "@distilled.cloud/cloudflare@1.0.0-rc.12"
-  - "@distilled.cloud/core@1.0.0-rc.12"
-  - "@distilled.cloud/fly-io@1.0.0-rc.12"
-  - "@distilled.cloud/hetzner@1.0.0-rc.12"
-  - "@distilled.cloud/neon@1.0.0-rc.12"
-  - "@distilled.cloud/planetscale@1.0.0-rc.12"
-  - "@distilled.cloud/prisma@1.0.0-rc.12"
-  - "@distilled.cloud/railway@1.0.0-rc.12"
-  - "@distilled.cloud/stripe@1.0.0-rc.12"
+  - "@distilled.cloud/aws@1.0.0-rc.13"
+  - "@distilled.cloud/axiom@1.0.0-rc.13"
+  - "@distilled.cloud/cloudflare@1.0.0-rc.13"
+  - "@distilled.cloud/core@1.0.0-rc.13"
+  - "@distilled.cloud/fly-io@1.0.0-rc.13"
+  - "@distilled.cloud/hetzner@1.0.0-rc.13"
+  - "@distilled.cloud/neon@1.0.0-rc.13"
+  - "@distilled.cloud/planetscale@1.0.0-rc.13"
+  - "@distilled.cloud/prisma@1.0.0-rc.13"
+  - "@distilled.cloud/railway@1.0.0-rc.13"
+  - "@distilled.cloud/stripe@1.0.0-rc.13"
   - "@earendil-works/chord@0.86.1"
   - "@earendil-works/pi-agent-core@0.86.1"
   - "@earendil-works/pi-ai@0.86.1"
@@ -37,3 +45,11 @@ minimumReleaseAgeExclude:
   - "@earendil-works/pi-tui@0.86.1"
   - better-auth@1.6.2
   - satori@0.33.5
+  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.80"
+  - "@alchemy.run/floci@2.0.0-beta.80"
+  - "@alchemy.run/node-utils@2.0.0-beta.80"
+  - "@distilled.cloud/acme@1.0.0-rc.13"
+  - "@distilled.cloud/doppler@1.0.0-rc.13"
+  - "@distilled.cloud/gcp@1.0.0-rc.13"
+  - "@distilled.cloud/infisical@1.0.0-rc.13"
+  - "@distilled.cloud/zerossl@1.0.0-rc.13"

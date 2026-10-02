@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 export const contactFragments = [
   "joel@example.com",

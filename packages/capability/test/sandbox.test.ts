@@ -7,12 +7,13 @@ import {
   NodeServices,
 } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Layer, Option, Schema } from "effect";
-import {
-  HttpClient,
-  HttpServer,
-  HttpServerResponse,
-} from "effect/unstable/http";
+import * as Effect from "effect/Effect";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpServer from "effect/http/HttpServer";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
+import * as Schema from "effect/Schema";
 
 import { Sandbox, invokeFailure } from "../src/sandbox-service.js";
 import type { Invoke } from "../src/sandbox-service.js";

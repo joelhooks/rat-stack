@@ -1,8 +1,8 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- This projection erases each capability's schema and requirement types while building the heterogeneous RpcGroup and recovers them at its public boundary.
 import type { Layer } from "effect";
 import { Effect } from "effect";
-import type * as Rpc from "effect/unstable/rpc/Rpc";
-import type * as RpcGroup from "effect/unstable/rpc/RpcGroup";
+import type * as Rpc from "effect/rpc/Rpc";
+import type * as RpcGroup from "effect/rpc/RpcGroup";
 
 import type { AnyCapability, ContractOf, RequirementsOf } from "./contract.js";
 import { toRpcGroup } from "./to-rpc-group.js";

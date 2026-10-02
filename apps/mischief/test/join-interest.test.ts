@@ -15,7 +15,7 @@ import {
   joinInterestContract,
 } from "@rat-stack/core/join-interest";
 import { Clock, Context, Effect, Layer, Redacted, Schema } from "effect";
-import { HttpRouter } from "effect/unstable/http";
+import { HttpRouter } from "effect/http";
 
 import {
   apiProjection,

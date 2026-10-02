@@ -1,6 +1,6 @@
 import { Option, Schema } from "effect";
 import type { JsonSchema } from "effect";
-import { Tool } from "effect/unstable/ai";
+import { Tool } from "effect/ai";
 
 import { failureSchemaOf } from "./contract.js";
 import type { Annotations, AnyCapability } from "./contract.js";
