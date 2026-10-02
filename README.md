@@ -74,8 +74,8 @@ Code mode is the fourth projection. The model gets `search` (ranked matches with
 - **Effect `4.0.0`**: typed runtime, errors, filesystem service, and the three surfaces the capabilities project onto: `effect/cli`, `effect/http-api` (with `OpenApi.fromApi`), and `effect/ai` (`Toolkit` + `McpServer`).
 - **`@effect/platform-node` `4.0.0`**: Node-backed services; keep adapter and core pins matched.
 - **TypeScript `7.0.2`**: strict module and index-access checks.
-- **XState `6.0.0-alpha.59`**: real lifecycle states; do not replace those with boolean soup.
-- **`@xstate/effect` `0.1.0-alpha.2`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `fromEffect` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
+- **XState `6.0.0-alpha.63`**: real lifecycle states; do not replace those with boolean soup.
+- **`@xstate/effect` `0.1.0-alpha.6`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `fromEffect` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
 - **Alchemy `2.0.0-beta.80`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
 - **Vitest `5.0.1` + `@effect/vitest` `4.0.0`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.

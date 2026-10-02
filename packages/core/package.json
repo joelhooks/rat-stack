@@ -50,9 +50,9 @@
   "dependencies": {
     "@effect/platform-node": "4.0.0",
     "@rat-stack/capability": "workspace:*",
-    "@xstate/effect": "0.1.0-alpha.2",
+    "@xstate/effect": "0.1.0-alpha.6",
     "effect": "4.0.0",
-    "xstate": "6.0.0-alpha.59"
+    "xstate": "6.0.0-alpha.63"
   },
   "devDependencies": {
     "@effect/vitest": "4.0.0",
