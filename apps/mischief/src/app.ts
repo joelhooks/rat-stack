@@ -50,7 +50,10 @@ import {
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
-import { privateHttpTracingLayer } from "./http-privacy.js";
+import {
+  privateHttpTracingLayer,
+  privateMcpTracingLayer,
+} from "./http-privacy.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { retiredInterestRoutes } from "./interest/retired-routes.js";
@@ -527,7 +530,7 @@ const mcpTransport = (
     protocols,
     version: "0.2.0",
     websiteUrl: "https://ratstack.sh/",
-  });
+  }).pipe(Layer.provide(privateMcpTracingLayer));
 
 export const mcpLayer = (
   protocols: typeof modernMcpProtocols | typeof legacyMcpProtocols
