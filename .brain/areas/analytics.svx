@@ -60,7 +60,8 @@ See [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks
 Each event holds:
 
 - A visitor id and UUIDv7 message id.
-- A server block: host, received time, country, salted IP hash, and user agent.
+- A server block: host, received time, salted IP hash, and user agent.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, whether the country is in the EU, region and region code, time zone, the Cloudflare data center, and the network's AS number and organization.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.
@@ -73,6 +74,8 @@ Each event holds:
 - The HTTP request body never reaches an event.
 - Credential, email, code, and session query keys are removed.
 - Basin stores an IP address only as a salted hash.
+- Geography comes from `request.cf`, which Cloudflare derives at the edge, never from the IP. Latitude, longitude, postal code, and metro code are never stored. City is off unless `captureCity` is set.
+- A missing or malformed `request.cf` field is left out; it never fails the request.
 - In `persistent` mode, the server sets a first-party HttpOnly cookie. A browser keeps one id across visits.
 - In `daily` mode, no cookie is set. An id never repeats on a later day.
 - Each row is `{ "value": <event> }`. The unstructured stream requires the `value` column.

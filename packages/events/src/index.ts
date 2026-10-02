@@ -11,6 +11,14 @@ export { VisitorSalt } from "./visitor-salt.js";
 export { capturedQuery, isSensitiveKey, referrerOf } from "./request-facts.js";
 
 export {
+  GEO_LABEL_KEYS,
+  NEVER_CAPTURED_GEO_KEYS,
+  requestGeoOf,
+} from "./request-geo.js";
+
+export type { GeoOptions } from "./request-geo.js";
+
+export {
   AnonymousIdSchema,
   EventSourceSchema,
   IdentityModeSchema,
