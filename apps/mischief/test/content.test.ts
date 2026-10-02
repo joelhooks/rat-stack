@@ -1,10 +1,12 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import { parseCodeRequest, sourceLines } from "@rat-stack/code-snippets";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { compile as compileMdsvex } from "mdsvex";
 import { compile as compileSvelte } from "svelte/compiler";
 
+import { collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
   assertDocumentTitle,
   assertGlossaryLinks,
@@ -27,7 +29,10 @@ import {
   validateInternalLinks,
   withMarkdownTitle,
 } from "../scripts/content-lib.ts";
-import { parseContentMarkdown } from "../scripts/svx-ast.ts";
+import {
+  parseContentMarkdown,
+  stringifyContentMarkdown,
+} from "../scripts/svx-ast.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { llmsText, searchContent } from "./content-fixture.js";
 import {
@@ -128,6 +133,15 @@ const semanticTree = (markdown: string) =>
     "checked",
     "align",
   ]);
+
+const unconfiguredSource = (markdown: string) => {
+  const tree = parseContentMarkdown(markdown);
+  tree.children = tree.children.filter(
+    (node) => node.type !== "code" || node.meta?.includes("repo=") !== true
+  );
+
+  return stringifyContentMarkdown(tree);
+};
 
 const root = (path: Path.Path) => path.resolve(import.meta.dirname, "../../..");
 
@@ -658,22 +672,60 @@ it.layer(NodeServices.layer)("generated content", (test) => {
     })
   );
 
-  test.effect("preserves tag-free source semantics through the registry", () =>
-    Effect.gen(function* tagFreeSourcesRoundTrip() {
-      const fileSystem = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const repository = root(path);
+  test.effect(
+    "preserves tag-free prose and resolves pinned source excerpts",
+    () =>
+      Effect.gen(function* tagFreeSourcesRoundTrip() {
+        const fileSystem = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repository = root(path);
 
-      for (const source of tagFreeSources) {
-        const text = yield* fileSystem.readFileString(
-          path.join(repository, source)
-        );
+        for (const source of tagFreeSources) {
+          const text = yield* fileSystem.readFileString(
+            path.join(repository, source)
+          );
 
-        expect(semanticTree(deriveAgentMarkdown(text)), source).toBe(
-          semanticTree(text)
-        );
-      }
-    })
+          const ordinary = unconfiguredSource(text);
+
+          expect(semanticTree(deriveAgentMarkdown(ordinary)), source).toBe(
+            semanticTree(ordinary)
+          );
+
+          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+
+          for (const node of collectCodeFences(text, source)) {
+            const request = yield* parseCodeRequest(node, source);
+
+            if (!request.reference) {
+              continue;
+            }
+
+            const original = sourceLines(
+              yield* spawner.string(
+                ChildProcess.make(
+                  "git",
+                  ["show", `${request.commit}:${request.path}`],
+                  { cwd: repository }
+                )
+              )
+            );
+
+            const excerpt = request.ranges
+              .flatMap((range) => original.slice(range.start - 1, range.end))
+              .join("\n");
+
+            const generated = [...lawSources, ...skillSources].find(
+              (page) => page.sourcePath === source
+            );
+
+            expect(generated, source).toBeDefined();
+            expect(generated?.text, source).toContain(excerpt);
+            expect(generated?.documentHtml, source).toContain(
+              `${request.commit}/${request.path}#L`
+            );
+          }
+        }
+      })
   );
 
   test.effect("derives the agent and HTML audience representations", () =>
