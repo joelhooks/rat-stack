@@ -1,6 +1,7 @@
 import { defineContract } from "@rat-stack/capability/contract";
 import { Schema } from "effect";
 
+import { ApplicantName, ApplicantX } from "./join-identity.js";
 import { MaskedInterestReplay } from "./masked-interest-replay.js";
 
 export const JOIN_ANSWER = "Check your email for a link to confirm.";
@@ -31,10 +32,12 @@ export const joinInterestContract = defineContract("joinInterest", {
       share: Schema.optionalKey(Schema.Boolean),
     }),
     email: Schema.String.check(Schema.isMaxLength(320)),
+    name: Schema.optionalKey(ApplicantName),
     ticket: Schema.String.check(
       Schema.isMinLength(1),
       Schema.isMaxLength(4096)
     ),
+    x: Schema.optionalKey(ApplicantX),
   }),
   output: Schema.Struct({
     message: Schema.Literals([JOIN_ANSWER, JOIN_NOT_OPEN]),

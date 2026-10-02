@@ -5,6 +5,7 @@ import { Context, Effect, Logger, Schema } from "effect";
 
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 import { IntakeAnswersSchema } from "./intake-questions.js";
+import { JoinIdentity } from "./join-identity.js";
 
 export { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 
@@ -13,6 +14,7 @@ export const IntakeApplicationSchema = Schema.Union([
     answers: IntakeAnswersSchema,
     email: Schema.String,
     hold: Schema.Boolean,
+    name: Schema.optionalKey(Schema.toType(JoinIdentity.fields.name)),
     score: Schema.Finite,
     share: Schema.Boolean,
     signals: Schema.Array(Schema.String),
@@ -20,6 +22,7 @@ export const IntakeApplicationSchema = Schema.Union([
     state: Schema.Literals(["held", "forwarded"]),
     submissionId: Schema.String,
     submittedAt: Schema.String,
+    x: Schema.optionalKey(Schema.toType(JoinIdentity.fields.x)),
   }),
   Schema.Struct({
     reason: Schema.Literal("erased"),

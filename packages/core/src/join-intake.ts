@@ -26,6 +26,10 @@ import { JOIN_ANSWER, JOIN_NOT_OPEN } from "./join-interest-contract.js";
 import type { JoinInput, JoinOutput } from "./join-interest-contract.js";
 import { JoinInterest, newStatusRef } from "./join-interest-port.js";
 
+type IdentityStatement = {
+  -readonly [Key in "name" | "x"]?: Exclude<JoinInput[Key], undefined>;
+};
+
 export const JoinRequest = Context.Reference<{
   readonly ip: string | undefined;
   readonly userAgent: string;
@@ -125,8 +129,18 @@ export const joinIntakeLayer = Layer.effect(
           }
         );
 
+        const identity: IdentityStatement = {};
+
+        if (input.name !== undefined) {
+          identity.name = input.name;
+        }
+
+        if (input.x !== undefined) {
+          identity.x = input.x;
+        }
+
         const statements: IntakeStatement[] = [
-          yield* statement("started", "tokenmaxx/intake"),
+          yield* statement("started", "tokenmaxx/intake", identity),
         ];
 
         for (const question of ["building", "today", "leaveWith"] as const) {

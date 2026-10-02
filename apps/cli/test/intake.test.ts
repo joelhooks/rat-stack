@@ -27,6 +27,20 @@ it.effect(
             request,
             Response.json([
               {
+                answers: {},
+                email: "synthetic@example.test",
+                hold: false,
+                name: "Fake Applicant",
+                score: 0,
+                share: false,
+                signals: [],
+                source: "agent",
+                state: "forwarded",
+                submissionId: "synthetic-submission",
+                submittedAt: "2026-10-01T18:00:00.000Z",
+                x: "https://x.com/fake_applicant",
+              },
+              {
                 reason: "no answers: legacy browser signup or erased contact",
                 state: "no-answers",
                 submissionId: "legacy-submission",
@@ -70,6 +84,20 @@ it.effect(
         );
 
       expect(output).toEqual([
+        {
+          answers: {},
+          email: "synthetic@example.test",
+          hold: false,
+          name: "Fake Applicant",
+          score: 0,
+          share: false,
+          signals: [],
+          source: "agent",
+          state: "forwarded",
+          submissionId: "synthetic-submission",
+          submittedAt: "2026-10-01T18:00:00.000Z",
+          x: "https://x.com/fake_applicant",
+        },
         {
           reason: "no answers: legacy browser signup or erased contact",
           state: "no-answers",

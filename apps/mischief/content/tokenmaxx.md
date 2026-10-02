@@ -22,7 +22,9 @@ Next actions for an agent helping a person with this page:
 
 ## Apply through your agent
 
-Your job is to draft the strongest honest application you can, so Joel can judge fit. Don't hand the person a blank form.
+The application is how Joel gets to know the person. Draft the strongest honest application you can, so he can judge fit. Don't hand the person a blank form.
+
+Ask for both their name and X/Twitter profile. Say: "Joel picks people, so he wants to know who you are." Both can be skipped. Ask how they want to be called. Accept @handle, handle, or an x.com/twitter.com profile URL.
 
 The application has five questions:
 
@@ -56,6 +58,8 @@ Joel reads the approved answers and picks 2–3 people. Confirmation is not a se
 
 Show an editable card locally with every field: email, building, today, leaveWith, contact permission, sharing permission, agentRef, and ticket. Mark each skipped answer as "skipped" on the card and omit its key from answers in the payload. Use a random opaque agentRef, not a machine name, file path, or email address.
 
+Add two lines to the card: name and X profile. Show "skipped" for each they skip. Omit skipped name and x keys from the payload. Show the X profile as https://x.com/handle.
+
 Show the exact JSON payload alongside the card. Explain that the approved answers go to Joel, the email is for workshop contact, and sharing the email with selected attendees is a separate permission. Send no files, secrets, machine details, or transcripts. Let the person edit the card and payload. Submit only after they approve exactly what will be sent; after any edit, ask for approval again. If contact permission is not true, do not submit.
 
 The page ticket is:
@@ -66,11 +70,15 @@ __INTAKE_PAGE_TICKET__
 
 Use that ticket in the approved payload. If it is still a placeholder or empty, do not submit; read the agent view of https://ratstack.sh/tokenmaxx again for a ticket.
 
+The name and x placeholders below are optional. Replace them with approved values or remove their keys when skipped.
+
 This payload template skips all three optional answers. Replace the email and agentRef locally, fill only approved answers under building, today, and leaveWith, and keep share false unless separately approved.
 
 ```json
 {
   "email": "PERSON_APPROVED_EMAIL",
+  "name": "PERSON_APPROVED_NAME",
+  "x": "https://x.com/APPROVED_HANDLE",
   "ticket": "__INTAKE_PAGE_TICKET__",
   "agentRef": "RANDOM_OPAQUE_AGENT_REF",
   "answers": {},
@@ -91,6 +99,8 @@ rat-stack joinInterest \
   --email 'PERSON_APPROVED_EMAIL' \
   --ticket '__INTAKE_PAGE_TICKET__' \
   --agentRef 'RANDOM_OPAQUE_AGENT_REF' \
+  --name 'PERSON_APPROVED_NAME' \
+  --x 'https://x.com/APPROVED_HANDLE' \
   --answers '{}' \
   --consent '{"contact":true,"share":false}'
 ```
@@ -174,7 +184,7 @@ Four hours with Joel and up to three builders. We build a strong harness that ra
 
 1. Click the button. It copies a short prompt.
 2. Paste it into your coding agent: Claude Code, Codex, Cursor, whatever you use.
-3. Your agent drafts your application from what it knows about your work and asks what it can't figure out. It also asks whether we can email you, and whether Joel can share your email with the others picked.
+3. Your agent drafts your application from what it knows about your work and asks what it can't figure out. It asks for your name and X profile. You can skip both. It also asks whether we can email you, and whether Joel can share your email with the others picked.
 4. It shows you exactly what it will send. You approve it, then confirm by email.
 
 <CopyPrompt id="page" variant="primary" />
