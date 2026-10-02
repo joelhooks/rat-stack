@@ -58,7 +58,7 @@ it.effect(
             for (const page of manifest.pages) {
               for (const representation of ["html", "markdown"] as const) {
                 const expected = yield* fs.readFileString(
-                  `${directory}/assets${page[representation]}`
+                  `${directory}/assets/${manifest.generation}${page[representation]}`
                 );
 
                 const response = yield* Effect.promise(
@@ -89,7 +89,7 @@ it.effect(
 
             for (const image of manifest.images) {
               const expected = yield* fs.readFile(
-                `${directory}/assets${image}`
+                `${directory}/assets/${manifest.generation}${image}`
               );
 
               const response = yield* Effect.promise(
@@ -133,26 +133,41 @@ it.effect(
     }).pipe(Effect.provide(NodeServices.layer))
 );
 
-it.effect("replaces the asset set rather than retaining removed routes", () =>
-  Effect.gen(function* replaceAssetSet() {
-    const fs = yield* FileSystem.FileSystem;
-    const temporary = yield* fs.makeTempDirectoryScoped();
-    const directory = `${temporary}/content`;
-    yield* emitAssets({
-      directory,
-      images: [],
-      pages: [{ documentHtml: "old", routePath: "/old", text: "old" }],
-    });
-    yield* emitAssets({
-      directory,
-      images: [],
-      pages: [{ documentHtml: "new", routePath: "/new", text: "new" }],
-    });
-    expect(yield* fs.exists(`${directory}/assets/old.html`)).toBe(false);
-    expect(yield* fs.readFileString(`${directory}/assets/new.md`)).toBe("new");
-    expect(yield* manifestAt(directory)).toEqual({
-      images: [],
-      pages: [{ html: "/new.html", markdown: "/new.md", route: "/new" }],
-    });
-  }).pipe(Effect.scoped, Effect.provide(NodeServices.layer))
+it.effect(
+  "publishes only current routes while retaining previous immutable bytes",
+  () =>
+    Effect.gen(function* replaceAssetSet() {
+      const fs = yield* FileSystem.FileSystem;
+      const temporary = yield* fs.makeTempDirectoryScoped();
+      const directory = `${temporary}/content`;
+      yield* emitAssets({
+        directory,
+        images: [],
+        pages: [{ documentHtml: "old", routePath: "/old", text: "old" }],
+      });
+      const previous = yield* manifestAt(directory);
+      yield* emitAssets({
+        directory,
+        images: [],
+        pages: [{ documentHtml: "new", routePath: "/new", text: "new" }],
+      });
+      const current = yield* manifestAt(directory);
+      expect(current.generation).not.toBe(previous.generation);
+      expect(current.pages.some((page) => page.route === "/old")).toBe(false);
+      expect(
+        yield* fs.readFileString(
+          `${directory}/assets/${current.generation}/new.md`
+        )
+      ).toBe("new");
+      expect(
+        yield* fs.readFileString(
+          `${directory}/assets/${previous.generation}/old.md`
+        )
+      ).toBe("old");
+      expect(current).toEqual({
+        generation: current.generation,
+        images: [],
+        pages: [{ html: "/new.html", markdown: "/new.md", route: "/new" }],
+      });
+    }).pipe(Effect.scoped, Effect.provide(NodeServices.layer))
 );

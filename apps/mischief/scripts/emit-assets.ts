@@ -1,8 +1,12 @@
+// @effect-diagnostics-next-line nodeBuiltinImport:off -- Build-only content addressing uses Node's SHA-256 implementation.
+import { createHash } from "node:crypto";
+
 import { Effect, FileSystem, Path, Schema } from "effect";
 
 import { buildError } from "./content-error.ts";
 
 export const ContentAssetManifest = Schema.Struct({
+  generation: Schema.String,
   images: Schema.Array(Schema.String),
   pages: Schema.Array(
     Schema.Struct({
@@ -39,8 +43,11 @@ export const emitAssets = Effect.fn("emitAssets")(
       prefix: ".content-assets.",
     });
 
-    const staging = path.join(temporary, "content");
-    const assets = path.join(staging, "assets");
+    const generation = createHash("sha256")
+      .update(JSON.stringify({ images: input.images, pages: input.pages }))
+      .digest("hex");
+
+    const assets = path.join(input.directory, "assets", generation);
     yield* fs.makeDirectory(assets, { recursive: true });
     const pages: (typeof ContentAssetManifest.Type.pages)[number][] = [];
 
@@ -51,29 +58,36 @@ export const emitAssets = Effect.fn("emitAssets")(
       yield* fs.makeDirectory(path.dirname(path.join(assets, html.slice(1))), {
         recursive: true,
       });
-      yield* fs.writeFileString(
-        path.join(assets, html.slice(1)),
-        page.documentHtml
-      );
-      yield* fs.writeFileString(
-        path.join(assets, markdown.slice(1)),
-        page.text
-      );
+      const temporaryHtml = path.join(temporary, "page.html");
+      const temporaryMarkdown = path.join(temporary, "page.md");
+      yield* fs.writeFileString(temporaryHtml, page.documentHtml);
+      yield* fs.writeFileString(temporaryMarkdown, page.text);
+      yield* fs.rename(temporaryHtml, path.join(assets, html.slice(1)));
+      yield* fs.rename(temporaryMarkdown, path.join(assets, markdown.slice(1)));
       pages.push({ html, markdown, route: page.routePath });
     }
 
     for (const image of input.images) {
       const output = path.join(assets, image.path.slice(1));
       yield* fs.makeDirectory(path.dirname(output), { recursive: true });
-      yield* fs.writeFile(output, Buffer.from(image.base64, "base64"));
+      const temporaryImage = path.join(temporary, "image");
+      yield* fs.writeFile(temporaryImage, Buffer.from(image.base64, "base64"));
+      yield* fs.rename(temporaryImage, output);
     }
 
+    const temporaryManifest = path.join(temporary, "manifest.json");
     yield* fs.writeFileString(
-      path.join(staging, "manifest.json"),
-      JSON.stringify({ images: input.images.map((image) => image.path), pages })
+      temporaryManifest,
+      JSON.stringify({
+        generation,
+        images: input.images.map((image) => image.path),
+        pages,
+      })
     );
-    yield* fs.remove(input.directory, { force: true, recursive: true });
-    yield* fs.rename(staging, input.directory);
+    yield* fs.rename(
+      temporaryManifest,
+      path.join(input.directory, "manifest.json")
+    );
   },
   Effect.scoped,
   Effect.mapError((cause) => buildError("emit assets", "content assets", cause))
