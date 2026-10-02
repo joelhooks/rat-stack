@@ -120,11 +120,14 @@ const imported = inspect.replace(
   'import { runInspectMachine } from "./inspect-machine.js";',
   'import { acceptanceProbe } from "./acceptance-probe.js";\nimport { runInspectMachine } from "./inspect-machine.js";'
 );
+if (imported === inspect) {
+  throw new Error("add-a-capability import text did not match inspect-file.ts");
+}
 const registered = imported.replace(
-  "export const capabilities = [inspectFile] as const;",
-  "export const capabilities = [inspectFile, acceptanceProbe] as const;"
+  "export const capabilities = [",
+  "export const capabilities = [acceptanceProbe, "
 );
-if (registered === inspect) {
+if (registered === imported) {
   throw new Error("add-a-capability registration text did not match inspect-file.ts");
 }
 await writeFile(inspectPath, registered);

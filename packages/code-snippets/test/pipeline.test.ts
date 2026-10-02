@@ -213,12 +213,25 @@ const data = {
 
 it.effect.prop(
   "P1 canonical requests round-trip through fence metadata",
-  { length: small, start: small, title: text },
-  ({ start, length, title }) =>
+  {
+    length: small,
+    single: Schema.Boolean,
+    start: small,
+    title: text,
+  },
+  ({ start, length, single, title }) =>
     Effect.gen(function* roundTrip() {
+      let ranges = `${start}-${start + length}`;
+
+      if (single) {
+        ranges = String(start).padStart(2, "0");
+      }
+
+      const lines = `lines=${JSON.stringify(ranges)}`;
+
       const original = yield* parseCodeRequest(
         fence(
-          `path=${path} at=${sha} lines=${start}-${start + length} {${start}} title=${JSON.stringify(title || "Code")}`
+          `repo=${JSON.stringify(`repo ${title}`)} path=${path} at=${sha} ${lines} {${start}} title=${JSON.stringify(title || "Code")}`
         ),
         "page.svx"
       );

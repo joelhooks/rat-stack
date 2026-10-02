@@ -374,8 +374,13 @@ export const parseCodeRequest = Effect.fn("parseCodeRequest")(
 );
 
 export const printCodeRequest = (request: CodeRequest): CodeFence => {
+  const lines =
+    request.rangeText === "all"
+      ? ""
+      : `lines=${JSON.stringify(request.rangeText)} `;
+
   const fields = request.reference
-    ? `repo=${request.repo} path=${JSON.stringify(request.path)} at=${request.commit} lines=${request.rangeText} `
+    ? `repo=${JSON.stringify(request.repo)} path=${JSON.stringify(request.path)} at=${request.commit} ${lines}`
     : "";
 
   const highlights =
