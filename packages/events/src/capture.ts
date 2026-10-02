@@ -120,6 +120,15 @@ export const withEventCapture =
   <E, R>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>) =>
     Effect.gen(function* captureRequest() {
       const request = yield* HttpServerRequest.HttpServerRequest;
+
+      if (
+        new URL(request.url, "https://localhost").pathname.startsWith(
+          "/operator/interest"
+        )
+      ) {
+        return yield* app;
+      }
+
       const startedAt = yield* Clock.currentTimeMillis;
       const response = yield* app;
       const finishedAt = yield* Clock.currentTimeMillis;

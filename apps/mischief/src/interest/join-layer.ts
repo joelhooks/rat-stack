@@ -8,6 +8,10 @@ import type {
   SubscriberIntake,
 } from "@rat-stack/core/interest";
 import { joinIntakeLayer } from "@rat-stack/core/join-interest";
+import type {
+  IntakeApplications,
+  JoinContactStore,
+} from "@rat-stack/core/join-interest";
 import type { Context } from "effect";
 import { Crypto, Effect, Layer } from "effect";
 
@@ -32,6 +36,12 @@ const workerCryptoLayer = Layer.succeed(
 export interface AgentSignupOptions {
   readonly intake: Layer.Layer<IntakeTicket | AbuseScore | IntakeEvents>;
   readonly contacts: (submissionId: string) => JoinContactStub;
+  readonly noteApplication?: (submissionId: string) => Effect.Effect<void>;
+  readonly applications?: Layer.Layer<
+    IntakeApplications,
+    never,
+    JoinContactStore
+  >;
 }
 
 export const agentSignupLayer = (
@@ -40,7 +50,7 @@ export const agentSignupLayer = (
 ) =>
   joinIntakeLayer.pipe(
     Layer.provideMerge(
-      joinContactStoreLayer(options.contacts).pipe(
+      joinContactStoreLayer(options.contacts, options.noteApplication).pipe(
         Layer.provideMerge(
           Layer.mergeAll(
             options.intake,

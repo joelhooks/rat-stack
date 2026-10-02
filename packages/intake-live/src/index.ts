@@ -35,6 +35,8 @@ export {
 
 export type { JevSettings } from "./jev-abuse-score.js";
 
+export { unsealApplication } from "./read-application.js";
+
 export { PAGE_TICKET_PLACEHOLDER, withPageTicket } from "./page-ticket.js";
 
 export {

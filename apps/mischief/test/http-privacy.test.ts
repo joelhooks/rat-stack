@@ -103,6 +103,8 @@ it.effect(
       exported.length = 0;
 
       for (const target of [
+        "/operator/interest/applications",
+        "/operator/interest/applications?submissionId=private-submission-reference",
         "/tokenmaxx/unsubscribe",
         "/tokenmaxx/unsubscribe?t=private-unsubscribe-value",
         "/normal?t=private-t-value",

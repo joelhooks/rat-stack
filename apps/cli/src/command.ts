@@ -3,6 +3,7 @@ import { capabilities, formatFileStats, inspectFile } from "@rat-stack/core";
 import { Console, Effect, Layer } from "effect";
 import { Command, Flag } from "effect/cli";
 
+import { intakeCommand } from "./intake.js";
 import {
   SERVE_HOST,
   DEVTOOLS_MCP_PATH,
@@ -114,6 +115,7 @@ export const rootCommand = Command.make("rat-stack").pipe(
   Command.withSubcommands([
     ...capabilityCommands,
     catalogCommand,
+    intakeCommand,
     openapiCommand,
     serveCommand,
     mcpCommand,
