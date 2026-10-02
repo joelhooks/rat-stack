@@ -75,6 +75,7 @@ import {
   resolveReferencedBlock,
 } from "./content-references.ts";
 import { readDailyLog } from "./daily-log.ts";
+import { emitAssets } from "./emit-assets.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
@@ -3316,6 +3317,54 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       .rename(temporaryOutput, output)
       .pipe(Effect.mapError((cause) => buildError("rename", output, cause)));
   }).pipe(Effect.scoped);
+
+  yield* emitAssets({
+    directory: path.join(root, "apps/mischief/dist/content"),
+    images: [
+      ...ogImages.map((image) => ({
+        base64: image.pngBase64,
+        path: ogImagePath(image.routePath),
+      })),
+      {
+        base64: tokenmaxxImageJpegBase64,
+        path: "/tokenmaxx/four-comma-club.jpg",
+      },
+      {
+        base64: cartridgesImageJpegBase64,
+        path: "/lore/cartridges/snes-sfam-cartridges.jpg",
+      },
+    ],
+    pages: [
+      ...lawSources,
+      ...loreSources,
+      ...skillSources,
+      {
+        documentHtml: `${homeDocumentHtml}<script>${copyScript}</script>`,
+        routePath: "/",
+        text: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
+      },
+      {
+        documentHtml: loreIndexDocumentHtml,
+        routePath: "/lore",
+        text: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
+      },
+      {
+        documentHtml: systemsIndexDocumentHtml,
+        routePath: "/systems",
+        text: `${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`,
+      },
+      {
+        documentHtml: skillIndexDocumentHtml,
+        routePath: "/skills",
+        text: `${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`,
+      },
+      {
+        documentHtml: glossaryIndexDocumentHtml,
+        routePath: "/glossary",
+        text: glossaryIndexMarkdown,
+      },
+    ],
+  });
 }).pipe(Effect.provide(NodeServices.layer));
 
 NodeRuntime.runMain(program);
