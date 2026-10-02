@@ -29,6 +29,7 @@ import { agentSignupLayer } from "./interest/join-layer.js";
 import type { AgentSignupOptions } from "./interest/join-layer.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
+import { outerHttpPrivacyRegistration } from "./outer-http-privacy.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
 import { layerWorkerLoader, sandboxLimits } from "./sandbox-worker-loader.js";
@@ -292,7 +293,14 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     events,
     agentSignup
   );
-}).pipe(Effect.provide(Cloudflare.Workers.RateLimitBinding));
+}).pipe(
+  Effect.provide(
+    Layer.mergeAll(
+      Cloudflare.Workers.RateLimitBinding,
+      outerHttpPrivacyRegistration
+    )
+  )
+);
 
 export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
