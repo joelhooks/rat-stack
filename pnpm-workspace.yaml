@@ -1,3 +1,5 @@
+verifyDepsBeforeRun: error
+
 packages:
   - "apps/*"
   - "packages/*"
