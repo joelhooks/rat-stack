@@ -5,8 +5,9 @@ import {
   TICKET_TTL_MILLIS,
   TicketSourceSchema,
 } from "@rat-stack/core/intake";
-import { Effect, Layer, Redacted, Schema } from "effect";
+import { Effect, Layer, Redacted, Result, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
+import { Base64Url } from "effect/encoding";
 import { TestClock } from "effect/testing";
 
 import {
@@ -147,6 +148,43 @@ const hmacTickets = (key: Redacted.Redacted) =>
   hmacIntakeTicketLayer(key).pipe(Layer.provide(TicketBindings.memoryLayer));
 
 describe("hmac intake tickets", () => {
+  it.effect.prop(
+    "every minted source produces a canonical ticket and padding-bit aliases are refused",
+    { source: Arbitrary.schema(TicketSourceSchema) },
+    ({ source }) =>
+      Effect.gen(function* canonicalTickets() {
+        const tickets = yield* IntakeTicket;
+        const ticket = yield* tickets.mint(source);
+        const [payload = "", signature = ""] = ticket.split(".");
+        expect(
+          Base64Url.encode(Result.getOrThrow(Base64Url.decode(payload)))
+        ).toBe(payload);
+        expect(
+          Base64Url.encode(Result.getOrThrow(Base64Url.decode(signature)))
+        ).toBe(signature);
+        expect(yield* tickets.verify(ticket, "submission-canonical")).toEqual({
+          mintedAt: 0,
+          source,
+        });
+
+        const alphabet =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+        const last = alphabet.indexOf(signature.at(-1) ?? "");
+
+        for (const paddingBits of [1, 2, 3]) {
+          const alias = `${payload}.${signature.slice(0, -1)}${alphabet.charAt(last + paddingBits)}`;
+          expect(
+            Result.getOrThrow(Base64Url.decode(alias.split(".")[1] ?? ""))
+          ).toEqual(Result.getOrThrow(Base64Url.decode(signature)));
+          expect(
+            (yield* tickets
+              .verify(alias, "submission-canonical")
+              .pipe(Effect.flip)).reason
+          ).toBe("unknown");
+        }
+      }).pipe(Effect.provide(hmacTickets(secret)))
+  );
   it.effect.prop(
     "agree with the ticket model, and refuse forged and tampered tickets",
     { generated: steps },
