@@ -80,7 +80,10 @@ const ticketParts = (ticket: string) => {
   const payload = Base64Url.decodeString(encodedPayload);
   const signature = Base64Url.decode(encodedSignature);
 
-  return Result.isSuccess(payload) && Result.isSuccess(signature)
+  return Result.isSuccess(payload) &&
+    Result.isSuccess(signature) &&
+    Base64Url.encode(payload.success) === encodedPayload &&
+    Base64Url.encode(signature.success) === encodedSignature
     ? Option.some({ payload: payload.success, signature: signature.success })
     : Option.none();
 };

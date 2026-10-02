@@ -23,7 +23,9 @@ it.effect(
         },
         consent: { contact: true, share: true },
         email: "planted-private@example.test",
+        name: "planted-private-name",
         ticket: "planted-private-ticket",
+        x: "https://x.com/fake_private",
       } as const;
 
       const observations: { input: unknown; result: unknown }[] = [];
@@ -66,6 +68,8 @@ it.effect(
         card.agentRef,
         ...Object.values(card.answers),
         card.email,
+        card.name,
+        card.x,
         card.ticket,
         result.statusRef,
       ]) {
