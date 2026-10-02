@@ -6,12 +6,17 @@ import {
   prepareCode,
 } from "@rat-stack/code-snippets";
 import { plainLayer } from "@rat-stack/code-snippets/plain";
+import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
 import { Effect, Layer, Schema } from "effect";
 import { Parser } from "htmlparser2";
 import { compile as compileMdsvex } from "mdsvex";
 import { compile } from "svelte/compiler";
 
-import { codeComponent, collectCodeFences } from "../scripts/code-pipeline.ts";
+import {
+  codeComponent,
+  collectCodeFences,
+  snippetHtml,
+} from "../scripts/code-pipeline.ts";
 import {
   createComponentRegistry,
   renderSvxMarkdown,
@@ -59,6 +64,100 @@ const codeText = (html: string) => {
 
   return text;
 };
+
+const coloredTokens = (html: string) => {
+  const tokens: { style: string; text: string }[] = [];
+  let active = false;
+
+  const parser = new Parser({
+    onclosetag(name) {
+      if (name === "span") {
+        active = false;
+      }
+    },
+    onopentag(name, attributes) {
+      active = name === "span" && (attributes.style ?? "").includes("color:");
+
+      if (active) {
+        tokens.push({ style: attributes.style ?? "", text: "" });
+      }
+    },
+    ontext(value) {
+      if (active) {
+        const token = tokens.at(-1);
+
+        if (token) {
+          token.text += value;
+        }
+      }
+    },
+  });
+
+  parser.write(html);
+  parser.end();
+
+  return tokens.flatMap(({ style, text }) =>
+    text.trim().length === 0
+      ? []
+      : [
+          {
+            style: style
+              .split(";")
+              .filter(Boolean)
+              .map((entry) => entry.trim())
+              .toSorted()
+              .join(";"),
+            text: text.trim(),
+          },
+        ]
+  );
+};
+
+it.layer(shikiLayer())("theme rendering parity", (test) => {
+  test.effect(
+    "pinned tokens render the ordinary fence's colors and font styles",
+    () =>
+      Effect.gen(function* themeParity() {
+        const body =
+          'export const greet = (name: string) => "hello " + name; // greeting';
+
+        const nodes = collectCodeFences(
+          `\`\`\`ts repo=rat-stack path=example.ts at=${sha} lines=1-1 {1}\n\`\`\``,
+          "theme.svx"
+        );
+
+        const prepared = yield* prepareCode(
+          nodes.map((node) => ({ node, sourcePath: "theme.svx" }))
+        ).pipe(
+          Effect.provide([
+            Drift.silent,
+            SourceRepository.memory(
+              [{ adapter: "git", id: "rat-stack", location: "." }],
+              new Map([[`rat-stack:${sha}:example.ts`, body]])
+            ),
+          ])
+        );
+
+        const [snippet] = prepared.snippets.values();
+        expect(snippet).toBeDefined();
+
+        if (!snippet) {
+          return;
+        }
+
+        const ordinary = yield* FenceHighlighter;
+        const expected = coloredTokens(ordinary.render(body, "ts"));
+        expect(
+          new Set(
+            expected.map((token) =>
+              token.style.split(";").find((entry) => entry.startsWith("color:"))
+            )
+          ).size
+        ).toBeGreaterThan(3);
+        expect(coloredTokens(snippetHtml(snippet))).toEqual(expected);
+      })
+  );
+});
 
 it.effect.prop(
   "P6 registry renderers preserve exactly the same visible source text",

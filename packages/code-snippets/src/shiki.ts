@@ -133,6 +133,7 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
               .codeToTokens(source, { lang: canonical, theme })
               .tokens.map((line) =>
                 line.map((token) => ({
+                  color: token.color,
                   fontStyle: token.fontStyle ?? 0,
                   role: roleFor(token.color),
                   text: token.content,

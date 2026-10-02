@@ -1,5 +1,5 @@
 import { CodeBuildFailed } from "@rat-stack/code-snippets";
-import type { CodeFence, CodeSnippet } from "@rat-stack/code-snippets";
+import type { CodeFence, CodeSnippet, Token } from "@rat-stack/code-snippets";
 import type { RootContent } from "mdast";
 
 import type { ComponentDefinition } from "./component-registry.ts";
@@ -51,6 +51,18 @@ const tokenColor = (role: string) => {
   return "var(--code-ink)";
 };
 
+const tokenStyle = (token: Token) =>
+  [
+    `color:${token.color ?? tokenColor(token.role)}`,
+    token.fontStyle % 2 === 1 ? "font-style:italic" : "",
+    Math.floor(token.fontStyle / 2) % 2 === 1 ? "font-weight:bold" : "",
+    Math.floor(token.fontStyle / 4) % 2 === 1
+      ? "text-decoration:underline"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(";");
+
 const snippetProvenance = (snippet: CodeSnippet) => {
   const { request } = snippet;
 
@@ -99,7 +111,7 @@ export const snippetHtml = (snippet: CodeSnippet) => {
   const lines = snippet.lines
     .map(
       (line) =>
-        `${line.gapBefore > 0 ? `<span class="code-gap" aria-label="${line.gapBefore} omitted lines" data-label="⋯ ${line.gapBefore} lines"></span>` : ""}<span class="code-line${line.highlighted ? " code-highlighted" : ""}"><span class="code-number" aria-hidden="true" data-line="${line.number}"></span><span class="code-text">${line.tokens.map((token) => `<span style="color:${tokenColor(token.role)}${token.fontStyle === 1 ? ";font-style:italic" : ""}">${escapeHtml(token.text)}</span>`).join("")}</span></span>`
+        `${line.gapBefore > 0 ? `<span class="code-gap" aria-label="${line.gapBefore} omitted lines" data-label="⋯ ${line.gapBefore} lines"></span>` : ""}<span class="code-line${line.highlighted ? " code-highlighted" : ""}"><span class="code-number" aria-hidden="true" data-line="${line.number}"></span><span class="code-text">${line.tokens.map((token) => `<span style="${escapeHtml(tokenStyle(token))}">${escapeHtml(token.text)}</span>`).join("")}</span></span>`
     )
     .join("\n");
 
