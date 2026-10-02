@@ -204,6 +204,23 @@ describe("subprocess Sandbox", () => {
     );
   });
 
+  for (const code of [
+    "for (;;) {}",
+    "await tools.double({ n: 1 }); for (;;) {}",
+    "await 0; for (;;) {}",
+  ]) {
+    it.live(`bounds VM execution with reason timeout: ${code}`, () =>
+      Effect.gen(function* boundsEvaluation() {
+        const sandbox = yield* Sandbox;
+
+        const error = yield* sandbox.run(code, invoke).pipe(Effect.flip);
+
+        expect(error.reason).toBe("timeout");
+        expect(error.message).toContain("Script execution timed out");
+      }).pipe(Effect.provide(TestLayer))
+    );
+  }
+
   it.live("kills a runaway program with reason timeout", () =>
     Effect.gen(function* timesOut() {
       const sandbox = yield* Sandbox;
