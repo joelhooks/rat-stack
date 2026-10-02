@@ -63,6 +63,8 @@ it.layer(shikiLayer())("whole-file lexical context", (test) => {
           )
         );
 
+        expect(whole[2]?.every((token) => token.role === "muted")).toBe(true);
+
         for (const line of snippet.lines) {
           expect(line.tokens).toEqual(whole[line.number - 1]);
         }

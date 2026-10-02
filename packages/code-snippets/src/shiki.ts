@@ -16,7 +16,9 @@ const Language = Schema.declare<BundledLanguage | "text">(
     (value === "text" || Object.hasOwn(bundledLanguages, value))
 );
 
-const roleFor = (color: string | undefined): Token["role"] => {
+const roleFor = (rawColor: string | undefined): Token["role"] => {
+  const color = rawColor?.toLowerCase();
+
   if (color === "#9ca0b0" || color === "#7c7f93") {
     return "muted";
   }
