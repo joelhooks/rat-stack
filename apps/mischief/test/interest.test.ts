@@ -168,11 +168,11 @@ it.effect(
           }
 
           expect(text).toContain('id="interested"');
-          expect(text).toContain("Free workshop");
+          expect(text).toContain("Apply for a free seat");
           expect(text).toContain("Free, by application. Very limited seats.");
           expect(text).toContain("The date gets set with the people picked.");
-          expect(text).toContain("How applying works");
-          expect(text).toContain("Nothing goes until you say yes.");
+          expect(text).toContain("How it works");
+          expect(text).toContain("sends nothing until you say yes.");
           expect(text).toContain(
             "Joel reads every application and picks 2–3 people."
           );
@@ -675,7 +675,7 @@ it.effect(
         expect(html).toContain('<meta name="robots" content="noindex"');
         expect(html).not.toContain("<form");
         expect(html).toContain(
-          '<h2 id="interested">Free workshop: apply through your coding agent</h2>'
+          '<h2 id="interested">Apply for a free seat</h2>'
         );
         expect(html).toContain("Apply through your agent");
       })

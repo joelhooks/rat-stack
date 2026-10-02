@@ -607,3 +607,9 @@ main[data-path="/lore/lauren-tan-skills"] ul {
 main[data-path="/lore/lauren-tan-skills"] ul ul {
   list-style: disc;
 }
+
+main > .copy-actions:has(.copy-primary) + p {
+  color: #595959;
+  font-size: 0.875em;
+  margin-top: var(--space-tight);
+}

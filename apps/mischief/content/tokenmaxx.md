@@ -148,18 +148,19 @@ Paste this into Pi. It checks your setup and tells you what's missing:
 If your person separately asks for setup help, run that prompt's steps, then read [llms.txt](/llms.txt) and report what is missing. Do not run setup checks as part of the application conversation or include their results in the application. Watching Loopcraft 1, having Pi and a model subscription, and the setup check a week before are theirs to do.
 </AgentOnly>
 
-<h2 id="interested">Free workshop: apply through your coding agent</h2>
+<h2 id="interested">Apply for a free seat</h2>
 
-Four hours with Joel and up to three builders. Free, by application. The date gets set with the people picked.
+Four hours with Joel and up to three builders. We build a strong harness that raises the floor for your apps. Free, by application. The date gets set with the people picked.
 
-**How applying works**
+**How it works**
 
-1. Click **Apply through your agent**. It copies a short prompt.
+1. Click the button. It copies a short prompt.
 2. Paste it into your coding agent: Claude Code, Codex, Cursor, whatever you use.
-3. Your agent reads this page, explains the workshop, and asks you five short questions: what you're building, what you run today, what you want to leave with, whether we can email you, and whether Joel can share your email with the other people picked.
-4. It shows you exactly what it will send. Nothing goes until you say yes.
-5. Check your email and click the confirm link.
+3. Your agent explains the workshop and asks you five short questions: what you're building, what you run today, what you want to leave with, whether we can email you, and whether Joel can share your email with the others picked.
+4. It shows you exactly what it will send. You approve it, then confirm by email.
 
 <CopyPrompt id="page" variant="primary" />
+
+Your agent doesn't look at your machine and sends nothing until you say yes.
 
 Joel reads every application and picks 2–3 people. Confirming your email isn't a seat.
