@@ -7,6 +7,7 @@ import { intakeLiveLayer } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import * as Telemetry from "alchemy/Telemetry";
 import { Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
@@ -22,6 +23,7 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
+import { privateHttpTracingLayer } from "./http-privacy.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
@@ -297,7 +299,14 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     events,
     agentSignup
   );
-}).pipe(Effect.provide(Cloudflare.Workers.RateLimitBinding));
+}).pipe(
+  Effect.provide(
+    Layer.mergeAll(
+      Cloudflare.Workers.RateLimitBinding,
+      Telemetry.layer(privateHttpTracingLayer)
+    )
+  )
+);
 
 export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
