@@ -6,10 +6,22 @@ import { SandboxError } from "./sandbox-error.js";
 import { Sandbox } from "./sandbox-service.js";
 import type { Invoke, InvokeOutcome, SandboxRun } from "./sandbox-service.js";
 
-const RUNNER_SOURCE = String.raw`
+export const RUNNER_SOURCE = String.raw`
 import { createInterface } from "node:readline";
 import { createContext, Script } from "node:vm";
 const logs = [];
+const parentPid = process.ppid;
+const exitIfOrphaned = () => {
+  if (process.ppid === 1 || process.ppid !== parentPid) process.exit(1);
+};
+exitIfOrphaned();
+setInterval(exitIfOrphaned, 250).unref();
+process.stdin.on("end", () => process.exit(1));
+process.stdin.on("close", () => process.exit(1));
+const evaluationOptions = { timeout: 1000 };
+let deadline;
+let expiresAt = 0;
+const evaluationTimeout = () => Math.max(1, Math.min(evaluationOptions.timeout, expiresAt - Date.now()));
 const send = (message) => new Promise((resolve, reject) => {
   process.stdout.write(JSON.stringify(message) + "\n", (error) => {
     if (error) reject(error);
@@ -21,9 +33,7 @@ const context = createContext(Object.create(null), {
   microtaskMode: "afterEvaluate",
 });
 context.__hostCall = (id, name, input) => {
-  send({ type: "call", id, name, input: JSON.parse(input) }).catch(() => {
-    process.exitCode = 1;
-  });
+  send({ type: "call", id, name, input: JSON.parse(input) }).catch(() => process.exit(1));
 };
 context.__hostLog = (level, text) => {
   logs.push(level + ": " + text);
@@ -32,9 +42,7 @@ context.__hostDone = (encoded) => {
   const outcome = JSON.parse(encoded);
   send({ ...outcome, logs }).then(
     () => process.exit(0),
-    () => {
-      process.exitCode = 1;
-    }
+    () => process.exit(1)
   );
 };
 const bridge = new Script([
@@ -89,32 +97,43 @@ const bridge = new Script([
   "  };",
   "  return { tools, console, deliver, execute, configure };",
   "})()",
-].join(String.fromCharCode(10))).runInContext(context);
+].join(String.fromCharCode(10))).runInContext(context, evaluationOptions);
 const rl = createInterface({ input: process.stdin });
+rl.on("close", () => process.exit(1));
+process.stdin.on("error", () => process.exit(1));
+process.stdout.on("error", () => process.exit(1));
 rl.on("line", (line) => {
   if (line.trim() === "") return;
   const message = JSON.parse(line);
   if (message.type === "result") {
-    bridge.deliver(message.id, JSON.stringify(message));
-    new Script("void 0").runInContext(context);
+    try {
+      context.__deliver = bridge.deliver;
+      context.__deliveryId = message.id;
+      context.__delivery = JSON.stringify(message);
+      new Script("(() => { const deliver = globalThis.__deliver; const id = globalThis.__deliveryId; const encoded = globalThis.__delivery; delete globalThis.__deliver; delete globalThis.__deliveryId; delete globalThis.__delivery; deliver(id, encoded); })()").runInContext(context, { timeout: evaluationTimeout() });
+    } catch (error) {
+      send({ type: "error", reason: error.code === "ERR_SCRIPT_EXECUTION_TIMEOUT" ? "timeout" : "threw", message: error.message, logs }).then(() => process.exit(0), () => process.exit(1));
+    }
     return;
   }
   if (message.type !== "run") return;
+  if (deadline !== undefined) return;
+  const timeoutMillis = Math.max(1, Math.floor(Math.min(message.timeoutMillis, 2147483647)));
+  expiresAt = Date.now() + timeoutMillis;
+  deadline = setTimeout(() => process.exit(1), timeoutMillis);
   try {
     bridge.configure(JSON.stringify(message.names));
-    const program = new Script("(async function(tools, console) {" + String.fromCharCode(10) + message.code + String.fromCharCode(10) + "})").runInContext(context);
-    bridge.execute(program);
-    new Script("void 0").runInContext(context);
+    context.__execute = bridge.execute;
+    new Script("(() => { const execute = globalThis.__execute; delete globalThis.__execute; execute(async function(tools, console) {" + String.fromCharCode(10) + message.code + String.fromCharCode(10) + "}); })()").runInContext(context, { timeout: evaluationTimeout() });
   } catch (error) {
     const outcome = {
       type: "error",
+      reason: error.code === "ERR_SCRIPT_EXECUTION_TIMEOUT" ? "timeout" : "threw",
       message: error instanceof Error ? error.message : String(error),
     };
     send({ ...outcome, logs }).then(
       () => process.exit(0),
-      () => {
-        process.exitCode = 1;
-      }
+      () => process.exit(1)
     );
   }
 });
@@ -135,6 +154,7 @@ const ChildMessage = Schema.Union([
   Schema.Struct({
     logs: Schema.Array(Schema.String),
     message: Schema.String,
+    reason: Schema.optional(Schema.Literals(["threw", "timeout"])),
     type: Schema.Literal("error"),
   }),
 ]);
@@ -147,6 +167,7 @@ type HostMessage =
   | {
       readonly code: string;
       readonly names: readonly string[];
+      readonly timeoutMillis: number;
       readonly type: "run";
     }
   | ({ readonly id: number; readonly type: "result" } & InvokeOutcome);
@@ -175,7 +196,13 @@ const makeSubprocess = (options?: SubprocessOptions) =>
         "-e",
         RUNNER_SOURCE,
       ],
-      { env: {}, extendEnv: false }
+      {
+        detached: true,
+        env: {},
+        extendEnv: false,
+        forceKillAfter: "250 millis",
+        killSignal: "SIGTERM",
+      }
     );
 
     const run = Effect.fn("Sandbox.run")(function* run(
@@ -204,7 +231,12 @@ const makeSubprocess = (options?: SubprocessOptions) =>
       const send = (message: HostMessage) =>
         Queue.offer(outbox, encoder.encode(`${JSON.stringify(message)}\n`));
 
-      yield* send({ code, names, type: "run" });
+      yield* send({
+        code,
+        names,
+        timeoutMillis: Duration.toMillis(timeout),
+        type: "run",
+      });
 
       const outcome = yield* Stream.decodeText(handle.stdout).pipe(
         Stream.splitLines,
@@ -235,7 +267,7 @@ const makeSubprocess = (options?: SubprocessOptions) =>
                   : new SandboxError({
                       logs: message.logs,
                       message: message.message,
-                      reason: "threw",
+                      reason: message.reason ?? "threw",
                     })
               );
             })
