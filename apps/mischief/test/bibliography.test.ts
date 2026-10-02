@@ -23,7 +23,14 @@ it.layer(NodeServices.layer)((test) => {
           path.resolve(import.meta.dirname, "../../..", sourcePath)
         );
 
-        expect(parseLorePage(sourcePath, text).bibliography).toHaveLength(6);
+        const { bibliography } = parseLorePage(sourcePath, text);
+        expect(bibliography).toHaveLength(7);
+        expect(bibliography).toContainEqual(
+          expect.objectContaining({
+            title: "Workers Logs",
+            url: "https://developers.cloudflare.com/workers/observability/logs/workers-logs/",
+          })
+        );
 
         for (const field of ["title", "note"] as const) {
           const missing = text.replace(

@@ -1,3 +1,4 @@
+import { RequestGeoSchema } from "@rat-stack/core/request-geo";
 import { Schema } from "effect";
 
 export const AnonymousIdSchema = Schema.NonEmptyString.pipe(
@@ -21,7 +22,7 @@ export const EventSourceSchema = Schema.Literals(["worker"]);
 export type EventSource = typeof EventSourceSchema.Type;
 
 export const ServerContextSchema = Schema.Struct({
-  country: Schema.optionalKey(Schema.String),
+  ...RequestGeoSchema.fields,
   host: Schema.String,
   ipHash: Schema.optionalKey(Schema.String),
   receivedAt: Schema.String,

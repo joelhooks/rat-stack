@@ -1,0 +1,93 @@
+---
+title: "One schema, three surfaces"
+description: "A capability contract feeds CLI, HTTP, and MCP; OpenAPI is generated output, not their input."
+group: idea
+terms:
+  - "surface"
+  - "generating surfaces"
+sources:
+  - url: https://x.com/joelhooks/status/2106018556496457773
+    title: "Joel Hooks on schema-driven CLI/API/MCP"
+    publisher: "Primary source"
+    note: "Joel Hooks on schema-driven CLI/API/MCP"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts
+    title: "packages/capability/src/contract.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/contract.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts
+    title: "packages/capability/src/to-http-api.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-http-api.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-command.ts
+    title: "packages/capability/src/to-command.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-command.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts
+    title: "packages/capability/src/to-toolkit.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-toolkit.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts
+    title: "apps/cli/src/surfaces.ts"
+    publisher: "GitHub"
+    note: "apps/cli/src/surfaces.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/command.ts
+    title: "apps/cli/src/command.ts"
+    publisher: "GitHub"
+    note: "apps/cli/src/command.ts"
+    accessed: "2026-10-02"
+---
+
+[Joel writes in a reply](https://x.com/joelhooks/status/2106018556496457773):
+
+> my approach wrt to the agentic backend is to cover cli/api/mcp with a single openapi schema that is used to generate all three
+
+His example is this repository. The code makes the direction more precise:
+
+- A capability contract owns Effect schemas.
+- HttpApi, OpenAPI, CLI, and MCP derive from that contract.
+- CLI and MCP do not consume the generated OpenAPI JSON.
+
+A **surface** is an invocation interface over shared behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
+
+## One contract feeds the projections
+
+```text
+Contract (Effect schemas + one handler)
+├─ toHttpApi ── HTTP + OpenAPI
+├─ toCommand ── CLI
+└─ toToolkit ── MCP tools
+```
+
+**What to notice:** HttpApi is one projection, not the source of the CLI and MCP projections.
+
+- [to-http-api.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts) derives HttpApi endpoints, the handler Layer, and OpenAPI.
+- [to-command.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-command.ts) derives flags or positional inputs, schema decoding, and the command handler.
+- [to-toolkit.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts) derives tool schemas, annotations, and the toolkit handler Layer.
+
+## Where the CLI composes them
+
+[`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) composes the projections. [`command.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/command.ts) maps registered capabilities to commands. It also prints the generated OpenAPI document.
+
+Source: [`apps/cli/src/surfaces.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 21–25](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/cli/src/surfaces.ts#L21-L25).
+
+```ts
+export const http = toHttpApi("RatStack", capabilities);
+
+export const tools = toToolkit(capabilities);
+
+export const codeMode = toCodeMode(capabilities);
+```
+
+**What to notice:** Each call receives the same capability list.
+
+One HttpApi definition supplies the HTTP implementation and its OpenAPI document. The broader shared definition is the capability contract. This split avoids three independently maintained schemas.
+
+See [MCP](/lore/mcp-is-another-surface), [OpenAPI](/lore/openapi-describes-the-refusal-too), and [code mode](/lore/one-program-can-replace-several-tool-calls) for each surface.
+
+See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

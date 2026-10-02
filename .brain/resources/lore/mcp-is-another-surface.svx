@@ -1,0 +1,64 @@
+---
+title: "MCP is another surface"
+description: "MCP lists and calls schema-typed tools; rat-stack projects the same handlers instead of adding MCP-only behavior."
+group: idea
+terms:
+  - "MCP"
+  - "Model Context Protocol"
+sources:
+  - url: https://modelcontextprotocol.io/specification/2025-06-18/server/tools
+    title: "MCP tools specification"
+    publisher: "Primary source"
+    note: "MCP tools specification"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts
+    title: "packages/capability/src/to-toolkit.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-toolkit.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "apps/mischief/src/app.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/app.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+    title: "apps/mischief/src/capabilities/index.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/capabilities/index.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest-contract.ts
+    title: "packages/core/src/join-interest-contract.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/join-interest-contract.ts"
+    accessed: "2026-10-02"
+---
+
+The Model Context Protocol lets an agent client discover and call tools. The [tools specification](https://modelcontextprotocol.io/specification/2025-06-18/server/tools) defines:
+
+- `tools/list` for discovery.
+- `tools/call` for invocation.
+- Input JSON Schema.
+- Optional output JSON Schema.
+
+A client that speaks MCP can discover names and arguments without learning a separate invocation format. In rat-stack, MCP is a [surface](/lore/one-schema-three-surfaces), not a second implementation of the job.
+
+## The projection
+
+[`packages/capability/src/to-toolkit.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-toolkit.ts) turns contracts into Effect tools. It projects input, output, failure, and annotations.
+
+[`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts):
+
+- Supplies the toolkit to `McpServer.toolkit`.
+- Serves it at [/mcp](/mcp).
+- Serves public documents as resources.
+- Serves skills as prompts.
+
+## The application tool is the same job
+
+[`apps/mischief/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts) includes `joinInterest` in the hosted toolkit. Its [contract](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest-contract.ts) requires contact consent, a page ticket, and the approved card. MCP does not remove that boundary.
+
+The HTTP alternative is `POST /api/joinInterest`. The [first observed application](/lore/two-lines-of-curl-is-a-front-door) uses that route without fetching MCP. The job does not need a protocol-specific handler.
+
+Use [code mode](/lore/one-program-can-replace-several-tool-calls) to combine content calls. It does not expose `joinInterest` inside the sandbox.
+
+See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

@@ -42,8 +42,18 @@ const actor = Schema.decodeSync(ContactRefSchema)("synthetic-contact");
 
 const fixtureStatements = (
   building: string,
-  share = true
+  share = true,
+  identity: { readonly name?: string; readonly x?: string } = {}
 ): readonly IntakeStatement[] => [
+  {
+    actor,
+    context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
+    id: "0199a000-0000-7000-8000-000000000006",
+    object: "tokenmaxx/intake",
+    result: identity,
+    timestamp: "2026-10-01T18:00:00.000Z",
+    verb: "started",
+  },
   {
     actor,
     context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
@@ -185,15 +195,27 @@ it.effect.prop(
     building: Arbitrary.schema(Schema.String),
     forwarded: Arbitrary.schema(Schema.Boolean),
     share: Arbitrary.schema(Schema.Boolean),
+    withIdentity: Arbitrary.schema(Schema.Boolean),
   },
-  ({ building, forwarded, share }) =>
+  ({ building, forwarded, share, withIdentity }) =>
     Effect.gen(function* roundTrip() {
       const { contacts, events, indexed, reader, sealedContacts } =
         yield* makeReaderFixture;
 
       expect(yield* reader.list()).toEqual([]);
       yield* seedContact(contacts, forwarded ? "accepted" : "held");
-      yield* events.record(fixtureStatements(building, share));
+
+      const identity = withIdentity
+        ? { name: "Fake Applicant", x: "https://x.com/fake_applicant" }
+        : {};
+
+      const statements = fixtureStatements(building, share, identity);
+
+      yield* events.record(
+        withIdentity
+          ? statements
+          : statements.filter((row) => row.verb !== "started")
+      );
       expect(yield* Ref.get(indexed)).toEqual(["synthetic-submission"]);
       expect(
         JSON.stringify([...(yield* Ref.get(sealedContacts)).values()])
@@ -202,6 +224,7 @@ it.effect.prop(
         {
           answers: { building, leaveWith: building, today: building },
           email: "synthetic@example.test",
+          ...identity,
           hold: false,
           score: 0,
           share,
@@ -234,12 +257,29 @@ it.effect(
   "guards the operator reader and emits neither plaintext nor operator metadata to observers",
   () =>
     Effect.gen(function* privateReader() {
-      const { contacts, events, reader, sealedContacts } =
+      const { contacts, events, reader, sealedContacts, vault } =
         yield* makeReaderFixture;
 
       const answer = "synthetic-private-answer-marker";
       yield* seedContact(contacts, "accepted");
-      yield* events.record(fixtureStatements(answer));
+
+      const identity = {
+        name: "Fake Private Applicant",
+        x: "https://x.com/fake_private",
+      };
+
+      yield* events.record(fixtureStatements(answer, true, identity));
+
+      const sealedRows = JSON.stringify(
+        [...(yield* vault.contents).values()].map((held) => [
+          ...held.rows.values(),
+        ])
+      );
+
+      for (const value of [answer, identity.name, identity.x]) {
+        expect(sealedRows).not.toContain(value);
+      }
+
       const logs: unknown[] = [];
       const spans: Tracer.NativeSpan[] = [];
       const calls: unknown[] = [];
@@ -319,7 +359,11 @@ it.effect(
         if (response.status === 200) {
           const body = yield* Effect.promise(response.json.bind(response));
           expect(body).toMatchObject([
-            { answers: { building: answer }, email: "synthetic@example.test" },
+            {
+              answers: { building: answer },
+              email: "synthetic@example.test",
+              ...identity,
+            },
           ]);
         }
       }

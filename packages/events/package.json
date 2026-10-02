@@ -33,6 +33,7 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
+    "@rat-stack/core": "workspace:*",
     "alchemy": "2.0.0-beta.80",
     "effect": "4.0.0"
   },

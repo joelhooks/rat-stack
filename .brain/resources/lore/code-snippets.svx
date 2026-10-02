@@ -1,0 +1,311 @@
+---
+title: "Code snippets quote a pinned source"
+description: "Design brief for a build-only code pipeline: pinned Git objects, typed diagnostics, and one snippet model for both views."
+group: idea
+terms:
+  - "code snippets"
+  - "fence metadata"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts
+    title: "Component registry"
+    publisher: "rat-stack"
+    note: "Existing human and agent renderers; the proposed snippet model feeds both."
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts
+    title: "Content generator"
+    publisher: "rat-stack"
+    note: "Existing build-time highlighting and content generation."
+    accessed: "2026-10-02"
+  - url: https://rehype-pretty.pages.dev/
+    title: "rehype-pretty-code"
+    publisher: "rehype-pretty-code"
+    note: "Fence titles and line highlighting syntax."
+    accessed: "2026-10-02"
+  - url: https://expressive-code.com/key-features/text-markers/
+    title: "Text markers"
+    publisher: "Expressive Code"
+    note: "Line sets in fence metadata."
+    accessed: "2026-10-02"
+  - url: https://github.com/expressive-code/expressive-code/blob/main/packages/%40expressive-code/core/src/helpers/meta-options.ts
+    title: "MetaOptions parser"
+    publisher: "Expressive Code"
+    note: "General metadata parsing and last-value accessors."
+    accessed: "2026-10-02"
+  - url: https://github.com/saucelabs/docusaurus-theme-github-codeblock
+    title: "Docusaurus Theme GitHub Codeblock"
+    publisher: "Sauce Labs"
+    note: "Code imports from GitHub reference URLs."
+    accessed: "2026-10-02"
+  - url: https://github.com/haocheng6/remark-github-code-import/blob/main/src/utils.ts
+    title: "remark-github-code-import utilities"
+    publisher: "haocheng6"
+    note: "Network fetch from raw.githubusercontent.com."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651
+    title: "Effect.validate"
+    publisher: "Effect contributors"
+    note: "Evaluate all independent jobs and collect failures."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Schema.ts
+    title: "Effect Schema"
+    publisher: "Effect contributors"
+    note: "Decode unknown input and define tagged errors."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Layer.ts
+    title: "Effect Layer"
+    publisher: "Effect contributors"
+    note: "Provide service adapters."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/vitest/src/index.ts#L53-L165
+    title: "Effect Vitest property APIs"
+    publisher: "Effect contributors"
+    note: "Schema or Arbitrary inputs, shrinking, and check options."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Arbitrary.ts
+    title: "Effect Arbitrary"
+    publisher: "Effect contributors"
+    note: "Schema-derived generators and shrinking."
+    accessed: "2026-10-02"
+  - url: https://shiki.style/guide/install
+    title: "Shiki installation and usage"
+    publisher: "Shiki"
+    note: "Whole-file token output through codeToTokens."
+    accessed: "2026-10-02"
+---
+
+**Design brief; implementation in progress.**
+
+This page defines the intended contract for `@rat-stack/code-snippets`.
+Examples show proposed syntax. They do not claim that the package is shipped.
+
+This page belongs in lore. Lore explains design choices; [systems](/systems) documents shipped behavior.
+The [project vision](https://github.com/joelhooks/rat-stack/blob/main/VISION.md) makes that distinction.
+
+## The problem
+
+A copied excerpt can stop matching its source.
+A reader needs the exact revision, file, and selected lines.
+An author needs errors that explain how to repair a broken reference.
+
+The proposed package reads [pinned sources](/lore/pinned-sources-can-report-drift) during content generation.
+It produces [one snippet model for both renderers](/lore/one-snippet-model-two-renderers).
+It reports changed selected lines as warnings without replacing the pinned text.
+
+## The authoring syntax
+
+Fences are the only authoring syntax. Authors do not write `<Code>` elements.
+The internal component renderer remains an implementation detail.
+
+Fence metadata has these parts:
+- An optional language token.
+- Whitespace-separated `key=value` pairs.
+- At most one highlight set, such as `{3,5-7}`.
+- Unquoted or double-quoted values.
+
+The accepted keys are `repo`, `path`, `at`, `lines`, and `title`.
+Unknown keys, duplicate keys, and malformed metadata are errors.
+
+An inline example:
+
+````markdown
+```ts {2} title="answer.ts"
+const answer = 42;
+export { answer };
+```
+````
+
+A source reference has an empty body:
+
+````markdown
+```ts repo=rat-stack path=packages/core/src/inspect-machine.ts at=445b1a20b51a5492f8e586daeb9306e8011b7673 lines=40-46,50-53 {44,50-53}
+```
+````
+
+For a source reference:
+- `repo` identifies a configured repository.
+- `path` names a relative file path.
+- `at` pins a full commit SHA, never a branch name.
+- `lines` selects positive, ordered, non-overlapping inclusive ranges.
+- Highlights use original source line numbers and stay inside visible ranges.
+- At most 25 source lines are visible. Collapsed gaps do not count.
+
+A `path` reference with body text fails with `CodeBodyWithReference`.
+
+An explicit language wins. An unknown explicit language is an error.
+Without a language, a source reference infers it from the file extension.
+
+An unmapped extension or an unlabelled inline fence uses `markdown`.
+The adapter maps `svx` to Markdown and `txt` to text; it accepts `javascript` explicitly.
+
+Ordinary fences without metadata keep their renderer, apart from the new default language rule.
+
+[Schema decoding](/lore/schemas-define-the-boundary) establishes the barricade: parse unknown metadata into a `CodeRequest` at the boundary.
+Later stages receive decoded values, not unchecked strings.
+
+## The pipeline
+
+<Diagram alt="Collect produces CodeRequest; resolve produces ResolvedCode; highlight produces HighlightedFile; decorate produces CodeSnippet; preflight permits HTML and agent Markdown emission.">
+
+```text
+fence nodes
+    │ collect and decode
+    ▼
+CodeRequest
+    │ resolve pinned Git object
+    ▼
+ResolvedCode
+    │ tokenize the whole file
+    ▼
+HighlightedFile
+    │ select lines, highlights, and gaps
+    ▼
+CodeSnippet
+    │ all jobs pass preflight
+    ├──────────────────────┐
+    ▼                      ▼
+HTML                   agent Markdown
+```
+
+</Diagram>
+
+What to notice: each stage adds facts. Both renderers use the same final model.
+
+| Stage | Adds or checks |
+| --- | --- |
+| Collect | Walk mdast code nodes; scan metadata; Schema-decode requests and source locations. |
+| Resolve | Read source text; determine file length and language; check ranges; derive a source link. |
+| Highlight | Produce tokens for every source line. |
+| Decorate | Select numbered lines; attach highlights, collapsed gaps, provenance, and diagnostics. |
+| Emit | Write assets only after every independent job passes preflight. |
+
+[Whole-file tokenization](/lore/tokenize-before-slicing) comes before range selection.
+This preserves the preceding source context for multiline comments and strings.
+
+## Ports and adapters
+
+The package follows [ports and adapters](/lore/hexagonal-architecture).
+Its core owns stage schemas, errors, and selection rules. Core imports neither Git nor Shiki.
+
+`SourceRepository` resolves repository id, commit, and path through a decoded registry.
+Each entry contains `id`, `adapter`, `location`, and an optional `linkTemplate`.
+
+The `/git` adapter reads any configured local Git repository.
+Mischief configures `rat-stack` to the clone used for generation.
+Link templates substitute `{sha}`, `{path}`, `{start}`, and `{end}`.
+A GitHub, GitLab, Forgejo, or link-free entry needs no core change.
+
+The [highlighter port](/lore/engine-neutral-tokens-keep-adapters-replaceable) exposes:
+- Per-line tokens containing `text`, `role`, and `fontStyle`.
+- Language, alias, and theme catalogues.
+- An engine fingerprint for caching.
+
+The `/shiki` adapter uses the existing build-only Shiki 3.23.0 pin.
+Shiki token types stay inside that adapter.
+A `/plain` adapter supplies uncoloured tokens for core tests.
+
+[Layers](/lore/layer-constructor-pattern) provide the adapters. Shiki acquisition and disposal stay inside a scoped Layer.
+
+Mischief owns mdast collection, renderer dispatch, markup, CSS, and reporting.
+Syntax styles obey [the fence](/lore/the-fence), including the existing accent rule.
+
+### Cache boundaries
+
+Two build-scoped caches reuse immutable successes:
+- Blob cache: repository, commit, and path.
+- Whole-file token cache: blob key, language, theme, and engine fingerprint.
+
+Snippet decoration also depends on ranges and highlights.
+HEAD, diagnostics, and failures do not enter the immutable cache.
+There is no persistent cache initially. Content-addressed output and Turbo provide reuse between builds.
+
+## Errors as interface
+
+[Errors are part of the interface](/lore/errors-are-part-of-the-interface).
+Each typed error keeps the source location, request context, and a repair instruction.
+Range errors include requested ranges and actual file length when available.
+Invalid metadata retains raw values because no decoded request exists.
+
+| Error family | Proposed tags | Repair |
+| --- | --- | --- |
+| Metadata | `CodeInvalidProps`, `CodeUnknownKey`, `CodeDuplicateKey`, `CodeMalformedMeta`, `CodeBodyWithReference` | Correct the fence metadata or remove reference body text. |
+| Registry | `CodeUnknownRepo`, `CodeRepositoryConfigInvalid` | Select a registered id or repair the registry. |
+| Source | `CodeMissingCommit`, `CodeMissingPath`, `CodeSourceUnavailable` | Correct the pin or path; fetch missing shallow history before generation. |
+| Selection | `CodeInvalidRanges`, `CodeRangeOutOfBounds`, `CodeHighlightOutsideRanges`, `CodeLineCapExceeded` | Use ordered, visible ranges within file bounds and the line cap. |
+| Engine | `UnknownLanguage`, `CodeHighlightFailed` | Select a supported language or repair the highlighter adapter. |
+
+The report-level `CodeBuildFailed` holds collected failures.
+[Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651), not `validateAll`.
+
+A dependent stage stops on failure. Unrelated jobs still run.
+No asset writer runs before successful preflight.
+
+[Source drift](/lore/pinned-sources-can-report-drift) is diagnostic data, not a failing Effect.
+The [error model](/lore/error-model) separates expected failures from defects.
+
+## The testing approach
+
+These are planned acceptance properties, not completed test results.
+Use a small plain-array reference model for visible line numbers, gaps, and highlights.
+Do not copy production selection logic into the model.
+See [model-based testing](/lore/model-based-testing) and [tests that earn their place](/lore/tests-that-earn-their-place).
+
+| Property | Required behavior |
+| --- | --- |
+| P1 | Printing then parsing valid metadata preserves the request. |
+| P2 | Every arbitrary metadata string produces a request or a typed failure; parsing never crashes. |
+| P3 | Accepted ranges are positive, ordered, disjoint, and strictly within source bounds. |
+| P4 | Visible line numbers, collapsed gaps, and highlights match the independent array model. |
+| P5 | Selected tokens match whole-file Shiki tokens, including multiline comments and template strings. |
+| P6 | HTML, agent Markdown, and pinned source agree on selected text and provenance. |
+| P7 | Exactly `k` independent failures produce `k` diagnostics and no asset writes. |
+| P8 | Repeated rendering with an identical content key produces identical bytes. Every output-affecting input participates in the key. |
+
+A changed key need not change output bytes. An engine version change can preserve token output.
+
+Use [property-based testing and shrinking](/lore/property-based-testing).
+Effect 4 exposes [`Arbitrary.schema`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Arbitrary.ts) through `effect/Arbitrary`.
+[`it.prop` and `it.effect.prop`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/vitest/src/index.ts#L53-L165) accept Schema or Arbitrary inputs.
+
+Start with 40 runs per property.
+P5 exercises Shiki. Other core properties use the plain adapter.
+
+Also require:
+- One exact-message example per error tag at the diagnostic seam.
+- Byte comparisons for ordinary fences under the decided default language rule.
+- A planted range or slicing bug that makes its property fail.
+- Startup bundle checks for the build-only boundary.
+
+Use [tests that earn their place](/lore/tests-that-earn-their-place) for planted-bug checks.
+[Agents explore, tests remember](/lore/agents-explore-tests-remember) connects exploration with repeatable behavior checks.
+
+## Prior art and where we differ
+
+| Source | Reused idea | Proposed difference |
+| --- | --- | --- |
+| [rehype-pretty-code](https://rehype-pretty.pages.dev/) | Fence titles and `{1-3,4}` line highlights. | Add repository, commit, path, and selection keys. |
+| [Expressive Code text markers](https://expressive-code.com/key-features/text-markers/) | Line sets in fence metadata. | Reject malformed or unsupported metadata instead of accepting a broad marker language. |
+| [Expressive Code MetaOptions](https://github.com/expressive-code/expressive-code/blob/main/packages/%40expressive-code/core/src/helpers/meta-options.ts) | A dedicated metadata parser. | Use an allowlist and reject duplicate keys. Its accessors can return the last matching value. |
+| [Docusaurus Theme GitHub Codeblock](https://github.com/saucelabs/docusaurus-theme-github-codeblock) | Import excerpts from GitHub reference URLs. | Resolve local Git objects instead of downloading code. |
+| [remark-github-code-import](https://github.com/haocheng6/remark-github-code-import/blob/main/src/utils.ts) | Import excerpts from GitHub URLs, including commit permalinks. | Keep generation offline; use a configured repository registry. |
+
+The proposed scanner is intentionally stricter than the general `MetaOptions` parser.
+It accepts only the grammar documented above.
+
+## What is deliberately not built
+
+There is no remote source adapter, mirror synchronization, or persistent snippet cache in this design.
+A shallow clone must already contain the pinned commit and blob.
+Generation performs no checkout and no network fetch.
+
+[Build-time work stays out of requests](/lore/build-time-work-stays-out-of-requests).
+The Worker receives static assets, not Git access, Shiki, or the snippet package.
+
+There is no state machine yet.
+This is one scoped Effect over immutable local objects.
+It has no retry policy, resumable acquisition, or externally driven state transitions.
+A machine would repeat the stage call graph without owning a lifecycle.
+
+[Lifecycles are machines](/lore/lifecycles-are-machines) applies when remote acquisition adds retries, cancellation, or resumability.
+That future adapter must use declared Effect actors rather than inline side effects.
+
+See [the glossary](/glossary) for fence metadata and the linked concepts.

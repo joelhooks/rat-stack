@@ -44,6 +44,8 @@ const card = {
   answers: { building: "a workshop tool", leaveWith: "a working loop" },
   consent: { contact: true },
   email: "fictional@example.test",
+  name: "Fake Applicant",
+  x: "https://x.com/fake_applicant",
 } as const;
 
 it.effect.prop(
@@ -157,6 +159,9 @@ it.effect.prop(
 
           expect(JSON.stringify(recorded)).not.toContain(card.email);
           expect(
+            recorded.find((statement) => statement.verb === "started")?.result
+          ).toEqual({ name: card.name, x: card.x });
+          expect(
             recorded.find(
               (statement) => statement.object === "tokenmaxx/consents/share"
             )?.result
@@ -187,6 +192,19 @@ it.effect.prop(
       const [payload] = forwarded;
 
       if (payload !== undefined) {
+        expect(Object.keys(payload).toSorted()).toEqual([
+          "agentRef",
+          "clientBucket",
+          "email",
+          "hold",
+          "score",
+          "signals",
+          "source",
+          "submissionId",
+          "ticket",
+        ]);
+        expect(payload).not.toHaveProperty("name");
+        expect(payload).not.toHaveProperty("x");
         expect(payload).not.toHaveProperty("answers");
         expect(payload).not.toHaveProperty("consent");
         expect(payload).not.toHaveProperty("challenge");

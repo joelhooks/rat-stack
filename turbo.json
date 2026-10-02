@@ -20,25 +20,172 @@
     "//#typecheck-scripts": {
       "outputs": []
     },
+    "//#lockfile:check": {
+      "cache": false,
+      "outputs": []
+    },
     "check": {
-      "dependsOn": ["typecheck", "//#lint", "//#typecheck-scripts"],
+      "dependsOn": [
+        "//#lockfile:check",
+        "typecheck",
+        "//#lint",
+        "//#typecheck-scripts"
+      ],
       "outputs": []
     },
     "@rat-stack/mischief#generate": {
       "cache": false,
-      "outputs": ["src/bundled-content.generated.ts"]
+      "outputs": ["src/bundled-content.generated.ts"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/assets/**",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/VISION.md",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/*.config.ts",
+        "!$TURBO_ROOT$/apps/**/node_modules/**",
+        "!$TURBO_ROOT$/packages/**/node_modules/**",
+        "!$TURBO_ROOT$/apps/**/dist/**",
+        "!$TURBO_ROOT$/packages/**/dist/**",
+        "!$TURBO_ROOT$/apps/**/.turbo/**",
+        "!$TURBO_ROOT$/packages/**/.turbo/**",
+        "!$TURBO_ROOT$/apps/**/*.generated.ts",
+        "!$TURBO_ROOT$/packages/**/*.generated.ts",
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+      ]
     },
     "@rat-stack/mischief#typecheck": {
       "dependsOn": ["@rat-stack/mischief#generate", "^typecheck"],
-      "outputs": []
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/assets/**",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/VISION.md",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/*.config.ts",
+        "!$TURBO_ROOT$/apps/**/node_modules/**",
+        "!$TURBO_ROOT$/packages/**/node_modules/**",
+        "!$TURBO_ROOT$/apps/**/dist/**",
+        "!$TURBO_ROOT$/packages/**/dist/**",
+        "!$TURBO_ROOT$/apps/**/.turbo/**",
+        "!$TURBO_ROOT$/packages/**/.turbo/**",
+        "!$TURBO_ROOT$/apps/**/*.generated.ts",
+        "!$TURBO_ROOT$/packages/**/*.generated.ts",
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+      ]
     },
     "@rat-stack/mischief#build": {
       "dependsOn": ["@rat-stack/mischief#generate", "^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/assets/**",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/VISION.md",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/*.config.ts",
+        "!$TURBO_ROOT$/apps/**/node_modules/**",
+        "!$TURBO_ROOT$/packages/**/node_modules/**",
+        "!$TURBO_ROOT$/apps/**/dist/**",
+        "!$TURBO_ROOT$/packages/**/dist/**",
+        "!$TURBO_ROOT$/apps/**/.turbo/**",
+        "!$TURBO_ROOT$/packages/**/.turbo/**",
+        "!$TURBO_ROOT$/apps/**/*.generated.ts",
+        "!$TURBO_ROOT$/packages/**/*.generated.ts",
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+      ]
     },
     "@rat-stack/web#typecheck": {
       "dependsOn": ["^build", "^typecheck"],
       "outputs": []
+    },
+    "@rat-stack/mischief#test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/assets/**",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/VISION.md",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/*.config.ts",
+        "!$TURBO_ROOT$/apps/**/node_modules/**",
+        "!$TURBO_ROOT$/packages/**/node_modules/**",
+        "!$TURBO_ROOT$/apps/**/dist/**",
+        "!$TURBO_ROOT$/packages/**/dist/**",
+        "!$TURBO_ROOT$/apps/**/.turbo/**",
+        "!$TURBO_ROOT$/packages/**/.turbo/**",
+        "!$TURBO_ROOT$/apps/**/*.generated.ts",
+        "!$TURBO_ROOT$/packages/**/*.generated.ts",
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+      ]
+    },
+    "@rat-stack/mischief#check": {
+      "dependsOn": [
+        "//#lockfile:check",
+        "typecheck",
+        "//#lint",
+        "//#typecheck-scripts"
+      ],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/assets/**",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/VISION.md",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/*.config.ts",
+        "!$TURBO_ROOT$/apps/**/node_modules/**",
+        "!$TURBO_ROOT$/packages/**/node_modules/**",
+        "!$TURBO_ROOT$/apps/**/dist/**",
+        "!$TURBO_ROOT$/packages/**/dist/**",
+        "!$TURBO_ROOT$/apps/**/.turbo/**",
+        "!$TURBO_ROOT$/packages/**/.turbo/**",
+        "!$TURBO_ROOT$/apps/**/*.generated.ts",
+        "!$TURBO_ROOT$/packages/**/*.generated.ts",
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+      ]
     }
   }
 }

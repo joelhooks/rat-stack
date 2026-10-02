@@ -9,8 +9,8 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
 - Effect `4.0.0` and `@effect/platform-node` `4.0.0`
-- XState `6.0.0-alpha.59` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `0.1.0-alpha.2` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `fromEffect` actors. Published to npm 2026-09-19; `vendor/README.md` keeps the rules for the next unpublished pin
+- XState `6.0.0-alpha.63` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `0.1.0-alpha.6` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `fromEffect` actors. This pin was published to npm 2026-10-01; `vendor/README.md` keeps the rules for the next unpublished pin
 - Alchemy `2.0.0-beta.80` (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.45.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
 - `@effect/vitest` `4.0.0` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
@@ -143,6 +143,21 @@ A child project replaces this section on day one with its own architecture. Reco
 - Devtools are capabilities: `devtools(capabilities)` adds the `rat_*` capabilities, and a dev composition provides the recording layer from `devtoolsLayer()` through `CallWatch` (`@rat-stack/capability/call-watch`). `implement` reads that ambient reference once per call and surrounds the approval-gated handler, so denied calls are recorded too; the default is a no-op. `CallWatch` observes calls across projections without changing their capability lists. `aroundHandlers` stays as the explicit wrapper over one capability list: drovr uses it for `writeGate` to serialize and audit approval-gated writes. Both compose because `implement` reads `CallWatch` inside the handler that `aroundHandlers` wraps; the gate runs outside the recorder. `rat_call` dispatches through `invokerFor`, the same path code mode uses. Machines report through `watchActor` (`@rat-stack/capability/actor-watch`), a no-op `ActorWatch` reference that the recorder overrides; `rat-stack-patterns/watch-effect-actors` requires the call. `devtools(capabilities, { runAs })` records each call's identity and lets `rat_call` take `as`; the composition root passes `runAsPerson` from `@rat-stack/auth/devtools`, so devtools never imports auth. `rat-stack-boundaries/no-devtools-in-production` keeps `@rat-stack/devtools` and `@rat-stack/auth/devtools` in `apps/*/src/dev/**`, `apps/cli`, and tests, and keeps everything outside an app's `dev/` folder from importing it, so a deployed entry cannot reach `rat_call` or test people. `--devtools` binds `127.0.0.1` only. Plan and tool list: `.brain/projects/rat-devtools.svx`.
 - `apps/cli/src/surfaces.ts` is the only place projections are instantiated; `apps/cli/src/command.ts` maps them to subcommands; `apps/cli/src/cli.ts` is the single composition root that provides `FileInspector` and `NodeServices`.
 - The [README's Keep or cut section](./README.md#keep-or-cut) lists what to delete per surface.
+
+## Wiki writing
+
+Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical English. This is a house style, not certification.
+
+- Aim for sentences of 20 words or fewer. Descriptive sentences may use up to 25 words.
+- Put one idea in each sentence. Use active voice and present tense.
+- Use the same glossary term for the same thing. Remove idioms and filler.
+- Prefer lists to paragraphs. Put one instruction in each step.
+- Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
+- Be plain and strict, not robotic.
+
+Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each point one visual, one or two nearby sentences, and a **What to notice** line. Do not add decorative visuals.
+
+The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It reads parsed Markdown prose, not raw-source patterns. Code, tables, quotes, and frontmatter are excluded. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
 
 ## Web feature blueprint
 

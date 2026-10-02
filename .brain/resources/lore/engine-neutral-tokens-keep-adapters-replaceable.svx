@@ -1,0 +1,45 @@
+---
+title: "Engine-neutral tokens keep adapters replaceable"
+description: "The highlighter port exposes text, roles, and font styles rather than Shiki types."
+group: concept
+terms:
+  - "engine-neutral token"
+  - "highlighter port"
+sources:
+  - url: https://alistair.cockburn.us/hexagonal-architecture/
+    title: "Hexagonal architecture"
+    publisher: "Primary source"
+    note: "Port and adapter boundary"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lore/code-snippets.svx
+    title: "Code-snippets design brief"
+    publisher: "Primary source"
+    note: "Proposed highlighter contract"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Layer.ts
+    title: "Effect Layer"
+    publisher: "Effect contributors"
+    note: "Service providers"
+    accessed: "2026-10-02"
+---
+
+A highlighter port names the job without selecting an engine.
+This follows [ports and adapters](/lore/hexagonal-architecture).
+
+The [code-snippets design brief](/lore/code-snippets) specifies an engine-neutral token:
+- `text`: token source text.
+- `role`: syntax role.
+- `fontStyle`: style information.
+
+The highlighter port also exposes languages, aliases, themes, and an engine fingerprint.
+The fingerprint participates in token cache keys.
+
+The proposed Shiki adapter keeps Shiki's token type inside the adapter.
+A plain adapter returns uncoloured text.
+Both adapters provide the same port through an [Effect Layer](/lore/layer-constructor-pattern).
+
+Core properties use the plain adapter.
+The whole-file token property exercises Shiki.
+[One snippet model](/lore/one-snippet-model-two-renderers) supplies both renderers.
+
+See [the glossary](/glossary) for engine-neutral token and highlighter port.

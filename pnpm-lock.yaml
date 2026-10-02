@@ -538,14 +538,14 @@ importers:
         specifier: workspace:*
         version: link:../capability
       '@xstate/effect':
-        specifier: 0.1.0-alpha.2
-        version: 0.1.0-alpha.2(effect@4.0.0)(xstate@6.0.0-alpha.59)
+        specifier: 0.1.0-alpha.6
+        version: 0.1.0-alpha.6(effect@4.0.0)(xstate@6.0.0-alpha.63)
       effect:
         specifier: 4.0.0
         version: 4.0.0
       xstate:
-        specifier: 6.0.0-alpha.59
-        version: 6.0.0-alpha.59
+        specifier: 6.0.0-alpha.63
+        version: 6.0.0-alpha.63
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
@@ -636,6 +636,9 @@ importers:
 
   packages/events:
     dependencies:
+      '@rat-stack/core':
+        specifier: workspace:*
+        version: link:../core
       alchemy:
         specifier: 2.0.0-beta.80
         version: 2.0.0-beta.80(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))))(@types/node@24.13.6)(@types/react@19.2.0)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))(ws@8.22.0)
@@ -3233,11 +3236,11 @@ packages:
   '@vitest/spy@5.0.1':
     resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
 
-  '@xstate/effect@0.1.0-alpha.2':
-    resolution: {integrity: sha512-r55Pf0b8j4DBw24Yq7inJlYFRtru+JZmYx2dacCmRTAnlGEHh92pO+Dp1rMw7WkPPK9EBVShYddluu7xPOKskA==}
+  '@xstate/effect@0.1.0-alpha.6':
+    resolution: {integrity: sha512-6fQ8vTfQf8evetno5x4vrS49IoS9XuiyPJixDHmQeIabZVXo1nSBtIZp6tw2ofYDkfdtlSPBYUnjoGhPB8T0Rw==}
     peerDependencies:
-      effect: ^4.0.0-rc.115
-      xstate: ^6.0.0-alpha.58
+      effect: ^4.0.0
+      xstate: ^6.0.0-alpha.63
 
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
@@ -4899,10 +4902,6 @@ packages:
     resolution: {integrity: sha512-PNW6ktrQ8SM6kk7u4aOuTkkUewkzyTOrj+QeEzXSsnNMAdff4ire9CAqIz8+4C3rCiBtK8QTELv52AZEd1PbRw==}
     engines: {node: '>=16'}
 
-  saxes@6.0.0:
-    resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
-    engines: {node: '>=v12.22.7'}
-
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
@@ -5417,11 +5416,8 @@ packages:
     resolution: {integrity: sha512-bx8Q1STctnNaaDymWnkfQLKofs0mGNN7rLLapJlGuV3VlvegD7Ls4ggMjE3aUSWItCCzU0PEv45lI87iSigiCA==}
     engines: {node: '>=20.0'}
 
-  xmlchars@2.2.0:
-    resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
-
-  xstate@6.0.0-alpha.59:
-    resolution: {integrity: sha512-IDBLFTCkMgRzoxecswgXKnZin6aca237WhogmMeuebGnYn+NeQUq9IcAeWKuf/Y0TDYZFwupnx5tP23GMSl1Ww==}
+  xstate@6.0.0-alpha.63:
+    resolution: {integrity: sha512-Rotr6iQ1fuikVy7AGZ6dHQQ2hJTXFZ4o1HXSKp+EJKz7qERjIVDqvjW7P1qu1oSV7FmzE50QAM84zDfNKOsJ1g==}
     hasBin: true
 
   xtend@4.0.2:
@@ -7685,10 +7681,10 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@xstate/effect@0.1.0-alpha.2(effect@4.0.0)(xstate@6.0.0-alpha.59)':
+  '@xstate/effect@0.1.0-alpha.6(effect@4.0.0)(xstate@6.0.0-alpha.63)':
     dependencies:
       effect: 4.0.0
-      xstate: 6.0.0-alpha.59
+      xstate: 6.0.0-alpha.63
 
   acorn@8.18.0: {}
 
@@ -9620,10 +9616,6 @@ snapshots:
       postcss-value-parser: 4.2.0
       yoga-layout: 3.2.1
 
-  saxes@6.0.0:
-    dependencies:
-      xmlchars: 2.2.0
-
   scheduler@0.27.0: {}
 
   semver@6.3.1: {}
@@ -10113,11 +10105,7 @@ snapshots:
       '@oozcitak/util': 10.0.0
       js-yaml: 4.3.2
 
-  xmlchars@2.2.0: {}
-
-  xstate@6.0.0-alpha.59:
-    dependencies:
-      saxes: 6.0.0
+  xstate@6.0.0-alpha.63: {}
 
   xtend@4.0.2: {}
 

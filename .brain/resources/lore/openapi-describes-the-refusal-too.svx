@@ -1,0 +1,60 @@
+---
+title: "OpenAPI describes the refusal too"
+description: "The generated HTTP contract declares inputs, outputs, and the bodyless 400 returned when decoding fails."
+group: idea
+terms:
+  - "OpenAPI"
+sources:
+  - url: https://spec.openapis.org/oas/v3.1.0.html
+    title: "OpenAPI 3.1.0 specification"
+    publisher: "Primary source"
+    note: "OpenAPI 3.1.0 specification"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+    title: "apps/mischief/src/app.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/app.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts
+    title: "packages/capability/src/to-http-api.ts"
+    publisher: "GitHub"
+    note: "packages/capability/src/to-http-api.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e
+    title: "Document empty HTTP decode failures"
+    publisher: "GitHub"
+    note: "Document empty HTTP decode failures"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts
+    title: "packages/capability/test/to-http-api-routes.test.ts"
+    publisher: "GitHub"
+    note: "packages/capability/test/to-http-api-routes.test.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts
+    title: "Effect 4 OpenApi.fromApi"
+    publisher: "GitHub"
+    note: "Effect 4 OpenApi.fromApi"
+    accessed: "2026-10-02"
+---
+
+[OpenAPI](https://spec.openapis.org/oas/v3.1.0.html) describes HTTP paths, operations, request bodies, and responses. An agent can read our generated [/openapi.json](/openapi.json) before choosing an HTTP call.
+
+[`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) builds the `/api` projection. It passes the API to `HttpApiBuilder.layer`, with `openapiPath: "/openapi.json"`.
+
+Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts) derives the document from that HttpApi.
+
+## The document must describe a decode refusal
+
+[Commit 8766790](https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e) adds `HttpApiError.BadRequestNoContent` to every endpoint built by `toHttpApi`. Request decoding already returns an empty 400. The document needs to say so.
+
+This refusal is **not** `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
+
+- Status 400.
+- No content type.
+- An empty body.
+
+The document has a `BadRequest` response description with no `content` field. A reader uses that distinction to decide whether to parse the error body.
+
+A declared domain failure differs from a request decode failure. See [schema-driven development](/lore/schemas-define-the-boundary) for that boundary. See [generating surfaces](/lore/one-schema-three-surfaces) for the document's source.
+
+See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

@@ -58,6 +58,17 @@ An agent applies for a person through `joinInterest` over MCP, `POST /api/joinIn
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
 - An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact payload. A ticket works once.
 
+### Applicant identity
+
+`joinInterest` accepts optional `name` and `x` fields. The name trims whitespace and allows 1–100 characters. The 100-character cap fits a preferred name without turning the field into another essay. Skipped fields and historical applications omit both keys.
+
+- The X field accepts a handle or a profile URL and stores `https://x.com/handle` in lowercase. It accepts 1–15 ASCII letters, digits or underscores so existing short handles still work. Status, intent and navigation URLs are refused.
+- [X documents the 15-character limit](https://help.x.com/en/managing-your-account/x-username-rules) and [the allowed characters](https://help.x.com/en/managing-your-account/change-x-handle). Its current account-renaming guidance requires more than four characters. This field reads existing profiles rather than registering usernames.
+- Identity is sealed in the application’s started statement under the same contact key as its answers. Erasure removes that key and its rows.
+- Only the authenticated application reader unseals identity. The delivery request is unchanged and carries neither field.
+- Capability observers receive redacted identity fields. Request analytics, spans and logs never receive their values.
+- MCP request tracing is disabled at the transport for modern and legacy protocols. The protocol’s `tools/call` span records raw parameters before the capability observer can redact them.
+
 ## How to check
 
 - Read `apps/mischief/src/interest/routes.ts` for email confirmation, `retired-routes.ts` for 410 responses, and `packages/core/src/join-intake.ts` for agent applications. The only published signup capability is `joinInterest`.

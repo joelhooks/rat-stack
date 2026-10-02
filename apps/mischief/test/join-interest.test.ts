@@ -3,6 +3,7 @@ import { expect, it } from "@effect/vitest";
 import {
   AbuseScore,
   IntakeEvents,
+  IntakeEventsTest,
   IntakeTicket,
   PAGE_TICKET_SOURCE,
 } from "@rat-stack/core/intake";
@@ -14,7 +15,9 @@ import {
   joinIntakeLayer,
   joinInterestContract,
 } from "@rat-stack/core/join-interest";
-import { Clock, Context, Effect, Layer, Redacted, Schema } from "effect";
+import { withEventCapture } from "@rat-stack/events";
+import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
+import { Clock, Effect, Layer, Logger, Redacted, Schema, Tracer } from "effect";
 import { HttpRouter } from "effect/http";
 
 import {
@@ -36,6 +39,8 @@ it.effect(
     Effect.gen(function* projectedSubmission() {
       const forwarded: AgentIntakeRequest[] = [];
       const gateKeys: string[] = [];
+      const logs: unknown[] = [];
+      const spans: Tracer.NativeSpan[] = [];
 
       const dependencies = Layer.mergeAll(
         Layer.succeed(Clock.Clock, yield* Clock.Clock),
@@ -45,6 +50,19 @@ it.effect(
         JoinContactStore.testLayer,
         InterestTokens.layer(Redacted.make("test-secret")),
         NodeCrypto.layer,
+        memoryEventsLayer("synthetic-salt"),
+        Logger.layer([Logger.make(({ message }) => logs.push(message))]),
+        Layer.succeed(
+          Tracer.Tracer,
+          Tracer.make({
+            span: (options) => {
+              const span = new Tracer.NativeSpan(options);
+              spans.push(span);
+
+              return span;
+            },
+          })
+        ),
         Layer.succeed(SubscriberIntake, {
           agent: {
             enabled: true,
@@ -87,7 +105,13 @@ it.effect(
         )
       );
 
-      const { dispose, handler } = HttpRouter.toWebHandler(router);
+      const { dispose, handler } = HttpRouter.toWebHandler(router, {
+        middleware: withEventCapture({
+          identityMode: "daily",
+          runInBackground: (effect) => effect,
+        }),
+      });
+
       yield* Effect.addFinalizer(() => Effect.promise(dispose));
       const answers = { building: "an agent loop" };
 
@@ -96,6 +120,8 @@ it.effect(
         answers,
         consent: { contact: true, share: false },
         email: "fictional@example.test",
+        name: "  Fake Private Applicant  ",
+        x: "@fake_private",
       };
 
       const submit = Effect.fnUntraced(function* submit(
@@ -143,7 +169,7 @@ it.effect(
         );
 
         const response = yield* Effect.promise(
-          handler.bind(undefined, request, Context.empty())
+          handler.bind(undefined, request, services)
         );
 
         expect(response.status).toBe(200);
@@ -166,6 +192,41 @@ it.effect(
       yield* submit("http");
       yield* submit("mcp");
       expect(forwarded.length).toBe(2);
+
+      const recorded = yield* IntakeEventsTest.use(
+        (test) => test.statements
+      ).pipe(Effect.provideContext(services));
+
+      expect(
+        recorded
+          .filter((statement) => statement.verb === "started")
+          .map((statement) => statement.result)
+      ).toEqual([
+        { name: "Fake Private Applicant", x: "https://x.com/fake_private" },
+        { name: "Fake Private Applicant", x: "https://x.com/fake_private" },
+      ]);
+      const sink = yield* EventSinkMemory.pipe(Effect.provideContext(services));
+
+      const telemetry = JSON.stringify({
+        events: yield* sink.events,
+        logs,
+        spans: spans.map((span) => ({
+          attributes: [...span.attributes],
+          events: (span._events ?? []).map(
+            ([eventName, _time, attributes]) => ({
+              attributes,
+              name: eventName,
+            })
+          ),
+          name: span.name,
+        })),
+      });
+
+      for (const value of ["Fake Private Applicant", "fake_private"]) {
+        expect(telemetry).not.toContain(value);
+        expect(JSON.stringify(forwarded)).not.toContain(value);
+      }
+
       expect(
         forwarded.every(
           (request) =>

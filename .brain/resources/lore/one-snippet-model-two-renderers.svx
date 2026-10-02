@@ -1,0 +1,40 @@
+---
+title: "One snippet model feeds both renderers"
+description: "HTML and agent Markdown derive their code and provenance from the same snippet."
+group: concept
+terms:
+  - "snippet model"
+  - "renderer parity"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts
+    title: "Component registry"
+    publisher: "Primary source"
+    note: "Agent and human renderers"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lore/code-snippets.svx
+    title: "Code-snippets design brief"
+    publisher: "Primary source"
+    note: "Shared CodeSnippet model"
+    accessed: "2026-10-02"
+---
+
+The [component registry](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts) defines agent and human renderers.
+The [code-snippets design brief](/lore/code-snippets) gives both renderers one snippet model.
+
+The proposed `CodeSnippet` carries:
+- Selected source text and original line numbers.
+- Highlighted lines and collapsed gaps.
+- Repository, commit, path, and source link.
+- Diagnostics.
+
+HTML adds colour, a filename, numbered lines, and a source link.
+Agent Markdown adds provenance and a fenced code block.
+Neither renderer owns a second copy of the source facts.
+
+Renderer parity means both views preserve those shared facts.
+The planned property compares each view with the pinned source.
+
+[Whole-file tokenization](/lore/tokenize-before-slicing) supplies the tokens.
+[Engine-neutral tokens](/lore/engine-neutral-tokens-keep-adapters-replaceable) keep renderer input independent of Shiki.
+
+See [the glossary](/glossary) for snippet model and renderer parity.

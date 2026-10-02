@@ -1,0 +1,46 @@
+---
+title: "Errors are part of the interface"
+description: "An author error needs a location, the rejected input, and a repair."
+group: concept
+terms:
+  - "diagnostic context"
+  - "repair instruction"
+sources:
+  - url: https://avdi.codes/books/
+    title: "Avdi Grimm's books"
+    publisher: "Avdi Grimm"
+    note: "Author and titles only; no claims about book contents."
+    accessed: "2026-10-02"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Schema.ts
+    title: "Effect Schema"
+    publisher: "Effect contributors"
+    note: "Typed errors"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/lore/code-snippets.svx
+    title: "Code-snippets design brief"
+    publisher: "Primary source"
+    note: "Proposed diagnostic contract"
+    accessed: "2026-10-02"
+---
+
+The [code-snippets design brief](/lore/code-snippets) requires an author-facing error for each rejected snippet.
+
+Each error carries:
+- A typed error tag.
+- The source document and line.
+- The rejected request.
+- Requested ranges and actual file length, when available.
+- A repair instruction.
+
+Invalid metadata keeps its raw values. It has no decoded request yet.
+
+A stack trace does not meet this contract. The author needs enough context to repair the fence.
+
+Use the [error model](/lore/error-model) to separate expected failures from defects.
+Use [schema decoding](/lore/schemas-define-the-boundary) to reject invalid input at the boundary.
+Use [error accumulation](/lore/accumulate-independent-errors) to report unrelated failures together.
+
+Related reading: *Exceptional Ruby* and *Confident Ruby*, both by [Avdi Grimm](https://avdi.codes/books/).
+These titles are reading pointers, not evidence for the proposed contract.
+
+See [the glossary](/glossary) for diagnostic context and repair instruction.

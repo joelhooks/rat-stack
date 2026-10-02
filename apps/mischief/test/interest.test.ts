@@ -1521,6 +1521,19 @@ it.effect(
           expect(html).not.toContain(instruction);
         }
 
+        for (const instruction of [
+          "Ask for both their name and X/Twitter profile.",
+          "Joel picks people, so he wants to know who you are.",
+          "Add two lines to the card: name and X profile.",
+          'Show "skipped" for each they skip.',
+          '"name": "PERSON_APPROVED_NAME"',
+          '"x": "https://x.com/APPROVED_HANDLE"',
+        ]) {
+          expect(markdown).toContain(instruction);
+          expect(html).not.toContain(instruction);
+        }
+
+        expect(html).toContain("It asks for your name and X profile.");
         expect(markdown).not.toContain("__INTAKE_PAGE_TICKET__");
         expect(html).not.toContain("__INTAKE_PAGE_TICKET__");
         expect(markdown).not.toContain("There is no agent path yet.");

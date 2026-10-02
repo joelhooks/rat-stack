@@ -8,6 +8,8 @@ import type { JoinInput } from "./join-interest-contract.js";
 import { JoinInterest } from "./join-interest-port.js";
 import { MaskedInterestReplay } from "./masked-interest-replay.js";
 
+export { JoinIdentity } from "./join-identity.js";
+
 export { JoinInterest } from "./join-interest-port.js";
 
 export {
@@ -55,7 +57,9 @@ export const joinInterest = {
                 share: input.consent.share ?? false,
               },
               email: MASKED_INTEREST_VALUE,
+              name: MASKED_INTEREST_VALUE,
               ticket: MASKED_INTEREST_VALUE,
+              x: MASKED_INTEREST_VALUE,
             },
             run.pipe(
               Effect.tap((output) =>

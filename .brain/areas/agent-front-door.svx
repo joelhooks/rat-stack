@@ -34,21 +34,58 @@ sources:
 
 ## What it does
 
-`apps/mischief` hosts the public documentation and its agent interfaces. Discovery cards describe MCP and A2A; [OpenAPI](/openapi.json) describes the HTTP capability surface. The [agent guide](/llms.txt) explains connection and search → read → graph traversal. The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
+`apps/mischief` hosts the public documentation and agent interfaces.
 
-MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless; older clients initialize sessions backed by a Durable Object. A2A answers documentation questions through search and read. Browser RPC is a separate projection, not another agent interface.
+- Discovery cards describe MCP and A2A.
+- [OpenAPI](/openapi.json) describes the HTTP capability surface.
+- The [agent guide](/llms.txt) explains connection, search, read, and graph traversal.
+- The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
+
+### Run a program instead of several calls
+
+Use `POST /api/execute` with a JSON `code` string. The MCP `execute` tool runs the same job.
+
+[Code mode](/lore/one-program-can-replace-several-tool-calls) runs content capabilities in one program. `joinInterest` stays outside the sandbox.
+
+Source: callable definitions in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45).
+
+```js
+const found = await tools.search({ query: "cartridges", limit: 1 });
+const page = await tools.read({ id: found.matches[0].id });
+return { title: page.title, id: page.id };
+```
+
+**What to notice:** The program passes the search result directly to read.
+
+MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless. Older clients initialize sessions backed by a Durable Object.
+
+A2A answers documentation questions through search and read. Browser RPC is a separate projection, not another agent interface.
 
 ## The standard
 
-- Domain calls use the shared capability schemas and handlers. Discovery and static pages are routing, not extra domain handlers.
-- Public API access needs no account or access token; [interest signup](/systems/interest) has its own consent and confirmation boundary.
-- `execute` runs an async function body in a fresh Dynamic Worker with `globalOutbound: null`. Imports, exports, and `fetch` are unavailable. It can call declared capabilities, not arbitrary network services.
-- API and MCP allow 120 requests per IP per 60 seconds. Execute also allows 6 per IP and 300 total per 60 seconds. Native Cloudflare counters apply separately per location.
-- These routes exist today. Extracting a generic front-door cartridge is coming; it is not the status of the hosted routes.
+- Domain calls use shared capability schemas and handlers.
+- Discovery and static pages are routing, not extra domain handlers.
+- Public API access needs no account or access token.
+- [Interest signup](/systems/interest) has its own consent and confirmation boundary.
+- `execute` runs an async function body in a fresh Dynamic Worker with `globalOutbound: null`.
+- Imports, exports, and `fetch` are unavailable.
+- The program calls declared capabilities, not arbitrary network services.
+- API and MCP allow 120 requests per IP per 60 seconds.
+- Execute also allows 6 per IP and 300 total per 60 seconds.
+- Native Cloudflare counters apply separately per location.
+
+These routes exist today. A generic front-door cartridge remains planned.
 
 ## How to check
 
-- Read the [MCP connection card](/.well-known/mcp.json), [A2A card](/.well-known/agent-card.json), and [OpenAPI](/openapi.json). Compare their descriptions with `apps/mischief/src/capabilities/index.ts`.
-- Use the worked `tools/list` request in [llms.txt](/llms.txt), then search and read a public document.
-- Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
-- Local tests do not prove a new deploy. Confirm the live cards and capability list before advertising a new agent path.
+1. Read the [MCP connection card](/.well-known/mcp.json).
+2. Read the [A2A card](/.well-known/agent-card.json).
+3. Read [OpenAPI](/openapi.json).
+4. Compare the descriptions with `apps/mischief/src/capabilities/index.ts`.
+5. Use the `tools/list` request in [llms.txt](/llms.txt).
+6. Search for a public document.
+7. Read the document.
+8. Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
+9. Confirm the live cards and capability list before advertising a new agent path.
+
+Local tests do not prove a new deploy.

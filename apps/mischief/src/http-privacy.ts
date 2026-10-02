@@ -1,7 +1,11 @@
 import { Effect, Layer } from "effect";
-import { HttpMiddleware } from "effect/http";
+import { HttpMiddleware, HttpRouter } from "effect/http";
 
 import { UNSUBSCRIBE_PATH } from "./interest/unsubscribe.js";
+
+export const privateMcpTracingLayer = HttpRouter.middleware((httpEffect) =>
+  httpEffect.pipe(Effect.withTracerEnabled(false))
+).layer;
 
 export const privateHttpTracingLayer = Layer.effect(
   HttpMiddleware.TracerDisabledWhen,

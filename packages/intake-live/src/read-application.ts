@@ -1,5 +1,8 @@
 import { IntakeAnswersSchema } from "@rat-stack/core/intake";
-import { IntakeApplicationsUnavailable } from "@rat-stack/core/join-interest";
+import {
+  IntakeApplicationsUnavailable,
+  JoinIdentity,
+} from "@rat-stack/core/join-interest";
 import { Effect, Schema } from "effect";
 
 import type { SealedRow } from "./intake-vault.js";
@@ -36,6 +39,7 @@ export const unsealApplication = (rows: readonly SealedRow[], key: string) =>
 
     const answers: Record<string, string> = {};
     let share = false;
+    let identity: typeof JoinIdentity.Type = {};
 
     for (const row of statements) {
       if (
@@ -47,6 +51,12 @@ export const unsealApplication = (rows: readonly SealedRow[], key: string) =>
 
       if (row.sealedResult === undefined) {
         continue;
+      }
+
+      if (row.verb === "started" && row.object === "tokenmaxx/intake") {
+        identity = yield* unsealResult(key, row.sealedResult).pipe(
+          Effect.flatMap(Schema.decodeUnknownEffect(JoinIdentity))
+        );
       }
 
       if (
@@ -72,6 +82,7 @@ export const unsealApplication = (rows: readonly SealedRow[], key: string) =>
     return {
       answers: yield* Schema.decodeEffect(IntakeAnswersSchema)(answers),
       contactRef: submitted.actor,
+      ...identity,
       hold: verdict.held,
       score: verdict.score,
       share,

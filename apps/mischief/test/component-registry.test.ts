@@ -1,6 +1,6 @@
 import { NodeServices } from "@effect/platform-node";
 import { it } from "@effect/vitest";
-import { Effect, FileSystem, Schema } from "effect";
+import { Context, Effect, FileSystem, Layer, Schema } from "effect";
 import { mdsvex } from "mdsvex";
 import { compile } from "svelte/compiler";
 import { expect } from "vitest";
@@ -11,6 +11,7 @@ import {
   renderAgentPage,
   renderSvxMarkdown,
 } from "../scripts/component-registry.ts";
+import type { ComponentRegistry } from "../scripts/component-registry.ts";
 import { ContentBuildError } from "../scripts/content-error.ts";
 import { peerComponentRegistry, peerPins, PeerRows } from "../scripts/peers.ts";
 import {
@@ -112,41 +113,42 @@ const pages = [
   ...loreSources,
 ];
 
-it.effect(
-  "every Markdown page has exactly one registry pointer under its H1",
-  () =>
+const markdownPages = [
+  ...pages,
+  { routePath: "/auth.md", text: authMarkdown },
+  { routePath: "/llms-full.txt", text: llmsFullText("https://ratstack.sh") },
+  { routePath: "/llms.txt", text: llmsText("https://ratstack.sh") },
+];
+
+it.effect.each(markdownPages)(
+  "$routePath has exactly one registry pointer under its H1",
+  (page) =>
     Effect.sync(() => {
-      for (const page of [
-        ...pages,
-        { routePath: "/auth.md", text: authMarkdown },
-        {
-          routePath: "/llms-full.txt",
-          text: llmsFullText("https://ratstack.sh"),
-        },
-        { routePath: "/llms.txt", text: llmsText("https://ratstack.sh") },
-      ]) {
-        expect(() => {
-          assertAgentPointerLayout(page.text, page.routePath);
-        }, page.routePath).not.toThrow();
-      }
-
-      const rendered = renderAgentPage(
-        "# Source\n\nSource facts.",
-        "/lore/source",
-        "Source"
-      );
-
-      const pointer =
-        "> For agents: start with the [agent guide](https://ratstack.sh/llms.txt). Every page is Markdown by default; add `Accept: text/html` for HTML.\n";
-
-      expect(rendered).toContain(pointer);
       expect(() => {
-        assertAgentPointerLayout(rendered.replace(pointer, ""), "/lore/source");
-      }).toThrow(ContentBuildError);
-      expect(() => {
-        assertAgentPointerLayout(`${rendered}\n${pointer}`, "/lore/source");
-      }).toThrow(ContentBuildError);
+        assertAgentPointerLayout(page.text, page.routePath);
+      }, page.routePath).not.toThrow();
     })
+);
+
+it.effect("agent page rendering refuses missing and duplicate pointers", () =>
+  Effect.sync(() => {
+    const rendered = renderAgentPage(
+      "# Source\n\nSource facts.",
+      "/lore/source",
+      "Source"
+    );
+
+    const pointer =
+      "> For agents: start with the [agent guide](https://ratstack.sh/llms.txt). Every page is Markdown by default; add `Accept: text/html` for HTML.\n";
+
+    expect(rendered).toContain(pointer);
+    expect(() => {
+      assertAgentPointerLayout(rendered.replace(pointer, ""), "/lore/source");
+    }).toThrow(ContentBuildError);
+    expect(() => {
+      assertAgentPointerLayout(`${rendered}\n${pointer}`, "/lore/source");
+    }).toThrow(ContentBuildError);
+  })
 );
 
 it.effect(
@@ -300,10 +302,16 @@ it.effect(
     })
 );
 
-it.effect(
-  "each file-backed page's agent content uses the shared svx registry",
-  () =>
-    Effect.gen(function* checkFileBackedSourceRegistry() {
+class RegistryFixtures extends Context.Service<
+  RegistryFixtures,
+  {
+    readonly registry: ComponentRegistry;
+    readonly extension: ComponentRegistry;
+  }
+>()("test/RegistryFixtures") {
+  static readonly layer = Layer.effect(
+    RegistryFixtures,
+    Effect.gen(function* makeRegistryFixtures() {
       const fileSystem = yield* FileSystem.FileSystem;
 
       const read = (path: string) =>
@@ -324,37 +332,61 @@ it.effect(
         )
       );
 
-      for (const page of [...lawSources, ...skillSources, ...loreSources]) {
-        const file = new URL(`../../../${page.sourcePath}`, import.meta.url)
-          .pathname;
+      const extension = createComponentRegistry({
+        ...registry,
+        Proof: {
+          agent: () => [
+            {
+              children: [{ type: "text", value: "Registry proof" }],
+              type: "paragraph",
+            },
+          ],
+          human: () => [],
+        },
+      });
 
-        if (!(yield* fileSystem.exists(file))) {
-          continue;
-        }
+      return RegistryFixtures.of({ extension, registry });
+    })
+  ).pipe(Layer.provide(NodeServices.layer));
+}
 
-        const source = yield* fileSystem.readFileString(file);
-        const rendered = renderSvxMarkdown(source, "agent", {}, registry);
-        expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
-        expect(() => {
-          assertAgentPointerLayout(page.text, page.routePath);
-        }).not.toThrow();
+it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
+  "file-backed registry pages",
+  (test) => {
+    test.effect.each([...lawSources, ...skillSources, ...loreSources])(
+      "$routePath uses the shared svx registry",
+      (page) =>
+        Effect.gen(function* checkFileBackedSourceRegistry() {
+          const fileSystem = yield* FileSystem.FileSystem;
+          const fixtures = yield* RegistryFixtures;
 
-        const extension = createComponentRegistry({
-          ...registry,
-          Proof: {
-            agent: () => [
-              {
-                children: [{ type: "text", value: "Registry proof" }],
-                type: "paragraph",
-              },
-            ],
-            human: () => [],
-          },
-        });
+          const file = new URL(`../../../${page.sourcePath}`, import.meta.url)
+            .pathname;
 
-        expect(
-          renderSvxMarkdown(`${source}\n\n<Proof />`, "agent", {}, extension)
-        ).toContain("Registry proof");
-      }
-    }).pipe(Effect.provide(NodeServices.layer))
+          if (!(yield* fileSystem.exists(file))) {
+            return;
+          }
+
+          const source = yield* fileSystem.readFileString(file);
+
+          const rendered = renderSvxMarkdown(
+            source,
+            "agent",
+            {},
+            fixtures.registry
+          );
+
+          expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
+          expect(
+            renderSvxMarkdown(
+              `${source}\n\n<Proof />`,
+              "agent",
+              {},
+              fixtures.extension
+            ),
+            page.sourcePath
+          ).toContain("Registry proof");
+        })
+    );
+  }
 );

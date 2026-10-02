@@ -1,0 +1,55 @@
+---
+title: "Two lines of curl is a front door"
+description: "One observed application used the Markdown page and llms.txt, then one POST; confirmation followed 88 seconds later."
+group: idea
+terms:
+  - "agent front door"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md
+    title: "apps/mischief/content/tokenmaxx.md"
+    publisher: "GitHub"
+    note: "apps/mischief/content/tokenmaxx.md"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/content.ts
+    title: "apps/mischief/src/content.ts"
+    publisher: "GitHub"
+    note: "apps/mischief/src/content.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-interest-contract.ts
+    title: "packages/core/src/join-interest-contract.ts"
+    publisher: "GitHub"
+    note: "packages/core/src/join-interest-contract.ts"
+    accessed: "2026-10-02"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/events/src/capture.ts
+    title: "packages/events/src/capture.ts"
+    publisher: "GitHub"
+    note: "packages/events/src/capture.ts"
+    accessed: "2026-10-02"
+---
+
+Our first observed agent application uses the [Markdown workshop page](/tokenmaxx) and [llms.txt](/llms.txt). The request reconstruction contains three agent requests: two reads, then one POST.
+
+| Relative to the first request | Request |
+| --- | --- |
+| Start | GET /tokenmaxx with text/markdown |
+| 0.263 seconds later | GET /llms.txt |
+| 18 minutes 16 seconds later | POST /api/joinInterest |
+
+**What to notice:** Two reads supply enough instructions to make the call.
+
+The reconstruction records:
+
+- No requests for OpenAPI, AGENTS.md, lore, or MCP.
+- One POST and no retry.
+- A 200 submission response.
+- Confirmation 88 seconds after submission.
+
+## What the requests do not tell us
+
+The 18-minute gap fits the [page's interview and approval flow](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md). It does not reveal the conversation. The reconstruction contains neither the agent's questions nor the person's answers.
+
+Browser activity and agent requests are linked by timing only. The user agent does not name a harness. We cannot identify which agent runs the calls.
+
+This is one counts-only observation from our request analytics. It does not claim that agents never need [OpenAPI](/lore/openapi-describes-the-refusal-too) or [MCP](/lore/mcp-is-another-surface).
+
+[Interest signup](/systems/interest) keeps the consent and confirmation boundary. [HATEOAS](/lore/hateoas) explains why the page carries the next action.
