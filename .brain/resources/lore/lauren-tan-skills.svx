@@ -34,12 +34,28 @@ sources:
 
 Lauren Tan (poteto) has no single skills repo. These four repos each ship skills, and each README says what it is for. Her talk on verification and skills is on [Lauren Tan](/lore/lauren-tan) and [the Dune talk](/lore/poteto-lauren-tan-2500-prs-dune).
 
-**[brainmaxxing](https://github.com/poteto/brainmaxxing/blob/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/README.md)** is "stupid simple persistent memory for Claude Code": a markdown vault the agent reads at session start and writes to when it learns something. It ships 16 starter principles and six skills. Three form a learning loop: `reflect` after sessions, `ruminate` over past conversations, and `meditate` to audit and prune. `brain` supplies the vault workflow. Two support structured work: `plan` and `review`. The README says `/reflect` alone gets you most of the value. [Skills](https://github.com/poteto/brainmaxxing/tree/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/.agents/skills)
+**[brainmaxxing](https://github.com/poteto/brainmaxxing/blob/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/README.md)** is "stupid simple persistent memory for Claude Code". The agent reads its markdown vault at session start and writes to it when it learns something. It ships 16 starter principles and six skills. `brain` supplies the vault workflow; `plan` and `review` support structured work.
 
-**[noodle](https://github.com/poteto/noodle/blob/82d2921c52370f23f29086de81ccfb600939c037/INSTALL.md)** is "skill-based agent orchestration," built in Go. You write skills as markdown files, and Noodle's loop schedules and runs them. It adds one field to skill frontmatter, `schedule`; a skill with it becomes autonomous, and the scheduler reads its value as prose. The minimum loop is a schedule skill and an execute skill. The repo's [own skills](https://github.com/poteto/noodle/tree/82d2921c52370f23f29086de81ccfb600939c037/.agents/skills) include `adversarial-review`, `quality`, `execute`, and `schedule`.
+Three form a learning loop:
+
+| Skill | Job |
+| --- | --- |
+| `reflect` | After sessions. |
+| `ruminate` | Over past conversations. |
+| `meditate` | Audit and prune. |
+
+The README says `/reflect` alone gets you most of the value. [Skills](https://github.com/poteto/brainmaxxing/tree/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/.agents/skills)
+
+**[noodle](https://github.com/poteto/noodle/blob/82d2921c52370f23f29086de81ccfb600939c037/INSTALL.md)** is "skill-based agent orchestration," built in Go. You write skills as markdown files. Noodle's loop schedules and runs them.
+
+It adds one field to skill frontmatter, `schedule`. A skill with it becomes autonomous. The scheduler reads its value as prose. The minimum loop is a schedule skill and an execute skill.
+
+The repo's [own skills](https://github.com/poteto/noodle/tree/82d2921c52370f23f29086de81ccfb600939c037/.agents/skills) include `adversarial-review`, `quality`, `execute`, and `schedule`.
 
 **[how](https://github.com/poteto/how/blob/b1ef42969ea7a2bb50aa26c2480274828a0385e7/README.md)** is a Cursor plugin with one skill, `/how`. It explains how a subsystem or flow works, and in critique mode it also spawns critics across different models. For complex questions it fans out parallel explorer subagents and reconciles their findings.
 
-**[verification-skill-example](https://github.com/poteto/verification-skill-example/blob/d5abe70d0d8c671672b6cef4069363f26c488feb/README.md)** is a fictionalized example of a project-local verification skill with a behavior-level feature map, about 30 files, one per feature area. Its README argues that a wiki is for humans while agents pay for every token they reread, so a scoped skill plus feature map is cheaper to use and is maintained as code. The README calls it a private reference and says the driver scripts are omitted.
+**[verification-skill-example](https://github.com/poteto/verification-skill-example/blob/d5abe70d0d8c671672b6cef4069363f26c488feb/README.md)** is a fictionalized example of a project-local verification skill with a behavior-level feature map. About 30 files cover one feature area each. Its README argues that a wiki is for humans. Agents pay for every token they reread.
+
+It argues that a scoped skill plus feature map is cheaper to use and maintained as code. The README calls it a private reference and says the driver scripts are omitted.
 
 Related: [Matt Pocock's skills](/lore/matt-pocock-skills).

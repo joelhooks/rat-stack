@@ -22,12 +22,22 @@ sources:
 
 # Matt Pocock's skills
 
-[mattpocock/skills](https://github.com/mattpocock/skills) describes itself as "my agent skills that I use every day to do real engineering - not vibe coding." The README says the skills are "designed to be small, easy to adapt, and composable," that they work with any model, and that you should hack around with them and make them your own. [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)
+[mattpocock/skills](https://github.com/mattpocock/skills) describes itself this way:
 
-The README organizes them around four failure modes. For an agent that didn't do what you want, it prescribes a grilling session: [`grill-me`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity/grill-me/SKILL.md) for non-code work and [`grill-with-docs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/grill-with-docs/SKILL.md), which also builds a shared language in `GLOSSARY.md` and ADRs. For code that doesn't work it points to feedback loops, with [`tdd`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md) and [`diagnosing-bugs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/diagnosing-bugs/SKILL.md). For a ball of mud it points to [`improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/improve-codebase-architecture/SKILL.md).
+> "my agent skills that I use every day to do real engineering - not vibe coding."
 
-The reference section splits the skills on one axis: user-invoked skills run only when you type them, and model-invoked skills can also be reached for automatically by the agent. It lists engineering and productivity groups, including `to-spec`, `to-tickets`, `implement`, `triage`, `handoff`, and `writing-for-agents`.
+The README says the skills are "designed to be small, easy to adapt, and composable," and work with any model. It invites you to hack around with them and make them your own. [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)
 
-There are two ways to install. The Claude Code plugin installs the set as a managed, read-only bundle that updates when Matt ships. The `npx skills@latest add mattpocock/skills` installer copies editable files into your project. The README says to pick one. Run `/setup-matt-pocock-skills` once per repo to set the issue tracker, triage labels, and doc locations.
+The README organizes them around four failure modes. For an agent that didn't do what you want, it prescribes a grilling session: [`grill-me`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity/grill-me/SKILL.md) for non-code work and [`grill-with-docs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/grill-with-docs/SKILL.md).
+
+`grill-with-docs` also builds a shared language in `GLOSSARY.md` and ADRs.
+
+For code that doesn't work it points to feedback loops, with [`tdd`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md) and [`diagnosing-bugs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/diagnosing-bugs/SKILL.md). For a ball of mud it points to [`improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/improve-codebase-architecture/SKILL.md).
+
+The reference section splits the skills on one axis. User-invoked skills run only when you type them. Model-invoked skills can also be reached for automatically by the agent. It lists engineering and productivity groups, including `to-spec`, `to-tickets`, `implement`, `triage`, `handoff`, and `writing-for-agents`.
+
+There are two ways to install. The Claude Code plugin installs the set as a managed, read-only bundle that updates when Matt ships. The `npx skills@latest add mattpocock/skills` installer copies editable files into your project. The README says to pick one.
+
+Run `/setup-matt-pocock-skills` once per repo to set the issue tracker, triage labels, and doc locations.
 
 This page records the repo's public description. Related: [Lauren Tan's skills](/lore/lauren-tan-skills).

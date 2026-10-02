@@ -25,12 +25,22 @@ sources:
     accessed: "2026-10-01"
 ---
 
-An example test checks one input you picked. A property test states a rule that must hold for every input, generates many inputs, and when one fails, shrinks it to a small counterexample.
+An example test checks one input you picked. A property test states a rule that must hold for every input. It generates many inputs and shrinks a failing input to a small counterexample.
 
-Effect 4 ships its own engine in `effect/unstable/arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`, so the same schema that defines a [capability's contract](/systems/capabilities) also generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts) `@effect/vitest` exposes it as `it.prop` and `it.effect.prop`.
+Effect 4 ships its own engine in `effect/unstable/arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`. The same schema defines the [capability's contract](/systems/capabilities) and generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts)
 
-The [capture-first](/lore/capture-first) events cartridge is tested this way. For any generated request, exactly one event is recorded, the response body and status are preserved, persistent HTML may add the visitor cookie, and the request body never reaches the event. For any query string, credential and email keys never survive. A failing sink does not change the response body or status. [Analytics](/systems/analytics) documents cookie behavior and the warehouse proof boundary.
+`@effect/vitest` exposes it as `it.prop` and `it.effect.prop`.
 
-A property earns its place only if breaking the code breaks it. When the events tests were first written, removing `token` from the sensitive-key list did not fail them: the property compared the filter with the same function it was testing. A second property with an independent list of sensitive keys closed the gap, and the failure shrank to a single input, `"secret": "token"`. See [tests that earn their place](/lore/tests-that-earn-their-place).
+The [capture-first](/lore/capture-first) events cartridge is tested this way. For any generated request:
+
+- Exactly one event is recorded.
+- The response body and status are preserved.
+- Persistent HTML may add the visitor cookie.
+- The request body never reaches the event.
+ For any query string, credential and email keys never survive. A failing sink does not change the response body or status. [Analytics](/systems/analytics) documents cookie behavior and the warehouse proof boundary.
+
+A property earns its place only if breaking the code breaks it. When first written, the events tests did not fail when `token` was removed from the sensitive-key list. The property compared the filter with the same function it was testing.
+
+A second property with an independent list of sensitive keys closed the gap. The failure shrank to a single input, `"secret": "token"`. See [tests that earn their place](/lore/tests-that-earn-their-place).
 
 For sequences of actions, use [model-based testing](/lore/model-based-testing).
