@@ -3,7 +3,13 @@ import { Effect, FileSystem, Layer, Path, Schema } from "effect";
 import { Etag, HttpPlatform } from "effect/http";
 import { HttpApiTest } from "effect/http-api";
 
-import { Approval, ApprovalDenied, toHttpApi } from "../src/index.js";
+import {
+  Approval,
+  ApprovalDenied,
+  defineContract,
+  implement,
+  toHttpApi,
+} from "../src/index.js";
 import {
   Greeter,
   approved,
@@ -11,6 +17,7 @@ import {
   echo,
   greet,
   noArgs,
+  NotFound,
 } from "./fixtures.js";
 
 const TestServices = Layer.mergeAll(
@@ -39,7 +46,59 @@ const allowedApprovalLayer = approvalProjection.layer.pipe(
   Layer.provide(Approval.allowAll)
 );
 
+class UnavailableItem extends Schema.TaggedError<UnavailableItem>()(
+  "UnavailableItem",
+  {},
+  { httpApiStatus: 503 }
+) {}
+
+const lookupContract = defineContract("lookup", {
+  description: "Read a fixture item",
+  failure: Schema.Union([NotFound, UnavailableItem]),
+  input: Schema.Struct({ mode: Schema.Literals(["missing", "unavailable"]) }),
+  output: Schema.String,
+});
+
+const lookup = implement(lookupContract, ({ mode }) =>
+  Effect.fail(
+    mode === "missing"
+      ? new NotFound({ name: "fixture" })
+      : new UnavailableItem({})
+  )
+);
+
+const lookupProjection = toHttpApi("LookupApi", [lookup]);
+
 describe("toHttpApi", () => {
+  it.layer(TestServices)("member error statuses on default routes", (test) => {
+    test.effect(
+      "keeps unannotated failures at 422 and unavailable members at 503",
+      () =>
+        Effect.gen(function* memberStatuses() {
+          const client = yield* HttpApiTest.groups(lookupProjection.api, [
+            "capabilities",
+          ]).pipe(Effect.provide(lookupProjection.layer));
+
+          for (const mode of ["missing", "unavailable"] as const) {
+            const response = yield* client.capabilities.lookup({
+              payload: { mode },
+              responseMode: "response-only",
+            });
+
+            expect(response.status).toBe(mode === "missing" ? 422 : 503);
+
+            const failure = yield* client.capabilities
+              .lookup({ payload: { mode } })
+              .pipe(Effect.flip);
+
+            expect(failure._tag).toBe(
+              mode === "missing" ? "NotFound" : "UnavailableItem"
+            );
+          }
+        })
+    );
+  });
+
   it.layer(TestServices)("over an in-process client", (test) => {
     test.effect("posts a capability's input and returns its output", () =>
       Effect.gen(function* postsInput() {

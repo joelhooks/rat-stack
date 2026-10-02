@@ -1,5 +1,9 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
+import type {
+  AssetReadError,
+  ResourceNotFound,
+} from "@rat-stack/core/contracts";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
@@ -20,6 +24,8 @@ import {
   originToken,
 } from "./bundled-content.generated.js";
 import { capabilities, contentLayer, search } from "./capabilities/index.js";
+import type { ContentCatalogData as ContentCatalog } from "./content-data.js";
+import { ContentStore } from "./content-store.js";
 import {
   a2aAgentCard,
   agentSkillPath,
@@ -27,21 +33,15 @@ import {
   apiCatalog,
   ardManifest,
   authMarkdown,
-  lawResources,
-  loreResources,
   linkHeaderForPage,
   llmsFullText,
   llmsText,
   mcpServerCard,
   mcpVersionText,
-  publicPaths,
   robotsText,
   sitemapXml,
-  skills,
   staticContentVersion,
   staticAssetGeneration,
-  staticAssetPageRoutes,
-  imageAssetPaths,
   tokenmaxxDocumentHtml,
   tokenmaxxCopyScript,
   tokenmaxxCopyScriptHash,
@@ -61,6 +61,7 @@ import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
+import { mcpContent } from "./mcp-content.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
 import { contentSecurityPolicy } from "./security.js";
 import { StaticAssets } from "./static-assets.js";
@@ -182,17 +183,20 @@ export interface StaticResponseCache {
   readonly put: (request: Request, response: Response) => Promise<void>;
 }
 
-const imagePaths = new Set<string>(imageAssetPaths);
-
-const staticPaths = new Set<string>([
-  ...publicPaths,
-  "/favicon.svg",
-  "/favicon.ico",
-  "/apple-touch-icon.png",
-  ...imageAssetPaths,
+const staticPaths = new Set([
+  "/auth.md",
+  "/llms.txt",
+  "/llms-full.txt",
+  "/openapi.json",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/.well-known/agent-card.json",
+  "/.well-known/agent.json",
+  "/.well-known/agent-skills/index.json",
+  "/.well-known/ai-catalog.json",
+  "/.well-known/api-catalog",
+  "/.well-known/mcp.json",
 ]);
-
-const negotiatedHtmlPaths = new Set<string>(staticAssetPageRoutes);
 
 const htmlRevalidateEveryVisit = "no-cache";
 
@@ -202,11 +206,7 @@ const staticCacheControl =
 const assetCacheControl =
   "public, max-age=14400, s-maxage=31536000, stale-while-revalidate=86400";
 
-const staticRepresentation = (
-  request: HttpServerRequest.HttpServerRequest,
-  path: string
-) =>
-  negotiatedHtmlPaths.has(path) && acceptsHtml(request) ? "html" : "default";
+const staticRepresentation = () => "default";
 
 const staticEtag = (path: string, representation: string) =>
   `W/"${staticContentVersion}:${representation}:${encodeURIComponent(path)}"`;
@@ -220,8 +220,8 @@ const matchesEtag = (requestValue: string | undefined, etag: string) =>
     .map((value) => value.trim())
     .some((value) => value === etag || value === "*") === true;
 
-const staticAssetPagePath = (path: string) => {
-  if (negotiatedHtmlPaths.has(path)) {
+const staticAssetPagePath = (path: string, catalog: ContentCatalog) => {
+  if (catalog.pageRoutes.includes(path)) {
     return path;
   }
 
@@ -231,7 +231,7 @@ const staticAssetPagePath = (path: string) => {
 
   const canonical = path.endsWith(".md") ? path.slice(0, -3) : undefined;
 
-  return canonical !== undefined && negotiatedHtmlPaths.has(canonical)
+  return canonical !== undefined && catalog.pageRoutes.includes(canonical)
     ? canonical
     : undefined;
 };
@@ -247,9 +247,7 @@ const staticHeaders = (
     "x-ratstack-cache": cacheStatus,
   });
 
-  return negotiatedHtmlPaths.has(path)
-    ? HttpHeaders.set(headers, "vary", "Accept")
-    : headers;
+  return headers;
 };
 
 const assetImageContentType = (path: string) => {
@@ -343,57 +341,67 @@ const assetPageResponse = (
   );
 };
 
-const assetRoutes = (assets: StaticAssets["Service"]) =>
+const unavailableResponse = (request: HttpServerRequest.HttpServerRequest) =>
+  errorResponse(
+    request,
+    {
+      code: 503,
+      message: "Static content is unavailable. Retry shortly.",
+      path: new URL(request.url, "https://ratstack.sh").pathname,
+      title: "Service unavailable",
+    },
+    !new URL(request.url, "https://ratstack.sh").pathname.endsWith(".md") &&
+      acceptsHtml(request)
+  ).pipe(
+    HttpServerResponse.setHeaders({
+      "cache-control": "no-store",
+      vary: "Accept",
+    })
+  );
+
+const assetRoutes = (
+  assets: StaticAssets["Service"],
+  store: ContentStore["Service"]
+) =>
   HttpRouter.middleware(
     (httpEffect) =>
       Effect.gen(function* serveStaticAsset() {
         const request = yield* HttpServerRequest.HttpServerRequest;
         const path = new URL(request.url, "https://ratstack.sh").pathname;
-        const page = staticAssetPagePath(path);
-
-        const image = imagePaths.has(path);
 
         if (
           (request.method !== "GET" && request.method !== "HEAD") ||
-          (page === undefined && !image)
+          machinePath(path) ||
+          path === "/tokenmaxx"
         ) {
           return yield* httpEffect;
         }
 
-        const isHtml =
-          page !== undefined && path === page && acceptsHtml(request);
+        return yield* Effect.gen(function* readStaticAsset() {
+          const catalog = yield* store.catalog;
+          const page = staticAssetPagePath(path, catalog);
+          const image = catalog.imagePaths.includes(path);
 
-        const stem = page === "/" ? "/index" : page;
+          if (page === undefined && !image) {
+            return yield* httpEffect;
+          }
 
-        const assetPath =
-          page === undefined ? path : `${stem}.${isHtml ? "html" : "md"}`;
+          const isHtml =
+            page !== undefined && path === page && acceptsHtml(request);
 
-        return yield* assets.read(assetPath).pipe(
-          Effect.map((bytes) =>
-            page === undefined
-              ? assetImageResponse(request, path, bytes)
-              : assetPageResponse(request, path, page, isHtml, bytes)
-          ),
+          const stem = page === "/" ? "/index" : page;
+
+          const assetPath =
+            page === undefined ? path : `${stem}.${isHtml ? "html" : "md"}`;
+
+          const bytes = yield* assets.read(assetPath);
+
+          return page === undefined
+            ? assetImageResponse(request, path, bytes)
+            : assetPageResponse(request, path, page, isHtml, bytes);
+        }).pipe(
           Effect.catchTag("AssetReadError", (error) =>
-            Effect.logError(error).pipe(
-              Effect.as(
-                errorResponse(
-                  request,
-                  {
-                    code: 503,
-                    message: "Static content is unavailable. Retry shortly.",
-                    path,
-                    title: "Service unavailable",
-                  },
-                  page === undefined ? acceptsHtml(request) : isHtml
-                ).pipe(
-                  HttpServerResponse.setHeaders({
-                    "cache-control": "no-store",
-                    vary: "Accept",
-                  })
-                )
-              )
-            )
+            Effect.logError(error).pipe(Effect.as(unavailableResponse(request)))
           )
         );
       }),
@@ -423,14 +431,12 @@ const staticCaching = (cache: StaticResponseCache) =>
         if (
           request.method !== "GET" ||
           path === "/tokenmaxx" ||
-          !staticPaths.has(path) ||
-          staticAssetPagePath(path) !== undefined ||
-          imagePaths.has(path)
+          !staticPaths.has(path)
         ) {
           return yield* httpEffect;
         }
 
-        const representation = staticRepresentation(request, path);
+        const representation = staticRepresentation();
         const etag = staticEtag(path, representation);
 
         const revalidated = matchesEtag(request.headers["if-none-match"], etag);
@@ -503,7 +509,6 @@ const apiRoutes = HttpApiBuilder.layer(apiProjection.api, {
   openapiPath: "/openapi.json",
 }).pipe(
   Layer.provide(apiProjection.layer),
-  Layer.provide(contentLayer),
   Layer.provide(AlchemyHttp.Platform)
 );
 
@@ -539,23 +544,8 @@ export const mcpLayer = (
     McpServer.toolkit(toolkitProjection.toolkit).pipe(
       Layer.provide(toolkitProjection.layer)
     ),
-    ...[...lawResources, ...loreResources].map((resource) =>
-      McpServer.resource({
-        content: Effect.succeed(resource.text),
-        description: resource.description,
-        mimeType: "text/markdown",
-        name: resource.name,
-        uri: resource.id,
-      })
-    ),
-    ...skills.map((skill) =>
-      McpServer.prompt({
-        content: () => Effect.succeed(skill.text),
-        description: skill.description,
-        name: skill.name,
-      })
-    )
-  ).pipe(Layer.provide(contentLayer), Layer.provide(mcpTransport(protocols)));
+    mcpContent
+  ).pipe(Layer.provide(mcpTransport(protocols)));
 
 const mcp = mcpLayer(modernMcpProtocols);
 
@@ -604,6 +594,7 @@ const contentRoutes = () =>
   Layer.unwrap(
     Effect.gen(function* buildContentRoutes() {
       const tickets = yield* Effect.serviceOption(IntakeTicket);
+      const store = yield* ContentStore;
 
       return Layer.mergeAll(
         HttpRouter.add("GET", "/tokenmaxx", (request) => {
@@ -614,10 +605,24 @@ const contentRoutes = () =>
             : response;
         }),
         HttpRouter.add("GET", "/llms.txt", (request) =>
-          Effect.succeed(markdown(llmsText(originOf(request))))
+          store.catalog.pipe(
+            Effect.map((catalog) =>
+              markdown(llmsText(originOf(request), catalog))
+            )
+          )
         ),
         HttpRouter.add("GET", "/llms-full.txt", (request) =>
-          Effect.succeed(markdown(llmsFullText(originOf(request))))
+          store.catalog.pipe(
+            Effect.flatMap((catalog) =>
+              Effect.all(
+                catalog.resources.map((resource) => store.read(resource.id))
+              ).pipe(
+                Effect.map((resources) =>
+                  markdown(llmsFullText(originOf(request), catalog, resources))
+                )
+              )
+            )
+          )
         ),
         HttpRouter.add("GET", "/auth.md", markdown(authMarkdown)),
         HttpRouter.add(
@@ -628,16 +633,20 @@ const contentRoutes = () =>
           })
         ),
         HttpRouter.add("GET", "/sitemap.xml", (request) =>
-          Effect.succeed(
-            HttpServerResponse.text(sitemapXml(originOf(request)), {
-              contentType: "application/xml; charset=utf-8",
-            })
+          store.catalog.pipe(
+            Effect.map((catalog) =>
+              HttpServerResponse.text(sitemapXml(originOf(request), catalog), {
+                contentType: "application/xml; charset=utf-8",
+              })
+            )
           )
         ),
         HttpRouter.add(
           "GET",
           "/.well-known/agent-skills/index.json",
-          json(agentSkillsIndex())
+          store.catalog.pipe(
+            Effect.map((catalog) => json(agentSkillsIndex(catalog)))
+          )
         ),
         HttpRouter.add("GET", "/.well-known/ai-catalog.json", (request) =>
           Effect.succeed(json(ardManifest(originOf(request))))
@@ -669,12 +678,32 @@ const contentRoutes = () =>
         HttpRouter.add("GET", "/.well-known/mcp.json", (request) =>
           Effect.succeed(json(mcpServerCard(originOf(request))))
         ),
-        ...skills.map((skill) =>
-          HttpRouter.add(
-            "GET",
-            agentSkillPath(skill.name),
-            markdown(skill.text)
-          )
+        HttpRouter.add(
+          "GET",
+          "/.well-known/agent-skills/:name/SKILL.md",
+          (request) =>
+            store.catalog.pipe(
+              Effect.flatMap((catalog) => {
+                const { pathname } = new URL(
+                  request.url,
+                  "https://ratstack.sh"
+                );
+
+                const skill = catalog.resources.find(
+                  (resource) =>
+                    resource.kind === "skill" &&
+                    agentSkillPath(resource.name) === pathname
+                );
+
+                return skill === undefined
+                  ? Effect.succeed(
+                      HttpServerResponse.text("Not found.\\n", { status: 404 })
+                    )
+                  : store
+                      .read(skill.id)
+                      .pipe(Effect.map((resource) => markdown(resource.text)));
+              })
+            )
         ),
         ...(["/--no-verify", "/no-verify"] as const).map((path) =>
           HttpRouter.add("GET", path, (request) =>
@@ -957,28 +986,46 @@ const requestProtection = (options: {
     { global: true }
   );
 
-const linkHeaders = HttpRouter.middleware(
-  (httpEffect) =>
-    Effect.gen(function* addDiscoveryHeaders() {
-      const request = yield* HttpServerRequest.HttpServerRequest;
-      const response = yield* httpEffect;
-      const pagePath = new URL(request.url, "https://ratstack.sh").pathname;
+const discoveryPath = (pagePath: string, catalog: ContentCatalog) => {
+  const page = staticAssetPagePath(pagePath, catalog);
 
-      return HttpServerResponse.setHeader(
-        response,
-        "Link",
-        linkHeaderForPage(
-          staticAssetPagePath(pagePath) ??
-            (negotiatedHtmlPaths.has(pagePath) ||
-            pagePath === "/tokenmaxx" ||
-            pagePath === "/--no-verify"
-              ? pagePath
-              : "/")
-        )
-      );
-    }),
-  { global: true }
-);
+  if (page !== undefined) {
+    return page;
+  }
+
+  if (pagePath === "/tokenmaxx" || pagePath === "/--no-verify") {
+    return pagePath;
+  }
+
+  return "/";
+};
+
+const linkHeaders = (store: ContentStore["Service"]) =>
+  HttpRouter.middleware(
+    (httpEffect) =>
+      Effect.gen(function* addDiscoveryHeaders() {
+        const request = yield* HttpServerRequest.HttpServerRequest;
+        const response = yield* httpEffect;
+        const pagePath = new URL(request.url, "https://ratstack.sh").pathname;
+
+        if (response.status >= 500 || machinePath(pagePath)) {
+          return HttpServerResponse.setHeader(
+            response,
+            "Link",
+            linkHeaderForPage("/")
+          );
+        }
+
+        const catalog = yield* store.catalog;
+
+        return HttpServerResponse.setHeader(
+          response,
+          "Link",
+          linkHeaderForPage(discoveryPath(pagePath, catalog))
+        );
+      }),
+    { global: true }
+  );
 
 const securityHeaders = {
   "cross-origin-opener-policy": "same-origin",
@@ -1073,6 +1120,12 @@ const securityHeadersMiddleware = HttpRouter.middleware(
         const secured = HttpServerResponse.setHeaders(
           response,
           securityHeaders
+        ).pipe(
+          HttpServerResponse.setHeaders(
+            response.status >= 500
+              ? { "cache-control": "no-store" }
+              : response.headers
+          )
         );
 
         const embeddable = contentType.startsWith("image/")
@@ -1086,7 +1139,10 @@ const securityHeadersMiddleware = HttpRouter.middleware(
         return contentType.startsWith("text/html")
           ? HttpServerResponse.setHeaders(embeddable, {
               "cache-control":
-                response.headers["cache-control"] ?? htmlRevalidateEveryVisit,
+                response.status >= 500
+                  ? "no-store"
+                  : (response.headers["cache-control"] ??
+                    htmlRevalidateEveryVisit),
               "content-security-policy":
                 response.headers["content-security-policy"] ??
                 contentSecurityPolicy("'none'"),
@@ -1103,6 +1159,7 @@ export interface WebBotAuthOptions {
 }
 
 export interface MischiefRouteOptions {
+  readonly contentStore?: ContentStore["Service"] | undefined;
   readonly assets?: StaticAssets["Service"] | undefined;
   readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
   readonly joinTokens?: Context.Context<InterestTokens> | undefined;
@@ -1145,6 +1202,28 @@ const webBotAuthRoutes = (options: WebBotAuthOptions) =>
     webBotAuthResponse(options)
   );
 
+const contentRequests = (store: ContentStore["Service"]) =>
+  HttpRouter.middleware<{
+    provides: ContentStore;
+    handles: AssetReadError | ResourceNotFound;
+  }>()(
+    (httpEffect) =>
+      httpEffect.pipe(
+        Effect.provideService(ContentStore, store),
+        Effect.catchTags({
+          AssetReadError: () =>
+            HttpServerRequest.HttpServerRequest.pipe(
+              Effect.map(unavailableResponse)
+            ),
+          ResourceNotFound: () =>
+            Effect.succeed(
+              HttpServerResponse.text("Not found.\\n", { status: 404 })
+            ),
+        })
+      ),
+    { global: true }
+  );
+
 export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
   Layer.unwrap(
     Effect.gen(function* buildMischiefRoutes() {
@@ -1153,6 +1232,16 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
       const assets =
         options.assets ??
         Option.getOrElse(ambient, () => StaticAssets.unavailable);
+
+      const store =
+        options.contentStore ??
+        (yield* ContentStore.pipe(
+          Effect.provide(
+            contentLayer.pipe(
+              Layer.provide(Layer.succeed(StaticAssets, assets))
+            )
+          )
+        ));
 
       return Layer.mergeAll(
         unsubscribeRoutes,
@@ -1175,13 +1264,17 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         options.rateLimits === undefined && options.legacyMcp === undefined
           ? Layer.empty
           : requestProtection(options),
-        linkHeaders,
+        linkHeaders(store),
         options.staticCache === undefined
           ? Layer.empty
           : staticCaching(options.staticCache),
         webBotAuthRoutes(options.webBotAuth ?? { enabled: false }),
-        assetRoutes(assets)
-      ).pipe(Layer.provideMerge(privateHttpTracingLayer));
+        assetRoutes(assets, store)
+      ).pipe(
+        Layer.provideMerge(contentRequests(store)),
+        Layer.provideMerge(Layer.succeed(ContentStore, store)),
+        Layer.provideMerge(privateHttpTracingLayer)
+      );
     })
   );
 

@@ -34,15 +34,15 @@ import {
   executeProjection,
 } from "../src/capabilities/index.js";
 import {
+  interestCapabilities,
+  registerInterest,
+} from "../src/interest/handlers.js";
+import {
   llmsText,
   publicPaths,
   searchContent,
   sitemapXml,
-} from "../src/content.js";
-import {
-  interestCapabilities,
-  registerInterest,
-} from "../src/interest/handlers.js";
+} from "./content-fixture.js";
 import { fakeIntake, fakeIntakeLayer } from "./fixtures/fake-intake.js";
 import { TestSandbox } from "./test-sandbox.js";
 

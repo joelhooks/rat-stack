@@ -1,9 +1,12 @@
 import { defineContract } from "@rat-stack/capability/contract";
 import { Schema } from "effect";
 
+import { AssetReadError } from "./asset-read-error.js";
 import { NoPath } from "./no-path.js";
 import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
+
+export { AssetReadError } from "./asset-read-error.js";
 
 export { NoPath } from "./no-path.js";
 
@@ -115,7 +118,7 @@ export const LorePathOutput = Schema.Struct({
 export const backlinksContract = defineContract("backlinks", {
   annotations: { idempotent: true, readOnly: true },
   description: "List pages that link to or mention one lore page",
-  failure: UnknownPage,
+  failure: Schema.Union([UnknownPage, AssetReadError]),
   input: Schema.Struct({ slug: Schema.String }),
   output: BacklinksOutput,
 });
@@ -124,7 +127,7 @@ export const neighborsContract = defineContract("neighbors", {
   annotations: { idempotent: true, readOnly: true },
   description:
     "List lore pages within one or two incoming or outgoing graph hops",
-  failure: UnknownPage,
+  failure: Schema.Union([UnknownPage, AssetReadError]),
   input: Schema.Struct({
     depth: Schema.Literals([1, 2]),
     slug: Schema.String,
@@ -136,7 +139,7 @@ export const mentionsContract = defineContract("mentions", {
   annotations: { idempotent: true, readOnly: true },
   description:
     "Find unlinked mentions of one lore page and show their excerpts",
-  failure: UnknownPage,
+  failure: Schema.Union([UnknownPage, AssetReadError]),
   input: Schema.Struct({ slug: Schema.String }),
   output: MentionsOutput,
 });
@@ -144,7 +147,7 @@ export const mentionsContract = defineContract("mentions", {
 export const pathContract = defineContract("path", {
   annotations: { idempotent: true, readOnly: true },
   description: "Find the shortest undirected chain between two lore pages",
-  failure: Schema.Union([UnknownPage, NoPath]),
+  failure: Schema.Union([UnknownPage, NoPath, AssetReadError]),
   input: Schema.Struct({ from: Schema.String, to: Schema.String }),
   output: LorePathOutput,
 });
@@ -163,7 +166,7 @@ export const searchContract = defineContract("search", {
   annotations: { idempotent: true, readOnly: true },
   description:
     "Search rat-stack repository law and skills. Returns stable resource ids for read.",
-  failure: Schema.Never,
+  failure: AssetReadError,
   input: Schema.Struct({
     limit: Schema.optional(Schema.Finite),
     query: Schema.String,
@@ -175,7 +178,7 @@ export const readContract = defineContract("read", {
   annotations: { idempotent: true, readOnly: true },
   description:
     "Read one exact rat-stack law or skill document by the resource id returned from search.",
-  failure: ResourceNotFound,
+  failure: Schema.Union([ResourceNotFound, AssetReadError]),
   input: Schema.Struct({ id: Schema.String }),
   output: ReadOutput,
 });

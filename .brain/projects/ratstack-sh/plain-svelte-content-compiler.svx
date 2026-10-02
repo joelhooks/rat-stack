@@ -13,7 +13,7 @@ supersedes: "./research-sveltekit-shell.svx"
 
 Use Svelte as a build-time document compiler, not as the Worker runtime.
 
-`apps/mischief/scripts/generate-content.ts` reads checked-in Markdown and MDSvX through Effect `FileSystem`, compiles the content through mdsvex's unified pipeline, renders it with Svelte's server renderer, and atomically writes the generated TypeScript module. `apps/mischief/src/document.svelte` is the shared semantic document shell.
+`apps/mischief/scripts/generate-content.ts` reads checked-in Markdown and MDSvX through Effect `FileSystem`, compiles the content through mdsvex's unified pipeline, renders it with Svelte's server renderer, and emits generation-addressed assets plus a fixed TypeScript bootstrap. `apps/mischief/src/document.svelte` is the shared semantic document shell.
 
 The Cloudflare Worker still owns routing, content negotiation, caching, MCP, HTTP capabilities, rate limits, and the sandbox. There is no SvelteKit adapter, router, hydration step, browser bundle, or client-side application code.
 
@@ -27,6 +27,14 @@ The Cloudflare Worker still owns routing, content negotiation, caching, MCP, HTT
 ## Effect boundary
 
 Effect owns build I/O, typed `ContentBuildError` failures, concurrent source reads and compilation, package JSON decoding, and the final atomic write. Pure hashing, slugging, AST traversal, and string assembly remain ordinary functions.
+
+## Runtime content storage
+
+`ContentStore` in `apps/mischief/src/content-store.ts` loads the catalog, search index, graph, and per-page records from static assets. Worker ASSETS and Node filesystem adapters read the same generation. Successful catalog, index, and graph loads are cached; failures retry immediately. A warm read fetches one page record after the catalog is cached.
+
+The generated TypeScript bootstrap keeps fixed document and error shells. Page bodies, glossary, indexes, graph, and routing metadata no longer enter the Worker bundle. `apps/mischief/STARTUP.md` records the size gate and the synthetic-page growth proof.
+
+The existing manifest guard fences both Mischief and RpcBackend builds. Runtime data decoding checks generation and page identity. Missing or invalid known assets fail with `AssetReadError`, with no bundled fallback.
 
 ## Document shell (2026-09-22)
 

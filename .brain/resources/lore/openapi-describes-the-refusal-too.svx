@@ -55,6 +55,8 @@ This refusal is **not** `application/problem+json`. The [route test](https://git
 
 The document has a `BadRequest` response description with no `content` field. A reader uses that distinction to decide whether to parse the error body.
 
+A declared failure defaults to 422 unless its schema names another HTTP status. A plain union keeps each member’s status, including on default POST routes. Template children with annotated union members now receive those statuses instead of 422. Checked or refined unions retain their whole-union status.
+
 A declared domain failure differs from a request decode failure. See [schema-driven development](/lore/schemas-define-the-boundary) for that boundary. See [generating surfaces](/lore/one-schema-three-surfaces) for the document's source.
 
 See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

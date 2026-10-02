@@ -24,6 +24,10 @@ export const emitAssets = Effect.fn("emitAssets")(
     readonly directory: string;
     readonly pages: readonly AssetPage[];
     readonly images: readonly AssetImage[];
+    readonly data?: readonly {
+      readonly path: string;
+      readonly value: Schema.Json;
+    }[];
   }) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
@@ -35,7 +39,13 @@ export const emitAssets = Effect.fn("emitAssets")(
     });
 
     const generation = createHash("sha256")
-      .update(JSON.stringify({ images: input.images, pages: input.pages }))
+      .update(
+        JSON.stringify({
+          data: input.data,
+          images: input.images,
+          pages: input.pages,
+        })
+      )
       .digest("hex");
 
     const assets = path.join(input.directory, "assets", generation);
@@ -66,7 +76,19 @@ export const emitAssets = Effect.fn("emitAssets")(
       yield* fs.rename(temporaryImage, output);
     }
 
+    for (const record of input.data ?? []) {
+      const output = path.join(assets, record.path.slice(1));
+      yield* fs.makeDirectory(path.dirname(output), { recursive: true });
+      const temporaryData = path.join(temporary, "data.json");
+      yield* fs.writeFileString(
+        temporaryData,
+        JSON.stringify({ data: record.value, generation })
+      );
+      yield* fs.rename(temporaryData, output);
+    }
+
     const manifest = {
+      data: input.data?.map((record) => record.path),
       generation,
       images: input.images.map((image) => image.path),
       pages,

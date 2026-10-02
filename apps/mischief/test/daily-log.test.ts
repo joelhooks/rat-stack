@@ -5,7 +5,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { dailyLogMarkdown, readDailyLog } from "../scripts/daily-log.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
-import { readContent } from "../src/content.ts";
+import { readContent } from "./content-fixture.js";
 import { lawSources } from "./generated-content.js";
 
 it.effect(

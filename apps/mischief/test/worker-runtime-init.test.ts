@@ -9,6 +9,10 @@ import type { MischiefRouteOptions } from "../src/app.js";
 import type { RateLimitBindings } from "../src/rate-limits.js";
 import type { WorkerLoaderBinding } from "../src/sandbox-worker-loader.js";
 import { makeMischief } from "../src/worker.js";
+import {
+  disposeFixtureAssets,
+  fetchFixtureAsset,
+} from "./generated-content.js";
 
 type InitializedMischief = Effect.Effect<
   { readonly fetch: Cloudflare.Workers.HttpEffect },
@@ -30,6 +34,7 @@ const rateLimitBindings: RateLimitBindings = {
 
 const workerEnvironment = {
   ...rateLimitBindings,
+  ASSETS: { fetch: fetchFixtureAsset },
   CODE_SANDBOX: {
     load: () => {
       throw new Error("The runtime-init request must not invoke the sandbox");
@@ -63,6 +68,10 @@ it.effect(
       }),
       () =>
         Effect.gen(function* runtimeRequest() {
+          yield* Effect.addFinalizer(() =>
+            Effect.promise(disposeFixtureAssets)
+          );
+
           const erasedWorkerInit: unknown = makeMischief(
             unavailableLegacyMcp,
             InterestDirectory.memory

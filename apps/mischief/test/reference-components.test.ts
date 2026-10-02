@@ -18,7 +18,7 @@ import {
 } from "../scripts/svx-ast.ts";
 import { UnlinkedMentionsSchema } from "../scripts/unlinked-mentions.ts";
 import { staticAssetGeneration } from "../src/bundled-content.generated.js";
-import { contentResources, readContent } from "../src/content.js";
+import { contentResources, readContent } from "./content-fixture.js";
 import { lawSources, loreSources, skillSources } from "./generated-content.js";
 
 it.effect(

@@ -111,18 +111,10 @@ const declaredFailuresOnly = (contract: AnyContract) => {
     );
 };
 
-const httpFailure = (contract: AnyContract): readonly Schema.Top[] => {
-  if (contract.http === undefined) {
-    return contract.needsApproval
-      ? [withFailureStatus(contract.failure), ApprovalDenied]
-      : [withFailureStatus(failureSchemaOf(contract))];
-  }
-
-  return [
-    ...membersOf(contract.failure).map(withFailureStatus),
-    ...(contract.needsApproval ? [ApprovalDenied] : []),
-  ];
-};
+const httpFailure = (contract: AnyContract): readonly Schema.Top[] => [
+  ...membersOf(contract.failure).map(withFailureStatus),
+  ...(contract.needsApproval ? [ApprovalDenied] : []),
+];
 
 type ParamFieldsOf<C, Path extends string> = Pick<
   InputOf<C>["fields"],

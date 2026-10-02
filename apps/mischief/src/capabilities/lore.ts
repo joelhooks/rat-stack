@@ -5,20 +5,30 @@ import {
   neighborsContract,
   pathContract,
 } from "@rat-stack/core/contracts";
-import { LoreGraph } from "@rat-stack/lore";
+import { Effect } from "effect";
+
+import { ContentStore } from "../content-store.js";
 
 export const backlinks = implement(backlinksContract, ({ slug }) =>
-  LoreGraph.use((graph) => graph.backlinks(slug))
+  ContentStore.use((store) => store.graph).pipe(
+    Effect.flatMap((graph) => graph.backlinks(slug))
+  )
 );
 
 export const neighbors = implement(neighborsContract, ({ depth, slug }) =>
-  LoreGraph.use((graph) => graph.neighbors(slug, depth))
+  ContentStore.use((store) => store.graph).pipe(
+    Effect.flatMap((graph) => graph.neighbors(slug, depth))
+  )
 );
 
 export const mentions = implement(mentionsContract, ({ slug }) =>
-  LoreGraph.use((graph) => graph.mentions(slug))
+  ContentStore.use((store) => store.graph).pipe(
+    Effect.flatMap((graph) => graph.mentions(slug))
+  )
 );
 
 export const path = implement(pathContract, ({ from, to }) =>
-  LoreGraph.use((graph) => graph.path(from, to))
+  ContentStore.use((store) => store.graph).pipe(
+    Effect.flatMap((graph) => graph.path(from, to))
+  )
 );

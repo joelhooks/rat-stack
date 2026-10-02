@@ -25,12 +25,8 @@ import * as Redacted from "effect/Redacted";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
-import { assetDirectoryForBuild } from "./asset-deployment.js";
-import {
-  staticAssetGeneration,
-  staticAssetPageRoutes,
-  imageAssetPaths,
-} from "./bundled-content.generated.js";
+import { contentAssetsForBuild } from "./asset-deployment.js";
+import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
@@ -360,24 +356,10 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
 export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
   Effect.gen(function* mischiefProps() {
-    let assets: Cloudflare.Workers.AssetsProps | undefined;
-
-    if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
-      const directory = yield* assetDirectoryForBuild(
-        new URL("../dist/content", import.meta.url).pathname,
-        {
-          generation: staticAssetGeneration,
-          images: imageAssetPaths,
-          pages: staticAssetPageRoutes,
-        }
-      ).pipe(Effect.orDie);
-
-      assets = {
-        directory,
-        htmlHandling: "none",
-        runWorkerFirst: true,
-      };
-    }
+    const assets = yield* contentAssetsForBuild(
+      new URL("../dist/content", import.meta.url).pathname,
+      staticAssetGeneration
+    ).pipe(Effect.orDie);
 
     return {
       assets,

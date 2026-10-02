@@ -28,8 +28,8 @@ import {
   withMarkdownTitle,
 } from "../scripts/content-lib.ts";
 import { parseContentMarkdown } from "../scripts/svx-ast.ts";
-import { llmsText, searchContent } from "../src/content.js";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
+import { llmsText, searchContent } from "./content-fixture.js";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
