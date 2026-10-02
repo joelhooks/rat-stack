@@ -3,6 +3,7 @@ import { Context, Effect, Layer, Ref, Schema } from "effect";
 import { IntakeEventsTest } from "./intake-events-test.js";
 import { IntakeEventsUnavailable } from "./intake-events-unavailable.js";
 import { ConsentIdSchema, QuestionIdSchema } from "./intake-questions.js";
+import { RequestGeoSchema } from "./request-geo.js";
 
 export const ContactRefSchema = Schema.String.check(Schema.isNonEmpty()).pipe(
   Schema.brand("ContactRef")
@@ -46,6 +47,7 @@ export type IntakeStatement = typeof IntakeStatementSchema.Type;
 export const IntakeContactSchema = Schema.Struct({
   agentRef: Schema.String,
   email: Schema.String,
+  geo: Schema.optionalKey(RequestGeoSchema),
   name: Schema.optionalKey(Schema.String),
   x: Schema.optionalKey(Schema.String),
 });

@@ -4,6 +4,7 @@ import {
   IntakeEventsUnavailable,
 } from "@rat-stack/core/intake";
 import type { IntakeStatement, QuestionId } from "@rat-stack/core/intake";
+import type { RequestGeo } from "@rat-stack/core/request-geo";
 import { Effect, Exit, Ref, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
@@ -25,6 +26,14 @@ const nameOf = (submission: Submission) => `Applicant Name ${submission}`;
 
 const xOf = (submission: Submission) => `https://x.com/applicant${submission}`;
 
+const geoOf = (submission: Submission) => ({
+  asOrganization: `Applicant Network ${submission}`,
+  asn: 64_500 + submission,
+  country: "PL",
+  isEUCountry: true,
+  region: "Mazovia",
+});
+
 const ContactKindSchema = Schema.Literals(["none", "email", "identified"]);
 
 type ContactKind = typeof ContactKindSchema.Type;
@@ -33,7 +42,12 @@ const contactFor = (submission: Submission, kind: ContactKind) => {
   const contact = { agentRef: "agent-under-test", email: emailOf(submission) };
 
   if (kind === "identified") {
-    return { ...contact, name: nameOf(submission), x: xOf(submission) };
+    return {
+      ...contact,
+      geo: geoOf(submission),
+      name: nameOf(submission),
+      x: xOf(submission),
+    };
   }
 
   return kind === "email" ? contact : undefined;
@@ -106,6 +120,7 @@ const statementsFor = (
 interface Application {
   readonly answers: ReadonlyMap<string, string>;
   readonly email: string | undefined;
+  readonly geo: RequestGeo | undefined;
   readonly held: boolean;
   readonly name: string | undefined;
   readonly x: string | undefined;
@@ -141,6 +156,7 @@ const readApplications = (sent: readonly UnstructuredIntakeRow[]) => {
     const held = applications.get(row.submissionId) ?? {
       answers: new Map<string, string>(),
       email: undefined,
+      geo: undefined,
       held: false,
       name: undefined,
       x: undefined,
@@ -151,6 +167,7 @@ const readApplications = (sent: readonly UnstructuredIntakeRow[]) => {
       applications.set(row.submissionId, {
         ...held,
         email: row.email,
+        geo: row.geo,
         name: row.name,
         x: row.x,
       });
@@ -202,6 +219,7 @@ const expectedApplications = (
         ])
       ),
       email: recorded.contact === "none" ? undefined : emailOf(submission),
+      geo: recorded.contact === "identified" ? geoOf(submission) : undefined,
       held: heldOf(submission),
       name: recorded.contact === "identified" ? nameOf(submission) : undefined,
       x: recorded.contact === "identified" ? xOf(submission) : undefined,
@@ -305,7 +323,12 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
       expect(row.source).toBe("live");
       expect(serialized.includes("@example.com")).toBe(row.kind === "contact");
 
-      for (const identifying of ["Applicant Name", "x.com/"]) {
+      for (const identifying of [
+        "Applicant Name",
+        "x.com/",
+        "Applicant Network",
+        "Mazovia",
+      ]) {
         expect(
           row.kind === "contact" || !serialized.includes(identifying)
         ).toBe(true);
@@ -315,7 +338,7 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
 
 describe("basin intake events", () => {
   it.effect.prop(
-    "write rows that read back as one application per submission, minus erased contacts, with email, name, and x only on the contact row",
+    "write rows that read back as one application per submission, minus erased contacts, with email, name, x, and geo only on the contact row",
     { generated: steps },
     ({ generated }) => runAgainstModel(generated),
     { arbitrary: { runs: 300 } }
