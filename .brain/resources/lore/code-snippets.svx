@@ -133,6 +133,7 @@ A `path` reference with body text fails with `CodeBodyWithReference`.
 
 An explicit language wins. An unknown explicit language is an error.
 Without a language, a source reference infers it from the file extension.
+
 An unmapped extension or an unlabelled inline fence uses `markdown`.
 The adapter maps `svx` to Markdown and `txt` to text; it accepts `javascript` explicitly.
 
@@ -201,6 +202,7 @@ The [highlighter port](/lore/engine-neutral-tokens-keep-adapters-replaceable) ex
 The `/shiki` adapter uses the existing build-only Shiki 3.23.0 pin.
 Shiki token types stay inside that adapter.
 A `/plain` adapter supplies uncoloured tokens for core tests.
+
 [Layers](/lore/layer-constructor-pattern) provide the adapters. Shiki acquisition and disposal stay inside a scoped Layer.
 
 Mischief owns mdast collection, renderer dispatch, markup, CSS, and reporting.
@@ -233,6 +235,7 @@ Invalid metadata retains raw values because no decoded request exists.
 
 The report-level `CodeBuildFailed` holds collected failures.
 [Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651), not `validateAll`.
+
 A dependent stage stops on failure. Unrelated jobs still run.
 No asset writer runs before successful preflight.
 
@@ -262,6 +265,7 @@ A changed key need not change output bytes. An engine version change can preserv
 Use [property-based testing and shrinking](/lore/property-based-testing).
 Effect 4 exposes [`Arbitrary.schema`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Arbitrary.ts) through `effect/Arbitrary`.
 [`it.prop` and `it.effect.prop`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/vitest/src/index.ts#L53-L165) accept Schema or Arbitrary inputs.
+
 Start with 40 runs per property.
 P5 exercises Shiki. Other core properties use the plain adapter.
 
