@@ -37,6 +37,7 @@ import { agentSignupLayer } from "./interest/join-layer.js";
 import type { AgentSignupOptions } from "./interest/join-layer.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
+import { privateObservability } from "./observability.js";
 import { outerHttpPrivacyRegistration } from "./outer-http-privacy.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
@@ -369,6 +370,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
       env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
       main: import.meta.url,
+      observability: privateObservability,
     };
   }),
   makeMischiefWorker
