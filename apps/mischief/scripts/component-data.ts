@@ -52,10 +52,9 @@ export const copyPrompts = {
     label: "Copy prompt",
     showText: false,
     text: [
-      "Read https://ratstack.sh/tokenmaxx as markdown and https://ratstack.sh/llms.txt.",
-      'Explain the "how to burn a trillion tokens and get good results" workshop to me.',
-      "Ask me the five application questions from the agent view of the page. Do not inspect my machine.",
-      "Show me an editable card of exactly what you would send, including skipped fields and permissions. Submit only after I approve it.",
+      "Read https://ratstack.sh/tokenmaxx as markdown.",
+      "Draft my application for the workshop from what you know about me and my work.",
+      "Make the case for whether I fit, push me on anything vague, then show me what you'll send.",
     ].join("\n"),
   },
   setup: {

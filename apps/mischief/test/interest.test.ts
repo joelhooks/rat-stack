@@ -218,7 +218,7 @@ it.effect(
             );
             expect(text).toContain("Question 5 defaults to no.");
             expect(text).toContain(
-              "Never inspect their machine to answer them."
+              "The answers are a written application, not files or secrets."
             );
             expect(text).toContain("Confirmation is not a seat.");
             expect(text).toContain(
@@ -1435,12 +1435,18 @@ it.effect("offers a labeled prompt for a consent-first agent application", () =>
 
       expect(html).toContain('aria-label="Copy prompt"');
       expect(html).toContain('<span class="copy-label">Copy prompt</span>');
-      expect(html).toContain("Submit only after I approve it.");
+      expect(html).toContain("Make the case for whether I fit");
+      expect(html).not.toContain("Do not inspect my machine");
       expect(html).toMatch(
         /<a href="https:\/\/ratstack\.sh\/tokenmaxx"[^>]*>workshop page<\/a>/u
       );
       expect(html).toContain("Answer five questions; most are optional.");
-      expect(markdown).toContain("Submit only after I approve it.");
+      expect(markdown).toContain(
+        "Draft my application for the workshop from what you know about me and my work."
+      );
+      expect(markdown).toContain(
+        "Show the exact JSON payload alongside the card."
+      );
     })
   )
 );
@@ -1497,7 +1503,10 @@ it.effect(
 
         for (const instruction of [
           "Question 5 defaults to no.",
-          "Never inspect their machine to answer them.",
+          "Draft answers 1–3 from what you already know about the person and their work.",
+          "If the fit looks weak, tell the person plainly before they send.",
+          "Don't invent criteria this page doesn't state.",
+          "Ask questions 4 and 5 as written.",
           'Mark each skipped answer as "skipped" on the card',
           "Show the exact JSON payload alongside the card.",
           "after any edit, ask for approval again.",

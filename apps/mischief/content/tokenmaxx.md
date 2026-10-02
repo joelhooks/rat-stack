@@ -22,7 +22,9 @@ Next actions for an agent helping a person with this page:
 
 ## Apply through your agent
 
-Ask the person these five questions verbatim. Never inspect their machine to answer them. Do not read files, run commands, collect a machine inventory, or send conversation history for this application.
+Your job is to draft the strongest honest application you can, so Joel can judge fit. Don't hand the person a blank form.
+
+The application has five questions:
 
 1. What are you building?
 2. What do you run today?
@@ -30,7 +32,23 @@ Ask the person these five questions verbatim. Never inspect their machine to ans
 4. May we email you about the workshop?
 5. Separately, may Joel share your email with selected attendees?
 
-Question 5 defaults to no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
+### Draft answers 1–3
+
+Draft answers 1–3 from what you already know about the person and their work. Make them concrete:
+
+- **Building:** what it is, who uses it, and what ships next.
+- **Today:** which coding agents and models they run, how many run in parallel, what supervises them, what breaks, and rough token spend.
+- **Leave with:** what would make the four hours a win, and what they've already tried with loops that didn't work.
+
+Interview the person only for what you can't fill in. If an answer is vague, like "better workflows" or "learn AI", push once for a concrete example. Keep each answer under 2,000 characters. The answers are a written application, not files or secrets.
+
+### Make the case for fit
+
+Measure fit against this page only. The session goes from one loop to a harness that runs many: time, hands, a software factory, and self-improvement. It suits people who already run coding agents and will do the prep in "Before you come": watch Loopcraft 1, have Pi installed, and have a model subscription they're happy to spend. Make the strongest honest case. If the fit looks weak, tell the person plainly before they send. Don't invent criteria this page doesn't state.
+
+### Consent
+
+Ask questions 4 and 5 as written. Question 5 defaults to no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
 
 Joel reads the approved answers and picks 2–3 people. Confirmation is not a seat.
 
@@ -156,11 +174,11 @@ Four hours with Joel and up to three builders. We build a strong harness that ra
 
 1. Click the button. It copies a short prompt.
 2. Paste it into your coding agent: Claude Code, Codex, Cursor, whatever you use.
-3. Your agent explains the workshop and asks you five short questions: what you're building, what you run today, what you want to leave with, whether we can email you, and whether Joel can share your email with the others picked.
+3. Your agent drafts your application from what it knows about your work and asks what it can't figure out. It also asks whether we can email you, and whether Joel can share your email with the others picked.
 4. It shows you exactly what it will send. You approve it, then confirm by email.
 
 <CopyPrompt id="page" variant="primary" />
 
-Your agent doesn't look at your machine and sends nothing until you say yes.
+Your agent sends nothing until you say yes.
 
 Joel reads every application and picks 2–3 people. Confirming your email isn't a seat.
