@@ -811,7 +811,7 @@ const skillGroups = [
     title: "See how the pieces fit",
   },
   {
-    names: ["add-a-capability", "add-a-lifecycle-machine"],
+    names: ["add-a-capability", "add-a-lifecycle-machine", "write-a-wiki-page"],
     title: "Learn by building",
   },
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
