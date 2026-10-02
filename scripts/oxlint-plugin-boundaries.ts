@@ -608,7 +608,7 @@ const transportKindForName = (name: string): TransportKind | null => {
 };
 
 const isTransportNamespace = (module: string) =>
-  /(?:^|\/)(?:atomrpc|fetchhttpclient|http|httpapi|httpclient|rpc|rpcclient)$/iu.test(
+  /(?:^|\/)(?:atomrpc|fetchhttpclient|http|http-api|httpapi|httpclient|rpc|rpcclient)$/iu.test(
     module
   );
 
@@ -920,7 +920,7 @@ const noCoreAdapters = defineRule({
         specifier
       );
 
-      const httpModule = /^effect\/unstable\/http(?:[^/]*)(?:\/|$)/u.test(
+      const httpModule = /^effect\/(?:unstable\/)?http(?:[^/]*)(?:\/|$)/u.test(
         specifier
       );
 

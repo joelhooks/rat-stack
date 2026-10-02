@@ -2,7 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
 import type { IntakeStatement } from "@rat-stack/core/intake";
 import { Effect, Layer, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import {
   makeMemoryIntakeVault,

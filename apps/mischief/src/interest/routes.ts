@@ -16,11 +16,11 @@ import type {
 import * as AlchemyHttp from "alchemy/Http";
 import { Clock, Effect, Layer, Option, Schema, Stream } from "effect";
 import type { Context } from "effect";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import type * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import * as UrlParams from "effect/unstable/http/UrlParams";
-import * as HttpApiBuilder from "effect/unstable/httpapi/HttpApiBuilder";
+import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
+import * as HttpRouter from "effect/http/HttpRouter";
+import type * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import * as UrlParams from "effect/http/UrlParams";
 
 import type { RateLimits } from "../rate-limits.js";
 import {

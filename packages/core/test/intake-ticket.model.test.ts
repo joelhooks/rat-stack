@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Schema } from "effect";
+import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
-import { Arbitrary } from "effect/unstable/arbitrary";
 
 import {
   IntakeTicket,

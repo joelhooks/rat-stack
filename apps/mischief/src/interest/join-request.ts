@@ -1,7 +1,7 @@
 import { InterestTokens, normalizeClientIp } from "@rat-stack/core/interest";
 import { JoinRequest } from "@rat-stack/core/join-interest";
 import { Context, Effect, Option } from "effect";
-import { HttpRouter, HttpServerRequest } from "effect/unstable/http";
+import { HttpRouter, HttpServerRequest } from "effect/http";
 
 import type { RateLimits } from "../rate-limits.js";
 

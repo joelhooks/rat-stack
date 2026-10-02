@@ -7,8 +7,8 @@ import {
   SearchOutput,
 } from "@rat-stack/core/contracts";
 import { Effect, Layer, Schema } from "effect";
-import * as McpSchema from "effect/unstable/ai/McpSchema";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import * as McpSchema from "effect/ai/McpSchema";
+import * as HttpRouter from "effect/http/HttpRouter";
 
 import { mischiefRoutes } from "../src/app.js";
 import type { StaticResponseCache } from "../src/app.js";

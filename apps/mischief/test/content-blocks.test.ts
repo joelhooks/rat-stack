@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { Effect, Predicate, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 import { compile } from "mdsvex";
 import { compile as compileSvelte } from "svelte/compiler";
 import { render } from "svelte/server";

@@ -5,14 +5,14 @@ import type { InterestTokens } from "@rat-stack/core/interest";
 import * as AlchemyHttp from "alchemy/Http";
 import type { Context } from "effect";
 import { Cause, Effect, Layer, Option, Predicate, Schema } from "effect";
-import * as McpProtocol from "effect/unstable/ai/McpProtocol";
-import * as McpServer from "effect/unstable/ai/McpServer";
-import * as HttpHeaders from "effect/unstable/http/Headers";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import * as HttpApiBuilder from "effect/unstable/httpapi/HttpApiBuilder";
-import * as HttpApiSchema from "effect/unstable/httpapi/HttpApiSchema";
+import * as McpProtocol from "effect/ai/McpProtocol";
+import * as McpServer from "effect/ai/McpServer";
+import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
+import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
+import * as HttpHeaders from "effect/http/Headers";
+import * as HttpRouter from "effect/http/HttpRouter";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
 import {

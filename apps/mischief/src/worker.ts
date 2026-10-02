@@ -11,13 +11,13 @@ import { Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import { FetchHttpClient } from "effect/http";
+import * as HttpRouter from "effect/http/HttpRouter";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
-import { FetchHttpClient } from "effect/unstable/http";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 import { mischiefRoutes } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";

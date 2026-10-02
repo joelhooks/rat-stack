@@ -6,8 +6,8 @@ import {
   TicketSourceSchema,
 } from "@rat-stack/core/intake";
 import { Effect, Layer, Redacted, Schema } from "effect";
+import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
-import { Arbitrary } from "effect/unstable/arbitrary";
 
 import {
   hmacIntakeTicketLayer,

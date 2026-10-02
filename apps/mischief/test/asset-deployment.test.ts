@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import { emitAssets } from "../scripts/emit-assets.ts";
 import { assetDirectoryForBuild } from "../src/asset-deployment.js";

@@ -5,8 +5,8 @@ import {
   recordingMailerLayer,
 } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted } from "effect";
-import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import type { HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientResponse } from "effect/http";
+import type { HttpClientRequest } from "effect/http";
 
 import {
   plainTextToHtml,

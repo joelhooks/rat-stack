@@ -6,8 +6,8 @@ import {
   HttpMiddleware,
   HttpRouter,
   HttpServerResponse,
-} from "effect/unstable/http";
-import type { HttpServerRequest } from "effect/unstable/http";
+} from "effect/http";
+import type { HttpServerRequest } from "effect/http";
 
 import { unsubscribeDocumentHtml } from "../bundled-content.generated.js";
 import { renderStaticDocument } from "../html.js";

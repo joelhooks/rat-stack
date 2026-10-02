@@ -4,7 +4,7 @@ import type {
   IntakeResult,
 } from "@rat-stack/core/interest";
 import { Effect, Layer, Option, Redacted, Schema } from "effect";
-import { HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientRequest } from "effect/http";
 
 import type { IntakeSettings } from "./drovr-intake.js";
 

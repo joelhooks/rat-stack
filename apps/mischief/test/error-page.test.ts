@@ -1,7 +1,7 @@
 import { it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import * as HttpRouter from "effect/http/HttpRouter";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { expect } from "vitest";
 
 import { errorPages, mischiefRoutes } from "../src/app.js";

@@ -1,6 +1,6 @@
 import { Predicate } from "effect";
 import type { JsonSchema } from "effect";
-import { Tool } from "effect/unstable/ai";
+import { Tool } from "effect/ai";
 
 import type { InputSchema } from "./contract.js";
 

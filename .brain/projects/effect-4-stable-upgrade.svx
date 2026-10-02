@@ -1,0 +1,39 @@
+---
+title: "Effect 4 stable upgrade"
+type: project
+status: review
+created_at: "2026-10-02"
+privacy: public
+---
+
+# Effect 4 stable upgrade
+
+Effect runtime packages move together to `4.0.0`. Alchemy and its Better Auth adapter move to `2.0.0-beta.80`. Alchemy brings Distilled `1.0.0-rc.13`. The compiler patcher stays at `@effect/tsgo@0.45.0`; XState pins stay unchanged.
+
+## Published source clears the adapter blocker
+
+Alchemy beta.80's `lib/Stack.js` imports `effect/http/FetchHttpClient`. Distilled core rc.13's `lib/category.js` imports `effect/http/HttpClientError`. The published Alchemy, Better Auth, Cloudflare runtime and Distilled packages contain no removed `effect/unstable/*` imports. Their Effect peers accept `^4.0.0`.
+
+Exact release-age exceptions cover stable Effect and the matching adapters, including Alchemy's required companion packages and all sixteen Distilled dependencies. No range exception or global release-age change is needed.
+
+## Migration seams
+
+The [Effect 4.0.0 source](https://github.com/Effect-TS/effect/tree/effect%404.0.0) owns these changes:
+
+- [#8354](https://github.com/Effect-TS/effect/pull/8354): remove unstable import paths; export Arbitrary at the top level.
+- [#8365](https://github.com/Effect-TS/effect/pull/8365): HTTP API imports and middleware identities use `http-api`.
+- [#8378](https://github.com/Effect-TS/effect/pull/8378): `Schema.isBetweenLength` replaces `isLengthBetween`.
+- [#8356](https://github.com/Effect-TS/effect/pull/8356): format modules replace Encoding; ticket and token code uses `Base64Url`.
+- [#8477](https://github.com/Effect-TS/effect/pull/8477): each router entrypoint forks its layer memo map.
+
+`mischiefRoutes` merges content, interest, API, MCP and middleware layers before the Worker calls `HttpRouter.toHttpEffect`. No nested router entrypoint owns those routes. A shared-memo-map test checks that common routes remain reachable and entrypoint-only routes do not leak. Existing composed-worker tests cover static assets, tickets, HTTP capabilities and MCP. The transport fence recognizes both historical and stable imports; old fixtures remain, with new stable fixtures added.
+
+## Dependency review
+
+This is not an import-only Alchemy release. Beta.80 also changes planning, resource selection, captured environment diffs, bundle aliases and output directories, provider implementations, Durable Object transactions and callbacks, RPC WebSockets, and SQL migrations. It adds Distilled ACME, ZeroSSL, Doppler, GCP and Infisical plus Neon functions. Distilled AWS adds native credential providers that can read local configuration, run configured credential processes, access metadata endpoints and update login-token caches. Those providers are lazy and are not exercised by this application's Cloudflare Worker.
+
+Published adapters add no install or postinstall scripts. New provider support does not add a resource declaration to this Stack. The intended footprint stays unchanged: existing Worker code and assets update; no declared binding, Durable Object class, resource identity or domain changes. This is an expectation from code, not an observed production plan. The owner must review the real plan before deployment.
+
+## Validation boundary
+
+Run the full `pnpm turbo run check test build` gate and normal commit hooks. Startup limits remain 3,300,000 bytes for the entry and 5,000,000 bytes for all JavaScript. Local workerd must serve every page in both views, images, markdown aliases, fresh tickets, the copy control, HTTP search/read and modern MCP read. Production requests and infrastructure operations are outside this migration's verification scope.

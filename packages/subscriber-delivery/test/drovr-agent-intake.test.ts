@@ -11,9 +11,9 @@ import {
   Redacted,
   Schema,
 } from "effect";
+import * as Arbitrary from "effect/Arbitrary";
+import { HttpClient, HttpClientResponse } from "effect/http";
 import { TestClock } from "effect/testing";
-import { Arbitrary } from "effect/unstable/arbitrary";
-import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 
 import { drovrAgentIntakeLayer } from "../src/drovr-agent-intake.js";
 

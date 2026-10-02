@@ -8,9 +8,9 @@ import {
 } from "@effect/atom-react";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import type * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as Schema from "effect/Schema";
-import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
-import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
 import type { FormEvent, ReactNode } from "react";
 import { useContext, useEffect, useState } from "react";
 

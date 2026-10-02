@@ -76,6 +76,10 @@ describe("architecture boundary rules", () => {
   it("keeps clients and vendor adapters out of core through every import form", () => {
     const sources = [
       'import { HttpClient } from "effect/unstable/http";',
+      'import { HttpClient } from "effect/http";',
+      'import * as client from "effect/http/HttpClient";',
+      'export { HttpClientRequest } from "effect/http";',
+      'type Client = import("effect/http/HttpClient").HttpClient;',
       'import * as client from "effect/unstable/http/HttpClient";',
       'export { HttpClientRequest } from "effect/unstable/http";',
       'export * from "@rat-stack/subscriber-delivery";',
@@ -316,6 +320,21 @@ describe("architecture boundary rules", () => {
       result,
       "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here."
     );
+  });
+
+  it.each([
+    'import * as Api from "effect/http-api";\nexport const client = Api;',
+    'import * as Client from "effect/http/HttpClient";\nexport const client = Client.make();',
+    'import * as Client from "effect/rpc/RpcClient";\nexport const client = Client.make();',
+    'import * as Client from "effect/reactivity/AtomRpc";\nexport const client = Client;',
+    'const Client = require("effect/http-api");\nexport const client = Client;',
+    'export const client = () => import("effect/http-api");',
+  ])("blocks stable transport entrypoints in features: %s", (source) => {
+    expectRule(
+      lintFixture("apps/cli/src/features", source),
+      "do not use fetch or construct transport clients here."
+    );
+    expect(lintFixture("apps/cli/src/client", source).status).toBe(0);
   });
 
   it("keeps RPC client construction out of feature modules", () => {

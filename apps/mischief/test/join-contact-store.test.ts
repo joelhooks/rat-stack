@@ -7,7 +7,7 @@ import {
 import { InterestTokens } from "@rat-stack/core/interest";
 import { JoinContactStore } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Redacted, Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
 

@@ -1,7 +1,7 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- A projection over a heterogeneous list of capabilities erases each one's error and requirement types at the boundary and recovers them for callers through `ToolsOf` / `RequirementsOf`. The three diagnostics above cannot distinguish that boundary from a leak, so they are off for this file only.
 import type { Layer } from "effect";
 import { Effect, Schema } from "effect";
-import { Tool, Toolkit } from "effect/unstable/ai";
+import { Tool, Toolkit } from "effect/ai";
 
 import { failureSchemaOf } from "./contract.js";
 import type {

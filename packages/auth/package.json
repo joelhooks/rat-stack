@@ -28,18 +28,18 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/better-auth": "2.0.0-beta.79",
+    "@alchemy.run/better-auth": "2.0.0-beta.80",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/database": "workspace:*",
-    "alchemy": "2.0.0-beta.79",
+    "alchemy": "2.0.0-beta.80",
     "better-auth": "1.6.2",
     "drizzle-orm": "1.0.0-rc.5-ab785fc",
-    "effect": "4.0.0-rc.117",
+    "effect": "4.0.0",
     "pg": "8.23.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260901.1",
-    "@effect/vitest": "4.0.0-rc.117",
+    "@effect/vitest": "4.0.0",
     "@rat-stack/devtools": "workspace:*",
     "@types/node": "24.13.6",
     "@types/pg": "8.20.0",

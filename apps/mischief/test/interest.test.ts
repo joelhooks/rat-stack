@@ -21,8 +21,8 @@ import type {
 import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
 import { Clock, Effect, Layer, Redacted, Ref, Schema } from "effect";
 import type { Context } from "effect";
-import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpRouter from "effect/http/HttpRouter";
 
 import { copyPrompts } from "../scripts/component-data.ts";
 import { htmlTokens } from "../scripts/svx-ast.ts";

@@ -5,11 +5,7 @@ import {
 } from "@rat-stack/core/join-interest";
 import type { JoinInput } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Schema } from "effect";
-import {
-  FetchHttpClient,
-  HttpClient,
-  HttpClientRequest,
-} from "effect/unstable/http";
+import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 
 export const remoteJoinInterestLayer = Layer.effect(
   JoinInterest,

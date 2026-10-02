@@ -4,7 +4,7 @@ import {
   contentLayer,
 } from "@rat-stack/mischief/capabilities";
 import { Effect, Layer, Schema } from "effect";
-import { HttpRouter } from "effect/unstable/http";
+import { HttpRouter } from "effect/http";
 
 import { contentRoutes } from "../src/dev/content-routes.js";
 import { rpcRouteHandler } from "../src/server/rpc.js";

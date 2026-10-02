@@ -1,14 +1,14 @@
 // @effect-diagnostics asyncFunction:off -- The fetch shim below must be a Promise-returning function because that is what `FetchHttpClient.Fetch` calls; everything around it is Effect.
 import { Effect, Layer, Logger, References } from "effect";
+import { McpProtocol, McpSchema, McpServer } from "effect/ai";
 import { constVoid } from "effect/Function";
-import { McpProtocol, McpSchema, McpServer } from "effect/unstable/ai";
 import {
   FetchHttpClient,
   HttpClient,
   HttpClientRequest,
   HttpRouter,
-} from "effect/unstable/http";
-import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
+} from "effect/http";
+import { RpcClient, RpcSerialization } from "effect/rpc";
 
 const MCP_ENDPOINT = "http://localhost/mcp";
 

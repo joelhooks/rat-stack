@@ -1,12 +1,5 @@
-import {
-  Context,
-  Effect,
-  Encoding,
-  Layer,
-  Redacted,
-  Result,
-  Schema,
-} from "effect";
+import { Context, Effect, Layer, Redacted, Result, Schema } from "effect";
+import { Base64Url } from "effect/encoding";
 
 import { InvalidInterestToken } from "./invalid-interest-token.js";
 
@@ -67,7 +60,7 @@ export class InterestTokens extends Context.Service<
             () => crypto.subtle.sign("HMAC", key, encoder.encode(payload))
           );
 
-          return `${Encoding.encodeBase64Url(payload)}.${Encoding.encodeBase64Url(new Uint8Array(signature))}`;
+          return `${Base64Url.encode(payload)}.${Base64Url.encode(new Uint8Array(signature))}`;
         });
 
         const verify = Effect.fn("InterestTokens.verify")(function* verify(
@@ -85,11 +78,11 @@ export class InterestTokens extends Context.Service<
           }
 
           const payload = Result.getOrUndefined(
-            Encoding.decodeBase64UrlString(encodedPayload)
+            Base64Url.decodeString(encodedPayload)
           );
 
           const signature = Result.getOrUndefined(
-            Encoding.decodeBase64Url(encodedSignature)
+            Base64Url.decode(encodedSignature)
           );
 
           if (payload === undefined || signature === undefined) {

@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
-import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { dailyLogMarkdown, readDailyLog } from "../scripts/daily-log.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";

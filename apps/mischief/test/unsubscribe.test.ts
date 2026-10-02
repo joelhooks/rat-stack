@@ -10,8 +10,7 @@ import {
   Schema,
   Tracer,
 } from "effect";
-import { TestClock } from "effect/testing";
-import type { HttpClientRequest } from "effect/unstable/http";
+import type { HttpClientRequest } from "effect/http";
 import {
   FetchHttpClient,
   HttpClient,
@@ -20,7 +19,8 @@ import {
   HttpRouter,
   HttpServerRequest,
   HttpServerResponse,
-} from "effect/unstable/http";
+} from "effect/http";
+import { TestClock } from "effect/testing";
 
 import { mischiefRoutes } from "../src/app.js";
 import {

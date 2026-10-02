@@ -9,12 +9,12 @@ import { toRpc } from "@rat-stack/capability/rpc";
 import { toToolkit } from "@rat-stack/capability/toolkit";
 import { devtools, devtoolsLayer } from "@rat-stack/devtools";
 import { RuntimeContext } from "alchemy";
+import { McpProtocol, McpServer } from "effect/ai";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import { McpProtocol, McpServer } from "effect/unstable/ai";
-import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
+import { RpcSerialization, RpcServer } from "effect/rpc";
 
 export const DEVTOOLS_RPC_PATH = "/__rat/rpc";
 

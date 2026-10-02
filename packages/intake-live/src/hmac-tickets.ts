@@ -6,16 +6,8 @@ import {
   TicketSourceSchema,
 } from "@rat-stack/core/intake";
 import type { TicketSource } from "@rat-stack/core/intake";
-import {
-  Clock,
-  Effect,
-  Encoding,
-  Layer,
-  Option,
-  Redacted,
-  Result,
-  Schema,
-} from "effect";
+import { Clock, Effect, Layer, Option, Redacted, Result, Schema } from "effect";
+import { Base64Url } from "effect/encoding";
 
 import { TicketBindings } from "./ticket-bindings.js";
 
@@ -69,7 +61,7 @@ const deriveTicketKey = (secret: Redacted.Redacted) =>
   });
 
 const randomNonce = Effect.sync(() =>
-  Encoding.encodeBase64Url(crypto.getRandomValues(new Uint8Array(16)))
+  Base64Url.encode(crypto.getRandomValues(new Uint8Array(16)))
 );
 
 const unknownTicket = new InvalidTicket({ reason: "unknown" });
@@ -85,8 +77,8 @@ const ticketParts = (ticket: string) => {
     return Option.none();
   }
 
-  const payload = Encoding.decodeBase64UrlString(encodedPayload);
-  const signature = Encoding.decodeBase64Url(encodedSignature);
+  const payload = Base64Url.decodeString(encodedPayload);
+  const signature = Base64Url.decode(encodedSignature);
 
   return Result.isSuccess(payload) && Result.isSuccess(signature)
     ? Option.some({ payload: payload.success, signature: signature.success })
@@ -119,7 +111,7 @@ export const hmacIntakeTicketLayer = (secret: Redacted.Redacted) =>
           () => crypto.subtle.sign("HMAC", key, encoder.encode(payload))
         );
 
-        return `${Encoding.encodeBase64Url(payload)}.${Encoding.encodeBase64Url(new Uint8Array(signature))}`;
+        return `${Base64Url.encode(payload)}.${Base64Url.encode(new Uint8Array(signature))}`;
       });
 
       const verify = Effect.fn("IntakeTicket.verify")(function* verify(

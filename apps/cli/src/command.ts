@@ -1,7 +1,7 @@
 import { toCommand } from "@rat-stack/capability";
 import { capabilities, formatFileStats, inspectFile } from "@rat-stack/core";
 import { Console, Effect, Layer } from "effect";
-import { Command, Flag } from "effect/unstable/cli";
+import { Command, Flag } from "effect/cli";
 
 import {
   SERVE_HOST,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Schema } from "effect";
-import { Arbitrary } from "effect/unstable/arbitrary";
+import * as Arbitrary from "effect/Arbitrary";
 
 import { capturedQuery, isSensitiveKey, referrerOf } from "../src/index.js";
 import { queryPairs, sensitiveWord, word } from "./arbitraries.js";
