@@ -4,16 +4,16 @@
     "tier": "S",
     "reason": "Upstream infrastructure reference; the study cites its RPC and Better Auth patterns.",
     "versions": {
-      "effect": "4.0.0-rc.118 (workspace override)",
-      "alchemy": "2.0.0-beta.79 (workspace package)",
+      "effect": "4.0.0 (workspace override)",
+      "alchemy": "2.0.0-beta.80 (workspace package)",
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
-    "commit": "e354a4555241c307784264a46fd13cff33c60816",
+    "commit": "ea384f00bf5207c41459189843d590b28d64484f",
     "sources": [
       {
         "label": "workspace catalog and overrides",
@@ -35,11 +35,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
-    "commit": "f2e91c0372b154e9ca4db19debb8324dc50b5c0c",
+    "commit": "c7ee3328d6257213671b8670455d97bc7b9f05d2",
     "sources": [
       {
         "label": "root catalogs",
@@ -57,11 +57,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[effect-4-reference-projects](effect-4-reference-projects.svx), [same-version-repos](same-version-repos.svx)",
     "branch": "main",
-    "commit": "bed69f6ea41dab13ec37afbaaa2c911a19865f7a",
+    "commit": "54084ae1e6c32809db040e4fa571c80fdf2d8ae4",
     "sources": [
       {
         "label": "Effect catalog",
@@ -83,11 +83,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
-    "commit": "a4ed4c9458cbcd2abe759a659495239c4d2ee4ae",
+    "commit": "d8d31e9f4e4c6dd2fba9bd24dda69a38d97729c2",
     "sources": [
       {
         "label": "root Effect pin",
@@ -109,11 +109,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
-    "commit": "f97c2e4212e1e1b21cb55efbb79dc70e0b62f7f3",
+    "commit": "2ae3d4ddd852caf1dcc1b8181e5c86b067d02e92",
     "sources": [
       {
         "label": "root catalogs",
@@ -131,11 +131,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
-    "commit": "d3ef7ea8d24e6d7a5d4d057d497badfc72d3f5de",
+    "commit": "eb1add739c9c92e64d1c1038e136ba74ce7215ec",
     "sources": [
       {
         "label": "root catalog",
@@ -148,16 +148,16 @@
     "tier": "B",
     "reason": "Effect packages and Alchemy pipeline tooling warrant tailing; no study recorded yet.",
     "versions": {
-      "effect": "4.0.0-rc.115 (locked from range); tooling 4.0.0-rc.112",
+      "effect": "4.0.0 (locked from ^4.0.0); tooling 4.0.0",
       "alchemy": "2.0.0-beta.72 (pipeline tooling)",
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
-    "commit": "a49a9c9909be169d7ada217ede5c34fc3410faa1",
+    "commit": "b6390c618c796483bd32c99baf8a6411bba77ad2",
     "sources": [
       {
         "label": "root catalog range",
@@ -183,7 +183,7 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
@@ -205,7 +205,7 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
@@ -235,7 +235,7 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "main",
@@ -261,11 +261,11 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "Not yet studied",
     "branch": "master",
-    "commit": "9772ef9b2fd29148ae4fb586e31ac4e3e869a609",
+    "commit": "572bf96b39b9a093ddcfe319fd024201a5a072fc",
     "sources": [
       {
         "label": "root manifest",
@@ -283,11 +283,11 @@
       "xstate": "6.0.0-alpha.12",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
-    "commit": "8ac23362d5ad1528fbe73a7ad14fc789a117faf4",
+    "commit": "4da69e074edc00b653bf3256f0dea96adadb3093",
     "sources": [
       {
         "label": "root manifest",
@@ -305,7 +305,7 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
@@ -331,7 +331,7 @@
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos.svx)",
     "branch": "main",
@@ -345,8 +345,8 @@
   },
   {
     "branch": "main",
-    "checked": "2026-10-01",
-    "commit": "864a60e23eea6e9a7f765d35716923061a0101ca",
+    "checked": "2026-10-02",
+    "commit": "f66bceb4a989e6f1c3f5a5384d84581ceaaa4145",
     "firstSeen": "2026-10-01",
     "reason": "New discovery: its Cloudflare example shares Effect and Alchemy catalogs; not yet studied.",
     "repo": "humanlayer/fold",
@@ -379,11 +379,11 @@
       "xstate": "6.0.0-alpha.59",
       "xstateEffect": "0.1.0-alpha.2"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
-    "commit": "989d6ab05ef3f870acc6a3740618cb3890c3f6c7",
+    "commit": "eddcedb29c3900a1e5e365dc3999bf6f7fdcfd7b",
     "sources": [
       {
         "label": "package.json",
@@ -413,7 +413,7 @@
       "xstate": "6.0.0-alpha.57 (development pin; peer range starts here and excludes 6.0.0)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "next",
@@ -443,7 +443,7 @@
       "xstate": "6.0.0-alpha.25",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -473,7 +473,7 @@
       "xstate": "6.0.0-alpha.21",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -503,7 +503,7 @@
       "xstate": "6.0.0-alpha.48 (workspace catalog)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -537,7 +537,7 @@
       "xstate": "6.0.0-alpha.50",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -571,7 +571,7 @@
       "xstate": "6.0.0-alpha.18",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -601,7 +601,7 @@
       "xstate": "6.0.0-alpha.27",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -631,7 +631,7 @@
       "xstate": "6.0.0-alpha.53",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "main",
@@ -660,16 +660,16 @@
     "tier": "B",
     "reason": "TanStack application shares Effect 4, Alchemy 2 and locked XState 6; worth tailing, not yet studied.",
     "versions": {
-      "effect": "4.0.0-rc.112",
+      "effect": "4.0.0",
       "alchemy": "2.0.0-beta.79",
       "xstate": "6.0.0-alpha.63 (locked from ^6.0.0-alpha.63)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "master",
-    "commit": "0f11f0cfdfd794a372593188a7a9ad438cc27e11",
+    "commit": "6487eead0209de1c01e272d7058f2d1abfaeb5b5",
     "sources": [
       {
         "label": "package.json",
@@ -695,7 +695,7 @@
       "xstate": "6.0.0-alpha.60 (locked from ^6.0.0-alpha.59)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Manifest/README screening only",
     "branch": "main",
@@ -725,7 +725,7 @@
       "xstate": "6.0.0-alpha.49 (locked from ^6.0.0-alpha.49)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Manifest/README screening only",
     "branch": "develop",
@@ -755,7 +755,7 @@
       "xstate": "6.0.0-alpha.40",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-01",
+    "checked": "2026-10-02",
     "firstSeen": "2026-10-01",
     "studied": "Manifest/README screening only",
     "branch": "main",
@@ -772,6 +772,32 @@
       {
         "label": "README.md",
         "path": "README.md"
+      }
+    ]
+  },
+  {
+    "repo": "beep-effect/beep-effect",
+    "tier": "A",
+    "reason": "Active Oct 2; scoped inspector and model-test bridge studied. Effect uses a PR build, not the stable release tarball.",
+    "versions": {
+      "effect": "4.0.0 source (pkg.pr.new @ b5a2d4c; installed semver unverified)",
+      "alchemy": "—",
+      "xstate": "6.0.0-alpha.63 (catalog)",
+      "xstateEffect": "0.1.0-alpha.5 (catalog)"
+    },
+    "checked": "2026-10-02",
+    "firstSeen": "2026-10-02",
+    "studied": "[same-version-repos](same-version-repos.svx)",
+    "branch": "main",
+    "commit": "a7644af785843bb42546109272970f2f7a82b1d7",
+    "sources": [
+      {
+        "label": "catalog and Effect PR-build ref",
+        "path": "package.json"
+      },
+      {
+        "label": "XState driver catalog consumers",
+        "path": "packages/drivers/xstate/package.json"
       }
     ]
   }

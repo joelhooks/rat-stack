@@ -12,9 +12,11 @@ Source review for the web client, Alchemy resources, database, Better Auth, Work
 
 ## Pin reality
 
-At this lane's base, `1c2a738`, rat-stack manifests pin Effect `4.0.0-rc.117`, Alchemy `2.0.0-beta.79`, and XState `6.0.0-alpha.59`. `AGENTS.md` and `README.md` now match, and `packages/core/test/docs-pins.test.ts` fails if their version text drifts from the manifests again. The [Effect reference note](./effect-4-reference-projects.svx) records the versions on its 2026-09-18 study date.
+The original study base, `1c2a738`, pinned Effect `4.0.0-rc.117`, Alchemy `2.0.0-beta.79`, and XState `6.0.0-alpha.59`. Those are historical versions. `packages/core/test/docs-pins.test.ts` guards the version text in `AGENTS.md` and `README.md`. The [Effect reference note](./effect-4-reference-projects.svx) records the versions on its 2026-09-18 study date.
 
-Of the inspected repo snapshots, only `alchemy-run/alchemy` at `9802260db8f8b5a083c4b85eb7ea31ae1ff8f176` matches both current Effect and Alchemy lines: its package is beta.79 and its workspace requires Effect rc.117. Maple is one Effect RC behind at rc.116 / Alchemy beta.79; T3Code is rc.115 / beta.79. OpenSEO is Effect beta.93 / Alchemy beta.61, SolStatus beta.107 / beta.72, Smithers rc.115 / beta.76, Pivot beta.103 / beta.65, and Elianiva beta.101 / beta.64. The roster finds repos sharing prerelease lines, not necessarily exact pins; treat useful older source as evidence about shapes, not drop-in code.
+At that study date, only `alchemy-run/alchemy` at `9802260db8f8b5a083c4b85eb7ea31ae1ff8f176` matched both Effect and Alchemy lines: its package is beta.79 and its workspace requires Effect rc.117. Maple is one Effect RC behind at rc.116 / Alchemy beta.79; T3Code is rc.115 / beta.79. OpenSEO is Effect beta.93 / Alchemy beta.61, SolStatus beta.107 / beta.72, Smithers rc.115 / beta.76, Pivot beta.103 / beta.65, and Elianiva beta.101 / beta.64. The roster finds repos sharing stack lines, not necessarily exact pins; treat useful older source as evidence about shapes, not drop-in code.
+
+The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. Alchemy also moved to beta.80. See the [roster](./peers.svx) for checked commits and manifests. Patterns below remain tied to their original source snapshots.
 
 ## Patterns
 
@@ -89,6 +91,17 @@ The example's `alchemy/Test/Bun` harness deploys the Stack before tests, retries
 The test scans explicitly named generic roots and files to keep chat-vendor names inside connector directories, and checks that guarded roots are non-empty and guarded files still exist. The guidance makes app, product-package, and vendor-neutral-library ownership explicit; it also says services capture implementation dependencies and keep request context invocation-scoped.
 
 **Verdict — adapt the proof, not the lexical rule.** **Cartridge:** package ownership and adapter isolation are concrete boundaries worth testing. **Fence:** move rat-stack's capability-only surface rule from prose into a test or type-aware lint rule, and include a check that the guard cannot go vacuous. **One paved path:** extend the current capability fence rather than introduce a second generic source-scanning framework; Maple's vendor-name scanner is product-specific.
+
+### Scoped actor inspection and generated model commands — adapt
+
+**Source:** beep-effect at `a7644af785843bb42546109272970f2f7a82b1d7`: [catalog](https://github.com/beep-effect/beep-effect/blob/a7644af785843bb42546109272970f2f7a82b1d7/package.json), [driver manifest](https://github.com/beep-effect/beep-effect/blob/a7644af785843bb42546109272970f2f7a82b1d7/packages/drivers/xstate/package.json), [inspector service](https://github.com/beep-effect/beep-effect/blob/a7644af785843bb42546109272970f2f7a82b1d7/packages/drivers/xstate/src/StatelyInspector.service.ts), [test bridge](https://github.com/beep-effect/beep-effect/blob/a7644af785843bb42546109272970f2f7a82b1d7/packages/drivers/xstate/src/test.ts).
+
+Checked Oct 2. Its catalog selects XState alpha.63 and bridge alpha.5. Effect comes from a pkg.pr.new build at `b5a2d4c1d62c9620a68d72b7f20248c69ef7663b`. That [source manifest](https://github.com/Effect-TS/effect/blob/b5a2d4c1d62c9620a68d72b7f20248c69ef7663b/packages/effect/package.json) declares 4.0.0; the installed build's semver was not verified. This is a shared-line consumer, not an exact release match.
+
+The inspector has a disabled production Layer. Its enabled Layer owns the inspector, and `attach` acquires an actor subscription whose finalizer unsubscribes. The test bridge derives event arbitraries from schemas and projects a snapshot's value and context for model comparisons. Its actor SUT opens a scope and closes it on disposal.
+
+**Verdict — adapt the lifetime checks, not the driver.** Keep `watchActor` and `ActorWatch` as our single inspection path; a second Stately service would bypass that fence. The helper runs tests through `ManagedRuntime`, which our test fence forbids. Use `it.effect.prop` and generated command sequences instead of copying its runtime bridge. No production code was adopted.
+
 
 ## Screened, not adopted
 
