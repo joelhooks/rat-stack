@@ -1,3 +1,4 @@
+import { isGeoLabel } from "@rat-stack/core/request-geo";
 import { Clock, Crypto, DateTime, Effect, Schema } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
@@ -8,6 +9,7 @@ import {
   referrerOf,
   withoutUndefined,
 } from "./request-facts.js";
+import { requestGeoOf } from "./request-geo.js";
 import { RawEventSchema, RequestBodySchema } from "./schemas.js";
 import type { IdentityMode } from "./schemas.js";
 import { VisitorSalt } from "./visitor-salt.js";
@@ -15,6 +17,7 @@ import { VISITOR_COOKIE, resolveVisitor, saltedHash } from "./visitor.js";
 import { webCryptoLayer } from "./web-crypto.js";
 
 export interface CaptureOptions<RB> {
+  readonly captureCity?: boolean;
   readonly identityMode: IdentityMode;
   readonly runInBackground: (
     effect: Effect.Effect<void>
@@ -48,6 +51,11 @@ const recordRequest = <RB>(
     const userAgent = headers["user-agent"];
     const receivedAt = DateTime.formatIso(DateTime.makeUnsafe(startedAt));
     const url = new URL(request.url, "https://localhost");
+    const country = headers["cf-ipcountry"];
+
+    const geo = requestGeoOf(request, {
+      captureCity: options.captureCity === true,
+    });
 
     const visitor = yield* resolveVisitor({
       cookie: request.cookies[VISITOR_COOKIE],
@@ -79,7 +87,8 @@ const recordRequest = <RB>(
       identityMode: options.identityMode,
       messageId: yield* crypto.randomUUIDv7,
       server: withoutUndefined({
-        country: headers["cf-ipcountry"],
+        ...geo,
+        country: isGeoLabel(country) ? country : geo.country,
         host: headers.host ?? url.host,
         ipHash:
           ip === undefined ? undefined : yield* saltedHash(salt, ["ip", ip]),

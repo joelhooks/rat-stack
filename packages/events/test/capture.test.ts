@@ -38,7 +38,27 @@ type Generated =
 
 const existingCookie = "0199a3b2-6f1e-7c3d-8a4b-1c2d3e4f5a6b";
 
-const requestFor = (generated: Generated) => {
+const edgeCf = {
+  asOrganization: "Example Networks",
+  asn: 64_500,
+  city: "Warszawa",
+  colo: "WAW",
+  continent: "EU",
+  country: "PL",
+  isEUCountry: "1",
+  latitude: "52.22977",
+  longitude: "21.01178",
+  metroCode: "8675309",
+  postalCode: "00-950",
+  region: "Mazovia",
+  regionCode: "14",
+  timezone: "Europe/Warsaw",
+} as const;
+
+const withCf = (request: Request) =>
+  Object.defineProperty(request, "cf", { value: edgeCf });
+
+const requestFor = (generated: Generated, cf = false) => {
   const query = new URLSearchParams(generated.query).toString();
 
   const headers = new Headers({
@@ -53,18 +73,18 @@ const requestFor = (generated: Generated) => {
     headers.set("cookie", `${VISITOR_COOKIE}=${existingCookie}`);
   }
 
-  return HttpServerRequest.fromWeb(
-    new Request(
-      `https://ratstack.sh/${generated.path.join("/")}${query === "" ? "" : `?${query}`}`,
-      generated.scenario.method === "POST"
-        ? {
-            body: new URLSearchParams({ email: generated.email }).toString(),
-            headers,
-            method: "POST",
-          }
-        : { headers, method: "GET" }
-    )
+  const web = new Request(
+    `https://ratstack.sh/${generated.path.join("/")}${query === "" ? "" : `?${query}`}`,
+    generated.scenario.method === "POST"
+      ? {
+          body: new URLSearchParams({ email: generated.email }).toString(),
+          headers,
+          method: "POST",
+        }
+      : { headers, method: "GET" }
   );
+
+  return HttpServerRequest.fromWeb(cf ? withCf(web) : web);
 };
 
 const appFor = (generated: Generated) =>
@@ -77,14 +97,21 @@ const appFor = (generated: Generated) =>
     })
   );
 
-const capture = (mode: IdentityMode) =>
-  withEventCapture({ identityMode: mode, runInBackground: (effect) => effect });
+const capture = (mode: IdentityMode, captureCity = false) =>
+  withEventCapture({
+    captureCity,
+    identityMode: mode,
+    runInBackground: (effect) => effect,
+  });
 
-const respond = (generated: Generated) =>
-  capture(generated.scenario.mode)(appFor(generated)).pipe(
+const respond = (generated: Generated, cf = false, captureCity = false) =>
+  capture(
+    generated.scenario.mode,
+    captureCity
+  )(appFor(generated)).pipe(
     Effect.provideService(
       HttpServerRequest.HttpServerRequest,
-      requestFor(generated)
+      requestFor(generated, cf)
     )
   );
 
@@ -129,6 +156,46 @@ describe("request capture", () => {
         expect(body.method).toBe(generated.scenario.method);
         expect(body.path).toBe(`/${generated.path.join("/")}`);
         expect(event.identityMode).toBe(generated.scenario.mode);
+        expect(event.server.region).toBeUndefined();
+      }).pipe(Effect.provide(memoryEventsLayer("property-salt")))
+  );
+
+  it.effect.prop(
+    "geography comes from request.cf; coordinates, postal and metro code never land, and city only with the switch",
+    { captureCity: Arbitrary.schema(Schema.Boolean), generated: exchange },
+    ({ captureCity, generated }) =>
+      Effect.gen(function* recordGeo() {
+        yield* respond(generated, true, captureCity);
+
+        const event = yield* onlyEvent(yield* (yield* EventSinkMemory).events);
+
+        const encoded = JSON.stringify(
+          yield* Schema.encodeEffect(RawEventSchema)(event)
+        );
+
+        expect(event.server).toMatchObject({
+          asOrganization: "Example Networks",
+          asn: 64_500,
+          colo: "WAW",
+          continent: "EU",
+          country: "AU",
+          isEUCountry: true,
+          region: "Mazovia",
+          regionCode: "14",
+          timezone: "Europe/Warsaw",
+        });
+
+        for (const precise of [
+          edgeCf.latitude,
+          edgeCf.longitude,
+          edgeCf.postalCode,
+          edgeCf.metroCode,
+        ]) {
+          expect(encoded).not.toContain(precise);
+        }
+
+        expect(encoded.includes(edgeCf.city)).toBe(captureCity);
+        expect(event.server.city).toBe(captureCity ? edgeCf.city : undefined);
       }).pipe(Effect.provide(memoryEventsLayer("property-salt")))
   );
 

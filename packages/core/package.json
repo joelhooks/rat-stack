@@ -29,6 +29,11 @@
       "import": "./dist/join-interest.js",
       "default": "./dist/join-interest.js"
     },
+    "./request-geo": {
+      "types": "./src/request-geo.ts",
+      "import": "./dist/request-geo.js",
+      "default": "./dist/request-geo.js"
+    },
     "./interest": {
       "types": "./src/interest.ts",
       "import": "./dist/interest.js",
