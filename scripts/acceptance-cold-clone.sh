@@ -47,6 +47,11 @@ if ! pnpm install --frozen-lockfile; then
   fail "pnpm install --frozen-lockfile failed"
 fi
 
+step="fetch pinned source objects"
+if ! pnpm sources:fetch; then
+  fail "pnpm sources:fetch failed"
+fi
+
 step="rename workspace"
 acceptance_scope="@acceptance-$((RANDOM * 32768 + RANDOM))"
 replace_refs() {
@@ -74,6 +79,11 @@ printf 'renamed workspace scope to %s\n' "$acceptance_scope"
 step="post-rename install"
 if ! pnpm install --frozen-lockfile; then
   fail "pnpm install --frozen-lockfile failed after the workspace rename"
+fi
+
+step="build script type dependencies"
+if ! pnpm --filter "${acceptance_scope}/capability" build; then
+  fail "capability build failed before type-aware formatting"
 fi
 
 # A longer or shorter scope changes line lengths, so the formatter rewraps.
@@ -115,11 +125,14 @@ const imported = inspect.replace(
   'import { runInspectMachine } from "./inspect-machine.js";',
   'import { acceptanceProbe } from "./acceptance-probe.js";\nimport { runInspectMachine } from "./inspect-machine.js";'
 );
+if (imported === inspect) {
+  throw new Error("add-a-capability import text did not match inspect-file.ts");
+}
 const registered = imported.replace(
-  "export const capabilities = [inspectFile] as const;",
-  "export const capabilities = [inspectFile, acceptanceProbe] as const;"
+  "export const capabilities = [",
+  "export const capabilities = [acceptanceProbe, "
 );
-if (registered === inspect) {
+if (registered === imported) {
   throw new Error("add-a-capability registration text did not match inspect-file.ts");
 }
 await writeFile(inspectPath, registered);

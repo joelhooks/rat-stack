@@ -76,12 +76,7 @@ Contract (Effect schemas + one handler)
 
 Source: [`apps/cli/src/surfaces.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 21–25](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/cli/src/surfaces.ts#L21-L25).
 
-```ts
-export const http = toHttpApi("RatStack", capabilities);
-
-export const tools = toToolkit(capabilities);
-
-export const codeMode = toCodeMode(capabilities);
+```ts repo=rat-stack path=apps/cli/src/surfaces.ts at=445b1a20b51a5492f8e586daeb9306e8011b7673 lines=21-25
 ```
 
 **What to notice:** Each call receives the same capability list.

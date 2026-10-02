@@ -22,5 +22,7 @@ jobs:
         run: corepack enable && corepack prepare pnpm@11.3.0 --activate
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Fetch pinned source objects
+        run: pnpm sources:fetch
       - name: Check and test
         run: pnpm turbo run check test build

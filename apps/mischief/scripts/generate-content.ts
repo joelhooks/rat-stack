@@ -2,12 +2,17 @@
 import { createHash } from "node:crypto";
 
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { Drift, prepareCode } from "@rat-stack/code-snippets";
+import type { Diagnostics } from "@rat-stack/code-snippets";
+import { gitLayer } from "@rat-stack/code-snippets/git";
+import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
 import { Resvg } from "@resvg/resvg-js";
 import {
   Effect,
   FileSystem,
+  Layer,
   Option,
   Path,
   Predicate,
@@ -17,8 +22,6 @@ import {
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { compile as compileMdsvex } from "mdsvex";
 import satori from "satori";
-import { createHighlighter } from "shiki";
-import type { Highlighter } from "shiki";
 import type { Component } from "svelte";
 import { compile as compileSvelte } from "svelte/compiler";
 import { render } from "svelte/server";
@@ -28,6 +31,9 @@ import { normalizeSources, contentPagePath } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
+import { codeRepositories } from "./code-config.ts";
+import { collectBuildFences } from "./code-inputs.ts";
+import { codeComponent } from "./code-pipeline.ts";
 import type { ComponentRegistry } from "./component-registry.ts";
 import {
   agentPointerHtml,
@@ -75,6 +81,8 @@ import {
   refIndexComponent,
   resolveReferencedBlock,
 } from "./content-references.ts";
+import { lawSpecs } from "./content-specs.ts";
+import type { SourceSpec } from "./content-specs.ts";
 import { readDailyLog } from "./daily-log.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
@@ -148,13 +156,6 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;");
 
 const svelteServerUrl = import.meta.resolve("svelte/internal/server");
-
-interface SourceSpec {
-  readonly description: string;
-  readonly routePath: `/${string}`;
-  readonly sourcePath: string;
-  readonly title: string;
-}
 
 interface PublicSpec extends SourceSpec {
   readonly rawText: string;
@@ -390,32 +391,6 @@ Read [the fence](/lore/the-fence) and [the command policy](https://github.com/jo
 const ogImagePath = (routePath: string) =>
   `/og${routePath === "/" ? "/home" : routePath}.png`;
 
-const syntaxLanguage = new Map<string, string>([
-  ["bash", "bash"],
-  ["css", "css"],
-  ["html", "html"],
-  ["js", "javascript"],
-  ["json", "json"],
-  ["sh", "bash"],
-  ["shell", "bash"],
-  ["sql", "sql"],
-  ["svelte", "svelte"],
-  ["toml", "toml"],
-  ["ts", "typescript"],
-  ["typescript", "typescript"],
-  ["text", "text"],
-  ["yaml", "yaml"],
-  ["yml", "yaml"],
-]);
-
-const escapeCodeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-
 const escapeSvelteCodeHtml = (value: string) =>
   value
     .replaceAll("{", "&#123;")
@@ -423,25 +398,9 @@ const escapeSvelteCodeHtml = (value: string) =>
     .replaceAll("`", "&#96;");
 
 const makeCodeHighlighter =
-  (highlighter: Highlighter) =>
-  (code: string, lang: string | null | undefined) => {
-    const normalized = lang?.trim().toLowerCase() ?? "text";
-    const language = syntaxLanguage.get(normalized) ?? "text";
-
-    if (
-      language === "text" ||
-      !highlighter.getLoadedLanguages().includes(language)
-    ) {
-      return `<pre><code>${escapeSvelteCodeHtml(escapeCodeHtml(code))}</code></pre>`;
-    }
-
-    return escapeSvelteCodeHtml(
-      highlighter.codeToHtml(code, {
-        lang: language,
-        theme: "catppuccin-latte",
-      })
-    );
-  };
+  (highlighter: FenceHighlighter["Service"]) =>
+  (code: string, lang: string | null | undefined) =>
+    escapeSvelteCodeHtml(highlighter.render(code, lang));
 
 const makeOgElement = (page: OgPage, emojiDataUrl: string) => ({
   key: null,
@@ -607,9 +566,7 @@ const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
   }
 );
 
-const blockIndexRegistry = createComponentRegistry({ Ref: refIndexComponent });
-
-const graphRegistry = createComponentRegistry({
+const defaultGraphRegistry = createComponentRegistry({
   Ref: { agent: () => [], human: () => [] },
 });
 
@@ -617,11 +574,11 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
   function* compileMarkdownBody(
     source: string,
     sourcePath: string,
-    highlighter: Highlighter,
+    highlighter: FenceHighlighter["Service"],
     targets: ReadonlyMap<string, string> = emptyTargets,
     loreTerms: readonly LoreTermTarget[] = [],
     routePath: string = sourcePath,
-    registry: ComponentRegistry = graphRegistry
+    registry: ComponentRegistry = defaultGraphRegistry
   ): Effect.fn.Return<
     {
       readonly bodyHtml: string;
@@ -636,7 +593,8 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
     FileSystem.FileSystem | Path.Path
   > {
     const sourceLinks =
-      registry !== graphRegistry && extractBlockReferences(source).length > 0
+      registry.Ref !== defaultGraphRegistry.Ref &&
+      extractBlockReferences(source).length > 0
         ? yield* compileMarkdownBody(
             source,
             sourcePath,
@@ -644,7 +602,10 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
             targets,
             loreTerms,
             routePath,
-            graphRegistry
+            createComponentRegistry({
+              ...defaultGraphRegistry,
+              Code: registry.Code ?? codeComponent(new Map()),
+            })
           )
         : undefined;
 
@@ -833,69 +794,6 @@ const sourceLiteral = (value: Schema.Json) =>
     "\\u0040effect-diagnostics"
   );
 
-const lawSpecs: readonly SourceSpec[] = [
-  {
-    description:
-      "What you may change, which commands to run, and which changes need approval.",
-    routePath: "/AGENTS.md",
-    sourcePath: "AGENTS.md",
-    title: "AGENTS.md",
-  },
-  {
-    description: "What this starter is for and what a useful copy should keep.",
-    routePath: "/VISION.md",
-    sourcePath: "VISION.md",
-    title: "VISION.md",
-  },
-  {
-    description:
-      "What is in the repo, how the example works, and how to run it.",
-    routePath: "/README.md",
-    sourcePath: "README.md",
-    title: "README.md",
-  },
-  {
-    description:
-      "How to pin an unpublished package and when to remove the local copy.",
-    routePath: "/vendor/README.md",
-    sourcePath: "vendor/README.md",
-    title: "vendor/README.md",
-  },
-  {
-    description:
-      "Dated Effect 4 source studies from September 2026; current versions live in pins.md.",
-    routePath: "/resources/effect-4-reference-projects.svx",
-    sourcePath: ".brain/resources/effect-4-reference-projects.svx",
-    title: "Effect 4 study: September 2026",
-  },
-  {
-    description:
-      "Historical Effect rc.115 proposal and implementation receipts from 2026-09-18; use the one-capability-every-surface lore page for the current pattern.",
-    routePath: "/resources/schema-projections-and-code-mode.svx",
-    sourcePath: ".brain/resources/schema-projections-and-code-mode.svx",
-    title: "Schema projections: 2026-09-18 history",
-  },
-  {
-    description: "How the current lint rules draw their syntax boundaries.",
-    routePath: "/resources/lint-rule-limits.svx",
-    sourcePath: ".brain/resources/lint-rule-limits.svx",
-    title: "Oxlint rule limits",
-  },
-  {
-    description: "Public repositories that share rat-stack's prerelease lines.",
-    routePath: "/resources/peers.svx",
-    sourcePath: ".brain/resources/peers.svx",
-    title: "Effect + Alchemy peers",
-  },
-  {
-    description:
-      "Source-grounded patterns from repos on nearby Effect and Alchemy pins.",
-    routePath: "/resources/same-version-repos.svx",
-    sourcePath: ".brain/resources/same-version-repos.svx",
-    title: "Effect + Alchemy peer patterns",
-  },
-];
-
 const PackageDependencies = Schema.Record(Schema.String, Schema.String);
 
 const PackageJson = Schema.Struct({
@@ -1003,6 +901,16 @@ const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
   return lint;
 });
 
+const reportCodeDiagnostics = (diagnostics: readonly Diagnostics[]) =>
+  Effect.forEach(
+    diagnostics,
+    (diagnostic: Diagnostics) =>
+      Effect.logWarning(
+        `${diagnostic.sourcePath}:${diagnostic.line} ${diagnostic.message}`
+      ),
+    { discard: true }
+  );
+
 const program = Effect.gen(function* generateContent() {
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -1013,31 +921,32 @@ const program = Effect.gen(function* generateContent() {
     "apps/mischief/src/bundled-content.generated.ts"
   );
 
-  const highlighter = yield* Effect.tryPromise({
-    catch: (cause) => buildError("Shiki highlighter", "shiki", cause),
-    // @effect-diagnostics-next-line asyncFunction:off -- Shiki owns this Promise boundary.
-    try: async () =>
-      await createHighlighter({
-        langs: [
-          "bash",
-          "css",
-          "html",
-          "javascript",
-          "json",
-          "svelte",
-          "sql",
-          "toml",
-          "typescript",
-          "yaml",
-        ],
-        themes: ["catppuccin-latte"],
-      }),
-  });
+  const highlighter = yield* FenceHighlighter;
 
   const readText = (sourcePath: string) =>
     fileSystem
       .readFileString(path.join(root, sourcePath))
       .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
+
+  const preparedCode = yield* prepareCode(yield* collectBuildFences(root)).pipe(
+    Effect.provide(
+      Layer.provideMerge(Drift.layer, gitLayer(codeRepositories(root)))
+    )
+  );
+
+  yield* reportCodeDiagnostics(preparedCode.diagnostics);
+
+  const Code = codeComponent(preparedCode.snippets);
+
+  const blockIndexRegistry = createComponentRegistry({
+    Code,
+    Ref: refIndexComponent,
+  });
+
+  const graphRegistry = createComponentRegistry({
+    Code,
+    Ref: { agent: () => [], human: () => [] },
+  });
 
   const directoryNames = (directory: string, entries: readonly string[]) =>
     Effect.forEach(
@@ -1164,7 +1073,7 @@ const program = Effect.gen(function* generateContent() {
         Effect.map((rawText) => ({
           ...spec,
           rawText,
-          text: deriveAgentMarkdown(rawText),
+          text: deriveAgentMarkdown(rawText, graphRegistry),
         }))
       ),
     { concurrency: "unbounded" }
@@ -1458,6 +1367,7 @@ const program = Effect.gen(function* generateContent() {
   });
 
   const blockReferenceRegistry = createComponentRegistry({
+    Code,
     Ref: createRefComponent(blockIndex),
   });
 
@@ -1724,7 +1634,8 @@ const program = Effect.gen(function* generateContent() {
             highlighter,
             targets,
             loreTermIndex,
-            spec.routePath
+            spec.routePath,
+            graphRegistry
           );
 
         return {
@@ -3466,6 +3377,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       .rename(temporaryOutput, output)
       .pipe(Effect.mapError((cause) => buildError("rename", output, cause)));
   }).pipe(Effect.scoped);
-}).pipe(Effect.provide(NodeServices.layer));
+}).pipe(Effect.provide([shikiLayer(), NodeServices.layer]));
 
 NodeRuntime.runMain(program);

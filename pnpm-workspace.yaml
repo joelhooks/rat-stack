@@ -47,6 +47,7 @@ minimumReleaseAgeExclude:
   - "@earendil-works/pi-tui@0.86.1"
   - better-auth@1.6.2
   - satori@0.33.5
+  - shiki@3.23.0
   - "@alchemy.run/cloudflare-runtime@2.0.0-beta.80"
   - "@alchemy.run/floci@2.0.0-beta.80"
   - "@alchemy.run/node-utils@2.0.0-beta.80"

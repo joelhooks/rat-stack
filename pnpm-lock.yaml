@@ -339,6 +339,9 @@ importers:
       '@effect/vitest':
         specifier: 4.0.0
         version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0)))
+      '@rat-stack/code-snippets':
+        specifier: workspace:*
+        version: link:../../packages/code-snippets
       '@resvg/resvg-js':
         specifier: 2.6.2
         version: 2.6.2
@@ -369,9 +372,6 @@ importers:
       satori:
         specifier: 0.33.5
         version: 0.33.5
-      shiki:
-        specifier: 3.23.0
-        version: 3.23.0
       svelte:
         specifier: 5.57.1
         version: 5.57.1
@@ -522,6 +522,28 @@ importers:
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/code-snippets:
+    dependencies:
+      effect:
+        specifier: 4.0.0
+        version: 4.0.0
+      shiki:
+        specifier: 3.23.0
+        version: 3.23.0
+    devDependencies:
+      '@effect/platform-node':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
+      '@effect/vitest':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2

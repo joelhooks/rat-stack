@@ -270,6 +270,7 @@ export const buildBlockIndex = (pages: readonly BlockPage[]) =>
       // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this build-time Promise parser.
       try: async () =>
         await compile(page.rawText, {
+          highlight: false,
           rehypePlugins: [paragraphAnchors(page.rawText, blocks)],
         }),
     }).pipe(

@@ -67,14 +67,7 @@ The HTTP projection creates an Effect HttpApi. Other projections create CLI comm
 
 Source: [`packages/core/src/join-intake.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 44–50](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/packages/core/src/join-intake.ts#L44-L50).
 
-```ts
-const tickets = yield* IntakeTicket;
-const scorer = yield* AbuseScore;
-const events = yield* IntakeEvents;
-const contacts = yield* JoinContactStore;
-const intake = yield* SubscriberIntake;
-const tokens = yield* InterestTokens;
-const crypto = yield* Crypto.Crypto;
+```ts repo=rat-stack path=packages/core/src/join-intake.ts at=445b1a20b51a5492f8e586daeb9306e8011b7673 lines=44-50
 ```
 
 **What to notice:** The Layer captures dependencies before returning the submission method.

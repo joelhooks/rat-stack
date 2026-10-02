@@ -115,7 +115,10 @@ Clone the new repository, then install it:
 
 ```sh
 pnpm install
+pnpm sources:fetch
 ```
+
+`pnpm sources:fetch` imports missing pinned source commits from the configured repository remotes once, including in template children. Generation reads only local Git objects and never fetches. Re-run the command when adding a new pin that is not present locally.
 
 Rename the workspace package names before you build on the example. The current `name` fields are:
 

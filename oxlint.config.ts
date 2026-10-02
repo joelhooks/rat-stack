@@ -85,6 +85,7 @@ export default defineConfig({
     "no-comments/no-comments": "error",
     "oxc/no-accumulating-spread": "error",
     "rat-stack-boundaries/no-browser-globals-on-server": "error",
+    "rat-stack-boundaries/no-code-snippets-in-runtime": "error",
     "rat-stack-boundaries/no-core-adapters": "error",
     "rat-stack-boundaries/no-cross-layer-imports": "error",
     "rat-stack-boundaries/no-devtools-in-production": "error",

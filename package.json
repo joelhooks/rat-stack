@@ -24,6 +24,7 @@
     "infra:dev": "pnpm --filter @rat-stack/infra dev",
     "infra:plan": "pnpm --filter @rat-stack/infra plan",
     "prepare": "effect-tsgo patch && lefthook install",
+    "sources:fetch": "node apps/mischief/scripts/fetch-code-sources.ts",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "typecheck-scripts": "tsc --noEmit -p tsconfig.json",

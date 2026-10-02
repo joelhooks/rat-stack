@@ -1,3 +1,4 @@
+import { codeIdentity } from "@rat-stack/code-snippets";
 import { Predicate, Schema } from "effect";
 import type { Nodes, Root, RootContent } from "mdast";
 
@@ -100,6 +101,24 @@ const pointerAgent = (): readonly RootContent[] => [
     type: "blockquote",
   },
 ];
+
+const configuredCodeNode = (node: {
+  readonly lang?: string | null | undefined;
+  readonly meta?: string | null | undefined;
+}) =>
+  (node.meta ?? "") !== "" ||
+  (node.lang ?? "").includes("=") ||
+  (node.lang ?? "").startsWith("{");
+
+const codeFenceInput = (node: Nodes): ComponentInput | undefined =>
+  node.type === "code" && configuredCodeNode(node)
+    ? {
+        attributes: { key: codeIdentity(node) },
+        children: contentRoot([]),
+        name: "Code",
+        placement: "block",
+      }
+    : undefined;
 
 const componentChildren = (input: ComponentInput): readonly RootContent[] =>
   input.placement === "inline"
@@ -626,6 +645,15 @@ export const transformComponentMarkdown = (
     let skipUntil = -1;
 
     for (const child of parent.children) {
+      const fenceInput = codeFenceInput(child);
+
+      if (fenceInput !== undefined) {
+        result.push(
+          ...renderComponent(registry, target, fenceInput, renderContext)
+        );
+        continue;
+      }
+
       const position = nodeSourcePosition(child);
 
       if (position === undefined) {
