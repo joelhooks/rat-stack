@@ -3,6 +3,8 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Option, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
+const subprocessProofTimeoutMillis = 15_000;
+
 const parentSource = (code: string) => `
 import { NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
@@ -71,57 +73,60 @@ const orphanCases = [
 
 describe("sandbox parent lifetime", () => {
   for (const { name, code } of orphanCases) {
-    it.live(`exits after SIGKILL of its parent while ${name}`, () =>
-      Effect.gen(function* parentLifetime() {
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+    it.live(
+      `exits after SIGKILL of its parent while ${name}`,
+      () =>
+        Effect.gen(function* parentLifetime() {
+          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-        const parent = yield* spawner.spawn(
-          ChildProcess.make(process.execPath, [
-            "--input-type=module",
-            "-e",
-            parentSource(code),
-          ])
-        );
+          const parent = yield* spawner.spawn(
+            ChildProcess.make(process.execPath, [
+              "--input-type=module",
+              "-e",
+              parentSource(code),
+            ])
+          );
 
-        const ready = yield* Stream.decodeText(parent.stdout).pipe(
-          Stream.splitLines,
-          Stream.runHead,
-          Effect.timeout("5 seconds")
-        );
+          const ready = yield* Stream.decodeText(parent.stdout).pipe(
+            Stream.splitLines,
+            Stream.runHead,
+            Effect.timeout("5 seconds")
+          );
 
-        expect(Option.isSome(ready)).toBe(true);
+          expect(Option.isSome(ready)).toBe(true);
 
-        const childPid = yield* decodePid(Option.getOrElse(ready, () => ""));
+          const childPid = yield* decodePid(Option.getOrElse(ready, () => ""));
 
-        yield* Effect.addFinalizer(() =>
-          spawner
-            .exitCode(
-              ChildProcess.make(process.execPath, [
-                "-e",
-                `try { process.kill(${childPid}, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }`,
-              ])
-            )
-            .pipe(Effect.asVoid, Effect.orDie)
-        );
+          yield* Effect.addFinalizer(() =>
+            spawner
+              .exitCode(
+                ChildProcess.make(process.execPath, [
+                  "-e",
+                  `try { process.kill(${childPid}, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }`,
+                ])
+              )
+              .pipe(Effect.asVoid, Effect.orDie)
+          );
 
-        const killed = yield* spawner.exitCode(
-          ChildProcess.make(process.execPath, [
-            "-e",
-            `process.kill(${parent.pid}, "SIGKILL");`,
-          ])
-        );
+          const killed = yield* spawner.exitCode(
+            ChildProcess.make(process.execPath, [
+              "-e",
+              `process.kill(${parent.pid}, "SIGKILL");`,
+            ])
+          );
 
-        expect(killed).toBe(0);
+          expect(killed).toBe(0);
 
-        const outcome = yield* spawner.string(
-          ChildProcess.make(process.execPath, [
-            "-e",
-            observeExitSource(childPid),
-          ])
-        );
+          const outcome = yield* spawner.string(
+            ChildProcess.make(process.execPath, [
+              "-e",
+              observeExitSource(childPid),
+            ])
+          );
 
-        expect(outcome).toBe("exited");
-      }).pipe(Effect.provide(NodeServices.layer))
+          expect(outcome).toBe("exited");
+        }).pipe(Effect.provide(NodeServices.layer)),
+      subprocessProofTimeoutMillis
     );
   }
 });
