@@ -174,13 +174,15 @@ const printNode = (node: JsonSchemaNode): string => {
   const variants = node.anyOf ?? node.oneOf;
 
   if (variants !== undefined) {
-    return variants.map(printNode).join(" | ");
+    return [...new Set(variants.map(printNode))].join(" | ");
   }
 
   const types = [node.type ?? []].flat();
 
   if (types.length > 0) {
-    return types.map((member) => primitive(member, node)).join(" | ");
+    return [...new Set(types.map((member) => primitive(member, node)))].join(
+      " | "
+    );
   }
 
   if (node.enum !== undefined) {
