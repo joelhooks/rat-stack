@@ -87,7 +87,6 @@ export const joinDeliveryMachine = setupEffect({
                 target: "waiting",
               }
             : { context: { result: event.output }, target: "settled" },
-        onError: { target: "settled" },
         src: "deliver",
       },
     },

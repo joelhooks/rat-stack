@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Clock, Effect, Fiber, Schema } from "effect";
+import { Cause, Clock, Effect, Exit, Fiber, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -30,6 +30,10 @@ const ShortDelay = Schema.Int.check(
   Schema.isBetween({ maximum: 3, minimum: 0 })
 );
 
+const crashPrefixes = Arbitrary.array(Arbitrary.schema(ShortDelay), {
+  maxLength: 2,
+});
+
 const Scenario = Schema.Struct({
   agentPresent: Schema.Boolean,
   contact: JoinContactSchema,
@@ -59,14 +63,18 @@ const modelDelivery = (
     scenario.contact.hold ||
     !scenario.agentPresent
   ) {
-    return { output, reads: 1, times };
+    return { outcome: { kind: "settled", output } as const, reads: 1, times };
   }
 
   for (const outcome of history.slice(0, 3)) {
     times.push(elapsed);
 
     if (outcome.kind === "defect") {
-      break;
+      return {
+        outcome: { kind: "crashed" } as const,
+        reads: times.length,
+        times,
+      };
     }
 
     output = outcome;
@@ -82,7 +90,11 @@ const modelDelivery = (
     elapsed += outcome.afterSeconds * 1000;
   }
 
-  return { output, reads: times.length, times };
+  return {
+    outcome: { kind: "settled", output } as const,
+    reads: times.length,
+    times,
+  };
 };
 
 const replayDelivery = Effect.fn("replayDelivery")(function* replayDelivery(
@@ -140,6 +152,7 @@ const replayDelivery = Effect.fn("replayDelivery")(function* replayDelivery(
   }).pipe(
     Effect.provideService(SubscriberIntake, intake),
     Effect.provideService(JoinContactStore, contacts),
+    Effect.exit,
     Effect.forkScoped
   );
 
@@ -156,8 +169,20 @@ const replayDelivery = Effect.fn("replayDelivery")(function* replayDelivery(
     yield* TestClock.adjust(1);
   }
 
-  const output = yield* Fiber.join(fiber);
-  expect(output).toStrictEqual(expected.output);
+  const exit = yield* Fiber.join(fiber);
+
+  if (expected.outcome.kind === "crashed") {
+    expect(Exit.isFailure(exit)).toBe(true);
+
+    if (Exit.isFailure(exit)) {
+      expect(Cause.hasDies(exit.cause)).toBe(true);
+      expect(Cause.hasFails(exit.cause)).toBe(false);
+      expect(Cause.squash(exit.cause)).toBe("generated delivery defect");
+    }
+  } else {
+    expect(exit).toStrictEqual(Exit.succeed(expected.outcome.output));
+  }
+
   expect(requests).toHaveLength(expected.times.length);
   expect(requests.length).toBeLessThanOrEqual(3);
   expect(reads).toStrictEqual(
@@ -181,7 +206,7 @@ const replayDelivery = Effect.fn("replayDelivery")(function* replayDelivery(
   yield* TestClock.adjust("1 day");
   expect(times).toStrictEqual(expected.times);
 
-  return output;
+  return exit;
 }, Effect.scoped);
 
 describe("join delivery lifecycle contract", () => {
@@ -211,25 +236,24 @@ describe("join delivery lifecycle contract", () => {
   );
 
   it.effect.prop(
-    "onError currently settles with the preceding retry result",
-    { afterSeconds: ShortDelay, contact: JoinContactSchema },
-    ({ afterSeconds, contact }) =>
-      Effect.gen(function* defectRetainsRetry() {
-        const output = yield* replayDelivery(
-          {
-            agentPresent: true,
-            contact: { ...contact, hold: false, state: "ready" },
-            contactPresent: true,
-          },
-          [
-            { afterSeconds, kind: "retry" },
-            { kind: "defect" },
-            { kind: "accepted" },
-          ]
-        );
-
-        expect(output).toStrictEqual({ afterSeconds, kind: "retry" });
-      }),
+    "a crash at any attempt propagates as a defect and stops delivery",
+    { contact: JoinContactSchema, prefix: crashPrefixes },
+    ({ contact, prefix }) =>
+      replayDelivery(
+        {
+          agentPresent: true,
+          contact: { ...contact, hold: false, state: "ready" },
+          contactPresent: true,
+        },
+        [
+          ...prefix.map((afterSeconds): DeliveryOutcome => ({
+            afterSeconds,
+            kind: "retry",
+          })),
+          { kind: "defect" },
+          { kind: "accepted" },
+        ]
+      ),
     { arbitrary: { runs: 100 } }
   );
   it.effect.prop(

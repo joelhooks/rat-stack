@@ -1,7 +1,8 @@
 import { NodeCrypto } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, Layer, Redacted, Schema } from "effect";
+import { Deferred, Effect, Fiber, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
+import { TestClock } from "effect/testing";
 
 import {
   AbuseScore,
@@ -222,6 +223,91 @@ it.effect.prop(
         )
       )
     )
+);
+
+const crashPrefixes = Arbitrary.array(
+  Arbitrary.schema(
+    Schema.Int.check(Schema.isBetween({ maximum: 3, minimum: 0 }))
+  ),
+  { maxLength: 2 }
+);
+
+it.effect.prop(
+  "a delivery crash leaves admitted contacts ready for redrive, never refused or accepted",
+  { prefix: crashPrefixes },
+  ({ prefix }) =>
+    Effect.gen(function* crashPreservesReadyContact() {
+      const sent: AgentIntakeRequest[] = [];
+      const tickets = yield* IntakeTicket;
+      const contacts = yield* JoinContactStore;
+      const ticket = yield* tickets.mint(PAGE_TICKET_SOURCE);
+      const submitting = yield* Deferred.make<boolean>();
+      const states: string[] = [];
+
+      const layer = joinIntakeLayer.pipe(
+        Layer.provide(
+          Layer.mergeAll(
+            base,
+            IntakeEvents.testLayer,
+            Layer.succeed(IntakeTicket, tickets),
+            Layer.succeed(JoinContactStore, {
+              ...contacts,
+              setState: (id, state) =>
+                Effect.sync(() => states.push(state)).pipe(
+                  Effect.andThen(contacts.setState(id, state))
+                ),
+            }),
+            AbuseScore.testLayer(),
+            Layer.succeed(SubscriberIntake, {
+              agent: {
+                enabled: true,
+                submit: Effect.fn("crashingIntake")(function* crashingIntake(
+                  input: AgentIntakeRequest
+                ) {
+                  const delay = prefix[sent.length];
+                  sent.push(input);
+                  yield* Deferred.succeed(submitting, true);
+
+                  if (delay === undefined) {
+                    return yield* Effect.die("generated seam delivery crash");
+                  }
+
+                  return { afterSeconds: delay, kind: "retry" } as const;
+                }),
+              },
+              submit: () => Effect.die("person intake must not run"),
+            })
+          )
+        )
+      );
+
+      const fiber = yield* joinInterest.handler({ ...card, ticket }).pipe(
+        Effect.provide(layer),
+        Effect.provideService(JoinRequest, {
+          allow: () => Effect.succeed(true),
+          ip: "203.0.113.17",
+          userAgent: "property-test",
+        }),
+        Effect.forkScoped
+      );
+
+      yield* Deferred.await(submitting);
+      yield* TestClock.adjust("6 seconds");
+      const answer = yield* Fiber.join(fiber);
+      expect(answer.message).toBe(JOIN_ANSWER);
+      expect(sent).toHaveLength(prefix.length + 1);
+      const contact = yield* contacts.read(answer.statusRef);
+      expect(contact?.state).toBe("ready");
+      expect(states).not.toContain("refused");
+      expect(states).not.toContain("accepted");
+      expect(
+        sent.every((request) => request.submissionId === answer.statusRef)
+      ).toBe(true);
+      yield* TestClock.adjust("1 day");
+      expect(sent).toHaveLength(prefix.length + 1);
+      expect((yield* contacts.read(answer.statusRef))?.state).toBe("ready");
+    }).pipe(Effect.scoped, Effect.provide(base)),
+  { arbitrary: { runs: 100 } }
 );
 
 const Response = Schema.Literals(["accepted", "refused", "retry"]);
