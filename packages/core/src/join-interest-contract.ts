@@ -1,6 +1,7 @@
 import { defineContract } from "@rat-stack/capability/contract";
 import { Schema } from "effect";
 
+import { QuestionIdSchema } from "./intake-questions.js";
 import { ApplicantName, ApplicantX } from "./join-identity.js";
 import { MaskedInterestReplay } from "./masked-interest-replay.js";
 
@@ -10,11 +11,10 @@ export const JOIN_NOT_OPEN = "Agent signup is not open yet.";
 
 const answer = Schema.String.check(Schema.isMaxLength(2000));
 
-export const JoinAnswers = Schema.Struct({
-  building: Schema.optionalKey(answer),
-  leaveWith: Schema.optionalKey(answer),
-  today: Schema.optionalKey(answer),
-});
+export const JoinAnswers = Schema.Record(
+  QuestionIdSchema,
+  Schema.optionalKey(answer)
+);
 
 export const joinInterestContract = defineContract("joinInterest", {
   annotations: { openWorld: true, readOnly: false },

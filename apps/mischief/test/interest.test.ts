@@ -216,7 +216,7 @@ it.effect(
             expect(text).toContain(
               "[Apply through your agent](#apply-through-your-agent)"
             );
-            expect(text).toContain("Question 5 defaults to no.");
+            expect(text).toContain("Sharing defaults to no.");
             expect(text).toContain(
               "The answers are a written application, not files or secrets."
             );
@@ -1440,7 +1440,9 @@ it.effect("offers a labeled prompt for a consent-first agent application", () =>
       expect(html).toMatch(
         /<a href="https:\/\/ratstack\.sh\/tokenmaxx"[^>]*>workshop page<\/a>/u
       );
-      expect(html).toContain("Answer five questions; most are optional.");
+      expect(html).toContain(
+        "Answer five questions about your work, availability,"
+      );
       expect(markdown).toContain(
         "Draft my application for the workshop from what you know about me and my work."
       );
@@ -1494,6 +1496,8 @@ it.effect(
           "What are you building?",
           "What do you run today?",
           "What do you want to leave with?",
+          "Are any days of the week or times generally better for you to hang out?",
+          "Would two 2-hour sessions be better than one 4-hour session?",
           "May we email you about the workshop?",
           "Separately, may Joel share your email with selected attendees?",
         ]) {
@@ -1502,11 +1506,13 @@ it.effect(
         }
 
         for (const instruction of [
-          "Question 5 defaults to no.",
+          "Sharing defaults to no.",
           "Draft answers 1–3 from what you already know about the person and their work.",
           "If the fit looks weak, tell the person plainly before they send.",
           "Don't invent criteria this page doesn't state.",
           "Ask questions 4 and 5 as written.",
+          "Don't infer or invent availability or session preferences.",
+          "If the time zone is missing, ask once for it.",
           'Mark each skipped answer as "skipped" on the card',
           "Show the exact JSON payload alongside the card.",
           "after any edit, ask for approval again.",

@@ -90,19 +90,36 @@ const scoreLater = (input: AbuseInput) =>
 describe("jev abuse score", () => {
   it.effect.prop(
     "never sends an email, link, or phone shape to Jev",
-    { building: answerText, leaveWith: answerText, today: answerText },
-    ({ building, leaveWith, today }) =>
+    {
+      building: answerText,
+      format: answerText,
+      leaveWith: answerText,
+      today: answerText,
+      when: answerText,
+    },
+    (answers) =>
       Effect.gen(function* redactedOnly() {
         const jev = fakeJev(200, 0.1);
 
-        yield* scoreLater(inputWith({ building, leaveWith, today })).pipe(
+        yield* scoreLater(inputWith(answers)).pipe(
           Effect.provide(
             jevAbuseScoreLayer({ apiKey }).pipe(Layer.provide(jev.layer))
           )
         );
 
+        const answered = Object.entries(answers)
+          .filter(([, value]) => value.trim() !== "")
+          .map(([key]) => key);
+
+        expect(jev.seen).toHaveLength(answered.length === 0 ? 0 : 1);
+
         for (const request of jev.seen) {
-          const sent = JSON.stringify(decodeSentState(request.body).state);
+          const { state } = decodeSentState(request.body);
+
+          expect(Object.keys(state ?? {}).toSorted()).toEqual(
+            answered.toSorted()
+          );
+          const sent = JSON.stringify(state);
 
           expect(leaksContact(sent)).toBe(false);
 

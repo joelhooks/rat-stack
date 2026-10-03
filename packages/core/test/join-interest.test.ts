@@ -10,10 +10,12 @@ import {
   IntakeEventsTest,
   IntakeTicket,
   PAGE_TICKET_SOURCE,
+  QuestionIdSchema,
 } from "../src/intake.js";
 import { InterestTokens, SubscriberIntake } from "../src/interest.js";
 import type { AgentIntakeRequest, IntakeResult } from "../src/interest.js";
 import {
+  JoinAnswers,
   JoinContactStore,
   JoinRequest,
   JOIN_ANSWER,
@@ -51,8 +53,11 @@ const card = {
 
 it.effect.prop(
   "only authorized clean recorded submissions leave the mapping; every response hides disposition",
-  { scenario: Arbitrary.schema(Scenario) },
-  ({ scenario }) =>
+  {
+    answers: Arbitrary.schema(JoinAnswers),
+    scenario: Arbitrary.schema(Scenario),
+  },
+  ({ answers, scenario }) =>
     Effect.gen(function* verifyGates() {
       const forwarded: AgentIntakeRequest[] = [];
       const tickets = yield* IntakeTicket;
@@ -72,6 +77,7 @@ it.effect.prop(
               steps.push("score");
               expect(input).not.toHaveProperty("email");
               expect(input).not.toHaveProperty("consent");
+              expect(input.answers).toEqual(answers);
 
               return {
                 hold: scenario.hold,
@@ -114,6 +120,7 @@ it.effect.prop(
       const result = yield* joinInterest
         .handler({
           ...card,
+          answers,
           consent: { contact: true, share: scenario.share },
           ticket,
         })
@@ -175,13 +182,15 @@ it.effect.prop(
             )
           ).toBe(true);
           expect(
-            recorded
-              .filter((statement) => statement.verb === "answered")
-              .map((statement) => statement.object)
-          ).toEqual([
-            "tokenmaxx/questions/building",
-            "tokenmaxx/questions/leaveWith",
-          ]);
+            Object.fromEntries(
+              recorded
+                .filter((statement) => statement.verb === "answered")
+                .map((statement) => [
+                  statement.object.slice("tokenmaxx/questions/".length),
+                  statement.result,
+                ])
+            )
+          ).toEqual(answers);
           expect(
             recorded.every((statement) =>
               Schema.is(Schema.String.check(Schema.isUUID(7)))(statement.id)
@@ -223,6 +232,27 @@ it.effect.prop(
         )
       )
     )
+);
+
+it.effect.prop(
+  "accepts optional answers up to the public limit and rejects longer answers for every question",
+  {
+    question: Arbitrary.schema(QuestionIdSchema),
+    text: Arbitrary.schema(Schema.String),
+  },
+  ({ question, text }) =>
+    Effect.gen(function* validateAnswerLimit() {
+      const bounded = text.slice(0, 2000);
+      const answers = { [question]: bounded };
+      expect(yield* Schema.decodeEffect(JoinAnswers)(answers)).toEqual(answers);
+      expect(Schema.is(JoinAnswers)({ [question]: "a".repeat(2000) })).toBe(
+        true
+      );
+      expect(Schema.is(JoinAnswers)({ [question]: "a".repeat(2001) })).toBe(
+        false
+      );
+      expect(yield* Schema.decodeEffect(JoinAnswers)({})).toEqual({});
+    })
 );
 
 const crashPrefixes = Arbitrary.array(

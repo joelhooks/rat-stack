@@ -15,6 +15,7 @@ import type {
   IntakeStatement,
   IntakeVerb,
 } from "./intake-events.js";
+import { QuestionIdSchema } from "./intake-questions.js";
 import { IntakeTicket } from "./intake-ticket.js";
 import { normalizeAddress } from "./interest-address.js";
 import { SubscriberIntake } from "./interest-intake.js";
@@ -143,7 +144,7 @@ export const joinIntakeLayer = Layer.effect(
           yield* statement("started", "tokenmaxx/intake", identity),
         ];
 
-        for (const question of ["building", "today", "leaveWith"] as const) {
+        for (const question of QuestionIdSchema.literals) {
           const value = input.answers?.[question];
 
           if (value !== undefined) {

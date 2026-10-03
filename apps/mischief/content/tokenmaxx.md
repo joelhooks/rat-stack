@@ -8,7 +8,7 @@ In honor of [Lauren Tan](https://x.com/poteto), who [joined the four comma club]
 
 <HumanOnly>
 - Read the [workshop page](https://ratstack.sh/tokenmaxx) with your agent.
-- Answer five questions; most are optional.
+- Answer five questions about your work, availability, and whether you prefer one session or two. You can skip any answer.
 - Edit the card and approve it before your agent sends anything.
 </HumanOnly>
 
@@ -26,13 +26,13 @@ The application is how Joel gets to know the person. Draft the strongest honest 
 
 Ask for both their name and X/Twitter profile. Say: "Joel picks people, so he wants to know who you are." Both can be skipped. Ask how they want to be called. Accept @handle, handle, or an x.com/twitter.com profile URL.
 
-The application has five questions:
+The application has five written questions:
 
 1. What are you building?
 2. What do you run today?
 3. What do you want to leave with?
-4. May we email you about the workshop?
-5. Separately, may Joel share your email with selected attendees?
+4. Are any days of the week or times generally better for you to hang out?
+5. Would two 2-hour sessions be better than one 4-hour session?
 
 ### Draft answers 1–3
 
@@ -44,19 +44,40 @@ Draft answers 1–3 from what you already know about the person and their work. 
 
 Interview the person only for what you can't fill in. If an answer is vague, like "better workflows" or "learn AI", push once for a concrete example. Keep each answer under 2,000 characters. The answers are a written application, not files or secrets.
 
+### Ask questions 4–5
+
+Ask questions 4 and 5 as written. Don't infer or invent availability or session preferences.
+
+- **When:** record their days, times, and time zone under `when`. If the time zone is missing, ask once for it.
+- **Format:** record one 4-hour session, two 2-hour sessions, or either under `format`. Include any reason they give.
+
+Both answers are optional. Keep each answer under 2,000 characters.
+
 ### Make the case for fit
 
 Measure fit against this page only. The session goes from one loop to a harness that runs many: time, hands, a software factory, and self-improvement. It suits people who already run coding agents and will do the prep in "Before you come": watch Loopcraft 1, have Pi installed, and have a model subscription they're happy to spend. Make the strongest honest case. If the fit looks weak, tell the person plainly before they send. Don't invent criteria this page doesn't state.
 
 ### Consent
 
-Ask questions 4 and 5 as written. Question 5 defaults to no. Every question can be skipped except (4), which is needed to submit. Set sharing to false unless the person explicitly says yes to (5). Ask for their email only if they agree to workshop contact.
+Ask separately:
+
+- "May we email you about the workshop?" Contact permission is needed to submit.
+- "Separately, may Joel share your email with selected attendees?" Sharing defaults to no.
+
+All five written answers can be skipped. Set sharing to false unless the person explicitly says yes. Ask for their email only if they agree to workshop contact.
 
 Joel reads the approved answers and picks 2–3 people. Confirmation is not a seat.
 
 ### Review before sending
 
-Show an editable card locally with every field: email, building, today, leaveWith, contact permission, sharing permission, agentRef, and ticket. Mark each skipped answer as "skipped" on the card and omit its key from answers in the payload. Use a random opaque agentRef, not a machine name, file path, or email address.
+Show an editable card locally with every field:
+
+- email
+- building, today, leaveWith, when, and format
+- contact permission and sharing permission
+- agentRef and ticket
+
+Mark each skipped answer as "skipped" on the card and omit its key from answers in the payload. Use a random opaque agentRef, not a machine name, file path, or email address.
 
 Add two lines to the card: name and X profile. Show "skipped" for each they skip. Omit skipped name and x keys from the payload. Show the X profile as https://x.com/handle.
 
@@ -72,7 +93,7 @@ Use that ticket in the approved payload. If it is still a placeholder or empty, 
 
 The name and x placeholders below are optional. Replace them with approved values or remove their keys when skipped.
 
-This payload template skips all three optional answers. Replace the email and agentRef locally, fill only approved answers under building, today, and leaveWith, and keep share false unless separately approved.
+This payload template skips all five optional answers: `building`, `today`, `leaveWith`, `when`, and `format`. Replace the email and agentRef locally. Add only approved answers to `answers`. Keep share false unless separately approved.
 
 ```json
 {
@@ -83,6 +104,15 @@ This payload template skips all three optional answers. Replace the email and ag
   "agentRef": "RANDOM_OPAQUE_AGENT_REF",
   "answers": {},
   "consent": { "contact": true, "share": false }
+}
+```
+
+If they approve scheduling answers, add these keys to `answers`. Replace each placeholder with their words. Omit either key if skipped.
+
+```json
+{
+  "when": "PERSON_APPROVED_DAYS_TIMES_AND_TIME_ZONE",
+  "format": "PERSON_APPROVED_SESSION_FORMAT_AND_REASON"
 }
 ```
 
@@ -184,7 +214,10 @@ Four hours with Joel and up to three builders. We build a strong harness that ra
 
 1. Click the button. It copies a short prompt.
 2. Paste it into your coding agent: Claude Code, Codex, Cursor, whatever you use.
-3. Your agent drafts your application from what it knows about your work and asks what it can't figure out. It asks for your name and X profile. You can skip both. It also asks whether we can email you, and whether Joel can share your email with the others picked.
+3. Your agent drafts your application from what it knows about your work. It asks what it can't figure out.
+
+   It asks for your name and X profile. You can skip both. It asks when you're free and whether you'd prefer one session or two. It also asks whether we can email you, and whether Joel can share your email with the others picked.
+
 4. It shows you exactly what it will send. You approve it, then confirm by email.
 
 <CopyPrompt id="page" variant="primary" />

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "@effect/vitest";
-import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
-import type { IntakeStatement } from "@rat-stack/core/intake";
+import {
+  ContactRefSchema,
+  IntakeEvents,
+  QuestionIdSchema,
+} from "@rat-stack/core/intake";
+import type { IntakeStatement, QuestionId } from "@rat-stack/core/intake";
 import { Effect, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
@@ -26,6 +30,7 @@ const Step = Schema.Union([
     actor: Schema.Literals([0, 1]),
     id: Schema.Literals([0, 1, 2]),
     kind: Schema.Literal("record"),
+    question: QuestionIdSchema,
     response: Schema.String,
   }),
   Schema.Struct({
@@ -39,13 +44,14 @@ const steps = Arbitrary.array(Arbitrary.schema(Step), { maxLength: 20 });
 const statementOf = (
   actorIndex: 0 | 1,
   idIndex: 0 | 1 | 2,
-  response: string
+  response: string,
+  question: QuestionId
 ): IntakeStatement => ({
   actor: contacts[actorIndex],
   context: { intake: "tokenmaxx", submissionId: `submission-${actorIndex}` },
   id: ids[idIndex],
-  object: "tokenmaxx/questions/building",
-  result: { response: `answer:${response}` },
+  object: `tokenmaxx/questions/${question}`,
+  result: `answer:${response}`,
   timestamp: "2026-10-01T18:00:00.000Z",
   verb: "answered",
 });
@@ -79,7 +85,13 @@ describe("sealed intake events", () => {
             continue;
           }
 
-          const statement = statementOf(step.actor, step.id, step.response);
+          const statement = statementOf(
+            step.actor,
+            step.id,
+            step.response,
+            step.question
+          );
+
           yield* events.record([statement]);
 
           const held =
