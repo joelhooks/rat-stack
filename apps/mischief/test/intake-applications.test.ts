@@ -1,7 +1,12 @@
 import { expect, it } from "@effect/vitest";
 import { CallWatch } from "@rat-stack/capability/call-watch";
-import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
-import type { IntakeStatement } from "@rat-stack/core/intake";
+import {
+  ContactRefSchema,
+  IntakeAnswersSchema,
+  IntakeEvents,
+  QuestionIdSchema,
+} from "@rat-stack/core/intake";
+import type { IntakeAnswers, IntakeStatement } from "@rat-stack/core/intake";
 import {
   InterestDirectory,
   InterestMode,
@@ -42,7 +47,7 @@ const call = (
 const actor = Schema.decodeSync(ContactRefSchema)("synthetic-contact");
 
 const fixtureStatements = (
-  building: string,
+  answers: IntakeAnswers,
   share = true,
   identity: { readonly name?: string; readonly x?: string } = {}
 ): readonly IntakeStatement[] => [
@@ -55,15 +60,26 @@ const fixtureStatements = (
     timestamp: "2026-10-01T18:00:00.000Z",
     verb: "started",
   },
-  {
-    actor,
-    context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
-    id: "0199a000-0000-7000-8000-000000000001",
-    object: "tokenmaxx/questions/building",
-    result: building,
-    timestamp: "2026-10-01T18:00:00.000Z",
-    verb: "answered",
-  },
+  ...QuestionIdSchema.literals.flatMap((question, index): IntakeStatement[] => {
+    const response = answers[question];
+
+    return response === undefined
+      ? []
+      : [
+          {
+            actor,
+            context: {
+              intake: "tokenmaxx",
+              submissionId: "synthetic-submission",
+            },
+            id: `0199a000-0000-7000-8000-${String(index + 10).padStart(12, "0")}`,
+            object: `tokenmaxx/questions/${question}`,
+            result: response,
+            timestamp: "2026-10-01T18:00:00.000Z",
+            verb: "answered",
+          },
+        ];
+  }),
   {
     actor,
     context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
@@ -81,24 +97,6 @@ const fixtureStatements = (
     result: { held: false, score: 0, signals: [] },
     timestamp: "2026-10-01T18:00:00.000Z",
     verb: "submitted",
-  },
-  {
-    actor,
-    context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
-    id: "0199a000-0000-7000-8000-000000000004",
-    object: "tokenmaxx/questions/today",
-    result: building,
-    timestamp: "2026-10-01T18:00:00.000Z",
-    verb: "answered",
-  },
-  {
-    actor,
-    context: { intake: "tokenmaxx", submissionId: "synthetic-submission" },
-    id: "0199a000-0000-7000-8000-000000000005",
-    object: "tokenmaxx/questions/leaveWith",
-    result: building,
-    timestamp: "2026-10-01T18:00:00.000Z",
-    verb: "answered",
   },
 ];
 
@@ -211,12 +209,12 @@ const seedContact = (
 it.effect.prop(
   "unseals arbitrary answers and keeps erased or legacy lookups free of contact data",
   {
-    building: Arbitrary.schema(Schema.String),
+    answers: Arbitrary.schema(IntakeAnswersSchema),
     forwarded: Arbitrary.schema(Schema.Boolean),
     share: Arbitrary.schema(Schema.Boolean),
     withIdentity: Arbitrary.schema(Schema.Boolean),
   },
-  ({ building, forwarded, share, withIdentity }) =>
+  ({ answers, forwarded, share, withIdentity }) =>
     Effect.gen(function* roundTrip() {
       const { contacts, events, indexed, reader, sealedContacts } =
         yield* makeReaderFixture;
@@ -228,7 +226,7 @@ it.effect.prop(
         ? { name: "Fake Applicant", x: "https://x.com/fake_applicant" }
         : {};
 
-      const statements = fixtureStatements(building, share, identity);
+      const statements = fixtureStatements(answers, share, identity);
 
       yield* events.record(
         withIdentity
@@ -241,7 +239,7 @@ it.effect.prop(
       ).not.toContain("synthetic@example.test");
       expect(yield* reader.list()).toEqual([
         {
-          answers: { building, leaveWith: building, today: building },
+          answers,
           email: "synthetic@example.test",
           ...identity,
           hold: false,
@@ -287,7 +285,13 @@ it.effect(
         x: "https://x.com/fake_private",
       };
 
-      yield* events.record(fixtureStatements(answer, true, identity));
+      yield* events.record(
+        fixtureStatements(
+          { building: answer, format: answer, when: answer },
+          true,
+          identity
+        )
+      );
 
       const sealedRows = JSON.stringify(
         [...(yield* vault.contents).values()].map((held) => [
