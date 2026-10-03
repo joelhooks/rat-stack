@@ -25,4 +25,5 @@ jobs:
       - name: Fetch pinned source objects
         run: pnpm sources:fetch
       - name: Check and test
-        run: pnpm turbo run check test build
+        # Serialize Turbo tasks so concurrent Vitest pools do not contend on the CI runner.
+        run: pnpm turbo run check test build --concurrency=1

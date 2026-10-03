@@ -6,6 +6,8 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { Sandbox } from "../src/sandbox-service.js";
 import { layerSubprocess } from "../src/sandbox-subprocess.js";
 
+const subprocessProofTimeoutMillis = 15_000;
+
 const proof = Effect.fn("sandboxLifetimeProof")(
   function* proof(mode: string) {
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -69,11 +71,15 @@ describe("sandbox lifetime", () => {
   it.live("kills its child when the owning scope closes", () =>
     scopedRun(false)
   );
-  it.live("escalates scope close and kills resistant descendants", () =>
-    proof("scope")
+  it.live(
+    "escalates scope close and kills resistant descendants",
+    () => proof("scope"),
+    subprocessProofTimeoutMillis
   );
-  it.live("escalates interruption and kills resistant descendants", () =>
-    proof("interrupt")
+  it.live(
+    "escalates interruption and kills resistant descendants",
+    () => proof("interrupt"),
+    subprocessProofTimeoutMillis
   );
   it.live("bounds an infinite loop after a capability reply", () =>
     Effect.gen(function* boundsContinuation() {
@@ -94,14 +100,24 @@ describe("sandbox lifetime", () => {
       )
     )
   );
-  it.live("exits on stdin EOF", () => proof("eof"));
-  it.live("bounds a synchronous infinite loop inside the child", () =>
-    proof("cpu")
+  it.live(
+    "exits on stdin EOF",
+    () => proof("eof"),
+    subprocessProofTimeoutMillis
   );
-  it.live("enforces a child-side wall clock without a caller", () =>
-    proof("deadline")
+  it.live(
+    "bounds a synchronous infinite loop inside the child",
+    () => proof("cpu"),
+    subprocessProofTimeoutMillis
   );
-  it.live("survives SIGKILL of its parent without an orphan", () =>
-    proof("kill-parent")
+  it.live(
+    "enforces a child-side wall clock without a caller",
+    () => proof("deadline"),
+    subprocessProofTimeoutMillis
+  );
+  it.live(
+    "survives SIGKILL of its parent without an orphan",
+    () => proof("kill-parent"),
+    subprocessProofTimeoutMillis
   );
 });

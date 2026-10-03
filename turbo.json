@@ -34,6 +34,7 @@
       "outputs": []
     },
     "@rat-stack/mischief#generate": {
+      "dependsOn": ["^build"],
       "cache": false,
       "outputs": ["src/bundled-content.generated.ts"],
       "inputs": [
