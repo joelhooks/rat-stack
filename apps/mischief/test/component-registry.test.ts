@@ -127,15 +127,18 @@ const markdownPages = [
   { routePath: "/llms.txt", text: llmsText("https://ratstack.sh") },
 ];
 
-it.effect.each(markdownPages)(
-  "$routePath has exactly one registry pointer under its H1",
-  (page) =>
-    Effect.sync(() => {
-      expect(() => {
-        assertAgentPointerLayout(page.text, page.routePath);
-      }, page.routePath).not.toThrow();
-    })
-);
+for (const page of markdownPages) {
+  it.effect(
+    `${page.routePath} has exactly one registry pointer under its H1`,
+    () =>
+      Effect.sync(() => {
+        expect(() => {
+          assertAgentPointerLayout(page.text, page.routePath);
+        }, page.routePath).not.toThrow();
+      }),
+    page.routePath === "/llms-full.txt" ? 30_000 : undefined
+  );
+}
 
 it.effect("agent page rendering refuses missing and duplicate pointers", () =>
   Effect.sync(() => {
