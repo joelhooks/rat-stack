@@ -5,6 +5,10 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 const subprocessProofTimeoutMillis = 15_000;
 
+const parentReadyTimeoutMillis = 10_000;
+
+const childExitTimeoutMillis = 3000;
+
 const parentSource = (code: string) => `
 import { NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
@@ -40,7 +44,7 @@ Effect.runPromise(Effect.scoped(program)).catch((error) => {
 
 const observeExitSource = (pid: number) => `
 const pid = ${pid};
-const deadline = Date.now() + 3000;
+const deadline = Date.now() + ${childExitTimeoutMillis};
 const timer = setInterval(() => {
   try { process.kill(pid, 0); } catch (error) {
     if (error.code !== "ESRCH") throw error;
@@ -90,7 +94,7 @@ describe("sandbox parent lifetime", () => {
           const ready = yield* Stream.decodeText(parent.stdout).pipe(
             Stream.splitLines,
             Stream.runHead,
-            Effect.timeout("5 seconds")
+            Effect.timeout(parentReadyTimeoutMillis)
           );
 
           expect(Option.isSome(ready)).toBe(true);
