@@ -806,12 +806,18 @@ const PackageJson = Schema.Struct({
 });
 
 const skillGroups = [
+  { names: ["rat-stack-mode"], title: "Start here" },
   {
     names: ["learn-rat-stack", "learn-alchemy", "find-peers"],
     title: "See how the pieces fit",
   },
   {
-    names: ["add-a-capability", "add-a-lifecycle-machine", "write-a-wiki-page"],
+    names: [
+      "add-a-capability",
+      "add-a-lifecycle-machine",
+      "add-a-store",
+      "write-a-wiki-page",
+    ],
     title: "Learn by building",
   },
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
