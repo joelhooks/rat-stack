@@ -92,6 +92,8 @@ All three Worker declarations share `privateObservability` in `apps/mischief/src
 
 The policy disables per-request invocation logs and traces. Application `console` and Effect error logs remain enabled.
 
+500s log their cause with an incident id.
+
 Cloudflare invocation logs contain request, response, and related metadata. They are separate from custom application messages.
 See [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
 
