@@ -35,7 +35,7 @@ import { DeployStepError } from "./contracts.js";
 import type { ApplyReceipt, DeployInput, PreparedPlan } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
 import { validateDeployInputs } from "./inputs.js";
-import { capabilityInteraction } from "./interaction.js";
+import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
 
 const NativeCredentialSchema = Schema.Union([
@@ -719,8 +719,7 @@ export const localLayer = (
                     } satisfies ApplyReceipt;
                   })
                 ),
-                Effect.provideContext(services),
-                Effect.provideService(Approval, approval)
+                Effect.provideContext(callApprovalContext(services, approval))
               )
             )
           ),

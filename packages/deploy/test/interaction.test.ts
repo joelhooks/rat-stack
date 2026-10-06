@@ -1,8 +1,11 @@
 import { expect, it } from "@effect/vitest";
 import { Approval, ApprovalDenied } from "@rat-stack/capability/approval";
-import { Effect, Result, Schema } from "effect";
+import { Context, Effect, Result, Schema } from "effect";
 
-import { capabilityInteraction } from "../src/interaction.js";
+import {
+  callApprovalContext,
+  capabilityInteraction,
+} from "../src/interaction.js";
 
 it.effect.prop(
   "Alchemy confirmations pass the exact request through the capability approval gate",
@@ -50,6 +53,55 @@ it.effect.prop(
       } else {
         expect(result.failure._tag).toBe("NonInteractiveTerminal");
       }
+    }),
+  { arbitrary: { runs: 100 } }
+);
+
+it.effect.prop(
+  "confirmation follows the call decision even when composition captured an opposite decision",
+  {
+    callGrant: Schema.Boolean,
+    capturedGrant: Schema.Boolean,
+    message: Schema.String,
+  },
+  ({ capturedGrant, callGrant, message }) =>
+    Effect.gen(function* test() {
+      const calls: string[] = [];
+
+      const gate = (name: string, granted: boolean) =>
+        Approval.of({
+          approve: (capabilityName) =>
+            Effect.suspend(() => {
+              calls.push(name);
+
+              return granted
+                ? Effect.void
+                : Effect.fail(
+                    new ApprovalDenied({
+                      capabilityName,
+                      reason: "owner-refused",
+                    })
+                  );
+            }),
+        });
+
+      const captured = Context.make(
+        Approval,
+        gate("composition", capturedGrant)
+      );
+
+      const interaction = yield* capabilityInteraction.pipe(
+        Effect.provideContext(
+          callApprovalContext(captured, gate("call", callGrant))
+        )
+      );
+
+      const result = yield* interaction.prompt
+        .confirm({ message })
+        .pipe(Effect.result);
+
+      expect(calls).toStrictEqual(["call"]);
+      expect(Result.isSuccess(result)).toBe(callGrant);
     }),
   { arbitrary: { runs: 100 } }
 );

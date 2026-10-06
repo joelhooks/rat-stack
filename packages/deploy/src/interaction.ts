@@ -1,10 +1,16 @@
 import { Approval } from "@rat-stack/capability/approval";
+import type { ApprovalService } from "@rat-stack/capability/approval";
 import {
   Interaction,
   layerNonInteractive,
   NonInteractiveTerminal,
 } from "alchemy/Interaction";
-import { Effect } from "effect";
+import { Context, Effect } from "effect";
+
+export const callApprovalContext = <R>(
+  services: Context.Context<R>,
+  approval: ApprovalService
+) => Context.add(services, Approval, approval);
 
 export const capabilityInteraction = Effect.gen(
   function* capabilityInteraction() {
