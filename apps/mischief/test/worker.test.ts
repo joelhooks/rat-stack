@@ -507,12 +507,8 @@ it.effect(
         expect(markdown).toContain("What to notice:");
         expect(markdown).toContain("npx skills add joelhooks/rat-stack");
         expect(markdown).toContain("## Source files");
-        expect(markdown).toContain(
-          "[Agent rules for rat-stack (AGENTS.md)](/AGENTS.md)"
-        );
-        expect(markdown).toContain(
-          "[Purpose and boundaries of rat-stack (VISION.md)](/VISION.md)"
-        );
+        expect(markdown).toContain("[AGENTS.md](/AGENTS.md)");
+        expect(markdown).toContain("[VISION.md](/VISION.md)");
         expect(markdown).toContain("## Connect an agent");
         expect(htmlResponse.headers.get("content-type")).toContain("text/html");
         expect(html).toContain(
@@ -923,7 +919,7 @@ it.effect("serves the debt ledger across page and agent surfaces", () =>
       expect(page).toMatch(/<table\b[^>]*>/u);
       expect(fullText).toContain(`# ${debt.routePath}`);
       expect(llmsText("https://ratstack.sh")).toContain(
-        `[Lint and type escape ledger (debt.md)](${debt.routePath})`
+        `[debt.md](${debt.routePath})`
       );
       expect(publicPaths).toContain(debt.routePath);
       expect(imageResponse.status).toBe(200);

@@ -48,7 +48,7 @@ const unavailableLegacyMcp = {
 
 const runtimeBaseServices = Layer.mergeAll(
   Layer.succeed(Cloudflare.Workers.WorkerEnvironment, workerEnvironment),
-  ConfigProvider.layer(ConfigProvider.fromUnknown({}))
+  ConfigProvider.layer(ConfigProvider.fromUnknown({ APP_ENV: "production" }))
 );
 
 const runtimeServices = Layer.provideMerge(
@@ -57,7 +57,7 @@ const runtimeServices = Layer.provideMerge(
 );
 
 it.effect(
-  "starts the Worker and serves a request without deploy-time services",
+  "serves content and discovery from runtime bindings without deploy-time services",
   () =>
     Effect.acquireUseRelease(
       Effect.sync(() => {
@@ -84,25 +84,54 @@ it.effect(
 
           const handler = Cloudflare.Workers.makeRequestHandler(worker.fetch);
 
-          const responseEffect: unknown = handler({
-            context: {},
-            env: workerEnvironment,
-            input: new Request("https://ratstack.sh/not-a-route"),
-            kind: "Cloudflare.Workers.WorkerEvent",
-            type: "fetch",
-          });
+          for (const accept of ["*/*", "text/html"]) {
+            for (const route of [
+              "/",
+              "/llms.txt",
+              "/llms-full.txt",
+              "/sitemap.xml",
+              "/auth.md",
+              "/lore",
+              "/lore/effect-basics",
+              "/systems/fence",
+              "/skills/learn-rat-stack",
+              "/robots.txt",
+              "/openapi.json",
+              "/.well-known/mcp.json",
+              "/.well-known/agent-card.json",
+              "/.well-known/api-catalog",
+              "/.well-known/agent-skills/index.json",
+              "/not-a-route",
+            ]) {
+              const responseEffect: unknown = handler({
+                context: {},
+                env: workerEnvironment,
+                input: new Request(`https://ratstack.sh${route}`, {
+                  headers: { accept },
+                }),
+                kind: "Cloudflare.Workers.WorkerEvent",
+                type: "fetch",
+              });
 
-          if (responseEffect === undefined) {
-            return yield* Effect.die(
-              new Error("Worker fetch handler was absent")
-            );
+              if (responseEffect === undefined) {
+                return yield* Effect.die(
+                  new Error("Worker fetch handler was absent")
+                );
+              }
+
+              const typedResponseEffect =
+                // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
+                // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
+                responseEffect as Effect.Effect<Response>;
+
+              const response = yield* typedResponseEffect;
+
+              expect(response.status, `${accept} ${route}`).toBe(
+                route === "/not-a-route" ? 404 : 200
+              );
+              yield* Effect.promise(response.text.bind(response));
+            }
           }
-
-          // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
-          const typedResponseEffect = responseEffect as Effect.Effect<Response>;
-          const response = yield* typedResponseEffect;
-          expect(response.status).toBe(404);
 
           return yield* Effect.void;
         }),

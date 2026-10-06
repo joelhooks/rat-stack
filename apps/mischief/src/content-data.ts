@@ -2,8 +2,6 @@ import { LoreEdge, LoreGroup, LoreNode } from "@rat-stack/core/contracts";
 import { Schema } from "effect";
 
 const MetadataFields = {
-  dateModified: Schema.optional(Schema.String),
-  datePublished: Schema.optional(Schema.String),
   description: Schema.String,
   digest: Schema.String,
   routePath: Schema.TemplateLiteral(["/", Schema.String]),

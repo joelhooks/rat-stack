@@ -233,17 +233,8 @@ export const sitemapXml = (
   catalog: ContentCatalog
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${catalog.pageRoutes
-  .filter((path) => path !== "/log.md")
-  .map((path) => {
-    const resource = catalog.resources.find(
-      (entry) => entry.routePath === path
-    );
-
-    const lastmod = resource?.dateModified ?? resource?.datePublished;
-
-    return `  <url><loc>${origin}${path}</loc>${lastmod === undefined ? "" : `<lastmod>${lastmod}</lastmod>`}</url>`;
-  })
+${publicPaths(catalog)
+  .map((path) => `  <url><loc>${origin}${path}</loc></url>`)
   .join("\n")}
 </urlset>
 `;
