@@ -30,4 +30,12 @@ The boundary property exercises both readers with generated blob text. It also c
 
 The content version excludes all generated TypeScript modules. A cold export lacks the generated icon module before its first build. Hashing that module made warm and cold output differ.
 
-Source: `apps/mischief/scripts/git-snapshot.ts`, `apps/mischief/test/git-snapshot.test.ts`.
+## Gate resource use
+
+The gate serializes package tasks. Mischief also serializes its test files.
+
+The previous worker count used half the available cores: eight workers in the measured environment. The unchanged filesystem property exceeded its five-second budget twice under concurrent load.
+
+The single-worker probe passed all 51 files and 444 tests in 51.04 seconds. It kept every property run and timeout unchanged. The slower suite reduces contention instead of weakening assertions.
+
+Source: `apps/mischief/scripts/git-snapshot.ts`, `apps/mischief/test/git-snapshot.test.ts`, `apps/mischief/vitest.config.ts`.
