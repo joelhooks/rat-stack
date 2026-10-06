@@ -63,6 +63,7 @@ import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import { mcpContent } from "./mcp-content.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
+import { logRequestIncident } from "./request-incidents.js";
 import { contentSecurityPolicy } from "./security.js";
 import { StaticAssets } from "./static-assets.js";
 import { decodeEd25519PrivateJwk, publicKeyDirectory } from "./web-bot-auth.js";
@@ -1079,13 +1080,23 @@ export const errorPages = HttpRouter.middleware(
         Effect.catchCause((cause) =>
           machine || Cause.hasInterrupts(cause)
             ? Effect.failCause(cause)
-            : Effect.succeed(
-                errorResponse(request, {
-                  code: 500,
-                  message: "Something went wrong. Please try again.",
-                  path: pathname,
-                  title: "Internal server error",
-                })
+            : logRequestIncident(cause, "content").pipe(
+                Effect.map((incidentId) =>
+                  HttpServerResponse.setHeader(
+                    errorResponse(request, {
+                      code: 500,
+                      details: {
+                        html: `<p>Incident id: ${incidentId}</p>`,
+                        markdown: `Incident id: ${incidentId}`,
+                      },
+                      message: "Something went wrong. Please try again.",
+                      path: pathname,
+                      title: "Internal server error",
+                    }),
+                    "X-Incident-Id",
+                    incidentId
+                  )
+                )
               )
         )
       );
