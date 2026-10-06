@@ -175,7 +175,9 @@ Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical E
 - Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
 - Be plain and strict, not robotic.
 
-Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each point one visual, one or two nearby sentences, and a **What to notice** line. Do not add decorative visuals.
+Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Do not add decorative visuals.
+
+Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 
 The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It reads parsed Markdown prose, not raw-source patterns. Code, tables, quotes, and frontmatter are excluded. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
 

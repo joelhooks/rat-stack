@@ -39,8 +39,7 @@ sources:
 ---
 
 Build a service once with the dependencies its implementation needs. Return methods that use those captured values.
-Callers then require the service, not its construction graph.
-This page uses Effect 4.0.0.
+Callers then require only the service.
 
 ## Name the job before the implementation
 
@@ -50,9 +49,7 @@ This page uses Effect 4.0.0.
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-15
 ```
 
-**What to notice:** Construction needs `FileSystem`. Calling `inspect` does not require the caller to supply it again.
-
-`make` is an Effect, not a completed service instance.
+`make` describes service construction as an Effect.
 `Layer.effect` runs that construction when the service graph is built.
 
 ## Compose work inside the method
@@ -64,19 +61,18 @@ Do not create a function that only returns another `Effect.gen` wrapper.
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=17-35
 ```
 
-**What to notice:** `inspect` closes over the filesystem value. It keeps read failures typed and returns a domain result.
+`inspect` closes over the filesystem value. It keeps read failures typed and returns a domain result.
 
 The service method composes Effects. It does not run an imperative runtime inside the computation.
 
 ## Construction dependencies are not request identity
 
-Dependency-free methods are a useful default, not a ban on all contextual requirements.
+Methods can retain contextual requirements when the job needs them.
 A filesystem implementation usually belongs to construction. A current person may belong to a single request.
 
 Pass request data explicitly, or keep that requirement visible at the request boundary.
 Do not capture one request's identity in a service shared by later requests.
 
-Kit Langton's [Services & Layers](https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md) informed this topic.
 [Issue #24](https://github.com/kitlangton/effect-solutions/issues/24) records the risk of treating dependency-free methods as universal law.
 
 ## Common wrong approach
@@ -89,8 +85,8 @@ Supply its Layer at the [composition root](/lore/layers-make-dependencies-explic
 
 ## Effect idiom and house rule
 
-- **Effect idiom:** Services describe behavior. Layers supply implementations and resolve construction requirements.
-- **rat-stack house rule:** Keep `make` and `static layer` beside the service. Core owns job-shaped ports; adapters own provider code.
-- **Not an Effect requirement:** Capability projections, cartridge packages, and our no-comments rule.
+- Services describe behavior. Layers supply implementations and resolve construction requirements.
+- In rat-stack, keep `make` and `static layer` beside the service. Core owns job-shaped ports; adapters own provider code.
+- rat-stack also uses capability projections, cartridge packages, and a no-comments rule.
 
 See also: [domain structure](/lore/structure-effect-by-domain), [Layer composition](/lore/layers-make-dependencies-explicit), [the Layer constructor pattern](/lore/layer-constructor-pattern), and [testing through services](/lore/tests-that-earn-their-place).

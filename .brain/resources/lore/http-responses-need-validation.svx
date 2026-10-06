@@ -42,7 +42,7 @@ sources:
 
 A fulfilled HTTP request is not proof of application success.
 Check the status and decode the body before passing provider data into the application.
-This page uses Effect 4.0.0 and its `effect/http` modules.
+Use the `effect/http` modules.
 
 ## Check the protocol, not only the connection
 
@@ -52,10 +52,7 @@ It also requires status 200 and the expected tool names.
 ```ts repo=rat-stack path=packages/deploy/src/checks.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=141-150
 ```
 
-**What to notice:** The checker reports a behavioral verdict. Parsed JSON alone does not establish that verdict.
-
-This is real deployment-check code, not a command to probe production while learning.
-Use the checked in-memory fixture below instead.
+Use the in-memory fixture below when learning.
 
 ## Reject an unacceptable response before trusting its data
 
@@ -66,7 +63,7 @@ The fixture applies the filter before decoding a version response.
 ```ts repo=rat-stack path=packages/deploy/test/fixtures/validated-http-response.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=13-30
 ```
 
-**What to notice:** `schemaBodyJson` handles JSON parsing and schema decoding. `ResponseFixtureError` retains the cause and names the failed phase.
+`schemaBodyJson` handles JSON parsing and schema decoding. `ResponseFixtureError` retains the cause and names the failed phase.
 
 The fixture groups request and status failures into its `status` phase.
 It groups parsing and schema failures into its `body` phase.
@@ -80,8 +77,6 @@ It does not start an HTTP server or call a provider.
 ```ts repo=rat-stack path=packages/deploy/test/http-response.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=15-30
 ```
 
-**What to notice:** The adapter keeps its status and decoder logic. Only the transport changes.
-
 | Simulated response | Required outcome |
 | --- | --- |
 | 200, integer version | Decoded version |
@@ -89,10 +84,8 @@ It does not start an HTTP server or call a provider.
 | 200, malformed JSON | Named body-phase failure |
 | 200, string instead of integer | Named body-phase failure |
 
-**What to notice:** A successful status and a valid body are separate conditions.
-
-These are transport seams, not provider qualification tests.
-They establish the fixture's policy for these cases, not a live endpoint's health.
+These transport seams establish the fixture's status and decoding policy.
+Check live endpoint health separately.
 
 ## Decide whether replay is safe before adding retries
 
@@ -117,16 +110,12 @@ The fixture establishes no production retry budget.
 - Replace the whole adapter in a test and stop exercising its decoder.
 - Retry a write only because the transport calls its error transient.
 
-Kit Langton's draft supplies the middleware and decoding questions.
-Its `effect/unstable/http` imports differ from the exact version used here.
-The working examples use `effect/http`; the draft is not API authority.
-
 ## Effect idiom and house rule
 
-- **Effect idiom:** Supply `HttpClient`, compose request policies, decode responses, and translate failures at the adapter edge.
-- **rat-stack house rule:** Core owns job-shaped ports. Provider clients remain in adapters under [hexagonal architecture](/lore/hexagonal-architecture).
-- **Separate house rule:** [Machines own finite retry lifecycles](/lore/lifecycles-are-machines). Effect also has native schedules and retry operators.
+- Supply `HttpClient`, compose request policies, decode responses, and translate failures at the adapter edge.
+- In rat-stack, core owns job-shaped ports. Provider clients remain in adapters under [hexagonal architecture](/lore/hexagonal-architecture).
+- In rat-stack, [machines own finite retry lifecycles](/lore/lifecycles-are-machines). Effect also has native schedules and retry operators.
 
 Read [schemas](/lore/schemas-define-the-boundary) and [failures](/lore/error-model) before defining the adapter's accepted data.
 Then read [tracing](/lore/trace-meaningful-operations) to observe the operation without exposing private values.
-Return to the [Effect reading map](/lore/structure-effect-by-domain).
+Return to the [Effect reading order](/lore/effect-basics#read-next).

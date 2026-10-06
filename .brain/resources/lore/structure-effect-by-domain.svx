@@ -67,39 +67,19 @@ sources:
     accessed: "2026-10-06"
 ---
 
-## Start here
+Group files by domain: `src/coding/edit.ts` puts an edit operation with the coding work it belongs to.
+Keep one service and its Layer in each file. Capture dependencies when building the service, so callers need only that service.
 
-Read these in order. This page uses Effect 4 names.
+At each entrypoint, assemble and provide Layers in a composition root. Keep platform adapters behind service ports.
 
-1. [Effect basics](/lore/effect-basics): build a description before running it.
-2. [Schemas define the boundary](/lore/schemas-define-the-boundary): define and decode accepted data.
-3. [Expected failures and defects](/lore/error-model): name failures without hiding crashes.
-4. [Service construction](/lore/services-capture-dependencies): capture implementation dependencies.
-5. [Layer composition](/lore/layers-make-dependencies-explicit): supply the graph at an entrypoint.
-6. [Configuration](/lore/configuration-is-a-dependency): parse supplied settings.
-7. [Testing](/lore/tests-that-earn-their-place): prove behavior through supplied services.
-8. [Scopes](/lore/scopes-own-resources): acquire resources inside their owner and release them on exit.
-9. [Concurrency](/lore/concurrent-work-needs-an-owner): bound work and stop owned children.
-10. [HTTP responses](/lore/http-responses-need-validation): check status and decode accepted data.
-11. [Tracing](/lore/trace-meaningful-operations): name meaningful operations and inspect export evidence.
-12. [Runtime boundaries](/lore/run-effect-at-the-boundary): execute through the host's bridge and connect disposal.
-
-These pages use pinned rat-stack examples and exact Effect 4.0.0 source.
-Kit Langton's guides remain useful inputs, not a substitute for checking the installed API.
-
-## Answer both structure questions
-
-[Justin Bennett asks about folders and service organization](https://x.com/just_be_dev/status/2107194260860613059), including `src/platform`.
-[Sam Goodwin recommends](https://x.com/samgoodwin89/status/2107204053151428850):
+[Justin Bennett asked about folders and service organization](https://x.com/just_be_dev/status/2107194260860613059).
+[Sam Goodwin's answer](https://x.com/samgoodwin89/status/2107204053151428850):
 
 > src/{domain} instead of src/{mechanism}. E.g. src/coding/edit.ts instead of src/tools/edit.ts. "tools" is the mechanism, "coding" is the domain.
 
-Sam also recommends one service plus Layer per file, and one entrypoint plus `Effect.provide` per file.
-We use that shape. It is a recommendation, not an Effect folder requirement.
-
 ## The shape in one tree
 
-This is a small-app sketch, not a required template.
+A small app can use this layout:
 
 ```text
 src/
@@ -115,67 +95,45 @@ test/
     └── file-inspector.test.ts
 ```
 
-**What to notice:** Domain folders own behavior. `platform` supplies implementations, not domain rules.
-
-A **composition root** is the entrypoint module that assembles and provides the application's Layers.
-Use one per entrypoint, not one global root for every executable.
-
-`src/platform` is fine for adapters behind a port: a service interface that names the application's job.
-Domain code uses that interface; the composition root chooses the platform implementation.
-rat-stack separates these jobs into packages. A small app need not copy its workspace layout.
+Domain folders own behavior. `platform` supplies implementations.
+rat-stack separates these jobs into packages; a small app can keep them in one package.
 
 ## The rules that hold it together
 
 ### Capture dependencies when constructing a service
 
-[Effect's service guidance](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/01_service.ts) colocates `Context.Service` and its Layer.
-Our `FileInspector` captures `FileSystem` during construction. Its methods have no filesystem requirement.
+Keep the service interface and its Layer together.
+`FileInspector` captures `FileSystem` during construction. Its methods have no filesystem requirement.
 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=54d356037c994f89698760a4727be71d0005a087 lines=6-16,33-35
 ```
 
 **What to notice:** Construction needs the dependency; callers need only `FileInspector`.
-See [the Layer constructor pattern](/lore/layer-constructor-pattern).
-
-### Decode at boundaries with Schema
-
-[Data Modeling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/05-data-modeling.md) uses Schema for runtime validation and static types.
-rat-stack's `packages/core/src/contracts.ts` owns input, output, and failure schemas.
-See [schemas define the boundary](/lore/schemas-define-the-boundary).
-
-### Keep expected failures typed and defects distinct
-
-[Error Handling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/06-error-handling.md) separates expected failures from unexpected defects.
-`FileInspector` declares `FileStatsError` and preserves the failed path and filesystem reason.
-See [the error model](/lore/error-model). A crash is not a domain refusal.
+See [service construction](/lore/services-capture-dependencies) for the full pattern.
 
 ### Provide Layers at the entrypoint
 
-[Effect's Layer guidance](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/20_layer-composition.ts) composes focused Layers with `Layer.provide` and `Layer.provideMerge`.
-Our CLI assembles dependencies before running the program.
+The composition root chooses implementations and supplies the application's service graph.
+Give each entrypoint its own root. Our CLI assembles dependencies before running the program.
 
 ```ts repo=rat-stack path=apps/cli/src/cli.ts at=54d356037c994f89698760a4727be71d0005a087 lines=16-25
 ```
 
-**What to notice:** `Effect.provide` resolves requirements before `NodeRuntime.runMain` runs the final Effect.
+`Effect.provide` resolves requirements before `NodeRuntime.runMain` runs the final Effect.
+See [Layer composition](/lore/layers-make-dependencies-explicit).
 
 ### Keep ports inside and adapters outside
 
-[Services and Layers](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md) separates contracts from implementations.
-Our adapter placement is house architecture: core owns `SubscriberIntake`; `packages/subscriber-delivery` implements it.
-Apps provide that implementation. See [hexagonal architecture](/lore/hexagonal-architecture).
+Domain code uses a service interface that names the application's job.
+Core owns `SubscriberIntake`; `packages/subscriber-delivery` implements it. Apps provide that implementation.
+See [hexagonal architecture](/lore/hexagonal-architecture).
 
-### Use machines for finite lifecycles
+### Keep related definitions with the domain
 
-This is rat-stack policy, not an Effect requirement.
-`packages/core/src/inspect-machine.ts` declares side effects with `fromEffect` and starts them with `createEffectActor`.
-Use this for finite modes, cancellation, or legal event sequences. Keep direct Effects when those concerns do not apply.
-
-### Test through Layers
-
-[Testing](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/08-testing.md) introduces `it.effect` and scoped test services.
-[Services and Layers](https://www.effect.solutions/services-and-layers) recommends fresh test Layers by default; share expensive resources with `it.layer`.
-Our `packages/core/test/file-inspector.test.ts` provides filesystem services through `it.layer(TestLayer)`.
+- Put input, output, and failure schemas in the domain's contract. [Decode at boundaries with Schema](/lore/schemas-define-the-boundary).
+- Declare expected failures with useful context. `FileStatsError` keeps the failed path and filesystem reason. See [the error model](/lore/error-model).
+- In rat-stack, a [machine](/lore/lifecycles-are-machines) owns finite modes, cancellation, or legal event sequences. Keep it beside the behavior it controls.
+- Mirror domain folders in tests. [Supply test services through Layers](/lore/tests-that-earn-their-place).
 
 ## House style versus Effect idiom
 
@@ -189,29 +147,10 @@ Our `packages/core/test/file-inspector.test.ts` provides filesystem services thr
 | Explicit requirements | A type-aware lint fence |
 | No prescribed comment policy | No prose comments in code |
 
-**What to notice:** You can use Effect without capability projections, cartridges, XState, or our lint rules.
-
-## Common beginner mistakes
-
-- **Choosing folders before jobs.** Name the domain first; put platform implementations behind its service interface.
-- **Parsing unknown input by hand.** Decode it with Schema at the boundary.
-- **Running an Effect inside another Effect.** Compose it instead; run at the integration edge.
-- **Treating every failure as recoverable.** Keep expected errors typed; do not turn defects into ordinary outcomes.
-- **Copying API names across versions.** Check your installed Effect guidance before copying examples.
-
 ## Where disagreement lives
 
-- **Folder layout:** Sam favors domains. Effect does not mandate folders; Kit's [structure guide remains a draft](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/09-project-structure.md).
-- **Routes:** Sam calls one API route per file potentially controversial. rat-stack instead keeps one capability per file and derives routes.
-- **Mocks:** Test Layers express replaceable boundaries. The cited guidance does not establish that every mock is wrong.
-- **Runners:** Domain code composes Effects. [Incremental adoption](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/10-incremental-adoption.md) uses runners to bridge existing imperative code.
+Sam favors domain folders. Effect leaves folder layout to the application.
+Sam also calls one API route per file potentially controversial. rat-stack keeps one capability per file and derives routes.
+Choose monorepo versus single-package layout separately from the service graph.
 
-These sources do not settle monorepo versus single-package layout. Choose that separately from the service graph.
-
-## Read further
-
-- [Effect basics](/lore/effect-basics), [context and requirements](/lore/context-and-requirements), and [the Layer constructor pattern](/lore/layer-constructor-pattern).
-- [How we use Effect](/lore/how-we-do-it-with-effect), [the error model](/lore/error-model), and [hexagonal architecture](/lore/hexagonal-architecture).
-- [Cartridges](/lore/cartridges) explains our package boundary.
-- Try [learn rat-stack](/skills/learn-rat-stack), [add a capability](/skills/add-a-capability), or [add a store](/skills/add-a-store).
-- [rat-stack mode](/skills/rat-stack-mode) routes changes through our playbooks.
+New to Effect? Start with [Effect basics](/lore/effect-basics).
