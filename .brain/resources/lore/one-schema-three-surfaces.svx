@@ -53,7 +53,7 @@ His example is this repository. The code makes the direction more precise:
 - HttpApi, OpenAPI, CLI, and MCP derive from that contract.
 - CLI and MCP do not consume the generated OpenAPI JSON.
 
-A **surface** is an invocation interface over shared behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
+Each invocation interface, or surface, shares the same behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
 
 ## One contract feeds the projections
 
@@ -63,8 +63,6 @@ Contract (Effect schemas + one handler)
 ├─ toCommand ── CLI
 └─ toToolkit ── MCP tools
 ```
-
-**What to notice:** HttpApi is one projection, not the source of the CLI and MCP projections.
 
 - [to-http-api.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts) derives HttpApi endpoints, the handler Layer, and OpenAPI.
 - [to-command.ts](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-command.ts) derives flags or positional inputs, schema decoding, and the command handler.
@@ -79,7 +77,7 @@ Source: [`apps/cli/src/surfaces.ts` at `a646f7ffd00273d85fbe1d905d9cdb194fdc0f60
 ```ts repo=rat-stack path=apps/cli/src/surfaces.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=21-25
 ```
 
-**What to notice:** Each call receives the same capability list.
+Each call receives the same capability list.
 
 One HttpApi definition supplies the HTTP implementation and its OpenAPI document. The broader shared definition is the capability contract. This split avoids three independently maintained schemas.
 
