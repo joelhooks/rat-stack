@@ -15,6 +15,4 @@ sources:
 
 # DHH on Omarchy and the agent OS
 
-This note keeps one public moment from the conversation.
-
 At 14:40, DHH calls the ability to make things from English "perhaps the most addictive substance I have yet encountered." [Watch from 14:40](https://youtu.be/OSjmLh0cyVo?t=880).

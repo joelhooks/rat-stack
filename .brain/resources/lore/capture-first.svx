@@ -45,7 +45,7 @@ In rat-stack, the `packages/events` cartridge sends one JSON envelope per reques
 
 Size and rate limits still apply. The stream also requires the `{ "value": <event> }` row wrapper; omitting it drops rows during processing. [Analytics](/systems/analytics) documents that boundary.
 
-Capture first is not capture everything. The envelope holds request facts: method, path, status, and referrer origin and path. Its query string has credential, email, code, and session keys removed.
+Capture first keeps only permitted request facts. The envelope holds method, path, status, and referrer origin and path. Its query string has credential, email, code, and session keys removed.
 
 The request body is never read. The IP is stored only as a salted hash.
 
@@ -56,8 +56,8 @@ Visitor identity is a setting:
 | `daily` | Hash of IP, user agent, and day; no cookie. |
 | `persistent` | One first-party id per browser. |
 
-The persistent id is set by the server, not by script. WebKit "deletes all cookies created in JavaScript and all other script-writeable storage after 7 days of no user interaction." [Tracking Prevention in WebKit](https://webkit.org/tracking-prevention/)
+The server sets the persistent id. WebKit "deletes all cookies created in JavaScript and all other script-writeable storage after 7 days of no user interaction." [Tracking Prevention in WebKit](https://webkit.org/tracking-prevention/)
 
-Segment's identify guidance joins people later by a stable database id, not an email address. It gives the reason: "because database IDs never change." [Spec: Identify](https://segment.com/docs/connections/spec/identify/)
+Segment's identify guidance joins people later by a stable database id. It advises against using an email address. It gives the reason: "because database IDs never change." [Spec: Identify](https://segment.com/docs/connections/spec/identify/)
 
-The rules are checked as properties, not examples. See [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing).
+Property tests check these rules. See [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing).
