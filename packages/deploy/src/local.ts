@@ -72,15 +72,38 @@ const ApiList = Schema.Struct({
 });
 
 const VersionList = Schema.Struct({
-  result: Schema.Array(
-    Schema.Struct({
-      versions: Schema.Array(
-        Schema.Struct({ percentage: Schema.Finite, version_id: Schema.String })
-      ),
-    })
-  ),
+  result: Schema.Struct({
+    deployments: Schema.Array(
+      Schema.Struct({
+        versions: Schema.Array(
+          Schema.Struct({
+            percentage: Schema.Finite,
+            version_id: Schema.String,
+          })
+        ),
+      })
+    ),
+  }),
   success: Schema.Boolean,
 });
+
+export const readCurrentWorkerVersion = Effect.fn("readCurrentWorkerVersion")(
+  function* readCurrentWorkerVersion(
+    response: HttpClientResponse.HttpClientResponse
+  ) {
+    const document =
+      yield* HttpClientResponse.schemaBodyJson(VersionList)(response);
+
+    const live = document.result.deployments[0]?.versions;
+
+    return response.status === 200 &&
+      document.success &&
+      live?.length === 1 &&
+      live[0]?.percentage === 100
+      ? Option.some(live[0].version_id)
+      : Option.none<string>();
+  }
+);
 
 const WorkerAttributes = Schema.Struct({
   versionId: Schema.optional(Schema.String),
@@ -277,29 +300,20 @@ export const localLayer = (
               )
             );
 
-            const document = yield* HttpClientResponse.schemaBodyJson(
-              VersionList
-            )(response).pipe(
+            const live = yield* readCurrentWorkerVersion(response).pipe(
               Effect.mapError(() =>
                 stepError("apply", "previous-live-version-readback-invalid")
               )
             );
 
-            const live = document.result[0]?.versions;
-
-            if (
-              response.status !== 200 ||
-              !document.success ||
-              live?.length !== 1 ||
-              live[0]?.percentage !== 100
-            ) {
+            if (Option.isNone(live)) {
               return yield* stepError(
                 "apply",
                 "previous-live-version-not-single-deployment"
               );
             }
 
-            prior[worker.workerName] = live[0].version_id;
+            prior[worker.workerName] = live.value;
           }
         }
 
@@ -651,20 +665,9 @@ export const localLayer = (
                   credential.value
                 );
 
-                const document =
-                  yield* HttpClientResponse.schemaBodyJson(VersionList)(
-                    response
-                  );
+                const live = yield* readCurrentWorkerVersion(response);
 
-                const live = document.result[0]?.versions;
-
-                return (
-                  response.status === 200 &&
-                  document.success &&
-                  live?.length === 1 &&
-                  live[0]?.version_id === version &&
-                  live[0]?.percentage === 100
-                );
+                return Option.isSome(live) && live.value === version;
               })
             )
           );
