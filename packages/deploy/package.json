@@ -17,6 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@distilled.cloud/cloudflare": "1.0.0-rc.13",
     "@effect/platform-node": "4.0.0",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/check-harness": "workspace:*",

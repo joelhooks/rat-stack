@@ -1,9 +1,11 @@
 import { gateOutcome, runCheck } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
-import { Clock, DateTime, Effect, Option, Schema } from "effect";
+import { Clock, Config, DateTime, Effect, Option, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
+
+import { DeployStepError } from "./contracts.js";
 
 const ToolsResponse = Schema.Struct({
   result: Schema.Struct({
@@ -248,18 +250,102 @@ export const contentVersionCheck = Effect.fn("contentVersionCheck")(
   }
 );
 
+export const contentVersionRetryDefaults = {
+  deadlineMs: 120_000,
+  initialDelayMs: 1000,
+  maximumDelayMs: 10_000,
+};
+
+export const settledContentVersionCheck = Effect.fn(
+  "settledContentVersionCheck"
+)(function* settledContentVersionCheck<E, R>(
+  work: Effect.Effect<Verdict, E, R>,
+  options = contentVersionRetryDefaults
+) {
+  const startedAt = yield* Clock.currentTimeMillis;
+  const attempts: Verdict[] = [];
+
+  for (;;) {
+    const remaining = Math.max(
+      0,
+      options.deadlineMs - ((yield* Clock.currentTimeMillis) - startedAt)
+    );
+
+    const verdict = yield* runCheck(
+      "content-version",
+      work.pipe(Effect.timeout(Math.max(1, remaining)))
+    );
+
+    attempts.push(verdict);
+    const elapsed = (yield* Clock.currentTimeMillis) - startedAt;
+
+    if (
+      gateOutcome(verdict) === "pass" ||
+      verdict.reason !== "content-version-mismatch" ||
+      elapsed >= options.deadlineMs
+    ) {
+      return {
+        ...verdict,
+        counts: {
+          ...verdict.counts,
+          attempts: attempts.length,
+          deadlineMs: options.deadlineMs,
+          durationMs: elapsed,
+          failedAttempts: attempts.filter((row) => gateOutcome(row) !== "pass")
+            .length,
+        },
+        provenance: attempts.flatMap((row, index) => [
+          {
+            fetchedAt: row.observedAt,
+            id: `content-attempt:${index + 1}`,
+            source: "content-version-check",
+            status: `${row.status}:${row.reason}`,
+          },
+          ...(row.provenance ?? []),
+        ]),
+      } satisfies Verdict;
+    }
+
+    const delay = Math.min(
+      options.maximumDelayMs,
+      options.initialDelayMs * 2 ** Math.min(attempts.length - 1, 20),
+      options.deadlineMs - elapsed
+    );
+
+    yield* Effect.sleep(delay);
+  }
+});
+
 export const postDeployChecks = Effect.fn("postDeployChecks")(
   function* postDeployChecks(
     base: string,
     contentGeneration: string,
-    appliedAt: number
+    appliedAt: number,
+    contentRetry?: typeof contentVersionRetryDefaults
   ) {
+    const retry = contentRetry ?? {
+      ...contentVersionRetryDefaults,
+      deadlineMs: yield* Config.Int("DEPLOY_CONTENT_VERSION_DEADLINE_MS").pipe(
+        Config.withDefault(contentVersionRetryDefaults.deadlineMs)
+      ),
+    };
+
+    yield* Schema.decodeEffect(
+      Schema.Int.check(Schema.isBetween({ maximum: 600_000, minimum: 0 }))
+    )(retry.deadlineMs);
+
     const client = yield* HttpClient.HttpClient;
     const url = base.replace(/\/$/u, "");
 
     const verdicts: Verdict[] = [
-      yield* contentVersionCheck(url, "/", contentGeneration),
-      yield* contentVersionCheck(url, "/index.md", contentGeneration),
+      yield* settledContentVersionCheck(
+        contentVersionCheck(url, "/", contentGeneration),
+        retry
+      ),
+      yield* settledContentVersionCheck(
+        contentVersionCheck(url, "/index.md", contentGeneration),
+        retry
+      ),
     ];
 
     for (const route of [
@@ -458,5 +544,13 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
 
     return verdicts;
   },
+  Effect.mapError(
+    () =>
+      new DeployStepError({
+        keys: ["DEPLOY_CONTENT_VERSION_DEADLINE_MS"],
+        reason: "content-version-retry-input-invalid",
+        step: "checks",
+      })
+  ),
   Effect.scoped
 );

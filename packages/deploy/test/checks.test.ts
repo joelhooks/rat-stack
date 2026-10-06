@@ -4,7 +4,10 @@ import { Effect, Predicate, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 
-import { postDeployChecks } from "../src/checks.js";
+import {
+  contentVersionRetryDefaults,
+  postDeployChecks,
+} from "../src/checks.js";
 
 const bodyFor = (url: string, body: string) => {
   if (url === "https://isitagentready.com/api/scan") {
@@ -91,7 +94,8 @@ it.effect.prop(
       const results = yield* postDeployChecks(
         "https://example.com",
         "test-generation",
-        0
+        0,
+        { ...contentVersionRetryDefaults, deadlineMs: 0 }
       ).pipe(Effect.provideService(HttpClient.HttpClient, client));
 
       expect(results.every((result) => gateOutcome(result) === "pass")).toBe(

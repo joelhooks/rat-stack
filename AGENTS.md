@@ -75,7 +75,11 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 
 - Run `pnpm turbo run check test build --concurrency=1` before deployment.
 - `pnpm deploy:plan --profile <profile>` reads and classifies the production plan without applying it.
-- `pnpm deploy:prod --profile <profile> --yes` applies that exact plan, then runs typed checks.
+- `pnpm deploy:prod --profile <profile> --yes` applies that exact plan, then runs typed checks and a bounded watch.
+- `pnpm deploy:rollback --profile <profile> --yes` restores prior Worker versions from a local apply receipt. It requires explicit approval; no automatic rollback runs.
+- Recovery evidence lives in gitignored `.rat/deploy/`. Rollback writes separate progress receipts and preserves its source.
+- Content-version mismatches retry for 120 seconds by default. `DEPLOY_CONTENT_VERSION_DEADLINE_MS` sets a bounded override; verdicts retain failed attempts.
+- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root commands run varlock in production mode; provider credentials remain profile-only.
 - Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
 - `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
 - Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
