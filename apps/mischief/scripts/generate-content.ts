@@ -4,7 +4,6 @@ import { createHash } from "node:crypto";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Drift, prepareCode } from "@rat-stack/code-snippets";
 import type { Diagnostics } from "@rat-stack/code-snippets";
-import { gitLayer } from "@rat-stack/code-snippets/git";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
@@ -31,7 +30,6 @@ import { normalizeSources, contentPagePath } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
-import { codeRepositories } from "./code-config.ts";
 import { collectBuildFences } from "./code-inputs.ts";
 import { codeComponent } from "./code-pipeline.ts";
 import type { ComponentRegistry } from "./component-registry.ts";
@@ -83,8 +81,9 @@ import {
 } from "./content-references.ts";
 import { lawSpecs } from "./content-specs.ts";
 import type { SourceSpec } from "./content-specs.ts";
-import { readDailyLog } from "./daily-log.ts";
+import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
 import { emitAssets } from "./emit-assets.ts";
+import { openGitSnapshot } from "./git-snapshot.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
@@ -940,10 +939,16 @@ const program = Effect.gen(function* generateContent() {
       .readFileString(path.join(root, sourcePath))
       .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
 
-  const preparedCode = yield* prepareCode(yield* collectBuildFences(root)).pipe(
-    Effect.provide(
-      Layer.provideMerge(Drift.layer, gitLayer(codeRepositories(root)))
-    )
+  const snapshot = yield* openGitSnapshot(
+    root,
+    process.argv.includes("--git-snapshot")
+  );
+
+  const fences = yield* collectBuildFences(root);
+  yield* snapshot.verifyFences(fences);
+
+  const preparedCode = yield* prepareCode(fences).pipe(
+    Effect.provide(Layer.provideMerge(Drift.layer, snapshot.sourceLayer))
   );
 
   yield* reportCodeDiagnostics(preparedCode.diagnostics);
@@ -1112,7 +1117,6 @@ const program = Effect.gen(function* generateContent() {
 
   const debtLint = yield* runDebtLint(root, debtSourcePaths);
   const debtMarkdown = debtLedgerMarkdown(debtLint.entries);
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
   const packageDirectoryGroups = yield* Effect.forEach(
     ["apps", "packages"],
@@ -1344,7 +1348,7 @@ const program = Effect.gen(function* generateContent() {
 
   yield* Effect.logInfo(`Wiki prose warnings: ${proseWarnings.length}`);
 
-  const logText = yield* readDailyLog(root, [
+  const logText = dailyLogMarkdown(yield* snapshot.query(historyArgs), [
     ...lawSpecs,
     ...skillTexts.map((skill) => ({ ...skill, title: skill.name })),
     ...loreTexts,
@@ -1459,6 +1463,7 @@ const program = Effect.gen(function* generateContent() {
 
       if (
         !repoPathToken.test(span) ||
+        span.includes(".generated.") ||
         span.split("/").includes("node_modules")
       ) {
         return Option.none();
@@ -1579,32 +1584,26 @@ const program = Effect.gen(function* generateContent() {
   }
 
   const lastChange = (sourcePath: string) =>
-    spawner
-      .string(
-        ChildProcess.make(
-          "git",
-          [
-            "log",
-            "-n",
-            "1",
-            "--date=short",
-            "--format=%ad%x09%H%x09%h",
-            "--",
-            sourcePath,
-          ],
-          { cwd: root }
-        )
-      )
-      .pipe(
-        Effect.orElseSucceed(() => ""),
-        Effect.map((line) => {
-          const [date, hash, short] = line.trim().split("\t");
+    snapshot.track(sourcePath).pipe(
+      Effect.andThen(
+        snapshot.query([
+          "log",
+          "-n",
+          "1",
+          "--date=short",
+          "--format=%ad%x09%H%x09%h",
+          "--",
+          sourcePath,
+        ])
+      ),
+      Effect.map((line) => {
+        const [date, hash, short] = line.trim().split("\t");
 
-          return date === undefined || hash === undefined || short === undefined
-            ? undefined
-            : { date, hash, short };
-        })
-      );
+        return date === undefined || hash === undefined || short === undefined
+          ? undefined
+          : { date, hash, short };
+      })
+    );
 
   const lastChanges = new Map<
     string,
@@ -2792,7 +2791,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
                 (relativePath) =>
                   (relativePath.endsWith(".ts") ||
                     relativePath.endsWith(".svelte")) &&
-                  relativePath !== "bundled-content.generated.ts"
+                  !relativePath.endsWith(".generated.ts")
               )
               .map((relativePath) => `${directory}/${relativePath}`)
           ),
@@ -3386,6 +3385,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       .rename(temporaryOutput, output)
       .pipe(Effect.mapError((cause) => buildError("rename", output, cause)));
   }).pipe(Effect.scoped);
+  yield* snapshot.save;
 }).pipe(Effect.provide([shikiLayer(), NodeServices.layer]));
 
 NodeRuntime.runMain(program);

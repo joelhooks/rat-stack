@@ -29,6 +29,7 @@ import {
   validateInternalLinks,
   withMarkdownTitle,
 } from "../scripts/content-lib.ts";
+import { openGitSnapshot } from "../scripts/git-snapshot.ts";
 import {
   parseContentMarkdown,
   stringifyContentMarkdown,
@@ -679,6 +680,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         const fileSystem = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const repository = root(path);
+        const snapshot = yield* openGitSnapshot(repository, false);
 
         for (const source of tagFreeSources) {
           const text = yield* fileSystem.readFileString(
@@ -691,8 +693,6 @@ it.layer(NodeServices.layer)("generated content", (test) => {
             semanticTree(ordinary)
           );
 
-          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-
           for (const node of collectCodeFences(text, source)) {
             const request = yield* parseCodeRequest(node, source);
 
@@ -701,12 +701,10 @@ it.layer(NodeServices.layer)("generated content", (test) => {
             }
 
             const original = sourceLines(
-              yield* spawner.string(
-                ChildProcess.make(
-                  "git",
-                  ["show", `${request.commit}:${request.path}`],
-                  { cwd: repository }
-                )
+              yield* snapshot.resolve(
+                request.repo,
+                request.commit,
+                request.path
               )
             );
 
