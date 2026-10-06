@@ -80,11 +80,10 @@ sources:
 
 **Design brief; shipped at `a646f7ffd00273d85fbe1d905d9cdb194fdc0f60`.**
 
-This page describes the shipped `@rat-stack/code-snippets` contract.
-Examples quote the package at that revision. See [Write a wiki page](/skills/write-a-wiki-page) for the authoring procedure and exact repair messages.
+`@rat-stack/code-snippets` gives an excerpt its exact source, checks its metadata, and builds both reader views from one model.
+See [Write a wiki page](/skills/write-a-wiki-page) for authoring steps and exact repair messages.
 
-This page belongs in lore. Lore explains design choices; [systems](/systems) documents shipped behavior.
-The [project vision](https://github.com/joelhooks/rat-stack/blob/main/VISION.md) makes that distinction.
+Lore explains design choices. [Systems](/systems) documents shipped behavior, as set out in the [project vision](https://github.com/joelhooks/rat-stack/blob/main/VISION.md).
 
 ## The problem
 
@@ -115,14 +114,14 @@ The shipped request records content, selection, and provenance:
 ```ts repo=rat-stack path=packages/code-snippets/src/model.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=17-31 {20,26} title="Decoded CodeRequest"
 ```
 
-**What to notice:** `configured` distinguishes metadata fences from ordinary fences. `ranges` carries decoded selections.
+`configured` distinguishes metadata fences from ordinary fences. `ranges` carries decoded selections.
 
 A source reference has an empty body. These selected lines enforce the pin and path rules:
 
 ```ts repo=rat-stack path=packages/code-snippets/src/scanner.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=180-190,192-197 {189,193-197} title="Pinned revision and relative path"
 ```
 
-**What to notice:** The SHA is forty lowercase hexadecimal characters. Paths reject traversal, empty segments, dots, and colons.
+Paths reject traversal, empty segments, dots, and colons.
 
 For a source reference:
 - `repo` identifies a configured repository. It defaults to `rat-stack`.
@@ -142,8 +141,8 @@ Without a language, a source reference infers it from the file extension.
 An unmapped extension or an unlabelled inline fence uses `markdown`.
 The adapter maps `svx` to Markdown and `txt` to text; it accepts `javascript` explicitly.
 
-[Schema decoding](/lore/schemas-define-the-boundary) establishes the barricade: parse unknown metadata into a `CodeRequest` at the boundary.
-Later stages receive decoded values, not unchecked strings.
+[Schema decoding](/lore/schemas-define-the-boundary) parses unknown metadata into a `CodeRequest` at the boundary.
+Later stages receive decoded values.
 
 ## The pipeline
 
@@ -171,7 +170,7 @@ HTML                   agent Markdown
 
 </Diagram>
 
-What to notice: each stage adds facts. Both renderers use the same final model.
+Each stage adds facts. Both renderers use the same final model.
 
 | Stage | Adds or checks |
 | --- | --- |
@@ -238,12 +237,12 @@ Invalid metadata retains raw values because no decoded request exists.
 | Engine | `UnknownLanguage`, `CodeHighlightFailed` | Select a supported language or repair the highlighter adapter. |
 
 The report-level `CodeBuildFailed` holds collected failures.
-[Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651), not `validateAll`.
+[Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651). `validateAll` is not the operation used here.
 
 A dependent stage stops on failure. Unrelated jobs still run.
 No asset writer runs before successful preflight.
 
-[Source drift](/lore/pinned-sources-can-report-drift) is diagnostic data, not a failing Effect.
+[Source drift](/lore/pinned-sources-can-report-drift) produces diagnostics while allowing the build to continue.
 The [error model](/lore/error-model) separates expected failures from defects.
 
 ## The testing approach
@@ -293,10 +292,9 @@ Use [tests that earn their place](/lore/tests-that-earn-their-place) for planted
 | [Docusaurus Theme GitHub Codeblock](https://github.com/saucelabs/docusaurus-theme-github-codeblock) | Import excerpts from GitHub reference URLs. | Resolve local Git objects instead of downloading code. |
 | [remark-github-code-import](https://github.com/haocheng6/remark-github-code-import/blob/main/src/utils.ts) | Import excerpts from GitHub URLs, including commit permalinks. | Keep generation offline; use a configured repository registry. |
 
-The shipped scanner is intentionally stricter than the general `MetaOptions` parser.
-It accepts only the grammar documented above.
+The scanner accepts only the grammar documented above, a stricter subset than the general `MetaOptions` parser.
 
-## What is deliberately not built
+## Build-only limits
 
 There is no remote source adapter, mirror synchronization, or persistent snippet cache in this design.
 A shallow clone must already contain the pinned commit and blob.
@@ -305,7 +303,7 @@ Generation performs no checkout and no network fetch.
 Run `pnpm sources:fetch` explicitly before generation when pinned objects are missing. It uses the configured bootstrap remote and verifies the requested commits.
 
 [Build-time work stays out of requests](/lore/build-time-work-stays-out-of-requests).
-The Worker receives static assets, not Git access, Shiki, or the snippet package.
+The Worker receives static assets. Git access, Shiki, and the snippet package stay in the build.
 
 There is no state machine yet.
 This is one scoped Effect over immutable local objects.
