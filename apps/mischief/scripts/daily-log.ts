@@ -9,6 +9,22 @@ export interface LogPage {
 
 const repository = "https://github.com/joelhooks/rat-stack";
 
+export const historyArgs = [
+  "log",
+  "--no-merges",
+  "--full-history",
+  "--no-renames",
+  "--name-status",
+  "--format=%x1e%H%x09%cs%x09%ct%x09%P%x09%s",
+  "--",
+  ".brain/resources",
+  ".brain/areas",
+  "skills",
+  "VISION.md",
+  "AGENTS.md",
+  "README.md",
+];
+
 const contentPath =
   /^(?:\.brain\/(?:resources|areas)\/|skills\/)[\w./-]+$|^(?:VISION|AGENTS|README)\.md$/u;
 
@@ -143,25 +159,7 @@ export const readDailyLog = Effect.fn("readDailyLog")(
     }
 
     const history = yield* spawner.string(
-      ChildProcess.make(
-        "git",
-        [
-          "log",
-          "--no-merges",
-          "--full-history",
-          "--no-renames",
-          "--name-status",
-          "--format=%x1e%H%x09%cs%x09%ct%x09%P%x09%s",
-          "--",
-          ".brain/resources",
-          ".brain/areas",
-          "skills",
-          "VISION.md",
-          "AGENTS.md",
-          "README.md",
-        ],
-        { cwd: root }
-      )
+      ChildProcess.make("git", historyArgs, { cwd: root })
     );
 
     return dailyLogMarkdown(history, pages);

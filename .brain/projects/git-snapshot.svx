@@ -1,0 +1,31 @@
+---
+title: Git snapshots preserve exported content
+---
+
+# Git snapshots preserve exported content
+
+Git owns commit history and pinned source blobs. `.brain/data/git-snapshot.json` is a derived build input for exported trees.
+
+- `pnpm git-snapshot` is its only writer. Run it in a full checkout.
+- The content build collects the queries it uses and fingerprints their source files.
+- Blob records carry the Git object ID. The reader checks the Git blob checksum.
+- Checkout builds recompute each query and compare the result with the snapshot.
+- Exported builds read the snapshot after `git rev-parse --git-dir` returns a nonzero status.
+- Missing records, changed fingerprints, and checksum failures stop the build with a repair command.
+- Drift still compares the pinned excerpt with the recorded HEAD source. Differences remain warnings.
+
+## Commit boundary
+
+The snapshot tracks rendered law, skill, and lore paths, plus pinned source paths. It does not track itself or generated assets.
+
+Commit content changes before regenerating the snapshot. Then commit the snapshot. Its commit changes no tracked history, so it stays fresh.
+
+A documentation commit outside rendered paths needs no refresh. A commit that changes rendered content requires one because its history output changes.
+
+## Check
+
+Run `pnpm turbo run check test build --concurrency=1` in both a checkout and its exported tree. Compare generated source files and static assets byte for byte.
+
+The boundary property exercises both readers with generated blob text. It also checks missing queries and changed source fingerprints.
+
+Source: `apps/mischief/scripts/git-snapshot.ts`, `apps/mischief/test/git-snapshot.test.ts`.
