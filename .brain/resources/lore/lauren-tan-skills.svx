@@ -32,7 +32,7 @@ sources:
 
 # Lauren Tan's skills
 
-Lauren Tan (poteto) has no single skills repo. These four repos each ship skills, and each README says what it is for. Her talk on verification and skills is on [Lauren Tan](/lore/lauren-tan) and [the Dune talk](/lore/poteto-lauren-tan-2500-prs-dune).
+Lauren Tan (poteto) ships skills across four repos. Her talk on verification and skills is on [Lauren Tan](/lore/lauren-tan) and [the Dune talk](/lore/poteto-lauren-tan-2500-prs-dune).
 
 **[brainmaxxing](https://github.com/poteto/brainmaxxing/blob/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/README.md)** is "stupid simple persistent memory for Claude Code". The agent reads its markdown vault at session start and writes to it when it learns something. It ships 16 starter principles and six skills. `brain` supplies the vault workflow; `plan` and `review` support structured work.
 
@@ -52,7 +52,7 @@ It adds one field to skill frontmatter, `schedule`. A skill with it becomes auto
 
 The repo's [own skills](https://github.com/poteto/noodle/tree/82d2921c52370f23f29086de81ccfb600939c037/.agents/skills) include `adversarial-review`, `quality`, `execute`, and `schedule`.
 
-**[how](https://github.com/poteto/how/blob/b1ef42969ea7a2bb50aa26c2480274828a0385e7/README.md)** is a Cursor plugin with one skill, `/how`. It explains how a subsystem or flow works, and in critique mode it also spawns critics across different models. For complex questions it fans out parallel explorer subagents and reconciles their findings.
+**[how](https://github.com/poteto/how/blob/b1ef42969ea7a2bb50aa26c2480274828a0385e7/README.md)** is a Cursor plugin with one skill, `/how`. It explains how a subsystem or flow works. Critique mode runs critics across different models. For complex questions, it runs parallel explorer subagents and reconciles their findings.
 
 **[verification-skill-example](https://github.com/poteto/verification-skill-example/blob/d5abe70d0d8c671672b6cef4069363f26c488feb/README.md)** is a fictionalized example of a project-local verification skill with a behavior-level feature map. About 30 files cover one feature area each. Its README argues that a wiki is for humans. Agents pay for every token they reread.
 

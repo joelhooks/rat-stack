@@ -23,10 +23,14 @@ sources:
     accessed: "2026-10-01"
 ---
 
-Use an XState machine when a domain operation has finite states, retries, cancellation, or a lifecycle that needs to be resumed or inspected. Model the states and transitions explicitly instead of accumulating booleans whose combinations have no meaning.
+Use an XState machine for finite domain states, retries, cancellation, or a lifecycle you need to resume or inspect. Model the states and transitions explicitly instead of accumulating booleans whose combinations have no meaning.
 
-In this repo, `setupEffect` declares actors, `fromEffect` defines an Effect-backed side effect with a schema for its input, and `createEffectActor` starts the machine inside Effect's scope. The machine chooses transitions and records its outcome. The invoked actor performs the file read. `join` waits for the final outcome, and `Effect.orDie` treats a machine-level failure as a programming error while the domain read failure remains an explicit machine state.
+`setupEffect` declares actors. `fromEffect` defines an Effect-backed side effect with an input schema. `createEffectActor` starts the machine inside Effect's scope.
 
-`packages/core/src/inspect-machine.ts` is the working example. `watchActor` makes the run visible to devtools. The rule in `scripts/oxlint-plugin-xstate-effect.ts` catches inline Effects in machine actions and actors, so the declared-actor pattern is not only a convention.
+The machine chooses transitions and records its outcome. The invoked actor performs the file read.
+
+`join` waits for the final outcome. `Effect.orDie` treats a machine-level failure as a programming error. The domain read failure remains an explicit machine state.
+
+`packages/core/src/inspect-machine.ts` is the working example. `watchActor` makes the run visible to devtools. The rule in `scripts/oxlint-plugin-xstate-effect.ts` enforces declared actors by catching inline Effects in machine actions and actors.
 
 See [one capability, every surface](/lore/one-capability-every-surface) for how a capability can own a machine and [the fence](/lore/the-fence) for the rule that protects it.

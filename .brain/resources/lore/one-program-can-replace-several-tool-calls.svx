@@ -60,7 +60,7 @@ One request runs an async function body that combines content calls. [Joel's rep
 
 This program runs against the live HTTP endpoint.
 
-Source: callable definitions in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45). The program is our read-only request, not a copied module.
+The callable definitions are in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45). We wrote this read-only request.
 
 ```js
 const found = await tools.search({ query: "cartridges", limit: 1 });
@@ -69,15 +69,15 @@ const graph = await tools.backlinks({ slug: page.routePath.split("/").at(-1) });
 return { title: page.title, id: page.id, links: graph.backlinks.length };
 ```
 
-**What to notice:** The program passes the search result directly to read. It reduces the graph result before returning it.
+The program passes the search result directly to read and reduces the graph result before returning it.
 
-Source: `POST /api/execute` on 2026-10-02 with the program above. The actual response is:
+`POST /api/execute` returned this response on 2026-10-02:
 
 ```json
 {"logs":[],"result":{"title":"Cartridges","id":"ratstack://lore/cartridges","links":31}}
 ```
 
-**What to notice:** Three typed calls use one outer request. This is not a latency or token-saving benchmark.
+Three typed calls use one outer request. This run measures neither latency nor token savings.
 
 ## The sandbox preserves the boundary
 

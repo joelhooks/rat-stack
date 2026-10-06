@@ -30,11 +30,15 @@ sources:
     accessed: "2026-10-01"
 ---
 
-“Cheating is uncomfortable” means the repo should stop a bad shortcut, not merely ask an agent to behave. Type-aware Oxlint checks project boundaries and patterns. Effect language-service diagnostics run through TypeScript. Lefthook runs checks before a commit, and harness hooks block `git … --no-verify`. The fence wins over prose: if a rule and a paragraph disagree, follow the enforced rule and fix the paragraph.
+“Cheating is uncomfortable” means the repo must stop bad shortcuts. Type-aware Oxlint checks project boundaries and patterns. Effect language-service diagnostics run through TypeScript. Lefthook runs checks before a commit, and harness hooks block `git … --no-verify`.
+
+The fence wins over prose. If a rule and a paragraph disagree, follow the enforced rule and fix the paragraph.
 
 The pieces live in `oxlint.config.ts`, `scripts/oxlint-plugin-boundaries.ts`, `scripts/oxlint-plugin-patterns.ts`, `tsconfig.base.json`, `lefthook.yml`, and `scripts/vcs-command-policy.js`. `pnpm turbo run check test build` is the repo gate. Do not weaken a hook to get a green result.
 
-A fence has limits. The lint rules use syntax and known aliases; they do not resolve every dynamic import, package condition, or cross-file re-export. The public Brain note [Oxlint rule limits](/resources/lint-rule-limits) lists those edges. Treat a missed case as a reason to improve the rule or boundary, not as proof that lint can establish whole-program behavior.
+A fence has limits. The lint rules use syntax and known aliases; they do not resolve every dynamic import, package condition, or cross-file re-export. The public Brain note [Oxlint rule limits](/resources/lint-rule-limits) lists those edges.
+
+When lint misses a case, improve the rule or boundary. These rules cannot establish whole-program behavior.
 
 ## Where a correction lands
 
