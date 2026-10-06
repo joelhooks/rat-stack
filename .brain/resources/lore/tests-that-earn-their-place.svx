@@ -45,7 +45,6 @@ sources:
 
 Name the behavior that lacks proof before adding a test.
 Supply test services through Layers, return an Effect, and let `@effect/vitest` own its execution.
-This page uses Effect 4.0.0.
 
 ## Test the behavior, not the shape of the implementation
 
@@ -64,14 +63,12 @@ The file-inspection seam test uses real platform services and a scoped temporary
 ```ts repo=rat-stack path=packages/core/test/file-inspector.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=5,24-34
 ```
 
-**What to notice:** The test calls the domain service and checks the file result. It does not construct a second runtime by hand.
-
 Share a Layer when tests need a common expensive resource.
 Do not assume its mutable state resets between tests in the same block.
 Use fresh construction or explicit reset when the behavior needs isolation.
 
 `TestClock` controls Effect time for sleeps and retries. Use it instead of waiting for wall-clock delays in a behavior test.
-`it.live` is for a seam that genuinely needs live runtime services, not a shortcut around deterministic testing.
+Use `it.live` for a seam that needs live runtime services.
 
 ## Choose the smallest proof that fits the rule
 
@@ -81,7 +78,7 @@ Use fresh construction or explicit reset when the behavior needs isolation.
 | A rule over many inputs | `it.prop` or `it.effect.prop` |
 | State that depends on earlier actions | A model checked after generated commands |
 
-**What to notice:** Generated inputs do not create the assertion. The test still needs an independent statement of correct behavior.
+Generated inputs do not create the assertion. The test still needs an independent statement of correct behavior.
 
 `Arbitrary.schema` derives input generators from Schema.
 Pure properties use `it.prop`; properties returning Effects use `it.effect.prop`.
@@ -94,7 +91,7 @@ The sensitive-query property generates a known sensitive key and requires its re
 ```ts repo=rat-stack path=packages/events/test/request-facts.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=25-39
 ```
 
-**What to notice:** The assertion does not call `isSensitiveKey` to decide whether removal was required.
+The assertion does not call `isSensitiveKey` to decide whether removal was required.
 The independent generator includes keys that the capture filter must reject.
 
 When the property was first written, deleting `token` from the filter did not fail a test that reused that same filter.
@@ -109,27 +106,20 @@ The model generates action sequences rather than picking one happy path:
 ```ts repo=rat-stack path=packages/events/test/visitor.model.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-14,89-100
 ```
 
-**What to notice:** The persistent and daily modes consume the same generated command shape but enforce different identity rules.
-
 [Model-based testing](/lore/model-based-testing) explains the assertions and records the failed day-boundary mutation.
 [Agents explore, tests remember](/lore/agents-explore-tests-remember) explains how exploration can expose a behavior gap worth making repeatable.
 
 ## Common wrong approach
 
-A new property is not proof merely because it passes many generated cases.
 Plant a violation in the behavior it claims to protect. Observe failure, then restore the implementation and observe success.
 
 Do not rewrite the test's expected result to match a broken implementation.
 Keep the counterexample or missing assertion that explains the behavior gap.
 
-Kit Langton's *Testing* informed the Effect-aware execution and service-replacement topics.
-Its older `TaggedErrorClass` examples need the stable `Schema.TaggedError` spelling.
-The property/model preference and manual-runtime ban are rat-stack rules, not claims from that guide.
-
 ## Effect idiom and house rule
 
-- **Effect idiom:** Effect-aware tests supply runtime services, own scopes, and support controlled time.
-- **rat-stack house rule:** No manual Effect runtime in tests. Prefer properties and models; prove new properties with planted violations.
-- **Scope of this page:** Testing practice, not a claim that every cartridge has live-provider proof.
+- Effect-aware tests supply runtime services, own scopes, and support controlled time.
+- In rat-stack, no manual Effect runtime in tests. Prefer properties and models; prove new properties with planted violations.
+- Live-provider behavior needs separate proof for each cartridge.
 
 See also: [properties](/lore/property-based-testing), [models](/lore/model-based-testing), [exploration](/lore/agents-explore-tests-remember), and [the fence](/lore/the-fence).
