@@ -27,7 +27,11 @@ Content checks compare the built asset generation with live root and agent-text 
 
 The readiness check makes at most two attempts. It records each outcome, duration, scan time and returned cache flags. A scan from before the apply cannot prove readiness. A scanner-reported site error remains red. A later fresh pass can settle the check without discarding the first failure.
 
-The apply receipt also records prior live Worker version IDs before mutation. They support an owner-approved recovery; no rollback command is implemented.
+The apply receipt records prior live Worker version IDs before mutation. `deployRollback` restores them only after capability approval. It preserves the source receipt and writes separate progress evidence.
+
+Content propagation can lag a successful Worker apply. Mismatches retry with exponential backoff under an exported 120-second deadline. A declared environment override can shorten or extend that deadline. Verdicts retain each attempt and failed attempt. Deadline exhaustion stays red.
+
+The watch uses an XState lifecycle and declared Effect actors. It checks both Accept classes for ten minutes. Two consecutive content-500 cycles stop early. A recovered non-200 still disqualifies the watch. Automatic rollback stays off.
 
 ## Installed API boundary
 
@@ -48,6 +52,16 @@ Internal imports retained in `packages/deploy/src/local.ts`:
 
 Other imported Alchemy modules expose their services through exported subpaths. `Plan` and `AuthProviders` use root exports.
 
+## Recovery provider client
+
+The installed beta.80 source exports the Cloudflare credential service but does not re-export Worker API operations. Recovery therefore declares `@distilled.cloud/cloudflare` at exactly `1.0.0-rc.13`, the same version Alchemy depends on. Owner approval covers this importer-only dependency addition.
+
+`packages/deploy/test/provider-pin.test.ts` compares both declared pins. Remove the direct dependency when Alchemy exposes these operations through a public client. An Alchemy bump must keep both pins equal or replace the adapter; it cannot silently split clients.
+
+Recovery uses profile authentication and the typed `listScriptDeployments` / `createScriptDeployment` operations. It never selects environment credentials or forces a rollback past provider safety checks. Cloudflare deployment history remains authoritative for the live Worker version.
+
+Local apply receipts are recovery evidence, not a second infrastructure state store. The driver owns their atomic writes before mutation and after observed outcomes. Rollback records its own result without replacing the source apply receipt. Missing or malformed recovery evidence must refuse with a typed failure.
+
 ## Proof seams
 
 - `apps/infra/test/retention.test.ts` compiles the real Stack with capture both on and off. It enumerates durable declarations without provider calls.
@@ -55,5 +69,9 @@ Other imported Alchemy modules expose their services through exported subpaths. 
 - `packages/deploy/test/machine.model.test.ts` checks generated step histories and preserves prepared intent on an apply crash.
 - `packages/deploy/test/interaction.test.ts` checks the approval boundary and typed unattended refusal.
 - `packages/deploy/test/version-readiness.test.ts` checks stale, missing and fresh version evidence and bounded scan histories.
+- `packages/deploy/test/content-propagation.model.test.ts` models convergence and deadline exhaustion under virtual time. Removing retry makes it fail.
+- `packages/deploy/test/watch.model.test.ts` models adjacent failure cycles and preserves bounded incident evidence. Raising the threshold breaks it.
+- `packages/deploy/test/rollback.test.ts` checks receipt refusal, idempotent restore and source preservation. Overwriting the apply receipt breaks it.
+- `packages/deploy/test/provider-pin.test.ts` checks the approved provider pin against Alchemy. A mismatched pin breaks it.
 
 Removing bucket retention makes the Stack property fail. Removing owner-sign-off enforcement makes two plan properties fail. Preview lifecycle, expiry and CI remain separate work.

@@ -6,6 +6,7 @@ import { Effect, Runtime, Schema } from "effect";
 import { DeployVerdictSchema } from "./contracts.js";
 import { runDeploy } from "./machine.js";
 import { PlanRowSchema } from "./plan.js";
+import { deployRollback } from "./rollback.js";
 
 export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
   "DeployNotHealthy",
@@ -69,4 +70,4 @@ export const deployProd = implement(deployProdContract, (value) =>
   )
 );
 
-export const capabilities = [deployPlan, deployProd] as const;
+export const capabilities = [deployPlan, deployProd, deployRollback] as const;

@@ -23,6 +23,7 @@ import {
   Predicate,
   Redacted,
   Ref,
+  Result,
   Schema,
 } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
@@ -37,6 +38,8 @@ import { DeployRunner } from "./deploy-runner.js";
 import { validateDeployInputs } from "./inputs.js";
 import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
+import { ReceiptStore } from "./receipt-store.js";
+import { watchVerdict } from "./watch.js";
 
 const NativeCredentialSchema = Schema.Union([
   Schema.Struct({
@@ -116,7 +119,7 @@ const stepError = (
   keys: readonly string[] = []
 ) => new DeployStepError({ keys, reason, step });
 
-const profileCredential = Effect.fn("profileCredential")(
+export const profileCredential = Effect.fn("profileCredential")(
   function* profileCredential(profile: string, entrypoint: string) {
     const registry = yield* collectAuthProviders({
       envFile: Option.some("../../packages/deploy/empty.env"),
@@ -227,6 +230,7 @@ export const localLayer = (
     Effect.gen(function* makeLocalRunner() {
       const fs = yield* FileSystem.FileSystem;
       const client = yield* HttpClient.HttpClient;
+      const receipts = yield* ReceiptStore;
 
       const planned = yield* Ref.make<
         Option.Option<Effect.Success<ReturnType<typeof Stacks.plan>>>
@@ -237,6 +241,7 @@ export const localLayer = (
       >(Option.none());
 
       const contentGeneration = yield* Ref.make(Option.none<string>());
+      const previousContentGeneration = yield* Ref.make(Option.none<string>());
 
       const previousVersions = yield* Ref.make<
         Readonly<Record<string, string>>
@@ -495,6 +500,43 @@ export const localLayer = (
 
         yield* Ref.set(previousVersions, prior);
 
+        const previousContent = yield* client
+          .execute(
+            HttpClientRequest.get(
+              `${baseUrl}/?__rat_recovery=${yield* Clock.currentTimeMillis}`
+            ).pipe(
+              HttpClientRequest.setHeaders({
+                accept: "text/markdown",
+                "accept-encoding": "identity",
+              })
+            )
+          )
+          .pipe(Effect.timeout(15_000), Effect.result);
+
+        const previousGeneration =
+          Result.isSuccess(previousContent) &&
+          previousContent.success.status === 200
+            ? previousContent.success.headers.etag?.match(
+                /^(?:W\/)?"(?<generation>[a-f0-9]{64}):default:%2F"$/u
+              )?.groups?.generation
+            : undefined;
+
+        yield* Ref.set(
+          previousContentGeneration,
+          Option.fromUndefinedOr(previousGeneration)
+        );
+        yield* receipts.saveApply(input.profile, {
+          contentGeneration: generation.value,
+          notUpdated: intended,
+          outcome: "prepared",
+          previousContentGeneration: previousGeneration,
+          previousVersions: prior,
+          profile: input.profile,
+          retainedOrphans: [],
+          updated: [],
+          versions: {},
+        });
+
         const replacements = yield* Effect.forEach(
           Object.values(value.native.resources).filter(
             (node) => node.action === "replace"
@@ -619,6 +661,15 @@ export const localLayer = (
           }
         }
 
+        if (
+          Object.keys(versions).length !==
+          value.resources.filter(
+            (resource) => resource.resourceType === "Cloudflare.Worker"
+          ).length
+        ) {
+          return yield* stepError("apply", "worker-version-set-incomplete");
+        }
+
         return {
           ...summarizeApply(
             intended,
@@ -673,6 +724,8 @@ export const localLayer = (
           );
         }
 
+        results.push(yield* watchVerdict(baseUrl));
+
         return results;
       });
 
@@ -722,6 +775,28 @@ export const localLayer = (
                     } satisfies ApplyReceipt;
                   })
                 ),
+                Effect.map((receipt) => ({
+                  ...receipt,
+                  profile: input.profile,
+                })),
+                Effect.flatMap((receipt) =>
+                  Ref.get(previousContentGeneration).pipe(
+                    Effect.map((previous) => ({
+                      ...receipt,
+                      ...Option.match(previous, {
+                        onNone: () => ({}),
+                        onSome: (value) => ({
+                          previousContentGeneration: value,
+                        }),
+                      }),
+                    })),
+                    Effect.flatMap((value) =>
+                      receipts
+                        .saveApply(input.profile, value)
+                        .pipe(Effect.as(value))
+                    )
+                  )
+                ),
                 Effect.provideContext(callApprovalContext(services, approval))
               )
             )
@@ -734,6 +809,7 @@ export const localLayer = (
       });
     })
   ).pipe(
+    Layer.provideMerge(ReceiptStore.layer()),
     Layer.provideMerge(
       Layer.mergeAll(
         ProfileStoreLive,
