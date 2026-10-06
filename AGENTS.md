@@ -71,6 +71,20 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 
 Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo run check test build`.
 
+## Deploy
+
+- Run `pnpm turbo run check test build --concurrency=1` before deployment.
+- `pnpm deploy:plan --profile <profile>` reads and classifies the production plan without applying it.
+- `pnpm deploy:prod --profile <profile> --yes` applies that exact plan, then runs typed checks.
+- Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
+- `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
+- Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
+- An allow-list does not grant approval. Replacements and deletions still need owner sign-off.
+- Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
+- The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
+- Keep `pnpm mischief:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback.
+- Procedure: [ship](/skills/ship), with project commands in `skills/ship/references/project.md`.
+
 ## Fence (cheating is uncomfortable)
 
 Why lives in `AGENTS.md` / `VISION.md`. The stack and hooks are the enforceable fence. Fence wins over prose.

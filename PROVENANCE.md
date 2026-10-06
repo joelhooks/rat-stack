@@ -14,6 +14,14 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/src/house-ad.svelte` | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/src/copy-prompt.svelte` | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Local deployment driver
+
+`packages/check-harness`, the service-port shape in `packages/deploy/src/deploy-runner.ts`, and `skills/ship` are ported from drovr (badass-courses), commit `6bfe63508539ee289564c4ef6a5768e26dca60b7`.
+
+Source paths: `packages/check-harness`, `packages/release-train/src/services/deploy-runner.ts`, `packages/release-train/src/services/alchemy-release.ts`, and `skills/ship`.
+
+The port removes project-specific orchestration. Deployment policy, the local Alchemy adapter and rat-stack smoke checks are new here.
+
 ## Lucide bot icon (ISC)
 
 The inline bot SVG in `apps/mischief/src/copy-prompt.svelte` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).

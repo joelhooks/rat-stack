@@ -19,6 +19,8 @@
     "mischief:smoke": "bash apps/mischief/scripts/smoke.sh",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
+    "deploy:plan": "pnpm turbo run build --filter=@rat-stack/deploy && APP_ENV=production pnpm exec varlock run -- pnpm --filter @rat-stack/infra exec node --import ./node_modules/alchemy/bin/register-oxc.js ../../packages/deploy/dist/cli.js deployPlan",
+    "deploy:prod": "pnpm turbo run build --filter=@rat-stack/deploy && APP_ENV=production pnpm exec varlock run -- pnpm --filter @rat-stack/infra exec node --import ./node_modules/alchemy/bin/register-oxc.js ../../packages/deploy/dist/cli.js deployProd",
     "infra:deploy": "pnpm --filter @rat-stack/infra deploy",
     "infra:destroy": "pnpm --filter @rat-stack/infra destroy",
     "infra:dev": "pnpm --filter @rat-stack/infra dev",
