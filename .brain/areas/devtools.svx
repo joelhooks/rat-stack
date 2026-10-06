@@ -31,11 +31,11 @@ sources:
 
 `packages/devtools` adds `rat_*` capabilities to a development composition. They list, read, dispatch, replay, and diff capability calls. `CallWatch` surrounds the approval-gated handler, including denied calls. `watchActor` lets lifecycle machines report states and events through `ActorWatch`. Both watchers default to no-ops without the recording layer.
 
-The local web development backend records calls and serves the overlay, RPC, and MCP tools under `/__rat`. The CLI enables its devtools surfaces with `--devtools`, bound to loopback only. These are development tools, not public hosted capabilities.
+The local web development backend records calls and serves the overlay, RPC, and MCP tools under `/__rat`. The CLI enables its devtools surfaces with `--devtools`, bound to loopback only. These capabilities are available only in development.
 
 ## The standard
 
-- Tools dispatch through the capability's schemas and handler; they are not a second domain API.
+- Tools dispatch through the existing capability's schemas and handler.
 - Recorder code and test people stay in development compositions and tests.
 - Every Effect-backed lifecycle actor is handed to `watchActor`.
 - Production bundles contain no web development modules, devtools code, or test people.
@@ -45,4 +45,4 @@ The local web development backend records calls and serves the overlay, RPC, and
 - Run `pnpm --filter @rat-stack/devtools test` for recording and tool behavior.
 - Run `pnpm --filter @rat-stack/web test` for the local backend and production-bundle exclusion test.
 - Run `pnpm lint` for `no-devtools-in-production` and `watch-effect-actors`.
-- Inspect `rat_list_actors`, `rat_list_transitions`, and `rat_get_actor` in a development composition after running a lifecycle capability. A missing recording layer means no recording, not proof that nothing ran.
+- Inspect `rat_list_actors`, `rat_list_transitions`, and `rat_get_actor` in a development composition after running a lifecycle capability. Without a recording layer, these tools cannot show whether a lifecycle ran.
