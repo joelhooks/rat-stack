@@ -141,7 +141,7 @@ Wrapping an already-started Promise also loses control over when its work begins
 4. Follow the resource lifetime through [scopes](/lore/scopes-own-resources) and [owned concurrency](/lore/concurrent-work-needs-an-owner).
 5. Check external behavior with [HTTP validation](/lore/http-responses-need-validation) and [tracing](/lore/trace-meaningful-operations).
 6. Choose the execution owner at the [runtime boundary](/lore/run-effect-at-the-boundary).
-5. Use [domain structure](/lore/structure-effect-by-domain) for the codebase map.
+7. Use [domain structure](/lore/structure-effect-by-domain) for the codebase map.
 
 Michael Arnaldi's two talks explain the computation model and its lazy execution.
 The examples here use rat-stack's code; the API claims use exact Effect 4.0.0 source.

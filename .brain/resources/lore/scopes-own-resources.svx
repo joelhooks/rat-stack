@@ -2,6 +2,8 @@
 title: "Scopes release resources when work ends"
 description: "Acquire resources lazily, keep their use inside the owner, and release them after success, failure, or interruption."
 group: idea
+created_at: "2026-10-06"
+updated_at: "2026-10-06"
 terms:
   - "Scope"
   - "Resource finalizer"

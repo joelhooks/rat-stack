@@ -2,6 +2,8 @@
 title: "Trace operations where they mean something"
 description: "Name useful operations, add safe context, and distinguish creating a span from delivering it to a backend."
 group: idea
+created_at: "2026-10-06"
+updated_at: "2026-10-06"
 terms:
   - "Tracing span"
   - "Trace export"

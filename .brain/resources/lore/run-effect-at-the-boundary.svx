@@ -2,6 +2,8 @@
 title: "Run Effect at the integration boundary"
 description: "Build the runtime where foreign code enters, reuse its services, and dispose it when that integration ends."
 group: idea
+created_at: "2026-10-06"
+updated_at: "2026-10-06"
 terms:
   - "Runtime boundary"
   - "Managed runtime"

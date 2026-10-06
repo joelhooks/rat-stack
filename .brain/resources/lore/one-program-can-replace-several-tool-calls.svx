@@ -2,6 +2,7 @@
 title: "One program can replace several tool calls"
 description: "Code mode combines typed content calls inside one bounded execute request."
 group: idea
+updated: "2026-10-06"
 terms:
   - "codemode"
   - "code mode"
@@ -41,10 +42,10 @@ sources:
     publisher: "GitHub"
     note: "Six per IP and 300 global per minute."
     accessed: "2026-10-02"
-  - url: https://ratstack.sh/api/execute
-    title: "Live read-only program observation on 2026-10-02"
+  - url: https://ratstack.sh/llms.txt#run-code-one-program-instead-of-several-calls
+    title: "Code mode HTTP endpoint documentation"
     publisher: "ratstack.sh"
-    note: "Live read-only program observation on 2026-10-02"
+    note: "Documents POST /api/execute. The program below was observed on 2026-10-02."
     accessed: "2026-10-02"
 ---
 
