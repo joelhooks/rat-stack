@@ -1,5 +1,4 @@
-import { stripVTControlCharacters } from "node:util";
-
+import type { Plan } from "alchemy";
 import { Exit, Schema } from "effect";
 
 export const PlanRowSchema = Schema.Struct({
@@ -12,90 +11,141 @@ export const PlanRowSchema = Schema.Struct({
     "orphaned",
     "noop",
     "unbind",
+    "run",
   ]),
   resource: Schema.NonEmptyString,
 });
 
+export const PlanRowsSchema = Schema.Array(PlanRowSchema);
+
 export type PlanRow = typeof PlanRowSchema.Type;
+
+type ResourceNode = Plan.Plan["resources"][string];
+
+type DeletedNode = NonNullable<Plan.Plan["deletions"][string]>;
+
+type ActionNode = Plan.Plan["actions"][string];
+
+type DeletedAction = NonNullable<Plan.Plan["actionDeletions"][string]>;
+
+export interface PlanPolicyValue {
+  readonly resources: Readonly<
+    Record<
+      string,
+      Pick<ResourceNode, "action"> & {
+        readonly bindings: readonly Pick<
+          ResourceNode["bindings"][number],
+          "action" | "sid"
+        >[];
+        readonly resource: { readonly FQN: string };
+      }
+    >
+  >;
+  readonly deletions: Readonly<
+    Record<
+      string,
+      | (Pick<DeletedNode, "action"> & {
+          readonly bindings: readonly Pick<
+            DeletedNode["bindings"][number],
+            "action" | "sid"
+          >[];
+          readonly resource: { readonly FQN: string };
+        })
+      | undefined
+    >
+  >;
+  readonly actions: Readonly<
+    Record<
+      string,
+      Pick<ActionNode, "action"> & {
+        readonly def: Pick<ActionNode["def"], "FQN">;
+      }
+    >
+  >;
+  readonly actionDeletions: Readonly<
+    Record<
+      string,
+      | (Pick<DeletedAction, "action"> & {
+          readonly def: Pick<DeletedAction["def"], "FQN">;
+        })
+      | undefined
+    >
+  >;
+}
+
+export const planRows = (plan: PlanPolicyValue): readonly PlanRow[] => {
+  const rows: PlanRow[] = [];
+
+  for (const node of [
+    ...Object.values(plan.resources),
+    ...Object.values(plan.deletions),
+  ]) {
+    if (node === undefined) {
+      continue;
+    }
+
+    rows.push({ action: node.action, resource: node.resource.FQN });
+
+    for (const binding of node.bindings) {
+      rows.push({
+        action: binding.action === "delete" ? "unbind" : binding.action,
+        resource: `${node.resource.FQN}#binding:${binding.sid}`,
+      });
+    }
+  }
+
+  for (const node of [
+    ...Object.values(plan.actions),
+    ...Object.values(plan.actionDeletions),
+  ]) {
+    if (node !== undefined) {
+      rows.push({ action: node.action, resource: node.def.FQN });
+    }
+  }
+
+  return rows;
+};
 
 export class PlanRejected extends Schema.TaggedError<PlanRejected>()(
   "PlanRejected",
-  {
-    reason: Schema.String,
-    resources: Schema.Array(Schema.String),
-  }
+  { reason: Schema.String, resources: Schema.Array(Schema.String) }
 ) {}
 
 export type Classification =
   | { readonly outcome: "pass"; readonly rows: readonly PlanRow[] }
   | { readonly outcome: "unknown" | "fail"; readonly error: PlanRejected };
 
-export const classifyPlan = (
-  output: string,
-  allow: readonly PlanRow[] = []
+export const classifyRows = (
+  rows: readonly PlanRow[],
+  allow: readonly PlanRow[] = [],
+  ownerApproved = false
 ): Classification => {
-  const lines = stripVTControlCharacters(output).trim().split("\n");
+  const decoded = Schema.decodeExit(PlanRowsSchema)(rows);
 
   if (
-    lines[0] === undefined ||
-    !/^Plan: (?:no resources|no changes|(?:[0-9]+ to (?:create|update|adopted|replace|delete|orphaned|noop|unbind)|[0-9]+ binding changes|[0-9]+ tasks)(?:, (?:[0-9]+ to (?:create|update|adopted|replace|delete|orphaned|noop|unbind)|[0-9]+ binding changes|[0-9]+ tasks))*)$/u.test(
-      lines[0]
-    )
+    Exit.isFailure(decoded) ||
+    new Set(rows.map((row) => row.resource)).size !== rows.length
   ) {
     return {
-      error: new PlanRejected({ reason: "missing-plan-header", resources: [] }),
+      error: new PlanRejected({
+        reason: "invalid-or-duplicate-plan-row",
+        resources: [],
+      }),
       outcome: "unknown",
     };
   }
 
-  const rows: PlanRow[] = [];
-  const seen = new Set<string>();
+  const destructive = rows.filter((row) =>
+    ["delete", "replace", "orphaned", "unbind"].includes(row.action)
+  );
 
-  for (const line of lines.slice(1)) {
-    const match =
-      /^\[(?<resource>[^\]\r\n]+)\] (?<action>create|update|adopted|replace|delete|orphaned|noop|unbind)$/u.exec(
-        line
-      );
-
-    if (
-      match === null ||
-      match.groups?.resource === undefined ||
-      match.groups?.action === undefined ||
-      seen.has(match.groups?.resource)
-    ) {
-      return {
-        error: new PlanRejected({
-          reason: "unrecognized-or-duplicate-plan-row",
-          resources: [],
-        }),
-        outcome: "unknown",
-      };
-    }
-
-    const parsed = Schema.decodeUnknownExit(PlanRowSchema)({
-      action: match.groups?.action,
-      resource: match.groups?.resource,
-    });
-
-    if (Exit.isFailure(parsed)) {
-      return {
-        error: new PlanRejected({ reason: "invalid-plan-row", resources: [] }),
-        outcome: "unknown",
-      };
-    }
-
-    seen.add(parsed.value.resource);
-    rows.push(parsed.value);
-  }
-
-  if (
-    rows.length === 0 &&
-    lines[0] !== "Plan: no resources" &&
-    lines[0] !== "Plan: no changes"
-  ) {
+  if (!ownerApproved && destructive.length > 0) {
     return {
-      error: new PlanRejected({ reason: "missing-plan-rows", resources: [] }),
-      outcome: "unknown",
+      error: new PlanRejected({
+        reason: "owner-sign-off-required",
+        resources: destructive.map((row) => row.resource),
+      }),
+      outcome: "fail",
     };
   }
 
@@ -119,3 +169,9 @@ export const classifyPlan = (
         outcome: "fail",
       };
 };
+
+export const classifyPlan = (
+  plan: PlanPolicyValue,
+  allow: readonly PlanRow[] = [],
+  ownerApproved = false
+): Classification => classifyRows(planRows(plan), allow, ownerApproved);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@effect/vitest";
+import { Approval } from "@rat-stack/capability/approval";
 import type { Verdict } from "@rat-stack/check-harness";
 import { createEffectActor, join, send } from "@xstate/effect";
 import { Effect, Schema } from "effect";
@@ -8,6 +9,7 @@ import { DeployStepError } from "../src/contracts.js";
 import type { ApplyReceipt, DeployVerdict } from "../src/contracts.js";
 import { DeployRunner } from "../src/deploy-runner.js";
 import { deployMachine } from "../src/machine.js";
+import type { PlanRow } from "../src/plan.js";
 
 const Signal = Schema.Literals([
   "pass",
@@ -72,6 +74,7 @@ const receipt = (signal: typeof Signal.Type): ApplyReceipt => {
     return {
       notUpdated: [],
       outcome: "applied",
+      retainedOrphans: [],
       updated: ["One", "Two"],
       versions: {},
     };
@@ -81,6 +84,7 @@ const receipt = (signal: typeof Signal.Type): ApplyReceipt => {
     return {
       notUpdated: ["Two"],
       outcome: "partial",
+      retainedOrphans: [],
       updated: ["One"],
       versions: {},
     };
@@ -89,6 +93,7 @@ const receipt = (signal: typeof Signal.Type): ApplyReceipt => {
   return {
     notUpdated: ["One", "Two"],
     outcome: "failed",
+    retainedOrphans: [],
     updated: [],
     versions: {},
   };
@@ -162,16 +167,22 @@ const model = (scenario: typeof Scenario.Type): Model => {
   return { calls, outcome: scenario.checks === "pass" ? "healthy" : "failed" };
 };
 
-const planText = (signal: typeof Signal.Type) => {
+const generatedPlan = (signal: typeof Signal.Type): readonly PlanRow[] => {
   if (signal === "unknown") {
-    return "";
+    return [
+      { action: "update", resource: "One" },
+      { action: "update", resource: "One" },
+    ];
   }
 
   if (signal === "pass") {
-    return "Plan: 2 to update\n[One] update\n[Two] update";
+    return [
+      { action: "update", resource: "One" },
+      { action: "update", resource: "Two" },
+    ];
   }
 
-  return "Plan: 1 to delete\n[One] delete";
+  return [{ action: "delete", resource: "One" }];
 };
 
 const replay = Effect.fn("replayDeployModel")(function* replay(
@@ -208,20 +219,39 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
   const runner = DeployRunner.of({
     apply: () => settle("apply", scenario.apply, receipt(scenario.apply)),
     checks: () => settle("checks", scenario.checks, [check(scenario.checks)]),
-    plan: () => settle("plan", scenario.plan, planText(scenario.plan)),
+    plan: () =>
+      settle("plan", scenario.plan, {
+        receipt: {
+          ...receipt("fail"),
+          contentGeneration: "test-generation",
+          outcome: "prepared" as const,
+        },
+        rows: generatedPlan(scenario.plan),
+      }),
     preflight: () =>
       settle("preflight", scenario.preflight, ["EXAMPLE_REQUIRED"]),
   });
 
   const actor = yield* createEffectActor(deployMachine, {
     input: { allow: [], mode: scenario.mode, profile: "test-profile" },
-  }).pipe(Effect.provideService(DeployRunner, runner));
+  }).pipe(
+    Effect.provideService(DeployRunner, runner),
+    Effect.provide(Approval.denyAll)
+  );
 
   // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level errors remain defects; the model checks explicit terminal step outcomes.
   const result = yield* join(actor).pipe(Effect.orDie);
   const expected = model(scenario);
   expect(result.outcome).toBe(expected.outcome);
   expect(calls).toStrictEqual(expected.calls);
+
+  if (
+    result.outcome === "crashed" &&
+    calls.includes("apply") &&
+    scenario.apply === "crash"
+  ) {
+    expect(result.receipt?.contentGeneration).toBe("test-generation");
+  }
 
   if (result.outcome === "partial") {
     expect(result.receipt).toStrictEqual(receipt("partial"));

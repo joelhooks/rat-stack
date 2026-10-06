@@ -1,0 +1,59 @@
+---
+title: "Classify the native plan before applying it"
+status: "implemented"
+---
+
+# Classify the native plan before applying it
+
+The Alchemy plan is the authority for proposed changes. The deploy adapter owns its in-memory snapshot. Rows and receipts are derived views.
+
+## Policy
+
+- Read the native plan, not terminal formatting.
+- Include resource, binding and task changes.
+- Pass only updates and noops without an exact allow entry.
+- Require separate owner sign-off for deletion, replacement, orphaning and unbinding.
+- Apply the same native plan under its original session.
+- Keep the XState lifecycle responsible for step order and terminal outcomes.
+- Send Alchemy confirmations through the capability approval service. Other unattended prompts fail typed.
+
+Retention protects physical objects, not state rows. Alchemy removes retained objects from state without deleting their cloud objects. The receipt lists confirmed retained orphans. A retention change appears as a noop and reaches state only on apply.
+
+## Build and live evidence
+
+Deploy commands build every workspace output before planning. The prepared receipt records the expected content generation before apply. Apply failures and crashes retain that intent.
+
+Content checks compare the built asset generation with live root and agent-text ETags. They request identity encoding and add a cache-busting query. They accept strong and weak ETags for the same generation. A missing header gives unknown, not pass. Evidence records the exact header.
+
+The readiness check makes at most two attempts. It records each outcome, duration, scan time and returned cache flags. A scan from before the apply cannot prove readiness. A scanner-reported site error remains red. A later fresh pass can settle the check without discarding the first failure.
+
+The apply receipt also records prior live Worker version IDs before mutation. They support an owner-approved recovery; no rollback command is implemented.
+
+## Installed API boundary
+
+Checked against Alchemy 2.0.0-beta.80 and installed Effect 4.0.0 source.
+
+`Deploy.ts` runs `evalStack`, `Plan.make` and `Apply.apply`. The exported Alchemist stack route preserves the native plan and session between calls. The adapter uses that route because it also loads the entrypoint, selects the profile and refuses state-store bootstrap.
+
+Internal imports retained in `packages/deploy/src/local.ts`:
+
+| Import | Reason |
+| --- | --- |
+| `alchemy/Alchemist/routes/stack` | Keep the exact native plan and its session between machine steps. |
+| `alchemy/Alchemist/Session` | Load the entrypoint's auth-provider registry without applying the Stack. |
+| `alchemy/Auth/AuthProvider` | Resolve the selected provider; the root exports the registry but not its lookup function. |
+| `alchemy/Auth/Credentials` | Provide Alchemy's credential-store implementation. |
+| `alchemy/Auth/Profile` | Read and refresh the named profile using Alchemy's store. |
+| `alchemy/State/State` | Read persisted Worker attributes for version evidence. |
+
+Other imported Alchemy modules expose their services through exported subpaths. `Plan` and `AuthProviders` use root exports.
+
+## Proof seams
+
+- `apps/infra/test/retention.test.ts` compiles the real Stack with capture both on and off. It enumerates durable declarations without provider calls.
+- `packages/deploy/test/plan.test.ts` generates native-plan policy shapes. It tests exact exceptions and separate owner sign-off.
+- `packages/deploy/test/machine.model.test.ts` checks generated step histories and preserves prepared intent on an apply crash.
+- `packages/deploy/test/interaction.test.ts` checks the approval boundary and typed unattended refusal.
+- `packages/deploy/test/version-readiness.test.ts` checks stale, missing and fresh version evidence and bounded scan histories.
+
+Removing bucket retention makes the Stack property fail. Removing owner-sign-off enforcement makes two plan properties fail. Preview lifecycle, expiry and CI remain separate work.

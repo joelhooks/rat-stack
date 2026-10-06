@@ -1,17 +1,20 @@
+import { Approval } from "@rat-stack/capability/approval";
+import { AuthProviders } from "alchemy";
 import * as Stacks from "alchemy/Alchemist/routes/stack";
 import { collectAuthProviders } from "alchemy/Alchemist/Session";
 import { AlchemyContextLive } from "alchemy/AlchemyContext";
 import { ArtifactStore, createArtifactStore } from "alchemy/Artifacts";
-import { AuthProviders, getAuthProvider } from "alchemy/Auth/AuthProvider";
+import { getAuthProvider } from "alchemy/Auth/AuthProvider";
 import { CredentialsStoreLive } from "alchemy/Auth/Credentials";
 import { ProfileStore, ProfileStoreLive } from "alchemy/Auth/Profile";
-import { formatPlanLines } from "alchemy/Cli/LoggingCli";
-import { layerNonInteractive } from "alchemy/Interaction";
+import { Interaction, layerNonInteractive } from "alchemy/Interaction";
 import { Progress } from "alchemy/Report";
 import { State } from "alchemy/State/State";
 import {
   Cause,
+  Clock,
   Config,
+  Context,
   Effect,
   Exit,
   FileSystem,
@@ -29,10 +32,11 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import { summarizeApply } from "./apply-receipt.js";
 import { measuredCheck, postDeployChecks } from "./checks.js";
 import { DeployStepError } from "./contracts.js";
-import type { ApplyReceipt, DeployInput } from "./contracts.js";
+import type { ApplyReceipt, DeployInput, PreparedPlan } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
 import { validateDeployInputs } from "./inputs.js";
-import { classifyPlan } from "./plan.js";
+import { callApprovalContext, capabilityInteraction } from "./interaction.js";
+import { classifyPlan, planRows } from "./plan.js";
 
 const NativeCredentialSchema = Schema.Union([
   Schema.Struct({
@@ -209,7 +213,14 @@ export const localLayer = (
         Option.Option<Effect.Success<ReturnType<typeof profileCredential>>>
       >(Option.none());
 
+      const contentGeneration = yield* Ref.make(Option.none<string>());
+
+      const previousVersions = yield* Ref.make<
+        Readonly<Record<string, string>>
+      >({});
+
       const completed = yield* Ref.make<readonly string[]>([]);
+      const retainedOrphans = yield* Ref.make<readonly string[]>([]);
       const pendingResources = yield* Ref.make<readonly string[]>([]);
 
       const get = (
@@ -221,6 +232,79 @@ export const localLayer = (
             `https://api.cloudflare.com/client/v4${path}`
           ).pipe(HttpClientRequest.setHeaders(credentialHeaders(credential)))
         );
+
+      const capturePreviousVersions = Effect.fn(
+        "local.capturePreviousVersions"
+      )(function* capturePreviousVersions(
+        value: Stacks.PlanSnapshot,
+        credential: Effect.Success<ReturnType<typeof profileCredential>>
+      ) {
+        const state = yield* State.pipe(
+          Effect.provideContext(value.session.context)
+        );
+
+        const store = yield* state;
+        const prior: Record<string, string> = {};
+
+        for (const row of value.resources.filter(
+          (resource) =>
+            resource.resourceType === "Cloudflare.Worker" &&
+            resource.action !== "create"
+        )) {
+          const persisted = yield* store
+            .get({ ...value.stack, fqn: row.fqn, stack: value.stack.name })
+            .pipe(
+              Effect.mapError(() =>
+                stepError("apply", "previous-version-readback-refused")
+              )
+            );
+
+          if (persisted !== undefined && "attr" in persisted) {
+            const worker = yield* Schema.decodeUnknownEffect(WorkerAttributes)(
+              persisted.attr
+            ).pipe(
+              Effect.mapError(() =>
+                stepError("apply", "previous-version-readback-invalid")
+              )
+            );
+
+            const response = yield* get(
+              `/accounts/${Redacted.value(credential.accountId)}/workers/scripts/${encodeURIComponent(worker.workerName)}/deployments`,
+              credential
+            ).pipe(
+              Effect.mapError(() =>
+                stepError("apply", "previous-live-version-readback-refused")
+              )
+            );
+
+            const document = yield* HttpClientResponse.schemaBodyJson(
+              VersionList
+            )(response).pipe(
+              Effect.mapError(() =>
+                stepError("apply", "previous-live-version-readback-invalid")
+              )
+            );
+
+            const live = document.result[0]?.versions;
+
+            if (
+              response.status !== 200 ||
+              !document.success ||
+              live?.length !== 1 ||
+              live[0]?.percentage !== 100
+            ) {
+              return yield* stepError(
+                "apply",
+                "previous-live-version-not-single-deployment"
+              );
+            }
+
+            prior[worker.workerName] = live[0].version_id;
+          }
+        }
+
+        return prior;
+      });
 
       const preflight = Effect.fn("local.preflight")(
         function* preflight(input: DeployInput) {
@@ -271,6 +355,25 @@ export const localLayer = (
             )
           );
 
+          const manifest = yield* fs
+            .readFileString("../../apps/mischief/dist/content/manifest.json")
+            .pipe(
+              Effect.flatMap(
+                Schema.decodeEffect(
+                  Schema.fromJsonString(
+                    Schema.Struct({ generation: Schema.NonEmptyString })
+                  )
+                )
+              ),
+              Effect.mapError(() =>
+                stepError(
+                  "preflight",
+                  "built-content-manifest-unavailable-run-full-build"
+                )
+              )
+            );
+
+          yield* Ref.set(contentGeneration, Option.some(manifest.generation));
           yield* Ref.set(pinned, Option.some(credential));
 
           yield* preflightPermissions(credential);
@@ -305,15 +408,32 @@ export const localLayer = (
         );
 
         yield* Ref.set(completed, []);
+        yield* Ref.set(retainedOrphans, []);
         yield* Ref.set(
           pendingResources,
-          snapshot.resources
-            .filter((row) => row.action !== "noop")
-            .map((row) => row.fqn)
+          [...snapshot.resources, ...snapshot.actions].flatMap((row) =>
+            row.action === "noop" ? [] : [row.fqn]
+          )
         );
         yield* Ref.set(planned, Option.some(snapshot));
 
-        return formatPlanLines(snapshot.native).join("\n");
+        const generation = yield* Ref.get(contentGeneration);
+
+        if (Option.isNone(generation)) {
+          return yield* stepError("plan", "content-version-not-pinned");
+        }
+
+        return {
+          receipt: {
+            contentGeneration: generation.value,
+            notUpdated: yield* Ref.get(pendingResources),
+            outcome: "prepared",
+            retainedOrphans: [],
+            updated: [],
+            versions: {},
+          },
+          rows: planRows(snapshot.native),
+        } satisfies PreparedPlan;
       });
 
       const apply = Effect.fn("local.apply")(function* apply(
@@ -331,19 +451,70 @@ export const localLayer = (
         const { value } = snapshot;
 
         const classified = classifyPlan(
-          formatPlanLines(value.native).join("\n"),
-          input.allow
+          value.native,
+          input.allow,
+          input.ownerApproved
         );
 
         if (classified.outcome !== "pass") {
           return yield* stepError("apply", "plan-not-approved");
         }
 
-        const intended = value.resources
-          .filter((row) => row.action !== "noop")
-          .map((row) => row.fqn);
+        const intended = [...value.resources, ...value.actions].flatMap(
+          (row) => (row.action === "noop" ? [] : [row.fqn])
+        );
 
-        const exit = yield* Stacks.apply(value).pipe(
+        const interaction = yield* capabilityInteraction;
+        const generation = yield* Ref.get(contentGeneration);
+        const credential = yield* Ref.get(pinned);
+
+        if (Option.isNone(generation) || Option.isNone(credential)) {
+          return yield* stepError("apply", "build-and-profile-not-pinned");
+        }
+
+        const state = yield* State.pipe(
+          Effect.provideContext(value.session.context)
+        );
+
+        const store = yield* state;
+        const prior = yield* capturePreviousVersions(value, credential.value);
+
+        yield* Ref.set(previousVersions, prior);
+
+        const replacements = yield* Effect.forEach(
+          Object.values(value.native.resources).filter(
+            (node) => node.action === "replace"
+          ),
+          (node) =>
+            Schema.decodeUnknownEffect(
+              Schema.Struct({
+                FQN: Schema.String,
+                RemovalPolicy: Schema.Literals(["retain", "destroy"]),
+              })
+            )(node.resource)
+        ).pipe(
+          Effect.mapError(() =>
+            stepError("apply", "replacement-removal-policy-invalid")
+          )
+        );
+
+        const retainedReplacementFqns = new Set(
+          replacements.flatMap((resource) =>
+            resource.RemovalPolicy === "retain" ? [resource.FQN] : []
+          )
+        );
+
+        const exit = yield* Stacks.apply({
+          ...value,
+          session: {
+            ...value.session,
+            context: Context.add(
+              value.session.context,
+              Interaction,
+              interaction
+            ),
+          },
+        }).pipe(
           Effect.provideService(Progress, (event) =>
             Predicate.isTagged(event, "apply.resource.status") &&
             [
@@ -353,9 +524,19 @@ export const localLayer = (
               "deleted",
               "orphaned",
               "replaced",
+              "ran",
+              "skipped",
             ].includes(event.status)
               ? Ref.update(completed, (rows) =>
                   rows.includes(event.fqn) ? rows : [...rows, event.fqn]
+                ).pipe(
+                  Effect.andThen(
+                    event.status === "orphaned"
+                      ? Ref.update(retainedOrphans, (rows) => [
+                          ...new Set([...rows, event.fqn]),
+                        ])
+                      : Effect.void
+                  )
                 )
               : Effect.void
           ),
@@ -373,16 +554,30 @@ export const localLayer = (
             ? "crashed"
             : "failed";
 
-          return summarizeApply(intended, updated, failureOutcome);
+          return {
+            ...summarizeApply(
+              intended,
+              updated,
+              failureOutcome,
+              yield* Ref.get(retainedOrphans)
+            ),
+            contentGeneration: generation.value,
+            previousVersions: prior,
+          };
         }
 
+        yield* Ref.update(retainedOrphans, (rows) => [
+          ...new Set([
+            ...rows,
+            ...updated.flatMap((fqn) =>
+              retainedReplacementFqns.has(fqn)
+                ? [`${fqn}#previous-generation`]
+                : []
+            ),
+          ]),
+        ]);
+
         const versions: Record<string, string> = {};
-
-        const state = yield* State.pipe(
-          Effect.provideContext(value.session.context)
-        );
-
-        const store = yield* state;
 
         for (const row of value.resources.filter(
           (resource) => resource.resourceType === "Cloudflare.Worker"
@@ -410,13 +605,36 @@ export const localLayer = (
           }
         }
 
-        return { ...summarizeApply(intended, updated, "success"), versions };
+        return {
+          ...summarizeApply(
+            intended,
+            updated,
+            "success",
+            yield* Ref.get(retainedOrphans)
+          ),
+          appliedAt: yield* Clock.currentTimeMillis,
+          contentGeneration: generation.value,
+          previousVersions: prior,
+          versions,
+        };
       });
 
       const checks = Effect.fn("local.checks")(function* checks(
         receipt: ApplyReceipt
       ) {
-        const results = yield* postDeployChecks(baseUrl);
+        if (
+          receipt.contentGeneration === undefined ||
+          receipt.appliedAt === undefined
+        ) {
+          return yield* stepError("checks", "content-version-not-pinned");
+        }
+
+        const results = yield* postDeployChecks(
+          baseUrl,
+          receipt.contentGeneration,
+          receipt.appliedAt
+        );
+
         const credential = yield* Ref.get(pinned);
 
         if (Option.isNone(credential)) {
@@ -460,39 +678,50 @@ export const localLayer = (
           Effect.Services<
             | ReturnType<typeof preflight>
             | ReturnType<typeof plan>
-            | ReturnType<typeof apply>
             | ReturnType<typeof checks>
           >
         >();
 
       return DeployRunner.of({
         apply: (input) =>
-          apply(input).pipe(
-            Effect.catchCause((cause) =>
-              Effect.gen(function* preserveApplyEvidence() {
-                if (Cause.hasInterrupts(cause)) {
-                  return yield* Effect.interrupt;
-                }
+          Approval.pipe(
+            Effect.flatMap((approval) =>
+              apply(input).pipe(
+                Effect.catchCause((cause) =>
+                  Effect.gen(function* preserveApplyEvidence() {
+                    if (Cause.hasInterrupts(cause)) {
+                      return yield* Effect.interrupt;
+                    }
 
-                const updated = yield* Ref.get(completed);
+                    const updated = yield* Ref.get(completed);
 
-                if (updated.length === 0) {
-                  return yield* Effect.failCause(cause);
-                }
+                    if (updated.length === 0) {
+                      return yield* Effect.failCause(cause);
+                    }
 
-                const pending = yield* Ref.get(pendingResources);
+                    const pending = yield* Ref.get(pendingResources);
 
-                return {
-                  notUpdated: pending.filter(
-                    (resource) => !updated.includes(resource)
-                  ),
-                  outcome: "partial",
-                  updated,
-                  versions: {},
-                } satisfies ApplyReceipt;
-              })
-            ),
-            Effect.provideContext(services)
+                    return {
+                      notUpdated: pending.filter(
+                        (resource) => !updated.includes(resource)
+                      ),
+                      ...Option.match(yield* Ref.get(contentGeneration), {
+                        onNone: () => ({}),
+                        onSome: (generation) => ({
+                          contentGeneration: generation,
+                        }),
+                      }),
+                      outcome: "partial",
+                      previousVersions: yield* Ref.get(previousVersions),
+                      retainedOrphans: yield* Ref.get(retainedOrphans),
+                      updated,
+                      versions: {},
+                    } satisfies ApplyReceipt;
+                  })
+                ),
+                Effect.provideContext(callApprovalContext(services, approval))
+              )
+            )
           ),
         checks: (receipt) =>
           checks(receipt).pipe(Effect.provideContext(services)),

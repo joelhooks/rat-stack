@@ -8,7 +8,11 @@ import { postDeployChecks } from "../src/checks.js";
 
 const bodyFor = (url: string, body: string) => {
   if (url === "https://isitagentready.com/api/scan") {
-    return { level: 5, levelName: "Agent-Native" };
+    return {
+      level: 5,
+      levelName: "Agent-Native",
+      scannedAt: "2026-10-06T06:00:00.000Z",
+    };
   }
 
   if (url.endsWith("/openapi.json")) {
@@ -58,8 +62,8 @@ const bodyFor = (url: string, body: string) => {
 
 it.effect.prop(
   "a missing route or malformed protocol response cannot establish health",
-  { broken: Schema.Boolean },
-  ({ broken }) =>
+  { broken: Schema.Boolean, matchesGeneration: Schema.Boolean },
+  ({ broken, matchesGeneration }) =>
     Effect.gen(function* test() {
       const requests: string[] = [];
 
@@ -74,22 +78,27 @@ it.effect.prop(
         const value = bodyFor(request.url, body);
 
         const response = Response.json(broken ? {} : value, {
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            etag: `W/"${matchesGeneration ? "test-generation" : "old-generation"}:default:${encodeURIComponent(new URL(request.url).pathname)}"`,
+          },
           status: broken ? 503 : 200,
         });
 
         return Effect.succeed(HttpClientResponse.fromWeb(request, response));
       });
 
-      const results = yield* postDeployChecks("https://example.com").pipe(
-        Effect.provideService(HttpClient.HttpClient, client)
-      );
+      const results = yield* postDeployChecks(
+        "https://example.com",
+        "test-generation",
+        0
+      ).pipe(Effect.provideService(HttpClient.HttpClient, client));
 
       expect(results.every((result) => gateOutcome(result) === "pass")).toBe(
-        !broken
+        !broken && matchesGeneration
       );
-      expect(requests).toHaveLength(12);
-      expect(results).toHaveLength(12);
+      expect(requests).toHaveLength(broken ? 15 : 14);
+      expect(results).toHaveLength(14);
     }),
   { arbitrary: { runs: 50 } }
 );

@@ -1,6 +1,7 @@
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Output from "alchemy/Output";
 import { Random } from "alchemy/Random";
+import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import {
   Config,
@@ -29,13 +30,15 @@ export const unstructuredRow = (event: typeof RawEventSchema.Type) =>
 
 export const basinFoundation = ({ id }: BasinOptions) =>
   Effect.gen(function* declareBasinFoundation() {
-    const bucket = yield* Cloudflare.R2.Bucket(`${id}EventsBucket`, {});
+    const bucket = yield* Cloudflare.R2.Bucket(`${id}EventsBucket`, {}).pipe(
+      retain()
+    );
 
     const stream = yield* Cloudflare.Pipelines.Stream(`${id}EventsStream`, {
       http: { enabled: false },
-    });
+    }).pipe(retain());
 
-    const salt = yield* Random(`${id}VisitorSalt`);
+    const salt = yield* Random(`${id}VisitorSalt`).pipe(retain());
 
     return { bucket, salt, stream } as const;
   });
@@ -60,7 +63,7 @@ export const icebergSink = ({
     const catalog = yield* Cloudflare.R2.DataCatalog(`${id}EventsCatalog`, {
       bucketName,
       token,
-    });
+    }).pipe(retain());
 
     const sink = yield* Cloudflare.Pipelines.Sink(`${id}EventsSink`, {
       config: {
@@ -71,11 +74,11 @@ export const icebergSink = ({
       },
       format: { compression: "zstd", type: "parquet" },
       type: "r2_data_catalog",
-    });
+    }).pipe(retain());
 
     return yield* Cloudflare.Pipelines.Pipeline(`${id}EventsPipeline`, {
       sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${streamName}`,
-    });
+    }).pipe(retain());
   });
 
 export const Basin = ({ id }: BasinOptions) =>
