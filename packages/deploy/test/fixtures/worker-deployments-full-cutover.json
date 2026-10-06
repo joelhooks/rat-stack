@@ -1,0 +1,176 @@
+{
+  "result": {
+    "deployments": [
+      {
+        "id": "00000000-0000-4000-8000-000000000109",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000113",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T17:25:47.940541Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000115",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000107",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T17:03:53.259818Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000110",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000104",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T16:33:15.009206Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000101",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000112",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T15:14:12.404188Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000111",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000103",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T14:58:02.562122Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000100",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000105",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T14:37:25.760516Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000106",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000116",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T14:34:13.770386Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000117",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000119",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T08:21:07.127315Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000108",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "manual rollback",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000102",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T05:55:58.013113Z"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000118",
+        "source": "api",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "00000000-0000-4000-8000-000000000114",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-06T05:54:23.334193Z"
+      }
+    ]
+  },
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 10,
+    "count": 10,
+    "total_count": 150,
+    "total_pages": 15
+  }
+}

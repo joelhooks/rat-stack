@@ -40,6 +40,11 @@ import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
 import { ReceiptStore } from "./receipt-store.js";
 import { watchVerdict } from "./watch.js";
+import {
+  readWorkerVersionSet,
+  WorkerAttributes,
+  workerVersionRetryDefaults,
+} from "./worker-version-readback.js";
 
 const NativeCredentialSchema = Schema.Union([
   Schema.Struct({
@@ -107,11 +112,6 @@ export const readCurrentWorkerVersion = Effect.fn("readCurrentWorkerVersion")(
       : Option.none<string>();
   }
 );
-
-const WorkerAttributes = Schema.Struct({
-  versionId: Schema.optional(Schema.String),
-  workerName: Schema.String,
-});
 
 const stepError = (
   step: DeployStepError["step"],
@@ -560,6 +560,27 @@ export const localLayer = (
           )
         );
 
+        const versionDeadline = yield* Config.Int(
+          "DEPLOY_WORKER_VERSION_DEADLINE_MS"
+        ).pipe(
+          Config.withDefault(workerVersionRetryDefaults.deadlineMs),
+          Effect.mapError(() =>
+            stepError("apply", "worker-version-deadline-invalid", [
+              "DEPLOY_WORKER_VERSION_DEADLINE_MS",
+            ])
+          )
+        );
+
+        yield* Schema.decodeEffect(
+          Schema.Int.check(Schema.isBetween({ maximum: 600_000, minimum: 0 }))
+        )(versionDeadline).pipe(
+          Effect.mapError(() =>
+            stepError("apply", "worker-version-deadline-invalid", [
+              "DEPLOY_WORKER_VERSION_DEADLINE_MS",
+            ])
+          )
+        );
+
         const exit = yield* Stacks.apply({
           ...value,
           session: {
@@ -622,6 +643,8 @@ export const localLayer = (
           };
         }
 
+        const appliedAt = yield* Clock.currentTimeMillis;
+
         yield* Ref.update(retainedOrphans, (rows) => [
           ...new Set([
             ...rows,
@@ -633,42 +656,42 @@ export const localLayer = (
           ]),
         ]);
 
-        const versions: Record<string, string> = {};
-
-        for (const row of value.resources.filter(
-          (resource) => resource.resourceType === "Cloudflare.Worker"
-        )) {
-          const persisted = yield* store
-            .get({ ...value.stack, fqn: row.fqn, stack: value.stack.name })
-            .pipe(
-              Effect.mapError(() =>
-                stepError("apply", "version-readback-refused")
-              )
-            );
-
-          if (persisted !== undefined && "attr" in persisted) {
-            const worker = yield* Schema.decodeUnknownEffect(WorkerAttributes)(
-              persisted.attr
-            ).pipe(
-              Effect.mapError(() =>
-                stepError("apply", "version-readback-invalid")
-              )
-            );
-
-            if (worker.versionId !== undefined) {
-              versions[worker.workerName] = worker.versionId;
-            }
-          }
-        }
-
-        if (
-          Object.keys(versions).length !==
+        const workers = yield* Effect.forEach(
           value.resources.filter(
             (resource) => resource.resourceType === "Cloudflare.Worker"
-          ).length
-        ) {
-          return yield* stepError("apply", "worker-version-set-incomplete");
-        }
+          ),
+          (row) =>
+            store
+              .get({ ...value.stack, fqn: row.fqn, stack: value.stack.name })
+              .pipe(
+                Effect.mapError(() =>
+                  stepError("apply", "version-readback-refused")
+                ),
+                Effect.map((persisted) => ({
+                  action: row.action,
+                  attributes:
+                    persisted !== undefined && "attr" in persisted
+                      ? persisted.attr
+                      : undefined,
+                }))
+              )
+        );
+
+        const readback = yield* readWorkerVersionSet(
+          workers,
+          prior,
+          (worker) =>
+            get(
+              `/accounts/${Redacted.value(credential.value.accountId)}/workers/scripts/${encodeURIComponent(worker)}/deployments`,
+              credential.value
+            ).pipe(
+              Effect.flatMap(readCurrentWorkerVersion),
+              Effect.mapError(() =>
+                stepError("apply", "live-version-readback-refused")
+              )
+            ),
+          { ...workerVersionRetryDefaults, deadlineMs: versionDeadline }
+        );
 
         return {
           ...summarizeApply(
@@ -677,10 +700,11 @@ export const localLayer = (
             "success",
             yield* Ref.get(retainedOrphans)
           ),
-          appliedAt: yield* Clock.currentTimeMillis,
+          appliedAt,
           contentGeneration: generation.value,
           previousVersions: prior,
-          versions,
+          versionReadbacks: readback.checks,
+          versions: readback.versions,
         };
       });
 
@@ -699,6 +723,8 @@ export const localLayer = (
           receipt.contentGeneration,
           receipt.appliedAt
         );
+
+        results.push(...(receipt.versionReadbacks ?? []));
 
         const credential = yield* Ref.get(pinned);
 
