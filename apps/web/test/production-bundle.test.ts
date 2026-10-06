@@ -67,6 +67,15 @@ const build = (nodeEnv: "development" | "production") => {
       "Find the rule or skill you need."
     );
 
+    const featured = readFileSync(
+      path.join(outDir, "featured/index.html"),
+      "utf-8"
+    );
+
+    expect(featured).toContain("Built with rat-stack");
+    expect(featured).toContain('href="https://stickers.badass.dev"');
+    expect(featured).toContain("By Vojta (badass)");
+
     const maps = globSync("**/*.map", { cwd: outDir });
 
     const sources = maps.flatMap((file) =>

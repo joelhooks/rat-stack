@@ -147,6 +147,8 @@ test.provider(
             "neighbors",
             "mentions",
             "path",
+            "composePage",
+            "featuredSites",
           ],
           refused: "UnknownCapability",
           title: "Cartridges",

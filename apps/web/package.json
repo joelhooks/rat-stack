@@ -27,6 +27,7 @@
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "@rat-stack/devtools": "workspace:*",
+    "@rat-stack/json-render-foldkit": "workspace:*",
     "@rat-stack/mischief": "workspace:*",
     "@stylexjs/stylex": "0.19.1",
     "alchemy": "2.0.0-beta.80",

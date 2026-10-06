@@ -1,7 +1,9 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
+import { composePage } from "@rat-stack/core";
 import { joinInterest } from "@rat-stack/core/join-interest";
 
 import { ContentStore } from "../content-store.js";
+import { featuredSites } from "./featured-sites.js";
 import { backlinks, mentions, neighbors, path } from "./lore.js";
 import { read } from "./read.js";
 import { search } from "./search.js";
@@ -37,6 +39,8 @@ export const contentCapabilities = [
   neighbors,
   mentions,
   path,
+  composePage,
+  featuredSites,
 ] as const;
 
 export const contentLayer = ContentStore.layer;
@@ -77,4 +81,6 @@ export const capabilities = [
   path,
   execute,
   joinInterest,
+  composePage,
+  featuredSites,
 ] as const;

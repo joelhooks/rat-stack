@@ -1,3 +1,5 @@
+export { composePage } from "./compose-page.js";
+
 export { joinInterest, JoinInterest } from "./join-interest.js";
 
 export { AppConfig } from "./app-config.js";

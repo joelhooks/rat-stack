@@ -1,0 +1,36 @@
+{
+  "name": "@rat-stack/json-render-foldkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./src/schema.ts",
+      "import": "./dist/schema.js",
+      "default": "./dist/schema.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "check": "pnpm run typecheck"
+  },
+  "dependencies": {
+    "@json-render/core": "0.21.0",
+    "effect": "4.0.0",
+    "foldkit": "0.166.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@effect/vitest": "4.0.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

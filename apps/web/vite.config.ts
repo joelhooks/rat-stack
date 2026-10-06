@@ -137,7 +137,58 @@ export default defineConfig({
       name: "rat-content-backend",
     },
     {
-      apply: "build",
+      apply: (_config, environment) =>
+        environment.command === "build" && environment.isSsrBuild !== true,
+      generateBundle: {
+        // @effect-diagnostics-next-line asyncFunction:off -- Rollup awaits build-only prerendering before emitting the static asset.
+        async handler(_options, bundle) {
+          const home = bundle["index.html"];
+
+          if (home?.type !== "asset") {
+            throw new Error("Build the home HTML before the featured route.");
+          }
+
+          const source = Schema.decodeUnknownSync(Schema.String)(home.source);
+
+          const renderer = await createServer({
+            configFile: false,
+            plugins: [stylexRenderingPlugin()],
+            server: { hmr: false, middlewareMode: true, ws: false },
+          });
+
+          try {
+            const { renderFeatured } = Schema.decodeUnknownSync(
+              Schema.Struct({
+                renderFeatured: Schema.declare<StaticRenderer>(
+                  (input): input is StaticRenderer =>
+                    Predicate.isFunction(input)
+                ),
+              })
+            )(await renderer.ssrLoadModule("/src/entry.server.ts"));
+
+            const rendered = Schema.decodeUnknownSync(
+              Schema.Struct({ html: Schema.String })
+            )(await renderFeatured());
+
+            this.emitFile({
+              fileName: "featured/index.html",
+              source: source
+                .replace(
+                  /<div id="root">[\s\S]*<\/div>/u,
+                  `<div id="root">${rendered.html}</div>`
+                )
+                .replace(
+                  "<title>rat-stack docs</title>",
+                  "<title>Featured sites | rat-stack</title>"
+                ),
+              type: "asset",
+            });
+          } finally {
+            await renderer.close();
+          }
+        },
+        order: "post",
+      },
       name: "rat-static-home",
       transformIndexHtml: {
         // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits the static HTML transform at build time.

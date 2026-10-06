@@ -86,6 +86,8 @@ it.effect.prop(
                 "neighbors",
                 "mentions",
                 "path",
+                "composePage",
+                "featuredSites",
               ].includes(name)
             )
           ).toBe(true);

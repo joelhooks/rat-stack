@@ -108,6 +108,8 @@ export default defineConfig({
     "rat-stack-boundaries/no-cross-layer-imports": "error",
     "rat-stack-boundaries/no-devtools-in-production": "error",
     "rat-stack-boundaries/no-hand-rolled-surface": "error",
+    "rat-stack-boundaries/no-renderer-product-imports": "error",
+    "rat-stack-boundaries/no-zod-outside-catalog": "error",
     "rat-stack-patterns/acquire-release-constructs-in-acquire-body": "error",
     "rat-stack-patterns/contract-binding-matches-name": "error",
     "rat-stack-patterns/no-module-level-mutable-state": "error",

@@ -1536,7 +1536,9 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
       expect(JSON.stringify(openapiBody)).toContain('"lore"');
       expect(Object.keys(document.paths).toSorted()).toEqual([
         "/api/backlinks",
+        "/api/composePage",
         "/api/execute",
+        "/api/featuredSites",
         "/api/joinInterest",
         "/api/mentions",
         "/api/neighbors",
@@ -2025,7 +2027,9 @@ it.effect(
 
         expect(toolNames?.toSorted()).toEqual([
           "backlinks",
+          "composePage",
           "execute",
+          "featuredSites",
           "joinInterest",
           "mentions",
           "neighbors",

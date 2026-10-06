@@ -14,6 +14,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./page-catalog": {
+      "types": "./src/page-catalog.ts",
+      "import": "./dist/page-catalog.js",
+      "default": "./dist/page-catalog.js"
+    },
     "./contracts": {
       "types": "./src/contracts.ts",
       "import": "./dist/contracts.js",
@@ -41,18 +46,21 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "node scripts/generate-page-catalog.ts && tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node scripts/generate-page-catalog.ts && tsc -p tsconfig.build.json",
     "check": "pnpm run typecheck",
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
     "@effect/platform-node": "4.0.0",
+    "@json-render/core": "0.21.0",
     "@rat-stack/capability": "workspace:*",
+    "@rat-stack/json-render-foldkit": "workspace:*",
     "@xstate/effect": "0.1.0-alpha.6",
     "effect": "4.0.0",
-    "xstate": "6.0.0-alpha.63"
+    "xstate": "6.0.0-alpha.63",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@effect/vitest": "4.0.0",
