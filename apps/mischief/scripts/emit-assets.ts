@@ -19,16 +19,30 @@ interface AssetImage {
   readonly base64: string;
 }
 
+interface AssetContent {
+  readonly pages: readonly AssetPage[];
+  readonly images: readonly AssetImage[];
+  readonly data?: readonly {
+    readonly path: string;
+    readonly value: Schema.Json;
+  }[];
+}
+
+export const contentAssetGeneration = (input: AssetContent) =>
+  createHash("sha256")
+    .update(
+      JSON.stringify({
+        data: input.data,
+        images: input.images,
+        pages: input.pages,
+      })
+    )
+    .digest("hex");
+
 export const emitAssets = Effect.fn("emitAssets")(
-  function* writeContentAssets(input: {
-    readonly directory: string;
-    readonly pages: readonly AssetPage[];
-    readonly images: readonly AssetImage[];
-    readonly data?: readonly {
-      readonly path: string;
-      readonly value: Schema.Json;
-    }[];
-  }) {
+  function* writeContentAssets(
+    input: AssetContent & { readonly directory: string }
+  ) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     yield* fs.makeDirectory(path.dirname(input.directory), { recursive: true });
@@ -38,15 +52,7 @@ export const emitAssets = Effect.fn("emitAssets")(
       prefix: ".content-assets.",
     });
 
-    const generation = createHash("sha256")
-      .update(
-        JSON.stringify({
-          data: input.data,
-          images: input.images,
-          pages: input.pages,
-        })
-      )
-      .digest("hex");
+    const generation = contentAssetGeneration(input);
 
     const assets = path.join(input.directory, "assets", generation);
     yield* fs.makeDirectory(assets, { recursive: true });
