@@ -30,6 +30,8 @@ The boundary property exercises both readers with generated blob text. It also c
 
 The content version excludes all generated TypeScript modules. A cold export lacks the generated icon module before its first build. Hashing that module made warm and cold output differ.
 
+Inline repository links also exclude generated artifacts. The first cold build has no unlinked-mentions report yet. Linking that report based on file existence changed the gardener page and every content-version tag.
+
 ## Gate resource use
 
 The gate serializes package tasks. Mischief also serializes its test files.

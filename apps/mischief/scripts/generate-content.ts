@@ -1459,6 +1459,7 @@ const program = Effect.gen(function* generateContent() {
 
       if (
         !repoPathToken.test(span) ||
+        span.includes(".generated.") ||
         span.split("/").includes("node_modules")
       ) {
         return Option.none();
