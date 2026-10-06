@@ -50,7 +50,6 @@ sources:
 
 Declare failures that callers can handle. Keep defects distinct from those declared outcomes.
 Catch a failure where the application can recover or report it truthfully.
-This page uses Effect 4.0.0.
 
 ## Give expected failures a type and useful context
 
@@ -59,8 +58,6 @@ This page uses Effect 4.0.0.
 
 ```ts repo=rat-stack path=packages/core/src/stats.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-26
 ```
-
-**What to notice:** The caller can match the tag and report the failed path. It need not inspect an unstructured exception message.
 
 Inside a generator, `return yield*` can raise a yieldable error directly.
 `Effect.fail` can also place an error in the expected failure channel.
@@ -73,7 +70,7 @@ The inspector uses `Effect.mapError` to translate a filesystem failure into its 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=20-26
 ```
 
-**What to notice:** Translation keeps the failed path and the source message. Callers receive `FileStatsError`, not a filesystem dependency.
+Translation keeps the failed path and the source message. Callers receive `FileStatsError`, not a filesystem dependency.
 
 If a domain error needs to carry an unknown source error, `Schema.Defect()` can describe that field.
 A field using that schema does not itself turn an expected error into a runtime defect.
@@ -87,8 +84,6 @@ The CLI reports the inspection failure, then fails again:
 
 ```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-15
 ```
-
-**What to notice:** Reporting an error is not successful completion. The CLI preserves the failure after printing its message.
 
 A fallback is appropriate only when its value is a valid domain result.
 Do not turn a failed inspection into empty file statistics just to complete the command.
@@ -109,14 +104,10 @@ Catching every cause and returning success erases whether the program refused wo
 A later caller cannot tell which repair is needed.
 Keep refusal, unexpected failure, and successful completion distinct.
 
-Michael Arnaldi's historical [explanation at 23:38](https://youtu.be/und9h4xiIz4?t=1418) motivates this distinction.
-Kit Langton's *Error Handling* informed the topic order.
-The checked Kit examples use `TaggedErrorClass`, `Schema.Defect`, and `catchAllDefect`; this page uses the exact 4.0.0 APIs instead.
-
 ## Effect idiom and house rule
 
-- **Effect idiom:** Expected failures appear in the Effect type. Tagged handlers can recover without swallowing defects.
-- **rat-stack house rule:** Errors retain source context and repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
-- **Not an Effect requirement:** Turning every lifecycle into a machine or requiring the same diagnostic fields for every error.
+- Expected failures appear in the Effect type. Tagged handlers can recover without swallowing defects.
+- In rat-stack, errors retain source context and repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
+- The application chooses which lifecycles need machines and which diagnostic fields each error needs.
 
 See also: [schemas](/lore/schemas-define-the-boundary), [author-facing diagnostics](/lore/errors-are-part-of-the-interface), [independent failures](/lore/accumulate-independent-errors), and [lifecycles](/lore/lifecycles-are-machines).

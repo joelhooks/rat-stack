@@ -42,7 +42,11 @@ The existing manifest guard fences both Mischief and RpcBackend builds. Runtime 
 
 Tables stack on phones. A build-time rehype plugin writes each cell's column header into `data-label`, and under 40rem the CSS hides `thead`, turns rows and cells into blocks, and prints the label before each value.
 
-Diagrams follow the `show-me` skill: one fenced `text` block, Unicode box drawing, under 80 columns, followed by a `What to notice` line. The same block ships in the Markdown representation, so agents and browsers see one diagram. The rat-on-a-stack logo Quiver drew was deleted on 2026-09-22; the emoji replaced it everywhere.
+Diagrams use one fenced `text` block, Unicode box drawing, and fewer than 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences.
+
+Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
+
+The same block ships in the Markdown representation, so agents and browsers see one diagram. The rat-on-a-stack logo Quiver drew was deleted on 2026-09-22; the emoji replaced it everywhere.
 
 Table cells reset `overflow-wrap` to `normal`; the page-level `anywhere` setting shredded words into single characters on phones.
 

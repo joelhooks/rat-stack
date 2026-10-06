@@ -43,7 +43,6 @@ sources:
 Name the operation a person needs to understand. Add only context safe for that operation's telemetry.
 
 A tracing span records an operation's timing and outcome. Export is a separate delivery step.
-This page uses Effect 4.0.0.
 
 ## Name the operation, not each expression
 
@@ -51,8 +50,6 @@ This page uses Effect 4.0.0.
 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-25
 ```
-
-**What to notice:** The operation has one stable name. Filesystem failures remain named failures with their source context.
 
 Use a named `fn` for a reusable operation that deserves a span.
 Use `withSpan` around an existing Effect when that boundary carries useful meaning.
@@ -73,7 +70,7 @@ Keep unrestricted input, credentials, request bodies and private identities out 
 | A deliberate public category | Credentials and authorization headers |
 | A measured count relevant to the operation | Unrestricted input or private identity |
 
-**What to notice:** Structured attributes can outlive the request. Structure does not make a private value safe.
+Structured attributes can outlive the request. Structure does not make a private value safe.
 
 Use `annotateCurrentSpan` when adding attributes inside the operation.
 Use `annotateSpans` when supplying annotations through an enclosing Effect.
@@ -86,15 +83,9 @@ The checked fixture composes the OTLP tracer with JSON serialization and an in-m
 ```ts repo=rat-stack path=packages/core/test/trace-export.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=51-65
 ```
 
-**What to notice:** `OtlpTracer.layer` does not invent a transport. The caller supplies both the serializer and `HttpClient`.
-
 These observability modules are marked unstable in the exact 4.0.0 source.
 A stable package version does not make every exported module's API stable.
 Keep the exact pin and check its source before changing exporter composition.
-
-Kit Langton's OTLP draft supplies the composition question.
-Its `@effect/opentelemetry` example is not a spelling-only substitute for these modules.
-This fixture follows the exact Effect teaching source, not the draft's install commands.
 
 ## Check the delivery boundary you actually exercised
 
@@ -105,7 +96,7 @@ After shutdown, the test requires the operation name and the annotation key.
 ```ts repo=rat-stack path=packages/core/test/trace-export.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=66-79
 ```
 
-**What to notice:** The fixture observes a serialized export request. It does not prove backend acceptance, storage, or a production exporter configuration.
+The fixture observes a serialized export request. It does not prove backend acceptance, storage, or a production exporter configuration.
 
 | Evidence | What it establishes |
 | --- | --- |
@@ -114,7 +105,7 @@ After shutdown, the test requires the operation name and the annotation key.
 | Collector receipt | That collector accepted the payload |
 | A queried stored trace | The backend retained a trace you can retrieve |
 
-**What to notice:** None of these receipts substitutes for the next delivery boundary.
+None of these receipts substitutes for the next delivery boundary.
 
 ## Keep other observers distinct
 
@@ -134,9 +125,9 @@ Do not claim a log was delivered because it appeared in a local console.
 
 ## Effect idiom and house rule
 
-- **Effect idiom:** Instrument meaningful operations and compose explicit observability Layers at the runtime edge.
-- **rat-stack house rule:** Keep private values scoped and report each observed delivery boundary honestly.
-- **Separate house rule:** Actor watching and capability recording remain their own devtools paths.
+- Instrument meaningful operations and compose explicit observability Layers at the runtime edge.
+- In rat-stack, keep private values scoped and report each observed delivery boundary honestly.
+- In rat-stack, actor watching and capability recording remain their own devtools paths.
 
 Next, [run Effect at the integration boundary](/lore/run-effect-at-the-boundary) and connect observability lifetime to its runtime owner.
-Return to the [Effect reading map](/lore/structure-effect-by-domain).
+Return to the [Effect reading order](/lore/effect-basics#read-next).

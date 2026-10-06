@@ -43,7 +43,6 @@ sources:
 
 Choose how many operations may run at once. Give child work an owner that can stop it.
 A completed caller must not silently leave its work running.
-This page uses Effect 4.0.0.
 
 ## Bound a traversal before running it
 
@@ -54,19 +53,17 @@ The checked fixture measures active work with a Ref.
 ```ts repo=rat-stack path=packages/capability/test/fixtures/wiki/bounded-traversal.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-30
 ```
 
-**What to notice:** Each operation increments activity before use and decrements it in release. The caller supplies the concurrency bound.
-
 The generated test varies both the input count and the bound.
 It requires completed work, no remaining activity, input-order results, and a peak that does not exceed the supplied bound.
 
 ```ts repo=rat-stack path=packages/capability/test/concurrency-ownership.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=7-26
 ```
 
-**What to notice:** The expectation uses the supplied bound, not a copy of the traversal's scheduling algorithm.
+The expectation uses the supplied bound, not a copy of the traversal's scheduling algorithm.
 
 A planted violation replaced the bound with `unbounded`.
 The property failed with seven active operations against a bound of one. The restored implementation passes.
-The small generated counts are a test space, not measured production limits.
+Measure production limits separately from these generated test counts.
 
 ## Stop child work with its Scope
 
@@ -75,15 +72,13 @@ The sandbox writes queued input to a child process through a scoped fiber:
 ```ts repo=rat-stack path=packages/capability/src/sandbox-subprocess.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=224-229
 ```
 
-**What to notice:** `forkScoped` ties writer interruption to the owning Scope. Starting a child does not make its lifetime independent.
-
 The checked ownership test starts a child that waits indefinitely.
 When the owner closes, the child must observe interruption before the enclosing Effect returns.
 
 ```ts repo=rat-stack path=packages/capability/test/concurrency-ownership.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=30-46
 ```
 
-**What to notice:** A Deferred confirms that work started. The test does not depend on an arbitrary sleep.
+A Deferred confirms that work started. The test does not depend on an arbitrary sleep.
 
 Use [scopes](/lore/scopes-own-resources) to decide the lifetime before choosing a fork operation.
 Different fork operations carry different ownership rules; do not treat their names as interchangeable.
@@ -96,7 +91,7 @@ Its consumer stops after the first completed outcome.
 ```ts repo=rat-stack path=packages/capability/src/sandbox-subprocess.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=241-253,276-280
 ```
 
-**What to notice:** `Stream.mapEffect` keeps decoding and dispatch in the stream description. The consumer does not launch eager Promises for each line.
+`Stream.mapEffect` keeps decoding and dispatch in the stream description. The consumer does not launch eager Promises for each line.
 
 Backpressure lets downstream demand limit upstream progress. An unbounded queue can decouple the producer from that demand.
 
@@ -114,14 +109,11 @@ Measure the service's limits before selecting an operational bound.
 - Bound worker concurrency and claim every upstream buffer is bounded too.
 - Copy test counts into production without measuring the provider and host.
 
-Kit Langton's test examples suggest the fiber-ownership question.
-Exact Effect source supplies the concurrency and stream semantics used here.
-
 ## Effect idiom and house rule
 
-- **Effect idiom:** Fibers, traversal bounds and streams compose owned work without replacing the typed Effect description.
-- **rat-stack house rule:** Measure operational limits instead of inventing caps.
-- **Separate house rule:** [Machines own finite domain retries and cancellation](/lore/lifecycles-are-machines). Effect's native fibers and schedules still exist.
+- Fibers, traversal bounds and streams compose owned work without replacing the typed Effect description.
+- In rat-stack, measure operational limits instead of inventing caps.
+- In rat-stack, [machines own finite domain retries and cancellation](/lore/lifecycles-are-machines). Effect's native fibers and schedules still exist.
 
 Next, [validate HTTP responses](/lore/http-responses-need-validation) before treating concurrent provider work as successful.
-Return to the [Effect reading map](/lore/structure-effect-by-domain).
+Return to the [Effect reading order](/lore/effect-basics#read-next).
