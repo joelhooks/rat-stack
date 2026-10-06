@@ -262,8 +262,7 @@ it.effect.prop(
         JSON.stringify({ data: fixture.graph, generation })
       );
       expect(yield* store.graph).toBeDefined();
-    }).pipe(Effect.provide(NodeServices.layer)),
-  { timeout: 20_000 }
+    }).pipe(Effect.provide(NodeServices.layer))
 );
 
 it.effect(
