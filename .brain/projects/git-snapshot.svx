@@ -32,6 +32,16 @@ The content version excludes all generated TypeScript modules. A cold export lac
 
 Inline repository links also exclude generated artifacts. The first cold build has no unlinked-mentions report yet. Linking that report based on file existence changed the gardener page and every content-version tag.
 
+## CI history
+
+CI uses `actions/checkout` with `fetch-depth: 0`.
+
+Git remains authoritative in every checkout. A shallow checkout must fetch full history before generation. CI does not substitute the snapshot for incomplete Git history.
+
+Fetching pinned source objects does not remove the shallow boundary. Having each pinned blob does not establish complete content history.
+
+The depth-one remote reproduction failed after fetching pinned objects. Fetching full history took 2.37 seconds. The same tree then generated successfully.
+
 ## Gate resource use
 
 The gate serializes package tasks. Mischief also serializes its test files.
