@@ -121,7 +121,7 @@ The Worker returns a fetch Effect to its Alchemy Worker adapter:
 
 In tests, `it.effect` owns execution of the returned Effect. The test still supplies the services it needs.
 See [tests through supplied services](/lore/tests-that-earn-their-place).
-The planned runtime-boundary page will cover integration with non-Effect code.
+[Run Effect at the integration boundary](/lore/run-effect-at-the-boundary) covers foreign code, runtime reuse, and disposal.
 
 ## The common wrong first version
 
@@ -138,7 +138,9 @@ Wrapping an already-started Promise also loses control over when its work begins
 1. [Model accepted data](/lore/schemas-define-the-boundary), then [name failures](/lore/error-model).
 2. [Construct a service](/lore/services-capture-dependencies), then [compose Layers](/lore/layers-make-dependencies-explicit).
 3. [Supply configuration](/lore/configuration-is-a-dependency) and [test behavior](/lore/tests-that-earn-their-place).
-4. Next topics: resource scopes, owned concurrency, validated HTTP responses, useful tracing, and runtime integration. These pages are planned, not published here.
+4. Follow the resource lifetime through [scopes](/lore/scopes-own-resources) and [owned concurrency](/lore/concurrent-work-needs-an-owner).
+5. Check external behavior with [HTTP validation](/lore/http-responses-need-validation) and [tracing](/lore/trace-meaningful-operations).
+6. Choose the execution owner at the [runtime boundary](/lore/run-effect-at-the-boundary).
 5. Use [domain structure](/lore/structure-effect-by-domain) for the codebase map.
 
 Michael Arnaldi's two talks explain the computation model and its lazy execution.

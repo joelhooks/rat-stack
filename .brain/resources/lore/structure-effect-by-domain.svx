@@ -78,6 +78,11 @@ Read these in order. This page uses Effect 4 names.
 5. [Layer composition](/lore/layers-make-dependencies-explicit): supply the graph at an entrypoint.
 6. [Configuration](/lore/configuration-is-a-dependency): parse supplied settings.
 7. [Testing](/lore/tests-that-earn-their-place): prove behavior through supplied services.
+8. [Scopes](/lore/scopes-own-resources): acquire resources inside their owner and release them on exit.
+9. [Concurrency](/lore/concurrent-work-needs-an-owner): bound work and stop owned children.
+10. [HTTP responses](/lore/http-responses-need-validation): check status and decode accepted data.
+11. [Tracing](/lore/trace-meaningful-operations): name meaningful operations and inspect export evidence.
+12. [Runtime boundaries](/lore/run-effect-at-the-boundary): execute through the host's bridge and connect disposal.
 
 These pages use pinned rat-stack examples and exact Effect 4.0.0 source.
 Kit Langton's guides remain useful inputs, not a substitute for checking the installed API.

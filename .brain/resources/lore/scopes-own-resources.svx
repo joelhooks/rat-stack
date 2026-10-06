@@ -1,0 +1,112 @@
+---
+title: "Scopes release resources when work ends"
+description: "Acquire resources lazily, keep their use inside the owner, and release them after success, failure, or interruption."
+group: idea
+terms:
+  - "Scope"
+  - "Resource finalizer"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. 2026. Effect. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "acquireRelease registers release after successful acquisition; scoped supplies and closes a Scope; acquireUseRelease brackets one use."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/05_resources/10_acquire-release.ts
+    title: "Effect contributors. 2026. Acquiring resources with Effect.acquireRelease."
+    publisher: "Effect-TS"
+    note: "Construct resources inside the acquisition Effect and install their finalizers in a service Layer."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/database/src/postgres-migrations.ts
+    title: "rat-stack contributors. 2026. Postgres migration resource ownership."
+    publisher: "rat-stack"
+    note: "The migration adapter constructs and connects the client inside acquisition, uses it, then closes it."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/4019cffbcbdb282d6f006854ff5b1f26d3b407e0/packages/core/test/scoped-resource.test.ts
+    title: "rat-stack contributors. 2026. Scoped resource exit fixture."
+    publisher: "rat-stack"
+    note: "Counts one acquisition and one release after successful use, expected failure, and fiber interruption."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/08-testing.md
+    title: "Langton, Kit. 2026. Testing. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Scoped test resources supply a useful ownership question; this guide uses independent rat-stack examples and exact Effect source."
+    accessed: "2026-10-06"
+---
+
+Construct the resource inside an acquisition Effect. Register release before handing the resource to its caller.
+Keep use inside the resource's lifetime. This page uses Effect 4.0.0.
+
+## Bracket one use
+
+The migration adapter opens a Postgres client inside `Effect.tryPromise`.
+`acquireUseRelease` gives the client to migration work and then runs shutdown.
+
+```ts repo=rat-stack path=packages/database/src/postgres-migrations.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=64-81
+```
+
+**What to notice:** `new Client` runs inside acquisition. Building the Effect does not connect to the database.
+
+The release callback closes the connection:
+
+```ts repo=rat-stack path=packages/database/src/postgres-migrations.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=82-90
+```
+
+**What to notice:** Cleanup belongs to the bracket, not to each return path in migration code.
+
+This example handles one acquired connection. It does not prove rollback of partially completed acquisition.
+If acquisition fails before release registration, the acquisition code must clean up any partial resource it created.
+
+## Choose the lifetime
+
+| Operation | Owner |
+| --- | --- |
+| `acquireUseRelease` | One use callback; release follows that callback's exit |
+| `acquireRelease` | The current Scope; release runs when that Scope closes |
+| `scoped` | A new Scope around the supplied Effect |
+
+**What to notice:** A resource finalizer is cleanup work attached to an owner. It is not a business-state transition.
+
+Use `acquireRelease` when several operations need the same resource.
+A service Layer can own that resource for its build lifetime.
+Callers must not retain the handle after its Scope closes.
+
+## Prove all use exits
+
+The checked fixture creates a counted handle inside `Effect.sync`.
+Its finalizer increments a separate release counter.
+
+```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-18
+```
+
+**What to notice:** Acquisition remains lazy. The fixture does not simulate a database connection or claim provider behavior.
+
+The matrix exercises success, expected failure, and interruption.
+Each case must acquire once and release once. It also checks that the selected exit actually occurred.
+
+```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=37-55
+```
+
+**What to notice:** Interrupting a fiber does not bypass its registered finalizer.
+
+Kit Langton's testing guide frames scoped test setup as an ownership problem.
+The counted fixture here is independently written. Exact Effect source establishes the release semantics.
+
+## Common mistakes
+
+- Allocate the client before building the acquisition Effect. An interruption can leave that client without a registered finalizer.
+- Return a resource from `scoped` and use it later. Its lifetime has already ended.
+- Claim failed acquisition always invokes release. Release registration requires successful acquisition.
+- Treat a close failure as harmless without checking the adapter's failure policy.
+
+The migration adapter makes shutdown failure a defect with `orDie`.
+That is a specific boundary decision, not a general instruction to hide expected failures.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** A Scope owns finalizers; brackets arrange acquisition, use, and release.
+- **rat-stack house rule:** Construct resources inside acquisition. The lint fence checks this shape.
+- **Separate house rule:** [Machines own finite business lifecycles](/lore/lifecycles-are-machines). Resource cleanup does not replace a lifecycle machine.
+
+Start with [Layer composition](/lore/layers-make-dependencies-explicit) when choosing the resource's owner.
+Then read [concurrent work](/lore/concurrent-work-needs-an-owner) before starting child work.
+Return to the [Effect reading map](/lore/structure-effect-by-domain).

@@ -1,0 +1,140 @@
+---
+title: "Trace operations where they mean something"
+description: "Name useful operations, add safe context, and distinguish creating a span from delivering it to a backend."
+group: idea
+terms:
+  - "Tracing span"
+  - "Trace export"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. 2026. Effect tracing operators. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Named fn creates tracing spans; fnUntraced avoids that tracing boundary; withSpan and annotation operators add useful context."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/08_observability/20_otlp-tracing.ts
+    title: "Effect contributors. 2026. Setting up tracing with Otlp modules."
+    publisher: "Effect-TS"
+    note: "Exporters require explicit serialization and HTTP transport Layers; creating spans and exporting them are distinct operations."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/observability/OtlpTracer.ts
+    title: "Effect contributors. 2026. OtlpTracer."
+    publisher: "Effect-TS"
+    note: "The tracer batches completed sampled spans, sends them through an exporter, and supplies scoped flushing. This module is marked unstable in the 4.0.0 source."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/file-inspector.ts
+    title: "rat-stack contributors. 2026. FileInspector operation tracing."
+    publisher: "rat-stack"
+    note: "FileInspector.inspect names a useful operation with Effect.fn rather than tracing every expression."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/4019cffbcbdb282d6f006854ff5b1f26d3b407e0/packages/core/test/trace-export.test.ts
+    title: "rat-stack contributors. 2026. Trace export fixture."
+    publisher: "rat-stack"
+    note: "A supplied in-memory HTTP transport decodes the emitted OTLP JSON and checks the operation name and attribute key after scope shutdown."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/12-observability.md
+    title: "Langton, Kit. 2026. Observability. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "The draft frames OTLP composition. Its dependency and HTTP-import examples are not this page's version authority."
+    accessed: "2026-10-06"
+---
+
+Name the operation a person needs to understand. Add only context safe for that operation's telemetry.
+
+A tracing span records an operation's timing and outcome. Export is a separate delivery step.
+This page uses Effect 4.0.0.
+
+## Name the operation, not each expression
+
+`FileInspector.inspect` uses a named `Effect.fn`:
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-25
+```
+
+**What to notice:** The operation has one stable name. Filesystem failures remain named failures with their source context.
+
+Use a named `fn` for a reusable operation that deserves a span.
+Use `withSpan` around an existing Effect when that boundary carries useful meaning.
+Use `fnUntraced` for reusable functions that do not need tracing, especially small library functions and hot paths.
+
+Do not create a span merely because a helper exists.
+Choose boundaries that answer a question about the job's duration, dependencies or failure.
+
+## Add safe attributes deliberately
+
+A span name should remain stable across requests.
+Put safe variation in attributes instead of generating a new name for every input.
+Keep unrestricted input, credentials, request bodies and private identities out of telemetry.
+
+| Useful context | Avoid |
+| --- | --- |
+| Operation phase or bounded outcome name | Full request or response bodies |
+| A deliberate public category | Credentials and authorization headers |
+| A measured count relevant to the operation | Unrestricted input or private identity |
+
+**What to notice:** Structured attributes can outlive the request. Structure does not make a private value safe.
+
+Use `annotateCurrentSpan` when adding attributes inside the operation.
+Use `annotateSpans` when supplying annotations through an enclosing Effect.
+Review the resulting payload, not only the annotation call.
+
+## Supply an exporter, serializer and transport
+
+The checked fixture composes the OTLP tracer with JSON serialization and an in-memory HTTP client:
+
+```ts repo=rat-stack path=packages/core/test/trace-export.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=51-65
+```
+
+**What to notice:** `OtlpTracer.layer` does not invent a transport. The caller supplies both the serializer and `HttpClient`.
+
+These observability modules are marked unstable in the exact 4.0.0 source.
+A stable package version does not make every exported module's API stable.
+Keep the exact pin and check its source before changing exporter composition.
+
+Kit Langton's OTLP draft supplies the composition question.
+Its `@effect/opentelemetry` example is not a spelling-only substitute for these modules.
+This fixture follows the exact Effect teaching source, not the draft's install commands.
+
+## Check the delivery boundary you actually exercised
+
+The fixture's transport decodes outbound JSON through a small Schema.
+It records the payload in a Ref instead of contacting a collector.
+After shutdown, the test requires the operation name and the annotation key.
+
+```ts repo=rat-stack path=packages/core/test/trace-export.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=66-79
+```
+
+**What to notice:** The fixture observes a serialized export request. It does not prove backend acceptance, storage, or a production exporter configuration.
+
+| Evidence | What it establishes |
+| --- | --- |
+| Named `fn` in source | An instrumentation boundary exists |
+| Decoded outbound request in the fixture | This composed exporter emits the expected trace fields |
+| Collector receipt | That collector accepted the payload |
+| A queried stored trace | The backend retained a trace you can retrieve |
+
+**What to notice:** None of these receipts substitutes for the next delivery boundary.
+
+## Keep other observers distinct
+
+[Devtools](/systems/devtools) records capability calls and watched actor lifecycles.
+[Request analytics](/systems/analytics) captures request events through its own sink.
+Neither system substitutes for trace-export evidence.
+
+Logs also have their own logger and export configuration.
+Do not claim a log was delivered because it appeared in a local console.
+
+## Common mistakes
+
+- Assume naming a span installs a collector.
+- Treat a test transport as a live backend.
+- Put every argument into telemetry for convenience.
+- Copy exporter settings from a different Effect version without checking its dependencies.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Instrument meaningful operations and compose explicit observability Layers at the runtime edge.
+- **rat-stack house rule:** Keep private values scoped and report each observed delivery boundary honestly.
+- **Separate house rule:** Actor watching and capability recording remain their own devtools paths.
+
+Next, [run Effect at the integration boundary](/lore/run-effect-at-the-boundary) and connect observability lifetime to its runtime owner.
+Return to the [Effect reading map](/lore/structure-effect-by-domain).
