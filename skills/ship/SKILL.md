@@ -46,7 +46,7 @@ Read [runner selection](https://github.com/joelhooks/rat-stack/blob/main/skills/
 
 Use only capabilities marked on. When automation is off, the authorized owner follows the project's manual path.
 
-Concurrent releases are allowed. WAIT[stage-queue] owns queue admission. Serialize deployment mutations through each stage's queue, not release preparation or verification. Latest eligible candidates supersede older queued candidates; record that outcome.
+Concurrent releases are allowed. WAIT[stage-queue] owns queue admission. Serialize deployment mutations through each stage's queue. Prepare and verify releases concurrently. Latest eligible candidates supersede older queued candidates; record that outcome.
 
 Guard each release with its own version-scoped checks. Never wait for the previous release's post-check. Require an observed plan, exact version readback and forward-compatible storage.
 
@@ -64,7 +64,7 @@ WAIT[release-scope] owns unresolved authorization or stage assignment. WAIT[adap
 
 Follow the release machine's measured-failure policy. Do not expand the approved scope to credentials, infrastructure, schema, provider writes or real-reader sends.
 
-Follow the project's destroy refusal. Rollback promotes the previous known-good version immediately, without a rebuild or a fixed observation wait. Verify its readback. It restores code, not arbitrary data or infrastructure.
+Follow the project's destroy refusal. Rollback promotes the previous known-good version immediately, without a rebuild or a fixed observation wait. Verify its readback. It restores code only.
 
 ## 6. Maintain one surface
 
@@ -74,6 +74,6 @@ Read [catalog maintenance](https://github.com/joelhooks/rat-stack/blob/main/skil
 
 Keep this procedure and its references generic. Keep project facts behind [the project mapping](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/project.md). Keep executable logic in the owning Effect packages and CLIs.
 
-Skill scripts are thin launchers only. Stack and fence alignment belongs to the project's maintenance skill, not this release procedure.
+Skill scripts are thin launchers only. Use the project's maintenance skill for stack and fence alignment.
 
-Phase 1 has no waits ledger. WAIT labels above name procedure boundaries, not an implemented scheduler. Missing evidence stops deployment.
+Phase 1 has no waits ledger. WAIT labels above name procedure boundaries. The scheduler remains unimplemented. Missing evidence stops deployment.
