@@ -2,14 +2,12 @@ import { NodeServices } from "@effect/platform-node";
 import { it } from "@effect/vitest";
 import { Drift, codeIdentity, prepareCode } from "@rat-stack/code-snippets";
 import type { CodeSnippet } from "@rat-stack/code-snippets";
-import { gitLayer } from "@rat-stack/code-snippets/git";
 import { plainLayer } from "@rat-stack/code-snippets/plain";
 import { Context, Effect, FileSystem, Layer, Schema } from "effect";
 import { mdsvex } from "mdsvex";
 import { compile } from "svelte/compiler";
 import { expect } from "vitest";
 
-import { codeRepositories } from "../scripts/code-config.ts";
 import { collectBuildFences } from "../scripts/code-inputs.ts";
 import { codeComponent, collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
@@ -20,6 +18,7 @@ import {
 } from "../scripts/component-registry.ts";
 import type { ComponentRegistry } from "../scripts/component-registry.ts";
 import { ContentBuildError } from "../scripts/content-error.ts";
+import { openGitSnapshot } from "../scripts/git-snapshot.ts";
 import { peerComponentRegistry, peerPins, PeerRows } from "../scripts/peers.ts";
 import {
   contentLinkHrefs,
@@ -342,8 +341,10 @@ class RegistryFixtures extends Context.Service<
 
       const root = new URL("../../../", import.meta.url).pathname;
 
+      const snapshot = yield* openGitSnapshot(root, false);
+
       const prepared = yield* prepareCode(yield* collectBuildFences(root)).pipe(
-        Effect.provide([Drift.silent, gitLayer(codeRepositories(root))])
+        Effect.provide([Drift.silent, snapshot.sourceLayer])
       );
 
       const registry = createComponentRegistry({

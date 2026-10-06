@@ -47,11 +47,15 @@ it.effect.prop(
 
           const websiteProps = yield* Schema.decodeUnknownEffect(
             Schema.Struct({
-              env: Schema.Struct({ PREVIEW_COMMIT: Schema.String }),
+              env: Schema.Record(Schema.String, Schema.Unknown),
             })
           )(stack.resources.Website?.Props);
 
           expect(websiteProps.env.PREVIEW_COMMIT).toBe("a".repeat(40));
+          expect(Object.keys(websiteProps.env).toSorted()).toEqual([
+            "BACKEND",
+            "PREVIEW_COMMIT",
+          ]);
 
           const backendProps = yield* Schema.decodeUnknownEffect(
             Schema.Struct({

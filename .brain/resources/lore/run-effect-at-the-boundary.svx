@@ -1,0 +1,132 @@
+---
+title: "Run Effect at the integration boundary"
+description: "Build the runtime where foreign code enters, reuse its services, and dispose it when that integration ends."
+group: idea
+created_at: "2026-10-06"
+updated_at: "2026-10-06"
+terms:
+  - "Runtime boundary"
+  - "Managed runtime"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/ManagedRuntime.ts
+    title: "Effect contributors. 2026. ManagedRuntime. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "make builds a Layer lazily, caches its context, owns resources and running fibers, and refuses reuse after disposal."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/04_integration/10_managed-runtime.ts
+    title: "Effect contributors. 2026. Using ManagedRuntime with existing applications."
+    publisher: "Effect-TS"
+    note: "A foreign framework can reuse one managed runtime while application behavior stays in services and Layers."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/http/HttpRouter.ts
+    title: "Effect contributors. 2026. HttpRouter."
+    publisher: "Effect-TS"
+    note: "toWebHandler adapts an Effect router Layer to native Request/Response handling and supplies a disposal function."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/apps/web/src/dev/backend.ts
+    title: "rat-stack contributors. 2026. Development backend bridge."
+    publisher: "rat-stack"
+    note: "The backend uses HttpRouter.toWebHandler rather than creating its own ManagedRuntime. The excerpt does not establish explicit shutdown handling."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/4019cffbcbdb282d6f006854ff5b1f26d3b407e0/packages/capability/test/runtime-boundary.test.ts
+    title: "rat-stack contributors. 2026. Foreign runtime boundary fixture."
+    publisher: "rat-stack"
+    note: "Checks lazy construction, repeated calls sharing one service, one release, and rejection after disposal through a Promise-facing test subject."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/10-incremental-adoption.md
+    title: "Langton, Kit. 2026. Incremental Adoption. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "The proposed outline frames integration questions. It is not a completed recipe or API reference."
+    accessed: "2026-10-06"
+---
+
+Keep service methods as Effects. Run them where a process, framework, or callback requires execution.
+The integration boundary owns the runtime's lifetime. This page uses Effect 4.0.0.
+
+## Use the bridge the host needs
+
+| Host | Suitable execution boundary |
+| --- | --- |
+| One CLI process | Compose the program, then use `NodeRuntime.runMain` |
+| Effect-native HTTP router | Adapt its Layer with `HttpRouter.toWebHandler` |
+| Foreign Promise-based framework | Reuse a `ManagedRuntime` owned by that integration |
+| Effect-aware test | Let `it.effect` or `it.layer` execute the test |
+
+**What to notice:** A managed runtime is one integration tool. It is not required inside every Effect application.
+
+The [basics page](/lore/effect-basics) shows CLI, Worker and test execution boundaries.
+The CLI's composition root supplies requirements before running its program.
+
+## Do not replace an existing Effect bridge
+
+The development backend already uses a router bridge:
+
+```ts repo=rat-stack path=apps/web/src/dev/backend.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=9-18
+```
+
+**What to notice:** The framework calls `handler` with a native request. The backend does not create a separate managed runtime.
+
+`toWebHandler` also returns a disposal function.
+This module keeps only the handler; the excerpt does not prove explicit disposal on development-server shutdown.
+Do not present that missing receipt as established resource cleanup.
+
+## Own a foreign runtime explicitly
+
+The checked adapter exposes a small Promise API to a hypothetical foreign framework.
+It creates one managed runtime from a counted resource Layer.
+
+```ts repo=rat-stack path=packages/capability/test/fixtures/wiki/foreign-runtime-boundary.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=6-23
+```
+
+**What to notice:** Effect stays inside the adapter. Callers receive a Promise-facing `read` and an explicit `close`.
+
+The Layer builds on first use. Later calls reuse the built service context.
+`close` disposes the runtime and releases its resources.
+An integration must connect that close operation to its own shutdown path.
+
+The native async function belongs to this foreign boundary.
+It is not a pattern for domain methods or a reason to scatter `runPromise` through them.
+
+## Prove disposal through the foreign interface
+
+The fixture's test harness uses `it.effect`.
+The manual runtime belongs to the adapter under test, not to the harness that executes assertions.
+
+```ts repo=rat-stack path=packages/capability/test/runtime-boundary.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=10-30
+```
+
+**What to notice:** Two reads acquire once. Closing twice releases once. A read after closure must fail.
+
+The test wraps the subject's native Promises with Effect adapters.
+Its outer bracket also closes the subject if an assertion fails.
+It establishes this fixture's lifetime, not a running server's shutdown behavior.
+
+## Adopt one edge at a time
+
+1. Identify the process or framework that requires execution.
+2. Keep the job's input, output and failures typed inside Effect.
+3. Build the needed services at the integration boundary.
+4. Translate native callbacks or Promises at that edge.
+5. Connect disposal to the host's shutdown path.
+6. Test the foreign interface and its cleanup.
+
+Kit Langton's incremental-adoption outline asks where existing code should meet Effect.
+Exact Effect source and these independent fixtures supply the working answer here.
+A generic client wrapper is optional; it is not mandatory application architecture.
+
+## Common mistakes
+
+- Create a runtime for each domain method. Construction and cleanup lose a clear owner.
+- Return native Promises throughout the domain. Typed failures and requirements no longer compose through the Effect description.
+- Forget to dispose a long-lived runtime.
+- Assume a framework's shutdown is proven because the adapter returns a close function.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Runners and framework bridges execute Effects; runtime owners manage their Layers and disposal.
+- **rat-stack house rule:** [Capabilities remain the shared action edge](/lore/one-capability-every-surface). A new runner does not authorize a raw bypass.
+- **Separate house rule:** Test harnesses use [Effect-aware tests](/lore/tests-that-earn-their-place), not manually created runtimes.
+
+Read [scopes](/lore/scopes-own-resources) when deciding what the integration owns.
+Read [services](/lore/services-capture-dependencies) before extracting the job from its host.
+Return to the [Effect reading map](/lore/structure-effect-by-domain).

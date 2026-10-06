@@ -20,7 +20,7 @@ for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_API_KEY CLOUDFLARE_EMAIL CLOUDFLARE_A
 done
 
 case "$mode" in
-  --plan) flags=(--dry-run) ;;
+  --plan) flags=(--dry-run --detailed) ;;
   --yes) flags=(--yes) ;;
   *) printf '%s\n' 'Use --plan (default) or --yes after review.' >&2; exit 2 ;;
 esac
@@ -37,5 +37,5 @@ esac
 export PREVIEW_COMMIT="$(git rev-parse HEAD)"
 printf 'Preview: pr-%s; commit: %s\n' "$pr" "$PREVIEW_COMMIT"
 pnpm --filter @rat-stack/infra exec -- alchemy "$operation" \
-  --main alchemy.preview.ts --stage "pr-$pr" --profile ratstack \
+  --config alchemy.preview.ts --stage "pr-$pr" --profile ratstack \
   --env-file ../../packages/deploy/empty.env "${flags[@]}"
