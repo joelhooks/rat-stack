@@ -32,7 +32,7 @@ sources:
 
 The database [cartridge](/lore/cartridges), `packages/database`, gives callers one service, `RunLog`. It records a capability run with its outcome and lists a person's recent runs. `DatabaseVendor` chooses where the rows live: Cloudflare D1, or Postgres through Hyperdrive. Each vendor brings its own Drizzle schema, migrations, and resources.
 
-ratstack.sh does not run it. Nothing in the deployed Worker uses the database. Its one consumer is [auth](/systems/auth), which today runs only in the web app's dev server. A clone that needs people and history starts here.
+The database's one consumer is [auth](/systems/auth), which today runs only in the web app's dev server. The deployed ratstack.sh Worker does not use it. A clone that needs people and history starts here.
 
 ## The standard
 
