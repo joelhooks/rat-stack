@@ -1,7 +1,7 @@
 {
   "files": {
     ".brain/areas/agent-front-door.svx": "a860dac8935bb08dd934db0a23d9889cd0b955526a8df6dfe9d1bf68a51ad2cf",
-    ".brain/areas/analytics.svx": "9540c02e2219cb46e2534b852b3d4def7a5e600dc37036ebf6bc865de79d67a6",
+    ".brain/areas/analytics.svx": "f7fb1ca2ff845e7fbf24a5c1469fa6c5784bb4032238e92812ee3f58b8f2db10",
     ".brain/areas/auth.svx": "fff7022bebd4a53899256f061c01503c16d7bcdc0db5834691d0e32c5330e2d3",
     ".brain/areas/capabilities.svx": "d4c1d565b1428889007fc1d51c98ca57db91dfd6e3c9f8f5528645f3d096f92f",
     ".brain/areas/database.svx": "841b35762c8a65023fd4897968f73cb9bdb35032ac1eb9fa218846f53f8602b1",

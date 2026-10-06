@@ -79,11 +79,11 @@ it.effect(
     }).pipe(Effect.provide(NodeServices.layer))
 );
 
-it.effect("keeps custom logs but disables invocation metadata and traces", () =>
+it.effect("keeps custom and invocation logs enabled with traces disabled", () =>
   Effect.sync(() => {
     expect(privateObservability.enabled).toBe(true);
     expect(privateObservability.logs.enabled).toBe(true);
-    expect(privateObservability.logs.invocationLogs).toBe(false);
+    expect(privateObservability.logs.invocationLogs).toBe(true);
     expect(privateObservability.traces.enabled).toBe(false);
   })
 );

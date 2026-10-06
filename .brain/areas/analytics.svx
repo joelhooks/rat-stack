@@ -91,17 +91,17 @@ All three Worker declarations share `privateObservability` in `apps/mischief/src
 - RpcBackend.
 - Website.
 
-The policy disables per-request invocation logs and traces. Application `console` and Effect error logs remain enabled.
+The policy enables per-request invocation logs. Traces remain disabled. Application `console` and Effect error logs remain enabled.
 
-500s log their cause with an incident id.
+Application-generated 500s log their cause with an incident id. Runtime exceptions can bypass the application handler. Invocation logs record those failures without an application incident id.
 
 Cloudflare invocation logs contain request, response, and related metadata. They are separate from custom application messages.
 See [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
 
-Client IPs reach Basin only as salted hashes. The Worker policy prevents automatic request-header dumps in stored invocation logs.
-Application logs must not print raw IPs or request headers.
+Client IPs reach Basin only as salted hashes. Cloudflare stores invocation metadata in the private provider account.
+Application logs must not print raw IPs or request headers. Keep provider log access private.
 
-These settings apply after deployment. They do not erase previously stored logs.
+These settings apply after deployment. Provider retention rules govern stored logs.
 
 ## Switches
 
