@@ -302,12 +302,18 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
     devDependencies:
+      '@effect/vitest':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
       typescript:
         specifier: 7.0.2
         version: 7.0.2
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   apps/mischief:
     dependencies:
@@ -526,6 +532,25 @@ importers:
         specifier: 5.0.1
         version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
+  packages/check-harness:
+    dependencies:
+      effect:
+        specifier: 4.0.0
+        version: 4.0.0
+    devDependencies:
+      '@effect/vitest':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@types/node':
+        specifier: 24.13.6
+        version: 24.13.6
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+
   packages/code-snippets:
     dependencies:
       effect:
@@ -624,6 +649,43 @@ importers:
       sql.js:
         specifier: 1.14.2
         version: 1.14.2
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+
+  packages/deploy:
+    dependencies:
+      '@effect/platform-node':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
+      '@rat-stack/capability':
+        specifier: workspace:*
+        version: link:../capability
+      '@rat-stack/check-harness':
+        specifier: workspace:*
+        version: link:../check-harness
+      '@xstate/effect':
+        specifier: 0.1.0-alpha.6
+        version: 0.1.0-alpha.6(effect@4.0.0)(xstate@6.0.0-alpha.63)
+      alchemy:
+        specifier: 2.0.0-beta.80
+        version: 2.0.0-beta.80(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+      effect:
+        specifier: 4.0.0
+        version: 4.0.0
+      xstate:
+        specifier: 6.0.0-alpha.63
+        version: 6.0.0-alpha.63
+    devDependencies:
+      '@effect/vitest':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@types/node':
+        specifier: 24.13.6
+        version: 24.13.6
       typescript:
         specifier: 7.0.2
         version: 7.0.2

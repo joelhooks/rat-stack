@@ -5,6 +5,60 @@ import * as Arbitrary from "effect/Arbitrary";
 import { websiteHandler } from "../src/server/handler.js";
 
 it.effect.prop(
+  "marks every preview response noindex without changing status or body",
+  {
+    path: Schema.Literals([
+      "/rpc",
+      "/rpc/read",
+      "/__rat",
+      "/__rat/rpc",
+      "/",
+      "/read",
+    ]),
+    pr: Schema.Int.check(Schema.isGreaterThan(0)),
+    sha: Arbitrary.schema(
+      Schema.String.check(Schema.isPattern(/^[0-9a-f]{40}$/u))
+    ),
+  },
+  ({ sha, path, pr }) =>
+    Effect.gen(function* previewHeaders() {
+      const handler = websiteHandler(
+        // @effect-diagnostics-next-line asyncFunction:off -- This test double mirrors the Worker binding Promise boundary.
+        async () => await Promise.resolve(new Response("rpc", { status: 201 })),
+        // @effect-diagnostics-next-line asyncFunction:off -- This test double mirrors the asset binding Promise boundary.
+        async () =>
+          await Promise.resolve(new Response("asset", { status: 202 })),
+        sha
+      );
+
+      const response = yield* Effect.promise(
+        // @effect-diagnostics-next-line asyncFunction:off -- The handler returns a host Promise.
+        async () =>
+          await handler(new Request(`https://pr-${pr}.ratstack.sh${path}`))
+      );
+
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+      expect(response.headers.get("X-Preview-Commit")).toBe(sha);
+
+      const body = yield* Effect.promise(
+        // @effect-diagnostics-next-line asyncFunction:off -- Response.text is a host Promise.
+        async () => await response.text()
+      );
+
+      if (path.startsWith("/__rat")) {
+        expect(response.status).toBe(404);
+        expect(body).toBe("Not found");
+      } else if (path.startsWith("/rpc")) {
+        expect(response.status).toBe(201);
+        expect(body).toBe("rpc");
+      } else {
+        expect(response.status).toBe(202);
+        expect(body).toBe("asset");
+      }
+    })
+);
+
+it.effect.prop(
   "routes RPC to its binding, blocks private inspector paths, and serves other assets",
   {
     family: Arbitrary.schema(Schema.Literals(["rpc", "private", "assets"])),

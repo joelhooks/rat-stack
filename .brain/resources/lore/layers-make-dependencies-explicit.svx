@@ -1,0 +1,103 @@
+---
+title: "Layer composition makes dependencies explicit"
+description: "Supply a service's dependencies, choose which services remain visible, and reuse Layer identity within a build."
+group: idea
+terms:
+  - "Layer composition"
+  - "Layer memoization"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Layer.ts
+    title: "Effect contributors. 2026. Layer. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "provide supplies dependencies; provideMerge retains their services; memoization uses Layer identity and a MemoMap."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/test/Layer.test.ts
+    title: "Effect contributors. 2026. Layer tests."
+    publisher: "Effect-TS"
+    note: "Tests establish shared construction and resource lifetime within memoization contexts."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/apps/cli/src/cli.ts
+    title: "rat-stack contributors. 2026. CLI composition root."
+    publisher: "rat-stack"
+    note: "The CLI provides FileInspector and platform services before NodeRuntime.runMain."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/72306d84e9b57f068f8e293c0d2f0c7b934338e1/packages/core/test/layer-composition.test.ts
+    title: "rat-stack contributors. 2026. Layer identity fixture."
+    publisher: "rat-stack"
+    note: "A checked seam fixture counts one construction for shared identity and two for separate Layer instances."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md
+    title: "Langton, Kit. 2026. Services & Layers. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Topic framing for provision and identity-based Layer sharing; rewritten around rat-stack's code."
+    accessed: "2026-10-06"
+---
+
+A Layer describes how to build a service from other services.
+Compose the graph before running the application. Keep dependencies private unless callers need them too.
+This page uses Effect 4.0.0.
+
+## Supply dependencies without changing the domain
+
+`FileInspector.layer` needs a filesystem implementation.
+`NodeServices.layer` supplies platform services. The CLI combines them before execution.
+
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=16-25
+```
+
+**What to notice:** The CLI decides which implementation runs. The domain service does not choose Node for its callers.
+
+Choose the combinator by the services the resulting Layer should expose:
+
+| Combinator | What the resulting Layer exposes |
+| --- | --- |
+| `Layer.provide(dependency)` | The consuming Layer's services |
+| `Layer.provideMerge(dependency)` | The consuming Layer's services and the dependency's services |
+| `Layer.merge` or `mergeAll` | The combined services; unrelated requirements remain unresolved |
+
+**What to notice:** Merging services does not, by itself, feed one Layer into another Layer's requirements.
+
+The test suite retains platform services with `provideMerge` because tests also create temporary files.
+Production callers that need only the inspector can keep its implementation dependency private with `provide`.
+
+## Reuse Layer identity when sharing construction
+
+Sharing follows Layer identity within a memoization context. Equivalent construction code does not make two Layer values identical.
+This is not a process-wide singleton guarantee.
+
+The fixture gives two consumers a resource. One case shares a Layer value; the other calls the Layer factory again.
+
+```ts repo=rat-stack path=packages/core/test/layer-composition.test.ts at=72306d84e9b57f068f8e293c0d2f0c7b934338e1 lines=16-23
+```
+
+**What to notice:** `Resource.layer()` creates a new Layer value. Reusing `resource` lets the two branches share construction.
+
+The fixture checks the result, not only the graph's shape:
+
+```ts repo=rat-stack path=packages/core/test/layer-composition.test.ts at=72306d84e9b57f068f8e293c0d2f0c7b934338e1 lines=25-32
+```
+
+**What to notice:** Shared identity produces one construction and equal service ids. Separate identity produces two constructions and distinct ids.
+
+Independent application runtimes do not share instances merely because they import the same Layer value.
+Their construction context and memo-map lifetime matter too.
+
+## Common wrong approach
+
+Calling a Layer factory twice can create two pools, caches, or background workers when one shared instance was intended.
+Keep the constructed Layer value and provide that same value to both consumers.
+
+Do not use `provideMerge` everywhere to silence missing-service errors.
+Read which services callers need. Retaining every dependency exposes implementation details and makes removal harder.
+
+Kit Langton's *Services & Layers* supplies the sharing question.
+The fixture adapts its same-instance versus separate-instance example with independently written services.
+Exact Effect source establishes the sharing behavior; `PROVENANCE.md` records the adapted example.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Layers carry output services, construction failures, and input requirements. Composition resolves the requirements.
+- **rat-stack house rule:** Each entrypoint owns its composition root. A cartridge must pull out without breaking unrelated packages.
+- **Not an Effect requirement:** Our workspace layout or a separate package for every adapter.
+
+See also: [service construction](/lore/services-capture-dependencies), [domain structure](/lore/structure-effect-by-domain), [cartridges](/lore/cartridges), and [testing](/lore/tests-that-earn-their-place).

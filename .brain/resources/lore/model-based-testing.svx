@@ -17,8 +17,8 @@ sources:
     publisher: "David Khourshid · Stately docs"
     note: "Graph docs; used for generated paths from XState machines."
     accessed: "2026-10-01"
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
-    title: "effect/packages/effect/src/unstable/arbitrary/Arbitrary.ts at effect@4.0.0-rc.117 · Effect-TS/effect · GitHub"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts
+    title: "Effect contributors. 2026. Arbitrary. Effect 4.0.0."
     publisher: "GitHub Effect-TS/effect"
     note: "Arbitrary API; used for generated and shrinking command sequences."
     accessed: "2026-10-01"
@@ -29,12 +29,19 @@ sources:
     accessed: "2026-10-01"
 ---
 
-Model-based testing writes down what a system should do as a small model, then generates sequences of actions and checks that the real system and the model agree after each step. It suits anything with history: sessions, retries, lifecycles.
+Model-based testing describes expected behavior as a small model. It generates action sequences and compares the real system with the model after each step.
+It suits anything with history: sessions, retries, lifecycles.
 
 [David Khourshid](/lore/david-khourshid) described the approach with state machines in [Model-Based Testing in React with State Machines](https://css-tricks.com/model-based-testing-in-react-with-state-machines/). XState builds it into `xstate/graph`: `createTestModel` wraps a machine, and `getShortestPaths` turns it into test paths. "Path generation enables model-based testing - generating test cases directly from your state machine." [Graph & Paths](https://stately.ai/docs/graph)
 
-Effect 4's `Arbitrary.array` generates command sequences. Its documentation uses a state machine as the example, and failed sequences shrink by removing irrelevant commands. [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts)
+Effect 4's `Arbitrary.array` generates command sequences. Its documentation uses a state machine as the example, and failed sequences shrink by removing irrelevant commands. [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts)
 
-In rat-stack, [the visitor identity model](https://github.com/joelhooks/rat-stack/blob/main/packages/events/test/visitor.model.test.ts) generates visits from three devices, with and without their cookie, across day boundaries. The model says a persistent id survives every visit that keeps its cookie, and a daily id is stable within a day, sets no cookie, and never repeats on a later day. Making the daily hash ignore the day broke the model at once.
+In rat-stack, [the visitor identity model](https://github.com/joelhooks/rat-stack/blob/main/packages/events/test/visitor.model.test.ts) generates visits from three devices.
+Visits may keep or drop the cookie. Visits also cross day boundaries.
+
+A persistent id survives every visit that keeps its cookie. A daily id stays stable within a day and sets no cookie.
+It never repeats on a later day. Making the daily hash ignore the day broke the model at once.
 
 Machines in this repo are [lifecycles](/lore/lifecycles-are-machines), so each one is a ready-made test model. See [property-based testing](/lore/property-based-testing) for single-input rules.
+
+See also: [Tests through supplied services](/lore/tests-that-earn-their-place).

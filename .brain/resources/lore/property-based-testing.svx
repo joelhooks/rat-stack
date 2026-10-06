@@ -8,8 +8,8 @@ terms:
   - "property tests"
   - "PBT"
 sources:
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts
-    title: "effect/packages/effect/src/unstable/arbitrary/Arbitrary.ts at effect@4.0.0-rc.117 · Effect-TS/effect · GitHub"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts
+    title: "Effect contributors. 2026. Arbitrary. Effect 4.0.0."
     publisher: "GitHub Effect-TS/effect"
     note: "Arbitrary API; used for generated inputs and shrinking failures."
     accessed: "2026-10-01"
@@ -27,7 +27,7 @@ sources:
 
 An example test checks one input you picked. A property test states a rule that must hold for every input. It generates many inputs and shrinks a failing input to a small counterexample.
 
-Effect 4 ships its own engine in `effect/unstable/arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`. The same schema defines the [capability's contract](/systems/capabilities) and generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/effect%404.0.0-rc.117/packages/effect/src/unstable/arbitrary/Arbitrary.ts)
+Effect 4 ships its own engine in `effect/Arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`. The same schema defines the [capability's contract](/systems/capabilities) and generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts)
 
 `@effect/vitest` exposes it as `it.prop` and `it.effect.prop`.
 
@@ -44,3 +44,5 @@ A property earns its place only if breaking the code breaks it. When first writt
 A second property with an independent list of sensitive keys closed the gap. The failure shrank to a single input, `"secret": "token"`. See [tests that earn their place](/lore/tests-that-earn-their-place).
 
 For sequences of actions, use [model-based testing](/lore/model-based-testing).
+
+See also: [Tests through supplied services](/lore/tests-that-earn-their-place).

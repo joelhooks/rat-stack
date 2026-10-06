@@ -9,3 +9,5 @@ Name the behavior gap before adding a test. Prefer properties and generated hist
 **Example:** `packages/core/test/inspect-machine.model.test.ts` checks generated lifecycle histories against an independent model.
 
 **Held by:** `add-a-lifecycle-machine`, step 5; `gardener`, step 4; review for mutation evidence.
+
+Use [tests through supplied services](/lore/tests-that-earn-their-place) to choose a seam test, property, or generated history.

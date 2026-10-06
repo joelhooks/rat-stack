@@ -101,6 +101,26 @@ Every dependency is pinned exactly. Upgrade pins as a reviewed stack change, not
 | `pnpm vendor:agent-sources` | Clone core lib mirrors |
 | `pnpm turbo run check test build` | Cached verification pipeline |
 
+## Pull-request website previews
+
+Preview commands use `RatStackPreview`, separate from the production Stack and stage. The stage `pr-<n>` serves `https://pr-<n>.ratstack.sh` and updates with each commit.
+
+```sh
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview <pr> --plan
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview <pr> --yes
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview:destroy <pr> --plan
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview:destroy <pr> --yes
+```
+
+- Both commands default to a read-only plan. Review it before using `--yes`.
+- An upload requires a clean tree. The receipt and `X-Preview-Commit` header carry the checkout's full commit SHA.
+- Each preview declares only Website and its private, read-only content RpcBackend. The RPC group excludes signup and subscription capabilities; neither Worker binds intake or email credentials.
+- Website attaches one custom domain on the existing zone, looked up by name. It declares no zone, DNS records, email, redirects, or events resources.
+- The declaration guard rejects any other resource. Preview requests run through the Worker and receive `X-Robots-Tag: noindex`.
+- Alchemy manages the domain attachment inside the Website Worker, not as a separate plan row.
+- The production deploy driver stays production-only. It hardcodes `prod`, production inputs, and production checks; previews use Alchemy directly.
+- Expiry and PR-close teardown in CI belong to the ship lane. Until then, review and run the named stage's destroy command manually.
+
 ## Agentic surface
 
 Every clone includes `AGENTS.md` for repo law and commands, `CLAUDE.md` as Claude Code's pointer to that law, and `VISION.md` for project intent. Source mirrors live under `.agent_sources/` after you run the vendor script. Repo-local Pi extensions belong in `.pi/extensions/`.

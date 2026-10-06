@@ -4,6 +4,7 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 
 | Code | Origin | Notes |
 | --- | --- | --- |
+| `packages/core/test/layer-composition.test.ts`, `packages/core/test/fixtures/layer-composition/` | [effect-solutions](https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md) | adapted from effect-solutions by Kit Langton (MIT) @ 09f82e6. The same-instance versus separate-instance example becomes a counted-construction fixture with independently written services. |
 | `scripts/oxlint-plugin-xstate-effect.ts` | [statelyai/xstate](https://github.com/statelyai/xstate) `scripts/oxlint-plugin-xstate-effect.mjs` at `xstate@6.0.0-alpha.58` (commit `0748e1b`), MIT | Ported onto the typed `@oxlint/plugins` API with the same behavior. Diff the logic against upstream when refreshing. |
 | `scripts/oxlint-plugin-effect-tests.ts` | [t3code](https://github.com/pingdotgg/t3code) `oxlint-plugin-t3code/rules/no-manual-effect-runtime-in-tests.ts` | Adapted. |
 | `packages/core/src/config-service.ts` | [opencode](https://github.com/sst/opencode) `packages/opencode/src/effect/config-service.ts` | Pattern moved onto the Effect 4 API. |
@@ -19,6 +20,14 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 `apps/web/src/features/chrome.stylex.ts` adapts the brand and flex-shell recipes from Foldworks by Ben Jacobson (MIT), `packages/sidebar/src/styles.ts` @ `0f16fd8`. The app replaces theme colours with neutral values and the rat-stack focus token.
 
 The inspector uses the table caption, column scope, and stable row identity pattern from Foldworks by Ben Jacobson (MIT), `packages/data-table/src/view.ts` @ `0f16fd8`. Its keyboard handling uses Foldkit 0.166's native key-binding subscriptions, not Foldworks 0.156's keyboard implementation. No Foldworks package is installed.
+
+## Local deployment driver
+
+`packages/check-harness`, the service-port shape in `packages/deploy/src/deploy-runner.ts`, and `skills/ship` are ported from drovr (badass-courses), commit `6bfe63508539ee289564c4ef6a5768e26dca60b7`.
+
+Source paths: `packages/check-harness`, `packages/release-train/src/services/deploy-runner.ts`, `packages/release-train/src/services/alchemy-release.ts`, and `skills/ship`.
+
+The port removes project-specific orchestration. Deployment policy, the local Alchemy adapter and rat-stack smoke checks are new here.
 
 ## Lucide bot icon (ISC)
 
