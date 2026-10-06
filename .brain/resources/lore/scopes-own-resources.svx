@@ -36,7 +36,7 @@ sources:
 ---
 
 Construct the resource inside an acquisition Effect. Register release before handing the resource to its caller.
-Keep use inside the resource's lifetime. This page uses Effect 4.0.0.
+Keep use inside the resource's lifetime.
 
 ## Bracket one use
 
@@ -46,16 +46,12 @@ The migration adapter opens a Postgres client inside `Effect.tryPromise`.
 ```ts repo=rat-stack path=packages/database/src/postgres-migrations.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=64-81
 ```
 
-**What to notice:** `new Client` runs inside acquisition. Building the Effect does not connect to the database.
-
 The release callback closes the connection:
 
 ```ts repo=rat-stack path=packages/database/src/postgres-migrations.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=82-90
 ```
 
-**What to notice:** Cleanup belongs to the bracket, not to each return path in migration code.
-
-This example handles one acquired connection. It does not prove rollback of partially completed acquisition.
+This example handles one acquired connection.
 If acquisition fails before release registration, the acquisition code must clean up any partial resource it created.
 
 ## Choose the lifetime
@@ -66,7 +62,7 @@ If acquisition fails before release registration, the acquisition code must clea
 | `acquireRelease` | The current Scope; release runs when that Scope closes |
 | `scoped` | A new Scope around the supplied Effect |
 
-**What to notice:** A resource finalizer is cleanup work attached to an owner. It is not a business-state transition.
+A resource finalizer is cleanup work attached to an owner. It is not a business-state transition.
 
 Use `acquireRelease` when several operations need the same resource.
 A service Layer can own that resource for its build lifetime.
@@ -80,18 +76,13 @@ Its finalizer increments a separate release counter.
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-18
 ```
 
-**What to notice:** Acquisition remains lazy. The fixture does not simulate a database connection or claim provider behavior.
-
 The matrix exercises success, expected failure, and interruption.
 Each case must acquire once and release once. It also checks that the selected exit actually occurred.
 
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=37-55
 ```
 
-**What to notice:** Interrupting a fiber does not bypass its registered finalizer.
-
-Kit Langton's testing guide frames scoped test setup as an ownership problem.
-The counted fixture here is independently written. Exact Effect source establishes the release semantics.
+Interrupting a fiber does not bypass its registered finalizer.
 
 ## Common mistakes
 
@@ -101,14 +92,14 @@ The counted fixture here is independently written. Exact Effect source establish
 - Treat a close failure as harmless without checking the adapter's failure policy.
 
 The migration adapter makes shutdown failure a defect with `orDie`.
-That is a specific boundary decision, not a general instruction to hide expected failures.
+Ordinary callers still need declared failures in the typed channel.
 
 ## Effect idiom and house rule
 
-- **Effect idiom:** A Scope owns finalizers; brackets arrange acquisition, use, and release.
-- **rat-stack house rule:** Construct resources inside acquisition. The lint fence checks this shape.
-- **Separate house rule:** [Machines own finite business lifecycles](/lore/lifecycles-are-machines). Resource cleanup does not replace a lifecycle machine.
+- A Scope owns finalizers; brackets arrange acquisition, use, and release.
+- In rat-stack, construct resources inside acquisition. The lint fence checks this shape.
+- In rat-stack, [machines own finite business lifecycles](/lore/lifecycles-are-machines). Resource cleanup does not replace a lifecycle machine.
 
 Start with [Layer composition](/lore/layers-make-dependencies-explicit) when choosing the resource's owner.
 Then read [concurrent work](/lore/concurrent-work-needs-an-owner) before starting child work.
-Return to the [Effect reading map](/lore/structure-effect-by-domain).
+Return to the [Effect reading order](/lore/effect-basics#read-next).

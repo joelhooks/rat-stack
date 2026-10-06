@@ -10,4 +10,4 @@ Keep authored content in versioned files. Pin referenced code to an immutable re
 
 **Held by:** `packages/code-snippets/test/git.test.ts`; `packages/code-snippets/test/pipeline.test.ts`; `write-a-wiki-page`, step 4.
 
-The [Effect idiom pages](/lore/structure-effect-by-domain) pin their examples and cite exact Effect source revisions.
+The [Effect idiom pages](/lore/effect-basics#read-next) pin their examples and cite exact Effect source revisions.
