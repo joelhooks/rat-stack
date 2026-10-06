@@ -1,0 +1,207 @@
+---
+title: "Structure an Effect codebase by domain"
+description: "Start with domain folders, colocated services and Layers, and one composition root per entrypoint."
+group: idea
+terms:
+  - "Composition root"
+sources:
+  - url: https://x.com/just_be_dev/status/2107194260860613059
+    title: "Folder layout and service organization"
+    publisher: "Justin Bennett"
+    note: "Asks about both concerns and gives src/platform as an example."
+    accessed: "2026-10-06"
+  - url: https://x.com/samgoodwin89/status/2107204053151428850
+    title: "One service and Layer per file"
+    publisher: "Sam Goodwin"
+    note: "Recommends domain folders, colocated services and Layers, and entrypoint-level provision."
+    accessed: "2026-10-06"
+  - url: https://effect.website/docs
+    title: "Effect documentation"
+    publisher: "Effect"
+    note: "Starting point for maintained concepts and versioned documentation."
+    accessed: "2026-10-05"
+  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md
+    title: "Effect 4 authoring guidance"
+    publisher: "Effect-TS"
+    note: "Services, Schema, focused Layers, entrypoints, and framework integration; checked against installed 4.0.0 guidance."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md
+    title: "Services and Layers"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Service contracts, implementations, and explicit dependency composition."
+    accessed: "2026-10-05"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/05-data-modeling.md
+    title: "Data Modeling"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Schema as runtime validation and a shared data model."
+    accessed: "2026-10-05"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/06-error-handling.md
+    title: "Error Handling"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Expected failures and defects; API spellings need checking against the installed version."
+    accessed: "2026-10-05"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/08-testing.md
+    title: "Testing"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Effect tests, scoped resources, and test services."
+    accessed: "2026-10-05"
+  - url: https://www.effect.solutions/services-and-layers
+    title: "Services and Layers: test isolation"
+    publisher: "Effect Solutions"
+    note: "Fresh test Layers by default; shared Layers for expensive suite resources."
+    accessed: "2026-10-05"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/09-project-structure.md
+    title: "Project Structure draft"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Unfinished folder and package guidance; does not establish a community layout rule."
+    accessed: "2026-10-05"
+  - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/10-incremental-adoption.md
+    title: "Incremental Adoption"
+    publisher: "Kit Langton / Effect Solutions"
+    note: "Runners bridge existing imperative code at integration boundaries."
+    accessed: "2026-10-05"
+  - url: https://github.com/joelhooks/rat-stack/tree/54d356037c994f89698760a4727be71d0005a087
+    title: "rat-stack source snapshot"
+    publisher: "rat-stack"
+    note: "Services, contracts, adapters, composition roots, lifecycle machines, tests, and repository policy."
+    accessed: "2026-10-06"
+---
+
+## Start here
+
+Read these in order. This page uses Effect 4 names.
+
+1. [Effect documentation](https://effect.website/docs): start with concepts; choose Effect 4 examples.
+2. [Services and Layers](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md): separate the service contract from its implementation.
+3. [Data Modeling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/05-data-modeling.md): use Schema for values crossing boundaries.
+4. [Error Handling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/06-error-handling.md): distinguish expected failures from defects. Check API spellings against your installed version.
+5. [Testing](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/08-testing.md): provide test services with `@effect/vitest`.
+
+## Answer both structure questions
+
+[Justin Bennett asks about folders and service organization](https://x.com/just_be_dev/status/2107194260860613059), including `src/platform`.
+[Sam Goodwin recommends](https://x.com/samgoodwin89/status/2107204053151428850):
+
+> src/{domain} instead of src/{mechanism}. E.g. src/coding/edit.ts instead of src/tools/edit.ts. "tools" is the mechanism, "coding" is the domain.
+
+Sam also recommends one service plus Layer per file, and one entrypoint plus `Effect.provide` per file.
+We use that shape. It is a recommendation, not an Effect folder requirement.
+
+## The shape in one tree
+
+This is a small-app sketch, not a required template.
+
+```text
+src/
+├── files/
+│   ├── file-inspector.ts    Service, dependency capture, Layer
+│   ├── stats.ts             Schema and expected errors
+│   └── inspect-machine.ts   Optional finite lifecycle
+├── platform/
+│   └── files-node.ts        Platform adapter Layer
+└── main.ts                  Composition root and runtime entrypoint
+test/
+└── files/
+    └── file-inspector.test.ts
+```
+
+**What to notice:** Domain folders own behavior. `platform` supplies implementations, not domain rules.
+
+A **composition root** is the entrypoint module that assembles and provides the application's Layers.
+Use one per entrypoint, not one global root for every executable.
+
+`src/platform` is fine for adapters behind a port: a service interface that names the application's job.
+Domain code uses that interface; the composition root chooses the platform implementation.
+rat-stack separates these jobs into packages. A small app need not copy its workspace layout.
+
+## The rules that hold it together
+
+### Capture dependencies when constructing a service
+
+[Effect's service guidance](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md) colocates `Context.Service` and its Layer.
+Our `FileInspector` captures `FileSystem` during construction. Its methods have no filesystem requirement.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=54d356037c994f89698760a4727be71d0005a087 lines=6-16,33-35
+```
+
+**What to notice:** Construction needs the dependency; callers need only `FileInspector`.
+See [the Layer constructor pattern](/lore/layer-constructor-pattern).
+
+### Decode at boundaries with Schema
+
+[Data Modeling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/05-data-modeling.md) uses Schema for runtime validation and static types.
+rat-stack's `packages/core/src/contracts.ts` owns input, output, and failure schemas.
+See [schemas define the boundary](/lore/schemas-define-the-boundary).
+
+### Keep expected failures typed and defects distinct
+
+[Error Handling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/06-error-handling.md) separates expected failures from unexpected defects.
+`FileInspector` declares `FileStatsError` and preserves the failed path and filesystem reason.
+See [the error model](/lore/error-model). A crash is not a domain refusal.
+
+### Provide Layers at the entrypoint
+
+[Effect's guidance](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md) composes focused Layers with `Layer.provide` and `Layer.provideMerge`.
+Our CLI assembles dependencies before running the program.
+
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=54d356037c994f89698760a4727be71d0005a087 lines=16-25
+```
+
+**What to notice:** `Effect.provide` resolves requirements before `NodeRuntime.runMain` runs the final Effect.
+
+### Keep ports inside and adapters outside
+
+[Services and Layers](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md) separates contracts from implementations.
+Our adapter placement is house architecture: core owns `SubscriberIntake`; `packages/subscriber-delivery` implements it.
+Apps provide that implementation. See [hexagonal architecture](/lore/hexagonal-architecture).
+
+### Use machines for finite lifecycles
+
+This is rat-stack policy, not an Effect requirement.
+`packages/core/src/inspect-machine.ts` declares side effects with `fromEffect` and starts them with `createEffectActor`.
+Use this for finite modes, cancellation, or legal event sequences. Keep direct Effects when those concerns do not apply.
+
+### Test through Layers
+
+[Testing](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/08-testing.md) introduces `it.effect` and scoped test services.
+[Services and Layers](https://www.effect.solutions/services-and-layers) recommends fresh test Layers by default; share expensive resources with `it.layer`.
+Our `packages/core/test/file-inspector.test.ts` provides filesystem services through `it.layer(TestLayer)`.
+
+## House style versus Effect idiom
+
+| Take the Effect idiom | rat-stack adds |
+| --- | --- |
+| Services and composable Layers | Colocated `make` and `static layer` |
+| Schema-backed boundaries | Capability contracts and derived surface projections |
+| Replaceable implementations | Cartridges with an add/remove test |
+| Typed failures and scoped effects | XState lifecycles through `@xstate/effect` |
+| Effect-aware tests | Property/model testing and a manual-runtime ban |
+| Explicit requirements | A type-aware lint fence |
+| No prescribed comment policy | No prose comments in code |
+
+**What to notice:** You can use Effect without capability projections, cartridges, XState, or our lint rules.
+
+## Common beginner mistakes
+
+- **Choosing folders before jobs.** Name the domain first; put platform implementations behind its service interface.
+- **Parsing unknown input by hand.** Decode it with Schema at the boundary.
+- **Running an Effect inside another Effect.** Compose it instead; run at the integration edge.
+- **Treating every failure as recoverable.** Keep expected errors typed; do not turn defects into ordinary outcomes.
+- **Copying API names across versions.** Check your installed Effect guidance before copying examples.
+
+## Where disagreement lives
+
+- **Folder layout:** Sam favors domains. Effect does not mandate folders; Kit's [structure guide remains a draft](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/09-project-structure.md).
+- **Routes:** Sam calls one API route per file potentially controversial. rat-stack instead keeps one capability per file and derives routes.
+- **Mocks:** Test Layers express replaceable boundaries. The cited guidance does not establish that every mock is wrong.
+- **Runners:** Domain code composes Effects. [Incremental adoption](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/10-incremental-adoption.md) uses runners to bridge existing imperative code.
+
+These sources do not settle monorepo versus single-package layout. Choose that separately from the service graph.
+
+## Read further
+
+- [Effect basics](/lore/effect-basics), [context and requirements](/lore/context-and-requirements), and [the Layer constructor pattern](/lore/layer-constructor-pattern).
+- [How we use Effect](/lore/how-we-do-it-with-effect), [the error model](/lore/error-model), and [hexagonal architecture](/lore/hexagonal-architecture).
+- [Cartridges](/lore/cartridges) explains our package boundary.
+- Try [learn rat-stack](/skills/learn-rat-stack), [add a capability](/skills/add-a-capability), or [add a store](/skills/add-a-store).
+- [rat-stack mode](/skills/rat-stack-mode) routes changes through our playbooks.
