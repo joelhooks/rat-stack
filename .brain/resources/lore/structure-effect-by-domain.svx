@@ -20,10 +20,10 @@ sources:
     publisher: "Effect"
     note: "Starting point for maintained concepts and versioned documentation."
     accessed: "2026-10-05"
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md
-    title: "Effect 4 authoring guidance"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/01_service.ts
+    title: "Effect contributors. 2026. Context.Service. Effect 4.0.0."
     publisher: "Effect-TS"
-    note: "Services, Schema, focused Layers, entrypoints, and framework integration; checked against installed 4.0.0 guidance."
+    note: "Exact-tag service guidance colocates a service interface and its Layer."
     accessed: "2026-10-06"
   - url: https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md
     title: "Services and Layers"
@@ -71,11 +71,16 @@ sources:
 
 Read these in order. This page uses Effect 4 names.
 
-1. [Effect documentation](https://effect.website/docs): start with concepts; choose Effect 4 examples.
-2. [Services and Layers](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/04-services-and-layers.md): separate the service contract from its implementation.
-3. [Data Modeling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/05-data-modeling.md): use Schema for values crossing boundaries.
-4. [Error Handling](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/06-error-handling.md): distinguish expected failures from defects. Check API spellings against your installed version.
-5. [Testing](https://github.com/kitlangton/effect-solutions/blob/main/packages/website/docs/08-testing.md): provide test services with `@effect/vitest`.
+1. [Effect basics](/lore/effect-basics): build a description before running it.
+2. [Schemas define the boundary](/lore/schemas-define-the-boundary): define and decode accepted data.
+3. [Expected failures and defects](/lore/error-model): name failures without hiding crashes.
+4. [Service construction](/lore/services-capture-dependencies): capture implementation dependencies.
+5. [Layer composition](/lore/layers-make-dependencies-explicit): supply the graph at an entrypoint.
+6. [Configuration](/lore/configuration-is-a-dependency): parse supplied settings.
+7. [Testing](/lore/tests-that-earn-their-place): prove behavior through supplied services.
+
+These pages use pinned rat-stack examples and exact Effect 4.0.0 source.
+Kit Langton's guides remain useful inputs, not a substitute for checking the installed API.
 
 ## Answer both structure questions
 
@@ -118,7 +123,7 @@ rat-stack separates these jobs into packages. A small app need not copy its work
 
 ### Capture dependencies when constructing a service
 
-[Effect's service guidance](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md) colocates `Context.Service` and its Layer.
+[Effect's service guidance](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/01_service.ts) colocates `Context.Service` and its Layer.
 Our `FileInspector` captures `FileSystem` during construction. Its methods have no filesystem requirement.
 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=54d356037c994f89698760a4727be71d0005a087 lines=6-16,33-35
@@ -141,7 +146,7 @@ See [the error model](/lore/error-model). A crash is not a domain refusal.
 
 ### Provide Layers at the entrypoint
 
-[Effect's guidance](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/AGENTS.md) composes focused Layers with `Layer.provide` and `Layer.provideMerge`.
+[Effect's Layer guidance](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/20_layer-composition.ts) composes focused Layers with `Layer.provide` and `Layer.provideMerge`.
 Our CLI assembles dependencies before running the program.
 
 ```ts repo=rat-stack path=apps/cli/src/cli.ts at=54d356037c994f89698760a4727be71d0005a087 lines=16-25

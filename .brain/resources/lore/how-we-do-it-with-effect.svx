@@ -78,4 +78,6 @@ Effect's [`Layer.provide`](https://github.com/Effect-TS/effect/blob/effect%404.0
 
 The [peers](/resources/same-version-repos) page records other Effect and Alchemy projects. It does not claim that they use this design.
 
+Start with [Effect basics](/lore/effect-basics), then [construct a service](/lore/services-capture-dependencies) and [compose its Layers](/lore/layers-make-dependencies-explicit).
+
 See also: [Structure an Effect codebase by domain](/lore/structure-effect-by-domain).
