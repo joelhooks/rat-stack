@@ -32,7 +32,7 @@ export class GitSnapshotError extends Schema.TaggedError<GitSnapshotError>()(
   { entry: Schema.String, reason: Schema.String }
 ) {
   override get message() {
-    return `${this.reason}: ${this.entry}. Run pnpm git-snapshot in a full checkout.`;
+    return `${this.reason}: ${this.entry}. Regenerate with pnpm git-snapshot in a full checkout and commit .brain/data/git-snapshot.json.`;
   }
 }
 
@@ -143,7 +143,10 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       if (!regenerate && actual !== stored) {
         return yield* new GitSnapshotError({
           entry: key,
-          reason: "Stale snapshot entry",
+          reason:
+            args[0] === "log"
+              ? "Snapshot is stale against this tree; history changed, for example by a squash or rebase. History query changed"
+              : "Snapshot is stale against this tree; Git query output changed",
         });
       }
 
@@ -170,7 +173,8 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       if (!regenerate && files.get(sourcePath) !== actual) {
         return yield* new GitSnapshotError({
           entry: sourcePath,
-          reason: "Stale or missing source fingerprint",
+          reason:
+            "Snapshot is stale against this tree; stale or missing source fingerprint",
         });
       }
 
