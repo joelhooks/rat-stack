@@ -27,7 +27,13 @@ Content checks compare the built asset generation with live root and agent-text 
 
 The readiness check makes at most two attempts. It records each outcome, duration, scan time and returned cache flags. A scan from before the apply cannot prove readiness. A scanner-reported site error remains red. A later fresh pass can settle the check without discarding the first failure.
 
-The apply receipt records prior live Worker version IDs before mutation. `deployRollback` restores them only after capability approval. It preserves the source receipt and writes separate progress evidence.
+The apply receipt records prior live Worker version IDs before mutation.
+
+Alchemy beta.80 leaves `versionId` absent on ordinary full-cutover Worker uploads. Its state attributes provide the script name, not the authoritative live version. Post-apply readback queries deployment history for that physical name. It never substitutes the logical resource ID.
+
+Updated Workers wait for a single fully deployed version different from the recorded prior version. Noops can retain their current version. Readback uses bounded backoff with a 120-second default per Worker. `DEPLOY_WORKER_VERSION_DEADLINE_MS` declares the override. Receipts preserve attempts and failed observations. Successful uploads remain applied if readback cannot qualify them; failed readback verdicts prevent a healthy result.
+
+`deployRollback` restores them only after capability approval. It preserves the source receipt and writes separate progress evidence.
 
 Content propagation can lag a successful Worker apply. Mismatches retry with exponential backoff under an exported 120-second deadline. A declared environment override can shorten or extend that deadline. Verdicts retain each attempt and failed attempt. Deadline exhaustion stays red.
 
@@ -69,6 +75,7 @@ Local apply receipts are recovery evidence, not a second infrastructure state st
 - `packages/deploy/test/machine.model.test.ts` checks generated step histories and preserves prepared intent on an apply crash.
 - `packages/deploy/test/interaction.test.ts` checks the approval boundary and typed unattended refusal.
 - `packages/deploy/test/version-readiness.test.ts` checks stale, missing and fresh version evidence and bounded scan histories.
+- `packages/deploy/test/worker-version-readback.model.test.ts` models missing state IDs, delayed live listings and the complete production lifecycle. Restoring state-ID extraction or removing retry breaks it.
 - `packages/deploy/test/content-propagation.model.test.ts` models convergence and deadline exhaustion under virtual time. Removing retry makes it fail.
 - `packages/deploy/test/watch.model.test.ts` models adjacent failure cycles and preserves bounded incident evidence. Raising the threshold breaks it.
 - `packages/deploy/test/rollback.test.ts` checks receipt refusal, idempotent restore and source preservation. Overwriting the apply receipt breaks it.

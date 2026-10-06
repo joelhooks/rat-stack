@@ -36,7 +36,7 @@ The local adapter applies the exact in-memory Alchemy plan it classified. The pr
 - `DEPLOY_CONTENT_VERSION_DEADLINE_MS` overrides the deadline from zero through 600000 milliseconds.
 - Verdicts preserve attempts, failed attempts, duration and each response's provenance.
 
-The apply receipt records prior Worker versions and the observed prior content generation. The adapter saves recovery evidence before mutation. It saves the final apply receipt afterward. Local files under `.rat/deploy/` are recovery evidence, not infrastructure state.
+The apply receipt records prior Worker versions and the observed prior content generation. After upload, it reads current versions from deployment history, not optional Alchemy state version IDs. Updated Workers wait for a new single-version deployment at 100 percent. Noops can retain their current version. `DEPLOY_WORKER_VERSION_DEADLINE_MS` sets the bounded settling budget; the default is 120 seconds per Worker. Readback attempts remain in the receipt. Readback exhaustion fails qualification without relabeling completed uploads as partial. The adapter saves recovery evidence before mutation. It saves the final apply receipt afterward. Local files under `.rat/deploy/` are recovery evidence, not infrastructure state.
 
 The ten-minute watch probes both HTML and agent Accept headers. It preserves route, status, incident ID and at most 300 response bytes. Two consecutive content-500 cycles stop it early. Any observed non-200 disqualifies the watch, even if the route recovers. Automatic rollback stays off.
 

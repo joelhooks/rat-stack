@@ -30,6 +30,7 @@ export const ApplyReceiptSchema = Schema.Struct({
   profile: Schema.optionalKey(Schema.NonEmptyString),
   retainedOrphans: Schema.Array(Schema.String),
   updated: Schema.Array(Schema.String),
+  versionReadbacks: Schema.optionalKey(Schema.Array(VerdictSchema)),
   versions: Schema.Record(Schema.String, Schema.String),
 });
 
