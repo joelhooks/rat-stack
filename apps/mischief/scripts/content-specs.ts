@@ -11,27 +11,27 @@ export const lawSpecs: readonly SourceSpec[] = [
       "What you may change, which commands to run, and which changes need approval.",
     routePath: "/AGENTS.md",
     sourcePath: "AGENTS.md",
-    title: "AGENTS.md",
+    title: "Agent rules for rat-stack (AGENTS.md)",
   },
   {
     description: "What this starter is for and what a useful copy should keep.",
     routePath: "/VISION.md",
     sourcePath: "VISION.md",
-    title: "VISION.md",
+    title: "Purpose and boundaries of rat-stack (VISION.md)",
   },
   {
     description:
       "What is in the repo, how the example works, and how to run it.",
     routePath: "/README.md",
     sourcePath: "README.md",
-    title: "README.md",
+    title: "Build and run rat-stack (README.md)",
   },
   {
     description:
       "How to pin an unpublished package and when to remove the local copy.",
     routePath: "/vendor/README.md",
     sourcePath: "vendor/README.md",
-    title: "vendor/README.md",
+    title: "Dependency vendoring rules (vendor/README.md)",
   },
   {
     description:

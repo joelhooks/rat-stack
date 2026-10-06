@@ -1,5 +1,6 @@
 ---
 name: learn-rat-stack
+updated: "2026-10-06"
 description: Trace a capability through Effect, XState, five projections, the CLI, and Alchemy. Try hosted search and read.
 ---
 
@@ -135,7 +136,7 @@ Alchemy declares the Stack, Cloudflare providers, and state. The Stack includes 
 
 ## Try hosted search and read
 
-Use [POST /api/execute](/api/execute) for [code mode](/lore/one-program-can-replace-several-tool-calls). The [agent guide](/llms.txt) documents this search → read program:
+Use [POST /api/execute](/llms.txt#run-code-one-program-instead-of-several-calls) for [code mode](/lore/one-program-can-replace-several-tool-calls). The [agent guide](/llms.txt) documents this search → read program:
 
 ```js
 const found = await tools.search({ query: "cartridges", limit: 1 });

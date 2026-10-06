@@ -1,6 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import * as Alchemy from "alchemy";
+import { importStack, StackModuleLoader } from "alchemy/Alchemist/Session";
 import { AlchemyContext } from "alchemy/AlchemyContext";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { collection } from "alchemy/Provider";
@@ -10,8 +11,18 @@ import { ConfigProvider, Effect, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
 import { rpcProjection } from "../../mischief/src/rpc-worker.js";
-import { previewProgram } from "../alchemy.preview.js";
+import previewDefinition, { previewProgram } from "../alchemy.preview.js";
 import { PreviewStage, previewResourcesAllowed } from "../src/preview.js";
+
+it.effect("loads the preview through Alchemy's entrypoint boundary", () =>
+  importStack("alchemy.preview.ts").pipe(
+    Effect.provideService(StackModuleLoader, {
+      // @effect-diagnostics-next-line asyncFunction:off -- Alchemy's module loader is a native Promise boundary.
+      import: async () => await Promise.resolve({ default: previewDefinition }),
+    }),
+    Effect.provide(NodeServices.layer)
+  )
+);
 
 it.effect.prop(
   "preview declarations contain only the Website and its isolated content backend",

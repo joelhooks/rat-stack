@@ -36,6 +36,6 @@ esac
 
 export PREVIEW_COMMIT="$(git rev-parse HEAD)"
 printf 'Preview: pr-%s; commit: %s\n' "$pr" "$PREVIEW_COMMIT"
-pnpm --filter @rat-stack/infra exec alchemy "$operation" \
+pnpm --filter @rat-stack/infra exec -- alchemy "$operation" \
   --main alchemy.preview.ts --stage "pr-$pr" --profile ratstack \
   --env-file ../../packages/deploy/empty.env "${flags[@]}"
