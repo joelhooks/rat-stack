@@ -59,7 +59,8 @@ Props with `$item` resolve to an item value.
 Generated properties check this distinction.
 
 The Worker keeps the native catalog in a cold module.
-The built entry is 841,927 bytes, below the unchanged 900,000-byte budget.
+The entry-graph test keeps the unchanged 900,000-byte budget.
+The build cache restores the ignored hints before source typechecking.
 An entry-graph test rejects eager Zod machinery. An eager-import mutation fails that test.
 
 The adapter contains no product imports, StyleX, store, transport or effects.

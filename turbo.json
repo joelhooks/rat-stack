@@ -9,6 +9,14 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@rat-stack/core#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "src/.generated/page-catalog.json"]
+    },
+    "@rat-stack/core#typecheck": {
+      "dependsOn": ["^typecheck", "build"],
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["build"],
       "outputs": []
