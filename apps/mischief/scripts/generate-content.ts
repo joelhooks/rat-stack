@@ -1916,7 +1916,7 @@ What to notice: these bins exist today. The hosted REST, MCP, A2A, and sandbox r
 \`\`\`
 </Diagram>
 
-All five projections share one contract and handler. RPC serves the browser separately from the agent interfaces.
+All five projections share one contract and handler. RPC serves the browser. Agents use MCP, HTTP, or the sandbox.
 
 ## The pattern in code
 
@@ -1926,7 +1926,7 @@ This is the whole search capability. Every surface below calls it.
 ${searchCapabilityExcerpt}
 \`\`\`
 
-The schemas and handler share one contract across the command line, HTTP, MCP, browser RPC, and sandbox projections.
+The schemas and handler share one contract across the command line, HTTP, MCP, browser RPC, and sandbox projections. RPC serves the browser. Agents use MCP, HTTP, or the sandbox.
 
 ## Learn the stack
 

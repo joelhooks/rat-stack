@@ -1,10 +1,10 @@
 # Vision
 
-rat-stack is the reference for building an app and its cloud as one typed program. Effect owns the hard parts. Alchemy infers the infrastructure from the code. The fence raises the floor so we can trust an agent's work.
+rat-stack is the reference for how we build: an app and its cloud as one typed program. Effect owns the hard parts, Alchemy infers the infrastructure from the code, and the fence raises the floor, so an agent can build it reliably with high-trust.
 
 _An Effect stack so pure (aspirational) Kit Langton will blush._
 
-The goal is to **build the best Effect + Alchemy application that we can**, as close to perfect as we can get. Every change here moves toward that goal. Projects that grow out of rat-stack do too:
+The goal is to **build the best Effect + Alchemy application that we can**, as close to a perfect Effect application as we can get. Every change here moves toward that, and projects that grow out of rat-stack move toward it too. In practice:
 
 - New code takes the rat-stack path: a shared contract, a job-shaped service port, a provider adapter outside core, and an outcome you can observe. Ports name the application's jobs; Layers supply the adapters. The fence keeps core free of HTTP-client and vendor implementations.
 - Existing code is finished that way when someone touches it, and the old version is deleted.
@@ -16,7 +16,7 @@ We and our agents use it to understand what we are building. Real projects take 
 
 It is also the working code behind a YouTube series by [Joel Hooks](https://www.youtube.com/@JoelHooks) on Alchemy and Effect. Every claim made on camera points at something that runs here. The series arc lives with the content research. `ratstack.sh` is the teaching surface.
 
-**Public GitHub lets you steal the ideas. It carries no product support promise.**
+**Public GitHub is a steal-the-ideas surface, not a supported product**.
 
 Any project that grows out of rat-stack writes its own vision.
 
@@ -40,15 +40,17 @@ This reference gives a project:
 2. Fence. Pins, `pnpm check`, lefthook, and harness hooks block hook bypass.
 3. Context. Vendored Effect, effect-solutions, XState, and Alchemy sources support source-first edits.
 
-The stack is the foundation. [Sam Goodwin's argument](https://www.youtube.com/watch?v=MtKHzAH6uXM&t=1790s) sets the bar: the whole cloud becomes a library, limited by the accounts you have, and the type system should guarantee that the infrastructure is correct.
+The stack is the fundamental floor. The foundation. [Sam Goodwin's argument](https://www.youtube.com/watch?v=MtKHzAH6uXM&t=1790s) sets the bar: the whole cloud becomes a library, limited by the accounts you have, and the type system should guarantee that the infrastructure is correct.
 
 ## Pieces, trust, floor, and range
 
-**Pieces.** Alchemy Layers are composable SaaS (next section). Each one is a product you can provide, swap, or pull out.
+Four ideas hold this together.
 
-**Trust.** [Lauren Tan ships thousands of agent-written PRs](https://x.com/poteto/status/2102050467505430555) because she trusts the environment her agents work in. She ranks five places for corrections, hardest first: codebase, static analysis (lint, compiler, CI), rules, skills, and style guide. The hard rungs make a bad pattern impossible to write. Her team built Dune, an agent-friendly framework, around agents' love of shortcuts. "what if we designed a framework such that the shortcut, the easy path, is the right path for agents?" Dune enforces process boundaries through the import graph and keeps a single paved path for each blessed pattern. Her point is that the framework itself matters less than owning one. rat-stack is ours. Alchemy puts infrastructure on the compiler rung: remove a binding and the code that uses it stops compiling. rat-stack's fence is the rest of the ladder, built in.
+**Pieces.** Alchemy Layers as literally composable SaaS (next section). Each one is a product you can provide, swap, or pull out.
 
-**Floor.** [Theo Browne](https://www.youtube.com/watch?v=iBrAWpjXNxs&t=349s): "raising the floor is way more beneficial than raising the ceiling." [He gave the same advice about videos](https://www.youtube.com/watch?v=q9GCu3hiNjw&t=707s) on Joel's channel: "raise the baseline so that you average higher... the floor is the hardest part to get right." A higher floor also makes failure cheaper: "it'll also make it hurt less when the video you put a lot of effort into bombs." The floor is the worst thing that happens on a normal run. Theo's math shows why it matters on long runs. A step that fails 5% of the time every ten minutes fails about 70% of the time over four hours. Cut that 5% to 3% and the four-hour failure rate drops to about 50%. Small cuts to the failure rate multiply how long the work can run. [At CascadiaJS](https://www.youtube.com/watch?v=TV6f2weVgCI&t=135s) he also said failure got cheap: "experimentation is now significantly cheaper... it costs pennies." Theo applies the floor to models. We apply it to the environment. Types, the fence, and removable cartridges raise the floor for every agent here. That makes long-running loops worth leaving unattended.
+**Trust.** [Lauren Tan ships thousands of agent-written PRs](https://x.com/poteto/status/2102050467505430555) because she trusts the environment her agents work in. She ranks five places a correction can live, hardest first: the codebase, static analysis (lint, compiler, CI), rules, skills, and the style guide. The hard rungs make a bad pattern impossible to write. Her team built Dune, an agent-friendly framework, on one principle: agents love taking shortcuts, so "what if we designed a framework such that the shortcut, the easy path, is the right path for agents?" Dune enforces process boundaries through the import graph and keeps a single paved path for each blessed pattern. Her point is that the framework itself matters less than owning one. rat-stack is ours. Alchemy puts infrastructure on the compiler rung: remove a binding and the code that uses it stops compiling. rat-stack's fence is the rest of the ladder, built in.
+
+**Floor.** [Theo Browne](https://www.youtube.com/watch?v=iBrAWpjXNxs&t=349s): "raising the floor is way more beneficial than raising the ceiling." [He gave the same advice about videos](https://www.youtube.com/watch?v=q9GCu3hiNjw&t=707s) on Joel's channel: "raise the baseline so that you average higher... the floor is the hardest part to get right." A higher floor also makes failure cheaper: "it'll also make it hurt less when the video you put a lot of effort into bombs." The floor is the worst thing that happens on a normal run. His math is about long runs. A step that fails 5% of the time every ten minutes fails about 70% of the time over four hours. Cut that 5% to 3% and the four-hour failure rate drops to about 50%. Small cuts to the failure rate multiply how long the work can run. [At CascadiaJS](https://www.youtube.com/watch?v=TV6f2weVgCI&t=135s) he also said failure got cheap: "experimentation is now significantly cheaper... it costs pennies." Theo applies the floor to models. We apply it to the environment. Types, the fence, and cartridges that pull out cleanly raise the floor for every agent working here. That floor is what makes long-running agent loops worth leaving unattended.
 
 **Range.** At [CascadiaJS 2026](https://www.youtube.com/watch?v=TV6f2weVgCI) Theo closed with "build bigger." A month later [he refined it](https://www.youtube.com/watch?v=xUnRQ9vLXxo&t=798s): "bigger is probably the wrong word... It's time to think wider." He means range, how much ground your software covers. A team could never match AWS's range without thousands of engineers. Now "you can build a database platform into your product in a day or two." He also says to architect products so users can build the features you are missing. And in his words, "wider prompting requires higher floors." He names the bottleneck too: "building is now like a thirty minute process... but the deploying hasn't went down at all." Composable Layers that carry their own infrastructure are our answer to that gap. The compiler checks resource requirements; plans and real-infrastructure checks prove the deployed behavior.
 
@@ -69,17 +71,17 @@ Alchemy spans providers. One stack can run Cloudflare next to PlanetScale, and t
 
 The house rule is a clean, organized playground where real work gets done. It sets no limit on size. Picture clear, labeled bins on shelves that push in and pull out like game cartridges. Anything good can go in if it passes the cartridge test:
 
-- Each package has one job and a name that says what it does.
-- Add it with one package plus one `Layer.provide` or Stack line.
-- Delete that package and line to remove it. `pnpm turbo run check test build` must still pass.
-- It declares its own resources and bindings. Nothing spills into other bins.
-- You can throw it away without affecting anything else.
+- **Labeled.** One package, one job, named for that job.
+- **Push in.** Adding it takes one package plus one `Layer.provide` or Stack line.
+- **Pull out.** Removing it takes deleting that package and that line, and `pnpm turbo run check test build` still passes.
+- **Self-contained.** It declares its own resources and bindings. Nothing spills into other bins.
+- **EZ to trash.** It can be tossed in the garbage without affecting anything else.
 
 Everything built here is real.
 
 ## Outcomes
 
-- Agent-facing pages give useful next actions alongside information. Markdown can carry AgentOnly guidance that HTML leaves out. Capability and MCP next-action links still need proof; the projections do not guarantee them today.
+- Agent-facing pages give the agent useful next actions, not only information. Markdown can carry AgentOnly guidance that HTML leaves out. Capability and MCP next-action links are a direction to prove, not something the projections guarantee today.
 - A project that vendors or clones rat-stack starts with a pnpm and Turborepo workspace, a real Effect CLI, and a trust fence.
 - Agents hit a loud failure when they cheat, including `git … --no-verify` and skipped checks. Consider adding hooks to your harness to stop them cold.
 - Prose explains the why. CI, lefthook, and agent hooks enforce the fence.
@@ -93,7 +95,7 @@ Everything built here is real.
 3. Prove the claims in code, cheapest first:
    1. Importing `apps/infra/alchemy.run.ts` deploys nothing, and removing a binding is a type error.
    2. A database service tag with two vendor Layers, Cloudflare D1 and Hyperdrive in front of PlanetScale Postgres, with Drizzle inside each vendor. D1 is the free bin. PlanetScale has no free tier, and its cheapest database is single-node Postgres. The tag sits above Drizzle, so swapping vendors stays one line.
-4. Prove behavior against real infrastructure where local fakes differ. The database suite currently uses local SQLite and PGlite; per-PR deployed-resource tests remain a goal.
+4. Prove behavior against real infrastructure where local fakes differ. The database suite currently uses local SQLite and PGlite; per-PR deployed-resource tests remain a goal, not existing coverage.
 5. Keep the teaching surface aligned with the running application. `/systems` records what each shipped system does, the standard it keeps, and how to check it. Request analytics runs with a server-set persistent `rat_vid` cookie; event bodies exclude request bodies and sensitive query keys.
 6. Prove the signup lifecycle through an external list provider behind job-shaped ports. Submission starts double opt-in; a person confirms their email before joining. Agents apply through `joinInterest` over MCP, HTTP, or the CLI with a single-use page ticket and the person's approval of the exact card; confirmation is still required.
 7. Coming: extract the existing agent front door in `apps/mischief` (REST, MCP, A2A, code-mode sandbox, rate limits) into a cartridge that a project provides instead of inherits.
@@ -144,4 +146,4 @@ Everything built here is real.
 
 ## Amendment policy
 
-Amend this document when its thesis is wrong. A different downstream product needs its own vision. Agents may propose amendments with receipts. Joel approves. A project that grows out of rat-stack writes its own `VISION.md` instead of stretching this one.
+This document changes when the thesis is wrong, not when a downstream project's product is different. Agents may propose amendments with receipts. Joel approves. A project that grows out of rat-stack writes its own `VISION.md` instead of stretching this one.
