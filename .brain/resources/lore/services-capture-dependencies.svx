@@ -1,0 +1,96 @@
+---
+title: "A service captures its construction dependencies"
+description: "Build a service with its dependencies, then expose methods that callers can use without rebuilding the graph."
+group: idea
+terms:
+  - "Service construction"
+  - "Dependency capture"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. 2026. Context. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Context.Service supports a typed interface and an effectful make operation."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/01_effect/03_services/20_layer-composition.ts
+    title: "Effect contributors. 2026. Composing services with the Layer module."
+    publisher: "Effect-TS"
+    note: "Construction captures dependencies before returning Effect.fn methods."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. 2026. Effect. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Effect.gen composes inline work; fn names traced functions; fnUntraced avoids tracing."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/file-inspector.ts
+    title: "rat-stack contributors. 2026. FileInspector."
+    publisher: "rat-stack"
+    note: "The service captures FileSystem in make and exposes an inspect method without filesystem requirements."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md
+    title: "Langton, Kit. 2026. Services & Layers. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Topic framing for service interfaces, dependency capture, and replaceable implementations; examples checked against Effect 4.0.0."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/issues/24
+    title: "Effect Solutions contributors. 2025. Clarify that there could be exceptions on methods having dependencies."
+    publisher: "Effect Solutions"
+    note: "Reader concern about request-time context and universal dependency-free method advice."
+    accessed: "2026-10-06"
+---
+
+Build a service once with the dependencies its implementation needs. Return methods that use those captured values.
+Callers then require the service, not its construction graph.
+This page uses Effect 4.0.0.
+
+## Name the job before the implementation
+
+`Context.Service` names a service and describes its interface.
+`Effect.Effect<FileStats, FileStatsError>` declares the method's success and expected failure. Its omitted requirement parameter is `never`.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-15
+```
+
+**What to notice:** Construction needs `FileSystem`. Calling `inspect` does not require the caller to supply it again.
+
+`make` is an Effect, not a completed service instance.
+`Layer.effect` runs that construction when the service graph is built.
+
+## Compose work inside the method
+
+Use `Effect.gen` for inline composition. Use `Effect.fn("name")` for reusable functions that need a tracing boundary.
+Use `Effect.fnUntraced` when tracing is not useful.
+Do not create a function that only returns another `Effect.gen` wrapper.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=17-35
+```
+
+**What to notice:** `inspect` closes over the filesystem value. It keeps read failures typed and returns a domain result.
+
+The service method composes Effects. It does not run an imperative runtime inside the computation.
+
+## Construction dependencies are not request identity
+
+Dependency-free methods are a useful default, not a ban on all contextual requirements.
+A filesystem implementation usually belongs to construction. A current person may belong to a single request.
+
+Pass request data explicitly, or keep that requirement visible at the request boundary.
+Do not capture one request's identity in a service shared by later requests.
+
+Kit Langton's [Services & Layers](https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md) informed this topic.
+[Issue #24](https://github.com/kitlangton/effect-solutions/issues/24) records the risk of treating dependency-free methods as universal law.
+
+## Common wrong approach
+
+Resolving the filesystem inside every `inspect` call leaves `FileSystem` in that method's requirements.
+The caller must now know the implementation dependency. Capturing it during construction removes that requirement from the method.
+
+Rebuilding the service inside every call also loses the intended construction lifetime.
+Supply its Layer at the [composition root](/lore/layers-make-dependencies-explicit).
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Services describe behavior. Layers supply implementations and resolve construction requirements.
+- **rat-stack house rule:** Keep `make` and `static layer` beside the service. Core owns job-shaped ports; adapters own provider code.
+- **Not an Effect requirement:** Capability projections, cartridge packages, and our no-comments rule.
+
+See also: [domain structure](/lore/structure-effect-by-domain), [Layer composition](/lore/layers-make-dependencies-explicit), [the Layer constructor pattern](/lore/layer-constructor-pattern), and [testing through services](/lore/tests-that-earn-their-place).

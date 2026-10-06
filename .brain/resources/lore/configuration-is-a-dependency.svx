@@ -1,0 +1,93 @@
+---
+title: "Configuration is a supplied, validated dependency"
+description: "Parse configuration when a Layer builds, reject invalid values, and supply controlled settings in tests."
+group: idea
+terms:
+  - "Configuration Layer"
+  - "ConfigProvider"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Config.ts
+    title: "Effect contributors. 2026. Config. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Config.Literals, defaults, schema validation, and capitalized Config constructors."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/ConfigProvider.ts
+    title: "Effect contributors. 2026. ConfigProvider. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Providers replace the config source; fromUnknown and layer support controlled inputs."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/config-service.ts
+    title: "rat-stack contributors. 2026. ConfigService."
+    publisher: "rat-stack"
+    note: "The factory provides a parsing Layer and a typed configLayer that bypasses parsing for controlled tests."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/test/app-config.test.ts
+    title: "rat-stack contributors. 2026. AppConfig tests."
+    publisher: "rat-stack"
+    note: "Tests cover supplied config, a missing-value default, an invalid value, and direct typed configuration."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/07-config.md
+    title: "Langton, Kit. 2026. Config. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Topic framing for config Layers and replaceable providers; lowercase constructor examples do not match Effect 4.0.0."
+    accessed: "2026-10-06"
+---
+
+Read configuration when its Layer builds. Expose parsed values through a service rather than reading environment variables throughout domain code.
+This page uses Effect 4.0.0.
+
+## Define accepted values before reading them
+
+`Config.Literals` limits `APP_ENV` to three values. The declared default handles a missing setting.
+
+```ts repo=rat-stack path=packages/core/src/app-config.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=1-13
+```
+
+**What to notice:** The environment name and accepted values live together. The default does not make an invalid supplied value acceptable.
+
+Effect's `Config.schema` can describe more complex validated settings.
+Use the Schema-backed path instead of writing a second parser for the same domain rule.
+
+## Replace the source, not the parser
+
+A `ConfigProvider` supplies raw configuration inputs.
+Tests can replace the source with `fromUnknown` while still exercising the production parsing Layer.
+
+```ts repo=rat-stack path=packages/core/test/app-config.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-17
+```
+
+**What to notice:** `APP_ENV` comes from the supplied object. The test still builds `AppConfig.layer`.
+
+The suite also checks rejection:
+
+```ts repo=rat-stack path=packages/core/test/app-config.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=26-34
+```
+
+**What to notice:** An unsupported value fails Layer construction with `ConfigError`. It does not silently select development settings.
+
+## Supply typed values when parsing is not the task
+
+`AppConfig.configLayer` accepts already-typed values. It uses `Layer.succeed` and skips parsing.
+Use this for a test about domain behavior. Use a provider when the test is about configuration decoding.
+
+This factory belongs to rat-stack. Effect does not require a `ConfigService` helper or a method named `configLayer`.
+
+## Common wrong approach
+
+Reading `process.env` inside each domain method ties the method to the host and allows inconsistent parsing.
+A config service moves that choice to construction and gives tests a replacement boundary.
+
+A default is not a repair for an invalid production value.
+Keep missing settings and rejected settings distinct. Let construction fail when a supplied value violates the schema.
+
+Kit Langton's *Config* informed the provider-replacement topic.
+Its checked revision uses `Config.string`, `int`, and `redacted`; Effect 4.0.0 uses `String`, `Int`, and `Redacted`.
+Do not mix constructor names from different versions.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Config parses supplied data and reports typed failures. ConfigProvider selects the source.
+- **rat-stack house rule:** Declare environment inputs in `.env.schema`. Alchemy provider credentials come from profiles, not environment variables.
+- **Private-data rule:** Do not unwrap a redacted value for logs or public examples.
+
+See also: [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), [failures](/lore/error-model), and [tests](/lore/tests-that-earn-their-place).

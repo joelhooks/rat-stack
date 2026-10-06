@@ -1,33 +1,135 @@
 ---
-title: "Tests that earn their place"
-description: "A test earns its place by covering behavior the existing suite does not prove."
+title: "Tests prove behavior through supplied services"
+description: "Supply services through Layers, choose properties or models for domain rules, and reject tests that cannot detect broken behavior."
 group: idea
 terms:
   - "tests that earn their place"
   - "tautological tests"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
-    title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
-    publisher: "GitHub joelhooks/rat-stack"
-    note: "Testing law; used for rejecting tautologies and change detectors."
-    accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/test
-    title: "rat-stack/packages/core/test at main · joelhooks/rat-stack · GitHub"
-    publisher: "GitHub joelhooks/rat-stack"
-    note: "Core tests; used for behavior checks and planted-violation fixtures."
-    accessed: "2026-10-01"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/vitest/src/index.ts
+    title: "Effect contributors. 2026. Effect Vitest integration."
+    publisher: "Effect-TS"
+    note: "it.effect, it.layer, it.prop, and effectful properties expose Effect-aware test execution."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/09_testing/10_effect-tests.ts
+    title: "Effect contributors. 2026. Writing Effect tests."
+    publisher: "Effect-TS"
+    note: "TestClock controls Effect time, and effect properties can use Schema-based inputs."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/vitest/test/isolation.test.ts
+    title: "Effect contributors. 2026. Layer isolation tests."
+    publisher: "Effect-TS"
+    note: "Separate it.layer blocks construct isolated service state. A shared block is not a per-test reset."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts
+    title: "Effect contributors. 2026. Arbitrary. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Schema-derived generators, generated command arrays, and shrinking support properties and history models."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/tree/65e9465f38092e24486392f22c08f45d61230c20/packages/events/test
+    title: "rat-stack contributors. 2026. Events behavior tests."
+    publisher: "rat-stack"
+    note: "An independent sensitive-key property and generated visitor histories exercise domain behavior."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/AGENTS.md
+    title: "rat-stack contributors. 2026. Agent instructions."
+    publisher: "rat-stack"
+    note: "Testing policy rejects tautologies and change detectors, prefers properties/models, and requires planted violations for new properties."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/08-testing.md
+    title: "Langton, Kit. 2026. Testing. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Topic framing for Effect-aware tests and replaceable services; the property/model standard is rat-stack's policy."
+    accessed: "2026-10-06"
 ---
 
-The testing law is short:
+Name the behavior that lacks proof before adding a test.
+Supply test services through Layers, return an Effect, and let `@effect/vitest` own its execution.
+This page uses Effect 4.0.0.
 
-> Tautological tests considered harmful.
->
-> Change-detector tests considered harmful.
->
-> Do not create regression tests for bug fixes without a genuine gap in behavior testing.
+## Test the behavior, not the shape of the implementation
 
-In practice, name the behavior that lacks proof. Add a fixture case only when the existing suite does not cover that behavior. Show the case failing without the fix, then passing with it. A test that repeats a function's implementation, snapshots unrelated output, or only notices that a file changed does not close a behavior gap.
+A test that repeats the implementation cannot detect the same mistake in both places.
+A snapshot that only records a changed file does not prove a domain rule.
+If the existing suite already covers the reported behavior, fix the cause without adding a duplicate test.
 
-For example, capability projections are tested by exercising the produced command, HTTP route, MCP tool, RPC call, or sandbox call and checking the result or declared failure. The test proves that the schema and handler survive the surface, not just that a projection function returned an object. The current examples live in `packages/capability/test/`.
+Our projection tests execute the produced CLI command, HTTP route, MCP tool, RPC call, or sandbox call.
+They check results and declared failures, not only whether a projection returned an object.
 
-If a bug report reveals that an existing test already covers the behavior, do not add another test to make the diff look safer. Fix the cause and keep the existing proof. See [the fence](/lore/the-fence) and [no comments](/lore/no-comments).
+## Run an Effect through supplied services
+
+`it.effect` runs the Effect returned by the test. `it.layer` supplies a service graph to a block of tests.
+The file-inspection seam test uses real platform services and a scoped temporary file:
+
+```ts repo=rat-stack path=packages/core/test/file-inspector.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=5,24-34
+```
+
+**What to notice:** The test calls the domain service and checks the file result. It does not construct a second runtime by hand.
+
+Share a Layer when tests need a common expensive resource.
+Do not assume its mutable state resets between tests in the same block.
+Use fresh construction or explicit reset when the behavior needs isolation.
+
+`TestClock` controls Effect time for sleeps and retries. Use it instead of waiting for wall-clock delays in a behavior test.
+`it.live` is for a seam that genuinely needs live runtime services, not a shortcut around deterministic testing.
+
+## Choose the smallest proof that fits the rule
+
+| Behavior | Test shape |
+| --- | --- |
+| One integration edge | A seam example with supplied services |
+| A rule over many inputs | `it.prop` or `it.effect.prop` |
+| State that depends on earlier actions | A model checked after generated commands |
+
+**What to notice:** Generated inputs do not create the assertion. The test still needs an independent statement of correct behavior.
+
+`Arbitrary.schema` derives input generators from Schema.
+Pure properties use `it.prop`; properties returning Effects use `it.effect.prop`.
+The events suite generates requests and checks that capture preserves the response while excluding private data.
+
+## Keep the assertion independent
+
+The sensitive-query property generates a known sensitive key and requires its removal:
+
+```ts repo=rat-stack path=packages/events/test/request-facts.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=25-39
+```
+
+**What to notice:** The assertion does not call `isSensitiveKey` to decide whether removal was required.
+The independent generator includes keys that the capture filter must reject.
+
+When the property was first written, deleting `token` from the filter did not fail a test that reused that same filter.
+An independent sensitive-key property closed the gap.
+[Property-based testing](/lore/property-based-testing) records that planted violation and the smaller counterexample.
+
+## Generate histories when order matters
+
+Visitor identity depends on the device, retained cookie, and day boundary.
+The model generates action sequences rather than picking one happy path:
+
+```ts repo=rat-stack path=packages/events/test/visitor.model.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-14,89-100
+```
+
+**What to notice:** The persistent and daily modes consume the same generated command shape but enforce different identity rules.
+
+[Model-based testing](/lore/model-based-testing) explains the assertions and records the failed day-boundary mutation.
+[Agents explore, tests remember](/lore/agents-explore-tests-remember) explains how exploration can expose a behavior gap worth making repeatable.
+
+## Common wrong approach
+
+A new property is not proof merely because it passes many generated cases.
+Plant a violation in the behavior it claims to protect. Observe failure, then restore the implementation and observe success.
+
+Do not rewrite the test's expected result to match a broken implementation.
+Keep the counterexample or missing assertion that explains the behavior gap.
+
+Kit Langton's *Testing* informed the Effect-aware execution and service-replacement topics.
+Its older `TaggedErrorClass` examples need the stable `Schema.TaggedError` spelling.
+The property/model preference and manual-runtime ban are rat-stack rules, not claims from that guide.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Effect-aware tests supply runtime services, own scopes, and support controlled time.
+- **rat-stack house rule:** No manual Effect runtime in tests. Prefer properties and models; prove new properties with planted violations.
+- **Scope of this page:** Testing practice, not a claim that every cartridge has live-provider proof.
+
+See also: [properties](/lore/property-based-testing), [models](/lore/model-based-testing), [exploration](/lore/agents-explore-tests-remember), and [the fence](/lore/the-fence).

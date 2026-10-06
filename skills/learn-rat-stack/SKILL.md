@@ -7,6 +7,8 @@ description: Trace a capability through Effect, XState, five projections, the CL
 
 Start with one [capability](/systems/capabilities): `inspectFile`. Follow its [contract](/systems/capabilities), handler, service, machine, and [projections](/lore/one-capability-every-surface). Then try the hosted content tools.
 
+Read [Effect basics](/lore/effect-basics) before this trace if the computation model is new. For implementation tasks, use [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [testing](/lore/tests-that-earn-their-place).
+
 ## The pieces
 
 - Effect supplies schemas, services, typed errors, and Layers.
