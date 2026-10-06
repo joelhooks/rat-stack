@@ -19,8 +19,6 @@ Read [Effect basics](/lore/effect-basics) before this trace if the computation m
 - pnpm and Turborepo connect packages and cache checks.
 - Alchemy declares the cloud. Follow [learn Alchemy](/skills/learn-alchemy) for the deployment graph.
 
-**What to notice:** Each piece has a job. The pinned examples below show their connections.
-
 ## One action, five surfaces
 
 ```text
@@ -33,11 +31,11 @@ One Capability ──────┼─ MCP
 
 A [projection](/lore/one-capability-every-surface) exposes the same action through another interface. RPC serves browser clients. [Code mode](/lore/one-program-can-replace-several-tool-calls) lets agents compose calls in one program.
 
-**What to notice:** The diagram shows interfaces, not five separate handlers.
+All five interfaces use one handler.
 
 ## Trace one action
 
-These excerpts pin the code to `5c0f78e03d69ff9ea00f6b95d02cc36a3de91a0b` on the repository's main branch. The CLI uses `inspectFile`. The hosted site uses a separate content registry.
+The CLI uses `inspectFile`. The hosted site uses a separate content registry.
 
 ### 1. Define the contract
 
@@ -47,7 +45,7 @@ The [contract](/systems/capabilities) names the action and its input, output, an
 
 ```
 
-**What to notice:** `FileStatsError` belongs to the interface. The annotations mark a repeatable, read-only action.
+`FileStatsError` belongs to the interface. The annotations mark a repeatable, read-only action.
 
 ### 2. Bind one handler
 
@@ -57,7 +55,7 @@ The [contract](/systems/capabilities) names the action and its input, output, an
 
 ```
 
-**What to notice:** The handler starts a machine. It does not read the file itself.
+The handler starts a machine to read the file.
 
 ### 3. Put file work in a service
 
@@ -73,7 +71,7 @@ The service exposes its [Layer](/lore/layer-constructor-pattern) beside the impl
 
 ```
 
-**What to notice:** Callers ask the service to inspect a path. They do not choose a file-system implementation.
+Callers ask the service to inspect a path. Composition chooses the file-system implementation.
 
 ### 4. Give the lifecycle named states
 
@@ -89,8 +87,6 @@ The machine starts in `reading`. It finishes in `inspected` or `unreadable`.
 
 ```
 
-**What to notice:** Success and failure are states. The declared actor owns the file read.
-
 ### 5. Project the registered actions
 
 The CLI's server surfaces use the same `capabilities` list.
@@ -105,7 +101,7 @@ The RPC [projection](/lore/one-capability-every-surface) derives contracts from 
 
 ```
 
-**What to notice:** A projection takes a registry. It does not require another domain handler.
+A projection takes a registry and reuses its domain handlers.
 
 ### 6. Wire the CLI
 
@@ -121,7 +117,7 @@ The entry point supplies the service [Layer](/lore/layer-constructor-pattern) an
 
 ```
 
-**What to notice:** Composition provides dependencies. The command keeps the shared handler.
+The command keeps the shared handler.
 
 ### 7. Compose the cloud
 
@@ -131,7 +127,7 @@ Alchemy declares the Stack, Cloudflare providers, and state. The Stack includes 
 
 ```
 
-**What to notice:** This is cloud composition, not a deployment of the Node file-inspection CLI.
+The Stack deploys the cloud applications. The Node file-inspection CLI runs separately.
 
 ## Try hosted search and read
 
@@ -151,7 +147,7 @@ curl --request POST 'https://ratstack.sh/api/execute' \
   --data '{"code":"const found = await tools.search({ query: \"cartridges\", limit: 1 }); const page = await tools.read({ id: found.matches[0].id }); return { title: page.title, id: page.id };"}'
 ```
 
-**What to notice:** `read` takes the exact ID from `search`. This hosted program reads content, not local files.
+`read` takes the exact ID from `search`. This hosted program reads site content.
 
 ## Read before changing a piece
 
@@ -162,7 +158,7 @@ curl --request POST 'https://ratstack.sh/api/execute' \
 
 In a copied product repo, replace the template's product notes and rules. Keep the stack lessons that still serve the product.
 
-**What to notice:** Repo law and pinned code win over a stale example.
+Follow repo law and pinned code when an example is stale.
 
 ## Pick the next skill
 
@@ -170,8 +166,6 @@ In a copied product repo, replace the template's product notes and rules. Keep t
 - Model a lifecycle: [add a lifecycle machine](/skills/add-a-lifecycle-machine).
 - Remove a surface: [keep or cut](/skills/keep-or-cut).
 - Follow the cloud footprint: [learn Alchemy](/skills/learn-alchemy).
-
-**What to notice:** Pick the skill for the boundary you plan to change.
 
 ## Finish
 
@@ -183,4 +177,4 @@ pnpm turbo run check test build
 
 Fix failures. Keep [the fence](/lore/the-fence) intact.
 
-**What to notice:** A passing gate is the check, not a claim that the cloud was deployed.
+Check deployment separately from the gate.
