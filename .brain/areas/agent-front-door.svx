@@ -55,21 +55,21 @@ const page = await tools.read({ id: found.matches[0].id });
 return { title: page.title, id: page.id };
 ```
 
-**What to notice:** The program passes the search result directly to read.
+The program passes the search result directly to read.
 
 MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless. Older clients initialize sessions backed by a Durable Object.
 
-A2A answers documentation questions through search and read. Browser RPC is a separate projection, not another agent interface.
+A2A answers documentation questions through search and read. Browser RPC serves the browser separately.
 
 ## The standard
 
 - Domain calls use shared capability schemas and handlers.
-- Discovery and static pages are routing, not extra domain handlers.
+- Discovery and static pages handle routing. Domain calls stay in capability handlers.
 - Public API access needs no account or access token.
 - [Interest signup](/systems/interest) has its own consent and confirmation boundary.
 - `execute` runs an async function body in a fresh Dynamic Worker with `globalOutbound: null`.
 - Imports, exports, and `fetch` are unavailable.
-- The program calls declared capabilities, not arbitrary network services.
+- The program can call only declared capabilities.
 - API and MCP allow 120 requests per IP per 60 seconds.
 - Execute also allows 6 per IP and 300 total per 60 seconds.
 - Native Cloudflare counters apply separately per location.
@@ -88,4 +88,4 @@ These routes exist today. A generic front-door cartridge remains planned.
 8. Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
 9. Confirm the live cards and capability list before advertising a new agent path.
 
-Local tests do not prove a new deploy.
+Check a new deploy live as well as running local tests.

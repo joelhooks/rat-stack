@@ -8,7 +8,9 @@ privacy: "public"
 
 # Oxlint rule limits
 
-These ten rules are bounded syntax checks, not a TypeScript module resolver or whole-program proof. They follow literal module sources, lexical import identities, and unchanged local aliases where the rule needs them. Reopen a limit when the policy or runtime changes; do not turn a known static-analysis boundary into a recurring bypass report.
+These ten rules check syntax within defined limits. They follow literal module sources, lexical import identities, and unchanged local aliases where needed.
+They cannot resolve TypeScript modules or prove whole-program behavior.
+Reopen a limit when the policy or runtime changes. Treat an unchanged static-analysis limit as a known boundary rather than repeatedly reporting it as a bypass.
 
 ## Limits
 
@@ -29,7 +31,7 @@ These ten rules are bounded syntax checks, not a TypeScript module resolver or w
 
 - From `scripts/oxlint-plugin-boundaries.ts`: `isStringModule`, `staticPropertyName`, `importIdentity`, `variableOf`, `isStableVariable`, `moduleSourceVisitors`, `isReference`, `isTypePosition`, and the focused visitors in `noFeatureTransport`, `noHandRolledSurface`, and `noBrowserGlobalsOnServer`.
 - From `scripts/oxlint-plugin-patterns.ts`: `importIdentity`, `isEffectCall`, `expressionForVariable`, `variableBinding`, and `watchEffectActors`' per-binding `Program:exit` check.
-- Keep the visitors behavioral: the two real-Oxlint fixture files under `packages/core/test/` show both rejected syntax and intentional allows.
+- Check visitor behavior: the two real-Oxlint fixture files under `packages/core/test/` show both rejected syntax and intentional allows.
 - Do not copy workspace path normalization as a package resolver. It recognizes this template's paths; package exports, conditions, and custom aliases need their own resolver contract.
 
 ## Audit evidence
