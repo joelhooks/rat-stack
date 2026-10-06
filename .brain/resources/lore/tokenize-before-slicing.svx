@@ -31,8 +31,7 @@ The proposed pipeline:
 3. Keeps the original line numbers.
 4. Inserts a collapsed gap between separated ranges.
 
-A collapsed gap reports omitted lines.
-It is not a source line.
+A collapsed gap labels omitted lines separately from source lines.
 
 The planned property compares excerpt tokens with the same lines from whole-file tokenization.
 It includes multiline comments and template strings.

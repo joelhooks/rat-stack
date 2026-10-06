@@ -24,7 +24,7 @@ The [code-snippets design brief](/lore/code-snippets) reads that source from loc
 
 The proposed snippet keeps its pinned text.
 Source drift compares only the selected pinned lines with HEAD.
-Source drift reports a warning, not replacement text or a failed build.
+Source drift reports a warning. It leaves the pinned text intact and lets the build continue.
 
 Keep HEAD out of the immutable snippet cache.
 The cache key identifies the pinned source.

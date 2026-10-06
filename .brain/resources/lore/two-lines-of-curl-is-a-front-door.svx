@@ -35,8 +35,6 @@ Our first observed agent application uses the [Markdown workshop page](/tokenmax
 | 0.263 seconds later | GET /llms.txt |
 | 18 minutes 16 seconds later | POST /api/joinInterest |
 
-**What to notice:** Two reads supply enough instructions to make the call.
-
 The reconstruction records:
 
 - No requests for OpenAPI, AGENTS.md, lore, or MCP.
@@ -46,10 +44,10 @@ The reconstruction records:
 
 ## What the requests do not tell us
 
-The 18-minute gap fits the [page's interview and approval flow](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md). It does not reveal the conversation. The reconstruction contains neither the agent's questions nor the person's answers.
+The 18-minute gap fits the [page's interview and approval flow](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md). The reconstruction contains neither the agent's questions nor the person's answers.
 
 Browser activity and agent requests are linked by timing only. The user agent does not name a harness. We cannot identify which agent runs the calls.
 
-This is one counts-only observation from our request analytics. It does not claim that agents never need [OpenAPI](/lore/openapi-describes-the-refusal-too) or [MCP](/lore/mcp-is-another-surface).
+This is one counts-only observation from our request analytics. Other calls may need [OpenAPI](/lore/openapi-describes-the-refusal-too) or [MCP](/lore/mcp-is-another-surface).
 
 [Interest signup](/systems/interest) keeps the consent and confirmation boundary. [HATEOAS](/lore/hateoas) explains why the page carries the next action.
