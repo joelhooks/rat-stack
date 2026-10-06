@@ -1757,7 +1757,7 @@ const program = Effect.gen(function* generateContent() {
   const systemsIndexSourceMarkdown = [
     "# Rat Stack systems",
     "",
-    "The systems rat-stack ships. Each page says what the system does, the standard it keeps, and how to check that standard.",
+    "Each shipped system has a page with its behavior, standard, and checks.",
     "",
     entryList(systemTexts),
     "",
@@ -1791,7 +1791,7 @@ const program = Effect.gen(function* generateContent() {
 
 _${linkedTagline}_
 
-The goal is to build the best Effect + Alchemy application we can. This is the reference for building an app and its cloud as one typed program. Effect owns the hard parts. Alchemy infers the infrastructure from the code. The fence raises the floor, so agents can build it and you can still trust it.
+Build an app and its cloud as one typed program. Our goal is the best Effect + Alchemy application we can build. Effect owns the hard parts. Alchemy infers the infrastructure from the code. The fence raises the floor so you can trust an agent's work.
 
 Vendor it like a library. Keep the bins you need and pull the rest.
 
@@ -1853,7 +1853,7 @@ Supports MCP protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, a
 - **Floor.** Raise the worst case. Small cuts to failure rates multiply how long an agent can run unattended.
 - **Range.** Think wider. Building got fast and deploying did not. Layers that carry their own infrastructure close that gap. If it compiles, it deploys.
 
-The [vision](${originToken}/VISION.md) has the sources and the reasoning.
+See the [vision](${originToken}/VISION.md) for the reasoning and sources.
 
 ## The shelf
 
@@ -1916,7 +1916,7 @@ What to notice: these bins exist today. The hosted REST, MCP, A2A, and sandbox r
 \`\`\`
 </Diagram>
 
-What to notice: all five projections share one contract and handler. RPC serves the browser; it is not an agent interface.
+All five projections share one contract and handler. RPC serves the browser. Agents use MCP, HTTP, or the sandbox.
 
 ## The pattern in code
 
@@ -1926,11 +1926,11 @@ This is the whole search capability. Every surface below calls it.
 ${searchCapabilityExcerpt}
 \`\`\`
 
-What to notice: the schemas and handler share one contract, so the command line, HTTP, MCP, RPC, and sandbox projections cannot quietly disagree. RPC serves the browser.
+The schemas and handler share one contract across the command line, HTTP, MCP, browser RPC, and sandbox projections. RPC serves the browser. Agents use MCP, HTTP, or the sandbox.
 
 ## Learn the stack
 
-Skills are short guides your agent can install (see above). You can also just read them here.
+Install these short guides for your agent with the command above, or read them here.
 
 ${groupedSkills}
 
@@ -2139,7 +2139,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const llmsSourceMarkdown = [
     "# ratstack.sh",
     "",
-    "The reference for building an app and its cloud as one typed program: Effect, Alchemy, and a fence that makes the easy path the right one.",
+    "Build an app and its cloud as one typed program with Effect and Alchemy. The fence makes the easy path the right one.",
     "",
     "## Read this repo",
     "",

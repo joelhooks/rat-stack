@@ -44,15 +44,15 @@ sources:
 
 ## What it does
 
-Applications are [agent-only](/tokenmaxx#interested). A person confirms their email through an email link in a browser before the signup is confirmed. Submission is not confirmation, and confirmation is not a seat.
+Applications are [agent-only](/tokenmaxx#interested). Submission starts email confirmation. A person must follow the email link in a browser to confirm signup. Confirmation does not reserve a seat.
 
-An agent applies for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps: ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
+An agent applies for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps. Ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
 
 `SubscriberIntake` and `SubscriberConfirm` are job-shaped ports in core. `packages/subscriber-delivery` implements external delivery outside core, and the Worker provides the adapter at composition. See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
 
 ## The standard
 
-- Submission is not confirmation. A person's email confirmation is required before joining.
+- A person must confirm their email before joining.
 - Consent is explicit: the person approves the agent's exact card and contact permission. An agent must not infer permission to subscribe someone from their address or an unrelated request.
 - Agent application refusals receive a neutral answer rather than revealing whether an address is on file. Expired confirmation links have deliberate refusal responses. Retired submission endpoints return 410 without capturing or delivering an application.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
@@ -60,9 +60,9 @@ An agent applies for a person through `joinInterest` over MCP, `POST /api/joinIn
 
 ### Applicant identity
 
-`joinInterest` accepts optional `name` and `x` fields. The name trims whitespace and allows 1–100 characters. The 100-character cap fits a preferred name without turning the field into another essay. Skipped fields and historical applications omit both keys.
+`joinInterest` accepts optional `name` and `x` fields. The name trims whitespace and allows 1–100 characters, enough for a preferred name while keeping the field short. Skipped fields and historical applications omit both keys.
 
-- The X field accepts a handle or a profile URL and stores `https://x.com/handle` in lowercase. It accepts 1–15 ASCII letters, digits or underscores so existing short handles still work. Status, intent and navigation URLs are refused.
+- The X field accepts a handle or profile URL and stores `https://x.com/handle` in lowercase. Handles allow 1–15 ASCII letters, digits or underscores, including existing short handles. It refuses status, intent and navigation URLs.
 - [X documents the 15-character limit](https://help.x.com/en/managing-your-account/x-username-rules) and [the allowed characters](https://help.x.com/en/managing-your-account/change-x-handle). Its current account-renaming guidance requires more than four characters. This field reads existing profiles rather than registering usernames.
 - Identity is sealed in the application’s started statement under the same contact key as its answers. Erasure removes that key and its rows.
 - Only the authenticated application reader unseals identity. The delivery request is unchanged and carries neither field.

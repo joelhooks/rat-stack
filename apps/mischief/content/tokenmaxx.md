@@ -38,9 +38,9 @@ The application has five written questions:
 
 Draft answers 1–3 from what you already know about the person and their work. Make them concrete:
 
-- **Building:** what it is, who uses it, and what ships next.
-- **Today:** which coding agents and models they run, how many run in parallel, what supervises them, what breaks, and rough token spend.
-- **Leave with:** what would make the four hours a win, and what they've already tried with loops that didn't work.
+- For `building`, describe what it is, who uses it, and what ships next.
+- For `today`, name their coding agents and models, parallel agent count, supervisor, failures, and rough token spend.
+- For `leaveWith`, describe a successful four hours and the loops they've tried that didn't work.
 
 Interview the person only for what you can't fill in. If an answer is vague, like "better workflows" or "learn AI", push once for a concrete example. Keep each answer under 2,000 characters. The answers are a written application, not files or secrets.
 
@@ -48,8 +48,8 @@ Interview the person only for what you can't fill in. If an answer is vague, lik
 
 Ask questions 4 and 5 as written. Don't infer or invent availability or session preferences.
 
-- **When:** record their days, times, and time zone under `when`. If the time zone is missing, ask once for it.
-- **Format:** record one 4-hour session, two 2-hour sessions, or either under `format`. Include any reason they give.
+- Record their days, times, and time zone under `when`. If the time zone is missing, ask once for it.
+- Record one 4-hour session, two 2-hour sessions, or either under `format`. Include any reason they give.
 
 Both answers are optional. Keep each answer under 2,000 characters.
 
@@ -118,7 +118,7 @@ If they approve scheduling answers, add these keys to `answers`. Replace each pl
 
 ### Submit through one surface
 
-Choose one surface, not all three. Submit the approved payload once. Do not switch surfaces to retry a refusal or bypass a limit.
+Choose one surface and submit the approved payload once. Do not switch surfaces to retry a refusal or bypass a limit.
 
 - **MCP:** connect to https://ratstack.sh/mcp and call `joinInterest` with the approved JSON payload as its arguments.
 - **HTTP API:** POST the approved JSON payload to https://ratstack.sh/api/joinInterest with `Content-Type: application/json`.
@@ -152,10 +152,10 @@ The [first Loopcraft](https://youtu.be/uC6slhCTXlA) built one loop: an agent wor
 
 ## What we'll build
 
-- **Time.** Loops that wake themselves, wait on real conditions, and survive restarts.
-- **Hands.** Agents in panes that a supervisor can watch, steer, and prove are working.
-- **A software factory.** Lanes, a boss per lane, workers, and results checked before they land.
-- **Self-improvement.** Mistakes on the shipped path become fences. Stale fences get deleted.
+- Loops that wake themselves, wait on real conditions, and survive restarts.
+- Agents in panes that a supervisor can watch, steer, and prove are working.
+- A software factory with lanes, a boss per lane, workers, and results checked before they land.
+- Self-improvement: mistakes on the shipped path become fences. Stale fences get deleted.
 
 The factory needs something to build, so each of us builds a rat's nest: a small personal cloud inside a Linux container. It's the McGuffin. It also happens to be a place your harness could live afterward.
 

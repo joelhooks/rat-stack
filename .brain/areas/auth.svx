@@ -30,7 +30,11 @@ sources:
 
 ## What it does
 
-`packages/auth` runs Better Auth, through `@alchemy.run/better-auth`, on whichever vendor the [database](/systems/database) cartridge chose. People sign in with email and password under `/auth`. `CurrentPersonMiddleware` reads the session on each RPC call and provides `CurrentPerson`, the signed-in person's id. `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and in-memory test people.
+`packages/auth` runs Better Auth through `@alchemy.run/better-auth` on the vendor chosen by the [database](/systems/database) cartridge.
+People sign in with email and password under `/auth`.
+
+`CurrentPersonMiddleware` reads the session on each RPC call and provides `CurrentPerson`, the signed-in person's id.
+`@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and in-memory test people.
 
 ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, where devtools calls run as test people.
 
@@ -43,5 +47,5 @@ ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, wh
 
 ## How to check
 
-- **Sessions and calls.** `pnpm --filter @rat-stack/auth test` signs up, signs in, reads a session, protects an RPC call, and runs devtools calls as a test person.
-- **Production stays clean.** `pnpm --filter @rat-stack/web exec vitest run test/production-bundle.test.ts` builds the web app for production and checks the bundle.
+- `pnpm --filter @rat-stack/auth test` signs up, signs in, reads a session, protects an RPC call, and runs devtools calls as a test person.
+- `pnpm --filter @rat-stack/web exec vitest run test/production-bundle.test.ts` builds the web app for production and checks the bundle.

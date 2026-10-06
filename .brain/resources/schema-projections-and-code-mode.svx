@@ -17,7 +17,9 @@ related:
 
 # One Schema, many surfaces
 
-Historical research and implementation receipts from 2026-09-18, against Effect rc.115. This is not the current build recipe. Read [One capability, every surface](/lore/one-capability-every-surface) for today's `defineContract` → `implement` pattern, including browser RPC, and [current pins](/pins.md). API names, proposed RPC timing, test counts, and sandbox permissions below describe that date, not today's guarantees. Do not use the historical sandbox discussion as permission guidance.
+One Effect Schema definition can feed a CLI, REST API, MCP server, and code mode. This study records the proposal and implementation on 2026-09-18 against Effect rc.115.
+Read [One capability, every surface](/lore/one-capability-every-surface) for today's `defineContract` → `implement` pattern, including browser RPC, and [current pins](/pins.md).
+The API names, proposed RPC timing, test counts, and sandbox permissions below are historical. Use current guidance for sandbox permissions.
 
 Joel (2026-09-18): rat-stack is meant to build agent-first tools. The interesting
 question is whether one Effect Schema definition can project into a CLI, a REST
@@ -43,16 +45,14 @@ Tool annotations already exist as Context references: `Tool.Readonly`,
 `Tool.Destructive`, `Tool.Idempotent`, `Tool.OpenWorld`. `needsApproval` is a
 first-class option on `Tool.make`.
 
-**The gap:** there is no `Toolkit.fromHttpApi`, no `Command.fromToolkit`, nothing
-that lets one definition feed all four. That is the seam rat-stack can own.
+Effect has no `Toolkit.fromHttpApi` or `Command.fromToolkit` to feed all four surfaces from one definition. rat-stack can supply that connection.
 
 ## What the two reference repos do
 
 ### Executor (UsefulSoftwareCo, Effect 4)
 
-- Integration layer, not a tool author: ingests MCP servers, OpenAPI, GraphQL,
-  Google Discovery into one catalog, adds auth and per-tool policy
-  (allow / approve / block), serves the catalog back over MCP.
+- Integrates existing tools: ingests MCP servers, OpenAPI, GraphQL, and Google Discovery into one catalog.
+  Adds auth and per-tool policy (allow / approve / block), then serves the catalog over MCP.
 - MCP surface: `execute` (code mode), `skills` (server-side guides for the
   model), `tools search` / `describe` / `call`, plus artifacts. The catalog is
   the product; code mode is one way to hold it.
@@ -65,7 +65,7 @@ that lets one definition feed all four. That is the seam rat-stack can own.
 - Contract at the kernel edge is Standard Schema (`inputSchema: StandardSchema`),
   Effect Schema inside plugins. Effect in, JSON Schema at the wire.
 - `execute-action` (artifact channel) is parsed against a one-call grammar
-  instead of accepting arbitrary code. Good instinct: narrow the surface to what
+  instead of accepting arbitrary code. This narrows the surface to what
   the producer can emit.
 
 ### Kody (Kent C. Dodds, Cloudflare Workers, Zod)
@@ -118,12 +118,12 @@ projections. Nothing here needs a new schema language.
   the Effect surface: `toToolkit`, `toHttpApi`, `toCommand`. The handler's
   dependencies flow through unchanged, so the composition root stays one
   `Layer` as it is today in `apps/cli/src/cli.ts`.
-- **Code mode** is a fourth projection, not a different system: serialize the
+- **Code mode** is a fourth projection: serialize the
   catalog (Executor IR shape: JSON Schema per type, path per capability), emit
   `.d.ts` from the JSON Schema, expose `search` and `execute` as two ordinary
   `Tool`s whose `execute` handler runs model code in a sandbox that can only
   call capabilities by path. Executor's kernel proves the runtime is swappable;
-  start with a subprocess, not a Worker.
+  start with a subprocess before using a Worker.
 - **Approval and policy** belong on the Capability, so all four surfaces agree
   on what is destructive. The CLI can prompt (`Prompt` in `unstable/cli`), MCP
   can use `needsApproval`, REST can return 202 with a resume token, code mode
