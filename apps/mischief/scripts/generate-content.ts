@@ -1934,7 +1934,7 @@ Install these short guides for your agent with the command above, or read them h
 
 ${groupedSkills}
 
-These pieces are pre-release (Effect 4 rc, XState 6 alpha, TypeScript 7, Alchemy beta). APIs move; \`pins.md\` has the exact versions this repo builds against.
+Effect 4 and TypeScript 7 are stable. XState 6 and its Effect bridge are alpha; Alchemy 2 is beta. Their APIs can change. See [the exact dependency pins](/pins.md) for the versions this repo builds against.
 
 ## Source files
 
