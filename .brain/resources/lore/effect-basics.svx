@@ -25,3 +25,5 @@ Michael describes an Effect through its output, predictable errors, and requirem
 He also describes a lazy Effect as a computation that can be transformed before it runs. [Why JavaScript Is Broken, 12:32](https://youtu.be/und9h4xiIz4?t=752).
 
 See [context and requirements](/lore/context-and-requirements) and [the error model](/lore/error-model).
+
+See also: [Structure an Effect codebase by domain](/lore/structure-effect-by-domain).
