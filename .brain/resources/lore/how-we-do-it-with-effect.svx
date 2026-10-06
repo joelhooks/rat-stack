@@ -47,7 +47,7 @@ sources:
     accessed: "2026-10-02"
 ---
 
-Our shared definition is [`packages/capability/src/contract.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts). Effect Schema owns inputs, outputs, and failures. [`implement.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts) binds the handler and its approval requirement.
+Effect Schema owns inputs, outputs, and failures in our shared [`contract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts). [`implement.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts) binds the handler and its approval requirement.
 
 The HTTP projection creates an Effect HttpApi. Other projections create CLI commands and an AI toolkit from the same contracts.
 
@@ -70,13 +70,11 @@ Source: [`packages/core/src/join-intake.ts` at `a646f7ffd00273d85fbe1d905d9cdb19
 ```ts repo=rat-stack path=packages/core/src/join-intake.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=58-64
 ```
 
-**What to notice:** The Layer captures dependencies before returning the submission method.
-
 Effect's [`Layer.provide`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Layer.ts) supplies a Layer's dependencies. [`HttpApiBuilder.layer`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/HttpApiBuilder.ts) registers HTTP routes and can expose OpenAPI. Neither requires a second domain handler.
 
 [One capability, every surface](/lore/one-capability-every-surface) states the house rule. [Hexagonal architecture](/lore/hexagonal-architecture) names the adapter boundary. [The fence](/lore/the-fence) enforces it.
 
-The [peers](/resources/same-version-repos) page records other Effect and Alchemy projects. It does not claim that they use this design.
+The [peers](/resources/same-version-repos) page records other Effect and Alchemy projects, whose designs can differ.
 
 Start with [Effect basics](/lore/effect-basics), then [construct a service](/lore/services-capture-dependencies) and [compose its Layers](/lore/layers-make-dependencies-explicit).
 

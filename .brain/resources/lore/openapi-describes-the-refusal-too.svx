@@ -47,7 +47,7 @@ Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404
 
 [Commit 8766790](https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e) adds `HttpApiError.BadRequestNoContent` to every endpoint built by `toHttpApi`. Request decoding already returns an empty 400. The document needs to say so.
 
-This refusal is **not** `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
+The decode refusal has an empty body rather than `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
 
 - Status 400.
 - No content type.
