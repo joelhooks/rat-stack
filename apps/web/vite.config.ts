@@ -137,8 +137,8 @@ export default defineConfig({
       name: "rat-content-backend",
     },
     {
-      apply: (_config, environment) =>
-        environment.command === "build" && environment.isSsrBuild !== true,
+      apply: "build",
+      applyToEnvironment: (environment) => environment.name === "client",
       generateBundle: {
         // @effect-diagnostics-next-line asyncFunction:off -- Rollup awaits build-only prerendering before emitting the static asset.
         async handler(_options, bundle) {
