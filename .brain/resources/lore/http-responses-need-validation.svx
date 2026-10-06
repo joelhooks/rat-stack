@@ -1,0 +1,132 @@
+---
+title: "HTTP success needs a status check and a decoder"
+description: "Supply the client, check the response status, decode accepted data, and name failures at the adapter boundary."
+group: idea
+created_at: "2026-10-06"
+updated_at: "2026-10-06"
+terms:
+  - "HTTP response validation"
+  - "Transient HTTP retry"
+sources:
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/http/HttpClient.ts
+    title: "Effect contributors. 2026. HttpClient. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "filterStatusOk rejects non-2xx responses; retryTransient classifies retryable errors and responses but does not establish application replay safety."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/http/HttpClientResponse.ts
+    title: "Effect contributors. 2026. HttpClientResponse."
+    publisher: "Effect-TS"
+    note: "schemaBodyJson parses a JSON response and decodes it through the supplied Schema."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/ai-docs/src/50_http-client/10_basics.ts
+    title: "Effect contributors. 2026. Getting started with HttpClient."
+    publisher: "Effect-TS"
+    note: "Supplied clients, request middleware, response decoding, named adapter errors, and request construction."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/deploy/src/checks.ts
+    title: "rat-stack contributors. 2026. Deployment behavior checks."
+    publisher: "rat-stack"
+    note: "A protocol check validates response status and schema-decoded tool discovery before reporting behavior-confirmed."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/4019cffbcbdb282d6f006854ff5b1f26d3b407e0/packages/deploy/test/http-response.test.ts
+    title: "rat-stack contributors. 2026. HTTP response fixture."
+    publisher: "rat-stack"
+    note: "A supplied in-memory client exercises valid data, non-2xx status, malformed JSON, and a wrong decoded field type."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/11-http-clients.md
+    title: "Langton, Kit. 2026. HTTP Clients. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "The draft frames middleware and response decoding. This guide uses exact stable-version source and independent fixtures."
+    accessed: "2026-10-06"
+---
+
+A fulfilled HTTP request is not proof of application success.
+Check the status and decode the body before passing provider data into the application.
+This page uses Effect 4.0.0 and its `effect/http` modules.
+
+## Check the protocol, not only the connection
+
+The deployment checker decodes tool discovery through `ToolsResponse`.
+It also requires status 200 and the expected tool names.
+
+```ts repo=rat-stack path=packages/deploy/src/checks.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=141-150
+```
+
+**What to notice:** The checker reports a behavioral verdict. Parsed JSON alone does not establish that verdict.
+
+This is real deployment-check code, not a command to probe production while learning.
+Use the checked in-memory fixture below instead.
+
+## Reject an unacceptable response before trusting its data
+
+`HttpClient.filterStatusOk` accepts 2xx status codes.
+An adapter can require a narrower status when its protocol needs one.
+The fixture applies the filter before decoding a version response.
+
+```ts repo=rat-stack path=packages/deploy/test/fixtures/validated-http-response.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=13-30
+```
+
+**What to notice:** `schemaBodyJson` handles JSON parsing and schema decoding. `ResponseFixtureError` retains the cause and names the failed phase.
+
+The fixture groups request and status failures into its `status` phase.
+It groups parsing and schema failures into its `body` phase.
+A production adapter should choose failure names that match its job and repair path.
+
+## Supply the transport in tests
+
+The test supplies a client that creates responses in memory.
+It does not start an HTTP server or call a provider.
+
+```ts repo=rat-stack path=packages/deploy/test/http-response.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=15-30
+```
+
+**What to notice:** The adapter keeps its status and decoder logic. Only the transport changes.
+
+| Simulated response | Required outcome |
+| --- | --- |
+| 200, integer version | Decoded version |
+| 503, otherwise valid body | Named status-phase failure |
+| 200, malformed JSON | Named body-phase failure |
+| 200, string instead of integer | Named body-phase failure |
+
+**What to notice:** A successful status and a valid body are separate conditions.
+
+These are transport seams, not provider qualification tests.
+They establish the fixture's policy for these cases, not a live endpoint's health.
+
+## Decide whether replay is safe before adding retries
+
+`retryTransient` can retry transient responses and errors.
+Its classification does not prove that repeating an operation is safe.
+A write can complete remotely even when its response is lost.
+
+Before retrying a write:
+
+1. Identify the operation's replay or idempotency guarantee.
+2. Decide which failures allow another attempt.
+3. Measure the budget and select the schedule.
+4. Preserve the final named failure when the budget ends.
+
+Do not copy example delays or retry counts into production as measured limits.
+The fixture establishes no production retry budget.
+
+## Common mistakes
+
+- Treat fulfilled fetch as success despite a failed status.
+- Trust an object because JSON parsing succeeded.
+- Replace the whole adapter in a test and stop exercising its decoder.
+- Retry a write only because the transport calls its error transient.
+
+Kit Langton's draft supplies the middleware and decoding questions.
+Its `effect/unstable/http` imports differ from the exact version used here.
+The working examples use `effect/http`; the draft is not API authority.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Supply `HttpClient`, compose request policies, decode responses, and translate failures at the adapter edge.
+- **rat-stack house rule:** Core owns job-shaped ports. Provider clients remain in adapters under [hexagonal architecture](/lore/hexagonal-architecture).
+- **Separate house rule:** [Machines own finite retry lifecycles](/lore/lifecycles-are-machines). Effect also has native schedules and retry operators.
+
+Read [schemas](/lore/schemas-define-the-boundary) and [failures](/lore/error-model) before defining the adapter's accepted data.
+Then read [tracing](/lore/trace-meaningful-operations) to observe the operation without exposing private values.
+Return to the [Effect reading map](/lore/structure-effect-by-domain).
