@@ -183,7 +183,7 @@ Use a visual only when it explains the point. Choose a fenced box-drawing diagra
 
 Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 
-The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It reads parsed Markdown prose, not raw-source patterns. Code, tables, quotes, and frontmatter are excluded. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
+The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It also warns on history wording, contrast hedges, and em dashes. It reads parsed Markdown prose. The style rules skip quoted spans, blockquotes, code, links, tables, and frontmatter. Length rules still count link labels. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
 
 ## Web feature blueprint
 
