@@ -5,7 +5,7 @@ description: Route non-trivial rat-stack code, data, design, investigation, and 
 
 # Work in rat-stack mode
 
-[AGENTS.md](/AGENTS.md) is law. [VISION.md](/VISION.md) owns pieces, trust, floor, range, the cartridge test, and shrinking debt. This skill routes work. It does not replace either document.
+[AGENTS.md](/AGENTS.md) is law. [VISION.md](/VISION.md) owns pieces, trust, floor, range, the cartridge test, and shrinking debt. Use this skill to choose playbooks under those rules.
 
 ## Non-negotiables
 
@@ -87,10 +87,10 @@ Match every applicable playbook; a capability with new persistence matches capab
 - Cloud resources or unfamiliar deployment wiring: [learn-alchemy](/skills/learn-alchemy).
 - Unfamiliar stack seams: [learn-rat-stack](/skills/learn-rat-stack).
 
-Planned: `write-a-query`, `add-a-read-model`, `explore-limits`, and `investigate-a-failure`. These playbooks do not exist yet. Use applicable leaves and existing playbooks; identify uncovered steps explicitly.
+`write-a-query`, `add-a-read-model`, `explore-limits`, and `investigate-a-failure` are planned. Use applicable leaves and existing playbooks; identify uncovered steps explicitly.
 
 ## Autonomy and child-project slots
 
-AGENTS.md's **Boundaries and sign-off** owns autonomy; this section neither widens nor narrows it. A child project names its own production write authority here, in AGENTS.md. A child project names its own deploy gates here, in AGENTS.md. A child project names its own model roster here, in AGENTS.md.
+Follow AGENTS.md's **Boundaries and sign-off** for autonomy. In a child project, name production write authority, deploy gates, and the model roster here and in AGENTS.md.
 
 Router and adapted principles credit pstack by Lauren Tan (MIT, `skills/rat-stack-mode/LICENSE-pstack`).

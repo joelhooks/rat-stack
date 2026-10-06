@@ -1,6 +1,6 @@
 # Select the deploy runner
 
-`DeployRunner` owns deployment, version readback, restoration and receipts. Adapters change execution placement, not release policy.
+`DeployRunner` owns deployment, version readback, restoration and receipts. Adapters change execution placement. Keep release policy unchanged.
 
 Select only an enabled adapter. Every adapter passes the same behavioral contract suite. Test-runner capacity is not deployment authority.
 

@@ -5,7 +5,7 @@ description: Learn which pieces depend on each other, then keep only the ones yo
 
 # Keep or cut rat-stack
 
-Use this to learn the stack's seams. Delete interfaces your product will not use. Do not keep code because you might need it one day.
+Delete interfaces your product will not use. Do not keep code because you might need it one day.
 
 Read `AGENTS.md` first. Keep unrelated product work. Check imports and tests before deleting files.
 

@@ -7,9 +7,9 @@ description: Learn how Alchemy 2 turns an Effect program into a planned Cloudfla
 
 Alchemy 2 is Effect-native infrastructure as code. It lets one program declare resources, bindings, deployment state, and the Worker that uses them.
 
-Cloudflare is this repo's on-ramp, not the frame. Learn the vocabulary here so an agent can write the infrastructure and you can check what it plans to change.
+Start with this repo's Cloudflare resources. Alchemy also supports other providers. Learn the vocabulary to write infrastructure and check planned changes.
 
-Sam Goodwin describes an Effect as a promise with more information: its return value, errors, and requirements. His Alchemy shorthand is "if it compiles, it should deploy and run." Treat that as a useful feedback loop, not a promise that cloud APIs cannot fail.
+Sam Goodwin describes an Effect as a promise with more information: its return value, errors, and requirements. His Alchemy shorthand is "if it compiles, it should deploy and run." Use compilation for feedback. Check cloud API failures during deployment.
 
 ## The vocabulary
 
@@ -40,7 +40,7 @@ Read `apps/infra/alchemy.run.ts` from top to bottom.
 10. `apps/mischief/src/worker.ts` also yields the Interest and InterestIndex Durable Objects. `EVENTS_ENABLED` chooses `Basin` or `basinFoundation`: both keep the bucket, stream, and visitor salt; enabled adds the catalog, sink, and pipeline. Subscriber delivery is provided at the Worker composition boundary, outside core.
 11. The Stack yields `Website` from `apps/web/src/website.ts` and returns both `mischiefUrl` and `websiteUrl`.
 
-The output shape, omitting the production DNS declarations above, is small:
+The outputs omit the production DNS declarations:
 
 ```ts
 export default Alchemy.Stack(
@@ -54,7 +54,7 @@ export default Alchemy.Stack(
 );
 ```
 
-What to notice: the Stack is an Effect. Importing it describes work. The CLI runs it during a plan or deploy.
+The Stack is an Effect. Importing it describes work. The CLI runs it during a plan or deploy.
 
 ### Follow the Worker bindings
 
@@ -79,9 +79,9 @@ const bindings = environment as RateLimitBindings & {
 
 `apps/mischief/src/sandbox-worker-loader.ts` consumes the `CODE_SANDBOX` binding. It loads a fresh Dynamic Worker with limits and `globalOutbound: null`, so the code-mode Worker can compute and call declared capabilities without reaching the network.
 
-The constructor pattern is the useful seam. Sam calls it another word for a Layer: declare dependencies in the Effect, use them, then return the implementation. His React analogy is practical here. Dependencies are the hooks at the top. The returned Worker is the component.
+Sam describes the constructor as a Layer: declare dependencies in the Effect, use them, then return the implementation. In his React analogy, dependencies are the hooks at the top. The returned Worker is the component.
 
-What to notice: declarations and consumers live in one construction Effect. This environment assertion relies on the declared bindings; it is not proof that every missing binding fails typecheck. Check both the plan and runtime behavior.
+Declarations and consumers share one construction Effect. The environment assertion relies on the declared bindings. Check missing bindings in the plan and at runtime; typecheck alone cannot prove they exist.
 
 ## Plan, then deploy
 
@@ -98,7 +98,7 @@ Run the plan first. It shows `create`, `update`, `adopt`, and `noop` actions bef
 
 Production is stage `prod`. Pass `--stage prod` to the Alchemy CLI. An unflagged deploy defaults to `live_$USER`, which can create a second Worker instead of updating production. Never run an indiscriminate stage destroy. Name the stage explicitly and read its plan first.
 
-Alchemy v2 keeps plan-time outputs boxed until deployment while still letting resources reference one another. Sam explains that this is intentionally close to Pulumi's output model: the engine can see the graph before it acts. The point is not to remove plans. The point is to get plans without hand-written await chains and accidental concurrency.
+Alchemy v2 keeps plan-time outputs boxed until deployment while still letting resources reference one another. Sam compares this to Pulumi's output model. The engine sees the graph before it acts. Plans need no hand-written await chains or accidental concurrency.
 
 ## Why not wrangler.toml or Terraform
 
@@ -106,7 +106,7 @@ Wrangler is a good Cloudflare-specific tool. This repo needs one Effect program 
 
 Terraform would keep infrastructure and the Effect Worker in separate languages and graphs. Alchemy can infer the Worker binding wiring from the same construction code that consumes it, while still showing a plan first.
 
-This is not a universal winner. Keep an existing tool when it already owns the state and the team knows its review path. Choose Alchemy here because the typed application and the cloud graph are one lesson.
+Keep an existing tool when it already owns the state and the team knows its review path. Choose Alchemy here because the typed application and the cloud graph are one lesson.
 
 ## Gotchas from this repo
 
@@ -114,8 +114,8 @@ This is not a universal winner. Keep an existing tool when it already owns the s
 - Cloudflare API changes have broken Alchemy releases before. Check the pinned version in `apps/infra/package.json` and the generated pins page before changing it.
 - The repo pins Alchemy to a beta and Effect to a release candidate. Alpha and beta APIs drift. Read the current pins and vendored source before copying an example from elsewhere.
 - Cloudflare rejected string rate-limit namespace IDs during a deploy even though the local type allowed them. `apps/mischief/src/rate-limits.ts` uses numeric IDs and documents the boundary.
-- `adopt(true)` is a safety decision, not decoration. Without it, Alchemy refuses to take over an existing Zone. Keep adoption narrow and never assume a resource is safe to destroy.
-- Profiles carry Cloudflare credentials. Do not add provider tokens to `.env`, source files, or Worker bindings just to make the CLI convenient.
+- `adopt(true)` authorizes adoption. Without it, Alchemy refuses to take over an existing Zone. Keep adoption narrow and never assume a resource is safe to destroy.
+- Profiles carry Cloudflare credentials. Do not add provider tokens to `.env`, source files, or Worker bindings for CLI convenience.
 
 ## Try it
 
@@ -135,4 +135,4 @@ This is not a universal winner. Keep an existing tool when it already owns the s
 8. Read `.brain/projects/ratstack-sh/deploy-ratstack-sh.svx` for real deployment history and failures.
 9. Read `.brain/projects/ratstack-sh/research-alchemy-effect-worker.svx` for the Worker shape and local-dev research.
 
-Know enough to name the resource, ask the agent for a plan, and check the diff. The agent can write the Effect. You own the review.
+Name the resource, request a plan, and check the diff.
