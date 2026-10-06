@@ -1,0 +1,150 @@
+---
+title: "Capture runtime crashes without storing request metadata"
+status: "proposed"
+---
+
+# Capture runtime crashes without storing request metadata
+
+Design B only. Implementation and deployment wait for the owner's privacy decision.
+
+The invocation-log candidate `270c3b3` remains unchanged on `worker/worker-invocation-logs`. It enables provider request metadata storage and is held.
+
+## Decision
+
+Recommend one private `MischiefTail` Worker with sanitized custom console logs. Keep invocation logs and traces disabled on every producer and consumer.
+
+This adds one Worker resource. The driver can reuse the profile-authenticated telemetry client. Privacy needs a captured-wire proof before this sink is accepted.
+
+| Sink | Persistent data boundary | Qualification limit | Plan footprint |
+| --- | --- | --- | --- |
+| Consumer console logs | Emit only the safe record; inspect provider enrichment too | Missing coverage or sampled results remain unknown | One Worker create |
+| Analytics Engine | Only explicit blobs, numbers and index are written | Sampling occurs on write and read; rare errors can disappear | One Worker create plus a dataset binding |
+| Small D1 table | Explicit typed columns with acknowledged inserts | Tail delivery still needs coverage proof | Worker and database create, plus migration |
+
+Alchemy's Analytics Engine dataset is a binding descriptor. It needs no separate API provisioning. That preserves one resource create, but sampling weakens crash qualification.
+
+The current production Stack declares no D1 database. Reusing the database cartridge does not establish an existing production database. A D1 alternative needs two creates here.
+
+**What to notice:** console logs fit the requested footprint. They are acceptable only if the provider adds no upstream request metadata.
+
+## Data boundary
+
+Cloudflare delivers raw `TraceItem` values to the consumer in memory. The consumer persists a newly constructed allowlisted record. It never forwards a TraceItem.
+
+| Field | Source and rule |
+| --- | --- |
+| Producer script name | Provider-owned `scriptName`; validate its identifier form |
+| Producer version | `scriptVersion.id`; optional at the platform boundary |
+| Outcome | Allowlisted platform outcome; classify other values without retaining their text |
+| Exception name | Allowlisted built-in error class; other names become `UnknownError` |
+| Scrubbed message | Constant `[message redacted]`; no raw-message fragments |
+| Event time | Valid `eventTimestamp`; retain absence explicitly |
+| Exception time | Valid exception timestamp when available |
+| Receive time | Consumer clock time |
+
+The record includes no request ID, account ID, URL, headers, cookies, IPs, geo fields, request body or stack trace. It excludes producer console messages and diagnostic-channel payloads.
+
+Consumer failures use constant safe error messages. Decoder inputs and raw Effect causes never enter console output. The privacy property also covers decoder and sink failures.
+
+A message can contain a secret without a recognizable format. Regex replacement cannot prove privacy. Keep the constant placeholder until an approved message grammar exists.
+
+Missing producer version or event time must remain missing. Emit a safe unattributed record. The watch treats such records as unknown when they intersect its producer and window.
+
+## One consumer, three producers
+
+```text
+Mischief ----+
+Website -----+--> MischiefTail --> safe custom log --> driver watch
+RpcBackend --+
+```
+
+Use ordinary `tailConsumers: [MischiefTail]` on each producer. Alchemy resolves the resource to its deployed script name and deploys it first.
+
+Do not feed producer resource outputs back into the consumer declaration. That would create a dependency cycle. The consumer reads provider-owned names from TraceItems; the driver resolves its own deployed producer names.
+
+The consumer has no HTTP capability, public route or custom domain. Disable both its Workers development URL and preview URLs. Use the native `workersDev` configuration.
+
+The consumer has no tail consumer of its own. This prevents recursive collection. Keep its invocation logs and traces off; enable only custom logs.
+
+Streaming tails are excluded. Installed beta.80 documents an experimental compatibility flag rejected by production. Local emulation does not prove production delivery.
+
+**What to notice:** completed-invocation tails require less machinery and a supported production path.
+
+## Privacy acceptance gate
+
+1. In an approved isolated stage, send unique canaries in a URL, cookie, IP-like header and request body.
+2. Trigger both a handler exception and an initialization exception.
+3. Capture the complete consumer telemetry response, including enrichment and failed-consumer events.
+4. Prove the safe facts arrived with the producer version and timestamps.
+5. Prove no canary or raw upstream request field exists anywhere in the response.
+6. Verify all producer and consumer invocation-log settings are off.
+
+The installed Tail event type contains `consumedEvents` with script names. It does not declare upstream headers there. This supports the design but does not prove stored telemetry privacy.
+
+If provider enrichment stores upstream metadata, reject the console sink. Request approval for an explicit D1 sink with a revised two-create plan. Do not silently fall back or enable invocation logs.
+
+## Watch read path
+
+The sink holds derived crash evidence. Cloudflare execution traces remain the source facts. The deploy receipt holds a bounded redacted result, not a log mirror.
+
+Query the consumer's custom records by producer identity, producer version and event-time window. The consumer's `$workers.scriptVersion.id` identifies the consumer version. It cannot identify the producer version.
+
+Capture and validate the provider's custom-field query shape before implementing its adapter. Read unattributed records for the same producer and window too. A version-only filter would hide missing-version failures.
+
+Start the window before the first apply mutation. Query through the watch deadline and include a bounded final delivery grace. Measure that grace in the approved canary stage.
+
+Keep the existing XState watch. Add a declared Effect actor behind a job-shaped crash-read port. Credentials come from the selected Alchemy profile.
+
+- Any matching non-ok record makes the watch red. Recovery cannot erase it.
+- Missing coverage, missing identity, incomplete queries or sampled results remain unknown.
+- Empty results cannot prove health when producers lack tail attachments or the consumer cannot persist custom logs.
+- Successful invocation records provide positive coverage for each watched producer version. Controlled probes must cause those records.
+- Query failure and delivery loss cannot become a healthy result.
+- The existing approved rollback command remains visible. Rollback remains manual.
+
+Bound each query by the deployment window and producer. Limit returned failure records; one matching failure suffices. Record query completion and sampling evidence. Measure scan cost before choosing polling cadence.
+
+Coverage shows the path worked for observed probes. It does not prove lossless delivery of every invocation. A rollout cannot claim that guarantee without provider evidence.
+
+## Native plan
+
+| Resource | Expected action |
+| --- | --- |
+| MischiefTail | One create |
+| Mischief | Update its tail consumer list |
+| Website | Update its tail consumer list |
+| RpcBackend | Update its tail consumer list |
+| Existing durable resources | Noop |
+
+The exact native plan can also include binding and task rows. Review those separately. Permit only the exact consumer create under the existing plan policy.
+
+No database, dataset resource, public route, network permission or provider credential variable is added. Detaching the consumer is an update. Removing it later is a separate destructive action requiring approval.
+
+## Tests before implementation is accepted
+
+- **Privacy property:** generated request metadata and secret-like exception text cannot appear in any serialized safe record.
+- **Schema property:** unknown fields are excluded; malformed versions and timestamps remain explicit unknown facts.
+- **History model:** generate old and new versions, window boundaries, duplicates, out-of-order arrivals, missing identities and late delivery.
+- **Watch model:** preserve a non-ok result through recovery; empty or sampled reads and unavailable coverage never pass.
+- **Terminal-window model:** errors in the last interval are read by the final query; late records beyond the accepted grace remain unknown.
+- **Real seam:** captured producer handler and initialization failures reach the private consumer with invocation logs disabled.
+- **Wire privacy seam:** inspect the entire consumer response for upstream canaries, including automatic metadata.
+- **Plan seam:** compile all three actual declarations; capture one consumer create, three producer updates and expected binding rows without provider mutation.
+- **Boundary seam:** no public consumer endpoint, no self-tail edge and no producer-output dependency cycle.
+- **Planted bugs:** forwarding a raw TraceItem and querying the consumer version instead of the producer version must fail their properties and models.
+
+Tests are proposed, not implemented. No production qualification is claimed by this design.
+
+## Sources and unresolved proof
+
+- [Deploy plan and watch policy](./deploy-plan-policy)
+- [Analytics privacy policy](../areas/analytics)
+- Installed Alchemy `2.0.0-beta.80`: `Cloudflare/Workers/Worker.ts`, `tailConsumers`, `streamingTailConsumers`, `workersDev` and Tail Worker examples.
+- Installed Alchemy `Cloudflare/AnalyticsEngine/Dataset.ts`: binding descriptor with no separate provisioning.
+- Installed workers types `5.20261001.1`: `TraceItem`, optional `ScriptVersion.id` and `TraceItemTailEventInfo`.
+- Production composition: `apps/infra/alchemy.run.ts` has no database declaration.
+- [Cloudflare Tail Workers](https://developers.cloudflare.com/workers/observability/logs/tail-workers/)
+- [Analytics Engine sampling](https://developers.cloudflare.com/analytics/analytics-engine/sampling/)
+- [Analytics Engine sampling FAQ](https://developers.cloudflare.com/analytics/faq/wae-faqs/)
+
+Required before coding: approve B and its sink. Required before qualification: prove initialization-error delivery, producer version availability, custom-field query support and complete stored-response privacy.
