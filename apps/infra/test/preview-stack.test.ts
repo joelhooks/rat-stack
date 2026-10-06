@@ -10,7 +10,10 @@ import { inMemoryState } from "alchemy/State";
 import { ConfigProvider, Effect, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
-import { rpcProjection } from "../../mischief/src/rpc-worker.js";
+import {
+  rpcContentDirectory,
+  rpcProjection,
+} from "../../mischief/src/rpc-worker.js";
 import previewDefinition, { previewProgram } from "../alchemy.preview.js";
 import { PreviewStage, previewResourcesAllowed } from "../src/preview.js";
 
@@ -59,6 +62,11 @@ it.effect.prop(
 
           const backendProps = yield* Schema.decodeUnknownEffect(
             Schema.Struct({
+              assets: Schema.Struct({
+                directory: Schema.String,
+                htmlHandling: Schema.Literal("none"),
+                runWorkerFirst: Schema.Literal(true),
+              }),
               env: Schema.optional(
                 Schema.Record(Schema.String, Schema.Unknown)
               ),
@@ -66,6 +74,7 @@ it.effect.prop(
             })
           )(stack.resources.RpcBackend?.Props);
 
+          expect(backendProps.assets.directory).toBe(rpcContentDirectory);
           expect(backendProps.workersDev).toBe(false);
           expect(Object.keys(backendProps.env ?? {})).toEqual([]);
           expect(

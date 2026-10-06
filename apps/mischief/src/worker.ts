@@ -40,6 +40,10 @@ import { privateObservability } from "./observability.js";
 import { outerHttpPrivacyRegistration } from "./outer-http-privacy.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
+import {
+  logRequestIncident,
+  observeRequestIncidents,
+} from "./request-incidents.js";
 import { layerWorkerLoader, sandboxLimits } from "./sandbox-worker-loader.js";
 import type { WorkerLoaderBinding } from "./sandbox-worker-loader.js";
 import { AssetBindingSchema, StaticAssets } from "./static-assets.js";
@@ -267,14 +271,15 @@ export const makeMischief = (
     const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
 
     return {
-      fetch:
+      fetch: observeRequestIncidents(
         events === undefined
           ? app
           : withEventCapture({
               captureCity: true,
               identityMode,
               runInBackground: inBackground,
-            })(app).pipe(Effect.provideContext(events)),
+            })(app).pipe(Effect.provideContext(events))
+      ),
     };
   });
 
@@ -352,6 +357,9 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
       Cloudflare.Workers.RateLimitBinding,
       outerHttpPrivacyRegistration
     )
+  ),
+  Effect.tapCause((cause) =>
+    logRequestIncident(cause, "initialization").pipe(Effect.asVoid)
   )
 );
 

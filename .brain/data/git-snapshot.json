@@ -1,7 +1,7 @@
 {
   "files": {
     ".brain/areas/agent-front-door.svx": "381a357a2133a566c4b5728afc543c1604569060917a6586d45297e13e207617",
-    ".brain/areas/analytics.svx": "67de8395dcf1843f387dece29db100753d5a3e7795f6646cee74bc88e7bc2e1c",
+    ".brain/areas/analytics.svx": "f63a62f0133da7016ef0e15cd1cb94f8988cb7ce91248b461332d3bc90ed9156",
     ".brain/areas/auth.svx": "9547b30f185938ef9f0da8d1401739d7aafa890f68bc1b1f6318868be60a9edd",
     ".brain/areas/capabilities.svx": "9758a474d2637831c5e7f9bda93dd9a426df5fba3da7cb4dd71b99b2e7fd74c6",
     ".brain/areas/database.svx": "fdc5580d807cf4b19b852585373bc37b163c023e046204a9db2397c530e6e9ce",
@@ -104,7 +104,7 @@
     "apps/cli/src/command.ts": "af31d4b811527f18604c71f56881c1f2b1cccac46d6b9215b13ef154429f86bb",
     "apps/cli/src/surfaces.ts": "5739749ee22591f5a1f154f53cc3c1f59ac099315edf1d4c55a1e934787711fe",
     "apps/infra/alchemy.run.ts": "41137cbbfc41012f0a9cd0d57323f23d04b6892b942786f9ca9bd2ab6ae486cf",
-    "apps/mischief/src/worker.ts": "9b48fb553e86f00719ad869125b8d5feb7a26d6f467fd5238818275fdecec2a0",
+    "apps/mischief/src/worker.ts": "fd0bc123b398285f8554139f9543e1c7c201b6ff2079c26867c5f718102e3cec",
     "apps/web/src/dev/backend.ts": "6f4f74b38714cff663f8cd631b595714d3fac3dd0b32b789c89b6c4391f50c53",
     "packages/capability/src/sandbox-subprocess.ts": "4845c3967fd8a2635f233c0f971f18b79c7dddb6eae1a31cb9f86978e7c60225",
     "packages/capability/src/to-code-mode.ts": "09975914bf3bdf1cc0fbf4b45109eb6ca4f690de9b9a344a14d4f0775f8030da",
@@ -133,7 +133,7 @@
     "packages/deploy/test/http-response.test.ts": "904a99c1ad1b49f11e8b2dd498fdf9ea2c5925d05da0491ac1d631c1fffc9e98",
     "packages/events/test/request-facts.test.ts": "fe995bad4b5c8f40b50cccd5463ded142ded8c98758d2a66562276a7f21cb956",
     "packages/events/test/visitor.model.test.ts": "f3b8bdf932a3a9c6d1d5952463b965f547b11abbdcb84ee66911d5d52582f097",
-    "README.md": "b2deafa07394d4cf6b49b6b2fbec93123ed9b7f3e2e0c028ebea27cd17b970fe",
+    "README.md": "0919ededb22962ba4e15ce9ae4ad14d58b025d6f1b92fd9f639c768f55209271",
     "skills/add-a-capability/SKILL.md": "3fa0f2bbfa23deb37ffff21c1bd5944b5de390fe606e099b2199294fd645a858",
     "skills/add-a-lifecycle-machine/SKILL.md": "e6aafe7628c705851d155ef61900a6287dafbf6469fa533d1b81ccf5e89bbb97",
     "skills/add-a-store/SKILL.md": "602bafb84e465595a7e0539c533ad589cc43e194d79fb39be3c5db67220531b9",

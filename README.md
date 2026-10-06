@@ -115,6 +115,7 @@ ALCHEMY_PROFILE=ratstack pnpm deploy:preview:destroy <pr> --yes
 - Both commands default to a read-only plan. Review it before using `--yes`.
 - An upload requires a clean tree. The receipt and `X-Preview-Commit` header carry the checkout's full commit SHA.
 - Each preview declares only Website and its private, read-only content RpcBackend. The RPC group excludes signup and subscription capabilities; neither Worker binds intake or email credentials.
+- RpcBackend binds the generated content assets for its bundled generation. After a deploy with `--yes`, the command POSTs `search` and `read` through RPC. Missing assets, empty results, or an invalid read fail the command. A failed smoke check does not undo the deployment; inspect the stage before retrying.
 - Website attaches one custom domain on the existing zone, looked up by name. It declares no zone, DNS records, email, redirects, or events resources.
 - The declaration guard rejects any other resource. Preview requests run through the Worker and receive `X-Robots-Tag: noindex`.
 - Alchemy manages the domain attachment inside the Website Worker, not as a separate plan row.
