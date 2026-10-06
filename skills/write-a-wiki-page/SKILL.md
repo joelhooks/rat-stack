@@ -57,7 +57,9 @@ The check reads parsed prose, including list paragraphs. It skips code, tables, 
 | Logic              | Pseudocode                 |
 | File placement     | Shallow tree               |
 
-Keep diagrams below 80 columns. Use one visual per point, with one or two nearby sentences and a What to notice line. Remove decorative visuals.
+Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Remove decorative visuals.
+
+Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 
 ## 4. Quote code from its source
 
