@@ -29,7 +29,7 @@ The proposed `CodeSnippet` carries:
 
 HTML adds colour, a filename, numbered lines, and a source link.
 Agent Markdown adds provenance and a fenced code block.
-Neither renderer owns a second copy of the source facts.
+Both renderers use the same source facts.
 
 Renderer parity means both views preserve those shared facts.
 The planned property compares each view with the pinned source.
