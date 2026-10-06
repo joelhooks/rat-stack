@@ -1,14 +1,18 @@
 import type { Nodes } from "mdast";
 
 import { parseContentMarkdown } from "./svx-ast.ts";
+import { wikiProseStyleWarnings } from "./wiki-prose-style.ts";
+import type { WikiProseStyleWarning } from "./wiki-prose-style.ts";
 
-export interface WikiProseWarning {
-  readonly count: number;
-  readonly file: string;
-  readonly kind: "paragraph" | "sentence";
-  readonly limit: number;
-  readonly line: number;
-}
+export type WikiProseWarning =
+  | WikiProseStyleWarning
+  | {
+      readonly count: number;
+      readonly file: string;
+      readonly kind: "paragraph" | "sentence";
+      readonly limit: number;
+      readonly line: number;
+    };
 
 const sentenceSegments = new Intl.Segmenter("en", { granularity: "sentence" });
 
@@ -79,10 +83,37 @@ export const wikiProseWarnings = (
     }
   };
 
-  visit(parseContentMarkdown(source, file));
+  const root = parseContentMarkdown(source, file);
+  visit(root);
 
-  return warnings;
+  return [...warnings, ...wikiProseStyleWarnings(file, source, root)].toSorted(
+    (left, right) => left.line - right.line
+  );
 };
 
-export const wikiProseWarningText = (warning: WikiProseWarning): string =>
-  `${warning.file}:${warning.line}: wiki prose: ${warning.kind} has ${warning.count} ${warning.kind === "sentence" ? "words" : "sentences"} (aim ≤${warning.limit})`;
+export const wikiProseWarningText = (warning: WikiProseWarning): string => {
+  const location = `${warning.file}:${warning.line}: wiki prose:`;
+
+  switch (warning.kind) {
+    case "history": {
+      return `${location} history wording "${warning.match}"; describe the present`;
+    }
+
+    case "hedge": {
+      return `${location} contrast hedge "${warning.match}"; state the positive claim`;
+    }
+
+    case "em-dash": {
+      return `${location} em dash; use a comma, colon, or full stop`;
+    }
+
+    case "paragraph":
+    case "sentence": {
+      return `${location} ${warning.kind} has ${warning.count} ${warning.kind === "sentence" ? "words" : "sentences"} (aim ≤${warning.limit})`;
+    }
+
+    default: {
+      return warning satisfies never;
+    }
+  }
+};
