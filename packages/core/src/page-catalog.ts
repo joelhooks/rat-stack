@@ -14,22 +14,26 @@ import { z } from "zod";
 // oxlint-disable-next-line no-control-regex -- Foldkit cannot serialize NUL or lone surrogate code units.
 const Text = z.string().regex(/^[^\u0000\uD800-\uDFFF]*$/u);
 
+const ActionDefinition = z.object({
+  description: Text,
+  params: z.instanceof(z.ZodType),
+});
+
+const ComponentEvents = z.object({ events: z.array(z.string()).optional() });
+
 const SiteProps = z.strictObject({
   author: Text,
   description: Text,
+  image: z
+    .strictObject({ alt: Text, src: Text.regex(/^https:\/\//u) })
+    .optional(),
   name: Text,
-  screenshotAlt: Text.optional(),
   stack: z.array(Text),
   url: Text.regex(/^https:\/\//u),
 });
 
 export const pageCatalog = defineCatalog(schema, {
-  actions: {
-    toggleNote: {
-      description: "Toggle the page note through a Foldkit Message.",
-      params: z.strictObject({}),
-    },
-  },
+  actions: {},
   components: {
     Callout: {
       description: "One highlighted note. Use at most one per page.",
@@ -45,7 +49,6 @@ export const pageCatalog = defineCatalog(schema, {
     },
     Page: {
       description: "The page heading, introduction and child content.",
-      events: ["toggleNote"],
       example: { intro: "Good things people build.", title: "Featured sites" },
       props: z.strictObject({ intro: Text, title: Text }),
       slots: ["default"],
@@ -67,13 +70,17 @@ export const pageCatalog = defineCatalog(schema, {
 
 export const pageCatalogMetadata = {
   actions: Object.fromEntries(
-    Object.entries(pageCatalog.data.actions).map(([name, definition]) => [
-      name,
-      {
-        description: definition.description,
-        params: z.toJSONSchema(definition.params),
-      },
-    ])
+    Object.entries(pageCatalog.data.actions).map(([name, entry]) => {
+      const definition = ActionDefinition.parse(entry);
+
+      return [
+        name,
+        {
+          description: definition.description,
+          params: z.toJSONSchema(definition.params),
+        },
+      ];
+    })
   ),
   components: Object.fromEntries(
     Object.entries(pageCatalog.data.components).map(([name, definition]) => [
@@ -191,8 +198,7 @@ const actionIssues = (
     ([name]) => name === type
   )?.[1];
 
-  const events =
-    component !== undefined && "events" in component ? component.events : [];
+  const events = ComponentEvents.parse(component ?? {}).events ?? [];
 
   return Object.entries(extensions.on ?? {}).flatMap(([event, binding]) => {
     const path = `elements.${id}.on.${event}`;
@@ -208,11 +214,13 @@ const actionIssues = (
     }
 
     return (Array.isArray(binding) ? binding : [binding]).flatMap((action) => {
-      const definition = Object.entries(pageCatalog.data.actions).find(
-        ([name]) => name === action.action
-      )?.[1];
+      const definition = ActionDefinition.safeParse(
+        Object.entries(pageCatalog.data.actions).find(
+          ([name]) => name === action.action
+        )?.[1]
+      );
 
-      if (definition === undefined) {
+      if (!definition.success) {
         return [
           {
             kind: "InvalidSpec",
@@ -222,7 +230,7 @@ const actionIssues = (
         ];
       }
 
-      const params = definition.params.safeParse(action.params ?? {});
+      const params = definition.data.params.safeParse(action.params ?? {});
 
       return params.success
         ? []

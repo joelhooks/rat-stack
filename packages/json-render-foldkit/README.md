@@ -12,6 +12,8 @@ Spec + current Model → upstream resolution → typed registry → Foldkit Html
 
 Use `schema.createCatalog(...)` to declare components and actions. `Components<typeof catalog, Msg>` checks each component\u0027s props and Message type. `createRenderer<typeof catalog, Msg>(catalog, components, messageForActions)` returns `(spec, model, h) => Html`.
 
+The Message constructor is optional for read-only pages. Without it, `on(event)` returns no Message.
+
 Each component receives `props`, `children`, `bindings`, `on(event)` and `h`. The registry props parser runs after upstream expression resolution. `on(event)` constructs a Message from resolved actions. It never dispatches effects during render. Foldkit event attributes send that Message to the caller\u0027s update function.
 
 Model is the only state snapshot. The adapter never writes it. State, item, index, binding and visibility resolution use upstream helpers. For actions, `$item` means a state path; for props, it means an item value. Missing streamed nodes and cycles stop that branch. Invalid resolved props produce an alert. Validate complete submissions with the catalog before installing them into Model.

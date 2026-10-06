@@ -23,7 +23,7 @@ const Leaf = Schema.Union([
 ]);
 
 it.effect.prop(
-  "every generated catalog tree renders all its cards and escaped text",
+  "every generated catalog tree renders its cards, optional images and escaped text",
   {
     callout: CalloutProps,
     nodes: Arbitrary.array(Arbitrary.schema(Leaf), { maxLength: 20 }),
@@ -70,6 +70,11 @@ it.effect.prop(
         nodes.filter((node) => node.type === "SiteCard").length
       );
       expect((rendered.html.match(/<aside\b/gu) ?? []).length).toBe(1);
+      expect((rendered.html.match(/<img\b/gu) ?? []).length).toBe(
+        nodes.filter(
+          (node) => node.type === "SiteCard" && node.props.image !== undefined
+        ).length
+      );
       expect(rendered.title).toBe(page.title);
       expect(rendered.html).not.toContain("<script");
     })

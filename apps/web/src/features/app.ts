@@ -145,21 +145,6 @@ export const update = (
           ? { ...model, search: SearchState.Loaded({ result }) }
           : model,
     }),
-    ToggledFeaturedNote: ({ count }) => ({
-      model:
-        model.featured === undefined
-          ? model
-          : {
-              ...model,
-              featured: {
-                ...model.featured,
-                showNote:
-                  count % 2 === 0
-                    ? model.featured.showNote
-                    : !model.featured.showNote,
-              },
-            },
-    }),
     UpdatedQuery: ({ value }) => ({ model: { ...model, query: value } }),
   });
 

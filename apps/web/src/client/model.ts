@@ -47,7 +47,6 @@ export const Message = defineMessageUnion({
   SubmittedSearch: {},
   SucceededRead: { document: ReadOutput, generation: Schema.Finite },
   SucceededSearch: { generation: Schema.Finite, result: SearchOutput },
-  ToggledFeaturedNote: { count: Schema.Int },
   UpdatedQuery: { value: Schema.String },
 });
 

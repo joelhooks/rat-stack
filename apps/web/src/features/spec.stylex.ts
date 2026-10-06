@@ -25,16 +25,6 @@ export const specStyles = stylex.create({
   intro: { color: "#555", fontSize: "20px", maxWidth: "42ch" },
   link: { color: "inherit", fontSize: "28px", fontWeight: 700 },
   page: { margin: "0 auto", maxWidth: "1040px", padding: "64px 24px" },
-  preview: {
-    alignItems: "center",
-    backgroundColor: "#f3f3ef",
-    borderRadius: "10px",
-    display: "flex",
-    fontSize: "40px",
-    fontWeight: 800,
-    justifyContent: "center",
-    minHeight: "160px",
-  },
   tags: { color: "#555", fontSize: "14px" },
   title: {
     fontSize: "clamp(36px, 6vw, 64px)",

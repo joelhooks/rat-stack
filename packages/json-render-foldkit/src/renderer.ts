@@ -29,7 +29,7 @@ type RuntimeComponent<Message> = (
 export const createRenderer = <C extends ComponentCatalog, Message>(
   catalog: C,
   components: Components<C, Message>,
-  message: MessageConstructor<Message>
+  message?: MessageConstructor<Message>
 ) => {
   const RegisteredComponent = Schema.declare<RuntimeComponent<Message>>(
     (input): input is RuntimeComponent<Message> => Predicate.isFunction(input)
@@ -125,7 +125,9 @@ export const createRenderer = <C extends ComponentCatalog, Message>(
         on: (event) => {
           const actions = actionsForEvent(element, event, context);
 
-          return actions.length === 0 ? undefined : message(actions);
+          return actions.length === 0 || message === undefined
+            ? undefined
+            : message(actions);
         },
         props,
       });

@@ -67,7 +67,9 @@ The infrastructure test runs that exact child build and checks the Worker and fe
 An entry-graph test rejects eager Zod machinery. An eager-import mutation fails that test.
 
 The adapter contains no product imports, StyleX, store, transport or effects.
-The application owns its StyleX recipes and Toggle note Message.
+The application owns its StyleX recipes.
+The showcase has no interactive controls in v0.
+A stack-tag filter belongs in the shell port, when the featured data includes useful tags.
 Watchers, custom computed functions, confirmation flows and async action execution remain outside v0.
 No JSON contains functions.
 

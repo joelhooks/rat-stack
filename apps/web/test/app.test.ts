@@ -68,26 +68,18 @@ const search = (
 };
 
 describe("document browser", () => {
-  it("native spec actions send Messages that change Model visibility without commands", () => {
+  it("the showcase renders its note and linked site without commands", () => {
     Scene.scene(
       { update, view },
       Scene.given(init(url("/featured")).model),
       Scene.expect(
-        Scene.role("heading", { name: "Composed, not hard-coded" })
+        Scene.role("heading", { name: "A page from a spec" })
       ).toExist(),
-      Scene.click(Scene.role("button", { name: "Toggle note" })),
-      Scene.expect(
-        Scene.role("heading", { name: "Composed, not hard-coded" })
-      ).not.toExist(),
       Scene.Command.expectNone(),
       Scene.expect(Scene.role("link", { name: "Stick\u0027em Up" })).toHaveAttr(
         "href",
         "https://stickers.badass.dev"
       ),
-      Scene.click(Scene.role("button", { name: "Toggle note" })),
-      Scene.expect(
-        Scene.role("heading", { name: "Composed, not hard-coded" })
-      ).toExist(),
       Scene.Command.expectNone()
     );
   });

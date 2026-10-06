@@ -17,8 +17,13 @@ const Text = Schema.String.check(Schema.isPattern(renderableTextPattern));
 export const FeaturedSite = Schema.Struct({
   author: Text,
   description: Text,
+  image: Schema.optionalKey(
+    Schema.Struct({
+      alt: Text,
+      src: Text.check(Schema.isPattern(/^https:\/\//u)),
+    })
+  ),
   name: Text,
-  screenshotAlt: Schema.optionalKey(Text),
   stack: Schema.Array(Text),
   url: Text.check(Schema.isPattern(/^https:\/\//u)),
 });

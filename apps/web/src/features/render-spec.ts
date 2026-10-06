@@ -4,7 +4,6 @@ import { createRenderer } from "@rat-stack/json-render-foldkit";
 import type { Components } from "@rat-stack/json-render-foldkit";
 import * as stylex from "@stylexjs/stylex";
 
-import { Message } from "../client/model.js";
 import type { AppMessage } from "../client/model.js";
 import { styles } from "./chrome.stylex.js";
 import { specStyles } from "./spec.stylex.js";
@@ -20,39 +19,23 @@ export const catalog: Components<typeof pageCatalog, AppMessage> = {
     ),
   Grid: ({ h, children }) =>
     h.div([h.Class(className(specStyles.grid))], [...children]),
-  Page: ({ h, props, children, on }) => {
-    const toggle = on("toggleNote");
-
-    return h.main(
+  Page: ({ h, props, children }) =>
+    h.main(
       [h.Class(className(specStyles.page))],
       [
         h.p([], ["FEATURED SITES"]),
         h.h1([h.Class(className(specStyles.title))], [props.title]),
         h.p([h.Class(className(specStyles.intro))], [props.intro]),
-        ...(toggle === undefined
-          ? []
-          : [
-              h.button(
-                [
-                  h.Type("button"),
-                  h.Class(className(styles.focus)),
-                  h.OnClick(toggle),
-                ],
-                ["Toggle note"]
-              ),
-            ]),
         ...children,
       ]
-    );
-  },
+    ),
   SiteCard: ({ h, props, children }) =>
     h.article(
       [h.Class(className(specStyles.card))],
       [
-        h.div(
-          [h.Class(className(specStyles.preview)), h.AriaHidden(true)],
-          [props.name]
-        ),
+        ...(props.image === undefined
+          ? []
+          : [h.img([h.Alt(props.image.alt), h.Src(props.image.src)])]),
         h.h2(
           [],
           [
@@ -80,8 +63,4 @@ export const catalog: Components<typeof pageCatalog, AppMessage> = {
     ),
 };
 
-export const renderSpec = createRenderer(pageCatalog, catalog, (actions) =>
-  Message.ToggledFeaturedNote({
-    count: actions.filter((action) => action.action === "toggleNote").length,
-  })
-);
+export const renderSpec = createRenderer(pageCatalog, catalog);

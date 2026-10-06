@@ -21,14 +21,13 @@ export const featuredSpec = PageSpec.make({
       children: [],
       props: {
         text: "Four typed components. One JSON spec. This page renders before JavaScript runs.",
-        title: "Composed, not hard-coded",
+        title: "A page from a spec",
       },
       type: "Callout",
       visible: { $state: "/showNote" },
     },
     page: {
       children: ["sites", "note"],
-      on: { toggleNote: { action: "toggleNote" } },
       props: {
         intro: "Good things people build. Start with one worth visiting.",
         title: "Built with rat-stack",
