@@ -34,13 +34,12 @@ Each error carries:
 
 Invalid metadata keeps its raw values. It has no decoded request yet.
 
-A stack trace does not meet this contract. The author needs enough context to repair the fence.
+The author needs the rejected input, its location, and a repair instruction. A stack trace alone cannot supply them.
 
 Use the [error model](/lore/error-model) to separate expected failures from defects.
 Use [schema decoding](/lore/schemas-define-the-boundary) to reject invalid input at the boundary.
 Use [error accumulation](/lore/accumulate-independent-errors) to report unrelated failures together.
 
 Related reading: *Exceptional Ruby* and *Confident Ruby*, both by [Avdi Grimm](https://avdi.codes/books/).
-These titles are reading pointers, not evidence for the proposed contract.
 
 See [the glossary](/glossary) for diagnostic context and repair instruction.
