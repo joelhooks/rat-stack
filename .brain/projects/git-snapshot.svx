@@ -28,4 +28,6 @@ Run `pnpm turbo run check test build --concurrency=1` in both a checkout and its
 
 The boundary property exercises both readers with generated blob text. It also checks missing queries and changed source fingerprints.
 
+The content version excludes all generated TypeScript modules. A cold export lacks the generated icon module before its first build. Hashing that module made warm and cold output differ.
+
 Source: `apps/mischief/scripts/git-snapshot.ts`, `apps/mischief/test/git-snapshot.test.ts`.

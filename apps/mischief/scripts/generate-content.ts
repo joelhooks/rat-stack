@@ -2786,7 +2786,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
                 (relativePath) =>
                   (relativePath.endsWith(".ts") ||
                     relativePath.endsWith(".svelte")) &&
-                  relativePath !== "bundled-content.generated.ts"
+                  !relativePath.endsWith(".generated.ts")
               )
               .map((relativePath) => `${directory}/${relativePath}`)
           ),
