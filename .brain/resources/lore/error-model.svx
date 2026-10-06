@@ -1,25 +1,122 @@
 ---
-title: "The error model"
-description: "Michael Arnaldi distinguishes typed failures a program handles from defects it lets escape."
+title: "Handle expected failures without hiding defects"
+description: "Declare expected failures, preserve their context, and recover by tag without turning crashes into successful outcomes."
 group: concept
 terms:
   - "Effect error model"
   - "typed failures"
 sources:
   - url: https://youtu.be/und9h4xiIz4?t=1418
-    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    title: "Arnaldi, Michael. n.d. Why JavaScript Is Broken: How Effect and TypeScript Fixes It."
     publisher: "Michael Arnaldi"
-    note: "Error-channel discussion; used for predictable typed failures."
-    accessed: "2026-10-01"
+    note: "Historical explanation at 23:38 distinguishes failures intended for control flow from defects."
+    accessed: "2026-10-06"
   - url: https://youtu.be/und9h4xiIz4?t=1512
-    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    title: "Arnaldi, Michael. n.d. Why JavaScript Is Broken: How Effect and TypeScript Fixes It."
     publisher: "Michael Arnaldi"
-    note: "Defect discussion; used to distinguish defects from expected errors."
-    accessed: "2026-10-01"
+    note: "Historical defect explanation at 25:12; not evidence for current API names."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schema.ts
+    title: "Effect contributors. 2026. Schema. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "TaggedError produces yieldable errors; Defect() describes unknown error values in a schema."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. 2026. Effect. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "mapError translates expected failures; catchTag selects tagged failures; catchDefect and orDie handle different failure boundaries."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/stats.ts
+    title: "rat-stack contributors. 2026. File statistics and failures."
+    publisher: "rat-stack"
+    note: "FileStatsError retains the failed path and filesystem reason."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/apps/cli/src/cli.ts
+    title: "rat-stack contributors. 2026. CLI failure boundary."
+    publisher: "rat-stack"
+    note: "The CLI reports a FileStatsError and keeps it failed instead of returning success."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/inspect-machine.ts
+    title: "rat-stack contributors. 2026. Inspection lifecycle."
+    publisher: "rat-stack"
+    note: "Expected read failure travels through a domain outcome; unexpected actor failure becomes a defect."
+    accessed: "2026-10-06"
+  - url: https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/06-error-handling.md
+    title: "Langton, Kit. 2026. Error Handling. Effect Solutions."
+    publisher: "Kit Langton"
+    note: "Topic framing for expected failures and defects; older TaggedErrorClass and catchAllDefect names are not used here."
+    accessed: "2026-10-06"
 ---
 
-# The error model
+Declare failures that callers can handle. Keep defects distinct from those declared outcomes.
+Catch a failure where the application can recover or report it truthfully.
+This page uses Effect 4.0.0.
 
-Michael says typed errors belong to control flow when the program intends to handle them; defects describe failures the program lets escape. [Why JavaScript Is Broken, 23:38](https://youtu.be/und9h4xiIz4?t=1418) [25:12](https://youtu.be/und9h4xiIz4?t=1512).
+## Give expected failures a type and useful context
 
-He presents this distinction as part of Effect's computation model, not as a wrapper around Promises. [22:11](https://youtu.be/und9h4xiIz4?t=1331).
+`Schema.TaggedError` defines a yieldable error with a tag and declared fields.
+`FileStatsError` keeps the path and the filesystem reason.
+
+```ts repo=rat-stack path=packages/core/src/stats.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-26
+```
+
+**What to notice:** The caller can match the tag and report the failed path. It need not inspect an unstructured exception message.
+
+Inside a generator, `return yield*` can raise a yieldable error directly.
+`Effect.fail` can also place an error in the expected failure channel.
+Do not throw an ordinary exception to represent a declared refusal.
+
+## Translate implementation failures without losing their meaning
+
+The inspector uses `Effect.mapError` to translate a filesystem failure into its domain error.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=20-26
+```
+
+**What to notice:** Translation keeps the failed path and the source message. Callers receive `FileStatsError`, not a filesystem dependency.
+
+If a domain error needs to carry an unknown source error, `Schema.Defect()` can describe that field.
+A field using that schema does not itself turn an expected error into a runtime defect.
+
+## Recover or report at a named boundary
+
+`Effect.catchTag` handles the selected failure tag. Other failures remain failed.
+Use `catchTags` when several tagged failures need different handlers.
+
+The CLI reports the inspection failure, then fails again:
+
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-15
+```
+
+**What to notice:** Reporting an error is not successful completion. The CLI preserves the failure after printing its message.
+
+A fallback is appropriate only when its value is a valid domain result.
+Do not turn a failed inspection into empty file statistics just to complete the command.
+
+## Do not use orDie to hide ordinary failures
+
+`Effect.orDie` removes expected failures from the typed channel by turning them into defects.
+The inspection machine uses it at the actor boundary because its expected file failure already travels through the `Unreadable` outcome.
+An unexpected actor failure or missing outcome is a programming failure at that boundary.
+
+This is a specific boundary decision. File reads still return `FileStatsError` to ordinary callers.
+Use `Effect.catchDefect` only where an integration boundary must inspect unexpected failures.
+Do not treat it as general domain recovery.
+
+## Common wrong approach
+
+Catching every cause and returning success erases whether the program refused work or crashed.
+A later caller cannot tell which repair is needed.
+Keep refusal, unexpected failure, and successful completion distinct.
+
+Michael Arnaldi's historical [explanation at 23:38](https://youtu.be/und9h4xiIz4?t=1418) motivates this distinction.
+Kit Langton's *Error Handling* informed the topic order.
+The checked Kit examples use `TaggedErrorClass`, `Schema.Defect`, and `catchAllDefect`; this page uses the exact 4.0.0 APIs instead.
+
+## Effect idiom and house rule
+
+- **Effect idiom:** Expected failures appear in the Effect type. Tagged handlers can recover without swallowing defects.
+- **rat-stack house rule:** Errors retain source context and repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
+- **Not an Effect requirement:** Turning every lifecycle into a machine or requiring the same diagnostic fields for every error.
+
+See also: [schemas](/lore/schemas-define-the-boundary), [author-facing diagnostics](/lore/errors-are-part-of-the-interface), [independent failures](/lore/accumulate-independent-errors), and [lifecycles](/lore/lifecycles-are-machines).

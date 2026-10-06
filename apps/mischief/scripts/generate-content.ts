@@ -91,6 +91,7 @@ import {
   linkedFromComponent,
   unlinkedMentionsComponent,
 } from "./reference-components.ts";
+import { contentDates, pageTitle, structuredData } from "./seo-metadata.ts";
 import {
   contentCodeSpans,
   contentRoot,
@@ -181,6 +182,7 @@ interface DocumentProps {
   readonly breadcrumbHref?: string;
   readonly breadcrumbLabel?: string;
   readonly breadcrumbName?: string;
+  readonly contentDates?: ReturnType<typeof contentDates>;
   readonly description: string;
   readonly ogImageUrl: string;
   readonly origin: string;
@@ -741,21 +743,23 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
           ...props,
           AgentPointer,
           agentPointerHtml: agentPointerHumanHtml,
-          bodyHtml:
-            countHtmlElements(props.bodyHtml, "h1") > 0
-              ? props.bodyHtml
-              : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`,
+          bodyHtml: `${countHtmlElements(props.bodyHtml, "h1") > 0 ? props.bodyHtml : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`}${props.contentDates?.dateModified === undefined ? "" : `<p>Content updated <time datetime="${props.contentDates.dateModified}">${props.contentDates.dateModified}</time>.</p>`}`,
         },
       }),
   });
 
   const document = `<!doctype html>
 <html lang="en">
-<head>${rendered.head}</head>
+<head>${rendered.head}${props.noindex === true ? "" : structuredData({ dates: props.contentDates ?? {}, description: props.description, origin: props.origin, path: props.path, title: props.breadcrumbName ?? props.title })}</head>
 <body>${props.path === "/tokenmaxx" ? "" : `<!-- ${agentPointerHtml} -->`}${rendered.body}</body>
 </html>`;
 
-  if (countHtmlElements(document, "script") > 0) {
+  if (
+    countHtmlElements(
+      `<!doctype html><html><head>${rendered.head}</head><body>${rendered.body}</body></html>`,
+      "script"
+    ) > 0
+  ) {
     return yield* new ContentBuildError({
       cause: new Error("Static documents must not contain client scripts"),
       sourcePath,
@@ -1207,7 +1211,7 @@ const program = Effect.gen(function* generateContent() {
       routePath: "/pins.md",
       sourcePath: "workspace package.json files",
       text: pinsText,
-      title: "pins.md",
+      title: "Exact workspace dependency pins (pins.md)",
     },
     {
       description: "What changed in the files served here, newest first.",
@@ -1223,7 +1227,7 @@ const program = Effect.gen(function* generateContent() {
       routePath: "/log.md",
       sourcePath: "git history",
       text: logText,
-      title: "log.md",
+      title: "Source change history (log.md)",
     },
     {
       description: "A source-linked count of repo-owned lint and type escapes.",
@@ -1231,7 +1235,7 @@ const program = Effect.gen(function* generateContent() {
       routePath: "/debt.md",
       sourcePath: "repo source comments",
       text: debtMarkdown,
-      title: "debt.md",
+      title: "Lint and type escape ledger (debt.md)",
     },
     ...lawTexts.slice(4),
   ];
@@ -2954,9 +2958,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
             breadcrumbHref: "/",
             breadcrumbLabel: "source files",
             breadcrumbName: spec.title,
+            contentDates: contentDates(spec.rawText, spec.sourcePath),
             description: spec.description,
             path: spec.routePath,
-            title: `${spec.title} | rat-stack`,
+            title: pageTitle(spec.title),
           },
           spec.sourcePath,
           contentVersion
@@ -2969,6 +2974,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         const text = renderAgentPage(bodyMarkdown, spec.routePath, spec.title);
 
         return {
+          ...contentDates(spec.rawText, spec.sourcePath),
           bodyMarkdown,
           description: spec.description,
           digest: digest(text),
@@ -2992,9 +2998,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
             breadcrumbHref: "/skills",
             breadcrumbLabel: "skills",
             breadcrumbName: skill.name,
+            contentDates: contentDates(skill.rawText, skill.sourcePath),
             description: skill.description,
             path: skill.routePath,
-            title: `${skill.name} | rat-stack`,
+            title: pageTitle(skill.name),
           },
           skill.sourcePath,
           contentVersion
@@ -3010,6 +3017,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         const text = renderAgentPage(bodyMarkdown, skill.routePath, skill.name);
 
         return {
+          ...contentDates(skill.rawText, skill.sourcePath),
           bodyMarkdown,
           description: skill.description,
           digest: digest(text),
@@ -3033,9 +3041,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
             breadcrumbHref: sectionOf(lore.group).href,
             breadcrumbLabel: sectionOf(lore.group).label,
             breadcrumbName: lore.title,
+            contentDates: contentDates(lore.rawText, lore.sourcePath),
             description: lore.description,
             path: lore.routePath,
-            title: `${lore.title} | rat-stack`,
+            title: pageTitle(lore.title),
           },
           lore.sourcePath,
           contentVersion
@@ -3051,6 +3060,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         const text = renderAgentPage(bodyMarkdown, lore.routePath, lore.title);
 
         return {
+          ...contentDates(lore.rawText, lore.sourcePath),
           bodyMarkdown,
           description: lore.description,
           digest: digest(text),

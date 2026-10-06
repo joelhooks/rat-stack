@@ -1,29 +1,145 @@
 ---
 title: "Effect basics"
-description: "Effect keeps success values, expected failures, and required services in one computation model."
+description: "An Effect describes work, expected failures, and required services before a runtime executes it."
 group: concept
 terms:
   - "Effect basics"
   - "Effect computation"
 sources:
   - url: https://youtu.be/gc5P36t6kD0?t=2955
-    title: "#81 TypeScript & Effects with Michael Arnaldi - YouTube"
+    title: "Arnaldi, Michael. n.d. TypeScript & Effects with Michael Arnaldi. Happy Path 81."
     publisher: "Michael Arnaldi"
-    note: "Effect type explanation; used for output, errors, and requirements."
-    accessed: "2026-10-01"
+    note: "Historical explanation at 49:15 of success, errors, and requirements; current API evidence comes from the pinned source."
+    accessed: "2026-10-06"
   - url: https://youtu.be/und9h4xiIz4?t=752
-    title: "Why JavaScript is Broken: How Effect and TypeScript Fixes It (w/ Michael Arnaldi) - YouTube"
+    title: "Arnaldi, Michael. n.d. Why JavaScript Is Broken: How Effect and TypeScript Fixes It."
     publisher: "Michael Arnaldi"
-    note: "Lazy-computation discussion; used for transforming an Effect before execution."
-    accessed: "2026-10-01"
+    note: "Historical explanation at 12:32 of lazy computations that can be transformed before execution."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. 2026. Effect. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Effect<A, E, R>, lazy execution, gen, mapError, fn, and typed failure handling."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. 2026. Context. Effect 4.0.0."
+    publisher: "Effect-TS"
+    note: "Service keys express requirements; supplied context satisfies them."
+    accessed: "2026-10-06"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/vitest/src/index.ts
+    title: "Effect contributors. 2026. Effect Vitest integration."
+    publisher: "Effect-TS"
+    note: "it.effect owns execution of an Effect returned by a test."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-stack/tree/65e9465f38092e24486392f22c08f45d61230c20
+    title: "rat-stack contributors. 2026. rat-stack source snapshot."
+    publisher: "rat-stack"
+    note: "FileInspector's method type, CLI composition and execution, Worker fetch Effect, and Effect-aware tests."
+    accessed: "2026-10-06"
 ---
 
-# Effect basics
+An Effect describes work. Build the description, compose it with other Effects, supply its services, then let a runtime execute it.
+This page uses Effect 4.0.0.
 
-Michael describes an Effect through its output, predictable errors, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).
+## Read the three type parameters
 
-He also describes a lazy Effect as a computation that can be transformed before it runs. [Why JavaScript Is Broken, 12:32](https://youtu.be/und9h4xiIz4?t=752).
+`Effect.Effect<A, E, R>` describes three things:
 
-See [context and requirements](/lore/context-and-requirements) and [the error model](/lore/error-model).
+| Parameter | Meaning | FileInspector's inspect method |
+| --- | --- | --- |
+| `A` | Success value | `FileStats` |
+| `E` | Expected failure | `FileStatsError` |
+| `R` | Required services | `never` |
 
-See also: [Structure an Effect codebase by domain](/lore/structure-effect-by-domain).
+**What to notice:** This method's full return type is `Effect.Effect<FileStats, FileStatsError, never>`.
+The source omits the final parameter because it defaults to `never`.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-15
+```
+
+**What to notice:** Constructing the inspector needs `FileSystem`. Its returned method has captured that dependency and does not require it again.
+
+`R = never` means no services remain to supply. It does not mean the computation cannot fail.
+`E = never` means no declared expected failures; it does not rule out defects or interruption.
+
+## A description is not a completed operation
+
+Calling `inspector.inspect(path)` produces an Effect description. It does not read the file immediately.
+The method composes the read with an error translation before a runtime executes either operation.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=17-29
+```
+
+**What to notice:** `.pipe(Effect.mapError(...))` changes how the described read fails. It does not perform the read during construction.
+
+Ordinary JavaScript still evaluates while you build a description.
+Starting a Promise first, then wrapping it, does not undo that eager work.
+Keep external work inside the Effect constructor's callback.
+
+## Write a sequence with gen; transform it with pipe
+
+`Effect.gen` composes Effects in generator syntax. `yield*` obtains a success value or propagates the failure.
+It is not `await`: the generator still describes work for the Effect runtime.
+
+Use `pipe` for short transforms, such as mapping a value, translating a failure, or providing a service.
+Use a generator when the next step needs values from earlier steps.
+
+- **Effect idiom:** Generators and combinators both compose descriptions without running a nested runtime.
+- **rat-stack house style:** Prefer `Effect.gen` for inline sequences. Use `Effect.fn` for reusable functions with useful tracing names.
+- **House style:** Do not write long combinator chains merely to avoid a clear generator.
+
+## Expected failures and defects are different
+
+An expected failure belongs in `E`, where callers can handle it by its declared type or tag.
+A defect is an unexpected execution failure, not another successful domain outcome.
+Logging a failure does not make the operation successful.
+[Handle expected failures without hiding defects](/lore/error-model) shows the file error and its CLI handler.
+
+## Requirements name services to supply
+
+A requirement is a service the computation needs, not a list of parameters to hide with a cast.
+Layers build implementations and satisfy their construction dependencies.
+Getting `FileInspector` from context requires that service; calling its captured `inspect` method needs no extra service.
+Read [service construction](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [context and requirements](/lore/context-and-requirements).
+
+## Run at the application boundary
+
+The CLI builds and transforms a program with `pipe`, then provides its service graph.
+`NodeRuntime.runMain` executes the final Effect:
+
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=16-25
+```
+
+**What to notice:** Supplying services and running the program are separate operations. Domain methods compose work; the entrypoint executes it.
+
+The Worker returns a fetch Effect to its Alchemy Worker adapter:
+
+```ts repo=rat-stack path=apps/mischief/src/worker.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=267-279
+```
+
+**What to notice:** The Worker adapter owns request execution. The domain does not scatter `runPromise` calls through handlers.
+
+In tests, `it.effect` owns execution of the returned Effect. The test still supplies the services it needs.
+See [tests through supplied services](/lore/tests-that-earn-their-place).
+The planned runtime-boundary page will cover integration with non-Effect code.
+
+## The common wrong first version
+
+Scattering `await Effect.runPromise(...)` through library methods creates separate execution boundaries where composition should remain intact.
+It also turns the expected failure into a rejected Promise rather than preserving the Effect error channel for the caller.
+Return the composed Effect and let the application boundary run it.
+
+`Effect.promise` assumes Promise rejection is an unexpected defect.
+For an external API with expected failures, use `Effect.tryPromise` with a translation into a named domain error.
+Wrapping an already-started Promise also loses control over when its work begins.
+
+## Next
+
+1. [Model accepted data](/lore/schemas-define-the-boundary), then [name failures](/lore/error-model).
+2. [Construct a service](/lore/services-capture-dependencies), then [compose Layers](/lore/layers-make-dependencies-explicit).
+3. [Supply configuration](/lore/configuration-is-a-dependency) and [test behavior](/lore/tests-that-earn-their-place).
+4. Next topics: resource scopes, owned concurrency, validated HTTP responses, useful tracing, and runtime integration. These pages are planned, not published here.
+5. Use [domain structure](/lore/structure-effect-by-domain) for the codebase map.
+
+Michael Arnaldi's two talks explain the computation model and its lazy execution.
+The examples here use rat-stack's code; the API claims use exact Effect 4.0.0 source.

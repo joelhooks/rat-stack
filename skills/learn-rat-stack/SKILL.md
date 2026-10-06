@@ -1,11 +1,14 @@
 ---
 name: learn-rat-stack
+updated: "2026-10-06"
 description: Trace a capability through Effect, XState, five projections, the CLI, and Alchemy. Try hosted search and read.
 ---
 
 # Learn the stack
 
 Start with one [capability](/systems/capabilities): `inspectFile`. Follow its [contract](/systems/capabilities), handler, service, machine, and [projections](/lore/one-capability-every-surface). Then try the hosted content tools.
+
+Read [Effect basics](/lore/effect-basics) before this trace if the computation model is new. For implementation tasks, use [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [testing](/lore/tests-that-earn-their-place).
 
 ## The pieces
 
@@ -132,7 +135,7 @@ Alchemy declares the Stack, Cloudflare providers, and state. The Stack includes 
 
 ## Try hosted search and read
 
-Use [POST /api/execute](/api/execute) for [code mode](/lore/one-program-can-replace-several-tool-calls). The [agent guide](/llms.txt) documents this search → read program:
+Use [POST /api/execute](/llms.txt#run-code-one-program-instead-of-several-calls) for [code mode](/lore/one-program-can-replace-several-tool-calls). The [agent guide](/llms.txt) documents this search → read program:
 
 ```js
 const found = await tools.search({ query: "cartridges", limit: 1 });

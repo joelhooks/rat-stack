@@ -34,6 +34,8 @@ sources:
 
 The proposal gives agent users the exploratory work: click through scenarios and find failures. A good reproduction then becomes a deterministic Playwright regression test. Exploration discovers a path; the test remembers it without needing the explorer to find it again. This is a direction, not a claim that rat-stack already runs fifty agent users or has this Playwright workflow built.
 
+For executable Effect tests, read [tests through supplied services](/lore/tests-that-earn-their-place).
+
 ## Rat-stack's reading
 
 These connections are our reading, not claims Staltz made in that reply:

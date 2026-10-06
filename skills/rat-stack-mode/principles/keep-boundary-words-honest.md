@@ -9,3 +9,5 @@ Describe what happened without leaking implementation details. Do not call a cra
 **Example:** `packages/auth/src/current-person-middleware.ts` exposes `Unauthenticated` instead of internal session failures.
 
 **Held by:** `Unauthenticated`; `packages/auth/test/auth.test.ts`; review for prose.
+
+The [failure guide](/lore/error-model) shows reporting a failed operation without changing it into success.

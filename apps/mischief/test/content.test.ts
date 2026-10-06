@@ -874,7 +874,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
 
       expect(fence?.documentHtml).toContain('id="linked-from"');
       expect(fence?.documentHtml).toContain(
-        '<a href="/VISION.md">VISION.md</a>'
+        '<a href="/VISION.md">Purpose and boundaries of rat-stack (VISION.md)</a>'
       );
       expect(homeDocumentHtml).toContain('href="/lore/');
     })
