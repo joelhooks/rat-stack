@@ -45,7 +45,6 @@ sources:
 
 Define the values the application accepts before writing the handler.
 Decode unknown input at the boundary. Encode results through the declared output schema.
-This page uses Effect 4.0.0.
 
 ## Use one model for types and runtime checks
 
@@ -56,7 +55,7 @@ Those representations can differ when a codec transforms values.
 ```ts repo=rat-stack path=packages/core/src/contracts.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=15-26
 ```
 
-**What to notice:** Content kinds have three accepted values. A match must carry the declared fields and a finite score.
+Content kinds have three accepted values. A match must carry the declared fields and a finite score.
 
 Derive the TypeScript type from the schema rather than maintaining a second interface.
 Use `Schema.Union` when accepted alternatives have different shapes, including tagged failures.
@@ -68,8 +67,7 @@ The file-inspection contract names its input, result, and failure.
 ```ts repo=rat-stack path=packages/core/src/contracts.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=155-163
 ```
 
-**What to notice:** The handler accepts a decoded path and returns file statistics or a declared failure.
-The schemas are executable boundaries, not separate descriptions of TypeScript interfaces.
+The schemas check values at runtime.
 
 ## Decode before dispatch
 
@@ -79,7 +77,7 @@ Our code-mode invoker calls the handler only after decoding succeeds.
 ```ts repo=rat-stack path=packages/capability/src/to-code-mode.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=148-156
 ```
 
-**What to notice:** Rejected input becomes `InvalidInput`. The domain handler receives the decoded value, not the original unknown input.
+Rejected input becomes `InvalidInput`. The domain handler receives the decoded value, not the original unknown input.
 
 The same invoker uses `Schema.encodeUnknownEffect` for declared outputs and failures.
 For an already-typed value, `Schema.encodeEffect` supplies the typed encoding API.
@@ -88,7 +86,7 @@ JSON serialization alone does not check whether a result satisfies its contract.
 ## A schema states what a value means
 
 The interest contract separates contact consent from sharing consent. Accepting contact does not authorize sharing.
-Its answer fields are bounded strings, not unrestricted request text.
+Its answer fields are bounded strings.
 
 `AbuseVerdictSchema` describes a hold flag, a finite score between zero and one, and signal names.
 The `AbuseVerdict` type derives from that schema.
@@ -105,13 +103,10 @@ Decode at the boundary instead of casting it into a domain type.
 Hand-written JSON parsing followed by a copied interface creates two models that can drift.
 Use the schema's decoding and encoding APIs. Report malformed input separately from an expected [domain refusal](/lore/error-model).
 
-Kit Langton's *Data Modeling* informed the records-and-alternatives coverage.
-The examples here come from rat-stack; the API evidence comes from the exact Effect 4.0.0 source.
-
 ## Effect idiom and house rule
 
-- **Effect idiom:** Schema defines runtime decoding, encoding, and the associated TypeScript types.
-- **rat-stack house rule:** One capability contract supplies schemas to every surface projection.
-- **Not an Effect requirement:** Capabilities or our bodyless HTTP 400 response for malformed input.
+- Schema defines runtime decoding, encoding, and the associated TypeScript types.
+- In rat-stack, one capability contract supplies schemas to every surface projection.
+- rat-stack also uses capabilities and a bodyless HTTP 400 response for malformed input.
 
 See also: [one schema, three surfaces](/lore/one-schema-three-surfaces), [OpenAPI refusals](/lore/openapi-describes-the-refusal-too), [services](/lore/services-capture-dependencies), and [testing](/lore/tests-that-earn-their-place).
