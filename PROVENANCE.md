@@ -14,6 +14,12 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/src/house-ad.svelte` | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/src/copy-prompt.svelte` | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Foldworks (MIT)
+
+`apps/web/src/features/chrome.stylex.ts` adapts the brand and flex-shell recipes from Foldworks by Ben Jacobson (MIT), `packages/sidebar/src/styles.ts` @ `0f16fd8`. The app replaces theme colours with neutral values and the rat-stack focus token.
+
+The inspector uses the table caption, column scope, and stable row identity pattern from Foldworks by Ben Jacobson (MIT), `packages/data-table/src/view.ts` @ `0f16fd8`. Its keyboard handling uses Foldkit 0.166's native key-binding subscriptions, not Foldworks 0.156's keyboard implementation. No Foldworks package is installed.
+
 ## Lucide bot icon (ISC)
 
 The inline bot SVG in `apps/mischief/src/copy-prompt.svelte` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).

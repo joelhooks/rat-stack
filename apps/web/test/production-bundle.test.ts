@@ -43,6 +43,30 @@ const build = (nodeEnv: "development" | "production") => {
 
     expect(result.status, result.stderr).toBe(0);
 
+    const worker = spawnSync(
+      vite,
+      [
+        "build",
+        "--ssr",
+        "src/worker.ts",
+        "--sourcemap",
+        "--outDir",
+        path.join(outDir, "worker"),
+        "--logLevel",
+        "error",
+      ],
+      {
+        cwd: webRoot,
+        encoding: "utf-8",
+        env: { ...process.env, NODE_ENV: nodeEnv },
+      }
+    );
+
+    expect(worker.status, worker.stderr).toBe(0);
+    expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toContain(
+      "Find the rule or skill you need."
+    );
+
     const maps = globSync("**/*.map", { cwd: outDir });
 
     const sources = maps.flatMap((file) =>
@@ -81,7 +105,7 @@ const BUILD = 60_000;
 
 describe("production bundle", () => {
   it(
-    "contains no dev module, no devtools, and no test people",
+    "statically renders home and excludes server devtools from browser and Worker output",
     () => {
       const { sources, strings } = build("production");
 
@@ -98,7 +122,7 @@ describe("production bundle", () => {
       const { sources, strings } = build("development");
 
       expect(sources.has("src/dev/backend.ts")).toBe(true);
-      expect(sources.has("src/dev/features/overlay/overlay.tsx")).toBe(true);
+      expect(sources.has("src/dev/features/overlay/overlay.ts")).toBe(true);
       expect(
         [...sources].some((source) =>
           source.startsWith("../../packages/devtools/")

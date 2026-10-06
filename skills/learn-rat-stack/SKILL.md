@@ -10,7 +10,8 @@ Start with one [capability](/systems/capabilities): `inspectFile`. Follow its [c
 ## The pieces
 
 - Effect supplies schemas, services, typed errors, and Layers.
-- XState owns finite lifecycles. The Effect bridge runs their declared actors.
+- XState owns server and domain lifecycles. The Effect bridge runs their declared actors.
+- Foldkit owns browser UI state. Model holds the replica; `update` selects named Effect Commands.
 - TypeScript 7 and Effect diagnostics check types and Effect usage.
 - Oxlint, Oxfmt, Vitest, and lefthook enforce [the fence](/lore/the-fence).
 - pnpm and Turborepo connect packages and cache checks.

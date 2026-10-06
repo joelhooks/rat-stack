@@ -1,6 +1,6 @@
 ---
 title: "Lifecycles are machines"
-description: "XState owns finite lifecycle states while declared Effect actors own side effects."
+description: "XState owns server and domain lifecycle states while declared Effect actors own side effects."
 group: idea
 terms:
   - "lifecycles are machines"
@@ -23,7 +23,9 @@ sources:
     accessed: "2026-10-01"
 ---
 
-Use an XState machine when a domain operation has finite states, retries, cancellation, or a lifecycle that needs to be resumed or inspected. Model the states and transitions explicitly instead of accumulating booleans whose combinations have no meaning.
+Use an XState machine when a domain operation has finite states, retries, cancellation, or resumable work. Model states and transitions explicitly. Do not accumulate booleans whose combinations have no meaning.
+
+Browser UI state uses Foldkit's Model and `update`. Named Commands own browser Effects. The [repo law](https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md) keeps server and domain lifecycles in XState.
 
 In this repo, `setupEffect` declares actors, `fromEffect` defines an Effect-backed side effect with a schema for its input, and `createEffectActor` starts the machine inside Effect's scope. The machine chooses transitions and records its outcome. The invoked actor performs the file read. `join` waits for the final outcome, and `Effect.orDie` treats a machine-level failure as a programming error while the domain read failure remains an explicit machine state.
 

@@ -26,7 +26,7 @@ Read `AGENTS.md`, `VISION.md`, and the relevant `.brain/` decisions. Inspect the
 ### Transport in a feature
 
 - **Spot it:** `fetch`, RPC construction, or retries inside `apps/web/src/features/**`.
-- **Split it:** Move transport into a client under `apps/web/src/client/`. Copy `apps/web/src/client/docs.ts`; features read atoms and call named commands.
+- **Split it:** Move transport into a client under `apps/web/src/client/`. Copy `apps/web/src/client/docs.ts`; features emit Foldkit Messages; `update` selects named Commands.
 - **Fence it:** `rat-stack-boundaries/no-feature-transport` blocks feature transport. `rat-stack-boundaries/no-browser-server-imports` keeps handler imports outside browser modules.
 
 ### Vendor in a caller
@@ -62,7 +62,7 @@ Read `AGENTS.md`, `VISION.md`, and the relevant `.brain/` decisions. Inspect the
 ### Two authorities
 
 - **Spot it:** A cache or client replica decides a mutation independently of the Durable Object or database cartridge.
-- **Split it:** Keep the server authoritative. Clients in `apps/web/src/client/` reconcile through `reactivityKeys`. Copy the contract-derived client in `apps/web/src/client/docs.ts` for reads. Call a DDD projection a read model; rat-stack projections expose capabilities.
+- **Split it:** Keep the server authoritative. Foldkit's Model holds the browser replica. `update` writes it; mutation Commands re-fetch or reconcile. Copy the contract-derived client in `apps/web/src/client/docs.ts` for reads. Call a DDD projection a read model; rat-stack projections expose capabilities.
 - **Fence it:** **No fence yet** proving reconciliation or sole authority; candidate: a stale-replica command-sequence model test.
 
 ### Ceremony service

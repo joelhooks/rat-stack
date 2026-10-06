@@ -14,7 +14,7 @@ Joel approved turning ratstack.sh into a read-only, Roam-like LLM wiki built fro
 
 1. **Graph cartridge.** `packages/lore` owns the typed graph, build-time snapshot, and backlinks, neighbors, mentions, and shortest-path capabilities. Mischief exposes them through MCP, HTTP/OpenAPI, and code mode. This is the current lane.
 2. **Stable quote blocks.** Add stable block IDs and quote embedding. A quote lives on its source page; concept pages transclude it.
-3. **Graph view.** Build the graph view in `apps/web` over AtomRpc.
+3. **Graph view.** Build the graph view in `apps/web` with Foldkit Messages and contract-derived RpcClient Commands.
 4. **Reviewed ingestion.** Add an XState ingest machine as its own cartridge: public source → transcript → proposed lore → review → PR. Joel must decide what sources it may ingest before this machine can collect anything.
 
 ## Boundaries

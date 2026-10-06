@@ -10,7 +10,9 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
-- Effect `4.0.0` and `@effect/platform-node` `4.0.0`
+- Effect `4.0.0`, `@effect/platform-node` `4.0.0`, and `@effect/platform-browser` `4.0.0`
+- Foldkit `0.166.0`, `@foldkit/devtools` `0.166.0`, and `@foldkit/vite-plugin` `0.26.1` for browser UI; `@foldkit/oxlint-plugin` `0.15.2` adds app-scoped checks beside the existing fence
+- StyleX `0.19.1` and `@stylexjs/unplugin` `0.19.1` in `apps/web`; tokens own the single accent
 - XState `6.0.0-alpha.63` for finite lifecycles, retries, cancellation, and resumability
 - `@xstate/effect` `0.1.0-alpha.6` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `fromEffect` actors. This pin was published to npm 2026-10-01; `vendor/README.md` keeps the rules for the next unpublished pin
 - Alchemy `2.0.0-beta.80` (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
@@ -32,7 +34,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | `@rat-stack/subscriber-delivery` | `packages/subscriber-delivery` | External subscriber intake and confirmation adapter; implements core's job-shaped `SubscriberIntake` and `SubscriberConfirm` ports, provided by the Worker, never imported by core |
 | `@rat-stack/lore` | `packages/lore` | Public content graph and traversal service |
 | `@rat-stack/devtools` | `packages/devtools` | 🐀 devtools cartridge: `CallLog`, `record`, and the `rat_*` capabilities that list, read, dispatch, replay, and diff capability calls |
-| `@rat-stack/web` | `apps/web` | Default UI bin: TanStack Start on Vite, deployed as `Website` (`apps/web/src/website.ts`). Browser `client/` builds AtomRpc from contracts; `/rpc` uses the `#backend` import: production forwards to the private `RpcBackend` in `apps/mischief/src/rpc-worker.ts`, and `pnpm --filter @rat-stack/web dev` serves the content capabilities in process from `src/dev/backend.ts` (the `development` condition in `apps/web/package.json`). In dev, `src/dev/backend.ts` runs the content capabilities under devtools: `/rpc` calls are recorded, `/__rat/rpc` serves the 🐀 overlay (`#devtools-overlay`, `src/dev/features/overlay`, ⌘K), and `/__rat/mcp` serves every `rat_*` tool to agents, with memory-Auth test people. `src/dev/client` and `src/dev/features` follow the browser rules. `test/production-bundle.test.ts` proves no `src/dev` module, no devtools code, and no test people reach a production build. Include it in the Stack with `const website = yield* Website;` |
+| `@rat-stack/web` | `apps/web` | Foldkit browser app on Vite, deployed as `Website` with `Cloudflare.Website.Foldkit`. The custom Worker forwards `/rpc` through `#backend` to the private `RpcBackend`; other pages use static assets with SPA fallback. The home page is generated at build time. Browser `client/` owns contract-derived `RpcClient` Commands. Model holds the replica; `update` is its only writer. Development resolves `#backend` to `src/dev/backend.ts`, with in-process content, recorded `/rpc`, `/__rat/rpc`, `/__rat/mcp`, and memory-Auth test people. The dev-only Foldkit inspector under `src/dev/` opens with ⌘K. Browser boundary rules cover its client and feature folders. `test/production-bundle.test.ts` rejects server devtools and test people from browser and Worker outputs. Foldkit's browser DevTools may ship. Include the resource with `const website = yield* Website;` |
 | `@rat-stack/cli` | `apps/cli` | Composition root: `stats`, `catalog`, `openapi`, `serve [--devtools]`, `mcp [--code-mode] [--devtools]` commands |
 | `@rat-stack/infra` | `apps/infra` | Alchemy Stack: the project's cloud footprint as one Effect program |
 | `@rat-stack/mischief` | `apps/mischief` | Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface |
@@ -46,9 +48,9 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | Projection | `packages/capability/src/to-<surface>.ts` | Expose implemented capabilities on one runtime surface. |
 | Cartridge | `packages/<name>/src/` | One Layer with its own infrastructure; it must pass the cartridge test in `VISION.md`. |
 | Machine | `packages/core/src/<name>-machine.ts` | Own one finite domain lifecycle. |
-| Feature | `apps/web/src/features/<name>/` | Thin route and view that read client atoms. |
+| Feature | `apps/web/src/features/` | Pure Foldkit view and update; Messages call named client Commands. |
 | System page | `.brain/areas/<name>.svx` | Public page at `/systems/<name>` for one system rat-stack ships: what it does, the standard it keeps, and how to check it. The content build rejects a system page without those three sections or outside `.brain/areas/`. |
-| Client | `apps/web/src/client/<name>.ts` | Own AtomRpc queries, named commands, and the local replica. |
+| Client | `apps/web/src/client/<name>.ts` | Own Foldkit Model schemas, named Commands, and contract-derived RpcClient transport. |
 
 ## Commands
 
@@ -63,7 +65,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | `pnpm test` | Build and run the Vitest suite once |
 | `pnpm build` | Compile package outputs |
 | `pnpm typecheck` | `turbo run typecheck` |
-| `pnpm vendor:agent-sources` | Shallow-clone Effect, effect-solutions, xstate, alchemy, better-auth, and TanStack Router/Start mirrors |
+| `pnpm vendor:agent-sources` | Shallow-clone Effect, effect-solutions, xstate, alchemy, better-auth, and Foldkit mirrors |
 | `pnpm infra:plan` | Preview the Alchemy Stack diff without applying |
 | `pnpm infra:deploy` / `pnpm infra:destroy` | Apply or tear down the Stack (asks for approval) |
 | `pnpm exec lefthook install` | Install git hooks (also via `prepare`) |
@@ -116,7 +118,7 @@ A child project replaces this section on day one with its own product rules. The
 
 - One contract, every surface. Define schemas and metadata with `defineContract`; bind a server-side handler with `implement` and add the capability to `capabilities`. CLI, HTTP, MCP, RPC, and code mode are projections in `packages/capability`. Do not add a command, route, or tool handler that bypasses a capability.
 - Schemas are the contract. Input, output, and failure are Effect `Schema`; JSON Schema, OpenAPI, and the code-mode declarations are derived from them, never hand-written.
-- Lifecycles are machines. Finite modes, retries, and cancellation live in XState machines started with `createEffectActor`; side effects live in declared `fromEffect` actors, never inline.
+- Server and domain lifecycles are machines. Finite modes, retries, and cancellation stay in XState, started with `createEffectActor`; declared `fromEffect` actors own side effects. Browser UI state uses Foldkit's Model and `update`. Named Commands own browser Effects; `view` owns no transport. Never give XState and Foldkit authority over the same state.
 - The sandbox is a surface, not a bypass. Anything reachable from a code-mode program must be a capability and goes through that capability's schemas and handler.
 - Gardener rule: add a lint rule before cleaning up a bad pattern; lint baselines only shrink. The routine is `skills/gardener`; before simplifying or replacing a design, run `skills/uncomplect`.
 - Refresh peers, versions, and tiers every week or two and after every bump of Effect, Alchemy, XState, or `@xstate/effect`. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit table rows. Drift is expected. Preserve every peer; show S through B in the main table and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
@@ -166,9 +168,9 @@ The content generator warns on sentences above 25 words and paragraphs above fou
 
 ## Web feature blueprint
 
-`apps/web/src/features/<name>/` holds a thin route and view. It reads atoms and calls named commands from `apps/web/src/client/<name>.ts`; components never handle transport, retries, or process startup. The client owns AtomRpc queries and the local replica. The capability in `packages/core` is the shared typed edge, imported by both sides. A cartridge owns durable behavior.
+`apps/web/src/features/` owns pure views and `update`. `apps/web/src/client/` owns the Model schemas and named Commands. Dev-only browser modules use `src/dev/{client,features}/`. Views emit Messages; they never handle transport, retries, or process startup.
 
-One send follows one path: feature → named client command → AtomRpc → shared capability → server-side Durable Object or database cartridge. The server stays authoritative. Mutations carry `reactivityKeys` so the client reconciles its replica.
+One send follows one path: feature → Foldkit Message → `update` → named Command → contract-derived `RpcClient` → shared capability. The server remains authoritative. Model holds the disposable browser replica; `update` is its only writer. Mutations re-fetch or reconcile that replica. `DocumentQueries` owns runtime-scoped RPC caches; disposing the runtime disposes its client.
 
 ## Boundaries and sign-off
 

@@ -1,0 +1,60 @@
+---
+title: "Foldkit owns the browser replica"
+type: decision
+status: active
+created_at: "2026-10-06"
+privacy: public
+---
+
+# Foldkit owns the browser replica
+
+Joel approved idiomatic Foldkit browser state on October 6. Server and domain lifecycles stay XState.
+
+## Ownership
+
+- Content and capability handlers remain authoritative on the server.
+- Foldkit Model holds the disposable browser replica.
+- `update` is its only writer.
+- Views emit Messages. Named Commands call contract-derived RpcClient.
+- Mutations re-fetch or reconcile the replica.
+- Runtime-scoped document queries preserve the search and document caches.
+- Browser history restores back/forward scroll. New link navigation starts at the top.
+
+## Hosting
+
+Keep the `Website` logical id and the `#backend` import seam. Use Alchemy beta.80's `Website.Foldkit` adapter.
+
+The adapter supplies SPA fallback and accepts a custom Worker entry. That entry forwards `/rpc` to the private backend. It returns 404 for production `/__rat/*` requests before asset fallback.
+
+Vite generates the empty search page at build time. A temporary Vite module runner compiles its StyleX recipes before rendering. The rendering runner uses StyleX's Rollup adapter, which has no dev-server polling timer. Its HMR and WebSocket transports are off. No request-time server rendering runs in the Worker.
+
+Development loads `src/dev/backend.ts` through Vite's module runner. It serves recorded content RPC, server inspector RPC, and MCP with memory Auth.
+
+## Two inspectors
+
+- Foldkit DevTools observes browser Model, Messages, and Commands. Joel permits it in production.
+- The dev-only rat inspector observes server calls, replay, diffs, actors, and test people.
+- Source-map tests inspect browser and Worker builds. They reject rat-stack server devtools and test people in production.
+- Existing browser import and transport globs still cover every browser module.
+
+## Styles and sources
+
+StyleX runtime and unplugin are pinned to 0.19.1, the checked stable versions. The existing Mischief CSS stays unchanged.
+
+StyleX tokens own the pink accent. The `focus` recipe is the only allowed token consumer. A browser source test rejects raw pink and other recipe consumers.
+
+Tests compile real StyleX with the Rollup adapter instead of substituting a shim. Foldkit Scenes use jsdom. Routing and source tests stay in Node, where file URLs retain their filesystem meaning.
+
+[Foldworks](https://github.com/bjacobso/foldworks) at `0f16fd8` informs the chrome and inspector. It is source material, not a dependency. Its older Foldkit APIs are not copied. [PROVENANCE.md](../../PROVENANCE.md) names adapted recipes.
+
+## Baseline
+
+The prototype emitted 356.51 kB JavaScript, 116.33 kB gzip, and 0.71 kB CSS. It lacked the shell and server inspector.
+
+The replaced app emitted 532.20 kB JavaScript, 176.02 kB gzip, and 9.04 kB CSS. These are emitted asset totals, not first-navigation transfer measurements.
+
+Mutation checks caught both planted defects: raw pink in the brand recipe and acceptance of a stale read result. Both source files were restored byte-for-byte before the final gate.
+
+The migrated browser emits 362.16 kB JavaScript, 118.54 kB gzip, and 10.04 kB CSS. It adds 2.21 kB gzip over the prototype. It removes 57.48 kB gzip from the replaced app.
+
+Related: [layer startups](./layer-startups.svx), [server devtools](./rat-devtools.svx), and [peer patterns](../resources/same-version-repos.svx).

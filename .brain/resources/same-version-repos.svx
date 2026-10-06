@@ -20,13 +20,13 @@ The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. A
 
 ## Patterns
 
-### Browser RPC behind a private Worker binding — adopt
+### Browser RPC behind a private Worker binding — adapt
 
 **Source:** [Alchemy example README](https://github.com/alchemy-run/alchemy/blob/9802260db8f8b5a083c4b85eb7ea31ae1ff8f176/examples/cloudflare-tanstack-rpc-drizzle/README.md), [RPC schema](https://github.com/alchemy-run/alchemy/blob/9802260db8f8b5a083c4b85eb7ea31ae1ff8f176/examples/cloudflare-tanstack-rpc-drizzle/src/backend/rpc.ts), [browser client](https://github.com/alchemy-run/alchemy/blob/9802260db8f8b5a083c4b85eb7ea31ae1ff8f176/examples/cloudflare-tanstack-rpc-drizzle/src/rpc-client.ts), [proxy route](https://github.com/alchemy-run/alchemy/blob/9802260db8f8b5a083c4b85eb7ea31ae1ff8f176/examples/cloudflare-tanstack-rpc-drizzle/src/routes/rpc.ts), [Stack](https://github.com/alchemy-run/alchemy/blob/9802260db8f8b5a083c4b85eb7ea31ae1ff8f176/examples/cloudflare-tanstack-rpc-drizzle/alchemy.run.ts).
 
 One `RpcGroup` declares the wire contract; the backend serves it and `AtomRpc.Service` turns it into module-scope query and mutation atoms for React. The browser calls a same-origin TanStack `/rpc` route, which forwards to a private `BACKEND` service binding; the backend has no public Workers URL.
 
-**Verdict — adopt for the web bin.** **Cartridge:** keep capability schemas in `packages/core`, the `toRpc` projection in `packages/capability`, and UI atoms in the web app. **Fence:** one schema-derived contract carries payloads and typed failures across the wire, while the [binding](/lore/bindings) keeps the backend private. **One paved path:** all browser operations go through `toRpc` and the same `/rpc` transport, not a second hand-written route/API surface.
+**Verdict — keep the transport, replace the UI.** The October 6 [Foldkit migration](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/foldkit-web.svx) supersedes the React client choice. Keep capability schemas in `packages/core` and the `toRpc` projection in `packages/capability`. Foldkit's Model replaces UI atoms. **Fence:** one schema-derived contract carries payloads and typed failures across the wire, while the [binding](/lore/bindings) keeps the backend private. **One paved path:** all browser operations go through `toRpc` and the same `/rpc` transport, not a second hand-written route/API surface.
 
 ### PlanetScale resources and migrations — adapt
 
@@ -111,7 +111,7 @@ Symbol-screened without a relevant client/resource pattern: `Dhravya/radish`, `z
 
 ## Recommendations by lane
 
-1. **TanStack web bin:** generate the browser client from capability Schemas as one `RpcGroup`, create module-scope `AtomRpc` atoms, and forward same-origin `/rpc` to a private `RpcWorker` binding.
+1. **Foldkit web bin:** derive one `RpcGroup` from capability schemas. Named Commands call RpcClient; `update` writes the Model replica. Forward same-origin `/rpc` to the private backend binding.
 2. **Better Auth:** use `@alchemy.run/better-auth@2.0.0-beta.79`; provide the database cartridge's Layer and keep auth API/migration failures typed.
 3. **Database cartridge:** expose one repository-shaped service tag; let D1 and PlanetScale/Hyperdrive Layers own schemas, migrations, and bindings; choose with one `Layer.provide`.
 4. **Worker tests:** add `makeRequestHandler` and SQLite-backed DO/D1 fixtures for fast tests, plus one credentialed Alchemy deploy/test/destroy gate using a pnpm-compatible harness.

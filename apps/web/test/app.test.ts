@@ -51,6 +51,28 @@ const search = (
 };
 
 describe("document browser", () => {
+  it("unknown routes render a return path without fetching a document", () => {
+    Scene.scene(
+      { update, view },
+      Scene.given(init(url("/unknown")).model),
+      Scene.Command.expectNone(),
+      Scene.expect(Scene.role("heading", { name: "Page not found" })).toExist(),
+      Scene.expect(Scene.role("link", { name: "Back to search" })).toHaveAttr(
+        "href",
+        "/"
+      )
+    );
+  });
+
+  it("a read route without an id explains the missing selection", () => {
+    Scene.scene(
+      { update, view },
+      Scene.given(init(url("/read")).model),
+      Scene.expect(Scene.role("alert")).toHaveText("No document was selected."),
+      Scene.Command.expectNone()
+    );
+  });
+
   it("search input submits a trimmed query and renders linked results", () => {
     search(
       Scene.type(

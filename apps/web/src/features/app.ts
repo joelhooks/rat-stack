@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { Option, Schema } from "effect";
 import type { Runtime, Update } from "foldkit";
 import type { Document, Html, HtmlBuilder } from "foldkit/html";
@@ -7,13 +8,15 @@ import { toString as urlToString } from "foldkit/url";
 import { LoadExternal, Navigate, ReadDoc, SearchDocs } from "../client/docs.js";
 import { Message, ReadState, SearchState } from "../client/model.js";
 import type { AppModel, AppMessage } from "../client/model.js";
+import type { DocumentQueries } from "../client/queries.js";
+import { styles } from "./chrome.stylex.js";
 import { AppRoute, parseRoute, readRouter } from "./route.js";
 import type { AppRouteState } from "./route.js";
 
 const enterRoute = (
   model: AppModel,
   route: AppRouteState
-): Update.Return<AppModel, AppMessage> => {
+): Update.Return<AppModel, AppMessage, DocumentQueries> => {
   const generation = model.generation + 1;
 
   const next = {
@@ -50,9 +53,12 @@ const enterRoute = (
   };
 };
 
-export const init: Runtime.RoutingApplicationInit<AppModel, AppMessage> = (
-  url
-) =>
+export const init: Runtime.RoutingApplicationInit<
+  AppModel,
+  AppMessage,
+  void,
+  DocumentQueries
+> = (url) =>
   enterRoute(
     {
       generation: 0,
@@ -67,17 +73,23 @@ export const init: Runtime.RoutingApplicationInit<AppModel, AppMessage> = (
 export const update = (
   model: AppModel,
   message: AppMessage
-): Update.Return<AppModel, AppMessage> =>
-  Message.match<Update.Return<AppModel, AppMessage>>(message, {
+): Update.Return<AppModel, AppMessage, DocumentQueries> =>
+  Message.match<Update.Return<AppModel, AppMessage, DocumentQueries>>(message, {
     ChangedUrl: ({ url }) => enterRoute(model, parseRoute(url)),
     ClickedLink: ({ request }) =>
-      UrlRequest.match<Update.Return<AppModel, AppMessage>>(request, {
-        External: ({ href }) => ({ commands: [LoadExternal({ href })], model }),
-        Internal: ({ url }) => ({
-          commands: [Navigate({ url: urlToString(url) })],
-          model,
-        }),
-      }),
+      UrlRequest.match<Update.Return<AppModel, AppMessage, DocumentQueries>>(
+        request,
+        {
+          External: ({ href }) => ({
+            commands: [LoadExternal({ href })],
+            model,
+          }),
+          Internal: ({ url }) => ({
+            commands: [Navigate({ url: urlToString(url) })],
+            model,
+          }),
+        }
+      ),
     CompletedLoadExternal: () => ({ model }),
     CompletedNavigate: () => ({ model }),
     FailedRead: ({ generation, message: error, notFound }) => ({
@@ -149,7 +161,10 @@ const searchResults = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
                     [],
                     [
                       h.a(
-                        [h.Href(readRouter({ id: Option.some(match.id) }))],
+                        [
+                          h.Class(stylex.props(styles.focus).className ?? ""),
+                          h.Href(readRouter({ id: Option.some(match.id) })),
+                        ],
                         [match.title]
                       ),
                     ]
@@ -185,6 +200,7 @@ const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
             ["Search the docs"]
           ),
           h.input([
+            h.Class(stylex.props(styles.focus).className ?? ""),
             h.Id("docs-query"),
             h.Name("query"),
             h.Value(model.query),
@@ -192,7 +208,13 @@ const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
             h.Placeholder("Try ‘capability’ or ‘Effect’"),
             h.OnInput((value) => Message.UpdatedQuery({ value })),
           ]),
-          h.button([h.Type("submit")], ["Search"]),
+          h.button(
+            [
+              h.Class(stylex.props(styles.focus).className ?? ""),
+              h.Type("submit"),
+            ],
+            ["Search"]
+          ),
         ]
       ),
       h.section(
@@ -209,7 +231,10 @@ const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
   h.main(
     [h.Class("page")],
     [
-      h.a([h.Href("/")], ["← Back to search"]),
+      h.a(
+        [h.Class(stylex.props(styles.focus).className ?? ""), h.Href("/")],
+        ["← Back to search"]
+      ),
       ReadState.match<Html>(model.read, {
         Failed: ({ message, notFound }) =>
           h.div(
@@ -245,15 +270,42 @@ export const view = (
   model: AppModel,
   h: HtmlBuilder<AppMessage>
 ): Document => ({
-  body: AppRoute.match<Html>(model.route, {
-    Home: () => searchView(model, h),
-    NotFound: () =>
-      h.main(
-        [h.Class("page")],
-        [h.h1([], ["Page not found"]), h.a([h.Href("/")], ["Back to search"])]
+  body: h.div(
+    [h.Class(stylex.props(styles.shell).className ?? "")],
+    [
+      h.header(
+        [h.Class(stylex.props(styles.header).className ?? "")],
+        [
+          h.a(
+            [
+              h.Class(stylex.props(styles.brand, styles.focus).className ?? ""),
+              h.Href("/"),
+            ],
+            ["🐀 Rat Stack"]
+          ),
+          h.span([], ["· Law and skills"]),
+        ]
       ),
-    Read: () => readView(model, h),
-  }),
+      AppRoute.match<Html>(model.route, {
+        Home: () => searchView(model, h),
+        NotFound: () =>
+          h.main(
+            [h.Class("page")],
+            [
+              h.h1([], ["Page not found"]),
+              h.a(
+                [
+                  h.Class(stylex.props(styles.focus).className ?? ""),
+                  h.Href("/"),
+                ],
+                ["Back to search"]
+              ),
+            ]
+          ),
+        Read: () => readView(model, h),
+      }),
+    ]
+  ),
   title:
     Schema.is(ReadState.Loaded)(model.read) &&
     Schema.is(AppRoute.Read)(model.route)
