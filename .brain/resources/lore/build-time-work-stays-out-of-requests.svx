@@ -35,8 +35,7 @@ The existing [startup budget](https://github.com/joelhooks/rat-stack/blob/main/a
 - Entry JavaScript to 3,300,000 bytes.
 - Complete JavaScript upload to 5,000,000 bytes.
 
-A passing size check alone does not prove the import boundary.
-Check the bundle graph too.
+Check the bundle graph as well as its size to prove the import boundary.
 
 [Preflight](/lore/accumulate-independent-errors) finishes before asset emission.
 [Pinned sources](/lore/pinned-sources-can-report-drift) require no generation-time network fetch.

@@ -33,8 +33,7 @@ The proposed order is:
 3. Report each failure with [diagnostic context](/lore/errors-are-part-of-the-interface).
 4. Write assets only when preflight succeeds.
 
-This is error accumulation across jobs.
-It does not run highlighting on an invalid request.
+Error accumulation runs across jobs. Each job must pass validation before highlighting.
 
 The planned property inserts exactly `k` independent failures.
 It expects exactly `k` diagnostics and zero asset writes.
