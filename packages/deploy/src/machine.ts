@@ -17,7 +17,8 @@ import type {
   DeployVerdict,
 } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
-import { classifyPlan } from "./plan.js";
+import { classifyRows, PlanRowsSchema } from "./plan.js";
+import type { PlanRow } from "./plan.js";
 
 type StepResult<A> =
   | { readonly kind: "ok"; readonly value: A }
@@ -31,14 +32,14 @@ type StepResult<A> =
 const stepResult = <A, R>(
   work: Effect.Effect<A, DeployStepError, R>
 ): Effect.Effect<StepResult<A>, never, R> =>
-  Effect.matchEffect(work, {
+  Effect.match(work, {
     onFailure: (failure) =>
-      Effect.succeed<StepResult<A>>({
+      ({
         keys: failure.keys,
         kind: "refused",
         reason: failure.reason,
-      }),
-    onSuccess: (value) => Effect.succeed<StepResult<A>>({ kind: "ok", value }),
+      }) satisfies StepResult<A>,
+    onSuccess: (value): StepResult<A> => ({ kind: "ok", value }),
   }).pipe(
     Effect.catchCause((cause) =>
       Cause.hasInterrupts(cause)
@@ -49,7 +50,7 @@ const stepResult = <A, R>(
 
 interface DeployContext {
   readonly input: DeployInput;
-  readonly plan: string;
+  readonly plan: readonly PlanRow[];
   readonly verdict: DeployVerdict;
 }
 
@@ -67,11 +68,14 @@ const plan = fromEffect({
 
 const classify = fromEffect({
   effect: ({ input }) =>
-    Effect.sync(() => classifyPlan(input.plan, input.allow)),
+    Effect.sync(() =>
+      classifyRows(input.plan, input.allow, input.ownerApproved)
+    ),
   schemas: {
     input: Schema.Struct({
       allow: DeployInputSchema.fields.allow,
-      plan: Schema.String,
+      ownerApproved: DeployInputSchema.fields.ownerApproved,
+      plan: PlanRowsSchema,
     }),
   },
 });
@@ -119,7 +123,7 @@ export const deployMachine = setupEffect({
 }).createMachine({
   context: ({ input }) => ({
     input,
-    plan: "",
+    plan: [],
     verdict: {
       checks: [],
       keys: [],
@@ -144,7 +148,13 @@ export const deployMachine = setupEffect({
 
           if (event.output.kind === "refused") {
             return {
-              context: ended(context, "failed", "apply"),
+              context: ended(
+                context,
+                "failed",
+                "apply",
+                event.output.keys,
+                event.output.reason
+              ),
               target: "failed",
             };
           }
@@ -154,7 +164,10 @@ export const deployMachine = setupEffect({
               context: {
                 verdict: {
                   ...context.verdict,
-                  outcome: event.output.value.outcome,
+                  outcome:
+                    event.output.value.outcome === "prepared"
+                      ? "unknown"
+                      : event.output.value.outcome,
                   receipt: event.output.value,
                   step: "apply",
                 },
@@ -185,6 +198,7 @@ export const deployMachine = setupEffect({
           context.verdict.receipt ?? {
             notUpdated: [],
             outcome: "crashed",
+            retainedOrphans: [],
             updated: [],
             versions: {},
           },
@@ -233,6 +247,7 @@ export const deployMachine = setupEffect({
       invoke: {
         input: ({ context }) => ({
           allow: context.input.allow,
+          ownerApproved: context.input.ownerApproved ?? false,
           plan: context.plan,
         }),
         onDone: ({ context, event }) => {
@@ -297,7 +312,17 @@ export const deployMachine = setupEffect({
             };
           }
 
-          return { context: { plan: event.output.value }, target: "classify" };
+          return {
+            context: {
+              plan: event.output.value.rows,
+              verdict: {
+                ...context.verdict,
+                receipt: event.output.value.receipt,
+                rows: event.output.value.rows,
+              },
+            },
+            target: "classify",
+          };
         },
         onError: {
           context: ({ context }) => ended(context, "crashed", "plan"),
@@ -325,7 +350,8 @@ export const deployMachine = setupEffect({
                 context,
                 "refused",
                 "preflight",
-                event.output.keys
+                event.output.keys,
+                event.output.reason
               ),
               target: "refused",
             };

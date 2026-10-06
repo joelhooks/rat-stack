@@ -79,7 +79,8 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 - Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
 - `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
 - Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
-- An allow-list does not grant approval. Replacements and deletions still need owner sign-off.
+- An allow-list does not grant approval. Replacements and deletions still need owner sign-off, recorded with `--owner-approved` as well as exact allow entries.
+- Classification reads Alchemy Plan values, including binding and task changes. Retention is a physical-resource backstop, not a delete guard: it removes state rows and leaves cloud objects. Apply receipts list confirmed retained orphans. Alchemy confirmations use the capability approval service; unattended input prompts fail typed.
 - Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
 - The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
 - Keep `pnpm mischief:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback.

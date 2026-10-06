@@ -1,3 +1,4 @@
+import { Approval } from "@rat-stack/capability/approval";
 import { defineContract } from "@rat-stack/capability/contract";
 import { implement } from "@rat-stack/capability/implement";
 import { Effect, Runtime, Schema } from "effect";
@@ -26,6 +27,7 @@ export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
 
 const input = Schema.Struct({
   allow: Schema.optionalKey(Schema.Array(PlanRowSchema)),
+  ownerApproved: Schema.optionalKey(Schema.Boolean),
   profile: Schema.NonEmptyString,
 });
 
@@ -50,20 +52,19 @@ export const deployProdContract = defineContract("deployProd", {
 
 export const deployPlan = implement(deployPlanContract, (value) =>
   runDeploy({ ...value, allow: value.allow ?? [], mode: "plan" }).pipe(
-    Effect.flatMap((verdict) =>
-      verdict.outcome === "planned"
-        ? Effect.succeed(verdict)
-        : Effect.fail(new DeployNotHealthy({ verdict }))
+    Effect.provide(Approval.denyAll),
+    Effect.filterOrFail(
+      (verdict) => verdict.outcome === "planned",
+      (verdict) => new DeployNotHealthy({ verdict })
     )
   )
 );
 
 export const deployProd = implement(deployProdContract, (value) =>
   runDeploy({ ...value, allow: value.allow ?? [], mode: "prod" }).pipe(
-    Effect.flatMap((verdict) =>
-      verdict.outcome === "healthy"
-        ? Effect.succeed(verdict)
-        : Effect.fail(new DeployNotHealthy({ verdict }))
+    Effect.filterOrFail(
+      (verdict) => verdict.outcome === "healthy",
+      (verdict) => new DeployNotHealthy({ verdict })
     )
   )
 );

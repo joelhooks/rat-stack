@@ -1,6 +1,7 @@
 import * as Alchemy from "alchemy";
 import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import { retain } from "alchemy/RemovalPolicy";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -21,7 +22,7 @@ export default Alchemy.Stack(
     if (!dev) {
       const zone = yield* Cloudflare.Zone.Zone("RatstackZone", {
         name: "ratstack.sh",
-      }).pipe(adopt(true));
+      }).pipe(adopt(true), retain());
 
       const dnsAidService = (
         id: string,
@@ -40,7 +41,7 @@ export default Alchemy.Stack(
           ttl: 3600,
           type: "SVCB",
           zoneId: zone.zoneId,
-        });
+        }).pipe(retain());
 
       yield* dnsAidService("DnsAidIndexSvcb", "_index._agents.ratstack.sh");
       yield* dnsAidService("DnsAidA2aSvcb", "_a2a._agents.ratstack.sh");
@@ -51,7 +52,7 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "TXT",
         zoneId: zone.zoneId,
-      });
+      }).pipe(retain());
 
       yield* Cloudflare.DNS.Record("PostShibaDkimCname", {
         content: "174.customers.postshiba.com",
@@ -60,7 +61,7 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "CNAME",
         zoneId: zone.zoneId,
-      });
+      }).pipe(retain());
 
       yield* Cloudflare.DNS.Record("PostShibaReturnPathCname", {
         content: "rp.postshiba.com",
@@ -69,7 +70,7 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "CNAME",
         zoneId: zone.zoneId,
-      });
+      }).pipe(retain());
 
       yield* Cloudflare.DNS.Record("DmarcTxt", {
         content: '"v=DMARC1; p=none;"',
@@ -77,7 +78,7 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "TXT",
         zoneId: zone.zoneId,
-      });
+      }).pipe(retain());
 
       const forwardTo = yield* Config.schema(
         Schema.Redacted(Schema.NonEmptyString),
@@ -86,14 +87,14 @@ export default Alchemy.Stack(
 
       const routing = yield* Cloudflare.Email.Routing("RatstackEmailRouting", {
         zone: zone.zoneId,
-      });
+      }).pipe(retain());
 
       const address = yield* Cloudflare.Email.Address(
         "WorkshopForwardAddress",
         {
           email: Redacted.value(forwardTo),
         }
-      );
+      ).pipe(retain());
 
       yield* Cloudflare.Email.Rule("WorkshopForwardRule", {
         actions: [{ type: "forward", value: [address.email] }],
@@ -103,12 +104,12 @@ export default Alchemy.Stack(
         ],
         name: "workshop",
         zone: routing.zoneId,
-      });
+      }).pipe(retain());
 
       yield* Cloudflare.DNS.Dnssec("RatstackDnssec", {
         status: "active",
         zoneId: zone.zoneId,
-      }).pipe(adopt(true));
+      }).pipe(adopt(true), retain());
     }
 
     const mischief = yield* Mischief;

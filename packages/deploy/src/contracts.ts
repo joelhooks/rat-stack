@@ -1,24 +1,44 @@
 import { VerdictSchema } from "@rat-stack/check-harness";
 import { Schema } from "effect";
 
-import { PlanRowSchema } from "./plan.js";
+import { PlanRowsSchema, PlanRowSchema } from "./plan.js";
 
 export const DeployInputSchema = Schema.Struct({
   allow: Schema.Array(PlanRowSchema),
   mode: Schema.Literals(["plan", "prod"]),
+  ownerApproved: Schema.optionalKey(Schema.Boolean),
   profile: Schema.NonEmptyString,
 });
 
 export type DeployInput = typeof DeployInputSchema.Type;
 
 export const ApplyReceiptSchema = Schema.Struct({
+  appliedAt: Schema.optionalKey(Schema.Natural),
+  contentGeneration: Schema.optionalKey(Schema.NonEmptyString),
   notUpdated: Schema.Array(Schema.String),
-  outcome: Schema.Literals(["applied", "failed", "partial", "crashed"]),
+  outcome: Schema.Literals([
+    "prepared",
+    "applied",
+    "failed",
+    "partial",
+    "crashed",
+  ]),
+  previousVersions: Schema.optionalKey(
+    Schema.Record(Schema.String, Schema.String)
+  ),
+  retainedOrphans: Schema.Array(Schema.String),
   updated: Schema.Array(Schema.String),
   versions: Schema.Record(Schema.String, Schema.String),
 });
 
 export type ApplyReceipt = typeof ApplyReceiptSchema.Type;
+
+export const PreparedPlanSchema = Schema.Struct({
+  receipt: ApplyReceiptSchema,
+  rows: PlanRowsSchema,
+});
+
+export type PreparedPlan = typeof PreparedPlanSchema.Type;
 
 export class DeployStepError extends Schema.TaggedError<DeployStepError>()(
   "DeployStepError",
