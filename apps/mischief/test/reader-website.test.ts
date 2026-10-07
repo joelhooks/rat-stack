@@ -5,8 +5,13 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import {
   forwardsToReaderWebsite,
+  readerWebsiteRoutes,
   withReaderWebsite,
 } from "../src/reader-website.js";
+
+const readerPages = new Set(
+  readerWebsiteRoutes.filter((route) => !route.endsWith("/*"))
+);
 
 const pathSchema = Schema.Union([
   Schema.Literals([
@@ -72,7 +77,7 @@ it.effect.prop(
 
       const expected =
         actualPath.startsWith("/assets/") ||
-        (actualPath === "/" &&
+        (readerPages.has(actualPath) &&
           ["text/html", "text/html; charset=utf-8", "TEXT/HTML"].includes(
             accept
           ));
