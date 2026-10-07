@@ -87,8 +87,12 @@ it.layer(NodeServices.layer)((test) => {
           );
 
           for (const source of bibliography) {
-            expect(rendered.html).not.toContain(`>${source.url}</a>`);
-            expect(rendered.html).toContain(`Accessed ${source.accessed}.`);
+            if (source.kind === "linked") {
+              expect(rendered.html).not.toContain(`>${source.url}</a>`);
+              expect(rendered.html).toContain(`Accessed ${source.accessed}.`);
+            } else {
+              expect(rendered.html).toContain(`Recorded ${source.recordedAt}.`);
+            }
           }
         }
       })
@@ -101,6 +105,7 @@ it.effect(
     Effect.sync(() => {
       const source = {
         accessed: "2026-10-01",
+        kind: "linked" as const,
         note: "Used for <sink> & its options.",
         publisher: "Docs",
         title: 'The "sink" [options] <guide>',

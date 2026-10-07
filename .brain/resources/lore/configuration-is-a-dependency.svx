@@ -5,6 +5,7 @@ group: idea
 terms:
   - "Configuration Layer"
   - "ConfigProvider"
+prerequisites: ["lore.layers-make-dependencies-explicit"]
 sources:
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Config.ts
     title: "Effect contributors. 2026. Config. Effect 4.0.0."
@@ -81,3 +82,5 @@ Keep missing settings and rejected settings distinct. Let construction fail when
 - Do not unwrap a redacted value for logs or public examples.
 
 See also: [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), [failures](/lore/error-model), and [tests](/lore/tests-that-earn-their-place).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

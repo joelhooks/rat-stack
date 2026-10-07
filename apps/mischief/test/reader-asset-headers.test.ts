@@ -18,6 +18,7 @@ import {
 } from "../../web/scripts/reader-build.ts";
 import { ReaderFlags } from "../../web/src/client/reader-model.js";
 import type { ReaderPageFlags } from "../../web/src/client/reader-model.js";
+import { readerRoutePaths } from "../../web/src/reader-routes.js";
 
 class PreparedReaderPages extends Context.Service<
   PreparedReaderPages,
@@ -122,7 +123,7 @@ it.layer(PreparedReaderPages.layer)((test) => {
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const client = path.join(root, "dist/client");
-        const routes = ["/", "/lore/services-capture-dependencies"];
+        const routes = readerRoutePaths;
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
         const { pages } = yield* PreparedReaderPages;

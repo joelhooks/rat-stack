@@ -155,6 +155,10 @@ export const cartridgesImageJpegBase64 = bytes(
   "/lore/cartridges/snes-sfam-cartridges.jpg"
 ).toString("base64");
 
+export const dillonPosterJpegBase64 = bytes(
+  "/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg"
+).toString("base64");
+
 export const ogImages = manifest.images
   .filter((path) => path.startsWith("/og/"))
   .map((path) => ({

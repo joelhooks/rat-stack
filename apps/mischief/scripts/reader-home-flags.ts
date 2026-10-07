@@ -3,7 +3,7 @@ import { DomUtils, parseDocument } from "htmlparser2";
 
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { copyPrompts } from "./component-data.ts";
-import { compileHomeDocument } from "./reader-home-document.ts";
+import { compileReaderDocument } from "./reader-home-document.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
@@ -27,9 +27,10 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
           sourcePath: "apps/mischief/scripts/generate-content.ts",
         }),
       try: () =>
-        compileHomeDocument(
+        compileReaderDocument(
           inputs.homeSource.replaceAll("__RATSTACK_ORIGIN__", origin),
-          inputs.loreTermTargets
+          inputs.loreTermTargets,
+          { heading: "Rat Stack", route: "/" }
         ),
     });
 
@@ -101,6 +102,7 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
       copyPrompts: Object.entries(copyPrompts).map(([id, prompt]) => ({
         id,
         label: prompt.label,
+        showText: prompt.showText,
         text: prompt.text.replaceAll("__RATSTACK_ORIGIN__", origin),
       })),
       heading: "Rat Stack",

@@ -1,0 +1,9 @@
+[
+  "lore.context-and-requirements",
+  "lore.services-capture-dependencies",
+  "lore.layer-constructor-pattern",
+  "lore.layers-make-dependencies-explicit",
+  "lore.dependency-injection-is-the-reason-to-choose-effect",
+  "lore.configuration-is-a-dependency",
+  "lore.tests-that-earn-their-place"
+]

@@ -93,6 +93,7 @@ import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
+import { buildLearningDeck } from "./learn-deck.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
   groupUnlinkedMentions,
@@ -337,6 +338,12 @@ const linkedTagline = tagline.replace(
 const trapRoutePath = "/--no-verify" as const;
 
 const tokenmaxxRoutePath = "/tokenmaxx" as const;
+
+const dillonPosterSourcePath =
+  "apps/mischief/content/video/dillon-mulroy-di.jpg";
+
+const dillonPosterRoutePath =
+  "/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg";
 
 const copyScript = `
 for (const button of document.querySelectorAll("button[data-text]")) {
@@ -819,7 +826,7 @@ const PackageJson = Schema.Struct({
 const skillGroups = [
   { names: ["rat-stack-mode"], title: "Start here" },
   {
-    names: ["learn-rat-stack", "learn-alchemy", "find-peers"],
+    names: ["learn", "learn-rat-stack", "learn-alchemy", "find-peers"],
     title: "See how the pieces fit",
   },
   {
@@ -946,6 +953,12 @@ const program = Effect.gen(function* generateContent() {
     fileSystem
       .readFileString(path.join(root, sourcePath))
       .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
+
+  const learnCoverageText = yield* readText(".brain/data/learn-coverage.json");
+
+  const learnCoverage = yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(Schema.Array(Schema.String))
+  )(learnCoverageText);
 
   const snapshot = yield* openGitSnapshot(
     root,
@@ -2037,6 +2050,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       )
   ).toString("base64");
 
+  const dillonPosterJpegBase64 = Buffer.from(
+    yield* fileSystem
+      .readFile(path.join(root, dillonPosterSourcePath))
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError("read", dillonPosterSourcePath, cause)
+        )
+      )
+  ).toString("base64");
+
   const cartridgesImageJpegBase64 = Buffer.from(
     yield* fileSystem
       .readFile(
@@ -2185,6 +2208,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const knownRoutes = new Set([
     tokenmaxxRoutePath,
     "/lore/cartridges/snes-sfam-cartridges.jpg",
+    dillonPosterRoutePath,
     "/glossary",
     "/og/glossary.png",
     "/",
@@ -2818,6 +2842,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const contentVersion = digest(
     [
+      learnCoverageText,
       homeMarkdownTemplate,
       homeBodyHtml,
       noVerifyAgentMarkdown,
@@ -2829,6 +2854,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       unsubscribeBody,
       tokenmaxxImageJpegBase64,
       cartridgesImageJpegBase64,
+      dillonPosterJpegBase64,
       skillIndexMarkdown,
       skillIndexBodyHtml,
       loreIndexMarkdown,
@@ -3230,7 +3256,17 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const resources = normalizeSources({ lawSources, loreSources, skillSources });
 
+  const learnCards = yield* buildLearningDeck(
+    loreTexts,
+    skillTexts,
+    learnCoverage
+  );
+
   const contentData = [
+    {
+      path: "/_content/learn.json",
+      value: { cards: learnCards, version: 1 },
+    },
     {
       path: "/_content/catalog.json",
       value: {
@@ -3248,6 +3284,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/favicon.svg",
           "/tokenmaxx/four-comma-club.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
+          dillonPosterRoutePath,
         ],
         llmsLoreLinks,
         loreIndexMarkdown: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
@@ -3311,6 +3348,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         base64: cartridgesImageJpegBase64,
         path: "/lore/cartridges/snes-sfam-cartridges.jpg",
       },
+      { base64: dillonPosterJpegBase64, path: dillonPosterRoutePath },
     ],
     pages: [
       ...lawSources,
