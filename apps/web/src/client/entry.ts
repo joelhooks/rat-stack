@@ -1,35 +1,26 @@
-import { Effect } from "effect";
 import { Runtime } from "foldkit";
+import { defineMessageUnion } from "foldkit/message";
 
 import { installOverlay } from "#devtools-overlay";
 
-import { initWithFlags, update, view } from "../features/app.js";
-import { featuredFlags, Flags } from "./featured.js";
-import { Message, Model } from "./model.js";
-import { DocumentQueries } from "./queries.js";
+import { readerView } from "../features/reader.js";
+import { ReaderFlags, readerInit } from "./reader-model.js";
 
-import "@rat-stack/mischief/rat.css";
-import "../styles.css";
+import "../../../mischief/src/rat.css";
+import "./reader.css";
+
+const Message = defineMessageUnion({ Noop: {} });
 
 const application = Runtime.makeApplication({
-  Flags,
-  Model,
+  Flags: ReaderFlags,
+  Model: ReaderFlags,
   container: document.querySelector("#root"),
   devTools: import.meta.env.DEV ? { Message } : false,
-  init: initWithFlags,
-  resources: DocumentQueries.layer,
-  routing: {
-    onUrlChange: (url) => Message.ChangedUrl({ url }),
-    onUrlRequest: (request) => Message.ClickedLink({ request }),
-  },
-  update,
-  view,
+  init: readerInit,
+  update: (model, _message: typeof Message.Type) => ({ model }),
+  view: readerView,
 });
 
 installOverlay();
 
-if (document.querySelector("[data-foldkit-app]") === null) {
-  Runtime.run(application, { flags: Effect.succeed(featuredFlags) });
-} else {
-  Runtime.hydrate(application);
-}
+Runtime.hydrate(application);

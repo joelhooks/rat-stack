@@ -7,26 +7,9 @@ import * as Story from "foldkit/story";
 import { fromString } from "foldkit/url";
 
 import { ReadDoc, SearchDocs } from "../src/client/docs.js";
-import { featuredFlags } from "../src/client/featured.js";
 import { Message, Model, ReadState, SearchState } from "../src/client/model.js";
 import { init, update, view } from "../src/features/app.js";
 import { AppRoute } from "../src/features/route.js";
-
-const modelWithoutFeatured = Model.mapFields(
-  ({ featured: _featured, ...fields }) => fields
-);
-
-const generatedModel = Arbitrary.map(
-  Arbitrary.all({
-    core: Arbitrary.schema(modelWithoutFeatured),
-    hasFeatured: Arbitrary.schema(Schema.Boolean),
-    showNote: Arbitrary.schema(Schema.Boolean),
-  }),
-  ({ core, hasFeatured, showNote }) =>
-    hasFeatured
-      ? { ...core, featured: { ...featuredFlags.featured, showNote } }
-      : core
-);
 
 const home = Model.make({
   generation: 0,
@@ -68,22 +51,6 @@ const search = (
 };
 
 describe("document browser", () => {
-  it("the showcase renders its note and linked site without commands", () => {
-    Scene.scene(
-      { update, view },
-      Scene.given(init(url("/featured")).model),
-      Scene.expect(
-        Scene.role("heading", { name: "A page from a spec" })
-      ).toExist(),
-      Scene.Command.expectNone(),
-      Scene.expect(Scene.role("link", { name: "Stick\u0027em Up" })).toHaveAttr(
-        "href",
-        "https://stickers.badass.dev"
-      ),
-      Scene.Command.expectNone()
-    );
-  });
-
   it("unknown routes render a return path without fetching a document", () => {
     Scene.scene(
       { update, view },
@@ -206,7 +173,7 @@ describe("document browser", () => {
     "every generated Message preserves a schema-valid Model without mutating its input",
     {
       message: Arbitrary.schema(Message),
-      model: generatedModel,
+      model: Arbitrary.schema(Model),
     },
     ({ message, model }) => {
       const encode = Schema.encodeSync(Schema.toCodecJson(Model));

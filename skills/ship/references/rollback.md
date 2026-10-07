@@ -1,6 +1,6 @@
 # Restore a recorded release
 
-Select a complete recorded release, not guessed per-Worker predecessors. Preserve the exact captured traffic distribution.
+Select a complete recorded release. Never guess per-Worker predecessors. Preserve the exact captured traffic distribution.
 
 Refuse unknown provenance, missing journals and changed inventories. Read back every Worker before claiming restoration.
 

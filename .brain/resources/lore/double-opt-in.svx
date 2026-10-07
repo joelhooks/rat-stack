@@ -20,8 +20,8 @@ sources:
 
 # Double opt-in
 
-The [interest form's project note](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/tokenmaxx-interest-form.svx) describes double opt-in: the visitor gets one confirmation email and is counted only after using its link.
+With [double opt-in](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/tokenmaxx-interest-form.svx), the visitor gets one confirmation email. They count only after using its link.
 
-The same note records why the link opens a page with a button rather than confirming on GET:
+The link opens a page with a button because:
 
 > Mail scanners follow links, and a GET that confirms would count a scanner as a person.

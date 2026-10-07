@@ -14,11 +14,11 @@
     }
   },
   "scripts": {
-    "predev": "pnpm --filter @rat-stack/mischief generate",
+    "predev": "pnpm --filter @rat-stack/mischief generate && node --import ../infra/node_modules/alchemy/bin/register-oxc.js scripts/prepare-reader.ts",
     "dev": "portless rat-stack vite dev",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "build": "vite build",
+    "build": "node --import ../infra/node_modules/alchemy/bin/register-oxc.js scripts/prepare-reader.ts && vite build && node --import ../infra/node_modules/alchemy/bin/register-oxc.js scripts/finalize-reader.ts",
     "check": "pnpm run typecheck"
   },
   "dependencies": {

@@ -7,20 +7,24 @@ import { summarizeApply } from "../src/apply-receipt.js";
 it.prop(
   "failed native apply preserves completed resources and identifies every unfinished one",
   {
+    retained: Schema.Boolean,
     settled: Arbitrary.array(Arbitrary.schema(Schema.Boolean), {
       maxLength: 30,
     }),
     termination: Schema.Literals(["success", "failed", "crashed"]),
   },
-  ({ settled, termination }) => {
+  ({ settled, termination, retained }) => {
     const intended = settled.map((_, index) => `Resource${index}`);
     const completed = intended.filter((_, index) => settled[index] === true);
 
     const result = summarizeApply(
       intended,
       [...completed, ...completed],
-      termination
+      termination,
+      retained ? completed : []
     );
+
+    expect(result.retainedOrphans).toStrictEqual(retained ? completed : []);
 
     expect(result.updated).toStrictEqual(completed);
     expect(result.notUpdated).toStrictEqual(

@@ -25,7 +25,7 @@ Lore and system directories are discovered without per-page registration. Skills
 
 ## 2. Write short prose
 
-Follow the Wiki writing section in `AGENTS.md`. Aim about 80% toward Simplified Technical English, not robotic prose.
+Follow the Wiki writing section in `AGENTS.md`. Aim about 80% toward Simplified Technical English. Keep the prose natural.
 
 - Aim for 20 words per sentence. Keep descriptive sentences within 25 words.
 - Put one idea in each sentence.
@@ -57,7 +57,9 @@ The check reads parsed prose, including list paragraphs. It skips code, tables, 
 | Logic              | Pseudocode                 |
 | File placement     | Shallow tree               |
 
-Keep diagrams below 80 columns. Use one visual per point, with one or two nearby sentences and a What to notice line. Remove decorative visuals.
+Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Remove decorative visuals.
+
+Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 
 ## 4. Quote code from its source
 
@@ -80,7 +82,7 @@ export { answer };
 ```
 ````
 
-**What to notice:** The highlight uses the inline example's line numbers.
+The highlight uses the inline example's line numbers.
 
 A source reference has an empty body. This fence quotes the shipped SHA check:
 
@@ -88,7 +90,7 @@ A source reference has an empty body. This fence quotes the shipped SHA check:
 
 ```
 
-**What to notice:** `at` names the immutable revision. `{189}` uses the original file's line number, not excerpt numbering.
+`at` names the immutable revision. `{189}` uses the original file's line number.
 
 For a reference:
 
@@ -111,15 +113,15 @@ Generation reads local Git objects offline. A shallow clone must contain each pi
 
 ### Repair errors
 
-Diagnostics print source path, line, tag, repository, file, SHA, ranges, and repair text. This is a real exact-message test example:
+Diagnostics print source path, line, tag, repository, file, SHA, ranges, and repair text. Example:
 
 ```text
 page.svx:7 [CodeUnknownKey] rat-stack:<inline>@<inline> lines=all; Unknown key bogus; use repo, path, at, lines or title.
 ```
 
-**What to notice:** Fix the fence at the first path and line. The remaining context describes the requested source.
+Fix the fence at the first path and line. The remaining context describes the requested source.
 
-These messages come from `packages/code-snippets/test/pipeline.test.ts` and `git.test.ts`. Example numbers describe their fixtures, not your page.
+Read `packages/code-snippets/test/pipeline.test.ts` and `git.test.ts` for these messages. Example numbers describe test fixtures.
 
 | Tag | Real repair message | Meaning and fix |
 | --- | --- | --- |
@@ -165,7 +167,7 @@ Cite exact revisions for code. Keep sourced content within its evidence. Mark mi
 
 Use `apps/mischief/scripts/component-registry.ts`. Every component needs human and agent renderers. Read the agent view; do not assume a visual carries its meaning there.
 
-Code renderers share a CodeSnippet model. Git and Shiki stay build-only. Page content ships as static assets, not a new Worker route handler.
+Code renderers share a CodeSnippet model. Git and Shiki stay build-only. Ship page content as static assets. Keep it out of new Worker route handlers.
 
 Hot pink is the only accent. Use it for at most one thing per screen, plus focus. Links, headings, tables, and tier cells never use pink.
 
@@ -186,4 +188,4 @@ Never name the email delivery partner or list vendor in public prose. Describe t
 9. Check glossary links, block references, citations, and the bibliography.
 10. Record checks and any explained warnings before committing.
 
-Fix failures without weakening the fence. A successful build does not prove a deployment is live.
+Fix failures without weakening the fence. Verify deployment separately from the build.

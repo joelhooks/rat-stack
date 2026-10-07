@@ -66,7 +66,7 @@ The CLI, HTTP, MCP, RPC, and code-mode projections take implemented capabilities
 
 `toCommand` builds one CLI command from the registered tuple. Open `apps/cli/src/command.ts` only when the command needs a positional argument, custom renderer, or alias. Use `name`, `positional`, and `render` for those cases. `toCommand` adds `--json`; do not parse fields again or call the service directly.
 
-RPC serves the browser, not an agent interface. Browser clients import contracts from `@rat-stack/core/contracts` and `toRpcGroup` from `@rat-stack/capability/rpc-group`; they do not import a handler or the server-side `toRpc` projection.
+RPC serves browser clients. Browser clients import contracts from `@rat-stack/core/contracts` and `toRpcGroup` from `@rat-stack/capability/rpc-group`; they do not import a handler or the server-side `toRpc` projection.
 
 For `apps/web`, use feature → Foldkit Message → `update` → named Command → contract-derived `RpcClient` → shared capability. Model owns the browser replica; `update` alone writes it. Keep transport in `src/client/`; mutations re-fetch or reconcile. Keep server and domain lifecycles in XState.
 

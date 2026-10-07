@@ -2,20 +2,22 @@ import { Buffer } from "node:buffer";
 
 import { foldkit } from "@foldkit/vite-plugin";
 import { Predicate, Schema } from "effect";
-import { createServer, defineConfig } from "vite";
+import { defineConfig } from "vite";
 
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
   ratSvg,
 } from "../mischief/src/rat-icons.generated.js";
+import { readerPagesPlugin } from "./reader-pages.js";
 import type { BackendFetch } from "./src/server/rpc.js";
-import { stylexPlugin, stylexRenderingPlugin } from "./stylex.js";
+import { stylexPlugin } from "./stylex.js";
 
-type StaticRenderer = () => Promise<{ readonly html: string }>;
-
-export default defineConfig({
-  build: { rolldownOptions: { external: ["cloudflare:workers"] } },
+export default defineConfig(({ isSsrBuild }) => ({
+  build: {
+    outDir: "dist/client",
+    rolldownOptions: { external: [/^cloudflare:/u] },
+  },
   optimizeDeps: {
     exclude: ["@foldkit/devtools", "@foldkit/ui", "foldkit/devtools-host"],
   },
@@ -52,7 +54,44 @@ export default defineConfig({
       ],
     },
     stylexPlugin(),
-    foldkit(),
+    readerPagesPlugin(),
+    foldkit(
+      isSsrBuild === true
+        ? {}
+        : {
+            ssr: {
+              build: {
+                clientOutDir: "dist/client",
+                prerender: true,
+                serverOutDir: "dist/server",
+              },
+              serverEntry: "/src/entry.server.ts",
+            },
+          }
+    ),
+    {
+      apply: "build",
+      config: (config, environment) => {
+        const clientOutDir = config.build?.outDir ?? "dist/client";
+
+        return environment.isSsrBuild === true
+          ? {}
+          : {
+              environments: {
+                client: { build: { outDir: clientOutDir } },
+                ssr: {
+                  build: {
+                    outDir:
+                      clientOutDir === "dist/client"
+                        ? "dist/server"
+                        : `${clientOutDir}/server`,
+                  },
+                },
+              },
+            };
+      },
+      name: "reader-output-layout",
+    },
     {
       configureServer: (server) => {
         server.middlewares.use((incoming, outgoing, next) => {
@@ -137,94 +176,6 @@ export default defineConfig({
       name: "rat-content-backend",
     },
     {
-      apply: "build",
-      applyToEnvironment: (environment) => environment.name === "client",
-      generateBundle: {
-        // @effect-diagnostics-next-line asyncFunction:off -- Rollup awaits build-only prerendering before emitting the static asset.
-        async handler(_options, bundle) {
-          const home = bundle["index.html"];
-
-          if (home?.type !== "asset") {
-            throw new Error("Build the home HTML before the featured route.");
-          }
-
-          const source = Schema.decodeUnknownSync(Schema.String)(home.source);
-
-          const renderer = await createServer({
-            configFile: false,
-            plugins: [stylexRenderingPlugin()],
-            server: { hmr: false, middlewareMode: true, ws: false },
-          });
-
-          try {
-            const { renderFeatured } = Schema.decodeUnknownSync(
-              Schema.Struct({
-                renderFeatured: Schema.declare<StaticRenderer>(
-                  (input): input is StaticRenderer =>
-                    Predicate.isFunction(input)
-                ),
-              })
-            )(await renderer.ssrLoadModule("/src/entry.server.ts"));
-
-            const rendered = Schema.decodeUnknownSync(
-              Schema.Struct({ html: Schema.String })
-            )(await renderFeatured());
-
-            this.emitFile({
-              fileName: "featured/index.html",
-              source: source
-                .replace(
-                  /<div id="root">[\s\S]*<\/div>/u,
-                  `<div id="root">${rendered.html}</div>`
-                )
-                .replace(
-                  "<title>rat-stack docs</title>",
-                  "<title>Featured sites | rat-stack</title>"
-                ),
-              type: "asset",
-            });
-          } finally {
-            await renderer.close();
-          }
-        },
-        order: "post",
-      },
-      name: "rat-static-home",
-      transformIndexHtml: {
-        // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits the static HTML transform at build time.
-        handler: async (html) => {
-          const renderer = await createServer({
-            configFile: false,
-            plugins: [stylexRenderingPlugin()],
-            server: { hmr: false, middlewareMode: true, ws: false },
-          });
-
-          try {
-            const { renderHome } = Schema.decodeUnknownSync(
-              Schema.Struct({
-                renderHome: Schema.declare<StaticRenderer>(
-                  (input): input is StaticRenderer =>
-                    Predicate.isFunction(input)
-                ),
-              })
-            )(await renderer.ssrLoadModule("/src/entry.server.ts"));
-
-            const rendered = Schema.decodeUnknownSync(
-              Schema.Struct({ html: Schema.String })
-            )(await renderHome());
-
-            return html.replace(
-              '<div id="root"></div>',
-              `<div id="root">${rendered.html}</div>`
-            );
-          } finally {
-            await renderer.close();
-          }
-        },
-        order: "post",
-      },
-    },
-    {
       configResolved: (config) => {
         if (config.optimizeDeps.include !== undefined) {
           config.optimizeDeps.include = config.optimizeDeps.include.filter(
@@ -237,4 +188,4 @@ export default defineConfig({
       name: "foldkit-devtools-single-instance",
     },
   ],
-});
+}));

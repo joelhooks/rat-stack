@@ -43,7 +43,7 @@ it.layer(NodeServices.layer)("snapshot source boundary", (test) => {
 
         const calls: string[][] = [];
 
-        const provider = (checkout: boolean) =>
+        const provider = (checkout: boolean, history = text) =>
           Layer.succeed(
             ChildProcessSpawner.ChildProcessSpawner,
             ChildProcessSpawner.ChildProcessSpawner.of({
@@ -70,6 +70,10 @@ it.layer(NodeServices.layer)("snapshot source boundary", (test) => {
                   return Effect.succeed("false\n");
                 }
 
+                if (command.args[0] === "log") {
+                  return Effect.succeed(history);
+                }
+
                 return Effect.succeed(
                   command.args[0] === "show" ? text : `${blob}\n`
                 );
@@ -84,7 +88,25 @@ it.layer(NodeServices.layer)("snapshot source boundary", (test) => {
         expect(
           yield* generated.resolve("rat-stack", commit, "example.ts")
         ).toBe(text);
+        const historyQuery = ["log", "-n", "1", "--", "example.ts"];
+        expect(yield* generated.query(historyQuery)).toBe(text);
         yield* generated.save;
+
+        const changedHistoryReader = yield* openGitSnapshot(root, false).pipe(
+          Effect.provide(provider(true, `${text}!`))
+        );
+
+        const changedHistory = yield* changedHistoryReader
+          .query(historyQuery)
+          .pipe(Effect.flip);
+
+        expect(changedHistory.entry).toBe(
+          JSON.stringify(["rat-stack", ...historyQuery])
+        );
+        expect(changedHistory.message).toContain("history changed");
+        expect(changedHistory.message).toContain("squash or rebase");
+        expect(changedHistory.message).toContain("pnpm git-snapshot");
+        expect(changedHistory.message).toContain("commit");
 
         for (const checkout of [true, false]) {
           calls.length = 0;

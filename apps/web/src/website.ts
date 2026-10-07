@@ -15,6 +15,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
 
     const props = {
       assets: {
+        notFoundHandling: "none",
         runWorkerFirst: preview
           ? true
           : ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
@@ -23,7 +24,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
       main: "src/worker.ts",
       observability: privateObservability,
       rootDir: "../web",
-    };
+    } satisfies Cloudflare.Website.FoldkitProps;
 
     if (!preview) {
       return props;

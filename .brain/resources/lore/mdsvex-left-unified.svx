@@ -60,7 +60,7 @@ The published migrator converts it to PFM:
 - y
 ```
 
-**What to notice:** PFM uses one asterisk for strong text, not CommonMark's two.
+PFM uses one asterisk for strong text; CommonMark uses two.
 
 The next.0 check gives these results:
 
@@ -69,7 +69,7 @@ The next.0 check gives these results:
 - The parser reports zero errors.
 - A supplied rehype plugin is never called.
 
-These observations apply to that published prerelease, not every later commit. We keep 0.12.8. [The fence](/lore/the-fence) does not permit rewriting valid prose around a parser defect.
+These results cover the published `1.0.0-next.0` prerelease only. We keep 0.12.8. [The fence](/lore/the-fence) does not permit rewriting valid prose around a parser defect.
 
 ## The migrator still uses remark
 

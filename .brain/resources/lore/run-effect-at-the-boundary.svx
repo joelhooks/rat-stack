@@ -41,7 +41,7 @@ sources:
 ---
 
 Keep service methods as Effects. Run them where a process, framework, or callback requires execution.
-The integration boundary owns the runtime's lifetime. This page uses Effect 4.0.0.
+The integration boundary owns the runtime's lifetime.
 
 ## Use the bridge the host needs
 
@@ -52,7 +52,7 @@ The integration boundary owns the runtime's lifetime. This page uses Effect 4.0.
 | Foreign Promise-based framework | Reuse a `ManagedRuntime` owned by that integration |
 | Effect-aware test | Let `it.effect` or `it.layer` execute the test |
 
-**What to notice:** A managed runtime is one integration tool. It is not required inside every Effect application.
+A managed runtime is one integration tool. It is not required inside every Effect application.
 
 The [basics page](/lore/effect-basics) shows CLI, Worker and test execution boundaries.
 The CLI's composition root supplies requirements before running its program.
@@ -63,8 +63,6 @@ The development backend already uses a router bridge:
 
 ```ts repo=rat-stack path=apps/web/src/dev/backend.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=9-18
 ```
-
-**What to notice:** The framework calls `handler` with a native request. The backend does not create a separate managed runtime.
 
 `toWebHandler` also returns a disposal function.
 This module keeps only the handler; the excerpt does not prove explicit disposal on development-server shutdown.
@@ -78,28 +76,25 @@ It creates one managed runtime from a counted resource Layer.
 ```ts repo=rat-stack path=packages/capability/test/fixtures/wiki/foreign-runtime-boundary.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=6-23
 ```
 
-**What to notice:** Effect stays inside the adapter. Callers receive a Promise-facing `read` and an explicit `close`.
+Effect stays inside the adapter. Callers receive a Promise-facing `read` and an explicit `close`.
 
 The Layer builds on first use. Later calls reuse the built service context.
 `close` disposes the runtime and releases its resources.
 An integration must connect that close operation to its own shutdown path.
 
-The native async function belongs to this foreign boundary.
-It is not a pattern for domain methods or a reason to scatter `runPromise` through them.
+Keep native async functions at the foreign boundary. Domain methods return Effects.
 
 ## Prove disposal through the foreign interface
 
 The fixture's test harness uses `it.effect`.
-The manual runtime belongs to the adapter under test, not to the harness that executes assertions.
+The adapter under test owns the manual runtime.
 
 ```ts repo=rat-stack path=packages/capability/test/runtime-boundary.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=10-30
 ```
 
-**What to notice:** Two reads acquire once. Closing twice releases once. A read after closure must fail.
-
 The test wraps the subject's native Promises with Effect adapters.
 Its outer bracket also closes the subject if an assertion fails.
-It establishes this fixture's lifetime, not a running server's shutdown behavior.
+Check the running server's shutdown behavior separately.
 
 ## Adopt one edge at a time
 
@@ -110,10 +105,6 @@ It establishes this fixture's lifetime, not a running server's shutdown behavior
 5. Connect disposal to the host's shutdown path.
 6. Test the foreign interface and its cleanup.
 
-Kit Langton's incremental-adoption outline asks where existing code should meet Effect.
-Exact Effect source and these independent fixtures supply the working answer here.
-A generic client wrapper is optional; it is not mandatory application architecture.
-
 ## Common mistakes
 
 - Create a runtime for each domain method. Construction and cleanup lose a clear owner.
@@ -123,10 +114,10 @@ A generic client wrapper is optional; it is not mandatory application architectu
 
 ## Effect idiom and house rule
 
-- **Effect idiom:** Runners and framework bridges execute Effects; runtime owners manage their Layers and disposal.
-- **rat-stack house rule:** [Capabilities remain the shared action edge](/lore/one-capability-every-surface). A new runner does not authorize a raw bypass.
-- **Separate house rule:** Test harnesses use [Effect-aware tests](/lore/tests-that-earn-their-place), not manually created runtimes.
+- Runners and framework bridges execute Effects; runtime owners manage their Layers and disposal.
+- In rat-stack, [capabilities remain the shared action edge](/lore/one-capability-every-surface). A new runner does not authorize a raw bypass.
+- In rat-stack, test harnesses use [Effect-aware tests](/lore/tests-that-earn-their-place), not manually created runtimes.
 
 Read [scopes](/lore/scopes-own-resources) when deciding what the integration owns.
 Read [services](/lore/services-capture-dependencies) before extracting the job from its host.
-Return to the [Effect reading map](/lore/structure-effect-by-domain).
+Return to the [Effect reading order](/lore/effect-basics#read-next).

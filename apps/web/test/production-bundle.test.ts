@@ -1,6 +1,12 @@
 // @effect-diagnostics nodeBuiltinImport:off -- These tests build the app with the real Vite binary and read the emitted source maps from disk.
 import { spawnSync } from "node:child_process";
-import { globSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  globSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -31,6 +37,12 @@ const build = (nodeEnv: "development" | "production") => {
   const outDir = mkdtempSync(path.join(tmpdir(), "rat-web-bundle-"));
 
   try {
+    symlinkSync(
+      path.join(webRoot, "node_modules"),
+      path.join(outDir, "node_modules"),
+      "dir"
+    );
+
     const result = spawnSync(
       vite,
       ["build", "--sourcemap", "--outDir", outDir, "--logLevel", "error"],
@@ -64,17 +76,8 @@ const build = (nodeEnv: "development" | "production") => {
 
     expect(worker.status, worker.stderr).toBe(0);
     expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toContain(
-      "Find the rule or skill you need."
+      "<h1>Rat Stack</h1>"
     );
-
-    const featured = readFileSync(
-      path.join(outDir, "featured/index.html"),
-      "utf-8"
-    );
-
-    expect(featured).toContain("Built with rat-stack");
-    expect(featured).toContain('href="https://stickers.badass.dev"');
-    expect(featured).toContain("By Vojta (badass)");
 
     const maps = globSync("**/*.map", { cwd: outDir });
 

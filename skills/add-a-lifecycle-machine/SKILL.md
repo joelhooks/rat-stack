@@ -5,7 +5,7 @@ description: Learn how XState owns a lifecycle while Effect owns its work, error
 
 # Add a lifecycle machine
 
-Use this to learn the seam between XState and Effect. Copy `packages/core/src/inspect-machine.ts` when the work has states that matter. Keep a direct Effect when it does not.
+Copy `packages/core/src/inspect-machine.ts` when the work has states that matter. Keep a direct Effect when it does not.
 
 Before changing Effect or XState code, read `node_modules/effect/AGENTS.md`. Then read the pinned XState and `@xstate/effect` source listed in `AGENTS.md`.
 
@@ -112,14 +112,14 @@ Call the runner from the capability handler. Provide its service layer in `apps/
 
 ## 5. Generate inputs and command histories
 
-Add a property and a model test with each lifecycle. Use `effect/Arbitrary` and `@effect/vitest`, not a separate generator dependency.
+Add a property and a model test with each lifecycle. Use `effect/Arbitrary` and `@effect/vitest`. Do not add a separate generator dependency.
 
 Copy the complete test template at `skills/add-a-lifecycle-machine/templates/lifecycle.model.test.md` into `packages/core/test/<name>.model.test.ts`. It runs unchanged for `inspectMachine`. Replace its schemas, service, outcomes, and commands for your lifecycle. The executable reference is `packages/core/test/inspect-machine.model.test.ts`.
 
 - Derive generated inputs, outputs, and failures from the domain schemas.
 - Keep the model independent: pending until work settles, then one immutable terminal outcome.
 - Use `getShortestPaths` from `xstate/graph` to cover both endings for each generated input and actor result. This export shares the XState pin; do not install `@xstate/graph` for XState 6.
-- Use `getPathsFromEvents` to explore generated histories. Check the contract after every step. Stop pure traversal at the first terminal event: the actor interpreter, not pure transition logic, rejects later delivery.
+- Use `getPathsFromEvents` to explore generated histories. Check the contract after every step. Stop pure traversal at the first terminal event. Only the actor interpreter rejects later delivery.
 - Run the same generated commands against `createEffectActor`. Control real child completion through a `Deferred` service fake. Do not inject completion events to settle a running actor.
 - Check input forwarding, result preservation, typed failures, and the runner's Effect error channel. Probe after completion and check that neither output nor work changes.
 - Keep seam examples with `it.layer`; they do not replace generated tests.
@@ -135,7 +135,7 @@ assertAgainstModel(actor.getSnapshot(), model);
 
 Model the deadline independently. Check before, at, and after it. Never use wall-clock sleeps to wait for retries or deadlines.
 
-Before trusting the property, temporarily violate a contract in the machine. Run the new tests and record the failing shrunk input and replay token. Restore the machine, then prove the tests pass. Keep mutation evidence in the packet or review report, not production code.
+Before trusting the property, temporarily violate a contract in the machine. Run the new tests and record the failing shrunk input and replay token. Restore the machine, then prove the tests pass. Keep mutation evidence in the packet or review report. Keep it out of production code.
 
 The `xstate-effect/no-inline-effect` rule blocks inline Effect logic. Fix the code instead of disabling the rule.
 

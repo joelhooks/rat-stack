@@ -5,9 +5,9 @@ description: Keep rat-stack current and clean. Bump the bleeding-edge pins, lear
 
 # Tend the garden
 
-Rat-stack runs on Effect 4 stable, Alchemy 2 betas, and XState 6 alphas. These lines move often. Code that other projects copy has to stay on the current line and keep getting simpler. This skill is the routine for both.
+Rat-stack runs on Effect 4 stable, Alchemy 2 betas, and XState 6 alphas. Keep copied code on the current line and simplify it as these dependencies change.
 
-It follows Lauren Tan's gardener loop from her Dune talk: delete tech debt, keep one paved path, and lint against anti-patterns. In her words: "whenever you see tech debt or bad patterns, your instinct should be, I need to write a lint rule against it." Her ladder for where a correction should live, hardest first, is codebase, static analysis, rules, skills, style guide. This skill sits low on that ladder on purpose. Push each finding up it.
+Follow Lauren Tan's gardener loop from her Dune talk: delete tech debt, keep one paved path, and lint against anti-patterns. In her words: "whenever you see tech debt or bad patterns, your instinct should be, I need to write a lint rule against it." Her ladder for where a correction should live, hardest first, is codebase, static analysis, rules, skills, style guide. Push each finding up that ladder.
 
 Read `AGENTS.md` first. Work in a clean clone off `origin/main`, never in a checkout with other people's uncommitted files.
 
@@ -43,7 +43,7 @@ Commit each line separately, so a regression bisects to one library.
 
 Run the `find-peers` skill every week or two and after every shared-line bump, even when there are no new peers. Read each peer's default-branch manifests or lockfiles and refresh its exact versions, checked date, tier, and evidence-based reason in `.brain/data/peers.json`. The content build reads rat-stack's current pins from its manifests and filters/sorts this one dataset into `.brain/resources/peers.svx`; do not hand-edit table rows. Drift is expected. Keep every peer: S through B in the main table, C through F in the collapsed **Also seen** list. Study relevant new peers using the skill's source-first process.
 
-Check the dataset's oldest peer checked date on every gardener pass. If it is fourteen days old, refresh it before continuing; a shared-line bump always triggers a refresh. This repo-native pass owns the cadence, not an external scheduler. Put the rubric, full ranking, tier changes, and unresolved versions at the top of the report for feedback after shipping; no separate approval round is required.
+Check the dataset's oldest peer checked date on every gardener pass. If it is fourteen days old, refresh it before continuing; a shared-line bump always triggers a refresh. This repo-native pass owns the cadence. Put the rubric, full ranking, tier changes, and unresolved versions at the top of the report for feedback after shipping; no separate approval round is required.
 
 ## 4. Garden
 
@@ -62,7 +62,7 @@ When a pattern cannot be caught by lint, fix it in the codebase so the wrong ver
 
 ## Report
 
-End with a short report:
+Report:
 
 - each pin moved, from and to;
 - upstream changes that affected us;
@@ -70,4 +70,4 @@ End with a short report:
 - lint rules added, and the findings each one removed;
 - anything left undone.
 
-Vendoring apps copy these changes, so a report that says what to mirror saves them work.
+Name the changes vendoring apps need to mirror.

@@ -1,29 +1,39 @@
 // oxlint-disable-next-line rat-stack-boundaries/no-browser-server-imports -- The signed catalogue entry point contains pure schemas and no server handlers.
 import { pageCatalog } from "@rat-stack/core/page-catalog";
 import { createRenderer } from "@rat-stack/json-render-foldkit";
-import type { Components } from "@rat-stack/json-render-foldkit";
+import type {
+  Components,
+  Spec,
+  StateModel,
+} from "@rat-stack/json-render-foldkit";
 import * as stylex from "@stylexjs/stylex";
+import type { HtmlBuilder } from "foldkit/html";
 
-import type { AppMessage } from "../client/model.js";
 import { styles } from "./chrome.stylex.js";
 import { specStyles } from "./spec.stylex.js";
 
 const className = (...recipes: readonly stylex.StyleXStyles[]) =>
   stylex.props(...recipes).className ?? "";
 
-export const catalog: Components<typeof pageCatalog, AppMessage> = {
+export const catalog = <Message>(): Components<
+  typeof pageCatalog,
+  Message
+> => ({
   Callout: ({ h, props, children }) =>
     h.aside(
-      [h.Class(className(specStyles.callout))],
-      [h.h2([], [props.title]), h.p([], [props.text]), ...children]
+      [h.Class("workshop-callout")],
+      [
+        h.h2([h.Class("workshop-callout-label")], [props.title]),
+        h.p([h.Class("workshop-callout-title")], [props.text]),
+        ...children,
+      ]
     ),
   Grid: ({ h, children }) =>
     h.div([h.Class(className(specStyles.grid))], [...children]),
   Page: ({ h, props, children }) =>
-    h.main(
+    h.div(
       [h.Class(className(specStyles.page))],
       [
-        h.p([], ["FEATURED SITES"]),
         h.h1([h.Class(className(specStyles.title))], [props.title]),
         h.p([h.Class(className(specStyles.intro))], [props.intro]),
         ...children,
@@ -61,6 +71,10 @@ export const catalog: Components<typeof pageCatalog, AppMessage> = {
         ...children,
       ]
     ),
-};
+});
 
-export const renderSpec = createRenderer(pageCatalog, catalog);
+export const renderSpec = <Message>(
+  spec: Spec,
+  model: StateModel,
+  h: HtmlBuilder<Message>
+) => createRenderer(pageCatalog, catalog<Message>())(spec, model, h);

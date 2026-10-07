@@ -22,10 +22,7 @@ const violations = (file: string, source: string) => {
     const names = [...preceding.matchAll(/^ {2}(?<name>\w+): \{/gmu)];
     const name = names.at(-1)?.groups?.name ?? "outside-style";
 
-    return allowed.has(name) ||
-      (file === "features/spec.stylex.ts" && name === "callout")
-      ? []
-      : [`${file}: ${name}`];
+    return allowed.has(name) ? [] : [`${file}: ${name}`];
   });
 
   return [...raw, ...usages];

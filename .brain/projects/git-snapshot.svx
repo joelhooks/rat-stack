@@ -22,6 +22,20 @@ Commit content changes before regenerating the snapshot. Then commit the snapsho
 
 A documentation commit outside rendered paths needs no refresh. A commit that changes rendered content requires one because its history output changes.
 
+## Merge policy
+
+Use a merge commit for each pull request. Do not squash or rebase a branch after its snapshot refresh.
+
+The snapshot stores `git log` results, not only file bytes. Squash and rebase change commit IDs and can make main stale.
+
+Keep the branch up to date with main before the final refresh and checks. Then merge without rewriting its commits.
+
+Main's ruleset requires `checks` and an up-to-date branch. Administrators can bypass it; a bypass does not prove snapshot freshness.
+
+PR CI checks GitHub's merge ref with full history. It does not check a future squash result.
+
+A stale history error names the exact query. Run `pnpm git-snapshot` in a full checkout and commit the refreshed file.
+
 ## Check
 
 Run `pnpm turbo run check test build --concurrency=1` in both a checkout and its exported tree. Compare generated source files and static assets byte for byte.

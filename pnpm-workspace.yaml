@@ -20,6 +20,9 @@ minimumReleaseAgeExclude:
   - alchemy@2.0.0-beta.80
   - effect@4.0.0
   - "@foldkit/oxlint-plugin@0.15.2"
+  - "@foldkit/devtools@0.166.0"
+  - "@foldkit/vite-plugin@0.26.1"
+  - foldkit@0.166.0
   - "@effect/platform-node@4.0.0"
   - "@effect/platform-node-shared@4.0.0"
   - "@effect/sql-pg@4.0.0"
@@ -56,6 +59,3 @@ minimumReleaseAgeExclude:
   - "@distilled.cloud/gcp@1.0.0-rc.13"
   - "@distilled.cloud/infisical@1.0.0-rc.13"
   - "@distilled.cloud/zerossl@1.0.0-rc.13"
-  - "@foldkit/devtools@0.166.0"
-  - "@foldkit/vite-plugin@0.26.1"
-  - foldkit@0.166.0

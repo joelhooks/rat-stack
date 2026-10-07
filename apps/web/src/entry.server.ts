@@ -1,30 +1,49 @@
 import { Effect } from "effect";
-import { renderToString } from "foldkit/experimental/server";
+import {
+  Rendered,
+  Responded,
+  renderToString,
+} from "foldkit/experimental/server";
 
-import { featuredSites } from "../../mischief/src/capabilities/featured-sites.js";
-import { featuredSpec, Flags } from "./client/featured.js";
-import { initWithFlags, view } from "./features/app.js";
+import { ReaderFlags, readerInit } from "./client/reader-model.js";
+import { pages } from "./client/reader-pages.js";
+import { readerView } from "./features/reader.js";
 
-export const renderPage = Effect.fn("renderPage")(function* renderPage(
-  path: string
-) {
-  const sites = yield* featuredSites.handler({});
+export const prerenderPaths = [
+  "/",
+  "/lore/services-capture-dependencies",
+  "/featured",
+];
 
-  return yield* renderToString(
-    { Flags, init: initWithFlags, routing: {}, view },
-    {
-      flags: {
-        featured: { featuredSites: sites, showNote: true, spec: featuredSpec },
-      },
-      isHydratable: false,
-      url: `https://ratstack.sh${path}`,
-    }
+// @effect-diagnostics-next-line asyncFunction:off -- Foldkit's Vite host awaits the Web request boundary.
+export const renderPage = async (request: Request) => {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return Responded(
+      new Response("Reader pages accept GET or HEAD", {
+        headers: { Allow: "GET, HEAD" },
+        status: 405,
+      })
+    );
+  }
+
+  const page = pages.find(
+    (candidate) => candidate.page.path === new URL(request.url).pathname
   );
-});
 
-// @effect-diagnostics-next-line asyncFunction:off -- The build-time Vite renderer loads a Promise-returning host entry.
-export const renderHome = async () => await Effect.runPromise(renderPage("/"));
+  if (page === undefined) {
+    return Responded(
+      new Response("This route is outside the reader preview slice", {
+        status: 404,
+      })
+    );
+  }
 
-// @effect-diagnostics-next-line asyncFunction:off -- The build-time Vite renderer loads a Promise-returning host entry.
-export const renderFeatured = async () =>
-  await Effect.runPromise(renderPage("/featured"));
+  const application = await Effect.runPromise(
+    renderToString(
+      { Flags: ReaderFlags, init: readerInit, view: readerView },
+      { flags: page }
+    )
+  );
+
+  return Rendered(application, { status: page.page.status });
+};

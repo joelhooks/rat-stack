@@ -6,7 +6,6 @@ import { defineTaggedUnion } from "foldkit/schema";
 import { Url } from "foldkit/url";
 
 import { AppRoute } from "../features/route.js";
-import { FeaturedModel } from "./featured.js";
 
 export const SearchState = defineTaggedUnion({
   Failed: {},
@@ -23,7 +22,6 @@ export const ReadState = defineTaggedUnion({
 });
 
 export const Model = Schema.Struct({
-  featured: Schema.optionalKey(FeaturedModel),
   generation: Schema.Finite,
   query: Schema.String,
   read: ReadState,

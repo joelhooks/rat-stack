@@ -81,7 +81,8 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 - Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
 - `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
 - Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
-- An allow-list does not grant approval. Replacements and deletions still need owner sign-off.
+- An allow-list does not grant approval. Replacements and deletions still need owner sign-off, recorded with `--owner-approved` as well as exact allow entries.
+- Classification reads Alchemy Plan values, including binding and task changes. Retention is a physical-resource backstop, not a delete guard: it removes state rows and leaves cloud objects. Apply receipts list confirmed retained orphans. Alchemy confirmations use the capability approval service; unattended input prompts fail typed.
 - Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
 - The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
 - Keep `pnpm mischief:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback.
@@ -177,7 +178,9 @@ Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical E
 - Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
 - Be plain and strict, not robotic.
 
-Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each point one visual, one or two nearby sentences, and a **What to notice** line. Do not add decorative visuals.
+Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Do not add decorative visuals.
+
+Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 
 The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It reads parsed Markdown prose, not raw-source patterns. Code, tables, quotes, and frontmatter are excluded. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
 

@@ -1,6 +1,6 @@
-import { runCheck } from "@rat-stack/check-harness";
+import { gateOutcome, runCheck } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
-import { Clock, Effect, Schema } from "effect";
+import { Clock, DateTime, Effect, Option, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
@@ -23,15 +23,23 @@ const SearchResponse = Schema.Struct({
   }),
 });
 
-const TimeoutResponse = Schema.Struct({
-  _tag: Schema.Literal("SandboxError"),
+const TimeoutResponse = Schema.TaggedStruct("SandboxError", {
   reason: Schema.Literal("timeout"),
 });
 
 const ReadyResponse = Schema.Struct({
-  level: Schema.Finite,
-  levelName: Schema.String,
+  cacheHit: Schema.optionalKey(Schema.Boolean),
+  cached: Schema.optionalKey(Schema.Boolean),
+  level: Schema.optionalKey(Schema.Finite),
+  levelName: Schema.optionalKey(Schema.String),
+  scannedAt: Schema.optionalKey(Schema.String),
+  siteError: Schema.optionalKey(Schema.Struct({ httpStatus: Schema.Finite })),
 });
+
+interface ReadinessObservation {
+  readonly document: typeof ReadyResponse.Type;
+  readonly status: number;
+}
 
 const RateDocument = Schema.Struct({
   paths: Schema.Struct({
@@ -71,11 +79,188 @@ export const measuredCheck = <E, R>(
     })
   );
 
+export const settledReadinessCheck = Effect.fn("settledReadinessCheck")(
+  function* settledReadinessCheck<E, R>(
+    work: Effect.Effect<ReadinessObservation, E, R>,
+    appliedAt: number
+  ) {
+    const attempts: Verdict[] = [];
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const startedAt = yield* Clock.currentTimeMillis;
+
+      const verdict = yield* runCheck(
+        "agent-readiness",
+        Effect.gen(function* observeReadiness() {
+          const { document, status } = yield* work;
+
+          const scanned =
+            document.scannedAt === undefined
+              ? Option.none()
+              : DateTime.make(document.scannedAt);
+
+          const fresh =
+            Option.isSome(scanned) &&
+            DateTime.toEpochMillis(scanned.value) >= appliedAt;
+
+          const siteFailed = document.siteError !== undefined;
+
+          const evidence = {
+            check: "agent-readiness",
+            counts: { observed: 1 },
+            observedAt: yield* Clock.currentTimeMillis,
+            provenance: [
+              {
+                fetchedAt: yield* Clock.currentTimeMillis,
+                id: `agent-readiness:${attempt + 1}`,
+                source: "https://isitagentready.com/api/scan",
+                status: `http=${status};scan=${document.scannedAt ?? "missing"};cached=${document.cached ?? "unknown"};cacheHit=${document.cacheHit ?? "unknown"};siteHttp=${document.siteError?.httpStatus ?? "none"}`,
+              },
+            ],
+          };
+
+          if (!siteFailed && !fresh) {
+            return {
+              ...evidence,
+              control: 0,
+              exitCode: 3,
+              outcome: "errored",
+              reason: "readiness-scan-freshness-unverified",
+              status: "hold",
+            } satisfies Verdict;
+          }
+
+          const passed = status === 200 && !siteFailed && document.level === 5;
+
+          const failureReason = siteFailed
+            ? "scanner-reported-site-error"
+            : "behavior-mismatch";
+
+          return {
+            ...evidence,
+            control: 1,
+            reason: passed ? "behavior-confirmed" : failureReason,
+            ...(passed
+              ? { exitCode: 0, outcome: "passed", status: "green" }
+              : { exitCode: 2, outcome: "failed", status: "red" }),
+          } satisfies Verdict;
+        })
+      );
+
+      const durationMs = (yield* Clock.currentTimeMillis) - startedAt;
+      attempts.push({ ...verdict, counts: { ...verdict.counts, durationMs } });
+
+      if (gateOutcome(verdict) === "pass" || attempt === 1) {
+        return {
+          ...verdict,
+          counts: {
+            ...verdict.counts,
+            attempts: attempts.length,
+            failedAttempts: attempts.filter(
+              (row) => gateOutcome(row) !== "pass"
+            ).length,
+          },
+          provenance: attempts.flatMap((row, index) => [
+            {
+              fetchedAt: row.observedAt,
+              id: `attempt:${index + 1}`,
+              source: "https://isitagentready.com/api/scan",
+              status: `${row.status}:${row.reason}:durationMs=${row.counts.durationMs}`,
+            },
+            ...(row.provenance ?? []),
+          ]),
+        } satisfies Verdict;
+      }
+    }
+
+    return yield* Effect.die("readiness-attempts-exhausted-without-verdict");
+  }
+);
+
+export const contentVersionCheck = Effect.fn("contentVersionCheck")(
+  function* contentVersionCheck(
+    base: string,
+    route: string,
+    generation: string
+  ) {
+    const client = yield* HttpClient.HttpClient;
+    const observedAt = yield* Clock.currentTimeMillis;
+    const url = `${base}${route}?__rat_version=${encodeURIComponent(generation)}&__rat_probe=${observedAt}`;
+
+    return yield* runCheck(
+      `content-version:${route}`,
+      Effect.gen(function* observeContentVersion() {
+        const response = yield* client.execute(
+          HttpClientRequest.get(url).pipe(
+            HttpClientRequest.setHeaders({
+              accept: "text/markdown",
+              "accept-encoding": "identity",
+            })
+          )
+        );
+
+        const { etag } = response.headers;
+
+        const evidence = {
+          check: `content-version:${route}`,
+          counts: { observed: 1 },
+          deploymentVersion: generation,
+          observedAt,
+          provenance: [
+            {
+              fetchedAt: observedAt,
+              id: route,
+              source: url,
+              status: `http=${response.status};etag=${etag ?? "missing"}`,
+            },
+          ],
+        };
+
+        if (etag === undefined || etag.trim().length === 0) {
+          return {
+            ...evidence,
+            control: 0,
+            exitCode: 3,
+            outcome: "errored",
+            reason: "content-version-header-missing",
+            status: "hold",
+          } satisfies Verdict;
+        }
+
+        const passed =
+          response.status === 200 &&
+          etag.replace(/^W\//u, "") ===
+            `"${generation}:default:${encodeURIComponent(route)}"`;
+
+        return {
+          ...evidence,
+          control: 1,
+          reason: passed
+            ? "content-version-confirmed"
+            : "content-version-mismatch",
+          resourceVersion: etag,
+          ...(passed
+            ? { exitCode: 0, outcome: "passed", status: "green" }
+            : { exitCode: 2, outcome: "failed", status: "red" }),
+        } satisfies Verdict;
+      })
+    );
+  }
+);
+
 export const postDeployChecks = Effect.fn("postDeployChecks")(
-  function* postDeployChecks(base: string) {
+  function* postDeployChecks(
+    base: string,
+    contentGeneration: string,
+    appliedAt: number
+  ) {
     const client = yield* HttpClient.HttpClient;
     const url = base.replace(/\/$/u, "");
-    const verdicts: Verdict[] = [];
+
+    const verdicts: Verdict[] = [
+      yield* contentVersionCheck(url, "/", contentGeneration),
+      yield* contentVersionCheck(url, "/index.md", contentGeneration),
+    ];
 
     for (const route of [
       "/",
@@ -251,8 +436,7 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
           );
         })
       ),
-      yield* measuredCheck(
-        "agent-readiness",
+      yield* settledReadinessCheck(
         Effect.gen(function* agentReadiness() {
           const response = yield* client.execute(
             HttpClientRequest.post("https://isitagentready.com/api/scan").pipe(
@@ -266,8 +450,9 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
           const document =
             yield* HttpClientResponse.schemaBodyJson(ReadyResponse)(response);
 
-          return response.status === 200 && document.level === 5;
-        })
+          return { document, status: response.status };
+        }),
+        appliedAt
       )
     );
 

@@ -5,7 +5,7 @@ description: Add persistence behind a job-shaped service with schema validation,
 
 # Add a store
 
-Read `AGENTS.md` first. Follow its source-first rules before changing Effect or Alchemy code. Use `packages/database` as the reference, not a promise that every storage requirement is already solved.
+Read `AGENTS.md` first. Follow its source-first rules before changing Effect or Alchemy code. Start from `packages/database` and check which storage requirements it meets.
 
 ## 1. Name the facts and their owner
 
@@ -15,7 +15,7 @@ Read `AGENTS.md` first. Follow its source-first rules before changing Effect or 
 - Reuse `RunLog` when its person-scoped completed-run facts and operation guarantees fit the job.
 - Name genuinely different facts before adding another store. Anonymous execution starts do not fit today's `RunLog` schema.
 - Keep observational reporting failures from changing unrelated capability admission or results, as request capture does in `packages/events`.
-- If completeness requires gating execution, name that availability tradeoff as a product decision, not an automatic storage requirement.
+- If completeness requires gating execution, make that availability tradeoff an explicit product decision.
 - Check composition before assuming recording exists. The deployed site does not currently provide or call `RunLog`.
 - For a repeated aggregate, compare a bounded query with a keyed read model. Do not scan all history per page request.
 - Write the authoritative fact once. Independent writes to source and aggregate cannot guarantee consistency.
@@ -49,7 +49,7 @@ Read `skills/rat-stack-mode/principles/validate-before-durable-write.md`.
 - Name each read's key, index, ordering, row budget, and pagination rule.
 - `ListRecentRunsInputSchema` bounds results to 1–100; adapters apply the person filter and `limit`.
 - Inspect query plans. A bounded result can still scan many rows.
-- Measure before choosing new operational limits. Label unmeasured values as guesses, not provider guarantees.
+- Measure before choosing new operational limits. Label unmeasured values as guesses.
 
 Read `skills/rat-stack-mode/principles/bound-every-read.md` and `skills/rat-stack-mode/principles/measure-real-limits.md`.
 
@@ -73,7 +73,7 @@ Use `packages/database/test/run-log.test.ts` and `packages/database/test/local-l
 - Check migration paths with `packages/database/test/migration-paths.test.ts`.
 - Prefer generated properties and command histories for new domain behavior. Plant a violation and observe failure before trusting them.
 
-The current two-backend parity tests are examples, not properties. They do not prove deployed-provider behavior or vendor switching. Name those gaps when reporting. Add real-infrastructure proof when the runtime differs from these substitutes.
+The current two-backend parity tests use examples. Deployed-provider behavior and vendor switching remain unproven. Name those gaps when reporting. Add real-infrastructure proof when the runtime differs from these substitutes.
 
 ## 7. Compose, validate, and report
 

@@ -6,13 +6,10 @@ import { UrlRequest } from "foldkit/navigation";
 import { toString as urlToString } from "foldkit/url";
 
 import { LoadExternal, Navigate, ReadDoc, SearchDocs } from "../client/docs.js";
-import { featuredFlags } from "../client/featured.js";
-import type { Flags } from "../client/featured.js";
 import { Message, ReadState, SearchState } from "../client/model.js";
 import type { AppModel, AppMessage } from "../client/model.js";
 import type { DocumentQueries } from "../client/queries.js";
 import { styles } from "./chrome.stylex.js";
-import { renderSpec } from "./render-spec.js";
 import { AppRoute, parseRoute, readRouter } from "./route.js";
 import type { AppRouteState } from "./route.js";
 
@@ -64,7 +61,6 @@ export const init: Runtime.RoutingApplicationInit<
 > = (url) =>
   enterRoute(
     {
-      featured: featuredFlags.featured,
       generation: 0,
       query: "capability",
       read: ReadState.Idle(),
@@ -73,17 +69,6 @@ export const init: Runtime.RoutingApplicationInit<
     },
     parseRoute(url)
   );
-
-export const initWithFlags: Runtime.RoutingApplicationInit<
-  AppModel,
-  AppMessage,
-  typeof Flags.Type,
-  DocumentQueries
-> = (flags, url) => {
-  const initial = init(url);
-
-  return { ...initial, model: { ...initial.model, featured: flags.featured } };
-};
 
 export const update = (
   model: AppModel,
@@ -281,21 +266,6 @@ const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
     ]
   );
 
-const pageTitle = (model: AppModel): string => {
-  if (Schema.is(AppRoute.Featured)(model.route)) {
-    return "Featured sites | rat-stack";
-  }
-
-  if (
-    Schema.is(ReadState.Loaded)(model.read) &&
-    Schema.is(AppRoute.Read)(model.route)
-  ) {
-    return `${model.read.document.title} | rat-stack`;
-  }
-
-  return "rat-stack docs";
-};
-
 export const view = (
   model: AppModel,
   h: HtmlBuilder<AppMessage>
@@ -314,20 +284,9 @@ export const view = (
             ["🐀 Rat Stack"]
           ),
           h.span([], ["· Law and skills"]),
-          h.a(
-            [
-              h.Class(stylex.props(styles.focus).className ?? ""),
-              h.Href("/featured"),
-            ],
-            ["Featured sites"]
-          ),
         ]
       ),
       AppRoute.match<Html>(model.route, {
-        Featured: () =>
-          model.featured === undefined
-            ? h.p([h.Role("alert")], ["Featured sites unavailable."])
-            : renderSpec(model.featured.spec, model.featured, h),
         Home: () => searchView(model, h),
         NotFound: () =>
           h.main(
@@ -347,5 +306,9 @@ export const view = (
       }),
     ]
   ),
-  title: pageTitle(model),
+  title:
+    Schema.is(ReadState.Loaded)(model.read) &&
+    Schema.is(AppRoute.Read)(model.route)
+      ? `${model.read.document.title} | rat-stack`
+      : "rat-stack docs",
 });
