@@ -141,12 +141,18 @@ test.provider(
         result: {
           links: expectedLinks,
           names: [
+            "listPrompts",
+            "getPrompt",
             "search",
             "read",
             "backlinks",
             "neighbors",
             "mentions",
             "path",
+            "learnDeck",
+            "learnCard",
+            "learnNext",
+            "learnRecord",
           ],
           refused: "UnknownCapability",
           title: "Cartridges",

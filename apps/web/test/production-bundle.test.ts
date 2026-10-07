@@ -13,6 +13,7 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
+import { ContentAssetManifest } from "../../mischief/src/asset-manifest.js";
 import { ReaderFlags } from "../src/client/reader-model.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
@@ -91,6 +92,31 @@ const build = (nodeEnv: "development" | "production") => {
       "<h1>Rat Stack</h1>"
     );
 
+    const contentRoot = path.resolve(webRoot, "../mischief/dist/content");
+
+    const manifest = Schema.decodeUnknownSync(
+      Schema.fromJsonString(ContentAssetManifest)
+    )(readFileSync(path.join(contentRoot, "manifest.json"), "utf-8"));
+
+    const preparedPages = decodeReaderPages(
+      readFileSync(path.join(webRoot, "dist/reader-pages.json"), "utf-8")
+    );
+
+    for (const image of manifest.images.filter((asset) =>
+      preparedPages.some(
+        (page) =>
+          new URL(page.page.metadata.ogImagePath, page.origin).pathname ===
+            asset ||
+          (page.page.path !== "/" && asset.startsWith(`${page.page.path}/`))
+      )
+    )) {
+      expect(readFileSync(path.join(outDir, image.slice(1))), image).toEqual(
+        readFileSync(
+          path.join(contentRoot, "assets", manifest.generation, image.slice(1))
+        )
+      );
+    }
+
     const maps = globSync("**/*.map", { cwd: outDir });
 
     const sources = maps.flatMap((file) =>
@@ -103,10 +129,6 @@ const build = (nodeEnv: "development" | "production") => {
           .join("/")
           .replace(/\?.*$/u, "")
       )
-    );
-
-    const preparedPages = decodeReaderPages(
-      readFileSync(path.join(webRoot, "dist/reader-pages.json"), "utf-8")
     );
 
     const emitted = globSync("**/*.js", { cwd: outDir }).map((file) => {
@@ -147,8 +169,8 @@ describe("production bundle", () => {
     () => {
       const { sources, strings } = build("production");
 
-      expect(devtoolsModules(sources)).toEqual([]);
       expect(sources.has("src/server/backend.ts")).toBe(true);
+      expect(devtoolsModules(sources)).toEqual([]);
       expect(strings).toEqual([]);
     },
     BUILD

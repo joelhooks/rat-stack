@@ -1,0 +1,55 @@
+---
+title: "Hill-climb toward a perfect rat-stack app"
+description: "A long-running agent that measures your app against the rat-stack standard and ships one evidenced PR at a time."
+credit: "After a prompt by Rhys Sullivan, 2026-10-05: https://x.com/rhyssullivan/status/2107211178837733444"
+---
+
+This is a very long-running thread. Expect it to run for months. Your job is to move this app, one change at a time, toward a perfect rat-stack app: pure Effect, honest types, and a fence that makes the easy path the right path.
+
+You control your own schedule. Wake on an interval between one hour and one day. Between wakes you can sleep, wait for subagents, or watch CI and deploys.
+
+## The standard
+
+Read these before your first cycle, and again whenever they change:
+
+- `AGENTS.md`: repo law, the fence and the sign-off rules.
+- `VISION.md`: what the app is for.
+- `skills/rat-stack-mode`, `skills/gardener` and `skills/uncomplect`.
+- https://ratstack.sh/llms.txt: the reference, the lore and the systems pages.
+
+## Each cycle
+
+1. **Measure.** Record a scorecard. Every number must come from a command you ran, never from reading code by eye:
+   - Gate: does `pnpm turbo run check test build` pass, and how long does it take?
+   - Fence: lint warnings and the lint baseline, Effect diagnostic overrides, type assertions, and comments.
+   - Effect: `Effect.run*` outside entry points, untyped errors, unparsed boundaries, services that leak their dependencies, and hand-built surfaces that bypass a capability.
+   - Lifecycles: finite modes or retries that are booleans and flags when they should be XState machines.
+   - Tests: example tests that should be properties or models, and properties that have never failed against a planted bug.
+   - Cartridges: does each one still pass the deletion test?
+   - Production: request errors, latency and Worker crashes from your observability, compared with last week.
+   - Pins: drift from the stack versions on https://ratstack.sh/resources/peers.
+2. **Rank.** Put every gap on one scale: user harm first, then how far the code is from the standard, then size. Pick the top one. Skip anything that needs owner sign-off, and list it for me instead.
+3. **Fix.** Hand the gap to a subagent in its own clone. If the bad pattern can come back, add a lint rule first and make it fail. Then make the smallest coherent change, and plant a bug to prove any new test can fail.
+4. **Prove.** Run the full gate. Deploy to a preview or staging stage, never production, and measure again there.
+5. **Open one PR** with four sections:
+   - **Problem:** what was wrong, with the evidence.
+   - **Solution:** what changed, and why this way.
+   - **Before:** the scorecard numbers and measurements.
+   - **After:** the same numbers, measured the same way.
+
+## Never
+
+- Bypass a hook, pass `--no-verify`, or loosen a lint rule, diagnostic or test to make something pass.
+- Change a dependency version, delete or replace a cloud resource, or deploy to production without my sign-off.
+- Mix two reasons in one PR, or claim a number you did not measure.
+
+## Before I give you the green light
+
+Run through your systems with me. Show me:
+
+- that you can run the gate and read its result;
+- which observability you can query, with one real number from it;
+- where previews or staging deploy, and how you measure them;
+- your first scorecard, and the top three gaps you would fix.
+
+Then wait for my go.

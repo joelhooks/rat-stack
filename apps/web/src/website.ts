@@ -17,7 +17,14 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
       assets: {
         htmlHandling: "drop-trailing-slash",
         notFoundHandling: "none",
-        runWorkerFirst: ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
+        runWorkerFirst: [
+          "/rpc",
+          "/rpc/*",
+          "/__rat",
+          "/__rat/*",
+          "/prompts",
+          "/prompts/*",
+        ],
       },
       env: { BACKEND: RpcBackend },
       observability: privateObservability,

@@ -1,0 +1,101 @@
+---
+title: "Dependency injection is the reason to choose Effect"
+description: "Effect tracks service requirements in types and supplies replaceable implementations through Layers."
+group: idea
+terms:
+  - "dependency injection"
+prerequisites:
+  - lore.context-and-requirements
+  - lore.services-capture-dependencies
+  - lore.layer-constructor-pattern
+  - lore.layers-make-dependencies-explicit
+sources:
+  - kind: recording
+    title: "Matt Pocock in conversation with Joel Hooks"
+    recordedAt: "2026-10-05"
+    note: "Recorded conversation; quoted with permission"
+  - kind: recording
+    title: "Dillon Mulroy, recorded for Joel Hooks's AI Engineer World's Fair 2026 workshop"
+    recordedAt: "2026-06-29"
+    note: "Recorded workshop contribution; quoted with permission"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0 requirements and service provision."
+    publisher: "Effect-TS"
+    note: "The R type tracks requirements; provide and provideService remove supplied requirements."
+    accessed: "2026-10-07"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Layer.ts
+    title: "Effect contributors. Effect 4.0.0 Layers."
+    publisher: "Effect-TS"
+    note: "Layers construct services, compose requirements, and share construction through a MemoMap."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/c39e106e33eaa00432454ed31c59fa90389255d0/packages/core/src/file-inspector.ts
+    title: "rat-stack FileInspector."
+    publisher: "rat-stack"
+    note: "The service captures FileSystem during construction and supplies a static layer."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/c39e106e33eaa00432454ed31c59fa90389255d0/packages/core/test/inspect-machine.model.test.ts
+    title: "rat-stack inspection model test."
+    publisher: "rat-stack"
+    note: "The test replaces FileInspector with a controlled implementation through provideService."
+    accessed: "2026-10-07"
+---
+
+Matt Pocock puts dependency injection first:
+
+> Now, what I think people get wrong is that they think that error handling and the type-safe nature of Effect is the reason you go for Effect. I think the reason you go for Effect is dependency injection, actually. It allows you to create these beautiful small modules that you can just swap out as needed and create these really nice looking tests with Effect too.
+
+Dillon Mulroy compares Effect with Spring and NestJS:
+
+> Effect has probably the most novel dependency injection system that I've worked with. I've worked in enterprise languages like Java, done the whole Spring system. I've worked with NestJS. Effect's dependency injection is genuinely fantastic and really, really nice to work with.
+
+<HumanOnly>
+<figure>
+<a href="https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4"><img src="/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg" width="480" height="853" style="max-width: 16rem" alt="Dillon Mulroy, recorded outdoors. Play his one-minute clip on Effect dependency injection." /></a>
+<figcaption><a href="https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4">Watch Dillon's one-minute clip</a>.</figcaption>
+</figure>
+</HumanOnly>
+
+<AgentOnly>
+
+[Watch Dillon's one-minute clip](https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4).
+
+</AgentOnly>
+
+## Requirements stay visible
+
+An `Effect<A, E, R>` describes its result, failure, and required services. The `R` type tracks those requirements. The compiler rejects execution while a required service remains in `R`.
+
+A service gives callers a typed interface. A Layer builds its implementation and declares its construction requirements. Shared Layer identity reuses construction within the same memoization context.
+
+## A service captures its dependencies
+
+`FileInspector.make` obtains `FileSystem` during construction. Its `inspect` method uses that captured service. The method's type carries no filesystem requirement.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=c39e106e33eaa00432454ed31c59fa90389255d0 lines=6-16 title="FileInspector captures FileSystem"
+
+```
+
+The static Layer builds the service through `make`.
+
+```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=c39e106e33eaa00432454ed31c59fa90389255d0 lines=17-35 title="The inspection method and static Layer"
+
+```
+
+## Tests supply another implementation
+
+The inspection model test supplies a controlled `FileInspector`. Its fake waits for a result chosen by the test. One `provideService` replaces the implementation.
+
+```ts repo=rat-stack path=packages/core/test/inspect-machine.model.test.ts at=c39e106e33eaa00432454ed31c59fa90389255d0 lines=125-135 title="A controlled FileInspector"
+
+```
+
+`Effect.provide` supplies a Layer or Context. `Effect.provideService` supplies one service directly. Both remove the supplied service from the requirements type.
+
+## Follow the dependency injection path
+
+1. Read [context and requirements](/lore/context-and-requirements).
+2. Read [services that capture dependencies](/lore/services-capture-dependencies).
+3. Read [the Layer constructor pattern](/lore/layer-constructor-pattern).
+4. Read [explicit Layer composition](/lore/layers-make-dependencies-explicit).
+5. Read [configuration as a dependency](/lore/configuration-is-a-dependency).
+6. Read [tests through supplied services](/lore/tests-that-earn-their-place).

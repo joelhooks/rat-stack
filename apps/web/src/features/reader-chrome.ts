@@ -5,21 +5,21 @@ import type { ReaderModel } from "../client/reader-model.js";
 import { readerStyles } from "./reader.stylex.js";
 
 export const readerWorkshop = <Message>(
-  model: ReaderModel,
+  workshop: NonNullable<ReaderModel["workshop"]>,
   h: HtmlBuilder<Message>
 ) =>
   h.aside(
-    [h.Class("workshop-callout"), h.AriaLabel(model.workshop.label)],
+    [h.Class("workshop-callout"), h.AriaLabel(workshop.label)],
     [
-      h.span([h.Class("workshop-callout-label")], [model.workshop.label]),
-      h.span([h.Class("workshop-callout-title")], [model.workshop.line]),
+      h.span([h.Class("workshop-callout-label")], [workshop.label]),
+      h.span([h.Class("workshop-callout-title")], [workshop.line]),
       h.span(
         [h.Class("workshop-callout-action")],
         [
           h.a(
-            [h.Class("workshop-callout-apply"), h.Href(model.workshop.href)],
+            [h.Class("workshop-callout-apply"), h.Href(workshop.href)],
             [
-              model.workshop.link,
+              workshop.link,
               h.svg(
                 [
                   h.Class("icon"),
@@ -41,7 +41,6 @@ export const readerWorkshop = <Message>(
               ),
             ]
           ),
-          h.small([h.Class("workshop-callout-note")], [model.workshop.note]),
         ]
       ),
     ]
@@ -62,7 +61,9 @@ export const readerFooter = <Message>(h: HtmlBuilder<Message>) =>
               h.ul(
                 [],
                 [
+                  h.li([], [h.a([h.Href("/learn")], ["learn mode"])]),
                   h.li([], [h.a([h.Href("/glossary")], ["glossary"])]),
+                  h.li([], [h.a([h.Href("/prompts")], ["prompts"])]),
                   h.li([], [h.a([h.Href("/log")], ["change log"])]),
                   h.li([], [h.a([h.Href("/resources/peers")], ["peers"])]),
                 ]

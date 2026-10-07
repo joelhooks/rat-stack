@@ -5,6 +5,7 @@ group: idea
 terms:
   - "Layer composition"
   - "Layer memoization"
+prerequisites: ["lore.layer-constructor-pattern"]
 sources:
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Layer.ts
     title: "Effect contributors. 2026. Layer. Effect 4.0.0."
@@ -92,3 +93,5 @@ Read which services callers need. Retaining every dependency exposes implementat
 - The application chooses its workspace layout and adapter package boundaries.
 
 See also: [service construction](/lore/services-capture-dependencies), [domain structure](/lore/structure-effect-by-domain), [cartridges](/lore/cartridges), and [testing](/lore/tests-that-earn-their-place).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

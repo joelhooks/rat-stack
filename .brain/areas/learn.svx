@@ -1,0 +1,137 @@
+---
+title: "Learn mode presents concepts at useful depths"
+description: "An agent presents source-derived concepts during real work and keeps learning events in a private local log."
+group: system
+terms:
+  - "learn mode"
+  - "concept deck"
+  - "learning progress"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/553cb64b93e8b2b15f4215ef36786b14d3754949/packages/learn/src/local-store.ts
+    title: "Local progress adapter"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Validated append-only events, writer locking, and rebuildable projections."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/553cb64b93e8b2b15f4215ef36786b14d3754949/apps/cli/src/command.ts
+    title: "Local CLI command projection"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Plain CLI commands use the local learning capabilities."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/tree/cec3fcc34c976f007d1157af756c89a951306194/packages/learn
+    title: "Learning cartridge"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Source-derived cards, depth policy, lifecycle, and learning capabilities."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/cec3fcc34c976f007d1157af756c89a951306194/packages/core/src/learn-model.ts
+    title: "Learning schemas"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Versioned concept cards, events, and compact progress."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/cec3fcc34c976f007d1157af756c89a951306194/packages/core/src/learn-contracts.ts
+    title: "Learning contracts"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Deck reads, card reads, selection, and explicit event recording."
+    accessed: "2026-10-07"
+---
+
+## What it does
+
+Learn mode explains the technology and principles used in real work. [The learn skill](/skills/learn) controls when the agent presents an explanation. The operator enables the mode and can stop it at any time.
+
+The build derives a concept deck from public lore, system pages, and skills. Cards preserve page titles, summaries, terms, references, and links. Explicit prerequisite metadata supplies prerequisite ids.
+
+Four capabilities serve the deck and learning events:
+
+| Capability | Job |
+| --- | --- |
+| `learnDeck` | List the public cards. |
+| `learnCard` | Read one card at a requested depth. |
+| `learnNext` | Select explanations for concepts in play. |
+| `learnRecord` | Record an explicit learning event. |
+
+The learning lifecycle uses XState under Effect.
+
+Selection follows deck order when context is absent. A public context term selects its owner and resolves unintroduced prerequisites first. A shown walkthrough introduces a prerequisite. Dismissed prerequisites count as satisfied; dismissed cards stay silent.
+
+- New concepts receive a walkthrough.
+- Introduced concepts receive a line, or a paragraph after seven days.
+- Familiar concepts receive a line after seven days.
+- Fluent concepts stay silent until asked or after ninety days of inactivity.
+- Dismissed concepts stay silent.
+
+The CLI commands and stdio MCP use a local progress adapter. The cartridge provides it through `@rat-stack/learn/local`. The CLI supplies the filesystem platform and default directory.
+
+Public HTTP and MCP calls operate on supplied progress. The public server stores no progress. The default local directory is `~/.rat-learn/`.
+
+| Local file | Role |
+| --- | --- |
+| `log.jsonl` | Authoritative append-only learning events. |
+| `cards.jsonl` | Rebuildable concept progress. |
+| `tasks.jsonl` | Rebuildable concept ids and presentation depths. |
+| `README.md` | Store shape and recovery instructions. |
+
+## The standard
+
+- The operator opts in. The skill stops when the operator opts out.
+- Questions require separate opt-in. The agent asks at most one check-in per long session.
+- Selection does not record a presentation. The agent records `shown` after presenting.
+- Events contain concept ids and learning metadata. They contain no code, paths, names, or prompts.
+- Public deck requests contain no local progress.
+- The local log remains the authority. The adapter validates it before every operation.
+- Identical events append once. A writer lock protects each operation.
+- Derived copies can be replaced. An incomplete source log fails without writes.
+- Cards preserve source text. The build accumulates reference and prerequisite errors.
+- Property tests check depth and merge. A generated history model checks events and elapsed time.
+
+The event schema defines the available observations:
+
+```ts repo=rat-stack path=packages/core/src/learn-model.ts at=cec3fcc34c976f007d1157af756c89a951306194 lines=33-47 title="Explicit learning events"
+
+```
+
+## How to check
+
+Build the CLI and start its local stdio MCP:
+
+```sh
+pnpm turbo run build --filter=@rat-stack/cli
+node apps/cli/dist/cli.js mcp --devtools
+```
+
+Through an MCP client:
+
+1. Call `learnDeck` and choose `lore.effect-basics`.
+2. Call `learnNext` with that id, timestamp 100, and empty version 1 progress.
+3. Confirm the returned depth is `walkthrough` in a fresh store.
+4. Call `learnRecord` with a version 1 `shown` event at 100 and depth `walkthrough`.
+5. Call `learnNext` at 101 with empty supplied progress.
+6. Confirm the returned depth is `line`. The local log supplies the progress.
+7. Inspect `rat_list_calls` for three successful learning calls.
+
+Use a fresh test directory through `RAT_LEARN_DIRECTORY`. These timestamps are test fixtures. Use current Unix timestamps in milliseconds for real presentations.
+
+Without MCP, use the same local adapter through the CLI:
+
+```sh
+node apps/cli/dist/cli.js learnNext \
+  --progress '{"concepts":[],"version":1}' \
+  --context '{"at":100,"ids":["lore.effect-basics"]}'
+node apps/cli/dist/cli.js learnRecord \
+  --progress '{"concepts":[],"version":1}' \
+  --event '{"at":100,"depth":"walkthrough","id":"lore.effect-basics","kind":"shown","version":1}'
+node apps/cli/dist/cli.js learnNext \
+  --progress '{"concepts":[],"version":1}' \
+  --context '{"at":101,"ids":["lore.effect-basics"]}'
+```
+
+Check one event in `log.jsonl`. Repeat the record command and confirm that the event count stays one. Confirm outbound deck requests contain only an empty JSON body.
+
+Run the implementation checks:
+
+```sh
+pnpm --filter @rat-stack/learn test
+pnpm --filter @rat-stack/mischief generate
+pnpm turbo run check test build --concurrency=1
+```
+
+Read `/_content/learn.json` after deployment. Confirm it includes this system page and the learn skill. Build success does not establish deployment health.

@@ -262,14 +262,19 @@ const coreComponents = {
             children: [
               {
                 children: [
-                  {
-                    children: [{ type: "text", value: source.title }],
-                    type: "link",
-                    url: source.url,
-                  },
+                  source.kind === "linked"
+                    ? {
+                        children: [{ type: "text", value: source.title }],
+                        type: "link",
+                        url: source.url,
+                      }
+                    : { type: "text", value: source.title },
                   {
                     type: "text",
-                    value: `\n${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
+                    value:
+                      source.kind === "linked"
+                        ? `\n${source.publisher}. ${source.note} Accessed ${source.accessed}.`
+                        : `\nRecorded ${source.recordedAt}. ${source.note}.`,
                   },
                 ],
                 type: "paragraph",
@@ -290,7 +295,7 @@ const coreComponents = {
         ? []
         : [
             html(
-              `<section class="bibliography" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>${context.sources.map((source) => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.title)}</a>. ${escapeHtml(source.publisher)}. ${escapeHtml(source.note)} Accessed ${escapeHtml(source.accessed)}.</li>`).join("")}</ol></section>`
+              `<section class="bibliography" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>${context.sources.map((source) => (source.kind === "linked" ? `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.title)}</a>. ${escapeHtml(source.publisher)}. ${escapeHtml(source.note)} Accessed ${escapeHtml(source.accessed)}.</li>` : `<li>${escapeHtml(source.title)}. Recorded ${escapeHtml(source.recordedAt)}. ${escapeHtml(source.note)}.</li>`)).join("")}</ol></section>`
             ),
           ];
     },
@@ -605,9 +610,9 @@ export const sourcesContext = (
 ): readonly BibliographySource[] => {
   const { sources } = frontmatterData(source);
 
-  return Schema.decodeUnknownSync(Schema.Array(bibliographySourceSchema))(
-    sources ?? []
-  );
+  return Schema.decodeUnknownSync(Schema.Array(bibliographySourceSchema), {
+    onExcessProperty: "error",
+  })(sources ?? []);
 };
 
 export const transformComponentMarkdown = (

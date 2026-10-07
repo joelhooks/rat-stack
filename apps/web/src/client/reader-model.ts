@@ -10,6 +10,7 @@ import { ReaderBreadcrumb, ReaderNodeSchema } from "./reader-node.js";
 export { ReaderReferences } from "../page-descriptor.js";
 
 export const ReaderFlags = Schema.Struct({
+  agentMarkdown: Schema.optional(Schema.String),
   bibliography: Schema.Array(bibliographySourceSchema),
   blocks: Schema.Array(ReaderBlock),
   bodyNodes: Schema.optional(Schema.Array(ReaderNodeSchema)),
@@ -21,6 +22,7 @@ export const ReaderFlags = Schema.Struct({
     Schema.Struct({
       id: Schema.String,
       label: Schema.String,
+      showText: Schema.Boolean,
       text: Schema.String,
     })
   ),
@@ -38,13 +40,14 @@ export const ReaderFlags = Schema.Struct({
     })
   ),
   terms: Schema.Array(Schema.String),
-  workshop: Schema.Struct({
-    href: Schema.String,
-    label: Schema.String,
-    line: Schema.String,
-    link: Schema.String,
-    note: Schema.String,
-  }),
+  workshop: Schema.optional(
+    Schema.Struct({
+      href: Schema.String,
+      label: Schema.String,
+      line: Schema.String,
+      link: Schema.String,
+    })
+  ),
 });
 
 export const CopyStatus = Schema.Literals([

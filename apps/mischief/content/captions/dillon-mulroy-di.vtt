@@ -1,0 +1,78 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.460
+The place where I see agents screwing up
+work quite often is when it
+
+2
+00:00:03.460 --> 00:00:04.120
+comes to
+
+3
+00:00:05.400 --> 00:00:09.040
+abstraction design, system design, how
+abstractions in a system go
+
+4
+00:00:09.040 --> 00:00:09.400
+together.
+
+5
+00:00:10.260 --> 00:00:15.420
+Effect has probably the most novel
+dependency injection system that I've
+
+6
+00:00:15.420 --> 00:00:19.060
+worked with. And I've worked in enterprise
+languages like Java, done the
+
+7
+00:00:19.060 --> 00:00:21.700
+whole Spring system. I've worked with
+NestJS.
+
+8
+00:00:23.280 --> 00:00:27.720
+Effect's dependency injection is genuinely
+fantastic and really, really
+
+9
+00:00:27.720 --> 00:00:31.740
+nice to work with. So because of this,
+this is another feature that
+
+10
+00:00:31.740 --> 00:00:36.740
+encourages both agents and the developers
+driving agents to
+
+11
+00:00:36.740 --> 00:00:40.520
+basically model programs in a type-driven
+way.
+
+12
+00:00:41.160 --> 00:00:44.320
+Because you kind of define these things
+called services and then
+
+13
+00:00:44.320 --> 00:00:47.180
+services get implementations and they can
+get dependency injected.
+
+14
+00:00:47.180 --> 00:00:52.260
+So it really forces like the upfront work
+
+15
+00:00:52.260 --> 00:00:57.720
+of designing your system's composability
+and
+
+16
+00:00:57.720 --> 00:01:02.560
+abstractions into the type system before
+implementation ever occurs.

@@ -1,0 +1,53 @@
+---
+title: "Learn rat-stack from your own agent"
+type: "resource"
+status: "current"
+created_at: "2026-10-07"
+privacy: "public"
+---
+
+# Learn rat-stack from your own agent
+
+Learn mode explains the ideas behind rat-stack-shaped apps while your own agent does real work. It goes deeper the first time you meet an idea and gets shorter as you learn it.
+
+## Turn it on
+
+Copy this prompt into your agent. The agent asks you to confirm before it starts.
+
+<CopyPrompt id="learn" />
+
+The first path starts with [why dependency injection is the reason to choose Effect](/lore/dependency-injection-is-the-reason-to-choose-effect).
+
+## How deep it goes
+
+- A new concept gets one walkthrough.
+- An introduced concept gets a line, or a paragraph after seven days.
+- A familiar concept gets a line after seven days.
+- A fluent concept stays silent unless you ask, or after ninety days of inactivity.
+- A dismissed concept stays silent.
+
+## What is stored and where
+
+Progress stays on your machine in `~/.rat-learn/`. Only the learn tools write this folder.
+
+- `log.jsonl` holds the learning events. It is the source.
+- `cards.jsonl` holds concept progress, rebuilt from the log.
+- `tasks.jsonl` holds concept ids and depths, rebuilt from the log.
+
+The records hold concept ids, timestamps, depth, familiarity, and dismissal state.
+
+## What is never sent
+
+- Your code, file paths, names, repository names, and prompts.
+- Your progress. The public deck and card tools need no progress, and they store nothing.
+
+## Turn it off
+
+- Say "learn mode off". The agent stops learning tool calls and explanations.
+- Your progress stays. Turning the mode off does not erase it.
+- Ask the agent to dismiss one concept to stop seeing that concept.
+
+## Read more
+
+- [How learn mode works and how to check it](/systems/learn)
+- [The learn skill](/skills/learn)

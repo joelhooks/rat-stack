@@ -5,6 +5,7 @@ group: idea
 terms:
   - "tests that earn their place"
   - "tautological tests"
+prerequisites: ["lore.configuration-is-a-dependency","lore.dependency-injection-is-the-reason-to-choose-effect"]
 sources:
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/vitest/src/index.ts
     title: "Effect contributors. 2026. Effect Vitest integration."
@@ -123,3 +124,5 @@ Keep the counterexample or missing assertion that explains the behavior gap.
 - Live-provider behavior needs separate proof for each cartridge.
 
 See also: [properties](/lore/property-based-testing), [models](/lore/model-based-testing), [exploration](/lore/agents-explore-tests-remember), and [the fence](/lore/the-fence).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

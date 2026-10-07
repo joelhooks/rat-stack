@@ -15,7 +15,7 @@ Write one useful page from checked sources. Keep claim titles and quoted voice. 
 | System | `.brain/areas/<slug>.svx` | Use `group: system`. Include What it does, The standard, and How to check. |
 | Skill | `skills/<name>/SKILL.md` | Match directory and frontmatter `name`. Give the skill a distinct triggering description. |
 | Resource | `.brain/resources/` | Keep reference material here. Check publication wiring. Use clean `/resources/<slug>` links, not `.svx` URLs. |
-| Glossary | A lore page's frontmatter `terms` | Add supported terms. The generator builds `/glossary`. |
+| Glossary | `glossaryDefinitions` in `apps/mischief/scripts/content-lib.ts` | Declare a term, its own definition, and a teaching page. The generator builds `/glossary`. |
 
 Use `title`, `description`, `group`, `terms`, and `sources` for lore and systems. Copy a nearby page's field shape.
 
@@ -153,13 +153,18 @@ Check the exact-message tests when diagnostics change. Do not present a paraphra
 
 ## 5. Link claims and cite evidence
 
-- Add only glossary terms the page supports.
+- Add only search terms the page supports in frontmatter `terms`.
+- Declare glossary terms separately, with a plain definition and a teaching page. Empty definitions, copied page summaries, and duplicate terms fail the build.
 - Use explicit links for claims and next actions.
 - Use `<Ref page="/lore/source-page" id="claim"/>` for a checked block reference. The target needs that block id.
 - Review backlinks for context. Unlinked mentions suggest connections; they are not citations.
 - Add bibliography entries for factual sources.
 
-Each entry has `url`, `title`, `publisher`, `note`, and `accessed`. The note says what the source supports. Both views show the bibliography.
+A linked entry has `url`, `title`, `publisher`, `note`, and `accessed`. Its `kind` defaults to `linked`.
+
+An authorized recorded source uses `kind: recording`, `title`, `recordedAt` (ISO date), and `note`. It has no URL. Keep private recording links and identifiers out of public files. Both views show its title and date without a link.
+
+The note says what the source supports. Recording entries do not supply deck references; add a checked public source for those.
 
 Cite exact revisions for code. Keep sourced content within its evidence. Mark missing evidence rather than adding plausible claims.
 

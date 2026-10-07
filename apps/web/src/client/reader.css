@@ -2,6 +2,11 @@
   display: contents;
 }
 
+pre.prompt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 main > .reader-snippet:has(+ .copy-actions) > pre {
   margin-bottom: 0;
 }

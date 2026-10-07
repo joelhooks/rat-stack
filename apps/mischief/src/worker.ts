@@ -40,6 +40,7 @@ import { privateObservability } from "./observability.js";
 import { outerHttpPrivacyRegistration } from "./outer-http-privacy.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
+import { withReaderWebsite } from "./reader-website.js";
 import {
   logRequestIncident,
   observeRequestIncidents,
@@ -270,15 +271,21 @@ export const makeMischief = (
 
     const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
 
+    const readerApp = withReaderWebsite(
+      Schema.decodeUnknownEffect(AssetBindingSchema)(environment.WEBSITE).pipe(
+        Effect.orDie
+      )
+    )(app);
+
     return {
       fetch: observeRequestIncidents(
         events === undefined
-          ? app
+          ? readerApp
           : withEventCapture({
               captureCity: true,
               identityMode,
               runInBackground: inBackground,
-            })(app).pipe(Effect.provideContext(events))
+            })(readerApp).pipe(Effect.provideContext(events))
       ),
     };
   });

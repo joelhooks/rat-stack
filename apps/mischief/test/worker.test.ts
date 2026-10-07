@@ -23,6 +23,7 @@ import {
   agentSkillPath,
   ardManifest,
   authMarkdown,
+  contentResources,
   lawResources,
   loreResources,
   linkHeader,
@@ -502,9 +503,7 @@ it.effect(
         expect(markdown).toContain(
           "claude mcp add --transport http rat-stack https://ratstack.sh/mcp"
         );
-        expect(markdown).toContain("labeled · push in · pull out");
         expect(markdown).toContain("│  defineContract");
-        expect(markdown).toContain("What to notice:");
         expect(markdown).toContain("npx skills add joelhooks/rat-stack");
         expect(markdown).toContain("## Source files");
         expect(markdown).toContain(
@@ -1537,7 +1536,13 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
       expect(Object.keys(document.paths).toSorted()).toEqual([
         "/api/backlinks",
         "/api/execute",
+        "/api/getPrompt",
         "/api/joinInterest",
+        "/api/learnCard",
+        "/api/learnDeck",
+        "/api/learnNext",
+        "/api/learnRecord",
+        "/api/listPrompts",
         "/api/mentions",
         "/api/neighbors",
         "/api/path",
@@ -2026,7 +2031,13 @@ it.effect(
         expect(toolNames?.toSorted()).toEqual([
           "backlinks",
           "execute",
+          "getPrompt",
           "joinInterest",
+          "learnCard",
+          "learnDeck",
+          "learnNext",
+          "learnRecord",
+          "listPrompts",
           "mentions",
           "neighbors",
           "path",
@@ -2050,7 +2061,8 @@ it.effect(
           'const found = await tools.search({ query: "capability", limit: 1 });\nreturn await tools.read({ id: found.matches[0].id });'
         );
         expect(resourceNames?.toSorted()).toEqual(
-          [...lawResources, ...loreResources]
+          contentResources
+            .filter((resource) => resource.kind !== "skill")
             .map((resource) => resource.name)
             .toSorted()
         );
