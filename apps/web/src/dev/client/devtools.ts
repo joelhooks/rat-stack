@@ -1,124 +1,134 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { devtoolsContracts } from "@rat-stack/devtools/contracts";
-import * as Effect from "effect/Effect";
-import * as FetchHttpClient from "effect/http/FetchHttpClient";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Predicate from "effect/Predicate";
-import * as Atom from "effect/reactivity/Atom";
-import type * as AtomRegistry from "effect/reactivity/AtomRegistry";
-import * as AtomRpc from "effect/reactivity/AtomRpc";
-import * as Ref from "effect/Ref";
+import { Effect, Layer, Match, Schema } from "effect";
+import { FetchHttpClient } from "effect/http";
 import { RpcClient, RpcSerialization } from "effect/rpc";
-import * as Schedule from "effect/Schedule";
-import * as Schema from "effect/Schema";
+import { Command } from "foldkit";
+
+import { Message } from "./model.js";
 
 const { group } = toRpcGroup(devtoolsContracts);
 
-export class DevtoolsClient extends AtomRpc.Service<DevtoolsClient>()(
-  "RatDevtoolsClient",
-  {
-    group,
-    protocol: RpcClient.layerProtocolHttp({ url: "/__rat/rpc" }).pipe(
-      Layer.provide(FetchHttpClient.layer),
-      Layer.provide(RpcSerialization.layerJson)
+const protocol = RpcClient.layerProtocolHttp({ url: "/__rat/rpc" }).pipe(
+  Layer.provide([FetchHttpClient.layer, RpcSerialization.layerJson])
+);
+
+const json = Effect.map(Schema.decodeUnknownSync(Schema.Json));
+
+const TestPerson = Schema.Struct({
+  result: Schema.Struct({
+    ok: Schema.Literal(true),
+    value: Schema.Struct({ personId: Schema.String }),
+  }),
+});
+
+export const Inspect = Command.define("Inspect", {
+  args: {
+    capability: Schema.String,
+    from: Schema.String,
+    generation: Schema.Finite,
+    input: Schema.String,
+    operation: Schema.Literals([
+      "calls",
+      "contracts",
+      "machines",
+      "describe",
+      "get",
+      "run",
+      "replay",
+      "diff",
+      "person",
+    ]),
+    person: Schema.NullOr(Schema.String),
+    personName: Schema.String,
+    to: Schema.String,
+  },
+  execute: (args) =>
+    RpcClient.make(group).pipe(
+      Effect.flatMap((client) =>
+        Match.value(args.operation).pipe(
+          Match.when("calls", () =>
+            client.rat_list_calls({ fromEnd: true, limit: 25 }).pipe(json)
+          ),
+          Match.when("contracts", () =>
+            client.rat_list_contracts({}).pipe(json)
+          ),
+          Match.when("machines", () => client.rat_list_actors({}).pipe(json)),
+          Match.when("get", () =>
+            Schema.decodeEffect(Schema.FiniteFromString)(args.from).pipe(
+              Effect.flatMap((index) =>
+                client.rat_get_call({ expand: true, index })
+              ),
+              json
+            )
+          ),
+          Match.when("describe", () =>
+            client.rat_describe_contract({ name: args.capability }).pipe(json)
+          ),
+          Match.when("run", () =>
+            Schema.decodeEffect(Schema.fromJsonString(Schema.Json))(
+              args.input
+            ).pipe(
+              Effect.flatMap((input) =>
+                client.rat_call(
+                  args.person === null
+                    ? { capability: args.capability, input }
+                    : { as: args.person, capability: args.capability, input }
+                )
+              ),
+              json
+            )
+          ),
+          Match.when("replay", () =>
+            Schema.decodeEffect(Schema.FiniteFromString)(args.from).pipe(
+              Effect.flatMap((index) => client.rat_replay_call({ index })),
+              json
+            )
+          ),
+          Match.when("diff", () =>
+            Effect.all([
+              Schema.decodeEffect(Schema.FiniteFromString)(args.from),
+              Schema.decodeEffect(Schema.FiniteFromString)(args.to),
+            ]).pipe(
+              Effect.flatMap(([from, to]) =>
+                client.rat_diff_calls({ from, to })
+              ),
+              json
+            )
+          ),
+          Match.when("person", () =>
+            client
+              .rat_call({
+                capability: "rat_test_person",
+                input: { name: args.personName },
+              })
+              .pipe(json)
+          ),
+          Match.exhaustive
+        )
+      ),
+      Effect.flatMap((value) =>
+        Effect.gen(function* toInspectorMessage() {
+          if (args.operation === "person") {
+            const result = yield* Schema.decodeUnknownEffect(TestPerson)(value);
+
+            return Message.CreatedPerson({
+              generation: args.generation,
+              personId: result.result.value.personId,
+            });
+          }
+
+          return Message.Loaded({ generation: args.generation, value });
+        })
+      ),
+      Effect.orElseSucceed(() =>
+        Message.Failed({
+          generation: args.generation,
+          message: "The request failed. Check the input and refresh.",
+        })
+      ),
+      Effect.provide(protocol),
+      Effect.scoped
     ),
-  }
-) {}
-
-export const devtoolsKeys = ["rat-devtools"] as const;
-
-export const recentCalls = DevtoolsClient.query(
-  "rat_list_calls",
-  { fromEnd: true, limit: 25 },
-  { reactivityKeys: devtoolsKeys }
-);
-
-export const contracts = DevtoolsClient.query(
-  "rat_list_contracts",
-  {},
-  { reactivityKeys: devtoolsKeys }
-);
-
-export const actors = DevtoolsClient.query(
-  "rat_list_actors",
-  {},
-  { reactivityKeys: devtoolsKeys }
-);
-
-export const describeContract = (name: string) =>
-  DevtoolsClient.query("rat_describe_contract", { name });
-
-export const dispatchCall = DevtoolsClient.mutation("rat_call");
-
-export const runAsPerson = Atom.make<string | null>(null).pipe(Atom.keepAlive);
-
-const REPORT_EVERY = "1500 millis";
-
-const encodeJson = Schema.encodeUnknownOption(
-  Schema.fromJsonString(Schema.Unknown)
-);
-
-const decodeJson = Schema.decodeUnknownOption(
-  Schema.fromJsonString(Schema.Json)
-);
-
-const jsonOf = (node: AtomRegistry.Node<unknown>): Schema.Json =>
-  encodeJson(node.value()).pipe(
-    Option.flatMap(decodeJson),
-    Option.getOrElse((): Schema.Json => ({ unencodable: true }))
-  );
-
-const keyOf = (
-  key: Atom.Atom<unknown> | string,
-  node: AtomRegistry.Node<unknown>
-) => (Predicate.isString(key) ? key : node.atom.label?.[0]);
-
-export const snapshotOf = (registry: AtomRegistry.AtomRegistry) =>
-  [...registry.getNodes()].flatMap(([key, node]) => {
-    const name = keyOf(key, node);
-
-    return name === undefined
-      ? []
-      : [
-          {
-            key: name,
-            state: node.currentState(),
-            value: node.currentState() === "valid" ? jsonOf(node) : null,
-          },
-        ];
-  });
-
-export const reportAtoms = Atom.family((registry: AtomRegistry.AtomRegistry) =>
-  DevtoolsClient.runtime.atom(
-    Effect.gen(function* reportAtomsForever() {
-      const client = yield* DevtoolsClient;
-      const tabId = yield* Ref.make<string | null>(null);
-      const last = yield* Ref.make("");
-
-      const report = Effect.gen(function* reportOnce() {
-        const atoms = snapshotOf(registry);
-        const fingerprint = encodeJson(atoms).pipe(Option.getOrElse(() => ""));
-
-        if (fingerprint === (yield* Ref.get(last))) {
-          return;
-        }
-
-        const current = yield* Ref.get(tabId);
-
-        const reported = yield* client(
-          "rat_report_atoms",
-          current === null ? { atoms } : { atoms, tabId: current }
-        );
-
-        yield* Ref.set(tabId, reported.tabId);
-        yield* Ref.set(last, fingerprint);
-      });
-
-      return yield* report.pipe(
-        Effect.ignore,
-        Effect.repeat(Schedule.spaced(REPORT_EVERY))
-      );
-    })
-  )
-);
+  messages: [Message.Loaded, Message.CreatedPerson, Message.Failed],
+});

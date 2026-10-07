@@ -101,6 +101,11 @@ export const buildBacklinkIndex = (
   return index;
 };
 
+export const backlinksFor = (
+  index: ReadonlyMap<string, readonly BacklinkReference[]>,
+  route: string
+) => index.get(route) ?? [];
+
 const skippedCountTags = new Set([
   "h1",
   "h2",

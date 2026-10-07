@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "target": "ESNext"
   },
-  "include": ["alchemy.run.ts", "src/**/*.ts", "test/**/*.ts"]
+  "include": [
+    "alchemy.run.ts",
+    "alchemy.preview.ts",
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ]
 }

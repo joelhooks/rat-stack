@@ -79,9 +79,7 @@ describe("vite dev", () => {
       const response = await fetch(`${await origin}/`);
 
       expect(response.status).toBe(200);
-      expect(await response.text()).toContain(
-        "Find the rule or skill you need."
-      );
+      expect(await response.text()).toContain('src="/src/client/entry.ts"');
     },
     FIRST_COMPILE
   );
