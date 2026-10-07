@@ -5,7 +5,7 @@ import { Command, Flag } from "effect/cli";
 
 import { intakeCommand } from "./intake.js";
 import {
-  capabilities,
+  cliCapabilities,
   SERVE_HOST,
   DEVTOOLS_MCP_PATH,
   codeMode,
@@ -18,7 +18,7 @@ import { VERSION } from "./version.js";
 
 export { VERSION } from "./version.js";
 
-const capabilityCommands = capabilities.map((capability) => {
+const capabilityCommands = cliCapabilities.map((capability) => {
   const command =
     capability === inspectFile
       ? toCommand(capability, {

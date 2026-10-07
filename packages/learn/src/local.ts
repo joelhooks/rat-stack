@@ -6,9 +6,13 @@ import {
   learnNextContract,
   learnRecordContract,
 } from "@rat-stack/core/learn";
-import { Learner, learnCard, learnDeck } from "@rat-stack/learn";
 import { Config, Effect, Layer, Schema } from "effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+
+import { learnCard, learnDeck } from "./capabilities.js";
+import { Learner } from "./learner.js";
+
+export { localLearnerProgressLayer } from "./local-store.js";
 
 const remoteDeck = Effect.gen(function* remoteDeck() {
   const origin = yield* Config.String("RAT_LEARN_ORIGIN").pipe(

@@ -2,10 +2,10 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { LearnerProgress, emptyProgress } from "@rat-stack/core/learn";
 import type { Card, LearnEvent } from "@rat-stack/core/learn";
-import { Learner } from "@rat-stack/learn";
 import { ConfigProvider, Effect, FileSystem, Layer, Path } from "effect";
 
-import { localLearnerProgressLayer } from "../src/learn-store.js";
+import { Learner } from "../src/learner.js";
+import { localLearnerProgressLayer } from "../src/local-store.js";
 
 const card: Card = {
   claim: "Services name jobs",
@@ -35,7 +35,7 @@ it.effect(
       const path = yield* Path.Path;
       const directory = yield* fs.makeTempDirectoryScoped();
 
-      const layer = localLearnerProgressLayer.pipe(
+      const layer = localLearnerProgressLayer(directory).pipe(
         Layer.provide(Learner.layer(Effect.succeed([card])))
       );
 

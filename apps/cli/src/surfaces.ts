@@ -12,12 +12,12 @@ import {
 import { capabilities as coreCapabilities } from "@rat-stack/core";
 import { devtools, devtoolsLayer } from "@rat-stack/devtools";
 import { learnCapabilities } from "@rat-stack/learn";
+import { localLearnCapabilities } from "@rat-stack/learn/local";
 import { Effect, Layer, Logger } from "effect";
 import { McpProtocol, McpServer } from "effect/ai";
 import { HttpRouter } from "effect/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 
-import { localLearnCapabilities } from "./learn.js";
 import { VERSION } from "./version.js";
 
 export const capabilities = [
@@ -25,16 +25,16 @@ export const capabilities = [
   ...learnCapabilities,
 ] as const;
 
-const mcpCapabilities = [
+export const cliCapabilities = [
   ...coreCapabilities,
   ...localLearnCapabilities,
 ] as const;
 
 export const http = toHttpApi("RatStack", capabilities);
 
-export const tools = toToolkit(mcpCapabilities);
+export const tools = toToolkit(cliCapabilities);
 
-export const codeMode = toCodeMode(mcpCapabilities);
+export const codeMode = toCodeMode(cliCapabilities);
 
 export const routes = Layer.merge(
   HttpApiBuilder.layer(http.api, { openapiPath: "/openapi.json" }).pipe(
@@ -126,10 +126,10 @@ export const mcpServer = {
     )
   ),
   devtools: withStdio(
-    withDevtools(mcpCapabilities, ({ capabilities: all }) => toolkitServer(all))
+    withDevtools(cliCapabilities, ({ capabilities: all }) => toolkitServer(all))
   ).pipe(Layer.provide(devtoolsLayer())),
   devtoolsCodeMode: withStdio(
-    withDevtools(mcpCapabilities, ({ capabilities: all }) => {
+    withDevtools(cliCapabilities, ({ capabilities: all }) => {
       const projected = toCodeMode(all);
 
       return McpServer.toolkit(projected.toolkit).pipe(

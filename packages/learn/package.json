@@ -14,6 +14,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./local": {
+      "types": "./src/local.ts",
+      "import": "./dist/local.js",
+      "default": "./dist/local.js"
+    },
     "./build": {
       "types": "./src/deck-build.ts",
       "import": "./src/deck-build.ts",
@@ -35,6 +40,7 @@
     "xstate": "6.0.0-alpha.63"
   },
   "devDependencies": {
+    "@effect/platform-node": "4.0.0",
     "@effect/vitest": "4.0.0",
     "typescript": "7.0.2",
     "vitest": "5.0.1"
