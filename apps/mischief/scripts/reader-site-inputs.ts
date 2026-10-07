@@ -60,7 +60,25 @@ const documentMetadata = (path: string, html: string) => {
     throw new Error(`Reader metadata is incomplete at ${path}`);
   }
 
+  const structuredData = DomUtils.getElementsByTagName(
+    "script",
+    document.children
+  ).find((element) => element.attribs.type === "application/ld+json");
+
+  const dates =
+    structuredData === undefined
+      ? {}
+      : Schema.decodeUnknownSync(
+          Schema.fromJsonString(
+            Schema.Struct({
+              dateModified: Schema.optional(Schema.String),
+              datePublished: Schema.optional(Schema.String),
+            })
+          )
+        )(DomUtils.textContent(structuredData));
+
   return {
+    ...dates,
     canonicalPath: path,
     description,
     discoveryLinks: markdownDiscoveryLinks(path),
@@ -76,24 +94,31 @@ const documentMetadata = (path: string, html: string) => {
   };
 };
 
+export const readerAssetInputs = Effect.gen(function* readerAssetInputs() {
+  const fs = yield* FileSystem.FileSystem;
+  const paths = yield* Path.Path;
+  const root = new URL("../dist/content/", import.meta.url).pathname;
+
+  const manifest = yield* fs
+    .readFileString(paths.join(root, "manifest.json"))
+    .pipe(
+      Effect.flatMap(
+        Schema.decodeUnknownEffect(Schema.fromJsonString(ContentAssetManifest))
+      )
+    );
+
+  return {
+    directory: paths.join(root, "assets", manifest.generation),
+    manifest,
+  };
+});
+
 export const prepareReaderSiteInputs = Effect.gen(
   function* prepareReaderSiteInputs() {
     const fs = yield* FileSystem.FileSystem;
     const paths = yield* Path.Path;
-    const root = new URL("../dist/content/", import.meta.url).pathname;
     const repository = new URL("../../../", import.meta.url).pathname;
-
-    const manifest = yield* fs
-      .readFileString(paths.join(root, "manifest.json"))
-      .pipe(
-        Effect.flatMap(
-          Schema.decodeUnknownEffect(
-            Schema.fromJsonString(ContentAssetManifest)
-          )
-        )
-      );
-
-    const directory = paths.join(root, "assets", manifest.generation);
+    const { directory, manifest } = yield* readerAssetInputs;
 
     const catalog = yield* fs
       .readFileString(paths.join(directory, "_content/catalog.json"))
@@ -177,6 +202,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       directory,
       generation: manifest.generation,
       homeSource: source.home,
+      images: manifest.images,
       lore,
       loreTermTargets: source.loreTermTargets,
       pages,

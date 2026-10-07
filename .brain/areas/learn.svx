@@ -40,6 +40,7 @@ Learn mode explains the technology and principles used in real work. [The learn 
 
 The build derives a concept deck from public lore, system pages, and skills. Cards preserve page titles, summaries, terms, references, and links. Explicit prerequisite metadata supplies prerequisite ids.
 
+A capability is one named action with shared value definitions and a server-side implementation.
 Four capabilities serve the deck and learning events:
 
 | Capability | Job |
@@ -49,7 +50,8 @@ Four capabilities serve the deck and learning events:
 | `learnNext` | Select explanations for concepts in play. |
 | `learnRecord` | Record an explicit learning event. |
 
-The learning lifecycle uses XState under Effect.
+XState owns the learning lifecycle as a state machine: named states and the events that permit movement between them.
+Effect describes the work with typed failures and required services. A service is a named interface for one job.
 
 Selection follows deck order when context is absent. A public context term selects its owner and resolves unintroduced prerequisites first. A shown walkthrough introduces a prerequisite. Dismissed prerequisites count as satisfied; dismissed cards stay silent.
 
@@ -59,7 +61,12 @@ Selection follows deck order when context is absent. A public context term selec
 - Fluent concepts stay silent until asked or after ninety days of inactivity.
 - Dismissed concepts stay silent.
 
-The CLI commands and stdio MCP use a local progress adapter. The cartridge provides it through `@rat-stack/learn/local`. The CLI supplies the filesystem platform and default directory.
+The command-line interface (CLI) and MCP tools use a local progress adapter, an implementation that connects learning operations to local files.
+MCP means Model Context Protocol. Its stdio connection uses the process's standard input and output to carry tool calls.
+
+The learning cartridge provides the adapter through `@rat-stack/learn/local`.
+A cartridge is a package for one job, with its implementation and required infrastructure.
+The CLI supplies filesystem access and the default directory.
 
 Public HTTP and MCP calls operate on supplied progress. The public server stores no progress. The default local directory is `~/.rat-learn/`.
 
@@ -83,6 +90,7 @@ Public HTTP and MCP calls operate on supplied progress. The public server stores
 - Cards preserve source text. The build accumulates reference and prerequisite errors.
 - Property tests check depth and merge. A generated history model checks events and elapsed time.
 
+Effect Schema describes accepted values and their runtime checks.
 The event schema defines the available observations:
 
 ```ts repo=rat-stack path=packages/core/src/learn-model.ts at=cec3fcc34c976f007d1157af756c89a951306194 lines=33-47 title="Explicit learning events"
