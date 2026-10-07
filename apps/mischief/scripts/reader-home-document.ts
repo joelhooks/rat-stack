@@ -219,8 +219,8 @@ const weaveHomeTerms = (
   });
 
   const termTree = { children, type: "root" };
-  linkLoreTerms(targets, "/", new Set<string>())()(termTree);
   linkStackEntities()(termTree);
+  linkLoreTerms(targets, "/", new Set<string>())()(termTree);
 
   return blocks.map((block, index) => {
     const woven = children[index]?.children ?? [];
