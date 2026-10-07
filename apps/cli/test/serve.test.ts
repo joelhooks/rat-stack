@@ -1,6 +1,6 @@
 import { NodeHttpServer, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { capabilities, FileInspector } from "@rat-stack/core";
+import { capabilities, FileInspector, PromptLibrary } from "@rat-stack/core";
 import {
   ActorLog,
   CallLog,
@@ -22,7 +22,8 @@ const AppLayer = HttpRouter.serve(routes, {
   disableLogger: true,
 }).pipe(
   Layer.provideMerge(NodeHttpServer.layerTest),
-  Layer.provide(FileInspector.layer.pipe(Layer.provide(NodeServices.layer)))
+  Layer.provide(FileInspector.layer.pipe(Layer.provide(NodeServices.layer))),
+  Layer.provide(PromptLibrary.layer([]))
 );
 
 describe("serve routes", () => {
@@ -33,7 +34,11 @@ describe("serve routes", () => {
       expect(HttpServer.formatAddress(server.address)).toMatch(
         /^http:\/\/127\.0\.0\.1:\d+$/u
       );
-    }).pipe(Effect.provide(serverLayer(0)))
+    }).pipe(
+      Effect.provide(
+        serverLayer(0).pipe(Layer.provide(PromptLibrary.layer([])))
+      )
+    )
   );
 
   it.effect("publishes the OpenAPI document and the docs page", () =>
@@ -121,6 +126,7 @@ describe("serve routes", () => {
         }).pipe(
           Layer.provideMerge(NodeHttpServer.layerTest),
           Layer.provideMerge(devtoolsLayer()),
+          Layer.provide(PromptLibrary.layer([])),
           Layer.provide(
             FileInspector.layer.pipe(Layer.provide(NodeServices.layer))
           )

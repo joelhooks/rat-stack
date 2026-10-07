@@ -18,8 +18,17 @@ const program = Effect.gen(function* emitReaderLedger() {
   const inputs = yield* prepareReaderSiteInputs;
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
+    const prompt =
+      page.path === "/prompts" || page.path.startsWith("/prompts/");
+
     const included =
-      page.path === "/" || page.path === "/lore/services-capture-dependencies";
+      prompt ||
+      page.path === "/" ||
+      page.path === "/lore/services-capture-dependencies";
+
+    const markdownAvailability = prompt
+      ? "included"
+      : "representation-not-projected";
 
     const preview = {
       representation: included ? "html" : "none",
@@ -39,9 +48,8 @@ const program = Effect.gen(function* emitReaderLedger() {
         ...page,
         preview: {
           ...preview,
-          availability: included
-            ? "representation-not-projected"
-            : "outside-slice",
+          availability: included ? markdownAvailability : "outside-slice",
+          representation: prompt ? "markdown" : preview.representation,
         },
         representation: "markdown",
       },

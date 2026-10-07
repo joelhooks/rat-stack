@@ -62,6 +62,7 @@ import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import { mcpContent } from "./mcp-content.js";
+import { promptLibraryLayer } from "./prompt-library.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
 import { logRequestIncident } from "./request-incidents.js";
 import { contentSecurityPolicy } from "./security.js";
@@ -1296,6 +1297,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         assetRoutes(assets, store)
       ).pipe(
         Layer.provideMerge(contentRequests(store)),
+        Layer.provideMerge(promptLibraryLayer),
         Layer.provideMerge(Layer.succeed(ContentStore, store)),
         Layer.provideMerge(privateHttpTracingLayer)
       );

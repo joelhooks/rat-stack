@@ -1,0 +1,34 @@
+---
+title: "One prompt serves people and agents"
+description: "Source-owned agent prompts with typed discovery and copyable browser pages."
+group: system
+terms: ["agent prompt"]
+sources: []
+---
+
+## What it does
+
+- `/prompts` lists published prompts.
+- Each detail page shows the full prompt, a copy control, and its credit.
+- Markdown is the default representation. Browsers request HTML.
+- `listPrompts` and `getPrompt` expose the same source through capability projections.
+
+## The standard
+
+- `.brain/resources/prompts/` owns the source. The content build owns derived assets.
+- Title, description, and body must contain text. Validation reports independent failures together.
+- Core owns the `PromptLibrary` port. Content and CLI adapters supply it.
+- The public catalogue requires no identity or mutable database record.
+- Existing Worker infrastructure serves the assets. No prompt execution or scheduling occurs here.
+- Foldkit Messages and Commands own clipboard interaction. Prompt text remains unchanged.
+
+## How to check
+
+1. Run the full check, test, and build gate.
+2. Open `/prompts/hill-climb` and copy its text.
+3. Disable JavaScript. Read the full prompt and its credit.
+4. Request `/prompts` without an HTML Accept header. Check the Markdown list.
+5. Call `listPrompts`, then call `getPrompt` with a returned slug.
+6. Check that an unknown slug returns `UnknownPrompt`.
+
+See [use-a-prompt](/skills/use-a-prompt).

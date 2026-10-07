@@ -94,6 +94,7 @@ import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
+import { validatePromptSources } from "./prompt-source.ts";
 import {
   groupUnlinkedMentions,
   linkedFromComponent,
@@ -817,7 +818,7 @@ const PackageJson = Schema.Struct({
 });
 
 const skillGroups = [
-  { names: ["rat-stack-mode"], title: "Start here" },
+  { names: ["rat-stack-mode", "use-a-prompt"], title: "Start here" },
   {
     names: ["learn-rat-stack", "learn-alchemy", "find-peers"],
     title: "See how the pieces fit",
@@ -1303,6 +1304,24 @@ const program = Effect.gen(function* generateContent() {
       );
     },
   });
+
+  const promptDirectory = ".brain/resources/prompts";
+
+  const promptEntries = yield* fileSystem.readDirectory(
+    path.join(root, promptDirectory)
+  );
+
+  const promptDocuments = yield* Effect.forEach(
+    promptEntries.filter((entry) => entry.endsWith(".svx")).toSorted(),
+    Effect.fn(function* readPromptSource(filename: string) {
+      const sourcePath = `${promptDirectory}/${filename}`;
+      const rawText = yield* readText(sourcePath);
+
+      return { rawText, slug: filename.slice(0, -4), sourcePath };
+    })
+  );
+
+  const promptTexts = yield* validatePromptSources(promptDocuments);
 
   const loreDirectory = ".brain/resources/lore";
 
@@ -2874,6 +2893,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const ogPages: readonly OgPage[] = [
     {
+      description: "Copyable agent prompts for rat-stack apps.",
+      routePath: "/prompts",
+      title: "Prompts",
+    },
+    ...promptTexts.map<OgPage>((prompt) => ({
+      description: prompt.description,
+      routePath: `/prompts/${prompt.slug}`,
+      title: prompt.title,
+    })),
+    {
       description: glossaryIndexMetadata.description,
       routePath: "/glossary",
       title: "Glossary",
@@ -3228,7 +3257,64 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const staticContentVersion = contentVersion;
 
-  const resources = normalizeSources({ lawSources, loreSources, skillSources });
+  const promptSources = yield* Effect.forEach(
+    Effect.fn(function* renderPromptSource(
+      prompt: (typeof promptTexts)[number]
+    ) {
+      const routePath: OgPage["routePath"] = `/prompts/${prompt.slug}`;
+      const bodyMarkdown = prompt.body;
+      const text = `# ${prompt.title}\n\n${prompt.description}\n\n${bodyMarkdown}\n\n${prompt.credit}\n`;
+
+      const documentHtml = yield* makeDocument(
+        `<h1>${escapeHtml(prompt.title)}</h1><p>${escapeHtml(prompt.description)}</p><pre class="prompt">${escapeHtml(bodyMarkdown)}</pre><p>${escapeHtml(prompt.credit)}</p>`,
+        {
+          description: prompt.description,
+          path: routePath,
+          title: pageTitle(prompt.title),
+        },
+        prompt.sourcePath,
+        contentVersion
+      );
+
+      return {
+        ...prompt,
+        bodyMarkdown,
+        digest: digest(text),
+        documentHtml,
+        routePath,
+        text,
+      };
+    })
+  )(promptTexts);
+
+  const promptsIndexMarkdown = `# Prompts\n\nCopyable agent prompts for rat-stack apps.\n\n${promptTexts.map((prompt) => `- [${prompt.title}](/prompts/${prompt.slug}): ${prompt.description}`).join("\n")}\n`;
+
+  const promptsIndexBody = yield* compileMarkdownBody(
+    promptsIndexMarkdown,
+    "prompts-index.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/prompts"
+  );
+
+  const promptsIndexDocument = yield* makeDocument(
+    promptsIndexBody.bodyHtml,
+    {
+      description: "Copyable agent prompts for rat-stack apps.",
+      path: "/prompts",
+      title: pageTitle("Prompts"),
+    },
+    "prompts-index.md",
+    contentVersion
+  );
+
+  const resources = normalizeSources({
+    lawSources,
+    loreSources,
+    promptSources,
+    skillSources,
+  });
 
   const contentData = [
     {
@@ -3258,6 +3344,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/systems",
           "/skills",
           "/glossary",
+          "/prompts",
         ],
         resources: resources.map(
           ({ bodyMarkdown: _bodyMarkdown, text: _text, ...metadata }) =>
@@ -3274,6 +3361,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       ),
     },
     { path: "/_content/graph.json", value: loreGraphSnapshotJson },
+    { path: "/_content/prompts.json", value: promptTexts },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),
       value: resource,
@@ -3316,6 +3404,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       ...lawSources,
       ...loreSources,
       ...skillSources,
+      ...promptSources,
+      {
+        documentHtml: promptsIndexDocument,
+        routePath: "/prompts",
+        text: promptsIndexMarkdown,
+      },
       {
         documentHtml: `${homeDocumentHtml}<script>${copyScript}</script>`,
         routePath: "/",
@@ -3356,6 +3450,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         generation: assetManifest.generation,
         home: homeMarkdownSource,
         loreTermTargets: loreTermIndex,
+        prompts: promptTexts,
         references: {
           anchors: contentBlocksFor(
             blockIndex,

@@ -23,6 +23,7 @@ import {
   agentSkillPath,
   ardManifest,
   authMarkdown,
+  contentResources,
   lawResources,
   loreResources,
   linkHeader,
@@ -1537,7 +1538,9 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
       expect(Object.keys(document.paths).toSorted()).toEqual([
         "/api/backlinks",
         "/api/execute",
+        "/api/getPrompt",
         "/api/joinInterest",
+        "/api/listPrompts",
         "/api/mentions",
         "/api/neighbors",
         "/api/path",
@@ -2026,7 +2029,9 @@ it.effect(
         expect(toolNames?.toSorted()).toEqual([
           "backlinks",
           "execute",
+          "getPrompt",
           "joinInterest",
+          "listPrompts",
           "mentions",
           "neighbors",
           "path",
@@ -2050,7 +2055,8 @@ it.effect(
           'const found = await tools.search({ query: "capability", limit: 1 });\nreturn await tools.read({ id: found.matches[0].id });'
         );
         expect(resourceNames?.toSorted()).toEqual(
-          [...lawResources, ...loreResources]
+          contentResources
+            .filter((resource) => resource.kind !== "skill")
             .map((resource) => resource.name)
             .toSorted()
         );

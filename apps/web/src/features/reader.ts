@@ -77,7 +77,23 @@ export const readerView = (
             : [
                 h.nav(
                   [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
-                  [h.a([h.Href("/lore")], ["lore"]), ` / ${model.heading}`]
+                  [
+                    h.a(
+                      [
+                        h.Href(
+                          model.page.path.startsWith("/prompts")
+                            ? "/prompts"
+                            : "/lore"
+                        ),
+                      ],
+                      [
+                        model.page.path.startsWith("/prompts")
+                          ? "prompts"
+                          : "lore",
+                      ]
+                    ),
+                    ` / ${model.heading}`,
+                  ]
                 ),
               ]),
           h.h1([], [model.heading]),
