@@ -42,6 +42,7 @@ const workerEnvironment = {
       throw new Error("The events request must not invoke the sandbox");
     },
   } satisfies WorkerLoaderBinding,
+  WEBSITE: { fetch: fetchFixtureAsset },
 };
 
 const unavailableLegacyMcp = {
