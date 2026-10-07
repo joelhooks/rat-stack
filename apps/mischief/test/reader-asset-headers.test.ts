@@ -122,6 +122,7 @@ it.layer(PreparedReaderPages.layer)((test) => {
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const client = path.join(root, "dist/client");
+
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
         const { pages: prepared } = yield* PreparedReaderPages;

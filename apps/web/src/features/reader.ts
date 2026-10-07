@@ -17,6 +17,21 @@ const copyStatusText = {
   idle: "",
 };
 
+const readerBreadcrumb = (
+  path: string,
+  h: HtmlBuilder<typeof ReaderMessage.Type>
+) => {
+  if (path.startsWith("/prompts")) {
+    return h.a([h.Href("/prompts")], ["prompts"]);
+  }
+
+  if (path.startsWith("/lore/")) {
+    return h.a([h.Href("/lore")], ["lore"]);
+  }
+
+  return h.a([h.Href("/")], ["source files"]);
+};
+
 export const readerView = (
   model: ReaderModel,
   h: HtmlBuilder<typeof ReaderMessage.Type>
@@ -84,22 +99,12 @@ export const readerView = (
                 h.nav(
                   [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
                   [
-                    h.a(
-                      [
-                        h.Href(
-                          model.breadcrumb?.href ??
-                            (model.page.path.startsWith("/lore/")
-                              ? "/lore"
-                              : "/")
+                    model.breadcrumb === undefined
+                      ? readerBreadcrumb(model.page.path, h)
+                      : h.a(
+                          [h.Href(model.breadcrumb.href)],
+                          [model.breadcrumb.label]
                         ),
-                      ],
-                      [
-                        model.breadcrumb?.label ??
-                          (model.page.path.startsWith("/lore/")
-                            ? "lore"
-                            : "source files"),
-                      ]
-                    ),
                     ` / ${model.breadcrumb?.name ?? model.heading}`,
                   ]
                 ),

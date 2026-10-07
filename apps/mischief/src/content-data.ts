@@ -39,6 +39,13 @@ export const LoreSource = Schema.Struct({
   title: Schema.String,
 });
 
+export const PromptSource = Schema.Struct({
+  ...SourceFields,
+  credit: Schema.String,
+  slug: Schema.String,
+  title: Schema.String,
+});
+
 const ResourceFields = {
   ...MetadataFields,
   id: Schema.String,
@@ -62,19 +69,29 @@ const LoreMetadata = Schema.Struct({
   kind: Schema.Literal("lore"),
 });
 
+const PromptMetadata = Schema.Struct({
+  ...ResourceFields,
+  credit: Schema.String,
+  kind: Schema.Literal("prompt"),
+  slug: Schema.String,
+});
+
 export const ContentMetadata = Schema.Union([
+  PromptMetadata,
   LawMetadata,
   LoreMetadata,
   SkillMetadata,
 ]);
 
 export const SearchResource = Schema.Union([
+  Schema.Struct({ ...PromptMetadata.fields, text: Schema.String }),
   Schema.Struct({ ...LawMetadata.fields, text: Schema.String }),
   Schema.Struct({ ...LoreMetadata.fields, text: Schema.String }),
   Schema.Struct({ ...SkillMetadata.fields, text: Schema.String }),
 ]);
 
 export const ContentResourceSchema = Schema.Union([
+  Schema.Struct({ ...PromptMetadata.fields, ...SourceFields }),
   Schema.Struct({ ...LawMetadata.fields, ...SourceFields }),
   Schema.Struct({ ...LoreMetadata.fields, ...SourceFields }),
   Schema.Struct({ ...SkillMetadata.fields, ...SourceFields }),
@@ -115,7 +132,14 @@ export const normalizeSources = (input: {
   readonly lawSources: readonly (typeof LawSource.Type)[];
   readonly loreSources: readonly (typeof LoreSource.Type)[];
   readonly skillSources: readonly (typeof SkillSource.Type)[];
+  readonly promptSources?: readonly (typeof PromptSource.Type)[];
 }): readonly ContentResource[] => [
+  ...(input.promptSources ?? []).map((source) => ({
+    ...source,
+    id: `ratstack://prompts/${source.slug}`,
+    kind: "prompt" as const,
+    name: source.slug,
+  })),
   ...input.lawSources.map((source) => ({
     ...source,
     id: `ratstack://repo/${source.sourcePath.includes(" ") ? source.routePath.slice(1) : source.sourcePath.replace(/^\.brain\//u, "")}`,

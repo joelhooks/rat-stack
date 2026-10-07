@@ -27,7 +27,7 @@ export const ReaderRoute = Schema.Struct({
       "outside-slice",
       "representation-not-projected",
     ]),
-    representation: Schema.Literals(["html", "none"]),
+    representation: Schema.Literals(["html", "markdown", "none"]),
     status: Schema.Int,
   }),
   representation: Schema.Literals(["html", "markdown", "redirect"]),

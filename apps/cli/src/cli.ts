@@ -13,6 +13,7 @@ import { Console, Effect, Layer, Path } from "effect";
 
 import { runCommand } from "./command.js";
 import { remoteJoinInterestLayer } from "./join-interest.js";
+import { localPromptLibraryLayer } from "./prompts.js";
 
 const localProgressLayer = Layer.unwrap(
   Effect.gen(function* localProgress() {
@@ -33,6 +34,7 @@ const program = runCommand(process.argv.slice(2)).pipe(
     Layer.mergeAll(
       Layer.provideMerge(FileInspector.layer, NodeServices.layer),
       remoteJoinInterestLayer,
+      localPromptLibraryLayer.pipe(Layer.provide(NodeServices.layer)),
       localProgressLayer,
       Approval.denyAll
     )

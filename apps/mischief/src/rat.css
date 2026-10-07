@@ -493,11 +493,6 @@ main > pre:has(+ .copy-actions) {
   text-decoration: underline;
 }
 
-.workshop-callout-note {
-  color: #595959;
-  font-size: 0.75em;
-}
-
 @media (max-width: 40rem) {
   .workshop-callout {
     align-items: stretch;
