@@ -26,7 +26,7 @@ A refused plan stops before apply. The verdict's `resources` field names each re
 
 ## Quiet windows
 
-A quiet window is a daily UTC time range when `deployProd` must not apply, because another tenant deploys then. Planning still runs.
+A quiet window is a daily UTC time range when `deployProd` must not apply, for example while another project deploys to the same account. Planning still runs.
 
 - `DEPLOY_QUIET_WINDOWS` holds the windows as JSON, for example `[{"start":"14:00","end":"15:30"}]`. A window may cross midnight. Empty means no windows.
 - `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` sets how long the driver may wait. The default is 0, so it refuses at once. The maximum is one hour.
