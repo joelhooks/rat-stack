@@ -73,12 +73,20 @@ export const readerView = (
             ]
           ),
           readerWorkshop(model, h),
-          ...(model.page.path === "/"
+          ...(model.page.path === "/" ||
+          model.page.path === "/systems" ||
+          model.page.path === "/skills"
             ? []
             : [
                 h.nav(
                   [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
-                  [h.a([h.Href("/lore")], ["lore"]), ` / ${model.heading}`]
+                  [
+                    h.a(
+                      [h.Href(model.breadcrumb?.href ?? "/lore")],
+                      [model.breadcrumb?.label ?? "lore"]
+                    ),
+                    ` / ${model.breadcrumb?.name ?? model.heading}`,
+                  ]
                 ),
               ]),
           ...(model.bodyNodes === undefined

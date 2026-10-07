@@ -13,12 +13,19 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
+import { ReaderFlags } from "../src/client/reader-model.js";
+import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
+
 const webRoot = path.resolve(import.meta.dirname, "..");
 
 const vite = path.join(webRoot, "node_modules/.bin/vite");
 
 const decodeSourceMap = Schema.decodeUnknownSync(
   Schema.fromJsonString(Schema.Struct({ sources: Schema.Array(Schema.String) }))
+);
+
+const decodeReaderPages = Schema.decodeSync(
+  Schema.fromJsonString(Schema.Array(ReaderFlags))
 );
 
 const forbiddenStrings = [
@@ -98,14 +105,28 @@ const build = (nodeEnv: "development" | "production") => {
       )
     );
 
-    const emitted = globSync("**/*.js", { cwd: outDir }).map((file) =>
-      readFileSync(path.join(outDir, file), "utf-8")
+    const preparedPages = decodeReaderPages(
+      readFileSync(path.join(webRoot, "dist/reader-pages.json"), "utf-8")
     );
+
+    const emitted = globSync("**/*.js", { cwd: outDir }).map((file) => {
+      const code = readFileSync(path.join(outDir, file), "utf-8");
+
+      return {
+        full: code,
+        runtime: readerCodeWithoutPageData(code, preparedPages),
+      };
+    });
 
     return {
       sources: new Set(sources),
       strings: forbiddenStrings.filter((text) =>
-        emitted.some((code) => code.includes(text))
+        emitted.some((code) =>
+          (text === "rat-test-person-password"
+            ? code.full
+            : code.runtime
+          ).includes(text)
+        )
       ),
     };
   } finally {
@@ -126,8 +147,8 @@ describe("production bundle", () => {
     () => {
       const { sources, strings } = build("production");
 
-      expect(sources.has("src/server/backend.ts")).toBe(true);
       expect(devtoolsModules(sources)).toEqual([]);
+      expect(sources.has("src/server/backend.ts")).toBe(true);
       expect(strings).toEqual([]);
     },
     BUILD

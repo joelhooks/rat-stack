@@ -10,6 +10,7 @@ import {
 } from "effect";
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+import { isSystemsSkillsRoute } from "../../mischief/scripts/reader-systems-skills-routes.ts";
 import { ReaderRouteLedger } from "../src/page-descriptor.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
@@ -19,7 +20,9 @@ const program = Effect.gen(function* emitReaderLedger() {
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
     const included =
-      page.path === "/" || page.path === "/lore/services-capture-dependencies";
+      page.path === "/" ||
+      page.path === "/lore/services-capture-dependencies" ||
+      isSystemsSkillsRoute(page.path);
 
     const preview = {
       representation: included ? "html" : "none",

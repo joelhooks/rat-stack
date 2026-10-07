@@ -20,12 +20,25 @@ export const readerWorkshop = <Message>(
             [h.Class("workshop-callout-apply"), h.Href(model.workshop.href)],
             [
               model.workshop.link,
-              h.span([
-                h.AriaHidden(true),
-                h.InnerHTML(
-                  '<svg class="icon" fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path></svg>'
-                ),
-              ]),
+              h.svg(
+                [
+                  h.Class("icon"),
+                  h.Fill("none"),
+                  h.Height("16"),
+                  h.Width("16"),
+                  h.Stroke("currentColor"),
+                  h.StrokeWidth("2"),
+                  h.ViewBox("0 0 24 24"),
+                  h.AriaHidden(true),
+                ],
+                [
+                  h.path([
+                    h.D("M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"),
+                    h.StrokeLinecap("round"),
+                    h.StrokeLinejoin("round"),
+                  ]),
+                ]
+              ),
             ]
           ),
           h.small([h.Class("workshop-callout-note")], [model.workshop.note]),

@@ -122,10 +122,10 @@ it.layer(PreparedReaderPages.layer)((test) => {
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const client = path.join(root, "dist/client");
-        const routes = ["/", "/lore/services-capture-dependencies"];
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
         const { pages } = yield* PreparedReaderPages;
+        const routes = pages.map((page) => page.page.path);
         assertProductionPayloads(pages);
 
         const writeStage = Effect.fn("writeReaderStageFixture")(
