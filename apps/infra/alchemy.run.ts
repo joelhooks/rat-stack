@@ -112,8 +112,15 @@ export default Alchemy.Stack(
       }).pipe(adopt(true), retain());
     }
 
-    const mischief = yield* Mischief;
     const website = yield* Website;
+
+    const mischief = yield* Mischief;
+
+    yield* mischief.bind`${website}`({
+      bindings: [
+        { name: "WEBSITE", service: website.workerName, type: "service" },
+      ],
+    });
 
     return { mischiefUrl: mischief.url, websiteUrl: website.url };
   })
