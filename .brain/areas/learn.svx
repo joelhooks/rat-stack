@@ -7,6 +7,16 @@ terms:
   - "concept deck"
   - "learning progress"
 sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/553cb64b93e8b2b15f4215ef36786b14d3754949/packages/learn/src/local-store.ts
+    title: "Local progress adapter"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Validated append-only events, writer locking, and rebuildable projections."
+    accessed: "2026-10-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/553cb64b93e8b2b15f4215ef36786b14d3754949/apps/cli/src/command.ts
+    title: "Local CLI command projection"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Plain CLI commands use the local learning capabilities."
+    accessed: "2026-10-07"
   - url: https://github.com/joelhooks/rat-stack/tree/cec3fcc34c976f007d1157af756c89a951306194/packages/learn
     title: "Learning cartridge"
     publisher: "GitHub joelhooks/rat-stack"
