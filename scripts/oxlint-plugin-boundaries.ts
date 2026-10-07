@@ -1519,6 +1519,82 @@ const noCodeSnippetsInRuntime = defineRule({
   },
 });
 
+const noZodOutsideCatalog = defineRule({
+  create(context) {
+    const filename = workspacePath(context.filename);
+
+    if (
+      filename === "packages/core/src/page-catalog.ts" ||
+      isWithin(filename, "packages/json-render-foldkit")
+    ) {
+      return {};
+    }
+
+    return moduleSourceVisitors(context, (node, source) => {
+      const specifier = isStringModule(source);
+
+      if (specifier !== null && /^zod(?:\/|$)/u.test(specifier)) {
+        context.report({ messageId: "catalogOnly", node });
+      }
+    });
+  },
+  meta: {
+    docs: {
+      description:
+        "Zod is confined to the signed catalog boundary and the framework renderer package.",
+    },
+    messages: {
+      catalogOnly:
+        "Zod belongs in packages/core/src/page-catalog.ts or packages/json-render-foldkit; application contracts use Effect Schema.",
+    },
+    type: "problem",
+  },
+});
+
+const noRendererProductImports = defineRule({
+  create(context) {
+    const filename = workspacePath(context.filename);
+
+    if (!isWithin(filename, "packages/json-render-foldkit/src")) {
+      return {};
+    }
+
+    return moduleSourceVisitors(context, (node, source) => {
+      const specifier = isStringModule(source);
+
+      if (specifier === null) {
+        return;
+      }
+
+      const relativeWorkspaceImport =
+        specifier.startsWith(".") &&
+        normalizeWorkspacePath(filename, specifier) !== null &&
+        !isWithin(
+          normalizeWorkspacePath(filename, specifier) ?? "",
+          "packages/json-render-foldkit"
+        );
+
+      if (
+        /^(?:@rat-stack\/|@stylexjs\/)/u.test(specifier) ||
+        relativeWorkspaceImport
+      ) {
+        context.report({ messageId: "frameworkOnly", node });
+      }
+    });
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep the json-render Foldkit adapter independent of product modules and styling.",
+    },
+    messages: {
+      frameworkOnly:
+        "The Foldkit renderer imports frameworks only; keep product catalogs and StyleX in the application.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-boundaries" },
   rules: {
@@ -1530,5 +1606,7 @@ export default definePlugin({
     "no-devtools-in-production": noDevtoolsInProduction,
     "no-feature-transport": noFeatureTransport,
     "no-hand-rolled-surface": noHandRolledSurface,
+    "no-renderer-product-imports": noRendererProductImports,
+    "no-zod-outside-catalog": noZodOutsideCatalog,
   },
 });

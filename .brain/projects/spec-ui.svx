@@ -1,0 +1,114 @@
+---
+title: "A catalog constrains page composition"
+type: decision
+status: prototype
+created_at: "2026-10-06"
+privacy: public
+---
+
+# A catalog constrains page composition
+
+The v0 composes a featured-sites page from Page, Grid, SiteCard and Callout.
+[Foldkit](./foldkit-web.svx) owns Model, Messages and browser navigation.
+
+## Ownership
+
+- `.brain/data/featured-sites.json` owns site facts. An editor is its only writer.
+- `credit` keeps the provisional wording `Vojta (badass)`. Confirm it before treating attribution as final.
+- `featuredSites` decodes that source. Its result supplies prerender Flags.
+- Browser startup uses a disposable snapshot of the same source.
+- Model holds the spec, featured-site replica and note visibility. Composition does not persist pages.
+
+## The catalog boundary
+
+`packages/core/src/page-catalog.ts` owns all product Zod definitions.
+It uses `@json-render/core@0.21.0` and the existing exact `zod@4.6.5`.
+No release-age exception is needed.
+
+The core build derives ignored JSON hints and metadata from that catalog.
+`generate-page-catalog.ts` writes them atomically. A bridge test catches stale hints.
+No generated catalog artifact is committed.
+
+The spec wire shape remains `{ root, elements }`.
+`composePage` takes `{ spec: Schema.Unknown }`, with the upstream catalog JSON Schema hint on `spec`.
+An explicit JSON wire codec preserves the hint through projections while its decoded type remains Unknown.
+The handler lazily loads json-render validation and returns the decoded spec or typed repair paths.
+The Flags and output codec checks wire structure and child references. It does not validate component props.
+Native semantic validation runs in `composePage`, not in the wire codec.
+
+The upstream multi-component catalog parser leaves props open.
+Each selected component therefore runs its catalog Zod props parser.
+A diagnostic pass accumulates props and graph failures even when another component has an unknown type.
+Cycles and orphans fail composition. A page permits one rendered Callout outside repeat scopes.
+
+Dynamic values receive syntax checks at composition and value checks against Model at render time.
+SiteCard fields use native pointers such as `{ "$state": "/featuredSites/0/name" }`.
+NUL and lone surrogate code units fail before Foldkit serialization.
+
+## Upstream and host responsibilities
+
+| Upstream core supplies | This bridge supplies |
+| --- | --- |
+| Catalog definitions, prompt generation and JSON Schema | The four-component product catalog and Effect failure mapping |
+| Prop expression, visibility and repeat resolution | A pure Foldkit Html registry over the current Model |
+| Action binding and parameter resolution | Named Messages and the host update function |
+| JSONL stream compiler and patch helpers | Submission validation after compilation; no active stream transport |
+
+Action parameters with `$item` resolve to an absolute state path.
+Props with `$item` resolve to an item value.
+Generated properties check this distinction.
+
+The Worker keeps the native catalog in a cold module.
+The entry-graph test keeps the unchanged 900,000-byte budget.
+The build cache restores the ignored hints before source typechecking.
+Alchemy builds SSR and client environments in a production child.
+Asset prerendering runs only in the client environment.
+The infrastructure test runs that exact child build and checks the Worker and featured asset.
+An entry-graph test rejects eager Zod machinery. An eager-import mutation fails that test.
+
+The adapter contains no product imports, StyleX, store, transport or effects.
+The application owns its StyleX recipes.
+The showcase has no interactive controls in v0.
+A stack-tag filter belongs in the shell port, when the featured data includes useful tags.
+Watchers, custom computed functions, confirmation flows and async action execution remain outside v0.
+No JSON contains functions.
+
+The stock upstream prompt describes optional providers that v0 does not install.
+The tool description therefore publishes catalog-generated props and supported actions, not those stock instructions.
+`catalog.prompt()` remains available. Streaming transport must configure its prompt template before adoption.
+
+`no-zod-outside-catalog` permits only the named catalog boundary and the renderer package.
+`no-renderer-product-imports` keeps application modules and StyleX outside the adapter.
+
+## Replacement decision
+
+More complicated locally, simpler overall.
+
+| Braid in the prototype | Separation | Fence |
+| --- | --- | --- |
+| Catalog definitions and a bespoke Effect decoder in `page-spec.ts` | Zod definitions stay in one boundary; upstream supplies parsing and metadata | Named Zod import boundary and generated repair properties |
+| Product styles and switch dispatch in `render-spec.ts` | Styled registry in the app; interpretation in a framework package | Renderer product-import rule |
+| A custom pointer slice for card data | Core resolves pointers against the current Model | Snapshot and repeat/action properties |
+
+The deep seam is `createRenderer(catalog, components, messageForActions)(spec, model, h)`.
+It deletes the custom component switch and pointer language.
+The alternative was to keep a parallel engine and translate specs between both catalogs.
+That would duplicate authority and repair rules.
+
+Both designs have zero lifecycle states. Pure composition needs no machine or new service.
+The existing capability Layer owns effects; the loader owns source access.
+The cartridge-removal gate is not run: this is a renderer adapter, not an infrastructure cartridge.
+Rollback removes the adapter composition and reverts the dependency commit. No stored pages need migration.
+The material open question is whether v0 needs streaming transport. It currently proves completed native patches only.
+
+## Port to slice A
+
+- Keep the product catalog, build-derived hints, capability handlers and standalone renderer package.
+- Carry the decoded loader result, spec and note visibility through Flags into Model.
+- Register four styled components in the new shell.
+- Map resolved actions to named Messages. Keep model changes in update.
+- Keep build-only prerendering and the emitted `/featured/index.html` asset.
+- Preserve MCP and code-mode registration at composition roots.
+- Keep the focus token and single Callout accent.
+
+[PROVENANCE.md](../../PROVENANCE.md) records the upstream adapter reference.

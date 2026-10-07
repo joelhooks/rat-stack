@@ -16,6 +16,7 @@ export default defineConfig({
     "tools/oxlint/anti-slop/**",
   ],
   jsPlugins: [
+    { name: "foldkit", specifier: "@foldkit/oxlint-plugin" },
     "./scripts/oxlint-plugin-xstate-effect.ts",
     "./scripts/oxlint-plugin-effect-tests.ts",
     "./scripts/oxlint-plugin-no-comments.ts",
@@ -37,6 +38,23 @@ export default defineConfig({
     typeAware: true,
   },
   overrides: [
+    {
+      files: ["apps/web/src/**/*.ts"],
+      rules: {
+        "foldkit/command-binding-matches-name": "error",
+        "foldkit/command-define-pascal-const": "error",
+        "foldkit/lazy-view-stable-references": "error",
+        "foldkit/mount-factory-must-use-element": "error",
+        "foldkit/no-array-index-view-keys": "error",
+        "foldkit/no-direct-submodel-state-update": "error",
+        "foldkit/no-disabling-dev-guardrails": "error",
+        "foldkit/no-duplicate-onmount-per-element": "error",
+        "foldkit/no-hand-rolled-command-struct": "error",
+        "foldkit/no-prevent-default-in-stream-operator": "error",
+        "foldkit/no-raw-dom-event-attributes": "error",
+        "foldkit/no-switch-on-message-tag": "error",
+      },
+    },
     {
       files: [
         "apps/*/src/features/**",
@@ -90,6 +108,8 @@ export default defineConfig({
     "rat-stack-boundaries/no-cross-layer-imports": "error",
     "rat-stack-boundaries/no-devtools-in-production": "error",
     "rat-stack-boundaries/no-hand-rolled-surface": "error",
+    "rat-stack-boundaries/no-renderer-product-imports": "error",
+    "rat-stack-boundaries/no-zod-outside-catalog": "error",
     "rat-stack-patterns/acquire-release-constructs-in-acquire-body": "error",
     "rat-stack-patterns/contract-binding-matches-name": "error",
     "rat-stack-patterns/no-module-level-mutable-state": "error",

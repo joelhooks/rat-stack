@@ -75,6 +75,8 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 - **pnpm workspaces + Turborepo `2.11.2`**: cached `typecheck` / `test` / `build` across packages from day one.
 - **Effect `4.0.0`**: typed runtime, errors, filesystem service, and the three surfaces the capabilities project onto: `effect/cli`, `effect/http-api` (with `OpenApi.fromApi`), and `effect/ai` (`Toolkit` + `McpServer`).
 - **`@effect/platform-node` `4.0.0`**: Node-backed services; keep adapter and core pins matched.
+- **Foldkit `0.166.0` + DevTools `0.166.0` + Vite plugin `0.26.1`**: browser Model, Messages, pure `update`, and named Effect Commands over contract-derived RPC. Server and domain lifecycles stay XState.
+- **StyleX `0.19.1` + unplugin `0.19.1`**: compiled browser styles and single-accent tokens. Foldkit Oxlint plugin `0.15.2` adds app-scoped checks without replacing the fence.
 - **TypeScript `7.0.2`**: strict module and index-access checks.
 - **XState `6.0.0-alpha.63`**: real lifecycle states; do not replace those with boolean soup.
 - **`@xstate/effect` `0.1.0-alpha.6`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `fromEffect` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
@@ -83,7 +85,7 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 - **Vitest `5.0.1` + `@effect/vitest` `4.0.0`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
 - **`@effect/tsgo` `0.45.0`**: patches TypeScript 7 in `prepare` so Effect language-service diagnostics (leaked requirements, `any`/`unknown` in channels, global Date/fetch/console inside Effect, Node built-ins where Effect has a service) fail `tsc`.
 - **varlock `1.20.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
-- **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [TanStack Router/Start](https://github.com/TanStack/router) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
+- **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [Foldkit](https://github.com/foldkit/foldkit) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
 - **Agent fence**: lefthook pre-commit + Pi/Cursor/Claude hooks that block `git … --no-verify`. Cheating should be uncomfortable and obvious.
 
 Every dependency is pinned exactly. Review pin upgrades as stack changes.
@@ -100,6 +102,27 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 | `pnpm cli -- ...` | Build and run the CLI |
 | `pnpm vendor:agent-sources` | Clone core lib mirrors |
 | `pnpm turbo run check test build` | Cached verification pipeline |
+
+## Pull-request website previews
+
+Preview commands use `RatStackPreview`, separate from the production Stack and stage. The stage `pr-<n>` serves `https://pr-<n>.ratstack.sh` and updates with each commit.
+
+```sh
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview <pr> --plan
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview <pr> --yes
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview:destroy <pr> --plan
+ALCHEMY_PROFILE=ratstack pnpm deploy:preview:destroy <pr> --yes
+```
+
+- Both commands default to a read-only plan. Review it before using `--yes`.
+- An upload requires a clean tree. The receipt and `X-Preview-Commit` header carry the checkout's full commit SHA.
+- Each preview declares only Website and its private, read-only content RpcBackend. The RPC group excludes signup and subscription capabilities; neither Worker binds intake or email credentials.
+- RpcBackend binds the generated content assets for its bundled generation. After a deploy with `--yes`, the command POSTs `search` and `read` through RPC. Missing assets, empty results, or an invalid read fail the command. A failed smoke check does not undo the deployment; inspect the stage before retrying.
+- Website attaches one custom domain on the existing zone, looked up by name. It declares no zone, DNS records, email, redirects, or events resources.
+- The declaration guard rejects any other resource. Preview requests run through the Worker and receive `X-Robots-Tag: noindex`.
+- Alchemy manages the domain attachment inside the Website Worker, not as a separate plan row.
+- The production deploy driver stays production-only. It hardcodes `prod`, production inputs, and production checks; previews use Alchemy directly.
+- Expiry and PR-close teardown in CI belong to the ship lane. Until then, review and run the named stage's destroy command manually.
 
 ## Agentic surface
 

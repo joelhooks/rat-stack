@@ -12,6 +12,12 @@ Joel approved adopting Foldkit's devtools MCP and Oxlint plugin ideas on 2026-09
 
 Sources read: [foldkit/foldkit](https://github.com/foldkit/foldkit) at `95fed7f` (`packages/devtools-mcp`, `packages/devtools`, `packages/oxlint-plugin-foldkit`), and Rubicon's badass-devtools (ported from course-builder).
 
+## Current browser decision: October 6
+
+`apps/web` now uses Foldkit Model, Messages, `update`, and Commands. Foldkit's browser DevTools owns client inspection. The ⌘K inspector still reads server calls, contracts, actors, replay, and test people.
+
+The [Foldkit decision](./foldkit-web.svx) supersedes September's UI choice. The proposal and September receipts below retain their original scope and pins. Their AtomRpc reporter is historical, not the current browser path.
+
 ## What Foldkit gets right
 
 Foldkit's devtools MCP (`@foldkit/devtools-mcp` 0.22, about 1,200 lines) attaches an agent to a running app. A browser bridge streams the Runtime's history over Vite's HMR socket to a relay, and a stdio MCP server exposes fifteen tools. Three ideas carry the design:
@@ -115,11 +121,11 @@ Foldkit ships 37 rules on [`effect-oxlint`](https://www.npmjs.com/package/effect
 
 **Leave with Foldkit.** The Submodel, `Got*Message`, `keyed`, `lazy`, `Mount`, `OnMount`, `modifyFields`, route-query, and Stream `preventDefault` rules only mean something in a Foldkit app. If a Foldkit bin lands, it ships with `@foldkit/oxlint-plugin` itself, not our port.
 
-## Foldkit as a UI cartridge
+## September 23 UI decision (superseded)
 
 Foldkit fits the thesis better than any React stack: the Model is a Schema, side effects are declared Commands, failures arrive as data, and it ships its own lint and agent tooling. The contract split makes it cheap to try, because a Foldkit Command can call the same `toRpcGroup` client that `apps/web` uses.
 
-Against it as the default: it replaces React, so the React ecosystem is out except through embedding. It is pre-1.0 with minor-version breaks. It pins `effect` and `@effect/platform-browser` to exactly `4.0.0-rc.116` as peers, one release behind us, so every Effect bump waits on theirs.
+Against it as the default: it replaces React, so the React ecosystem is out except through embedding. It is pre-1.0 with minor-version breaks. The reviewed September pin required `effect` and `@effect/platform-browser` `4.0.0-rc.116`. Foldkit 0.166.0 now matches Effect 4.0.0.
 
 Decision (Joel, 2026-09-23): no Foldkit bin. Effect all the way down into the view is not useful right now. It should stay possible, and the contract split keeps it possible: any UI that can call `toRpcGroup` can sit on the same backend. We take Foldkit's devtools and lint ideas, not its framework.
 
@@ -190,6 +196,12 @@ Built on `3269e50` after `packages/auth` landed.
 - `rat_test_person` uses Better Auth's raw `auth.auth` handle, because Alchemy's API proxy drops the `returnHeaders` typing on `signUpEmail`.
 - Integration test: `packages/auth/test/devtools.test.ts`, on Better Auth's memory database. Making dispatch ignore `as` fails two of its tests.
 - Not wired into `apps/cli` yet: no CLI capability needs a person, and the CLI has no `Auth`. The web composition adds `ratTestPerson` to its devtools list and passes `{ runAs: runAsPerson }`.
+
+## October 6 browser migration
+
+[Foldkit replaces the browser app](./foldkit-web.svx). The server tools and production guardrail remain. The dev inspector now uses a Foldkit Model, Messages, Commands, and keyboard subscriptions. It reads server calls, contracts, actors, replay, and diffs over `/__rat/rpc`. Test-person selection stays in its Model across tabs.
+
+The AtomRpc reporter below describes the September implementation, not the current browser. Foldkit's own DevTools inspects browser state. The server atom capabilities remain available for other clients. Foldkit's browser DevTools may ship; rat-stack server devtools and test people must not.
 
 ## Production guardrail
 

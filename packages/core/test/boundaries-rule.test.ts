@@ -23,11 +23,21 @@ interface LintResult {
   readonly status: number;
 }
 
-const lintFixture = (area: string, source: string): LintResult => {
+const lintFixture = (
+  area: string,
+  source: string,
+  filename: "fixture.ts" | "page-catalog.ts" = "fixture.ts"
+): LintResult => {
   const directory = mkdtempSync(path.join(tmpdir(), "rat-stack-boundaries-"));
-  const fixtureDirectory = path.join(directory, area, "boundary-fixtures");
+
+  const fixtureDirectory = path.join(
+    directory,
+    area,
+    ...(filename === "fixture.ts" ? ["boundary-fixtures"] : [])
+  );
+
   const config = path.join(directory, "oxlint.json");
-  const file = path.join(fixtureDirectory, "fixture.ts");
+  const file = path.join(fixtureDirectory, filename);
 
   mkdirSync(fixtureDirectory, { recursive: true });
   writeFileSync(
@@ -43,6 +53,8 @@ const lintFixture = (area: string, source: string): LintResult => {
         "rat-stack-boundaries/no-devtools-in-production": "error",
         "rat-stack-boundaries/no-feature-transport": "error",
         "rat-stack-boundaries/no-hand-rolled-surface": "error",
+        "rat-stack-boundaries/no-renderer-product-imports": "error",
+        "rat-stack-boundaries/no-zod-outside-catalog": "error",
       },
     })
   );
@@ -758,5 +770,50 @@ describe("architecture boundary rules", () => {
       server,
       "Feature and client modules can import only browser-safe contract entry points"
     );
+  });
+});
+
+describe("json-render boundaries", () => {
+  it("blocks Zod on every module surface outside the named catalog boundary", () => {
+    for (const source of [
+      'import { z } from "zod";',
+      'export { z } from "zod/v4";',
+      'const schema = import("zod");',
+      'const schema = require("zod");',
+    ]) {
+      expectRule(
+        lintFixture("apps/web/src/client", source),
+        "Zod belongs in packages/core/src/page-catalog.ts"
+      );
+    }
+  });
+
+  it("allows only the named catalog exception and the standalone renderer", () => {
+    const catalog = lintFixture(
+      "packages/core/src",
+      '// oxlint-disable-next-line rat-stack-boundaries/no-core-adapters -- The signed catalog boundary owns Zod.\nimport { z } from "zod";',
+      "page-catalog.ts"
+    );
+
+    const renderer = lintFixture(
+      "packages/json-render-foldkit/src",
+      'import type { ZodType } from "zod";'
+    );
+
+    expect(catalog.status).toBe(0);
+    expect(renderer.status).toBe(0);
+  });
+
+  it("keeps product modules and StyleX out of the renderer", () => {
+    for (const source of [
+      'import { pageCatalog } from "@rat-stack/core/contracts";',
+      'import * as stylex from "@stylexjs/stylex";',
+      'export { PageSpec } from "../../../core/src/page-spec.js";',
+    ]) {
+      expectRule(
+        lintFixture("packages/json-render-foldkit/src", source),
+        "The Foldkit renderer imports frameworks only"
+      );
+    }
   });
 });

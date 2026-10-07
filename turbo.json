@@ -9,6 +9,14 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@rat-stack/core#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "src/.generated/page-catalog.json"]
+    },
+    "@rat-stack/core#typecheck": {
+      "dependsOn": ["^typecheck", "build"],
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["build"],
       "outputs": []
@@ -120,6 +128,11 @@
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
         "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
       ]
+    },
+    "@rat-stack/infra#test": {
+      "dependsOn": ["^build", "@rat-stack/web#build"],
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/**"]
     },
     "@rat-stack/web#typecheck": {
       "dependsOn": ["^build", "^typecheck"],

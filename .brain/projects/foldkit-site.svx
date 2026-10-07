@@ -1,0 +1,244 @@
+---
+title: "Foldkit must replace the reader site, not the docs search"
+type: plan
+status: proposed
+created_at: "2026-10-06"
+privacy: public
+---
+
+# Foldkit must replace the reader site, not the docs search
+
+## Outcome and boundary
+
+Replace the reader-facing HTML site that Mischief serves today. Preserve its routes, content, metadata, accessibility, and visual design first.
+
+PR #17 is on hold. Its docs-search home is not the production reader site. Do not merge it as the site migration.
+
+This is a plan, not approval to implement, merge, push, or deploy. No dependency pins or infrastructure change in this step.
+
+The original migration brief scoped parity to `apps/web`, including `/read`, and excluded server rendering. That produced the wrong surface. This plan supersedes that hosting restriction for reader pages. HTML must contain the complete document before browser JavaScript runs.
+
+Joel's #14 rulings remain:
+
+- Foldkit Model owns browser UI state. `update` is its only writer.
+- Named Commands call contract-derived RpcClient. Views do not own transport.
+- Server and domain lifecycles stay XState, started through `createEffectActor`.
+- Foldkit browser DevTools may ship in production.
+- rat-stack server devtools, test people, replay, and `rat_call` remain development-only.
+
+## 1. Current route and renderer inventory
+
+The authority is Mischief's route code plus the generated content manifest, not `apps/web`'s router.
+
+At the inspected PR checkout, `apps/mischief/dist/content/manifest.json` contains 124 page entries. This is a branch inventory, not a fresh production count. Regenerate and compare it with current main before implementation. Special request-time routes sit outside that manifest.
+
+Every normal HTML page uses `apps/mischief/src/document.svelte`. It supplies the head, primary navigation, breadcrumb, agent pointer, workshop placement, main, and footer. `generate-content.ts` compiles Markdown bodies and renders the Svelte shell at build time. Runtime serves those generated assets.
+
+| Reader route | Current body and renderer | Foldkit delivery |
+| --- | --- | --- |
+| `/` | Generated home body, `document.svelte`, `agent-pointer.svelte`, `house-ad.svelte`; copy controls from `copy-prompt.svelte` | Prerendered complete home |
+| `/lore` | Generated lore index inside `document.svelte` | Prerendered index |
+| `/lore/*` | Discovered `.brain/resources/lore/*.svx`, mdsvex body, references, citations, bibliography, backlinks, code excerpts, shell | Prerender every published lore route |
+| `/systems` | Generated systems index, same shell and callout | Prerendered index |
+| `/systems/*` | `.brain/areas/*.svx` with `group: system`; same content pipeline and shell | Prerender every published system route |
+| `/skills` | Grouped skill index, same shell and callout | Prerendered index |
+| `/skills/*` | Published `skills/*/SKILL.md`; Markdown body and shell | Prerender every published skill route |
+| `/glossary` and its term anchors | Derived from page `terms`, generated index body, shell | Prerendered index with unchanged anchors |
+| `/resources/*` | Registered public resources, including peers, compiled through the same body pipeline and shell | Prerender every registered route |
+| `/log` | Generated change-log Markdown body and shell | Prerendered log |
+| `/AGENTS.md`, `/VISION.md`, `/README.md`, `/vendor/README.md`, `/pins.md`, `/log.md`, `/debt.md` | `publicSpecs` bodies, generated HTML when explicitly requested, plus Markdown representations | Preserve negotiated HTML and Markdown; do not rename URLs |
+| `/tokenmaxx` and `#interested` | Generated workshop body and shell; `tokenmaxxResponse` adds copy script or an available agent page ticket | Prerender public workshop HTML; keep ticket issuance server-owned |
+| `/confirm` GET/POST | Existing email-link handler in `interest/routes.ts`, then confirmation or outcome page | Server-render the existing outcome; preserve handler semantics |
+| `/tokenmaxx/confirm` GET/POST | `interest/pages.ts`: generated confirmation/result templates, escaped token and outcome fields, shell | Server-render confirmation and outcome through Foldkit |
+| `/tokenmaxx/unsubscribe` GET/POST | `interest/unsubscribe.ts`, generated unsubscribe document and result/error pages | Server-render existing form and outcomes |
+| `/tokenmaxx/interest`, `/api/registerInterest` | Retired routes, not a new signup form | Preserve refusal/status behavior; render reader HTML only where negotiated |
+| `/--no-verify`, `/no-verify` | Generated trap document/details; `noVerifyResponse`, error renderer | Preserve aliases, status, and noindex; no SPA fallback |
+| Unknown reader paths; request errors | `searchNotFound`, `errorPages`, `error-page.ts`, generated `content/error-page.md` shell template | Server-render real error status and suggestions |
+
+Manifest families at this checkout contain 86 lore details, eight system details, 12 skill details, and five resource details. Their indexes add one entry each. These counts do not replace route enumeration: the build must emit a sorted route ledger with source path, representation, status, and metadata.
+
+The five registered resource routes are:
+
+- `/resources/effect-4-reference-projects`
+- `/resources/schema-projections-and-code-mode`
+- `/resources/lint-rule-limits`
+- `/resources/peers`
+- `/resources/same-version-repos`
+
+Compatibility includes `/index.md`, page Markdown aliases, and existing `.svx` redirects. `staticAssetPagePath` and `assetRoutes` own their exact behavior. Preserve query strings and redirects. Do not turn a missing asset or page into a 200 home page.
+
+Errors include 400, 401, 403, 404, 410, 422, 429, 500, and 503. Keep safe incident ids, not private failure details. Machine endpoints keep their protocol errors, not the reader error document.
+
+`/operator/interest` and its applications/captures/delete endpoints are guarded operator surfaces. They are not new public reader pages. Keep their authorization, response types, and no-store behavior in Mischief.
+
+The workshop callout is a component, not another route. `house-ad.ts` places it on home and all lore, systems, and skills pages. Its link and copy come from `house-ad-copy.ts`.
+
+## 2. Foldkit HTML support at the installed pins
+
+Checked installed versions: `foldkit` 0.166.0 and `@foldkit/vite-plugin` 0.26.1. No upgrade is required to investigate this design.
+
+These pins support both server rendering and prerendering:
+
+- `foldkit/experimental/server` exports `renderToString`, `handleRequest`, and template delivery helpers.
+- `renderToString` renders `init` plus the pure `view` to HTML. It does **not** execute Commands returned by `init`.
+- The Vite plugin accepts `ssr.serverEntry` and `ssr.build`. The build emits a Web fetch handler and `foldkit.build.json`.
+- `ssr.build.prerender` accepts paths, or takes the entry's `prerenderPaths` export.
+- Hydratable renders stamp a build identity and serialize Schema-encoded Flags. `Runtime.hydrate` adopts that output.
+- Static renders use `isHydratable: false`. They require no client handoff.
+
+**Decision: prerender the finite public content routes; server-render dynamic outcomes and errors.** Hydrate only where interaction requires it. Ordinary links and readable content must work without JavaScript.
+
+Load page content before rendering. Put the decoded document and route metadata in Flags/initial Model. Fetching the body in an `init` Command would leave the server render empty.
+
+Use one typed page descriptor for path, title, description, canonical, dates, robots policy, discovery links, and JSON-LD. The Foldkit Document metadata covers title and selected URL fields, not the whole current head. The server/template adapter must emit the remaining fields, including description, social cards, JSON-LD, icons, and Markdown discovery links. Reuse `seo-metadata.ts` semantics; do not drop metadata because the view type lacks a field.
+
+Production canonical URLs remain policy-controlled. Preview render origins must not accidentally become production canonicals. Every preview response retains `X-Robots-Tag: noindex` and the full `X-Preview-Commit`.
+
+Alchemy beta.80's `Website.Foldkit` adapter defaults to `single-page-application` asset fallback. That is unsuitable for this site. Override it with real misses, and run the route-aware Worker before assets where needed. The installed Foldkit plugin can emit a server handler; the Alchemy adapter does not automatically wire that handler merely because it is named Foldkit.
+
+Slice A must prove the emitted build manifest, server entry, StyleX CSS, asset directory, and Worker wiring together. Do not claim workerd compatibility from a Node render alone. Keep the current explicit Worker entry until its replacement passes deployed preview checks.
+
+## 3. Content path and the queued codemod
+
+The authored Brain and skill files remain the system of record. The content lane writes the migration. Generated Documents, route ledgers, search data, Markdown, and prerendered HTML are derived artifacts from one build generation.
+
+Use the queued foldkit-content brief, not a separate manual rewrite:
+
+1. Convert one representative lore page by hand: nested `sources`, `terms`, internal links, and a pinned excerpt.
+2. Decode nested frontmatter with the existing Effect schemas before the Markdown plugin. Do not flatten lists into strings.
+3. Settle the Document and page-descriptor shape from that page before mass conversion.
+4. Run the repeatable `.svx` to `@foldkit/markdown` codemod in dry-run mode.
+5. Generate `.md` beside `.svx` during review. Reject unknown constructs with accumulated file:line failures.
+6. Compare the old and new agent Markdown for every page. The diff must be empty before source cutover.
+7. Select the new source explicitly at cutover, then delete old sources and the replaced mdsvex path. Never discover both as duplicate pages.
+
+The desk's audited corpus is 142 `.svx` pages, 136 plain Markdown/frontmatter and six component-bearing pages. Recount with the AST before execution. These authored-file counts differ from the published route count.
+
+`@foldkit/markdown` is **not installed in this checkout**. Its exact pin and API validation belong to the content lane. Do not claim its frontmatter or island integration is already proven. Removing the old dependency on #17 landing first needs desk coordination: the content hand-page can precede the replacement site's first slice.
+
+| Real authored component | Mapping and preserved behavior |
+| --- | --- |
+| `HumanOnly` | Typed island/directive; included in HTML, omitted from agent Markdown |
+| `Diagram` | Typed `alt`; accessible figure/caption in HTML, plain fenced diagram and description for agents |
+| `Ref` | Resolve the existing block reference at build time; preserve checked target, rebased links, and both views |
+| `PeerPins` | Derived installed-pin table; never hand-copy version rows |
+| `PeerRoster` | Derived ranked main table |
+| `PeerSources` | Derived source evidence |
+| `PeersAlsoSeen` | Derived lower-tier disclosure list |
+
+One mapping table produces both the component transform and island attribute schemas. Code fences are not Svelte tags. Preserve fenced metadata and highlights unchanged.
+
+Generated components also need coverage: `AgentOnly`, `AgentPointer`, `CopyPrompt`, `Sources`, `LinkedFrom`, and `UnlinkedMentions`. These are generator vocabulary, not evidence of additional authored component pages. Keep bibliography, citations, footnotes, backlinks, entity links, stable heading ids, responsive tables, and copy behavior.
+
+The six pinned snippet references remain owned by `packages/code-snippets`. Resolve and highlight at build time. Feed its CodeSnippet output into the Markdown `CodeBlock` view override. Neither Shiki nor code-snippets may enter a Worker graph.
+
+Extend the build artifact with a typed document/metadata representation, not just the agent-oriented RPC `read.text`. That text deliberately excludes HumanOnly content. Do not use it as the source for human HTML.
+
+The generator emits the same content generation for HTML, Markdown, catalog, and search assets. Reuse the existing generation checks and ship driver's live content-generation proof. No second content database or handwritten route list.
+
+## 4. What stays in Mischief
+
+Mischief remains the public negotiation and agent gateway. It keeps:
+
+- Markdown by default, `Accept` negotiation, `Vary: Accept`, aliases, redirects, ETags, and conditional reads.
+- `/llms.txt`, `/llms-full.txt`, `/auth.md`, `/robots.txt`, and `/sitemap.xml`.
+- MCP, execute/code mode, capability HTTP APIs, OpenAPI, A2A, and `.well-known` discovery.
+- Existing agent pointer/ticket behavior and agent-specific content filtering.
+- Request privacy, security headers, rate limits, analytics, and incident logging.
+- Interest intake, approvals, confirmation, unsubscribe, durable state, and email delivery adapters.
+
+Production routing decision: retain Mischief's domain ownership. Forward only eligible reader HTML to the private Website Worker, through a typed service binding. Do not forward machine routes, Markdown, or interest mutations to the browser app. Place delegation before today's static HTML interception. The production plan must show this binding explicitly and retain unrelated resources.
+
+For dynamic confirmation/outcome/error HTML, extract one server-safe Foldkit document renderer behind a shared package boundary. Website and Mischief can consume it without cross-app browser imports. It accepts decoded page data, not provider credentials. Mischief keeps the action and status; the renderer supplies HTML. This avoids a second public render API and avoids importing a browser Runtime into Mischief.
+
+The shared renderer boundary is a proposal to prove in slice D. If it cannot bundle safely under workerd, stop and report before cutover. Retain the existing outcome templates until parity is demonstrated.
+
+Preview remains isolated: Website plus the private read-only RpcBackend, no production forwarding, signup writes, or email credentials. Build agent Markdown from the same artifact locally. Show disabled intake honestly; exercise interest outcomes with synthetic data. Do not send real confirmation or unsubscribe requests for visual QA.
+
+Production cutover is separately approved. It must not repoint the whole domain to Website and lose the agent gateway.
+
+## 5. Visual parity is the first acceptance test
+
+Copy the current design, not Foldworks' alternative chrome. StyleX tokens encode `rat.css`: monospace typography, 80ch reading width, spacing, heading scale, underlined links, table overflow, code blocks, nav, breadcrumbs, footer, and callout.
+
+Use the existing pink values: accent `#ff1493`, accent text `#c8006e`. The workshop emphasis and focus states retain the current allowed selectors. Do not spread pink into links, headings, or tier cells. The #17 focus-only test must expand to the actual callout rules with a planted violation.
+
+Name the fidelity suite **ReaderSiteParity**. Compare screenshot diffs for **16 key page/state cases**, each at desktop and mobile widths:
+
+1. Home.
+2. Lore index.
+3. Lore detail with citations.
+4. Lore detail with a pinned code excerpt.
+5. Lore detail with a diagram/HumanOnly block.
+6. Systems index.
+7. System detail.
+8. Skills index.
+9. Skill detail.
+10. Glossary, including an anchored term.
+11. Peers, including expanded lower tiers.
+12. Change log.
+13. Workshop `/tokenmaxx`.
+14. Unknown-path 404 with suggestions.
+15. Confirmation prompt/result fixture.
+16. Unsubscribe prompt/result fixture.
+
+Use matching viewport, browser, fonts, scroll position, and content generation. Seed review with the production home and PR #17 screenshots. Confirm current production content before recording the full baseline. Dynamic flow baselines use the production renderer with synthetic data, not a real user's token.
+
+No broad diff tolerance or whole-body masks. Review each unexplained diff; allow only documented rendering noise. Browser-scene tests prove interaction, not visual parity. Add keyboard/focus, mobile overflow, back/forward, and no-JavaScript checks separately.
+
+HTML proofs cover every route, not only the screenshot sample: one H1, nonempty body, correct title/canonical, JSON-LD policy, heading ids, citations, excerpts, links, status, robots, and discovery headers. Require Markdown equivalence, production bundle exclusions, and generation identity. Plant a removed body/metadata defect to show these tests fail.
+
+## 6. Shippable slices behind preview
+
+Estimates are focused engineering time, not measured guarantees. They include local proofs and review fixes. Shared-host gates, deployment queues, and Joel's review can add elapsed time. No slice cuts production over early.
+
+| Slice | Work | Estimate | Preview exit proof |
+| --- | --- | --- | --- |
+| A: shell, nav, home | Correct route ledger; StyleX parity; full Foldkit home; prerender/server build integration; header and asset wiring | 1–2 days | Home screenshot matches; HTML works with JS off; real metadata and status; noindex/full SHA |
+| B: lore | Content hand-page seam, lore index/details, bibliography, refs, excerpts, diagrams, backlinks; consume content lane's codemod output | 2–3 days after hand-page | All lore routes emitted; Markdown diff empty; citation/excerpt/diagram screenshots pass |
+| C: systems and skills | Indexes/details, section validation, skill Markdown sources, breadcrumbs and callout | 1–2 days | Complete route ledger; mobile tables and deep links; unchanged agent output |
+| D: remaining reader surfaces | Glossary, resources/peers, log/public specs, workshop, copy interactions, errors, shared dynamic outcome renderer | 2–3 days | 16-case fidelity suite; honest disabled preview intake; synthetic outcome and status proofs |
+| E: cutover and deletion | Current-main merge; approved production binding/negotiation; exact plan/apply; live generation check; delete replaced HTML compiler after parity | 1–2 days | No URL loss; agents and Markdown unchanged; production HTML qualified; rollback reviewed |
+
+The queued content codemod is a parallel dependency, estimated separately at 2–4 days after the hand-page settles. Avoid claiming a fixed delivery date before the first page proves plugin and snippet integration.
+
+Each slice gets a new full-SHA preview, full gate, built-artifact checks, and desk-owned apply. Preserve production while incomplete routes remain production-only. Preview misses must be explicit, not borrowed silently from production.
+
+For E, retain a reviewed rollback to the prior Mischief HTML artifacts and delegation setting. Never delete or replace resources without owner approval. After any main merge, regenerate the Git snapshot and commit it last; verify local content generation before handing off.
+
+## 7. Keep and drop from #17
+
+**Keep:**
+
+- The Foldkit app/toolchain and exact approved pins; Model/update/Command discipline.
+- StyleX integration and useful tokens, refitted to the production design.
+- The dev-only server inspector, production exclusion tests, and permitted Foldkit browser DevTools.
+- Contract-derived RPC client and private read-only content backend.
+- The isolated `pr-<n>.ratstack.sh` preview, concrete content assets, full-SHA/noindex headers, and post-apply RPC smoke.
+- Scene/property testing infrastructure and build-size evidence as baselines.
+
+**Drop or replace after proof:**
+
+- Docs-search as `/`; search can become an optional reader feature later.
+- `/read` as the site's canonical content route; public lore/system/skill URLs remain canonical.
+- Foldworks-inspired chrome where it differs from the production shell.
+- Empty-search-only static generation and catch-all SPA success responses.
+- Agent RPC text as a substitute for human documents.
+- Tests which prove only search-app parity while the reader site is missing.
+
+Do not discard the working preview/RPC fixes because the UI target was wrong. Do not commit code during this plan step.
+
+## Evidence and next action
+
+Checked source:
+
+- `apps/mischief/src/app.ts`, `document.svelte`, `error-page.ts`, `interest/routes.ts`, `interest/pages.ts`, `interest/unsubscribe.ts`, and `rat.css`.
+- `apps/mischief/scripts/generate-content.ts`, `component-registry.ts`, `content-references.ts`, `peers.ts`, `house-ad.ts`, and the generated manifest.
+- `apps/web/vite.config.ts`, `entry.server.ts`, and `website.ts`.
+- Installed Foldkit server declarations and Vite plugin build/SSR declarations at the pins listed above.
+- Pinned Alchemy `Cloudflare/Website/Foldkit.ts`: default SPA fallback and explicit Worker entry seam.
+- Original migration and queued content briefs; [the #14 browser-state decision](./foldkit-web.svx).
+
+Principles changed the plan: judge through the reader selected Mischief, not docs search; name the system of record kept authored content authoritative; prove replacement delayed deletion; inspect the actual artifact requires complete HTML and deployed wiring; design serves function made parity precede redesign.
+
+**Next action:** desk reviews this plan and revises the two briefs together. Start with shell/home plus the representative content hand-page. #17 stays on hold until that scope is approved.

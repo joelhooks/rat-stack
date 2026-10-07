@@ -3,14 +3,48 @@ import { Schema } from "effect";
 
 import { AssetReadError } from "./asset-read-error.js";
 import { NoPath } from "./no-path.js";
+import {
+  pageCatalogMetadata,
+  FeaturedSites,
+  InvalidPage,
+  PageSpec,
+  PageSubmission,
+} from "./page-spec.js";
 import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
+
+export {
+  decodeFeaturedSites,
+  FeaturedSite,
+  FeaturedSites,
+  InvalidPage,
+  PageSpec,
+  PageSubmission,
+} from "./page-spec.js";
+
+export type { PageSpecValue } from "./page-spec.js";
 
 export { AssetReadError } from "./asset-read-error.js";
 
 export { NoPath } from "./no-path.js";
 
 export { UnknownPage } from "./unknown-page.js";
+
+export const composePageContract = defineContract("composePage", {
+  annotations: { idempotent: true, readOnly: true },
+  description: `Validate a completed json-render spec without persisting it. Submit {spec:{root,elements}}; do not submit JSONL. Props may use $state, $item, $index, $bindState and $bindItem expressions. Keep one Callout outside repeat scopes. Actions send Foldkit Messages; only catalog actions and events are supported. Catalog: ${JSON.stringify(pageCatalogMetadata)}`,
+  failure: InvalidPage,
+  input: PageSubmission,
+  output: PageSpec,
+});
+
+export const featuredSitesContract = defineContract("featuredSites", {
+  annotations: { idempotent: true, readOnly: true },
+  description: "Read the curated featured sites for a page loader.",
+  failure: Schema.Never,
+  input: Schema.Struct({}),
+  output: FeaturedSites,
+});
 
 const ContentKind = Schema.Literals(["law", "skill", "lore"]);
 

@@ -15,6 +15,18 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/src/house-ad.svelte` | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/src/copy-prompt.svelte` | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## json-render (Apache-2.0)
+
+`packages/json-render-foldkit` adapts the renderer, catalog-types, schema and context structure of [Vercel Labs json-render](https://github.com/vercel-labs/json-render), `packages/solid/src` at `fc2a696a50a30cb30c878ab1eb65e102487eea0f` (Apache-2.0). Foldkit Html and Message constructors replace Solid components and reactive providers. The adapter calls the pinned `@json-render/core@0.21.0` library for prop expressions, visibility, repeat paths and action resolution. No Solid runtime is copied or installed.
+
+`packages/core/src/page-catalog.ts` defines the product catalog in Zod, reusing the existing exact `zod@4.6.5`. Effect Schema retains the capability envelope and typed failure. Catalog prompt generation, JSON Schema and streaming patch compilation come from upstream. Component-prop repair paths, cycle checks and the one-Callout policy belong to this project.
+
+## Foldworks (MIT)
+
+`apps/web/src/features/chrome.stylex.ts` adapts the brand and flex-shell recipes from Foldworks by Ben Jacobson (MIT), `packages/sidebar/src/styles.ts` @ `0f16fd8`. The app replaces theme colours with neutral values and the rat-stack focus token.
+
+The inspector uses the table caption, column scope, and stable row identity pattern from Foldworks by Ben Jacobson (MIT), `packages/data-table/src/view.ts` @ `0f16fd8`. Its keyboard handling uses Foldkit 0.166's native key-binding subscriptions, not Foldworks 0.156's keyboard implementation. No Foldworks package is installed.
+
 ## Wiki prose style warnings (MIT)
 
 `apps/mischief/scripts/wiki-prose-style.ts` adapts the history-word and contrast-framing patterns and quoted-span exclusion from [Tardigrade's documentation lint](https://github.com/clavia-labs/tardigrade/blob/3289804a949a476620dd8c3b55a74ea41415ce01/tools/docs-lint.ts), commit `3289804a949a476620dd8c3b55a74ea41415ce01`.

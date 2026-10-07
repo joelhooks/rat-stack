@@ -1,7 +1,9 @@
+import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 
 import { assertBuildOnlyModules } from "../scripts/startup-build-dependency.ts";
+import { entryBudgetBytes, startupBundle } from "../scripts/startup-bundle.ts";
 
 it.effect(
   "rejects build-only snippet or highlighting modules in the composed Worker graph",
@@ -21,3 +23,22 @@ it.effect(
       ]);
     })
 );
+
+const catalogueModules = (paths: readonly string[]) =>
+  paths.filter((path) =>
+    /\/(?:zod|@json-render\/core)\/|\/page-catalog\.js$/u.test(path)
+  );
+
+it.layer(NodeServices.layer)((test) => {
+  test.effect(
+    "the built Worker keeps catalogue machinery cold and its entry below the unchanged byte budget",
+    () =>
+      Effect.gen(function* coldCatalogueBundle() {
+        const bundle = yield* startupBundle;
+
+        expect(bundle.entryBytes).toBeLessThanOrEqual(entryBudgetBytes);
+        expect(catalogueModules(bundle.entryModules)).toEqual([]);
+        expect(catalogueModules(bundle.modules).length).toBeGreaterThan(0);
+      })
+  );
+});

@@ -26,6 +26,8 @@ Leaves live in the repo; read them from a checkout.
 
 **Architecture**
 
+Browser work follows feature → Foldkit Message → `update` → named Command → contract-derived `RpcClient` → shared capability. Model owns the replica; `update` is its only writer. Server and domain lifecycles stay XState.
+
 - `skills/rat-stack-mode/principles/one-contract-many-projections.md`: adding actions for agents or browser clients.
 - `skills/rat-stack-mode/principles/keep-the-stack-floor.md`: choosing runtime patterns, infrastructure, and validation.
 - `skills/rat-stack-mode/principles/prove-move-delete.md`: replacing an internal API or implementation.

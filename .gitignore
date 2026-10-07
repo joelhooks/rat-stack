@@ -31,3 +31,4 @@ apps/mischief/src/rat-icons.generated.ts
 
 # build temp directories left by an interrupted generate
 apps/mischief/src/.bundled-content.*/
+packages/core/src/.generated/
