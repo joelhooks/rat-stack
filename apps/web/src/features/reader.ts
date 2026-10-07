@@ -1,15 +1,23 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Document, HtmlBuilder } from "foldkit/html";
 
+import { ReaderMessage } from "../client/reader-message.js";
 import type { ReaderModel } from "../client/reader-model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { renderReaderBlock } from "./reader-document.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 
-export const readerView = <Message>(
+const copyStatusText = {
+  copied: "Copied",
+  copying: "",
+  failed: "Copy failed. Select the text and copy it.",
+  idle: "",
+};
+
+export const readerView = (
   model: ReaderModel,
-  h: HtmlBuilder<Message>
+  h: HtmlBuilder<typeof ReaderMessage.Type>
 ): Document => ({
   body: h.div(
     [h.Class(stylex.props(readerStyles.shell).className ?? "")],
@@ -96,9 +104,23 @@ export const readerView = <Message>(
                         h.Class("copy"),
                         h.DataAttribute("text", prompt.text),
                         h.AriaLabel(prompt.label),
-                        h.Hidden(true),
+                        h.Hidden(!model.clipboardReady),
+                        h.OnClick(ReaderMessage.CopyRequested({ id })),
+                        h.DataAttribute(
+                          "copied",
+                          String(model.copyStates[id] === "copied")
+                        ),
                       ],
-                      [h.span([h.Class("copy-label")], [prompt.label])]
+                      [
+                        h.span(
+                          [h.Class("copy-label")],
+                          [
+                            model.copyStates[id] === "copied"
+                              ? "Copied"
+                              : prompt.label,
+                          ]
+                        ),
+                      ]
                     ),
                     h.span(
                       [
@@ -106,7 +128,7 @@ export const readerView = <Message>(
                         h.Role("status"),
                         h.AriaLive("polite"),
                       ],
-                      []
+                      [copyStatusText[model.copyStates[id] ?? "idle"]]
                     ),
                   ]
                 );

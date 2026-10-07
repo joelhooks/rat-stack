@@ -36,6 +36,13 @@ export const ReaderRoute = Schema.Struct({
 });
 
 export const ReaderRouteLedger = Schema.Struct({
+  anchorAdditions: Schema.Array(
+    Schema.Struct({
+      ids: Schema.Array(Schema.String),
+      path: Schema.String,
+      reason: Schema.String,
+    })
+  ),
   deliberateChanges: Schema.Array(
     Schema.Struct({
       location: Schema.String,

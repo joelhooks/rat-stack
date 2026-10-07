@@ -1,8 +1,10 @@
 import { Schema } from "effect";
+import type { ApplicationInit } from "foldkit/runtime";
 
 import { bibliographySourceSchema } from "../../../mischief/scripts/component-data.js";
 import { ReaderPageDescriptor } from "../page-descriptor.js";
 import { ReaderBlock } from "./reader-document.js";
+import type { ReaderMessage } from "./reader-message.js";
 
 export const ReaderReferences = Schema.Struct({
   anchors: Schema.Array(
@@ -62,6 +64,28 @@ export const ReaderFlags = Schema.Struct({
   }),
 });
 
-export type ReaderModel = typeof ReaderFlags.Type;
+export const CopyStatus = Schema.Literals([
+  "idle",
+  "copying",
+  "copied",
+  "failed",
+]);
 
-export const readerInit = (flags: ReaderModel) => ({ model: flags });
+export const ReaderState = Schema.Struct({
+  ...ReaderFlags.fields,
+  clipboardReady: Schema.Boolean,
+  copyStates: Schema.Record(Schema.String, CopyStatus),
+});
+
+export type ReaderModel = typeof ReaderState.Type;
+
+export type ReaderPageFlags = typeof ReaderFlags.Type;
+
+export const readerInit: ApplicationInit<
+  ReaderModel,
+  typeof ReaderMessage.Type,
+  ReaderPageFlags
+> = (flags) => ({
+  commands: [],
+  model: { ...flags, clipboardReady: false, copyStates: {} },
+});

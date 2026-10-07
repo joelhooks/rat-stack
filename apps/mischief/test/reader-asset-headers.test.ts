@@ -17,11 +17,11 @@ import {
   prepareReader,
 } from "../../web/scripts/reader-build.ts";
 import { ReaderFlags } from "../../web/src/client/reader-model.js";
-import type { ReaderModel } from "../../web/src/client/reader-model.js";
+import type { ReaderPageFlags } from "../../web/src/client/reader-model.js";
 
 class PreparedReaderPages extends Context.Service<
   PreparedReaderPages,
-  { readonly pages: readonly ReaderModel[] }
+  { readonly pages: readonly ReaderPageFlags[] }
 >()("test/PreparedReaderPages") {
   static readonly layer = Layer.effect(
     this,
