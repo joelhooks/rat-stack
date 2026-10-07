@@ -24,17 +24,27 @@ sources:
     accessed: "2026-10-01"
 ---
 
-An Alchemy Layer can carry the cloud resources behind one service. The service tag is the API; a Layer is one vendor's implementation. `Layer.provide` wires the chosen vendor into the application. Replacing that Layer changes the supply chain without changing callers.
+A cartridge is a package that owns one job and the resources it needs.
+A service is the named interface callers use for that job. Its service tag identifies the service.
+A Layer describes how to build services and supply their dependencies.
 
-The database cartridge makes this concrete. `DatabaseVendor` represents either D1 or Hyperdrive Postgres. `packages/database/src/d1.ts` declares the D1 schema and database. `packages/database/src/hyperdrive-postgres.ts` declares the Postgres schema, Hyperdrive connection, and migration registration. Both provide the same `RunLog` service. The auth cartridge consumes `DatabaseVendor`.
+An Alchemy Layer can also declare the cloud resources behind a service.
+`Layer.provide` supplies the chosen implementation to the application.
+Replacing that Layer changes the implementation and its dependencies without changing callers.
+
+The database cartridge makes this concrete. `DatabaseVendor` represents either D1 or Hyperdrive Postgres.
+`packages/database/src/d1.ts` declares the D1 schema and database.
+
+`packages/database/src/hyperdrive-postgres.ts` declares the Postgres schema, Hyperdrive connection, and migration registration.
+Both provide the same `RunLog` service. The auth cartridge consumes `DatabaseVendor`.
 
 `packages/auth/src/auth.ts` picks Better Auth's D1 or Hyperdrive adapter.
 
 A cartridge must:
 - Have a label.
-- Push in with one package and one provision line.
-- Pull out without breaking the rest.
-- Own its bindings.
+- Add with one package and one Layer or Alchemy Stack line.
+- Remove without breaking unrelated packages.
+- Declare the bindings that give it access to its resources.
 - Be easy to throw away.
 
 Removal must leave no loose resources or broken imports. Delete the package and its provision line, then run `pnpm turbo run check test build`.
@@ -52,6 +62,6 @@ Removal must leave no loose resources or broken imports. Delete the package and 
 
 This project calls the pattern a "cartridge". Sam describes Layers as a way to carry infrastructure and permissions with a service, and calls the idea "SaaS as NPM." [devtools.fm, 21:15](https://youtu.be/MtKHzAH6uXM?t=1275). He also describes swapping implementations by providing different Layers. [Effect Office Hours 27, 34:35](https://youtu.be/fPSxB7ZgSJw?t=2075).
 
-Vendor interchangeability remains unproven. Sam describes test or development Layers for infrastructure and a type error when code still requires a removed binding. [Happy Path 116, 15:25](https://youtu.be/YEn4A7XxgF4?t=925) [Effect Office Hours 27, 07:05](https://youtu.be/fPSxB7ZgSJw?t=425).
+Interchangeability between provider implementations remains unproven. Sam describes test or development Layers for infrastructure and a type error when code still requires a removed binding. [Happy Path 116, 15:25](https://youtu.be/YEn4A7XxgF4?t=925) [Effect Office Hours 27, 07:05](https://youtu.be/fPSxB7ZgSJw?t=425).
 
 See [one capability, every surface](/lore/one-capability-every-surface) for the shared contract and [a clean playground](/lore/a-clean-playground) for the house rule behind these boundaries.

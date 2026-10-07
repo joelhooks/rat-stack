@@ -23,7 +23,7 @@ sources:
     accessed: "2026-10-02"
 ---
 
-A highlighter port names the job without selecting an engine.
+A highlighter port is an interface for highlighting code, independent of the chosen highlighting tool.
 This follows [ports and adapters](/lore/hexagonal-architecture).
 
 The [code-snippets design brief](/lore/code-snippets) specifies an engine-neutral token:
@@ -32,7 +32,7 @@ The [code-snippets design brief](/lore/code-snippets) specifies an engine-neutra
 - `fontStyle`: style information.
 
 The highlighter port also exposes languages, aliases, themes, and an engine fingerprint.
-The fingerprint participates in token cache keys.
+This identifier records the highlighter, version, and settings used in token cache keys.
 
 The proposed Shiki adapter keeps Shiki's token type inside the adapter.
 A plain adapter returns uncoloured text.
