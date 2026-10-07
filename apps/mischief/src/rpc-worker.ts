@@ -11,16 +11,17 @@ import { workerAssetsLayer } from "./worker-content.js";
 
 export const rpcProjection = toRpc(contentCapabilities);
 
-export const rpcContentDirectory = new URL(
-  `../dist/content/assets/${staticAssetGeneration}/`,
-  import.meta.url
-).pathname;
+export const rpcContentDirectory = () =>
+  new URL(`../dist/content/assets/${staticAssetGeneration}/`, import.meta.url)
+    .pathname;
 
 export default class RpcBackend extends Cloudflare.Workers.RpcWorker<RpcBackend>()(
   "RpcBackend",
   {
     assets: {
-      directory: rpcContentDirectory,
+      get directory() {
+        return rpcContentDirectory();
+      },
       htmlHandling: "none",
       runWorkerFirst: true,
     },

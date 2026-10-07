@@ -43,7 +43,9 @@ it.effect.prop(
         Effect.gen(function* checkPreviewDeclaration() {
           expect(previewResourcesAllowed(stack.resources)).toBe(true);
           expect(stack.resources.Website?.Props).toMatchObject({
-            assets: { runWorkerFirst: true },
+            assets: {
+              runWorkerFirst: ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
+            },
             domain: { name: `${stage}.ratstack.sh`, zoneName: "ratstack.sh" },
             workersDev: false,
           });
@@ -74,7 +76,7 @@ it.effect.prop(
             })
           )(stack.resources.RpcBackend?.Props);
 
-          expect(backendProps.assets.directory).toBe(rpcContentDirectory);
+          expect(backendProps.assets.directory).toBe(rpcContentDirectory());
           expect(backendProps.workersDev).toBe(false);
           expect(Object.keys(backendProps.env ?? {})).toEqual([]);
           expect(

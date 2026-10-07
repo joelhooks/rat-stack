@@ -4,6 +4,7 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Schema } from "effect";
 import type { Plugin } from "vite";
 
+import { prepareReader } from "./scripts/reader-build.js";
 import { ReaderFlags } from "./src/client/reader-model.js";
 
 const preparedPages = Effect.gen(function* preparedPages() {
@@ -21,6 +22,10 @@ const preparedPages = Effect.gen(function* preparedPages() {
 }).pipe(Effect.provide(NodeServices.layer));
 
 export const readerPagesPlugin = (): Plugin => ({
+  // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits preparation before loading any reader module.
+  configResolved: async (config) => {
+    await Effect.runPromise(prepareReader(config.root));
+  },
   // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits this build-time virtual module boundary.
   load: async (id) =>
     id === "\0virtual:reader-pages"
