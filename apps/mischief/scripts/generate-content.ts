@@ -3355,6 +3355,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       JSON.stringify({
         generation: assetManifest.generation,
         home: homeMarkdownSource,
+        loreTermTargets: loreTermIndex,
         references: {
           anchors: contentBlocksFor(
             blockIndex,

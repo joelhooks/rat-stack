@@ -2,31 +2,11 @@ import { Schema } from "effect";
 import type { ApplicationInit } from "foldkit/runtime";
 
 import { bibliographySourceSchema } from "../../../mischief/scripts/component-data.js";
-import { ReaderPageDescriptor } from "../page-descriptor.js";
+import { ReaderPageDescriptor, ReaderReferences } from "../page-descriptor.js";
 import { ReaderBlock } from "./reader-document.js";
 import type { ReaderMessage } from "./reader-message.js";
 
-export const ReaderReferences = Schema.Struct({
-  anchors: Schema.Array(
-    Schema.Struct({ id: Schema.String, text: Schema.String })
-  ),
-  backlinks: Schema.Array(
-    Schema.Struct({
-      context: Schema.String,
-      description: Schema.String,
-      route: Schema.String,
-      title: Schema.String,
-    })
-  ),
-  inboundCounts: Schema.Record(Schema.String, Schema.Int),
-  lastChange: Schema.optional(
-    Schema.Struct({
-      date: Schema.String,
-      hash: Schema.String,
-      short: Schema.String,
-    })
-  ),
-});
+export { ReaderReferences } from "../page-descriptor.js";
 
 export const ReaderFlags = Schema.Struct({
   bibliography: Schema.Array(bibliographySourceSchema),

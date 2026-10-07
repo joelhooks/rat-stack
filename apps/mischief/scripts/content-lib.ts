@@ -639,7 +639,7 @@ const loreTermPattern = (targets: readonly LoreTermTarget[]) => {
   );
 };
 
-interface LoreHastNode {
+export interface LoreHastNode {
   readonly type: string;
   readonly tagName?: string;
   readonly value?: string;

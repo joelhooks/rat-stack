@@ -4,12 +4,13 @@ import type { Document, HtmlBuilder } from "foldkit/html";
 import { ReaderMessage } from "../client/reader-message.js";
 import type { ReaderModel } from "../client/reader-model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
+import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 
 const copyStatusText = {
-  copied: "Copied",
+  copied: "Copied ✓",
   copying: "",
   failed: "Copy failed. Select the text and copy it.",
   idle: "",
@@ -59,6 +60,17 @@ export const readerView = (
       h.main(
         [h.DataAttribute("path", model.page.path)],
         [
+          h.p(
+            [h.Class("agent-pointer visually-hidden"), h.AriaHidden(true)],
+            [
+              "For agents: start with the ",
+              h.a(
+                [h.Href(`${model.origin}/llms.txt`), h.Tabindex(-1)],
+                ["agent guide"]
+              ),
+              ". Every page is Markdown by default; add Accept: text/html for HTML.",
+            ]
+          ),
           readerWorkshop(model, h),
           ...(model.page.path === "/"
             ? []
@@ -112,11 +124,12 @@ export const readerView = (
                         ),
                       ],
                       [
+                        readerCopyIcon(h, model.copyStates[id] === "copied"),
                         h.span(
                           [h.Class("copy-label")],
                           [
                             model.copyStates[id] === "copied"
-                              ? "Copied"
+                              ? "Copied ✓"
                               : prompt.label,
                           ]
                         ),

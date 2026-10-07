@@ -28,7 +28,8 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
         }),
       try: () =>
         compileHomeDocument(
-          inputs.homeSource.replaceAll("__RATSTACK_ORIGIN__", origin)
+          inputs.homeSource.replaceAll("__RATSTACK_ORIGIN__", origin),
+          inputs.loreTermTargets
         ),
     });
 

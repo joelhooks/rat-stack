@@ -35,6 +35,28 @@ export const ReaderRoute = Schema.Struct({
   status: Schema.Int,
 });
 
+export const ReaderReferences = Schema.Struct({
+  anchors: Schema.Array(
+    Schema.Struct({ id: Schema.String, text: Schema.String })
+  ),
+  backlinks: Schema.Array(
+    Schema.Struct({
+      context: Schema.String,
+      description: Schema.String,
+      route: Schema.String,
+      title: Schema.String,
+    })
+  ),
+  inboundCounts: Schema.Record(Schema.String, Schema.Int),
+  lastChange: Schema.optional(
+    Schema.Struct({
+      date: Schema.String,
+      hash: Schema.String,
+      short: Schema.String,
+    })
+  ),
+});
+
 export const ReaderRouteLedger = Schema.Struct({
   anchorAdditions: Schema.Array(
     Schema.Struct({

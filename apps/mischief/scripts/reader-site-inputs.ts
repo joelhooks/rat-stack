@@ -1,7 +1,7 @@
 import { Effect, FileSystem, Path, Schema } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
-import { ReaderReferences } from "../../web/src/client/reader-model.ts";
+import { ReaderReferences } from "../../web/src/page-descriptor.ts";
 import { ContentAssetManifest } from "../src/asset-manifest.ts";
 import { ContentCatalog } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
@@ -17,6 +17,9 @@ const envelope = Schema.Struct({
 const readerSource = Schema.Struct({
   generation: Schema.String,
   home: Schema.String,
+  loreTermTargets: Schema.Array(
+    Schema.Struct({ routePath: Schema.String, term: Schema.String })
+  ),
   references: ReaderReferences,
 });
 
@@ -171,6 +174,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       generation: manifest.generation,
       homeSource: source.home,
       lore,
+      loreTermTargets: source.loreTermTargets,
       pages,
       references: source.references,
     };

@@ -1,7 +1,11 @@
-import { Data } from "effect";
+import { Data, Predicate } from "effect";
 import type { PhrasingContent, RootContent } from "mdast";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
+
+import { linkLoreTerms } from "./content-lib.ts";
+import type { LoreHastNode, LoreTermTarget } from "./content-lib.ts";
+import { linkStackEntities } from "./content-links.ts";
 
 type ParsedInline = Data.TaggedEnum<{
   Code: { readonly value: string };
@@ -126,7 +130,121 @@ const blockDocument = (node: RootContent): HomeBlock => {
   );
 };
 
-export const compileHomeDocument = (source: string) => {
+const inlineToTermTree = (node: ParsedInline): LoreHastNode =>
+  Inline.$match(node, {
+    Code: ({ value }) => ({
+      children: [{ type: "text", value }],
+      tagName: "code",
+      type: "element",
+    }),
+    Emphasis: ({ content }) => ({
+      children: content.map(inlineToTermTree),
+      tagName: "em",
+      type: "element",
+    }),
+    Link: ({ href, value }) => ({
+      children: [{ type: "text", value }],
+      properties: { href },
+      tagName: "a",
+      type: "element",
+    }),
+    Strong: ({ content }) => ({
+      children: content.map(inlineToTermTree),
+      tagName: "strong",
+      type: "element",
+    }),
+    Text: ({ value }) => ({ type: "text", value }),
+  });
+
+const termTreeText = (node: LoreHastNode): string =>
+  node.value ?? (node.children ?? []).map(termTreeText).join("");
+
+const inlineFromTermTree = (node: LoreHastNode): ParsedInline => {
+  if (node.type === "text" && node.value !== undefined) {
+    return Inline.Text({ value: node.value });
+  }
+
+  const children = node.children ?? [];
+
+  if (node.tagName === "a" && node.properties?.href !== undefined) {
+    return Inline.Link({
+      href: node.properties.href,
+      value: children.map(termTreeText).join(""),
+    });
+  }
+
+  if (node.tagName === "code") {
+    return Inline.Code({ value: children.map(termTreeText).join("") });
+  }
+
+  if (node.tagName === "em") {
+    return Inline.Emphasis({ content: children.map(inlineFromTermTree) });
+  }
+
+  if (node.tagName === "strong") {
+    return Inline.Strong({ content: children.map(inlineFromTermTree) });
+  }
+
+  throw new Error(
+    `Unsupported home term node ${node.tagName ?? node.type}; keep the term tree inside the inline contract`
+  );
+};
+
+const weaveHomeTerms = (
+  blocks: readonly HomeBlock[],
+  targets: readonly LoreTermTarget[]
+) => {
+  const children = blocks.map((block): LoreHastNode => {
+    if (Predicate.isTagged(block, "Paragraph")) {
+      return {
+        children: block.content.map(inlineToTermTree),
+        tagName: "p",
+        type: "element",
+      };
+    }
+
+    if (Predicate.isTagged(block, "List")) {
+      return {
+        children: block.items.map((item) => ({
+          children: item.map(inlineToTermTree),
+          tagName: "li",
+          type: "element",
+        })),
+        tagName: "ul",
+        type: "element",
+      };
+    }
+
+    return { tagName: "pre", type: "element" };
+  });
+
+  const termTree = { children, type: "root" };
+  linkLoreTerms(targets, "/", new Set<string>())()(termTree);
+  linkStackEntities()(termTree);
+
+  return blocks.map((block, index) => {
+    const woven = children[index]?.children ?? [];
+
+    if (Predicate.isTagged(block, "Paragraph")) {
+      return Block.Paragraph({ content: woven.map(inlineFromTermTree) });
+    }
+
+    if (Predicate.isTagged(block, "List")) {
+      return Block.List({
+        items: woven.map((item) =>
+          (item.children ?? []).map(inlineFromTermTree)
+        ),
+      });
+    }
+
+    return block;
+  });
+};
+
+export const compileHomeDocument = (
+  source: string,
+  targets: readonly LoreTermTarget[]
+) => {
   const root = unified().use(remarkParse).parse(source);
   const first = root.children.at(0);
 
@@ -184,5 +302,5 @@ export const compileHomeDocument = (source: string) => {
     );
   }
 
-  return { blocks };
+  return { blocks: weaveHomeTerms(blocks, targets) };
 };

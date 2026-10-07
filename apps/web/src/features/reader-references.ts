@@ -18,6 +18,7 @@ export const readerReferences = <Message>(
     ...(change === undefined
       ? []
       : [
+          h.hr([]),
           h.p(
             [],
             [

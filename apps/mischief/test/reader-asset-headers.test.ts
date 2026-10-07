@@ -86,6 +86,32 @@ const assertMetadata = Effect.fn("assertReaderAssetMetadata")(
   }
 );
 
+const assertProductionPayloads = (pages: readonly ReaderPageFlags[]) => {
+  for (const page of pages) {
+    expect(page.origin).toBe("https://ratstack.sh");
+
+    const payloads = [
+      ...page.copyPrompts.map((prompt) => prompt.text),
+      ...page.codeFences.flatMap((fence) => [fence.value, fence.html]),
+      JSON.stringify(page.blocks),
+    ];
+
+    for (const payload of payloads) {
+      expect(payload).not.toMatch(/https:\/\/pr-\d+\.ratstack\.sh/u);
+      expect(payload).not.toContain("__RATSTACK_ORIGIN__");
+    }
+  }
+
+  const home = pages.find((page) => page.page.path === "/");
+  expect(
+    home?.copyPrompts.find((prompt) => prompt.id === "mcp")?.text
+  ).toContain("https://ratstack.sh/mcp");
+  expect(
+    home?.codeFences.find((fence) => fence.value.includes("claude mcp add"))
+      ?.value
+  ).toContain("https://ratstack.sh/mcp");
+};
+
 it.layer(PreparedReaderPages.layer)((test) => {
   test.effect.prop(
     "preview output cannot leave indexing headers or preview canonicals in a later production build",
@@ -100,6 +126,7 @@ it.layer(PreparedReaderPages.layer)((test) => {
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
         const { pages } = yield* PreparedReaderPages;
+        assertProductionPayloads(pages);
 
         const writeStage = Effect.fn("writeReaderStageFixture")(
           function* writeStage(origin: string, robots: "index" | "noindex") {
