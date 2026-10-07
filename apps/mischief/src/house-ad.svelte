@@ -1,5 +1,5 @@
 <script>
-  let { href, label, line, link, note } = $props();
+  let { href, label, line, link } = $props();
 </script>
 
 <aside class="workshop-callout" aria-label={label}>
@@ -23,6 +23,5 @@
         /></svg
       ></a
     >
-    <small class="workshop-callout-note">{note}</small>
   </span>
 </aside>

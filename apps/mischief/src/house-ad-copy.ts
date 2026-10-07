@@ -3,5 +3,4 @@ export const houseAdCopy = {
   label: "Free workshop",
   line: "how to burn a trillion tokens and get good results",
   link: "Apply today",
-  note: "*Very limited seats",
 } as const;
