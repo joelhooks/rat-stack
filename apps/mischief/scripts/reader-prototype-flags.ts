@@ -118,6 +118,7 @@ export const readerPrototypeFlags = Effect.fn("readerPrototypeFlags")(
         sourcePath: inputs.lore.sourcePath,
         status: page.status,
       },
+      references: inputs.references,
       snippets,
       terms: inputs.lore.terms,
       workshop: houseAdCopy,

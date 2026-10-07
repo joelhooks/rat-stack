@@ -29,7 +29,11 @@ import { agentNextActions } from "../src/agent-guide.ts";
 import { normalizeSources, contentPagePath } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
-import { addInboundCounts, buildBacklinkIndex } from "./backlink-lib.ts";
+import {
+  addInboundCounts,
+  backlinksFor,
+  buildBacklinkIndex,
+} from "./backlink-lib.ts";
 import { collectBuildFences } from "./code-inputs.ts";
 import { codeComponent } from "./code-pipeline.ts";
 import type { ComponentRegistry } from "./component-registry.ts";
@@ -41,7 +45,11 @@ import {
   renderAgentPage,
   renderComponent,
 } from "./component-registry.ts";
-import { buildBlockIndex, paragraphAnchors } from "./content-blocks.ts";
+import {
+  buildBlockIndex,
+  contentBlocksFor,
+  paragraphAnchors,
+} from "./content-blocks.ts";
 import {
   assertDocumentTitle,
   assertLoreTerms,
@@ -3347,6 +3355,25 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       JSON.stringify({
         generation: assetManifest.generation,
         home: homeMarkdownSource,
+        references: {
+          anchors: contentBlocksFor(
+            blockIndex,
+            "/lore/services-capture-dependencies"
+          ),
+          backlinks: backlinksFor(
+            backlinkIndex,
+            "/lore/services-capture-dependencies"
+          ),
+          inboundCounts: Object.fromEntries(
+            [...backlinkIndex].map(([route, references]) => [
+              route,
+              references.length,
+            ])
+          ),
+          lastChange: lastChanges.get(
+            ".brain/resources/lore/services-capture-dependencies.svx"
+          ),
+        },
       })
     )
     .pipe(

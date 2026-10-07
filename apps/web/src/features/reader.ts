@@ -4,6 +4,7 @@ import type { Document, HtmlBuilder } from "foldkit/html";
 import type { ReaderModel } from "../client/reader-model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { renderReaderBlock } from "./reader-document.js";
+import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 
 export const readerView = <Message>(
@@ -62,6 +63,7 @@ export const readerView = <Message>(
           h.h1([], [model.heading]),
           ...model.blocks.map((block) =>
             renderReaderBlock(block, h, {
+              anchors: model.references?.anchors ?? [],
               codeFence: (value) => {
                 const resolved = model.codeFences.find(
                   (fence) => fence.value === value
@@ -109,6 +111,8 @@ export const readerView = <Message>(
                   ]
                 );
               },
+              inboundCounts: model.references?.inboundCounts ?? {},
+              pagePath: model.page.path,
               snippet: (reference) => {
                 const resolved = model.snippets.find(
                   (snippet) =>
@@ -135,9 +139,9 @@ export const readerView = <Message>(
             ? []
             : [
                 h.section(
-                  [h.AriaLabel("Sources"), h.Class("sources")],
+                  [h.AriaLabelledBy("sources"), h.Class("bibliography")],
                   [
-                    h.h2([], ["Sources"]),
+                    h.h2([h.Id("sources")], ["Sources"]),
                     h.ol(
                       [],
                       model.bibliography.map((source, index) =>
@@ -145,13 +149,7 @@ export const readerView = <Message>(
                           [h.Id(`source-${index + 1}`)],
                           [
                             h.a([h.Href(source.url)], [source.title]),
-                            h.p([], [source.note]),
-                            h.p(
-                              [],
-                              [
-                                `${source.publisher}. Accessed ${source.accessed}.`,
-                              ]
-                            ),
+                            `. ${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
                           ]
                         )
                       )
@@ -159,6 +157,7 @@ export const readerView = <Message>(
                   ]
                 ),
               ]),
+          ...readerReferences(model, h),
         ]
       ),
       readerFooter(h),

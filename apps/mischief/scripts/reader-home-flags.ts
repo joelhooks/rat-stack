@@ -111,6 +111,11 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
         sourcePath: page.sourcePath,
         status: page.status,
       },
+      references: {
+        anchors: [],
+        backlinks: [],
+        inboundCounts: inputs.references.inboundCounts,
+      },
       snippets: [],
       terms: [],
       workshop: houseAdCopy,

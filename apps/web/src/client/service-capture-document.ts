@@ -133,9 +133,9 @@ export const serviceCaptureDocument = [
         ),
       ],
       [
-        text(
-          "rat-stack also uses capability projections, cartridge packages, and a no-comments rule."
-        ),
+        text("rat-stack also uses capability projections, "),
+        link("/lore/cartridges", "cartridge"),
+        text(" packages, and a no-comments rule."),
       ],
     ],
   }),

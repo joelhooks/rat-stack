@@ -27,7 +27,9 @@ const readerPages = Effect.gen(function* readerPages() {
     );
   }
 
-  const origin = Option.getOrElse(previewOrigin, () => "https://ratstack.sh");
+  const origin = Option.isSome(previewCommit)
+    ? Option.getOrElse(previewOrigin, () => "https://ratstack.sh")
+    : "https://ratstack.sh";
 
   const parsedOrigin = yield* Effect.try({
     catch: (cause) =>

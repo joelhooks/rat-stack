@@ -17,12 +17,48 @@ const program = Effect.gen(function* emitReaderLedger() {
   const paths = yield* Path.Path;
   const inputs = yield* prepareReaderSiteInputs;
 
-  const routes = inputs.pages.flatMap(({ html: _html, ...page }) => [
-    { ...page, representation: "html" },
-    { ...page, representation: "markdown" },
-  ]);
+  const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
+    const included =
+      page.path === "/" || page.path === "/lore/services-capture-dependencies";
+
+    const preview = {
+      representation: included ? "html" : "none",
+      status: included ? 200 : 404,
+    };
+
+    return [
+      {
+        ...page,
+        preview: {
+          ...preview,
+          availability: included ? "included" : "outside-slice",
+        },
+        representation: "html",
+      },
+      {
+        ...page,
+        preview: {
+          ...preview,
+          availability: included
+            ? "representation-not-projected"
+            : "outside-slice",
+        },
+        representation: "markdown",
+      },
+    ];
+  });
 
   const ledger = yield* Schema.decodeUnknownEffect(ReaderRouteLedger)({
+    deliberateChanges: [
+      {
+        location: "/lore/services-capture-dependencies",
+        path: "/lore/services-capture-dependencies/",
+        previewStatus: 307,
+        productionStatus: 404,
+        reason:
+          "Desk accepts the trailing-slash redirect to the bare canonical as an improvement; real-edge qualification at cef413e confirms the bare route returns 200 without Location.",
+      },
+    ],
     generation: inputs.generation,
     routes: Array.sort(
       routes,

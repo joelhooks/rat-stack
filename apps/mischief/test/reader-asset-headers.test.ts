@@ -32,7 +32,9 @@ class PreparedReaderPages extends Context.Service<
       yield* prepareReader(root).pipe(
         Effect.provideService(
           ConfigProvider.ConfigProvider,
-          ConfigProvider.fromUnknown({})
+          ConfigProvider.fromUnknown({
+            PREVIEW_ORIGIN: "https://pr-999.ratstack.sh",
+          })
         )
       );
 
@@ -161,7 +163,10 @@ it.layer(PreparedReaderPages.layer)((test) => {
           yield* assertMetadata(outputPath(route), `${origin}${route}`, true);
         }
 
-        yield* writeStage("https://ratstack.sh", "index");
+        yield* fs.writeFileString(
+          path.join(root, "dist/reader-pages.json"),
+          yield* Schema.encodeEffect(encodedPages)(pages)
+        );
         yield* finalizeReader(root, client).pipe(
           Effect.provideService(
             ConfigProvider.ConfigProvider,

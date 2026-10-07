@@ -21,12 +21,30 @@ export const ReaderMetadata = Schema.Struct({
 export const ReaderRoute = Schema.Struct({
   metadata: ReaderMetadata,
   path: Schema.String,
+  preview: Schema.Struct({
+    availability: Schema.Literals([
+      "included",
+      "outside-slice",
+      "representation-not-projected",
+    ]),
+    representation: Schema.Literals(["html", "none"]),
+    status: Schema.Int,
+  }),
   representation: Schema.Literals(["html", "markdown", "redirect"]),
   sourcePath: Schema.String,
   status: Schema.Int,
 });
 
 export const ReaderRouteLedger = Schema.Struct({
+  deliberateChanges: Schema.Array(
+    Schema.Struct({
+      location: Schema.String,
+      path: Schema.String,
+      previewStatus: Schema.Int,
+      productionStatus: Schema.Int,
+      reason: Schema.String,
+    })
+  ),
   generation: Schema.String.check(Schema.isPattern(/^[0-9a-f]{64}$/u)),
   routes: Schema.Array(ReaderRoute),
 });
