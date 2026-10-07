@@ -1,0 +1,20 @@
+---
+title: "Published prompts use the content cartridge"
+description: "Source authority and representation boundaries for copyable agent prompts."
+---
+
+# Published prompts use the content cartridge
+
+The source of record is `.brain/resources/prompts/*.svx`. The content build is the only derived-asset writer.
+
+Core owns schemas, capabilities, and the job-shaped `PromptLibrary` port. The Worker adapter captures `ContentStore`. The CLI adapter reads generation-matched assets. Both serve the same generated source.
+
+This extends the existing content cartridge. It adds no dependency, provider, identity record, or mutable storage. Static reads have no finite domain lifecycle. Clipboard lifecycle stays in Foldkit Model and update.
+
+Native Foldkit prerenders HTML at a reserved build origin. Public prompt requests negotiate Markdown by default and HTML when requested. Prompt paths run through the Worker before assets so negotiation remains effective.
+
+The supplied hill-climb source is unchanged. Credit remains under the prompt and links to the public original.
+
+Native MCP prompt projections are outside this packet. The shared contracts already expose prompt discovery and reads through the existing tool projections.
+
+See [the prompts system](/systems/prompts) and [use-a-prompt](/skills/use-a-prompt).

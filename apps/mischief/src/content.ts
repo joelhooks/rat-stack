@@ -79,18 +79,24 @@ export const llmsText = (
   catalog: ContentCatalog
 ) => `# ratstack.sh
 
-The reference for building an app and its cloud as one typed program: Effect, Alchemy, and a fence that makes the easy path the right one.
+Build an app and its cloud infrastructure in one TypeScript program.
+
+Effect describes work with typed failures and required services. A service is a named interface for one job. Alchemy declares cloud resources and plans changes before applying them.
+
+The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts.
 
 ## Read this repo
 
 - [Home](${origin}/): short overview
-- [Glossary](${origin}/glossary): A–Z terms, summaries, and pages
+- [Glossary](${origin}/glossary): A–Z terms with definitions and teaching pages
 - [Public content corpus](${origin}/llms-full.txt): rules, lore, and skills in one response
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
-- [MCP server](${origin}/mcp): tools for search, reading, and sandboxed code
+- [MCP server](${origin}/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment
 - [Code mode](${origin}/api/execute): run a program instead of several calls; POST JSON with a \`code\` string, or call the MCP \`execute\` tool
 
 ## Connect with MCP
+
+MCP means Model Context Protocol. It lets an agent client discover and call tools.
 
 Point any MCP client at \`${origin}/mcp\`. Protocol 2026-07-28 is stateless and has no \`initialize\` handshake: every request sends \`MCP-Protocol-Version\`, \`Mcp-Method\`, and the \`params._meta\` block shown here.
 
@@ -98,13 +104,15 @@ Point any MCP client at \`${origin}/mcp\`. Protocol 2026-07-28 is stateless and 
 ${mcpToolsListExample(origin)}
 \`\`\`
 
-Older clients (2025-11-25 back to 2024-11-05) send \`initialize\` as usual. Each one gets its own session, held by a Durable Object so it survives between requests.
+Older clients (2025-11-25 back to 2024-11-05) send \`initialize\` as usual. Each one gets its own session, held between requests by a Durable Object, Cloudflare's persistent state and compute service.
 
 Each IP may make 120 API or MCP requests per 60 seconds. \`execute\` also allows 6 calls per IP and 300 total calls per 60 seconds. Cloudflare counts these limits separately in each location.
 
 ## Run code: one program instead of several calls
 
-Use \`POST /api/execute\` or the MCP \`execute\` tool for content capabilities. The program can search, pass the result to read, and return only what you need. It cannot call \`joinInterest\`.
+A capability is one named action with shared input and output definitions and a server-side implementation.
+
+Use \`POST /api/execute\` or the MCP \`execute\` tool to call content capabilities. The program can search, pass the result to read, and return only what you need. It cannot call \`joinInterest\`.
 
 \`execute\` runs the \`code\` value as the body of an async function. \`return\` sets \`result\`, and \`console.log\` output appears in \`logs\`; imports, exports, and \`fetch\` are unavailable.
 
