@@ -6,6 +6,7 @@ import type { ReaderModel } from "../client/reader-model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
+import { renderReaderNode } from "./reader-node.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 
@@ -80,7 +81,9 @@ export const readerView = (
                   [h.a([h.Href("/lore")], ["lore"]), ` / ${model.heading}`]
                 ),
               ]),
-          h.h1([], [model.heading]),
+          ...(model.bodyNodes === undefined
+            ? [h.h1([], [model.heading])]
+            : model.bodyNodes.map((node) => renderReaderNode(node, h))),
           ...model.blocks.map((block) =>
             renderReaderBlock(block, h, {
               anchors: model.references?.anchors ?? [],
