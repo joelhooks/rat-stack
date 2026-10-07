@@ -658,6 +658,9 @@ importers:
 
   packages/deploy:
     dependencies:
+      '@distilled.cloud/cloudflare':
+        specifier: 1.0.0-rc.13
+        version: 1.0.0-rc.13(effect@4.0.0)
       '@effect/platform-node':
         specifier: 4.0.0
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))

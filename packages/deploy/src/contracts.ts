@@ -23,11 +23,14 @@ export const ApplyReceiptSchema = Schema.Struct({
     "partial",
     "crashed",
   ]),
+  previousContentGeneration: Schema.optional(Schema.NonEmptyString),
   previousVersions: Schema.optionalKey(
     Schema.Record(Schema.String, Schema.String)
   ),
+  profile: Schema.optionalKey(Schema.NonEmptyString),
   retainedOrphans: Schema.Array(Schema.String),
   updated: Schema.Array(Schema.String),
+  versionReadbacks: Schema.optionalKey(Schema.Array(VerdictSchema)),
   versions: Schema.Record(Schema.String, Schema.String),
 });
 

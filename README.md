@@ -4,9 +4,11 @@ _An Effect stack so pure (aspirational) Kit Langton will blush._
 
 [![CI](https://github.com/joelhooks/rat-stack/actions/workflows/ci.yml/badge.svg)](https://github.com/joelhooks/rat-stack/actions/workflows/ci.yml)
 
-Joel's **agentic scaffold** for an Effect app. The goal is to build the best Effect + Alchemy application we can; `VISION.md` explains why. `AGENTS.md` defines the fence through exact pins, checks, and hooks. The public tree is for stealing ideas, not a supported product. It ships as a **pnpm + Turborepo workspace** with a real Effect v4 CLI, tests, formatting, type-aware linting, and vendored source mirrors for Effect, effect-solutions, XState, and Alchemy.
+Build an Effect app and its cloud as one typed program. Joel's goal is the best Effect + Alchemy application we can build; `VISION.md` explains why. `AGENTS.md` sets exact pins, checks, and hooks. The public tree lets you steal ideas. It carries no product support promise.
 
-The shape it teaches: define a **Contract** once (Effect input, output, and failure schemas plus annotations), bind a server-side handler, then project that capability onto every agent surface. The same `inspectFile` capability is the `stats` command, `POST /inspectFile` with an OpenAPI document, and an MCP tool over stdio.
+The **pnpm + Turborepo workspace** includes a working Effect v4 CLI, tests, formatting, and type-aware linting. Vendored source mirrors cover Effect, effect-solutions, XState, and Alchemy.
+
+Define a **Contract** with Effect input, output, and failure schemas plus annotations. Bind a server-side handler, then project the capability onto every agent surface. The same `inspectFile` capability is the `stats` command, `POST /inspectFile` with an OpenAPI document, and an MCP tool over stdio.
 
 ## Create a repository
 
@@ -64,7 +66,7 @@ pnpm cli mcp --code-mode         # MCP server with two tools: search and execute
 pnpm cli catalog --types         # the `tools` declarations a code-mode program sees
 ```
 
-Code mode is the fourth projection. The model gets `search` (ranked matches with TypeScript signatures) and `execute` (a JavaScript program with `tools` in scope). The program runs in a fresh Node subprocess under `--permission`, so it cannot touch the file system or spawn processes; its only way out is `tools.<name>(input)`, which the host validates against that capability's input schema and runs through the same handler as every other surface. Network egress is not blocked by Node's permission model; put a Worker or Deno runtime behind the same `Sandbox` service for real isolation.
+Code mode is the fourth projection. The model gets `search` for ranked matches with TypeScript signatures and `execute` for JavaScript with `tools` in scope. The program runs in a fresh Node subprocess under `--permission`. It cannot touch the file system or spawn processes. To call the host, it uses `tools.<name>(input)`. The host validates the input schema and runs the same handler used by every other surface. Node's permission model allows network egress. Put a Worker or Deno runtime behind the same `Sandbox` service to isolate the network too.
 
 `packages/capability/src` is where a capability becomes a `Command`, an `HttpApiEndpoint`, a `Tool`, and a catalog entry. `packages/core/src/inspect-file.ts` supplies the CLI's example capability. Hosted content has its own registry in `apps/mischief/src/capabilities/index.ts`. Provider adapters stay outside core (`rat-stack-boundaries/no-core-adapters`); apps provide them to core's job-shaped ports at composition. Add another to `capabilities`, then verify every projection you keep; CLI command registration lives in `apps/cli/src/command.ts`.
 
@@ -84,7 +86,7 @@ Code mode is the fourth projection. The model gets `search` (ranked matches with
 - **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [TanStack Router/Start](https://github.com/TanStack/router) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
 - **Agent fence**: lefthook pre-commit + Pi/Cursor/Claude hooks that block `git … --no-verify`. Cheating should be uncomfortable and obvious.
 
-Every dependency is pinned exactly. Upgrade pins as a reviewed stack change, not ambient drift.
+Every dependency is pinned exactly. Review pin upgrades as stack changes.
 
 ## Commands
 
@@ -165,7 +167,7 @@ pnpm turbo run check test build
 
 ## Keep or cut
 
-The template is itself a project, so it ships more than a bare scaffold. Delete what you will not use on day one; the fence will tell you what else has to go. After any cut: trim `packages/capability/src/index.ts`, run `pnpm install`, `pnpm fix`, then `pnpm turbo run check test build`, and update the package table in `AGENTS.md`.
+The template is a working project. Delete what you will not use on day one; the fence will identify dependent code that must go too. After each cut, trim `packages/capability/src/index.ts` and run `pnpm install`, `pnpm fix`, then `pnpm turbo run check test build`. Update the package table in `AGENTS.md`.
 
 | Want | Keep | Delete |
 | --- | --- | --- |

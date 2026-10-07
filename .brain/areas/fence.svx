@@ -40,14 +40,14 @@ sources:
 
 ## What it does
 
-The fence is the set of checks that stop a shortcut instead of describing it. [The fence](/lore/the-fence) explains the idea; this page lists what is enforced today.
+The fence makes bad shortcuts fail. [The fence](/lore/the-fence) explains the idea. These checks enforce it today:
 
-- **Lint.** Type-aware Oxlint runs Ultracite's core rules, the repo's own plugins in `scripts/oxlint-plugin-*.ts` (boundaries, patterns, no comments, Effect tests, and XState with Effect), and the vendored anti-slop rules, all at `error`. The configuration is `oxlint.config.ts`.
-- **Provider boundary.** `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core; job-shaped ports stay inside. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
-- **Compiler.** Effect language-service diagnostics are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so they fail `tsc`, not only the editor.
-- **Hooks.** Lefthook runs `pnpm check` and `pnpm test` before every commit.
-- **Command policy.** `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
-- **Gate.** CI runs `pnpm turbo run check test build` on a cold install with a frozen lockfile.
+- Type-aware Oxlint runs Ultracite's core rules and the repo's plugins in `scripts/oxlint-plugin-*.ts`. The plugins cover boundaries, patterns, no comments, Effect tests, and XState with Effect. Vendored anti-slop rules also run. All use `error` severity in `oxlint.config.ts`.
+- `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core; job-shaped ports stay inside. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
+- Effect language-service diagnostics are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so both `tsc` and the editor report failures.
+- Lefthook runs `pnpm check` and `pnpm test` before every commit.
+- `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
+- CI runs `pnpm turbo run check test build` on a cold install with a frozen lockfile.
 
 ## The standard
 
@@ -62,8 +62,8 @@ The fence is the set of checks that stop a shortcut instead of describing it. [T
 
 ## How to check
 
-- **The gate.** `pnpm turbo run check test build` runs everything CI runs.
-- **The bypass block.** `echo '{"tool_name":"Bash","tool_input":{"command":"git commit --no-verify"}}' | node scripts/hooks/block-git-no-verify.mjs` prints a `deny` decision with the reason.
-- **The rules.** `pnpm --filter @rat-stack/core test` runs the fixture tests for the boundary, pattern, no-comment, and unknown-parameter rules, and the command policy test.
-- **Provider isolation.** The boundary fixtures in `packages/core/test/boundaries-rule.test.ts` reject adapter imports from core and accept composition outside it.
-- **The debt.** `curl -sS https://ratstack.sh/debt.md` shows the current override count.
+- `pnpm turbo run check test build` runs everything CI runs.
+- `echo '{"tool_name":"Bash","tool_input":{"command":"git commit --no-verify"}}' | node scripts/hooks/block-git-no-verify.mjs` prints a `deny` decision with the reason.
+- `pnpm --filter @rat-stack/core test` runs the fixture tests for the boundary, pattern, no-comment, and unknown-parameter rules, and the command policy test.
+- The boundary fixtures in `packages/core/test/boundaries-rule.test.ts` reject adapter imports from core and accept composition outside it.
+- `curl -sS https://ratstack.sh/debt.md` shows the current override count.

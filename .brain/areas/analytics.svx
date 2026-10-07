@@ -61,7 +61,7 @@ Each event holds:
 
 - A visitor id and UUIDv7 message id.
 - A server block: host, received time, salted IP hash, and user agent.
-- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, whether the country is in the EU, region and region code, city, time zone, the Cloudflare data center, and the network's AS number and organization.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone. It also includes the Cloudflare data center and the network's AS number and organization.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.
@@ -74,7 +74,8 @@ Each event holds:
 - The HTTP request body never reaches an event.
 - Credential, email, code, and session query keys are removed.
 - Basin stores an IP address only as a salted hash.
-- Geography comes from `request.cf`, which Cloudflare derives at the edge, never from the IP. Latitude, longitude, postal code, and metro code are never stored. City is stored: the Mischief Worker sets `captureCity`.
+- Geography comes from `request.cf`, which Cloudflare derives at the edge. The capture code never derives it from the IP.
+- Latitude, longitude, postal code, and metro code are never stored. The Mischief Worker sets `captureCity` to store city.
 - A missing or malformed `request.cf` field is left out; it never fails the request.
 - In `persistent` mode, the server sets a first-party HttpOnly cookie. A browser keeps one id across visits.
 - In `daily` mode, no cookie is set. An id never repeats on a later day.
@@ -97,7 +98,7 @@ The policy disables per-request invocation logs and traces. Application `console
 Cloudflare invocation logs contain request, response, and related metadata. They are separate from custom application messages.
 See [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
 
-Basin receives salted IP hashes, not raw client IPs. The Worker policy prevents automatic request-header dumps in stored invocation logs.
+Client IPs reach Basin only as salted hashes. The Worker policy prevents automatic request-header dumps in stored invocation logs.
 Application logs must not print raw IPs or request headers.
 
 These settings apply after deployment. They do not erase previously stored logs.
@@ -134,7 +135,7 @@ ORDER BY requests DESC
 LIMIT 20;
 ```
 
-**What to notice:** The query reads each path from JSON in the `value` column.
+The query reads each path from JSON in the `value` column.
 
 Queries use JSON functions such as `json_get_str`.
 See [Scalar functions](https://developers.cloudflare.com/basin-sql/sql-reference/scalar-functions/).
