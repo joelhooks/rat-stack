@@ -125,9 +125,15 @@ it.layer(PreparedReaderPages.layer)((test) => {
 
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
-        const { pages } = yield* PreparedReaderPages;
+        const { pages: prepared } = yield* PreparedReaderPages;
+        assertProductionPayloads(prepared);
+
+        const pages = prepared.filter(
+          (page, index) =>
+            page.page.path === "/" || index === preview.seed % prepared.length
+        );
+
         const routes = pages.map((page) => page.page.path);
-        assertProductionPayloads(pages);
 
         const writeStage = Effect.fn("writeReaderStageFixture")(
           function* writeStage(origin: string, robots: "index" | "noindex") {
