@@ -10,6 +10,7 @@ import { ReaderBreadcrumb, ReaderNodeSchema } from "./reader-node.js";
 export { ReaderReferences } from "../page-descriptor.js";
 
 export const ReaderFlags = Schema.Struct({
+  agentMarkdown: Schema.optional(Schema.String),
   bibliography: Schema.Array(bibliographySourceSchema),
   blocks: Schema.Array(ReaderBlock),
   bodyNodes: Schema.optional(Schema.Array(ReaderNodeSchema)),
@@ -45,7 +46,6 @@ export const ReaderFlags = Schema.Struct({
       label: Schema.String,
       line: Schema.String,
       link: Schema.String,
-      note: Schema.String,
     })
   ),
 });

@@ -7,12 +7,10 @@ import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
+import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
-import {
-  readerBodyRoutePaths,
-  readerRoutePaths,
-} from "../src/reader-routes.ts";
+import { isReaderRoutePath } from "../src/reader-routes.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
@@ -62,9 +60,10 @@ const readerPages = Effect.gen(function* readerPages() {
 
   const home = yield* readerHomeFlags(origin);
   const lore = yield* readerLoreFlags(origin);
+  const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
   const bodies = yield* readerBodyFlags(origin);
-  const pages = [home, ...lore, learn, ...bodies];
+  const pages = [home, ...lore, learn, ...prompts, ...bodies];
 
   return yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({
@@ -116,12 +115,7 @@ export const finalizeReader = Effect.fn("reader.finalize")(
       Effect.gen(function* finalizePage() {
         const route = page.page.path;
 
-        if (
-          !readerRoutePaths.includes(route) &&
-          !readerBodyRoutePaths.includes(route) &&
-          route !== "/lore" &&
-          !route.startsWith("/lore/")
-        ) {
+        if (!isReaderRoutePath(route)) {
           return yield* Effect.fail(
             new ReaderInputError({
               message:

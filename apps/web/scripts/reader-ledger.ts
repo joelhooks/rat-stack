@@ -11,10 +11,7 @@ import {
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderRouteLedger } from "../src/page-descriptor.ts";
-import {
-  readerBodyRoutePaths,
-  readerRoutePaths,
-} from "../src/reader-routes.ts";
+import { isReaderRoutePath } from "../src/reader-routes.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
   const fs = yield* FileSystem.FileSystem;
@@ -22,11 +19,14 @@ const program = Effect.gen(function* emitReaderLedger() {
   const inputs = yield* prepareReaderSiteInputs;
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
-    const included =
-      readerRoutePaths.includes(page.path) ||
-      readerBodyRoutePaths.includes(page.path) ||
-      page.path === "/lore" ||
-      page.path.startsWith("/lore/");
+    const prompt =
+      page.path === "/prompts" || page.path.startsWith("/prompts/");
+
+    const included = isReaderRoutePath(page.path);
+
+    const markdownAvailability = prompt
+      ? "included"
+      : "representation-not-projected";
 
     const preview = {
       representation: included ? "html" : "none",
@@ -46,9 +46,8 @@ const program = Effect.gen(function* emitReaderLedger() {
         ...page,
         preview: {
           ...preview,
-          availability: included
-            ? "representation-not-projected"
-            : "outside-slice",
+          availability: included ? markdownAvailability : "outside-slice",
+          representation: prompt ? "markdown" : preview.representation,
         },
         representation: "markdown",
       },

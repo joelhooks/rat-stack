@@ -1,3 +1,4 @@
+import { Prompt } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Path, Schema } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
@@ -19,6 +20,9 @@ const readerSource = Schema.Struct({
   home: Schema.String,
   loreTermTargets: Schema.Array(
     Schema.Struct({ routePath: Schema.String, term: Schema.String })
+  ),
+  prompts: Schema.Array(
+    Schema.Struct({ ...Prompt.fields, sourcePath: Schema.String })
   ),
   references: ReaderReferences,
 });
@@ -202,6 +206,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       lore,
       loreTermTargets: source.loreTermTargets,
       pages,
+      prompts: source.prompts,
       references: source.references,
     };
   }

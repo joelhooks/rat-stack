@@ -546,74 +546,474 @@ export interface GlossaryEntry {
 }
 
 interface GlossaryPage {
-  readonly title: string;
   readonly description: string;
   readonly routePath: string;
-  readonly terms: readonly string[];
 }
 
-const glossaryNounRoutes = new Map([
-  ["Contract", "/systems/capabilities"],
-  ["Capability", "/systems/capabilities"],
-  ["Projection", "/lore/one-capability-every-surface"],
-  ["Cartridge", "/lore/cartridges"],
-  ["Machine", "/lore/lifecycles-are-machines"],
-  ["Feature", "/skills/uncomplect"],
-  ["Client", "/skills/uncomplect"],
-]);
+const glossaryDefinitions: readonly GlossaryEntry[] = [
+  {
+    routePath: "/lore/effect-basics",
+    summary:
+      "A TypeScript library for describing work with typed failures and required services. A runtime executes the description.",
+    term: "Effect",
+  },
+  {
+    routePath: "/lore/effect-basics",
+    summary:
+      "A service that a description of work still needs before it can run.",
+    term: "requirement",
+  },
+  {
+    routePath: "/lore/effect-basics",
+    summary:
+      "An unexpected execution failure, separate from the failures that callers are expected to handle.",
+    term: "defect",
+  },
+  {
+    routePath: "/lore/schemas-define-the-boundary",
+    summary:
+      "A description of accepted values, their TypeScript types, and the rules for checking and converting them at runtime.",
+    term: "Schema",
+  },
+  {
+    routePath: "/lore/services-capture-dependencies",
+    summary:
+      "A named interface for one job. Callers request it by its identifier, and startup code supplies its implementation.",
+    term: "service",
+  },
+  {
+    routePath: "/lore/services-capture-dependencies",
+    summary:
+      "The identifier used to request a service, a named interface for one job, from Effect's collection of available implementations.",
+    term: "service tag",
+  },
+  {
+    routePath: "/lore/layers-make-dependencies-explicit",
+    summary:
+      "A description of how to build service implementations and supply what their construction needs.",
+    term: "Layer",
+  },
+  {
+    routePath: "/lore/layers-make-dependencies-explicit",
+    summary:
+      "Sharing a constructed service within one build context by the identity of the Layer that builds it.",
+    term: "Layer memoization",
+  },
+  {
+    routePath: "/lore/layers-make-dependencies-explicit",
+    summary:
+      "Reusing a previously constructed result within a stated context. Service construction shares results by Layer identity within one build context.",
+    term: "memoization",
+  },
+  {
+    routePath: "/systems/capabilities",
+    summary:
+      "The shared name, input, output, failure, and metadata for an action. It contains no server-side implementation.",
+    term: "contract",
+  },
+  {
+    routePath: "/systems/capabilities",
+    summary:
+      "One named action with a contract describing its accepted values and a server-side implementation that performs the work.",
+    term: "capability",
+  },
+  {
+    routePath: "/systems/capabilities",
+    summary:
+      "The server-side implementation called after input validation and any required approval.",
+    term: "handler",
+  },
+  {
+    routePath: "/lore/one-capability-every-surface",
+    summary:
+      "Code that turns a named action and its shared definition into a command, HTTP API, MCP tool, RPC interface, or code-mode interface.",
+    term: "projection",
+  },
+  {
+    routePath: "/lore/one-capability-every-surface",
+    summary:
+      "Code that exposes a named action through a particular interface without adding separate business behavior.",
+    term: "capability projection",
+  },
+  {
+    routePath: "/lore/one-schema-three-surfaces",
+    summary:
+      "A way to call a named action, such as the command line or HTTP API.",
+    term: "interface",
+  },
+  {
+    routePath: "/lore/one-schema-three-surfaces",
+    summary:
+      "In the motto “one capability, every surface”, a way to call a named action. Other prose uses “interface”.",
+    term: "surface",
+  },
+  {
+    routePath: "/lore/cartridges",
+    summary:
+      "A package for one job that includes its implementation and needed infrastructure. It must pass the project's add-and-remove test.",
+    term: "cartridge",
+  },
+  {
+    routePath: "/lore/cartridges",
+    summary:
+      "Add one package and one provision line, then remove them without breaking unrelated packages. The package owns its resources and connections.",
+    term: "cartridge test",
+  },
+  {
+    routePath: "/lore/the-fence",
+    summary:
+      "Compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. They do not prove every runtime behavior.",
+    term: "fence",
+  },
+  {
+    routePath: "/skills/learn-alchemy",
+    summary:
+      "An infrastructure tool built with Effect. Its program declares cloud resources and can produce a plan before applying changes.",
+    term: "Alchemy",
+  },
+  {
+    routePath: "/skills/learn-alchemy",
+    summary:
+      "One program that declares infrastructure and returns its outputs.",
+    term: "Alchemy Stack",
+  },
+  {
+    routePath: "/lore/bindings",
+    summary:
+      "A declared connection that gives a Cloudflare Worker a typed runtime value or access to a resource.",
+    term: "binding",
+  },
+  {
+    routePath: "/lore/mcp-is-another-surface",
+    summary:
+      "Model Context Protocol: a protocol through which an agent client discovers and calls tools.",
+    term: "MCP",
+  },
+  {
+    routePath: "/skills/learn-rat-stack",
+    summary:
+      "Remote procedure call: a client calls a named operation implemented on the server.",
+    term: "RPC",
+  },
+  {
+    routePath: "/lore/one-program-can-replace-several-tool-calls",
+    summary:
+      "Running one program that combines calls to declared actions inside a restricted environment.",
+    term: "code mode",
+  },
+  {
+    routePath: "/systems/agent-front-door",
+    summary:
+      "Agent2Agent protocol. This site's implementation answers documentation questions through search and read.",
+    term: "A2A",
+  },
+  {
+    routePath: "/systems/agent-front-door",
+    summary:
+      "The discovery documents and callable HTTP, MCP, A2A, and code-mode endpoints hosted by this site.",
+    term: "agent interfaces",
+  },
+  {
+    routePath: "/lore/hexagonal-architecture",
+    summary:
+      "An application-owned interface named for the job the application needs.",
+    term: "port",
+  },
+  {
+    routePath: "/lore/hexagonal-architecture",
+    summary:
+      "An implementation that connects an application-owned interface to a particular external technology or provider.",
+    term: "adapter",
+  },
+  {
+    routePath: "/lore/structure-effect-by-domain",
+    summary:
+      "Startup code that chooses and supplies the application's service implementations.",
+    term: "composition root",
+  },
+  {
+    routePath: "/lore/context-and-requirements",
+    summary: "The collection of services supplied to running work in Effect.",
+    term: "context",
+  },
+  {
+    routePath: "/lore/error-model",
+    summary:
+      "A declared failure carried in an Effect description's E type parameter. Callers can handle it.",
+    term: "expected failure",
+  },
+  {
+    routePath: "/lore/lifecycles-are-machines",
+    summary:
+      "A running unit that processes events or performs work for a state machine. Declared Effect actors perform this repo's side effects.",
+    term: "actor",
+  },
+  {
+    routePath: "/lore/lifecycles-are-machines",
+    summary: "Named states and the events that permit movement between them.",
+    term: "state machine",
+  },
+  {
+    routePath: "/lore/lifecycles-are-machines",
+    summary:
+      "A definition of named states and the events that permit movement between them.",
+    term: "machine",
+  },
+  {
+    routePath: "/lore/concurrent-work-needs-an-owner",
+    summary:
+      "Independently running work in Effect. Its fork operation determines its lifetime and ownership.",
+    term: "fiber",
+  },
+  {
+    routePath: "/lore/concurrent-work-needs-an-owner",
+    summary:
+      "Independently running work owned by a cleanup scope. Closing that scope interrupts the work.",
+    term: "scoped fiber",
+  },
+  {
+    routePath: "/lore/concurrent-work-needs-an-owner",
+    summary:
+      "The number of collection items whose work can run at the same time.",
+    term: "traversal concurrency",
+  },
+  {
+    routePath: "/lore/concurrent-work-needs-an-owner",
+    summary:
+      "A consumer's demand limits how quickly its producer can progress. An unbounded queue can break that constraint.",
+    term: "backpressure",
+  },
+  {
+    routePath: "/lore/concurrent-work-needs-an-owner",
+    summary:
+      "A stream consumer requests data as it can process it, limiting the producer's progress.",
+    term: "stream backpressure",
+  },
+  {
+    routePath: "/lore/scopes-own-resources",
+    summary:
+      "An owner for registered cleanup operations. Closing it runs those operations.",
+    term: "Scope",
+  },
+  {
+    routePath: "/lore/scopes-own-resources",
+    summary:
+      "A cleanup operation registered with an owner or an acquire-use-release operation.",
+    term: "resource finalizer",
+  },
+  {
+    routePath: "/lore/configuration-is-a-dependency",
+    summary:
+      "A description of how to build a service containing validated configuration values.",
+    term: "configuration Layer",
+  },
+  {
+    routePath: "/lore/configuration-is-a-dependency",
+    summary:
+      "The source of raw configuration inputs that Effect reads and validates.",
+    term: "ConfigProvider",
+  },
+  {
+    routePath: "/lore/run-effect-at-the-boundary",
+    summary:
+      "The place where code outside Effect needs to execute a description of work.",
+    term: "runtime boundary",
+  },
+  {
+    routePath: "/lore/run-effect-at-the-boundary",
+    summary:
+      "A runtime that retains constructed services between calls until it is disposed.",
+    term: "managed runtime",
+  },
+  {
+    routePath: "/lore/http-responses-need-validation",
+    summary:
+      "Repeating an operation creates no additional change beyond its first successful application.",
+    term: "idempotency",
+  },
+  {
+    routePath: "/lore/trace-meaningful-operations",
+    summary:
+      "Understanding a running system through logs, metrics, and traces.",
+    term: "observability",
+  },
+  {
+    routePath: "/lore/trace-meaningful-operations",
+    summary:
+      "The logs, measurements, and trace data recorded about a running system.",
+    term: "telemetry",
+  },
+  {
+    routePath: "/lore/trace-meaningful-operations",
+    summary: "A record of an operation's timing and outcome.",
+    term: "trace span",
+  },
+  {
+    routePath: "/lore/trace-meaningful-operations",
+    summary: "A record of an operation's timing and outcome.",
+    term: "tracing span",
+  },
+  {
+    routePath: "/lore/trace-meaningful-operations",
+    summary:
+      "Sending recorded trace data to a collector. Sending, acceptance, and stored retrieval are separate observations.",
+    term: "trace export",
+  },
+  {
+    routePath: "/skills/add-a-store",
+    summary:
+      "The authoritative store for a fact. Derived copies can be rebuilt from it.",
+    term: "system of record",
+  },
+  {
+    routePath: "/skills/add-a-store",
+    summary:
+      "Derived data arranged for efficient reads. It does not become the authority for writes.",
+    term: "read model",
+  },
+  {
+    routePath: "/lore/code-snippets",
+    summary:
+      "A code block delimited by backticks. Its opening line can carry a language and excerpt options.",
+    term: "Markdown code fence",
+  },
+  {
+    routePath: "/lore/code-snippets",
+    summary:
+      "Options on the opening line of a Markdown code block. These options are separate from the project's enforcement checks.",
+    term: "fence metadata",
+  },
+  {
+    routePath: "/lore/code-snippets",
+    summary:
+      "The repository, commit, file, and original lines from which an excerpt comes.",
+    term: "provenance",
+  },
+  {
+    routePath: "/lore/build-time-work-stays-out-of-requests",
+    summary: "Generated output identified by a hash of its content.",
+    term: "content-addressed output",
+  },
+  {
+    routePath: "/skills/gardener",
+    summary: "An exact dependency version or source revision.",
+    term: "pin",
+  },
+  {
+    routePath: "/lore/pinned-sources-can-report-drift",
+    summary:
+      "A difference between selected pinned lines and the current source. It does not replace the pinned text.",
+    term: "source drift",
+  },
+  {
+    routePath: "/lore/engine-neutral-tokens-keep-adapters-replaceable",
+    summary:
+      "A segment of source text with a syntax role and font style, independent of Shiki's types.",
+    term: "engine-neutral token",
+  },
+  {
+    routePath: "/lore/engine-neutral-tokens-keep-adapters-replaceable",
+    summary:
+      "An interface for turning source code into per-line syntax tokens.",
+    term: "highlighter port",
+  },
+  {
+    routePath: "/lore/accumulate-independent-errors",
+    summary:
+      "Collecting independent failures so one result reports all of them before generated files are written.",
+    term: "error accumulation",
+  },
+  {
+    routePath: "/lore/there-is-no-isr-on-cloudflare",
+    summary:
+      "Incremental static regeneration: rebuilding a cached page after its revalidation interval while serving a previously generated page.",
+    term: "ISR",
+  },
+  {
+    routePath: "/lore/there-is-no-isr-on-cloudflare",
+    summary:
+      "Cloudflare's programmable cache for HTTP responses. Each location holds its own cached responses.",
+    term: "Workers Cache",
+  },
+  {
+    routePath: "/lore/tests-that-earn-their-place",
+    summary:
+      "Tests whose expected answers repeat the implementation instead of stating an independent rule.",
+    term: "tautological tests",
+  },
+  {
+    routePath: "/lore/no-comments",
+    summary:
+      "Prose comments are banned. Explained tool directives, safety assertions, and type-only JavaScript JSDoc have stated exceptions.",
+    term: "no comments",
+  },
+  {
+    routePath: "/skills/uncomplect",
+    summary: "Separate concerns that currently change together.",
+    term: "uncomplect",
+  },
+  {
+    routePath: "/skills/uncomplect",
+    summary:
+      "A thin browser route and view that reads client state and calls named client commands.",
+    term: "feature",
+  },
+  {
+    routePath: "/skills/uncomplect",
+    summary:
+      "Browser code that owns queries, named commands, and the local copy of server state.",
+    term: "client",
+  },
+];
 
 export const glossaryEntries = (
   pages: readonly GlossaryPage[],
-  agents: string
+  definitions: readonly GlossaryEntry[] = glossaryDefinitions
 ): readonly GlossaryEntry[] => {
   const entries = new Map<string, GlossaryEntry>();
 
-  const add = (entry: GlossaryEntry) =>
-    entries.set(entry.term.trim().toLowerCase(), entry);
+  for (const entry of definitions) {
+    const key = entry.term.trim().toLowerCase();
 
-  for (const page of pages) {
-    add({
-      routePath: page.routePath,
-      summary: page.description,
-      term: page.title,
-    });
-  }
+    const page = pages.find(
+      (candidate) => candidate.routePath === entry.routePath
+    );
 
-  for (const page of pages) {
-    for (const term of page.terms) {
-      add({ routePath: page.routePath, summary: page.description, term });
-    }
-  }
-
-  for (const [term, routePath] of glossaryNounRoutes) {
-    const summary = agents
-      .split(/\r?\n/u)
-      .find((line) => line.startsWith(`| ${term} |`))
-      ?.split("|")
-      .at(3)
-      ?.trim();
-
-    if (summary === undefined || summary === "") {
+    if (key === "" || entry.summary.trim() === "") {
       throw buildError(
-        "glossary noun",
-        "AGENTS.md",
-        new Error(`Missing noun: ${term}`)
+        "glossary definition",
+        entry.term,
+        new Error("Declare a term and its own nonempty definition.")
       );
     }
 
-    add({ routePath, summary, term });
-  }
-
-  for (const [term, routePath] of [
-    ["port", "/lore/hexagonal-architecture"],
-    ["adapter", "/lore/hexagonal-architecture"],
-    ["Layer", "/lore/layer-constructor-pattern"],
-  ]) {
-    const page = pages.find((candidate) => candidate.routePath === routePath);
-
-    if (page !== undefined && term !== undefined) {
-      add({ routePath: page.routePath, summary: page.description, term });
+    if (page === undefined) {
+      throw buildError(
+        "glossary definition",
+        entry.term,
+        new Error(`Missing teaching page: ${entry.routePath}`)
+      );
     }
+
+    if (entry.summary.trim() === page.description.trim()) {
+      throw buildError(
+        "glossary definition",
+        entry.term,
+        new Error(
+          "Write a term definition instead of copying the page summary."
+        )
+      );
+    }
+
+    if (entries.has(key)) {
+      throw buildError(
+        "glossary definition",
+        entry.term,
+        new Error("Declare each glossary term only once.")
+      );
+    }
+
+    entries.set(key, entry);
   }
 
   return [...entries.values()].toSorted((left, right) =>

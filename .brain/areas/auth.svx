@@ -14,7 +14,7 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/current-person-middleware.ts
     title: "rat-stack/packages/auth/src/current-person-middleware.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "Session middleware; used for CurrentPerson and wire-level failures."
+    note: "Session middleware; used for CurrentPerson and failures sent to the client."
     accessed: "2026-10-01"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/test/auth.test.ts
     title: "rat-stack/packages/auth/test/auth.test.ts at main · joelhooks/rat-stack · GitHub"
@@ -30,18 +30,24 @@ sources:
 
 ## What it does
 
-`packages/auth` runs Better Auth through `@alchemy.run/better-auth` on the vendor chosen by the [database](/systems/database) cartridge.
+The auth cartridge, `packages/auth`, is a package for one job with its implementation and required infrastructure.
+It runs Better Auth, a library for sign-in and sessions, through `@alchemy.run/better-auth`.
+It uses the implementation chosen by the [database](/systems/database) cartridge.
 People sign in with email and password under `/auth`.
 
-`CurrentPersonMiddleware` reads the session on each RPC call and provides `CurrentPerson`, the signed-in person's id.
+RPC means remote procedure call: a client calls a named operation on the server.
+`CurrentPersonMiddleware` checks each call's session before it runs and provides `CurrentPerson`, the signed-in person's id.
+This check is middleware: code that runs around a call.
+
+A capability is one named action with shared value definitions and a server-side implementation.
 `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and in-memory test people.
 
 ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, where devtools calls run as test people.
 
 ## The standard
 
-- An RPC call without a valid session fails as `Unauthenticated`. That is the only auth failure that crosses the wire.
-- A session whose user id does not decode as a person id also fails as `Unauthenticated`.
+- An RPC call without a valid session fails as `Unauthenticated`. That is the only auth failure sent to the client.
+- A session whose user id fails the person-id schema check also fails as `Unauthenticated`.
 - Test people and `rat_test_person` never reach production. Lint keeps `@rat-stack/auth/devtools` inside dev folders, the CLI, and tests (`rat-stack-boundaries/no-devtools-in-production`).
 - A production build of the web app contains no dev module, no devtools code, and no test person.
 

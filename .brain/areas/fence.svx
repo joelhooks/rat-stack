@@ -40,23 +40,29 @@ sources:
 
 ## What it does
 
-The fence makes bad shortcuts fail. [The fence](/lore/the-fence) explains the idea. These checks enforce it today:
+The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. [The fence](/lore/the-fence) explains the idea.
+Effect describes work with typed failures and required services. A service is a named interface for one job.
+
+XState defines state machines: named states and the events that permit movement between them.
+These checks enforce it today:
 
 - Type-aware Oxlint runs Ultracite's core rules and the repo's plugins in `scripts/oxlint-plugin-*.ts`. The plugins cover boundaries, patterns, no comments, Effect tests, and XState with Effect. Vendored anti-slop rules also run. All use `error` severity in `oxlint.config.ts`.
-- `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core; job-shaped ports stay inside. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
-- Effect language-service diagnostics are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so both `tsc` and the editor report failures.
+- `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core. An adapter implements an application-owned interface for a specific provider.
+- Ports, interfaces named for application jobs, stay in core. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
+- Effect language-service diagnostics, compiler messages about Effect code, are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so both `tsc` and the editor report failures.
 - Lefthook runs `pnpm check` and `pnpm test` before every commit.
 - `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
-- CI runs `pnpm turbo run check test build` on a cold install with a frozen lockfile.
+- Continuous integration (CI) runs `pnpm turbo run check test build` after a fresh dependency install.
+- The install uses the exact versions in the lockfile; it cannot update that file.
 
 ## The standard
 
 - A commit runs check and test, and a failure stops it.
 - No agent harness configured in the repo can bypass the hooks with `--no-verify`.
 - Effect diagnostics fail the typecheck.
-- Code carries no prose comments. Tool directives need a reason after `--`; type assertions need a one-line `SAFETY:` invariant. Plain JS may keep type-only JSDoc. [No comments](/lore/no-comments) and [repo law](/AGENTS.md) give the full exception policy.
+- Code carries no prose comments. Tool directives need a reason after `--`; type assertions need a one-line `SAFETY:` statement of the condition that makes the assertion safe. Plain JS may keep type-only JSDoc. [No comments](/lore/no-comments) and [repo law](/AGENTS.md) give the full exception policy.
 - Every lint or diagnostic override names its rule and gives a reason.
-- The number of overrides only shrinks. The [debt ledger](/debt.md) publishes the count by kind.
+- The number of overrides only shrinks. The [debt ledger](/debt.md), a report counting lint and diagnostic exceptions, publishes the count by kind.
 - A new lint rule ships with a test that runs real Oxlint against fixtures.
 - Loosening any of this needs the owner's sign-off.
 

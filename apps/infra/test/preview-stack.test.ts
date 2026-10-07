@@ -45,7 +45,14 @@ it.effect.prop(
           expect(stack.resources.Website?.Props).toMatchObject({
             assets: {
               htmlHandling: "drop-trailing-slash",
-              runWorkerFirst: ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
+              runWorkerFirst: [
+                "/rpc",
+                "/rpc/*",
+                "/__rat",
+                "/__rat/*",
+                "/prompts",
+                "/prompts/*",
+              ],
             },
             domain: { name: `${stage}.ratstack.sh`, zoneName: "ratstack.sh" },
             workersDev: false,
@@ -83,6 +90,8 @@ it.effect.prop(
           expect(
             [...rpcProjection.group.requests.keys()].every((name) =>
               [
+                "listPrompts",
+                "getPrompt",
                 "search",
                 "read",
                 "backlinks",

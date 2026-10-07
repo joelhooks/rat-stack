@@ -141,6 +141,8 @@ test.provider(
         result: {
           links: expectedLinks,
           names: [
+            "listPrompts",
+            "getPrompt",
             "search",
             "read",
             "backlinks",

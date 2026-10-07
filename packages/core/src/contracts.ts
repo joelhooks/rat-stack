@@ -5,6 +5,9 @@ import { AssetReadError } from "./asset-read-error.js";
 import { NoPath } from "./no-path.js";
 import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
+import { UnknownPrompt } from "./unknown-prompt.js";
+
+export { UnknownPrompt } from "./unknown-prompt.js";
 
 export { AssetReadError } from "./asset-read-error.js";
 
@@ -28,7 +31,7 @@ export { NoPath } from "./no-path.js";
 
 export { UnknownPage } from "./unknown-page.js";
 
-const ContentKind = Schema.Literals(["law", "skill", "lore"]);
+const ContentKind = Schema.Literals(["law", "skill", "lore", "prompt"]);
 
 export const SearchMatch = Schema.Struct({
   description: Schema.String,
@@ -176,6 +179,38 @@ export const inspectFileContract = defineContract("inspectFile", {
     path: Schema.String.annotate({ description: "File to inspect" }),
   }),
   output: FileStatsSchema,
+});
+
+export const PromptSlug = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
+);
+
+export const PromptSummary = Schema.Struct({
+  credit: Schema.String,
+  description: Schema.String.check(Schema.isPattern(/\S/u)),
+  slug: PromptSlug,
+  title: Schema.String.check(Schema.isPattern(/\S/u)),
+});
+
+export const Prompt = Schema.Struct({
+  ...PromptSummary.fields,
+  body: Schema.String.check(Schema.isPattern(/\S/u)),
+});
+
+export const listPromptsContract = defineContract("listPrompts", {
+  annotations: { idempotent: true, readOnly: true },
+  description: "List copyable rat-stack agent prompts",
+  failure: AssetReadError,
+  input: Schema.Struct({}),
+  output: Schema.Struct({ prompts: Schema.Array(PromptSummary) }),
+});
+
+export const getPromptContract = defineContract("getPrompt", {
+  annotations: { idempotent: true, readOnly: true },
+  description: "Read one complete rat-stack agent prompt by slug",
+  failure: Schema.Union([UnknownPrompt, AssetReadError]),
+  input: Schema.Struct({ slug: PromptSlug }),
+  output: Prompt,
 });
 
 export const searchContract = defineContract("search", {

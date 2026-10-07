@@ -4,7 +4,28 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import type { AssetBinding } from "./static-assets.js";
 
-export const readerWebsiteRoutes: readonly string[] = ["/", "/assets/*"];
+export const readerWebsiteRoutes: readonly string[] = [
+  "/",
+  "/assets/*",
+  "/AGENTS.md",
+  "/README.md",
+  "/VISION.md",
+  "/glossary",
+  "/log",
+  "/log.md",
+  "/pins.md",
+  "/resources/effect-4-reference-projects",
+  "/resources/lint-rule-limits",
+  "/resources/peers",
+  "/resources/same-version-repos",
+  "/resources/schema-projections-and-code-mode",
+  "/vendor/README.md",
+  "/learn",
+  "/lore",
+  "/lore/*",
+  "/prompts",
+  "/prompts/*",
+];
 
 export const forwardsToReaderWebsite = (
   pathname: string,
