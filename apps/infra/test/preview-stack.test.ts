@@ -44,6 +44,7 @@ it.effect.prop(
           expect(previewResourcesAllowed(stack.resources)).toBe(true);
           expect(stack.resources.Website?.Props).toMatchObject({
             assets: {
+              htmlHandling: "drop-trailing-slash",
               runWorkerFirst: ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
             },
             domain: { name: `${stage}.ratstack.sh`, zoneName: "ratstack.sh" },
