@@ -1,6 +1,6 @@
 ---
 title: "Tokenize the whole file before slicing"
-description: "Select lines after tokenization so each excerpt retains the file's lexical context."
+description: "Select lines after tokenization so preceding code still guides recognition of multiline strings and comments."
 group: concept
 terms:
   - "whole-file tokenization"
@@ -17,6 +17,9 @@ sources:
     note: "Whole-file tokenization requirement"
     accessed: "2026-10-02"
 ---
+
+Tokenization splits source text into parts with syntax roles, such as strings and comments.
+A highlighter uses those roles to style code.
 
 The [code-snippets design brief](/lore/code-snippets) requires whole-file tokenization.
 The highlighter receives the full source before the pipeline selects lines.

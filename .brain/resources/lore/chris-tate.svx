@@ -19,6 +19,8 @@ sources:
 
 # Chris Tate
 
+Generative UI is an interface assembled by a model from supplied components.
+
 Chris Tate calls generative UI instant and says its components, actions, and design system render in milliseconds. [Read the post](https://x.com/ctatedev/status/2101022101750571357); [watch the 18-second demo from the start](https://video.twimg.com/amplify_video/2101022081810911232/vid/avc1/1080x1080/B52suCKnBqA9pt2e.mp4#t=0).
 
-He also describes Jev as a fast judgment between perception and action. [Read the post](https://x.com/ctatedev/status/2100461595788722518).
+He also describes Jev as a model for fast judgment between perception and action. [Read the post](https://x.com/ctatedev/status/2100461595788722518).

@@ -17,4 +17,4 @@ sources:
 
 Theo compares the cloud's effect on infrastructure with agents' effect on software production. He asks developers to revisit assumptions about Git, files, packages, and narrow products as their costs change. [01:50](https://youtu.be/TV6f2weVgCI?t=110) [04:03](https://youtu.be/TV6f2weVgCI?t=243) [06:11](https://youtu.be/TV6f2weVgCI?t=371)
 
-He presents Lakebed as an example of one developer rebuilding a broad deployment stack, while noting its current quality is deliberately limited. [20:48](https://youtu.be/TV6f2weVgCI?t=1248) [22:41](https://youtu.be/TV6f2weVgCI?t=1361)
+He presents Lakebed as an example of one developer rebuilding a broad set of application deployment tools, while noting its current quality is deliberately limited. [20:48](https://youtu.be/TV6f2weVgCI?t=1248) [22:41](https://youtu.be/TV6f2weVgCI?t=1361)
