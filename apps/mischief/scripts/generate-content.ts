@@ -1879,7 +1879,7 @@ These packages have separate jobs. Follow the removal checklists before cutting 
 
   ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
   │ devtools   │ │ web        │ │ infra      │ │ fence      │
-  │ call logs  │ │ TanStack   │ │ Alchemy    │ │ types · CI │
+  │ call logs  │ │ Foldkit    │ │ Alchemy    │ │ types · CI │
   └────────────┘ └────────────┘ └────────────┘ └────────────┘
        in             in             in             in
 
