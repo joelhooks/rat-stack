@@ -2,19 +2,19 @@
 
 Public repos worth tailing for Effect, Alchemy, and XState patterns. Discovery uses `pnpm find-peers` and the [find-peers skill](https://github.com/joelhooks/rat-stack/blob/main/skills/find-peers/SKILL.md). Shared lines do not mean identical versions. Drift is expected.
 
-S means an upstream reference or an adopted pattern; A means active, close to our stack, and studied; B means relevant and worth tailing. C means screened without a relevant pattern for current work; D means off-stack; E means stale without a useful reference; F means no usable reference remains. The skill defines the full rubric. Rank is usefulness, not popularity or version parity.
+S means an upstream reference or an adopted pattern; A means active, close to our stack, and studied; B means relevant and worth tailing. C means screened without a relevant pattern for current work; D means off-stack; E means stale without a useful reference; F means no usable reference remains. The skill defines the full rubric. Rank measures usefulness. Popularity and version parity do not determine it.
 
 The full dataset lives in [peers.json](https://github.com/joelhooks/rat-stack/blob/main/.brain/data/peers.json). The content build filters and sorts those rows; changing a tier never deletes a peer. The main roster shows S through B. C through F stay in **Also seen**.
 
 ## Our pins
 
-Read from rat-stack's root, infra, and core manifests at build time. `=` means a peer's recorded version matches our current pin; `≠` means it differs. We do not infer compatibility from either marker.
+The build reads pins from rat-stack's root, infra, and core manifests. `=` means a peer's recorded version matches our current pin; `≠` means it differs. We do not infer compatibility from either marker.
 
 <PeerPins />
 
-Each peer has a checked date and a default-branch commit linked below. `—` means no direct declaration in the inspected project manifests, not proof of no transitive dependency. Catalogs resolve to their declared versions; ranges are labeled and lockfile resolutions are shown where available. Vendored source mirrors and historical test fixtures do not count as current project pins. Targeted discovery also checks XState 6 alpha and `@xstate/effect` independently of Alchemy; single-line peers qualify when their machine or runtime seam is relevant.
+Each peer has a checked date and a default-branch commit linked below. `—` means the inspected project manifests have no direct declaration. A transitive dependency may still exist. Catalogs resolve to their declared versions; ranges are labeled and lockfile resolutions are shown where available. Vendored source mirrors and historical test fixtures do not count as current project pins. Targeted discovery also checks XState 6 alpha and `@xstate/effect` independently of Alchemy; single-line peers qualify when their machine or runtime seam is relevant.
 
-Refresh peers, versions, and tiers every week or two and after every shared-line bump. The repo-native gardener pass owns the refresh. Update the dataset, not table rows in this page.
+Refresh peers, versions, and tiers every week or two and after every shared-line bump. The repo-native gardener pass owns the refresh. Update the dataset. The build generates this page's table rows.
 
 ## Tailing: B and up
 
@@ -24,6 +24,6 @@ Refresh peers, versions, and tiers every week or two and after every shared-line
 
 ## Version receipts
 
-These links freeze the default-branch source at each checked date. Tier findings come from the linked study, not an inferred adoption. Alchemy's workspace Effect override resolves its catalog range; library peer ranges are not application pins.
+These links freeze the default-branch source at each checked date. The linked study supports each tier finding; shared pins alone do not establish adoption. Alchemy's workspace Effect override resolves its catalog range; library peer ranges are not application pins.
 
 <PeerSources />

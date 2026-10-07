@@ -5,7 +5,7 @@ import {
 } from "@rat-stack/core/contracts";
 import { Schema } from "effect";
 
-import source from "../../../../.brain/data/featured-sites.json";
+import source from "../../../../.brain/data/featured-sites.json" with { type: "json" };
 
 export const FeaturedModel = Schema.Struct({
   featuredSites: FeaturedSites,

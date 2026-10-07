@@ -9,6 +9,7 @@ import {
   faviconIcoBase64,
   ratSvg,
 } from "../mischief/src/rat-icons.generated.js";
+import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
@@ -69,6 +70,7 @@ export default defineConfig(({ isSsrBuild }) => ({
             },
           }
     ),
+    ...(isSsrBuild === true ? [] : [readerFinalizationPlugin()]),
     {
       apply: "build",
       config: (config, environment) => {

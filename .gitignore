@@ -2,6 +2,7 @@ node_modules/
 dist/
 .turbo/
 coverage/
+.rat/deploy/
 **/.alchemy/bundles/
 **/.alchemy/local/
 **/.alchemy/log/

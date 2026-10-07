@@ -23,6 +23,7 @@ import {
   Predicate,
   Redacted,
   Ref,
+  Result,
   Schema,
 } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
@@ -37,6 +38,13 @@ import { DeployRunner } from "./deploy-runner.js";
 import { validateDeployInputs } from "./inputs.js";
 import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
+import { ReceiptStore } from "./receipt-store.js";
+import { watchVerdict } from "./watch.js";
+import {
+  readWorkerVersionSet,
+  WorkerAttributes,
+  workerVersionRetryDefaults,
+} from "./worker-version-readback.js";
 
 const NativeCredentialSchema = Schema.Union([
   Schema.Struct({
@@ -105,18 +113,13 @@ export const readCurrentWorkerVersion = Effect.fn("readCurrentWorkerVersion")(
   }
 );
 
-const WorkerAttributes = Schema.Struct({
-  versionId: Schema.optional(Schema.String),
-  workerName: Schema.String,
-});
-
 const stepError = (
   step: DeployStepError["step"],
   reason: string,
   keys: readonly string[] = []
 ) => new DeployStepError({ keys, reason, step });
 
-const profileCredential = Effect.fn("profileCredential")(
+export const profileCredential = Effect.fn("profileCredential")(
   function* profileCredential(profile: string, entrypoint: string) {
     const registry = yield* collectAuthProviders({
       envFile: Option.some("../../packages/deploy/empty.env"),
@@ -227,6 +230,7 @@ export const localLayer = (
     Effect.gen(function* makeLocalRunner() {
       const fs = yield* FileSystem.FileSystem;
       const client = yield* HttpClient.HttpClient;
+      const receipts = yield* ReceiptStore;
 
       const planned = yield* Ref.make<
         Option.Option<Effect.Success<ReturnType<typeof Stacks.plan>>>
@@ -237,6 +241,7 @@ export const localLayer = (
       >(Option.none());
 
       const contentGeneration = yield* Ref.make(Option.none<string>());
+      const previousContentGeneration = yield* Ref.make(Option.none<string>());
 
       const previousVersions = yield* Ref.make<
         Readonly<Record<string, string>>
@@ -495,6 +500,43 @@ export const localLayer = (
 
         yield* Ref.set(previousVersions, prior);
 
+        const previousContent = yield* client
+          .execute(
+            HttpClientRequest.get(
+              `${baseUrl}/?__rat_recovery=${yield* Clock.currentTimeMillis}`
+            ).pipe(
+              HttpClientRequest.setHeaders({
+                accept: "text/markdown",
+                "accept-encoding": "identity",
+              })
+            )
+          )
+          .pipe(Effect.timeout(15_000), Effect.result);
+
+        const previousGeneration =
+          Result.isSuccess(previousContent) &&
+          previousContent.success.status === 200
+            ? previousContent.success.headers.etag?.match(
+                /^(?:W\/)?"(?<generation>[a-f0-9]{64}):default:%2F"$/u
+              )?.groups?.generation
+            : undefined;
+
+        yield* Ref.set(
+          previousContentGeneration,
+          Option.fromUndefinedOr(previousGeneration)
+        );
+        yield* receipts.saveApply(input.profile, {
+          contentGeneration: generation.value,
+          notUpdated: intended,
+          outcome: "prepared",
+          previousContentGeneration: previousGeneration,
+          previousVersions: prior,
+          profile: input.profile,
+          retainedOrphans: [],
+          updated: [],
+          versions: {},
+        });
+
         const replacements = yield* Effect.forEach(
           Object.values(value.native.resources).filter(
             (node) => node.action === "replace"
@@ -515,6 +557,27 @@ export const localLayer = (
         const retainedReplacementFqns = new Set(
           replacements.flatMap((resource) =>
             resource.RemovalPolicy === "retain" ? [resource.FQN] : []
+          )
+        );
+
+        const versionDeadline = yield* Config.Int(
+          "DEPLOY_WORKER_VERSION_DEADLINE_MS"
+        ).pipe(
+          Config.withDefault(workerVersionRetryDefaults.deadlineMs),
+          Effect.mapError(() =>
+            stepError("apply", "worker-version-deadline-invalid", [
+              "DEPLOY_WORKER_VERSION_DEADLINE_MS",
+            ])
+          )
+        );
+
+        yield* Schema.decodeEffect(
+          Schema.Int.check(Schema.isBetween({ maximum: 600_000, minimum: 0 }))
+        )(versionDeadline).pipe(
+          Effect.mapError(() =>
+            stepError("apply", "worker-version-deadline-invalid", [
+              "DEPLOY_WORKER_VERSION_DEADLINE_MS",
+            ])
           )
         );
 
@@ -580,6 +643,8 @@ export const localLayer = (
           };
         }
 
+        const appliedAt = yield* Clock.currentTimeMillis;
+
         yield* Ref.update(retainedOrphans, (rows) => [
           ...new Set([
             ...rows,
@@ -591,33 +656,42 @@ export const localLayer = (
           ]),
         ]);
 
-        const versions: Record<string, string> = {};
-
-        for (const row of value.resources.filter(
-          (resource) => resource.resourceType === "Cloudflare.Worker"
-        )) {
-          const persisted = yield* store
-            .get({ ...value.stack, fqn: row.fqn, stack: value.stack.name })
-            .pipe(
-              Effect.mapError(() =>
-                stepError("apply", "version-readback-refused")
+        const workers = yield* Effect.forEach(
+          value.resources.filter(
+            (resource) => resource.resourceType === "Cloudflare.Worker"
+          ),
+          (row) =>
+            store
+              .get({ ...value.stack, fqn: row.fqn, stack: value.stack.name })
+              .pipe(
+                Effect.mapError(() =>
+                  stepError("apply", "version-readback-refused")
+                ),
+                Effect.map((persisted) => ({
+                  action: row.action,
+                  attributes:
+                    persisted !== undefined && "attr" in persisted
+                      ? persisted.attr
+                      : undefined,
+                }))
               )
-            );
+        );
 
-          if (persisted !== undefined && "attr" in persisted) {
-            const worker = yield* Schema.decodeUnknownEffect(WorkerAttributes)(
-              persisted.attr
+        const readback = yield* readWorkerVersionSet(
+          workers,
+          prior,
+          (worker) =>
+            get(
+              `/accounts/${Redacted.value(credential.value.accountId)}/workers/scripts/${encodeURIComponent(worker)}/deployments`,
+              credential.value
             ).pipe(
+              Effect.flatMap(readCurrentWorkerVersion),
               Effect.mapError(() =>
-                stepError("apply", "version-readback-invalid")
+                stepError("apply", "live-version-readback-refused")
               )
-            );
-
-            if (worker.versionId !== undefined) {
-              versions[worker.workerName] = worker.versionId;
-            }
-          }
-        }
+            ),
+          { ...workerVersionRetryDefaults, deadlineMs: versionDeadline }
+        );
 
         return {
           ...summarizeApply(
@@ -626,10 +700,11 @@ export const localLayer = (
             "success",
             yield* Ref.get(retainedOrphans)
           ),
-          appliedAt: yield* Clock.currentTimeMillis,
+          appliedAt,
           contentGeneration: generation.value,
           previousVersions: prior,
-          versions,
+          versionReadbacks: readback.checks,
+          versions: readback.versions,
         };
       });
 
@@ -648,6 +723,8 @@ export const localLayer = (
           receipt.contentGeneration,
           receipt.appliedAt
         );
+
+        results.push(...(receipt.versionReadbacks ?? []));
 
         const credential = yield* Ref.get(pinned);
 
@@ -672,6 +749,8 @@ export const localLayer = (
             )
           );
         }
+
+        results.push(yield* watchVerdict(baseUrl));
 
         return results;
       });
@@ -722,6 +801,28 @@ export const localLayer = (
                     } satisfies ApplyReceipt;
                   })
                 ),
+                Effect.map((receipt) => ({
+                  ...receipt,
+                  profile: input.profile,
+                })),
+                Effect.flatMap((receipt) =>
+                  Ref.get(previousContentGeneration).pipe(
+                    Effect.map((previous) => ({
+                      ...receipt,
+                      ...Option.match(previous, {
+                        onNone: () => ({}),
+                        onSome: (value) => ({
+                          previousContentGeneration: value,
+                        }),
+                      }),
+                    })),
+                    Effect.flatMap((value) =>
+                      receipts
+                        .saveApply(input.profile, value)
+                        .pipe(Effect.as(value))
+                    )
+                  )
+                ),
                 Effect.provideContext(callApprovalContext(services, approval))
               )
             )
@@ -734,6 +835,7 @@ export const localLayer = (
       });
     })
   ).pipe(
+    Layer.provideMerge(ReceiptStore.layer()),
     Layer.provideMerge(
       Layer.mergeAll(
         ProfileStoreLive,
