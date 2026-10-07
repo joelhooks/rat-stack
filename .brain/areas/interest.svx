@@ -1,6 +1,6 @@
 ---
 title: "Interest signup"
-description: "Agent-only applications start email confirmation; delivery stays behind job-shaped ports outside core."
+description: "Agent-only applications start email confirmation through interfaces owned by core and delivery implemented in a separate package."
 group: system
 terms:
   - "interest signup"
@@ -18,12 +18,12 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-intake.ts
     title: "Subscriber intake port"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "Job-shaped intake service contract."
+    note: "Interface for starting email confirmation."
     accessed: "2026-10-01"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/interest-confirm-port.ts
     title: "Subscriber confirmation port"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "Job-shaped confirmation service contract."
+    note: "Interface for confirming a signup."
     accessed: "2026-10-01"
   - url: https://github.com/joelhooks/rat-stack/tree/main/packages/subscriber-delivery
     title: "Subscriber delivery adapter"
@@ -46,9 +46,18 @@ sources:
 
 Applications are [agent-only](/tokenmaxx#interested). Submission starts email confirmation. A person must follow the email link in a browser to confirm signup. Confirmation does not reserve a seat.
 
-An agent applies for a person through `joinInterest` over MCP, `POST /api/joinInterest`, or the CLI. The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps. Ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
+An agent applies for a person through the `joinInterest` capability.
+A capability is one named action with shared value definitions and a server-side implementation.
+Call it through MCP, `POST /api/joinInterest`, or the command-line interface (CLI).
+MCP means Model Context Protocol, which lets an agent discover and call tools.
 
-`SubscriberIntake` and `SubscriberConfirm` are job-shaped ports in core. `packages/subscriber-delivery` implements external delivery outside core, and the Worker provides the adapter at composition. See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
+The agent view of [/tokenmaxx](/tokenmaxx) carries a fresh page ticket and the application steps. Ask the questions, show an editable card, and submit only what the person approves. Refusals return the same answer as success, and the person still confirms by email.
+
+`SubscriberIntake` and `SubscriberConfirm` are ports in core: interfaces for starting email confirmation and confirming a signup.
+`packages/subscriber-delivery` provides the adapter, the implementation that connects those interfaces to external delivery.
+The Worker chooses and supplies that implementation when it starts.
+
+See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separate from [account authentication](/systems/auth).
 
 ## The standard
 
@@ -56,7 +65,7 @@ An agent applies for a person through `joinInterest` over MCP, `POST /api/joinIn
 - Consent is explicit: the person approves the agent's exact card and contact permission. An agent must not infer permission to subscribe someone from their address or an unrelated request.
 - Agent application refusals receive a neutral answer rather than revealing whether an address is on file. Expired confirmation links have deliberate refusal responses. Retired submission endpoints return 410 without capturing or delivering an application.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
-- An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact payload. A ticket works once.
+- An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact application data. A ticket works once.
 
 ### Applicant identity
 
@@ -64,14 +73,17 @@ An agent applies for a person through `joinInterest` over MCP, `POST /api/joinIn
 
 - The X field accepts a handle or profile URL and stores `https://x.com/handle` in lowercase. Handles allow 1–15 ASCII letters, digits or underscores, including existing short handles. It refuses status, intent and navigation URLs.
 - [X documents the 15-character limit](https://help.x.com/en/managing-your-account/x-username-rules) and [the allowed characters](https://help.x.com/en/managing-your-account/change-x-handle). Its current account-renaming guidance requires more than four characters. This field reads existing profiles rather than registering usernames.
-- Identity is sealed in the application’s started statement under the same contact key as its answers. Erasure removes that key and its rows.
-- Only the authenticated application reader unseals identity. The delivery request is unchanged and carries neither field.
-- Capability observers receive redacted identity fields. Request analytics, spans and logs never receive their values.
-- MCP request tracing is disabled at the transport for modern and legacy protocols. The protocol’s `tools/call` span records raw parameters before the capability observer can redact them.
+- Identity is stored in protected form in the application's `started` event, which records the start of an application.
+  It uses the same contact key as the answers. Erasure removes that key and its rows.
+- Only the authenticated application reader reads the protected identity. The delivery request is unchanged and carries neither field.
+- Capability observers receive identity fields with their values removed.
+  Request analytics, trace spans, and logs never receive those values.
+  A trace span records an operation's timing and outcome.
+- MCP request tracing is disabled in the protocol implementation for modern and legacy protocols. The protocol’s `tools/call` span records raw parameters before the capability observer can redact them.
 
 ## How to check
 
 - Read `apps/mischief/src/interest/routes.ts` for email confirmation, `retired-routes.ts` for 410 responses, and `packages/core/src/join-intake.ts` for agent applications. The only published signup capability is `joinInterest`.
-- Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation seams. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
+- Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation integration tests. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
 - With an authorized test address, approve an agent application, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
 - Check [OpenAPI](/openapi.json) for `joinInterest` and read the agent view of [/tokenmaxx](/tokenmaxx) for the application steps. Do not bypass confirmation.
