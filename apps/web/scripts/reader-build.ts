@@ -10,6 +10,7 @@ import { isSystemsSkillsRoute } from "../../mischief/scripts/reader-systems-skil
 import { ReaderFlags } from "../src/client/reader-model.ts";
 import { serviceCaptureDocument } from "../src/client/service-capture-document.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
+import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
   const previewCommit = yield* Config.option(
@@ -105,6 +106,12 @@ export const finalizeReader = Effect.fn("reader.finalize")(
     const pages = yield* Schema.decodeEffect(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
     )(source);
+
+    yield* copyReaderAssets(
+      pages,
+      clientDirectory,
+      `${root}/dist/reader-pages.json`
+    );
 
     yield* Effect.forEach((page: (typeof pages)[number]) =>
       Effect.gen(function* finalizePage() {
