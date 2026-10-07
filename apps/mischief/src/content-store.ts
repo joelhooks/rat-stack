@@ -1,4 +1,6 @@
 import { ResourceNotFound } from "@rat-stack/core/contracts";
+import { CardSchema } from "@rat-stack/core/learn";
+import type { Card } from "@rat-stack/core/learn";
 import { LoreGraph } from "@rat-stack/lore";
 import type { LoreGraphService } from "@rat-stack/lore";
 import { Context, Effect, Exit, Layer, Schema } from "effect";
@@ -16,6 +18,7 @@ import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
 
 interface ContentStoreService {
+  readonly learnDeck: Effect.Effect<readonly Card[], AssetReadError>;
   readonly catalog: Effect.Effect<typeof ContentCatalog.Type, AssetReadError>;
   readonly graph: Effect.Effect<LoreGraphService, AssetReadError>;
   readonly search: (
@@ -75,6 +78,18 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
 ) {
   const assets = yield* StaticAssets;
 
+  const learnDeck = yield* cacheData(
+    readData(
+      assets,
+      "/_content/learn.json",
+      Schema.Struct({
+        cards: Schema.Array(CardSchema),
+        version: Schema.Literal(1),
+      }),
+      generation
+    ).pipe(Effect.map((deck) => deck.cards))
+  );
+
   const catalog = yield* cacheData(
     readData(assets, "/_content/catalog.json", ContentCatalog, generation)
   );
@@ -99,6 +114,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
   return {
     catalog,
     graph,
+    learnDeck,
     read: (id) =>
       catalog.pipe(
         Effect.flatMap(

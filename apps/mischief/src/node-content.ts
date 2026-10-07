@@ -3,7 +3,7 @@ import { Effect, FileSystem, Layer, Path } from "effect";
 
 import { assetDirectoryForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
-import { ContentStore } from "./content-store.js";
+import { contentLayer } from "./capabilities/index.js";
 import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
 
@@ -57,6 +57,6 @@ export const nodeAssetsLayer = nodeAssetsForGeneration(
   staticAssetGeneration
 );
 
-export const nodeContentLayer = ContentStore.layer.pipe(
+export const nodeContentLayer = contentLayer.pipe(
   Layer.provide(nodeAssetsLayer)
 );

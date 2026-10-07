@@ -42,6 +42,7 @@
     "@rat-stack/core": "workspace:*",
     "@rat-stack/events": "workspace:*",
     "@rat-stack/intake-live": "workspace:*",
+    "@rat-stack/learn": "workspace:*",
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
     "alchemy": "2.0.0-beta.80",

@@ -48,6 +48,13 @@ export const lawSpecs: readonly SourceSpec[] = [
     title: "Schema projections: 2026-09-18 history",
   },
   {
+    description:
+      "Turn on learn mode: your own agent explains rat-stack ideas during real work and keeps progress local.",
+    routePath: "/learn",
+    sourcePath: ".brain/resources/learn-mode.svx",
+    title: "Learn rat-stack from your own agent",
+  },
+  {
     description: "How the current lint rules draw their syntax boundaries.",
     routePath: "/resources/lint-rule-limits",
     sourcePath: ".brain/resources/lint-rule-limits.svx",

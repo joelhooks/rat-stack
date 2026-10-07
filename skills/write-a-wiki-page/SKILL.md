@@ -159,7 +159,11 @@ Check the exact-message tests when diagnostics change. Do not present a paraphra
 - Review backlinks for context. Unlinked mentions suggest connections; they are not citations.
 - Add bibliography entries for factual sources.
 
-Each entry has `url`, `title`, `publisher`, `note`, and `accessed`. The note says what the source supports. Both views show the bibliography.
+A linked entry has `url`, `title`, `publisher`, `note`, and `accessed`. Its `kind` defaults to `linked`.
+
+An authorized recorded source uses `kind: recording`, `title`, `recordedAt` (ISO date), and `note`. It has no URL. Keep private recording links and identifiers out of public files. Both views show its title and date without a link.
+
+The note says what the source supports. Recording entries do not supply deck references; add a checked public source for those.
 
 Cite exact revisions for code. Keep sourced content within its evidence. Mark missing evidence rather than adding plausible claims.
 

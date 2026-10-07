@@ -71,13 +71,20 @@ export const readerView = (
               ". Every page is Markdown by default; add Accept: text/html for HTML.",
             ]
           ),
-          readerWorkshop(model, h),
+          ...(model.workshop === undefined
+            ? []
+            : [readerWorkshop(model.workshop, h)]),
           ...(model.page.path === "/"
             ? []
             : [
                 h.nav(
                   [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
-                  [h.a([h.Href("/lore")], ["lore"]), ` / ${model.heading}`]
+                  [
+                    model.page.path.startsWith("/lore/")
+                      ? h.a([h.Href("/lore")], ["lore"])
+                      : h.a([h.Href("/")], ["source files"]),
+                    ` / ${model.heading}`,
+                  ]
                 ),
               ]),
           h.h1([], [model.heading]),
@@ -107,7 +114,7 @@ export const readerView = (
                   throw new Error(`Missing copy prompt: ${id}`);
                 }
 
-                return h.span(
+                const control = h.span(
                   [h.Class("copy-actions")],
                   [
                     h.button(
@@ -145,6 +152,22 @@ export const readerView = (
                     ),
                   ]
                 );
+
+                return prompt.showText
+                  ? h.div(
+                      [h.Class("prompt")],
+                      [
+                        control,
+                        h.details(
+                          [h.Class("prompt-text")],
+                          [
+                            h.summary([], ["See the prompt"]),
+                            h.pre([], [h.code([], [prompt.text])]),
+                          ]
+                        ),
+                      ]
+                    )
+                  : control;
               },
               inboundCounts: model.references?.inboundCounts ?? {},
               pagePath: model.page.path,
@@ -182,10 +205,14 @@ export const readerView = (
                       model.bibliography.map((source, index) =>
                         h.li(
                           [h.Id(`source-${index + 1}`)],
-                          [
-                            h.a([h.Href(source.url)], [source.title]),
-                            `. ${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
-                          ]
+                          source.kind === "linked"
+                            ? [
+                                h.a([h.Href(source.url)], [source.title]),
+                                `. ${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
+                              ]
+                            : [
+                                `${source.title}. Recorded ${source.recordedAt}. ${source.note}.`,
+                              ]
                         )
                       )
                     ),

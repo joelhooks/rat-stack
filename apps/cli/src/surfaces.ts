@@ -9,8 +9,10 @@ import {
   toHttpApi,
   toToolkit,
 } from "@rat-stack/capability";
-import { capabilities } from "@rat-stack/core";
+import { capabilities as coreCapabilities } from "@rat-stack/core";
 import { devtools, devtoolsLayer } from "@rat-stack/devtools";
+import { learnCapabilities } from "@rat-stack/learn";
+import { localLearnCapabilities } from "@rat-stack/learn/local";
 import { Effect, Layer, Logger } from "effect";
 import { McpProtocol, McpServer } from "effect/ai";
 import { HttpRouter } from "effect/http";
@@ -18,11 +20,21 @@ import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 
 import { VERSION } from "./version.js";
 
+export const capabilities = [
+  ...coreCapabilities,
+  ...learnCapabilities,
+] as const;
+
+export const cliCapabilities = [
+  ...coreCapabilities,
+  ...localLearnCapabilities,
+] as const;
+
 export const http = toHttpApi("RatStack", capabilities);
 
-export const tools = toToolkit(capabilities);
+export const tools = toToolkit(cliCapabilities);
 
-export const codeMode = toCodeMode(capabilities);
+export const codeMode = toCodeMode(cliCapabilities);
 
 export const routes = Layer.merge(
   HttpApiBuilder.layer(http.api, { openapiPath: "/openapi.json" }).pipe(
@@ -59,11 +71,12 @@ const withStdio = <A, E, R>(server: Layer.Layer<A, E, R>) =>
 
 export const DEVTOOLS_MCP_PATH = "/__rat/mcp";
 
-const withDevtools = <A, E, R>(
+const withDevtools = <const Caps extends readonly AnyCapability[], A, E, R>(
+  caps: Caps,
   build: (
-    projected: Effect.Success<ReturnType<typeof devtools<typeof capabilities>>>
+    projected: Effect.Success<ReturnType<typeof devtools<Caps>>>
   ) => Layer.Layer<A, E, R>
-) => Layer.unwrap(Effect.map(devtools(capabilities), build));
+) => Layer.unwrap(Effect.map(devtools(caps), build));
 
 const toolkitServer = <const Caps extends readonly AnyCapability[]>(
   all: Caps
@@ -76,6 +89,7 @@ const toolkitServer = <const Caps extends readonly AnyCapability[]>(
 };
 
 export const devtoolsRoutes = withDevtools(
+  capabilities,
   ({ capabilities: all, recorded }) => {
     const api = toHttpApi("RatStack", recorded);
 
@@ -112,10 +126,10 @@ export const mcpServer = {
     )
   ),
   devtools: withStdio(
-    withDevtools(({ capabilities: all }) => toolkitServer(all))
+    withDevtools(cliCapabilities, ({ capabilities: all }) => toolkitServer(all))
   ).pipe(Layer.provide(devtoolsLayer())),
   devtoolsCodeMode: withStdio(
-    withDevtools(({ capabilities: all }) => {
+    withDevtools(cliCapabilities, ({ capabilities: all }) => {
       const projected = toCodeMode(all);
 
       return McpServer.toolkit(projected.toolkit).pipe(

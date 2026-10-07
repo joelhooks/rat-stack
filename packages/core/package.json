@@ -14,6 +14,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./learn": {
+      "types": "./src/learn.ts",
+      "import": "./dist/learn.js",
+      "default": "./dist/learn.js"
+    },
     "./contracts": {
       "types": "./src/contracts.ts",
       "import": "./dist/contracts.js",
