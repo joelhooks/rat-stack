@@ -19,6 +19,8 @@ html {
     Consolas,
     monospace;
   overflow-wrap: anywhere;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
