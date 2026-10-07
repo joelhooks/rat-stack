@@ -11,6 +11,7 @@ import {
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderRouteLedger } from "../src/page-descriptor.ts";
+import { readerRoutePaths } from "../src/reader-routes.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
   const fs = yield* FileSystem.FileSystem;
@@ -19,7 +20,7 @@ const program = Effect.gen(function* emitReaderLedger() {
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
     const included =
-      page.path === "/" ||
+      readerRoutePaths.includes(page.path) ||
       page.path === "/lore" ||
       page.path.startsWith("/lore/");
 

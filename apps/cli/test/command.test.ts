@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
-import { capabilities } from "@rat-stack/core";
 
 import { rootCommand } from "../src/command.js";
+import { capabilities } from "../src/surfaces.js";
 
 describe("command registration", () => {
   it("registers every capability by its name", () => {

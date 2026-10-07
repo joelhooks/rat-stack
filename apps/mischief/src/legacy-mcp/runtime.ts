@@ -4,7 +4,7 @@ import * as HttpEffect from "effect/http/HttpEffect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { legacyMcpProtocols, mcpLayer } from "../app.js";
-import { ContentStore } from "../content-store.js";
+import { contentLayer } from "../capabilities/index.js";
 import type { StaticAssets } from "../static-assets.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -19,7 +19,7 @@ export const legacyMcpRuntime = <R>(
     const context = yield* Layer.buildWithMemoMap(
       Layer.provideMerge(
         mcpLayer(legacyMcpProtocols).pipe(
-          Layer.provide(ContentStore.layer),
+          Layer.provide(contentLayer),
           Layer.provide(sandbox)
         ),
         HttpRouter.layer

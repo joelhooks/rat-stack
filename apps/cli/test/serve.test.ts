@@ -1,17 +1,24 @@
 import { NodeHttpServer, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { capabilities, FileInspector } from "@rat-stack/core";
+import { FileInspector } from "@rat-stack/core";
 import {
   ActorLog,
   CallLog,
   OutcomeSchema,
   devtoolsLayer,
 } from "@rat-stack/devtools";
+import { Learner } from "@rat-stack/learn";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
 import { HttpClient, HttpRouter, HttpServer } from "effect/http";
 import { HttpApiClient } from "effect/http-api";
 
-import { devtoolsRoutes, http, routes, serverLayer } from "../src/surfaces.js";
+import {
+  capabilities,
+  devtoolsRoutes,
+  http,
+  routes,
+  serverLayer,
+} from "../src/surfaces.js";
 
 const decodeOpenApi = Schema.decodeUnknownSync(
   Schema.Struct({ paths: Schema.Record(Schema.String, Schema.Unknown) })
@@ -21,6 +28,7 @@ const AppLayer = HttpRouter.serve(routes, {
   disableListenLog: true,
   disableLogger: true,
 }).pipe(
+  Layer.provide(Learner.layer(Effect.succeed([]))),
   Layer.provideMerge(NodeHttpServer.layerTest),
   Layer.provide(FileInspector.layer.pipe(Layer.provide(NodeServices.layer)))
 );
@@ -119,6 +127,7 @@ describe("serve routes", () => {
           disableListenLog: true,
           disableLogger: true,
         }).pipe(
+          Layer.provide(Learner.layer(Effect.succeed([]))),
           Layer.provideMerge(NodeHttpServer.layerTest),
           Layer.provideMerge(devtoolsLayer()),
           Layer.provide(

@@ -87,6 +87,7 @@
     <section aria-label="Explore">
       <h2>Explore</h2>
       <ul>
+        <li><a href="/learn">learn mode</a></li>
         <li><a href="/glossary">glossary</a></li>
         <li><a href="/log">change log</a></li>
         <li><a href="/resources/peers">peers</a></li>

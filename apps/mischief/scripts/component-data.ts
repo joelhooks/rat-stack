@@ -1,12 +1,33 @@
-import { Schema } from "effect";
+import {
+  learnCardContract,
+  learnDeckContract,
+  learnNextContract,
+  learnRecordContract,
+} from "@rat-stack/core/contracts";
+import { Effect, Schema } from "effect";
 
-export const bibliographySourceSchema = Schema.Struct({
+export const linkedSourceSchema = Schema.Struct({
   accessed: Schema.String,
+  kind: Schema.Literal("linked").pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed("linked"))
+  ),
   note: Schema.String,
   publisher: Schema.String,
   title: Schema.String,
   url: Schema.String,
 });
+
+export const recordingSourceSchema = Schema.Struct({
+  kind: Schema.Literal("recording"),
+  note: Schema.String,
+  recordedAt: Schema.String.check(Schema.isPattern(/^\d{4}-\d{2}-\d{2}$/u)),
+  title: Schema.String,
+});
+
+export const bibliographySourceSchema = Schema.Union([
+  linkedSourceSchema,
+  recordingSourceSchema,
+]);
 
 export type BibliographySource = typeof bibliographySourceSchema.Type;
 
@@ -39,6 +60,19 @@ export const copyPrompts = {
     showLabel: true,
     showText: false,
     text: '{ "mcpServers": { "rat-stack": { "url": "__RATSTACK_ORIGIN__/mcp" } } }',
+  },
+  learn: {
+    agentFence: true,
+    label: "Copy prompt",
+    showText: true,
+    text: [
+      "Turn on rat-stack learn mode for me.",
+      `1. Connect to the rat-stack MCP server at https://ratstack.sh/mcp. Use ${learnDeckContract.name} and ${learnCardContract.name} to read the public concept deck.`,
+      "2. Install the rat-stack skills with npx skills add joelhooks/rat-stack, then follow https://ratstack.sh/skills/learn.",
+      `3. Keep my progress local in ~/.rat-learn/. Use the local ${learnNextContract.name} and ${learnRecordContract.name} tools from a rat-stack checkout, as the skill says.`,
+      "4. Never send my code, file paths, names, repository names, or prompts.",
+      "5. Ask me to confirm before you start. Keep questions off unless I turn them on. Stop when I say learn mode off.",
+    ].join("\n"),
   },
   mcp: {
     agentFence: false,
