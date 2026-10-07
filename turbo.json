@@ -121,6 +121,11 @@
         "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
       ]
     },
+    "@rat-stack/infra#test": {
+      "dependsOn": ["^build", "@rat-stack/web#build"],
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/**"]
+    },
     "@rat-stack/web#typecheck": {
       "dependsOn": ["^build", "^typecheck"],
       "outputs": []

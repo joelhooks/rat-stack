@@ -21,6 +21,8 @@
     "format:check": "oxfmt --check",
     "deploy:plan": "pnpm turbo run build --concurrency=1 && APP_ENV=production pnpm exec varlock run -- pnpm --filter @rat-stack/infra exec node --import ./node_modules/alchemy/bin/register-oxc.js ../../packages/deploy/dist/cli.js deployPlan",
     "deploy:prod": "pnpm turbo run build --concurrency=1 && APP_ENV=production pnpm exec varlock run -- pnpm --filter @rat-stack/infra exec node --import ./node_modules/alchemy/bin/register-oxc.js ../../packages/deploy/dist/cli.js deployProd",
+    "deploy:preview": "bash scripts/deploy-preview.sh deploy",
+    "deploy:preview:destroy": "bash scripts/deploy-preview.sh destroy",
     "infra:deploy": "pnpm --filter @rat-stack/infra deploy",
     "infra:destroy": "pnpm --filter @rat-stack/infra destroy",
     "infra:dev": "pnpm --filter @rat-stack/infra dev",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.86.1",
     "@effect/tsgo": "0.45.0",
+    "@foldkit/oxlint-plugin": "0.15.2",
     "@oxlint/plugins": "1.83.0",
     "@types/node": "24.13.6",
     "effect": "4.0.0",
