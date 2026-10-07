@@ -41,5 +41,8 @@ export const mainSemantics = (html: string) => {
         name: element.name,
         text: DomUtils.textContent(element).replaceAll(/\s+/gu, " ").trim(),
       })),
+    workshopCount: elements.filter((element) =>
+      (element.attribs.class ?? "").split(/\s+/u).includes("workshop-callout")
+    ).length,
   };
 };
