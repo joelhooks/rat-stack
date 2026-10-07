@@ -14,6 +14,7 @@ sources:
 
 # Anti-money
 
-Sam describes Alchemy as "anti-money": reduce SaaS products to libraries, then ask what remains valuable to manage. He names secrets and observability in that discussion. [Watch from 39:15](https://youtu.be/MtKHzAH6uXM?t=2355).
+Sam describes Alchemy as "anti-money": reduce software sold as a service (SaaS) to libraries, then ask what remains valuable to manage. He names secrets and observability in that discussion.
+Observability uses logs, metrics, and traces to understand a running system. [Watch from 39:15](https://youtu.be/MtKHzAH6uXM?t=2355).
 
 See [his Alchemy conversation](/lore/devtools-fm-sam-goodwin-alchemy).
