@@ -5,6 +5,7 @@ import { bibliographySourceSchema } from "../../../mischief/scripts/component-da
 import { ReaderPageDescriptor, ReaderReferences } from "../page-descriptor.js";
 import { ReaderBlock } from "./reader-document.js";
 import type { ReaderMessage } from "./reader-message.js";
+import { ReaderBreadcrumb, ReaderNodeSchema } from "./reader-node.js";
 
 export { ReaderReferences } from "../page-descriptor.js";
 
@@ -12,6 +13,8 @@ export const ReaderFlags = Schema.Struct({
   agentMarkdown: Schema.optional(Schema.String),
   bibliography: Schema.Array(bibliographySourceSchema),
   blocks: Schema.Array(ReaderBlock),
+  bodyNodes: Schema.optional(Schema.Array(ReaderNodeSchema)),
+  breadcrumb: Schema.optional(ReaderBreadcrumb),
   codeFences: Schema.Array(
     Schema.Struct({ html: Schema.String, value: Schema.String })
   ),

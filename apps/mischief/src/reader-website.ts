@@ -8,6 +8,10 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/",
   "/assets/*",
   "/learn",
+  "/lore",
+  "/lore/*",
+  "/prompts",
+  "/prompts/*",
 ];
 
 export const forwardsToReaderWebsite = (
