@@ -4,7 +4,11 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import type { AssetBinding } from "./static-assets.js";
 
-export const readerWebsiteRoutes: readonly string[] = ["/", "/assets/*"];
+export const readerWebsiteRoutes: readonly string[] = [
+  "/",
+  "/assets/*",
+  "/learn",
+];
 
 export const forwardsToReaderWebsite = (
   pathname: string,
