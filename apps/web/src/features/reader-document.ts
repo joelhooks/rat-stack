@@ -118,5 +118,6 @@ export const renderReaderBlock = <Message>(
           renderers.pagePath
         )
       ),
+    PromptText: ({ value }) => h.pre([h.Class("prompt")], [value]),
     Snippet: renderers.snippet,
   });

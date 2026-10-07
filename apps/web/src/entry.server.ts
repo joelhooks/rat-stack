@@ -8,10 +8,11 @@ import {
 import { ReaderFlags, readerInit } from "./client/reader-model.js";
 import { pages } from "./client/reader-pages.js";
 import { readerView } from "./features/reader.js";
+import { readerPrerenderOrigin } from "./server/prerender-origin.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
 import { WebsiteBindings } from "./server/website-bindings.js";
 
-export { readerRoutePaths as prerenderPaths } from "./reader-routes.js";
+export const prerenderPaths = pages.map((page) => page.page.path);
 
 const previewHeaders = Effect.fn("reader.previewHeaders")(
   function* previewHeaders(request: Request) {
@@ -98,6 +99,26 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       );
     }
 
+    const promptRoute = route === "/prompts" || route.startsWith("/prompts/");
+    const prerender = new URL(request.url).origin === readerPrerenderOrigin;
+
+    if (
+      promptRoute &&
+      !prerender &&
+      !(request.headers.get("Accept") ?? "").includes("text/html")
+    ) {
+      return yield* responded(
+        request,
+        new Response(request.method === "HEAD" ? null : page.agentMarkdown, {
+          headers: {
+            "Content-Type": "text/markdown; charset=utf-8",
+            Vary: "Accept",
+          },
+          status: page.page.status,
+        })
+      );
+    }
+
     const application = yield* renderToString(
       { Flags: ReaderFlags, init: readerInit, view: readerView },
       { flags: page }
@@ -105,7 +126,11 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
 
     const headers = yield* previewHeaders(request);
 
-    if (headers.has("X-Robots-Tag")) {
+    if (promptRoute && !prerender) {
+      headers.set("Vary", "Accept");
+    }
+
+    if ([...headers].length > 0) {
       return Rendered(application, { headers, status: page.page.status });
     }
 

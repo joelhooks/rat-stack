@@ -35,9 +35,7 @@ export const ReaderBlock = defineTaggedUnion({
     meta: Schema.String,
     value: Schema.String,
   },
-  CopyPrompt: {
-    id: Schema.Literals(["connect", "mcp", "cursor", "skills", "learn"]),
-  },
+  CopyPrompt: { id: Schema.String },
   Diagram: { alt: Schema.String, value: Schema.String },
   Heading: {
     id: Schema.String,
@@ -46,6 +44,7 @@ export const ReaderBlock = defineTaggedUnion({
   },
   List: { items: Schema.Array(Schema.Array(ReaderInlineSchema)) },
   Paragraph: { content: Schema.Array(ReaderInlineSchema) },
+  PromptText: { value: Schema.String },
   Snippet: {
     at: Schema.String,
     lines: Schema.String,

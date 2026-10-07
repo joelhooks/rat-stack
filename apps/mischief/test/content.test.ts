@@ -36,7 +36,11 @@ import {
   stringifyContentMarkdown,
 } from "../scripts/svx-ast.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
-import { llmsText, searchContent } from "./content-fixture.js";
+import {
+  contentResources,
+  llmsText,
+  searchContent,
+} from "./content-fixture.js";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
@@ -976,6 +980,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/",
         "/skills",
         "/lore",
+        "/prompts",
         "/systems",
         "/glossary",
         "/--no-verify",
@@ -983,6 +988,9 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         ...lawSources.map((source) => source.routePath),
         ...loreSources.map((lore) => lore.routePath),
         ...skillSources.map((skill) => skill.routePath),
+        ...contentResources
+          .filter((resource) => resource.kind === "prompt")
+          .map((resource) => resource.routePath),
       ]);
 
       expect(new Set(ogImages.map((image) => image.routePath))).toEqual(
