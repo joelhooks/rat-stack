@@ -95,7 +95,12 @@ export const readerPromptFlags = Effect.fn("readerPromptFlags")(
           ReaderBlock.Paragraph({ content: credit }),
         ],
         copyPrompts: [
-          { id: prompt.slug, label: "Copy prompt", text: prompt.body },
+          {
+            id: prompt.slug,
+            label: "Copy prompt",
+            showText: false,
+            text: prompt.body,
+          },
         ],
         heading: prompt.title,
         page: {

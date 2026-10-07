@@ -5,11 +5,11 @@ import * as Layer from "effect/Layer";
 import { RpcSerialization, RpcServer } from "effect/rpc";
 
 import { staticAssetGeneration } from "./bundled-content.generated.js";
-import { contentCapabilities, contentLayer } from "./capabilities/index.js";
+import { contentLayer, readerCapabilities } from "./capabilities/index.js";
 import { privateObservability } from "./observability.js";
 import { workerAssetsLayer } from "./worker-content.js";
 
-export const rpcProjection = toRpc(contentCapabilities);
+export const rpcProjection = toRpc(readerCapabilities);
 
 export const rpcContentDirectory = () =>
   new URL(`../dist/content/assets/${staticAssetGeneration}/`, import.meta.url)

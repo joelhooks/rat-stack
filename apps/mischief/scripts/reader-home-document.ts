@@ -192,7 +192,8 @@ const inlineFromTermTree = (node: LoreHastNode): ParsedInline => {
 
 const weaveHomeTerms = (
   blocks: readonly HomeBlock[],
-  targets: readonly LoreTermTarget[]
+  targets: readonly LoreTermTarget[],
+  route: string
 ) => {
   const children = blocks.map((block): LoreHastNode => {
     if (Predicate.isTagged(block, "Paragraph")) {
@@ -220,7 +221,7 @@ const weaveHomeTerms = (
 
   const termTree = { children, type: "root" };
   linkStackEntities()(termTree);
-  linkLoreTerms(targets, "/", new Set<string>())()(termTree);
+  linkLoreTerms(targets, route, new Set<string>())()(termTree);
 
   return blocks.map((block, index) => {
     const woven = children[index]?.children ?? [];
@@ -241,9 +242,10 @@ const weaveHomeTerms = (
   });
 };
 
-export const compileHomeDocument = (
+export const compileReaderDocument = (
   source: string,
-  targets: readonly LoreTermTarget[]
+  targets: readonly LoreTermTarget[],
+  page: { readonly heading: string; readonly route: string }
 ) => {
   const root = unified().use(remarkParse).parse(source);
   const first = root.children.at(0);
@@ -251,9 +253,11 @@ export const compileHomeDocument = (
   if (
     first?.type !== "heading" ||
     first.depth !== 1 ||
-    first.children.map(plainInline).join("") !== "Rat Stack"
+    first.children.map(plainInline).join("") !== page.heading
   ) {
-    throw new Error("Home source must start with its single Rat Stack heading");
+    throw new Error(
+      `Reader source for ${page.route} must start with its single ${page.heading} heading`
+    );
   }
 
   const blocks: HomeBlock[] = [];
@@ -271,7 +275,7 @@ export const compileHomeDocument = (
     }
 
     const prompt =
-      /^<CopyPrompt id="(?<id>connect|mcp|cursor|skills)" \/>$/u.exec(
+      /^<CopyPrompt id="(?<id>connect|mcp|cursor|skills|learn)" \/>$/u.exec(
         node.value.trim()
       );
 
@@ -302,5 +306,5 @@ export const compileHomeDocument = (
     );
   }
 
-  return { blocks: weaveHomeTerms(blocks, targets) };
+  return { blocks: weaveHomeTerms(blocks, targets, page.route) };
 };

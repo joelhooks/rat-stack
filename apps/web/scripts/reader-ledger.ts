@@ -11,6 +11,7 @@ import {
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderRouteLedger } from "../src/page-descriptor.ts";
+import { isReaderRoutePath } from "../src/reader-routes.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
   const fs = yield* FileSystem.FileSystem;
@@ -21,10 +22,7 @@ const program = Effect.gen(function* emitReaderLedger() {
     const prompt =
       page.path === "/prompts" || page.path.startsWith("/prompts/");
 
-    const included =
-      prompt ||
-      page.path === "/" ||
-      page.path === "/lore/services-capture-dependencies";
+    const included = isReaderRoutePath(page.path);
 
     const markdownAvailability = prompt
       ? "included"

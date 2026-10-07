@@ -3,7 +3,12 @@ title: "One prompt serves people and agents"
 description: "Source-owned agent prompts with typed discovery and copyable browser pages."
 group: system
 terms: ["agent prompt"]
-sources: []
+sources:
+  - url: https://github.com/joelhooks/rat-stack/pull/45
+    title: "Prompt capabilities and reader pages"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Source ownership, shared contracts, adapters, and copyable pages."
+    accessed: "2026-10-07"
 ---
 
 ## What it does

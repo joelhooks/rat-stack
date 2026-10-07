@@ -5,6 +5,7 @@ group: concept
 terms:
   - "context and requirements"
   - "Effect requirements"
+prerequisites: []
 sources:
   - url: https://youtu.be/YEn4A7XxgF4?t=714
     title: "#116 Infrastructure as Effects with Sam Goodwin - YouTube"
@@ -25,3 +26,5 @@ Sam describes the requirements channel as a way to model an infrastructure permi
 Michael describes an Effect by its output, predictable failures, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).
 
 See [Effect basics](/lore/effect-basics) and [infrastructure as effects](/lore/infrastructure-as-effects).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

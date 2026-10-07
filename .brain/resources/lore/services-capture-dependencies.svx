@@ -5,6 +5,7 @@ group: idea
 terms:
   - "Service construction"
   - "Dependency capture"
+prerequisites: ["lore.context-and-requirements"]
 sources:
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
     title: "Effect contributors. 2026. Context. Effect 4.0.0."
@@ -90,3 +91,5 @@ Supply its Layer at the [composition root](/lore/layers-make-dependencies-explic
 - rat-stack also uses capability projections, cartridge packages, and a no-comments rule.
 
 See also: [domain structure](/lore/structure-effect-by-domain), [Layer composition](/lore/layers-make-dependencies-explicit), [the Layer constructor pattern](/lore/layer-constructor-pattern), and [testing through services](/lore/tests-that-earn-their-place).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

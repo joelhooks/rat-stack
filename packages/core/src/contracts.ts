@@ -11,6 +11,22 @@ export { UnknownPrompt } from "./unknown-prompt.js";
 
 export { AssetReadError } from "./asset-read-error.js";
 
+export {
+  CardSchema,
+  ConceptProgressSchema,
+  LearnContextSchema,
+  LearnDepthSchema,
+  LearnEventSchema,
+  ProgressSchema,
+} from "./learn-model.js";
+
+export {
+  learnCardContract,
+  learnDeckContract,
+  learnNextContract,
+  learnRecordContract,
+} from "./learn-contracts.js";
+
 export { NoPath } from "./no-path.js";
 
 export { UnknownPage } from "./unknown-page.js";

@@ -5,6 +5,7 @@ group: concept
 terms:
   - "Layer constructor"
   - "layer as constructor"
+prerequisites: ["lore.services-capture-dependencies"]
 sources:
   - url: https://youtu.be/MtKHzAH6uXM?t=1125
     title: "Sam Goodwin - Alchemy - YouTube"
@@ -18,3 +19,5 @@ sources:
 Sam compares the constructor pattern to a Layer and uses a React component as an analogy. In the same discussion, he connects the pattern to infrastructure policies. [Watch from 18:45](https://youtu.be/MtKHzAH6uXM?t=1125).
 
 See [Sam Goodwin on Alchemy](/lore/devtools-fm-sam-goodwin-alchemy) and [cartridges](/lore/cartridges).
+
+Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).
