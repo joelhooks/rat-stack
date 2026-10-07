@@ -28,7 +28,6 @@ export const readerWorkshop = <Message>(
               ]),
             ]
           ),
-          h.small([h.Class("workshop-callout-note")], [workshop.note]),
         ]
       ),
     ]

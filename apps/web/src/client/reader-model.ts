@@ -42,7 +42,6 @@ export const ReaderFlags = Schema.Struct({
       label: Schema.String,
       line: Schema.String,
       link: Schema.String,
-      note: Schema.String,
     })
   ),
 });
