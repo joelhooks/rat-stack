@@ -15,6 +15,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
 
     const props = {
       assets: {
+        htmlHandling: "drop-trailing-slash",
         notFoundHandling: "none",
         runWorkerFirst: ["/rpc", "/rpc/*", "/__rat", "/__rat/*"],
       },
