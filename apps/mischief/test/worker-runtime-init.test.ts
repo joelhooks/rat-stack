@@ -40,6 +40,15 @@ const workerEnvironment = {
       throw new Error("The runtime-init request must not invoke the sandbox");
     },
   } satisfies WorkerLoaderBinding,
+  WEBSITE: {
+    // oxlint-disable-next-line typescript/promise-function-async -- The Website stub implements a native service binding.
+    fetch: () =>
+      Promise.resolve(
+        new Response("Foldkit", {
+          headers: { "content-type": "text/html", "x-reader": "true" },
+        })
+      ),
+  },
 };
 
 const unavailableLegacyMcp = {
@@ -84,25 +93,48 @@ it.effect(
 
           const handler = Cloudflare.Workers.makeRequestHandler(worker.fetch);
 
-          const responseEffect: unknown = handler({
-            context: {},
-            env: workerEnvironment,
-            input: new Request("https://ratstack.sh/not-a-route"),
-            kind: "Cloudflare.Workers.WorkerEvent",
-            type: "fetch",
-          });
+          for (const [path, accept, status, reader] of [
+            ["/not-a-route", "*/*", 404, null],
+            ["/", "text/html", 200, "true"],
+            ["/", "*/*", 200, null],
+            ["/", "text/markdown", 200, null],
+            ["/assets/x.js", "*/*", 200, "true"],
+            ["/llms.txt", "text/html", 200, null],
+          ] as const) {
+            const responseEffect: unknown = handler({
+              context: {},
+              env: workerEnvironment,
+              input: new Request(`https://ratstack.sh${path}`, {
+                headers: { accept },
+              }),
+              kind: "Cloudflare.Workers.WorkerEvent",
+              type: "fetch",
+            });
 
-          if (responseEffect === undefined) {
-            return yield* Effect.die(
-              new Error("Worker fetch handler was absent")
-            );
+            if (responseEffect === undefined) {
+              return yield* Effect.die(
+                new Error("Worker fetch handler was absent")
+              );
+            }
+
+            // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
+            const typed = responseEffect as Effect.Effect<Response>;
+
+            const response = yield* typed;
+
+            expect(response.status).toBe(status);
+            expect(response.headers.get("x-reader")).toBe(reader);
+
+            if (path === "/" && reader === null) {
+              expect(response.headers.get("content-type")).toContain(
+                "text/markdown"
+              );
+              expect(
+                yield* Effect.promise(response.text.bind(response))
+              ).toContain("Rat Stack");
+            }
           }
-
-          // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
-          const typedResponseEffect = responseEffect as Effect.Effect<Response>;
-          const response = yield* typedResponseEffect;
-          expect(response.status).toBe(404);
 
           return yield* Effect.void;
         }),
