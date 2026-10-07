@@ -13,6 +13,10 @@ const readerPages = new Set(
   readerWebsiteRoutes.filter((route) => !route.endsWith("/*"))
 );
 
+const readerFamilies = readerWebsiteRoutes
+  .filter((route) => route.endsWith("/*"))
+  .map((route) => route.split("/").slice(0, -1));
+
 const pathSchema = Schema.Union([
   Schema.Literals([
     "/",
@@ -75,9 +79,19 @@ it.effect.prop(
 
       const actualPath = new URL(request.url).pathname;
 
+      const segments = actualPath.split("/");
+
+      const readerPath =
+        readerPages.has(actualPath) ||
+        readerFamilies.some(
+          (family) =>
+            segments.length > family.length &&
+            family.every((segment, index) => segment === segments[index])
+        );
+
       const expected =
         actualPath.startsWith("/assets/") ||
-        (readerPages.has(actualPath) &&
+        (readerPath &&
           ["text/html", "text/html; charset=utf-8", "TEXT/HTML"].includes(
             accept
           ));
