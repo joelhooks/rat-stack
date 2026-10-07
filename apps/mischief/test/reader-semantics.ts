@@ -1,5 +1,22 @@
 import { DomUtils, parseDocument } from "htmlparser2";
 
+export const footerSemantics = (html: string) => {
+  const document = parseDocument(html);
+
+  const footer = DomUtils.getElementsByTagName("footer", document.children).at(
+    0
+  );
+
+  if (footer === undefined) {
+    throw new Error("Reader page has no footer element");
+  }
+
+  return DomUtils.getElementsByTagName("a", footer.children).map((element) => ({
+    href: element.attribs.href,
+    text: DomUtils.textContent(element).trim(),
+  }));
+};
+
 export const mainSemantics = (html: string) => {
   const document = parseDocument(html);
   const main = DomUtils.getElementsByTagName("main", document.children).at(0);

@@ -6,7 +6,10 @@ import { renderToString } from "foldkit/experimental/server";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
 import { isSystemsSkillsRoute } from "../../mischief/scripts/reader-systems-skills-routes.ts";
-import { mainSemantics } from "../../mischief/test/reader-semantics.ts";
+import {
+  footerSemantics,
+  mainSemantics,
+} from "../../mischief/test/reader-semantics.ts";
 import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
 import { readerView } from "../src/features/reader.js";
 
@@ -43,6 +46,9 @@ it.effect(
           mainSemantics(
             old?.html.replaceAll("__RATSTACK_ORIGIN__", page.origin) ?? ""
           )
+        );
+        expect(footerSemantics(rendered.html), page.page.path).toEqual(
+          footerSemantics(old?.html ?? "")
         );
         expect(page.page.generation).toBe(inputs.generation);
         expect(page.page.metadata.canonicalPath).toBe(page.page.path);
