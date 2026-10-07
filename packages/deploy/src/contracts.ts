@@ -2,9 +2,11 @@ import { VerdictSchema } from "@rat-stack/check-harness";
 import { Schema } from "effect";
 
 import { PlanRowsSchema, PlanRowSchema } from "./plan.js";
+import { CheckoutStateSchema, CommitShaSchema } from "./source.js";
 
 export const DeployInputSchema = Schema.Struct({
   allow: Schema.Array(PlanRowSchema),
+  expectSha: Schema.optionalKey(CommitShaSchema),
   mode: Schema.Literals(["plan", "prod"]),
   ownerApproved: Schema.optionalKey(Schema.Boolean),
   profile: Schema.NonEmptyString,
@@ -48,11 +50,19 @@ export class DeployStepError extends Schema.TaggedError<DeployStepError>()(
   {
     keys: Schema.Array(Schema.String),
     reason: Schema.String,
-    step: Schema.Literals(["preflight", "plan", "apply", "checks"]),
+    step: Schema.Literals([
+      "source",
+      "preflight",
+      "plan",
+      "quietWindow",
+      "apply",
+      "checks",
+    ]),
   }
 ) {}
 
 export const DeployVerdictSchema = Schema.Struct({
+  checkout: Schema.optionalKey(CheckoutStateSchema),
   checks: Schema.Array(VerdictSchema),
   keys: Schema.Array(Schema.String),
   outcome: Schema.Literals([
@@ -66,6 +76,7 @@ export const DeployVerdictSchema = Schema.Struct({
   ]),
   reason: Schema.optional(Schema.String),
   receipt: Schema.optional(ApplyReceiptSchema),
+  resources: Schema.optionalKey(Schema.Array(Schema.String)),
   rows: Schema.Array(PlanRowSchema),
   step: Schema.String,
 });

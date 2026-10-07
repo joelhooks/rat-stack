@@ -48,6 +48,8 @@ Use only capabilities marked on. When automation is off, the authorized owner fo
 
 Concurrent releases are allowed. WAIT[stage-queue] owns queue admission. Serialize deployment mutations through each stage's queue. Prepare and verify releases concurrently. Latest eligible candidates supersede older queued candidates; record that outcome.
 
+Name the exact commit you ship, and respect the stage's quiet windows. Put these guards in the deploy driver, never in a shell wrapper around it.
+
 Guard each release with its own version-scoped checks. Never wait for the previous release's post-check. Require an observed plan, exact version readback and forward-compatible storage.
 
 ## 4. Roll out and verify

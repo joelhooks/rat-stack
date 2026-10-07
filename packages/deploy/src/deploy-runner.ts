@@ -9,10 +9,12 @@ import type {
   DeployStepError,
   PreparedPlan,
 } from "./contracts.js";
+import type { CheckoutState } from "./source.js";
 
 export class DeployRunner extends Context.Service<
   DeployRunner,
   {
+    readonly source: () => Effect.Effect<CheckoutState, DeployStepError>;
     readonly preflight: (
       input: DeployInput
     ) => Effect.Effect<readonly string[], DeployStepError>;

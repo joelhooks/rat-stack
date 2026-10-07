@@ -9,7 +9,8 @@ Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
 - `pnpm deploy:rollback --profile <profile> --yes` restores the prior Worker versions from the last apply receipt.
 - `--receipt .rat/deploy/<profile>/last-apply.json` selects an explicit recovery receipt. Relative paths start at the repository root.
 - `--allow '[{"resource":"Example","action":"create"}]'` grants one exact resource-action exception. It grants no other change.
-- `--owner-approved` records obtained owner sign-off for deletion, replacement, orphaning or unbinding. It does not obtain permission. The exact allow entry is still required.
+- `--ownerApproved` records obtained owner sign-off for deletion, replacement, orphaning or unbinding. It does not obtain permission. The exact allow entry is still required.
+- `--expectSha <full sha>` names the commit you mean to ship. The driver refuses to plan or apply unless `HEAD` is that commit and the tree has no changes or untracked files. The verdict records the head it saw and the changed paths.
 - Run `pnpm turbo run check test build --concurrency=1` first.
 - Keep `pnpm mischief:smoke` until typed checks pass in production.
 
@@ -20,6 +21,17 @@ Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
 Missing production inputs, unreadable plans and refused permissions stop before apply. Unknown checks do not prove health. Partial apply exits with code 4 and lists completed and incomplete resources. A step crash exits with code 5.
 
 Replacements and deletions need owner sign-off, recorded separately from the allow-list. Neither flag creates authority.
+
+A refused plan stops before apply. The verdict's `resources` field names each resource that needs an allow entry or owner sign-off.
+
+## Quiet windows
+
+A quiet window is a daily UTC time range when `deployProd` must not apply, because another tenant deploys then. Planning still runs.
+
+- `DEPLOY_QUIET_WINDOWS` holds the windows as JSON, for example `[{"start":"14:00","end":"15:30"}]`. A window may cross midnight. Empty means no windows.
+- `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` sets how long the driver may wait. The default is 0, so it refuses at once. The maximum is one hour.
+- The check runs after the plan passes and just before apply. Inside a window, the driver waits for its end if that end comes within the bound. Otherwise it refuses with `inside-quiet-window`.
+- An invalid window list refuses with `quiet-window-config-invalid`.
 
 The classifier reads native Alchemy plan values, including bindings and tasks. It never reads terminal formatting. Alchemy confirmations use the capability approval service. Other unattended prompts fail with a typed error.
 
@@ -38,7 +50,13 @@ The local adapter applies the exact in-memory Alchemy plan it classified. The pr
 
 The apply receipt records prior Worker versions and the observed prior content generation. After upload, it reads current versions from deployment history, not optional Alchemy state version IDs. Updated Workers wait for a new single-version deployment at 100 percent. Noops can retain their current version. `DEPLOY_WORKER_VERSION_DEADLINE_MS` sets the bounded settling budget; the default is 120 seconds per Worker. Readback attempts remain in the receipt. Readback exhaustion fails qualification without relabeling completed uploads as partial. The adapter saves recovery evidence before mutation. It saves the final apply receipt afterward. Local files under `.rat/deploy/` are recovery evidence, not infrastructure state.
 
-The ten-minute watch probes both HTML and agent Accept headers. It preserves route, status, incident ID and at most 300 response bytes. Two consecutive content-500 cycles stop it early. Any observed non-200 disqualifies the watch, even if the route recovers. Automatic rollback stays off.
+The ten-minute watch probes both HTML and agent Accept headers.
+
+- It reads `/sitemap.xml` first. Every cycle probes six fixed routes and a slice of the sitemap routes. The slices cover every listed route in the first third of the watch, then repeat.
+- For each non-200 response it keeps the route, status, `cf-ray`, incident ID and the first 4 KB of the body. That is enough to tell a Cloudflare error page from an app error.
+- Two consecutive content-500 cycles stop it early. Any observed non-200 disqualifies the watch, even if the route recovers.
+- An empty sitemap or a route the watch never reached also fails it.
+- Automatic rollback stays off. Recover only with `pnpm deploy:rollback`.
 
 Rollback needs explicit capability approval. Missing, malformed or oversized receipts refuse before mutation. The selected profile must match the receipt. Each restored Worker must read back at its target version. Already restored versions cause no write. Separate rollback receipts preserve progress without replacing the source apply receipt. Missing prior content identity prevents health qualification.
 

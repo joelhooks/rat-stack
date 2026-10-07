@@ -29,6 +29,7 @@ import {
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { summarizeApply } from "./apply-receipt.js";
 import { measuredCheck, postDeployChecks } from "./checks.js";
@@ -231,6 +232,7 @@ export const localLayer = (
       const fs = yield* FileSystem.FileSystem;
       const client = yield* HttpClient.HttpClient;
       const receipts = yield* ReceiptStore;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
       const planned = yield* Ref.make<
         Option.Option<Effect.Success<ReturnType<typeof Stacks.plan>>>
@@ -324,6 +326,31 @@ export const localLayer = (
 
         return prior;
       });
+
+      const source = Effect.fn("local.source")(
+        function* source() {
+          const head = yield* spawner.string(
+            ChildProcess.make("git", ["rev-parse", "HEAD"])
+          );
+
+          const status = yield* spawner.string(
+            ChildProcess.make("git", [
+              "status",
+              "--porcelain=v1",
+              "--untracked-files=normal",
+            ])
+          );
+
+          return {
+            changed: status
+              .split("\n")
+              .filter((line) => line.trim().length > 0)
+              .map((line) => line.slice(3)),
+            head: head.trim(),
+          };
+        },
+        Effect.mapError(() => stepError("source", "checkout-state-unreadable"))
+      );
 
       const preflight = Effect.fn("local.preflight")(
         function* preflight(input: DeployInput) {
@@ -832,6 +859,7 @@ export const localLayer = (
         plan: (input) => plan(input).pipe(Effect.provideContext(services)),
         preflight: (input) =>
           preflight(input).pipe(Effect.provideContext(services)),
+        source,
       });
     })
   ).pipe(
