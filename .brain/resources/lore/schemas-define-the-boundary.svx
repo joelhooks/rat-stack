@@ -43,6 +43,10 @@ sources:
     accessed: "2026-10-06"
 ---
 
+Schema defines accepted values, runtime checks, and associated TypeScript types.
+Decoding checks external input and produces an application value. Encoding produces its external representation.
+A codec connects these two representations.
+
 Define the values the application accepts before writing the handler.
 Decode unknown input at the boundary. Encode results through the declared output schema.
 
@@ -62,6 +66,7 @@ Use `Schema.Union` when accepted alternatives have different shapes, including t
 
 ## Put the schemas in the contract
 
+A contract declares an action's input, output, and failures.
 The file-inspection contract names its input, result, and failure.
 
 ```ts repo=rat-stack path=packages/core/src/contracts.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=155-163
@@ -77,7 +82,7 @@ Our code-mode invoker calls the handler only after decoding succeeds.
 ```ts repo=rat-stack path=packages/capability/src/to-code-mode.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=148-156
 ```
 
-Rejected input becomes `InvalidInput`. The domain handler receives the decoded value, not the original unknown input.
+Rejected input becomes `InvalidInput`. The domain handler receives the decoded value after validation.
 
 The same invoker uses `Schema.encodeUnknownEffect` for declared outputs and failures.
 For an already-typed value, `Schema.encodeEffect` supplies the typed encoding API.
@@ -106,7 +111,7 @@ Use the schema's decoding and encoding APIs. Report malformed input separately f
 ## Effect idiom and house rule
 
 - Schema defines runtime decoding, encoding, and the associated TypeScript types.
-- In rat-stack, one capability contract supplies schemas to every surface projection.
+- In rat-stack, one capability contract supplies schemas to every interface projection.
 - rat-stack also uses capabilities and a bodyless HTTP 400 response for malformed input.
 
 See also: [one schema, three surfaces](/lore/one-schema-three-surfaces), [OpenAPI refusals](/lore/openapi-describes-the-refusal-too), [services](/lore/services-capture-dependencies), and [testing](/lore/tests-that-earn-their-place).
