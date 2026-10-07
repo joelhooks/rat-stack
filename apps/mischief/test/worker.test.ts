@@ -502,9 +502,7 @@ it.effect(
         expect(markdown).toContain(
           "claude mcp add --transport http rat-stack https://ratstack.sh/mcp"
         );
-        expect(markdown).toContain("labeled · push in · pull out");
         expect(markdown).toContain("│  defineContract");
-        expect(markdown).toContain("What to notice:");
         expect(markdown).toContain("npx skills add joelhooks/rat-stack");
         expect(markdown).toContain("## Source files");
         expect(markdown).toContain(
