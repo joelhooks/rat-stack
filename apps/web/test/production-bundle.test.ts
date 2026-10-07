@@ -31,6 +31,11 @@ const forbiddenModules = [
   "src/dev/",
   "../../packages/devtools/",
   "../../packages/auth/src/devtools",
+  "htmlparser2",
+  "code-snippets",
+  "shiki",
+  "../mischief/scripts/reader-body-document",
+  "../mischief/scripts/reader-site-inputs",
 ];
 
 const build = (nodeEnv: "development" | "production") => {
@@ -110,7 +115,7 @@ const build = (nodeEnv: "development" | "production") => {
 
 const devtoolsModules = (sources: ReadonlySet<string>) =>
   [...sources].filter((source) =>
-    forbiddenModules.some((prefix) => source.startsWith(prefix))
+    forbiddenModules.some((prefix) => source.includes(prefix))
   );
 
 const BUILD = 60_000;
