@@ -50,6 +50,7 @@ export const readerFooter = <Message>(h: HtmlBuilder<Message>) =>
                 [
                   h.li([], [h.a([h.Href("/learn")], ["learn mode"])]),
                   h.li([], [h.a([h.Href("/glossary")], ["glossary"])]),
+                  h.li([], [h.a([h.Href("/prompts")], ["prompts"])]),
                   h.li([], [h.a([h.Href("/log")], ["change log"])]),
                   h.li([], [h.a([h.Href("/resources/peers")], ["peers"])]),
                 ]

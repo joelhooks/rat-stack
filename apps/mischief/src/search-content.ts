@@ -1,6 +1,6 @@
 import type { SearchResource } from "./content-data.js";
 
-type ContentKind = "law" | "skill" | "lore";
+type ContentKind = "law" | "skill" | "lore" | "prompt";
 
 export interface SearchMatch {
   readonly description: string;
