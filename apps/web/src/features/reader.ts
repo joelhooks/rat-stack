@@ -77,6 +77,7 @@ export const readerView = (
             : [readerWorkshop(model.workshop, h)]),
           ...(model.page.path === "/" ||
           model.page.path === "/lore" ||
+          model.page.path === "/glossary" ||
           model.page.path === "/systems" ||
           model.page.path === "/skills"
             ? []

@@ -48,9 +48,11 @@ export const ReaderTag = Schema.Literals([
   "time",
   "tr",
   "ul",
+  "wbr",
 ]);
 
 export const ReaderAttributeName = Schema.Literals([
+  "align",
   "alt",
   "aria-label",
   "aria-labelledby",
@@ -60,6 +62,7 @@ export const ReaderAttributeName = Schema.Literals([
   "colspan",
   "data-label",
   "data-line",
+  "data-tier",
   "datetime",
   "disabled",
   "height",
