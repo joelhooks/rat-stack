@@ -81,3 +81,54 @@ it("accumulates independent defects across cards and resolves explicit page prer
     true
   );
 });
+
+const teaching = Arbitrary.array(
+  Arbitrary.schema(
+    Schema.Struct({ broken: Schema.Boolean, taught: Schema.Boolean })
+  ),
+  { maxLength: 8, minLength: 1 }
+);
+
+it.prop(
+  "every snippet compile failure is collected, and missing teaching fields only lower coverage",
+  { teaching },
+  ({ teaching: pages }) => {
+    const sources = pages.map(({ broken, taught }, index) => ({
+      ...source("Summary."),
+      diagram: taught || broken ? "a\n│\nb" : undefined,
+      id: `lore.concept-${index}`,
+      plain: taught || broken ? "One line." : undefined,
+      routePath: `/lore/concept-${index}`,
+      snippet: taught || broken ? "export {};" : undefined,
+      snippetDiagnostics: broken
+        ? ["1:1 TS2322: Type 'string' is not assignable."]
+        : undefined,
+    }));
+
+    const broken = pages.filter((page) => page.broken).length;
+
+    try {
+      const { cards, coverage } = deriveDeck(sources);
+      const taught = pages.filter((page) => page.taught).length;
+
+      expect(broken).toBe(0);
+      expect(coverage.snippet).toBe(taught);
+      expect(coverage.missing).toHaveLength(pages.length - taught);
+      expect(cards.filter((card) => card.snippet !== undefined)).toHaveLength(
+        taught
+      );
+    } catch (error) {
+      const failure = Schema.decodeUnknownSync(InvalidLearnDeck)(error);
+
+      expect(
+        failure.errors.filter((entry) => entry.reason.startsWith("Snippet"))
+      ).toHaveLength(broken);
+    }
+  }
+);
+
+it("rejects a snippet file that names no concept", () => {
+  expect(() => deriveDeck([source("Summary.")], [], ["lore.ghost"])).toThrow(
+    "lore.ghost: Snippet file names no concept"
+  );
+});

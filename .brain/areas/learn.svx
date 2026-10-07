@@ -40,8 +40,16 @@ Learn mode explains the technology and principles used in real work. [The learn 
 
 The build derives a concept deck from public lore, system pages, and skills. Cards preserve page titles, summaries, terms, references, and links. Explicit prerequisite metadata supplies prerequisite ids.
 
+A card can also teach with three optional fields:
+
+| Field | Source | Content |
+| --- | --- | --- |
+| `plain` | Page frontmatter | One line in plain words, shown before the claim. |
+| `snippet` | `.brain/data/learn-cards/<id>.ts` | The smallest idiomatic TypeScript for the idea. |
+| `diagram` | Page frontmatter | Plain text, at most 30 columns and 12 rows. |
+
 A capability is one named action with shared value definitions and a server-side implementation.
-Four capabilities serve the deck and learning events:
+Four capabilities serve the deck and learning events. Two local capabilities serve display preferences:
 
 | Capability | Job |
 | --- | --- |
@@ -49,6 +57,10 @@ Four capabilities serve the deck and learning events:
 | `learnCard` | Read one card at a requested depth. |
 | `learnNext` | Select explanations for concepts in play. |
 | `learnRecord` | Record an explicit learning event. |
+| `learnPreferences` | Read local display preferences. Local only. |
+| `learnSetPreferences` | Change local display preferences. Local only. |
+
+`learnNext` and `learnRecord` treat omitted progress as empty version 1 progress.
 
 XState owns the learning lifecycle as a state machine: named states and the events that permit movement between them.
 Effect describes the work with typed failures and required services. A service is a named interface for one job.
@@ -76,6 +88,7 @@ Public HTTP and MCP calls operate on supplied progress. The public server stores
 | `cards.jsonl` | Rebuildable concept progress. |
 | `tasks.jsonl` | Rebuildable concept ids and presentation depths. |
 | `README.md` | Store shape and recovery instructions. |
+| `preferences.json` | Display width, visual style, and snippet length. A missing file means narrow inline text with full snippets. |
 
 ## The standard
 
@@ -88,6 +101,10 @@ Public HTTP and MCP calls operate on supplied progress. The public server stores
 - Identical events append once. A writer lock protects each operation.
 - Derived copies can be replaced. An incomplete source log fails without writes.
 - Cards preserve source text. The build accumulates reference and prerequisite errors.
+- The build compiles every snippet with the real `tsc` and the Effect diagnostics. It collects every failure before it stops.
+- A missing snippet or diagram is a coverage warning. The build reports the counts.
+- `rat-stack-patterns/learn-snippet-idiom` keeps snippets on the service idiom: operations, a namespaced key, `static layer` with `Service.of`, and `Effect.provide` at the edge.
+- Preferences stay on the machine. No request carries them.
 - Property tests check depth and merge. A generated history model checks events and elapsed time.
 
 Effect Schema describes accepted values and their runtime checks.
@@ -109,10 +126,10 @@ node apps/cli/dist/cli.js mcp --devtools
 Through an MCP client:
 
 1. Call `learnDeck` and choose `lore.effect-basics`.
-2. Call `learnNext` with that id, timestamp 100, and empty version 1 progress.
+2. Call `learnNext` with that id and timestamp 100. Omit progress.
 3. Confirm the returned depth is `walkthrough` in a fresh store.
 4. Call `learnRecord` with a version 1 `shown` event at 100 and depth `walkthrough`.
-5. Call `learnNext` at 101 with empty supplied progress.
+5. Call `learnNext` at 101. Omit progress again.
 6. Confirm the returned depth is `line`. The local log supplies the progress.
 7. Inspect `rat_list_calls` for three successful learning calls.
 
@@ -122,17 +139,15 @@ Without MCP, use the same local adapter through the CLI:
 
 ```sh
 node apps/cli/dist/cli.js learnNext \
-  --progress '{"concepts":[],"version":1}' \
   --context '{"at":100,"ids":["lore.effect-basics"]}'
 node apps/cli/dist/cli.js learnRecord \
-  --progress '{"concepts":[],"version":1}' \
   --event '{"at":100,"depth":"walkthrough","id":"lore.effect-basics","kind":"shown","version":1}'
 node apps/cli/dist/cli.js learnNext \
-  --progress '{"concepts":[],"version":1}' \
   --context '{"at":101,"ids":["lore.effect-basics"]}'
+node apps/cli/dist/cli.js learnPreferences
 ```
 
-Check one event in `log.jsonl`. Repeat the record command and confirm that the event count stays one. Confirm outbound deck requests contain only an empty JSON body.
+Confirm `learnPreferences` prints narrow inline text in a fresh directory. Check one event in `log.jsonl`. Repeat the record command and confirm that the event count stays one. Confirm outbound deck requests contain only an empty JSON body.
 
 Run the implementation checks:
 

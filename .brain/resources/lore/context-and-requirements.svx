@@ -1,6 +1,13 @@
 ---
 title: "Context and requirements"
 description: "Effect requirements make a computation's needed services visible in its type."
+plain: "An Effect's type says what it returns, how it can fail, and which services it needs."
+diagram: |-
+  Effect<string, never, Greeter>
+         out     err    needs
+    │ provide(Greeter.layer)
+    ▼
+  Effect<string, never, never>
 group: concept
 terms:
   - "context and requirements"
