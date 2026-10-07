@@ -6,6 +6,7 @@ import type { ReaderModel } from "../client/reader-model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
+import { renderReaderNode } from "./reader-node.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 
@@ -14,6 +15,21 @@ const copyStatusText = {
   copying: "",
   failed: "Copy failed. Select the text and copy it.",
   idle: "",
+};
+
+const readerBreadcrumb = (
+  path: string,
+  h: HtmlBuilder<typeof ReaderMessage.Type>
+) => {
+  if (path.startsWith("/prompts")) {
+    return h.a([h.Href("/prompts")], ["prompts"]);
+  }
+
+  if (path.startsWith("/lore/")) {
+    return h.a([h.Href("/lore")], ["lore"]);
+  }
+
+  return h.a([h.Href("/")], ["source files"]);
 };
 
 export const readerView = (
@@ -74,20 +90,28 @@ export const readerView = (
           ...(model.workshop === undefined
             ? []
             : [readerWorkshop(model.workshop, h)]),
-          ...(model.page.path === "/"
+          ...(model.page.path === "/" ||
+          model.page.path === "/lore" ||
+          model.page.path === "/systems" ||
+          model.page.path === "/skills"
             ? []
             : [
                 h.nav(
                   [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
                   [
-                    model.page.path.startsWith("/lore/")
-                      ? h.a([h.Href("/lore")], ["lore"])
-                      : h.a([h.Href("/")], ["source files"]),
-                    ` / ${model.heading}`,
+                    model.breadcrumb === undefined
+                      ? readerBreadcrumb(model.page.path, h)
+                      : h.a(
+                          [h.Href(model.breadcrumb.href)],
+                          [model.breadcrumb.label]
+                        ),
+                    ` / ${model.breadcrumb?.name ?? model.heading}`,
                   ]
                 ),
               ]),
-          h.h1([], [model.heading]),
+          ...(model.bodyNodes === undefined
+            ? [h.h1([], [model.heading])]
+            : model.bodyNodes.map((node) => renderReaderNode(node, h))),
           ...model.blocks.map((block) =>
             renderReaderBlock(block, h, {
               anchors: model.references?.anchors ?? [],

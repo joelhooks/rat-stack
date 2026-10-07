@@ -10,6 +10,7 @@ import { collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
   assertDocumentTitle,
   assertGlossaryLinks,
+  glossaryEntries,
   assertLoreTerms,
   assertSkillGroups,
   ContentBuildError,
@@ -35,7 +36,11 @@ import {
   stringifyContentMarkdown,
 } from "../scripts/svx-ast.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
-import { llmsText, searchContent } from "./content-fixture.js";
+import {
+  contentResources,
+  llmsText,
+  searchContent,
+} from "./content-fixture.js";
 import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
@@ -829,24 +834,42 @@ it.layer(NodeServices.layer)("generated content", (test) => {
   );
 
   test.effect(
-    "glossary summaries come from page descriptions or the noun table",
+    "glossary declarations need their own definitions and teaching pages",
     () =>
       Effect.sync(() => {
-        const agents =
-          lawSources.find((page) => page.routePath === "/AGENTS.md")?.text ??
-          "";
+        const pages = [...loreSources, ...skillSources];
 
         for (const entry of glossaryTerms) {
-          const page = [...loreSources, ...skillSources].find(
+          const page = pages.find(
             (candidate) => candidate.routePath === entry.routePath
           );
 
-          expect(
-            page?.description === entry.summary ||
-              agents.includes(entry.summary),
-            entry.term
-          ).toBe(true);
+          expect(glossaryEntries(pages, [entry])).toEqual([entry]);
+
+          for (const summary of ["", "   ", page?.description ?? ""]) {
+            expect(() =>
+              glossaryEntries(pages, [{ ...entry, summary }])
+            ).toThrow(ContentBuildError);
+          }
+
+          expect(() =>
+            glossaryEntries(
+              pages.filter(
+                (candidate) => candidate.routePath !== entry.routePath
+              ),
+              [entry]
+            )
+          ).toThrow(ContentBuildError);
+
+          expect(() =>
+            glossaryEntries(pages, [
+              entry,
+              { ...entry, term: ` ${entry.term.toUpperCase()} ` },
+            ])
+          ).toThrow(ContentBuildError);
         }
+
+        expect(glossaryEntries(pages, [])).toEqual([]);
       })
   );
 
@@ -957,6 +980,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/",
         "/skills",
         "/lore",
+        "/prompts",
         "/systems",
         "/glossary",
         "/--no-verify",
@@ -964,6 +988,9 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         ...lawSources.map((source) => source.routePath),
         ...loreSources.map((lore) => lore.routePath),
         ...skillSources.map((skill) => skill.routePath),
+        ...contentResources
+          .filter((resource) => resource.kind === "prompt")
+          .map((resource) => resource.routePath),
       ]);
 
       expect(new Set(ogImages.map((image) => image.routePath))).toEqual(

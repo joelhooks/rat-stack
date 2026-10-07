@@ -7,7 +7,25 @@ description: Learn how to ship a change through merge, CI, release, stage deploy
 
 Read `AGENTS.md` first. Use [the project mapping](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/project.md) for commands, approval boundaries, owners and evidence.
 
-## 1. Read current capability state
+## Terms used here
+
+- **Candidate:** the exact commit and deployment version being considered for release.
+- **Stage:** a named deployment environment, such as production.
+- **Canary:** an isolated deployment used to check a candidate before wider release. The project mapping determines its allowed test traffic.
+- **Promotion:** making a checked candidate active.
+- **Qualification:** passing the named checks required for that exact version or behavior.
+- **Readback:** reading deployed state from the provider to confirm the active version.
+- **Adapter:** the implementation that connects the release procedure to a deployment provider.
+- **Rollback:** making a recorded earlier version active without rebuilding it. It does not undo stored data or database changes.
+- **Flag:** an approved switch that controls whether a behavior is enabled.
+- **CI:** continuous integration, the automated checks run for a commit.
+- **CLI:** command-line interface, a program called through terminal commands.
+- **Effect:** the library for describing work with typed failures and required services.
+- **Service:** a named interface for one job.
+- **WAIT:** a procedure stop until its named condition has evidence. It is not a running scheduler.
+- **HOLD:** a stopped release awaiting a decision. It does not declare a failed check or trigger rollback.
+
+## 1. Read current deployment availability
 
 <!-- deploy-confidence:start -->
 
@@ -19,24 +37,24 @@ Continuous deployment is off.
 - Automatic rollback before promotion: off.
 - Provisioned canary stage: off.
 - Gradual rollout: off.
-- Deploy runner: local (fixture-qualified only; no production proof).
+- Deploy runner: local (checked with local test fixtures only; not proven in production).
 
 Off means unavailable for operational use, even if code or fixture tests exist.
 <!-- deploy-confidence:end -->
 
 ## 2. Prepare and merge
 
-Ship one small release per PR. Keep new behavior behind its approved flag until qualification passes.
+Ship one small release per pull request (PR). Keep new behavior behind its approved flag until its required checks pass.
 
-Pin the candidate, base, observed source and infrastructure diffs, release owner and restoration target. Use fast commit checks locally. CI runs the full suite against that candidate.
+Record the exact candidate commit and deployment version, base version, observed code and infrastructure changes, and release owner. Record the version to restore if the release fails. Use fast commit checks locally. CI runs the full suite against that candidate.
 
-Follow the project's merger ownership, protection and stack ordering. Do not bypass hooks or put approval policy in merge tooling.
+Follow the project's rules for who may merge, branch protection, and the order of dependent pull requests. Do not bypass hooks or put approval policy in merge tooling.
 
 ### Merging
 
-When the project uses label-free Kodiak, a ready PR merges itself once required CI is green. Open a PR only when it is meant to merge; add `NO MERGE` to hold it. Kodiak skips drafts and squash-merges eligible PRs. Real conflicts belong to the lane to fix. Read the project mapping for stack ordering and blocking labels.
+When the project uses label-free Kodiak, a ready PR merges itself once required CI passes. Kodiak is the service that merges eligible pull requests. Open a PR only when it is meant to merge; add `NO MERGE` to hold it. Kodiak skips drafts and squash-merges eligible PRs. The lane fixes merge conflicts. Read the project mapping for the order of dependent pull requests and blocking labels.
 
-WAIT[candidate-ci] owns waiting for the merged commit's CI and stage proof. A PR proof does not cover a different merged commit.
+WAIT[candidate-ci]: stop until the merged commit passes CI and has the required stage checks. A PR proof does not cover a different merged commit.
 
 Read [CI and stage qualification](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/ci-stage.md) and [flags](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/flags.md).
 
@@ -44,13 +62,15 @@ Read [CI and stage qualification](https://github.com/joelhooks/rat-stack/blob/ma
 
 Read [runner selection](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/deploy-runner.md) and [deploy keys](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/deploy-key.md). Code, configuration and authorization are separate facts.
 
-Use only capabilities marked on. When automation is off, the authorized owner follows the project's manual path.
+Use only deployment features marked on. When automation is off, the authorized owner follows the project's manual path.
 
-Concurrent releases are allowed. WAIT[stage-queue] owns queue admission. Serialize deployment mutations through each stage's queue. Prepare and verify releases concurrently. Latest eligible candidates supersede older queued candidates; record that outcome.
+Prepare and verify releases concurrently. Changes to the same deployment stage must run one at a time. WAIT[stage-queue]: stop until the authorized release has its turn for that stage. The latest eligible candidate replaces older queued candidates; record that outcome.
 
 Name the exact commit you ship, and respect the stage's quiet windows. Put these guards in the deploy driver, never in a shell wrapper around it.
 
-Guard each release with its own version-scoped checks. Never wait for the previous release's post-check. Require an observed plan, exact version readback and forward-compatible storage.
+No release queue or scheduler is implemented here. The authorized owner must enforce the sequence through the project's manual procedure.
+
+Check each release's exact version. Do not wait for another release's post-deploy check. Require an observed plan and read the deployed version back from the provider. Stored data must remain readable by both the candidate and the version that may be restored.
 
 ## 4. Roll out and verify
 
@@ -62,20 +82,26 @@ Report code-ready, deployed and behavior-verified separately. Check customer-fac
 
 Read [rollback](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/rollback.md) before restoration.
 
-WAIT[release-scope] owns unresolved authorization or stage assignment. WAIT[adapter-qualification] owns missing behavioral proof. WAIT[rollback-target] owns a missing restoration target. A measured red gate follows the failure policy; HOLD does not trigger rollback.
+| Stop | Condition needed to continue |
+| --- | --- |
+| WAIT[release-scope] | Authorization and the target stage are known. |
+| WAIT[adapter-qualification] | The required behavior checks have passed for the adapter. |
+| WAIT[rollback-target] | The version to restore is recorded and usable. |
 
-Follow the release machine's measured-failure policy. Do not expand the approved scope to credentials, infrastructure, schema, provider writes or real-reader sends.
+Missing evidence stops deployment. An observed failed check follows the project's failure policy. HOLD waits for a decision; it does not trigger rollback.
 
-Follow the project's destroy refusal. Rollback promotes the previous known-good version immediately, without a rebuild or a fixed observation wait. Verify its readback. It restores code only.
+The release machine tracks deployment states and transitions. Follow its policy for observed failures. Do not expand the approved scope to credentials, infrastructure, data formats, provider writes, or messages to real recipients.
 
-## 6. Maintain one surface
+Follow the project's destroy refusal. Rollback makes the previous known-good version active immediately, without rebuilding it or waiting for a fixed observation period. Read the active version back from the provider to verify it. It restores code only.
 
-Keep this skill aligned with the deploy capabilities in the same change. Phase 1 has no release catalog or generated confidence block.
+## 6. Keep one release procedure current
 
-Read [catalog maintenance](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/catalog-maintenance.md) before changing capability state.
+Keep this skill aligned with the available deployment features in the same change. The current implementation has no generated list of recorded releases or generated deployment-availability block.
+
+Read [catalog maintenance](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/catalog-maintenance.md) before changing deployment availability.
 
 Keep this procedure and its references generic. Keep project facts behind [the project mapping](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/project.md). Keep executable logic in the owning Effect packages and CLIs.
 
-Skill scripts are thin launchers only. Use the project's maintenance skill for stack and fence alignment.
+Skill scripts are thin launchers only. Use the project's maintenance skill to keep dependencies and enforced checks current.
 
-Phase 1 has no waits ledger. WAIT labels above name procedure boundaries. The scheduler remains unimplemented. Missing evidence stops deployment.
+The current implementation has no shared record of blocked release steps. WAIT labels above name manual procedure stops. The scheduler remains unimplemented. Missing evidence stops deployment.

@@ -40,6 +40,7 @@ it.effect(
         [
           "/",
           "/lore",
+          "/prompts",
           "/systems",
           "/skills",
           "/glossary",

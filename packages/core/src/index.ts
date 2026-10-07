@@ -18,6 +18,8 @@ export {
 
 export { capabilities, inspectFile } from "./inspect-file.js";
 
+export { PromptLibrary, getPrompt, listPrompts } from "./prompts.js";
+
 export {
   inspectMachine,
   runInspectMachine,

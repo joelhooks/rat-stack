@@ -11,6 +11,7 @@ import {
 } from "../mischief/src/rat-icons.generated.js";
 import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
+import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
 
@@ -63,7 +64,7 @@ export default defineConfig(({ isSsrBuild }) => ({
             ssr: {
               build: {
                 clientOutDir: "dist/client",
-                prerender: true,
+                prerender: { origin: readerPrerenderOrigin },
                 serverOutDir: "dist/server",
               },
               serverEntry: "/src/entry.server.ts",

@@ -5,11 +5,12 @@ import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
 import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
-import { readerPrototypeFlags } from "../../mischief/scripts/reader-prototype-flags.ts";
+import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
+import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
-import { serviceCaptureDocument } from "../src/client/service-capture-document.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
-import { readerRoutePaths } from "../src/reader-routes.ts";
+import { isReaderRoutePath } from "../src/reader-routes.ts";
+import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
   const previewCommit = yield* Config.option(
@@ -57,9 +58,10 @@ const readerPages = Effect.gen(function* readerPages() {
   }
 
   const home = yield* readerHomeFlags(origin);
-  const lore = yield* readerPrototypeFlags(origin);
+  const lore = yield* readerLoreFlags(origin);
+  const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
-  const pages = [home, { ...lore, blocks: serviceCaptureDocument }, learn];
+  const pages = [home, ...lore, learn, ...prompts];
 
   return yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({
@@ -101,11 +103,17 @@ export const finalizeReader = Effect.fn("reader.finalize")(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
     )(source);
 
+    yield* copyReaderAssets(
+      pages,
+      clientDirectory,
+      `${root}/dist/reader-pages.json`
+    );
+
     yield* Effect.forEach((page: (typeof pages)[number]) =>
       Effect.gen(function* finalizePage() {
         const route = page.page.path;
 
-        if (!readerRoutePaths.includes(route)) {
+        if (!isReaderRoutePath(route)) {
           return yield* Effect.fail(
             new ReaderInputError({
               message:

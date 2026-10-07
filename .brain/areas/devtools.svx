@@ -29,14 +29,30 @@ sources:
 
 ## What it does
 
-`packages/devtools` adds `rat_*` capabilities to a development composition. They list, read, dispatch, replay, and diff capability calls. `CallWatch` surrounds the approval-gated handler, including denied calls. `watchActor` lets lifecycle machines report states and events through `ActorWatch`. Both watchers default to no-ops without the recording layer.
+`packages/devtools` adds `rat_*` capabilities to a development application.
+A capability is one named action with shared value definitions and a server-side handler, the code that implements it.
+The tools list and read calls, call an action, run a recorded call again, and compare results.
+`CallWatch` surrounds the handler's approval check and records denied calls too.
 
-The local web development backend records calls and serves the overlay, RPC, and MCP tools under `/__rat`. The CLI enables its devtools surfaces with `--devtools`, bound to loopback only. These capabilities are available only in development.
+A state machine defines named states and the events that permit movement between them.
+An actor is a running unit that processes events or performs work for a machine.
+`watchActor` lets lifecycle machines report states and events through `ActorWatch`.
+Both watchers do nothing unless the application supplies recording.
+
+Effect describes work with typed failures and required services. A service is a named interface for one job.
+
+A Layer describes how to build services and supply their construction dependencies. The recording Layer supplies the watchers.
+
+The local web development backend records calls and serves the overlay, RPC, and MCP tools under `/__rat`.
+RPC lets a client call a named server operation. MCP means Model Context Protocol, which lets an agent discover and call tools.
+
+The command-line interface (CLI) enables its devtools interfaces with `--devtools`. They are available only from the same computer.
+These capabilities are available only in development.
 
 ## The standard
 
-- Tools dispatch through the existing capability's schemas and handler.
-- Recorder code and test people stay in development compositions and tests.
+- Tools call existing capabilities through their schemas and handlers. A schema defines the accepted values.
+- Recorder code and test people stay in development applications and tests.
 - Every Effect-backed lifecycle actor is handed to `watchActor`.
 - Production bundles contain no web development modules, devtools code, or test people.
 
@@ -45,4 +61,4 @@ The local web development backend records calls and serves the overlay, RPC, and
 - Run `pnpm --filter @rat-stack/devtools test` for recording and tool behavior.
 - Run `pnpm --filter @rat-stack/web test` for the local backend and production-bundle exclusion test.
 - Run `pnpm lint` for `no-devtools-in-production` and `watch-effect-actors`.
-- Inspect `rat_list_actors`, `rat_list_transitions`, and `rat_get_actor` in a development composition after running a lifecycle capability. Without a recording layer, these tools cannot show whether a lifecycle ran.
+- Inspect `rat_list_actors`, `rat_list_transitions`, and `rat_get_actor` in a development application after running a lifecycle capability. Without a recording Layer, these tools cannot show whether a lifecycle ran.

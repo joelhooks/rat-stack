@@ -11,7 +11,7 @@ import {
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderRouteLedger } from "../src/page-descriptor.ts";
-import { readerRoutePaths } from "../src/reader-routes.ts";
+import { isReaderRoutePath } from "../src/reader-routes.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
   const fs = yield* FileSystem.FileSystem;
@@ -19,7 +19,14 @@ const program = Effect.gen(function* emitReaderLedger() {
   const inputs = yield* prepareReaderSiteInputs;
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
-    const included = readerRoutePaths.includes(page.path);
+    const prompt =
+      page.path === "/prompts" || page.path.startsWith("/prompts/");
+
+    const included = isReaderRoutePath(page.path);
+
+    const markdownAvailability = prompt
+      ? "included"
+      : "representation-not-projected";
 
     const preview = {
       representation: included ? "html" : "none",
@@ -39,9 +46,8 @@ const program = Effect.gen(function* emitReaderLedger() {
         ...page,
         preview: {
           ...preview,
-          availability: included
-            ? "representation-not-projected"
-            : "outside-slice",
+          availability: included ? markdownAvailability : "outside-slice",
+          representation: prompt ? "markdown" : preview.representation,
         },
         representation: "markdown",
       },
@@ -49,14 +55,7 @@ const program = Effect.gen(function* emitReaderLedger() {
   });
 
   const ledger = yield* Schema.decodeUnknownEffect(ReaderRouteLedger)({
-    anchorAdditions: [
-      {
-        ids: inputs.lore.bibliography.map((_, index) => `source-${index + 1}`),
-        path: "/lore/services-capture-dependencies",
-        reason:
-          "Intentional bibliography source anchors support direct links; real-edge b6e97fd preserves every production ID and adds these six source IDs.",
-      },
-    ],
+    anchorAdditions: [],
     deliberateChanges: [
       {
         location: "/lore/services-capture-dependencies",
