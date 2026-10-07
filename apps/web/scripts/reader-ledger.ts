@@ -19,7 +19,9 @@ const program = Effect.gen(function* emitReaderLedger() {
 
   const routes = inputs.pages.flatMap(({ html: _html, ...page }) => {
     const included =
-      page.path === "/" || page.path === "/lore/services-capture-dependencies";
+      page.path === "/" ||
+      page.path === "/lore" ||
+      page.path.startsWith("/lore/");
 
     const preview = {
       representation: included ? "html" : "none",
@@ -49,14 +51,7 @@ const program = Effect.gen(function* emitReaderLedger() {
   });
 
   const ledger = yield* Schema.decodeUnknownEffect(ReaderRouteLedger)({
-    anchorAdditions: [
-      {
-        ids: inputs.lore.bibliography.map((_, index) => `source-${index + 1}`),
-        path: "/lore/services-capture-dependencies",
-        reason:
-          "Intentional bibliography source anchors support direct links; real-edge b6e97fd preserves every production ID and adds these six source IDs.",
-      },
-    ],
+    anchorAdditions: [],
     deliberateChanges: [
       {
         location: "/lore/services-capture-dependencies",

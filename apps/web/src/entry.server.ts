@@ -11,7 +11,7 @@ import { readerView } from "./features/reader.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
 import { WebsiteBindings } from "./server/website-bindings.js";
 
-export const prerenderPaths = ["/", "/lore/services-capture-dependencies"];
+export const prerenderPaths = pages.map((page) => page.page.path);
 
 const previewHeaders = Effect.fn("reader.previewHeaders")(
   function* previewHeaders(request: Request) {

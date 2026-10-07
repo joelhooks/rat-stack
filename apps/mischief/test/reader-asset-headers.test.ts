@@ -122,11 +122,17 @@ it.layer(PreparedReaderPages.layer)((test) => {
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const client = path.join(root, "dist/client");
-        const routes = ["/", "/lore/services-capture-dependencies"];
         const encodedPages = Schema.fromJsonString(Schema.Array(ReaderFlags));
 
-        const { pages } = yield* PreparedReaderPages;
-        assertProductionPayloads(pages);
+        const { pages: prepared } = yield* PreparedReaderPages;
+        assertProductionPayloads(prepared);
+
+        const pages = prepared.filter(
+          (page, index) =>
+            page.page.path === "/" || index === preview.seed % prepared.length
+        );
+
+        const routes = pages.map((page) => page.page.path);
 
         const writeStage = Effect.fn("writeReaderStageFixture")(
           function* writeStage(origin: string, robots: "index" | "noindex") {

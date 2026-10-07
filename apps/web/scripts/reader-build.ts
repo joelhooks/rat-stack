@@ -4,9 +4,8 @@ import { Config, Effect, FileSystem, Option, Schema } from "effect";
 import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
 import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
-import { readerPrototypeFlags } from "../../mischief/scripts/reader-prototype-flags.ts";
+import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
-import { serviceCaptureDocument } from "../src/client/service-capture-document.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
 
@@ -56,8 +55,8 @@ const readerPages = Effect.gen(function* readerPages() {
   }
 
   const home = yield* readerHomeFlags(origin);
-  const lore = yield* readerPrototypeFlags(origin);
-  const pages = [home, { ...lore, blocks: serviceCaptureDocument }];
+  const lore = yield* readerLoreFlags(origin);
+  const pages = [home, ...lore];
 
   return yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({
@@ -109,7 +108,7 @@ export const finalizeReader = Effect.fn("reader.finalize")(
       Effect.gen(function* finalizePage() {
         const route = page.page.path;
 
-        if (route !== "/" && route !== "/lore/services-capture-dependencies") {
+        if (route !== "/" && route !== "/lore" && !route.startsWith("/lore/")) {
           return yield* Effect.fail(
             new ReaderInputError({
               message:

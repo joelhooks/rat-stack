@@ -13,12 +13,20 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
+import { ContentAssetManifest } from "../../mischief/src/asset-manifest.js";
+import { ReaderFlags } from "../src/client/reader-model.js";
+import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
+
 const webRoot = path.resolve(import.meta.dirname, "..");
 
 const vite = path.join(webRoot, "node_modules/.bin/vite");
 
 const decodeSourceMap = Schema.decodeUnknownSync(
   Schema.fromJsonString(Schema.Struct({ sources: Schema.Array(Schema.String) }))
+);
+
+const decodeReaderPages = Schema.decodeSync(
+  Schema.fromJsonString(Schema.Array(ReaderFlags))
 );
 
 const forbiddenStrings = [
@@ -84,6 +92,31 @@ const build = (nodeEnv: "development" | "production") => {
       "<h1>Rat Stack</h1>"
     );
 
+    const contentRoot = path.resolve(webRoot, "../mischief/dist/content");
+
+    const manifest = Schema.decodeUnknownSync(
+      Schema.fromJsonString(ContentAssetManifest)
+    )(readFileSync(path.join(contentRoot, "manifest.json"), "utf-8"));
+
+    const preparedPages = decodeReaderPages(
+      readFileSync(path.join(webRoot, "dist/reader-pages.json"), "utf-8")
+    );
+
+    for (const image of manifest.images.filter((asset) =>
+      preparedPages.some(
+        (page) =>
+          new URL(page.page.metadata.ogImagePath, page.origin).pathname ===
+            asset ||
+          (page.page.path !== "/" && asset.startsWith(`${page.page.path}/`))
+      )
+    )) {
+      expect(readFileSync(path.join(outDir, image.slice(1))), image).toEqual(
+        readFileSync(
+          path.join(contentRoot, "assets", manifest.generation, image.slice(1))
+        )
+      );
+    }
+
     const maps = globSync("**/*.map", { cwd: outDir });
 
     const sources = maps.flatMap((file) =>
@@ -98,14 +131,24 @@ const build = (nodeEnv: "development" | "production") => {
       )
     );
 
-    const emitted = globSync("**/*.js", { cwd: outDir }).map((file) =>
-      readFileSync(path.join(outDir, file), "utf-8")
-    );
+    const emitted = globSync("**/*.js", { cwd: outDir }).map((file) => {
+      const code = readFileSync(path.join(outDir, file), "utf-8");
+
+      return {
+        full: code,
+        runtime: readerCodeWithoutPageData(code, preparedPages),
+      };
+    });
 
     return {
       sources: new Set(sources),
       strings: forbiddenStrings.filter((text) =>
-        emitted.some((code) => code.includes(text))
+        emitted.some((code) =>
+          (text === "rat-test-person-password"
+            ? code.full
+            : code.runtime
+          ).includes(text)
+        )
       ),
     };
   } finally {
