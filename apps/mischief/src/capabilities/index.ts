@@ -32,13 +32,17 @@ export {
 
 export { search } from "./search.js";
 
-export const contentCapabilities = [
+export const readerCapabilities = [
   search,
   read,
   backlinks,
   neighbors,
   mentions,
   path,
+] as const;
+
+export const contentCapabilities = [
+  ...readerCapabilities,
   ...learnCapabilities,
 ] as const;
 

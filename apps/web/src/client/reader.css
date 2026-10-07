@@ -1,0 +1,7 @@
+#root {
+  display: contents;
+}
+
+main > .reader-snippet:has(+ .copy-actions) > pre {
+  margin-bottom: 0;
+}

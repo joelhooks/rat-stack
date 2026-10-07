@@ -285,3 +285,6 @@ export const buildBlockIndex = (pages: readonly BlockPage[]) =>
   })(pages).pipe(Effect.map((entries) => new Map(entries)));
 
 export type BlockIndex = Effect.Success<ReturnType<typeof buildBlockIndex>>;
+
+export const contentBlocksFor = (index: BlockIndex, route: string) =>
+  index.get(route)?.blocks ?? [];
