@@ -85,6 +85,7 @@ import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
+import { buildLearningDeck } from "./learn-deck.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import {
   groupUnlinkedMentions,
@@ -3222,7 +3223,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const resources = normalizeSources({ lawSources, loreSources, skillSources });
 
+  const learnCards = yield* buildLearningDeck(loreTexts, skillTexts);
+
   const contentData = [
+    {
+      path: "/_content/learn.json",
+      value: { cards: learnCards, version: 1 },
+    },
     {
       path: "/_content/catalog.json",
       value: {

@@ -7,6 +7,8 @@ import { Console, Effect, Layer } from "effect";
 
 import { runCommand } from "./command.js";
 import { remoteJoinInterestLayer } from "./join-interest.js";
+import { localLearnerProgressLayer } from "./learn-store.js";
+import { remoteLearnerLayer } from "./learn.js";
 
 const program = runCommand(process.argv.slice(2)).pipe(
   // oxlint-disable-next-line promise/prefer-await-to-callbacks -- Oxlint mistakes this Effect handler for an async Promise callback.
@@ -17,6 +19,10 @@ const program = runCommand(process.argv.slice(2)).pipe(
     Layer.mergeAll(
       Layer.provideMerge(FileInspector.layer, NodeServices.layer),
       remoteJoinInterestLayer,
+      localLearnerProgressLayer.pipe(
+        Layer.provideMerge(remoteLearnerLayer),
+        Layer.provide(NodeServices.layer)
+      ),
       Approval.denyAll
     )
   )

@@ -1,10 +1,11 @@
 import { toCommand } from "@rat-stack/capability";
-import { capabilities, formatFileStats, inspectFile } from "@rat-stack/core";
+import { formatFileStats, inspectFile } from "@rat-stack/core";
 import { Console, Effect, Layer } from "effect";
 import { Command, Flag } from "effect/cli";
 
 import { intakeCommand } from "./intake.js";
 import {
+  capabilities,
   SERVE_HOST,
   DEVTOOLS_MCP_PATH,
   codeMode,

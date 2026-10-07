@@ -1,7 +1,9 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
 import { joinInterest } from "@rat-stack/core/join-interest";
+import { Layer } from "effect";
 
 import { ContentStore } from "../content-store.js";
+import { learnCapabilities, learnLayer } from "./learn.js";
 import { backlinks, mentions, neighbors, path } from "./lore.js";
 import { read } from "./read.js";
 import { search } from "./search.js";
@@ -37,9 +39,10 @@ export const contentCapabilities = [
   neighbors,
   mentions,
   path,
+  ...learnCapabilities,
 ] as const;
 
-export const contentLayer = ContentStore.layer;
+export const contentLayer = Layer.provideMerge(learnLayer, ContentStore.layer);
 
 const generatedExecuteProjection = toExecuteCapability(contentCapabilities);
 
@@ -69,12 +72,7 @@ export const executeProjection = {
 };
 
 export const capabilities = [
-  search,
-  read,
-  backlinks,
-  neighbors,
-  mentions,
-  path,
+  ...contentCapabilities,
   execute,
   joinInterest,
 ] as const;

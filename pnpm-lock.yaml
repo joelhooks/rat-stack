@@ -267,6 +267,9 @@ importers:
       '@rat-stack/devtools':
         specifier: workspace:*
         version: link:../../packages/devtools
+      '@rat-stack/learn':
+        specifier: workspace:*
+        version: link:../../packages/learn
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -326,6 +329,9 @@ importers:
       '@rat-stack/intake-live':
         specifier: workspace:*
         version: link:../../packages/intake-live
+      '@rat-stack/learn':
+        specifier: workspace:*
+        version: link:../../packages/learn
       '@rat-stack/lore':
         specifier: workspace:*
         version: link:../../packages/lore
@@ -764,6 +770,34 @@ importers:
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/learn:
+    dependencies:
+      '@rat-stack/capability':
+        specifier: workspace:*
+        version: link:../capability
+      '@rat-stack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@xstate/effect':
+        specifier: 0.1.0-alpha.6
+        version: 0.1.0-alpha.6(effect@4.0.0)(xstate@6.0.0-alpha.63)
+      effect:
+        specifier: 4.0.0
+        version: 4.0.0
+      xstate:
+        specifier: 6.0.0-alpha.63
+        version: 6.0.0-alpha.63
+    devDependencies:
+      '@effect/vitest':
+        specifier: 4.0.0
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2

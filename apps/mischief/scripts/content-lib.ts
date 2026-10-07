@@ -210,6 +210,8 @@ export type { BibliographySource } from "./component-data.ts";
 
 export interface LorePageMetadata {
   readonly bibliography: readonly BibliographySource[];
+  readonly card?: string;
+  readonly prerequisites: readonly string[];
   readonly date?: string;
   readonly description: string;
   readonly group: LoreGroup;
@@ -224,9 +226,11 @@ export interface LorePageMetadata {
 }
 
 const loreFrontmatterSchema = Schema.Struct({
+  card: Schema.optional(Schema.String),
   date: Schema.optional(Schema.String),
   description: Schema.String,
   group: Schema.Literals(["idea", "concept", "source", "person", "system"]),
+  prerequisites: Schema.optional(Schema.Array(Schema.String)),
   sources: Schema.Array(
     Schema.Union([Schema.String, bibliographySourceSchema])
   ),
@@ -444,8 +448,10 @@ export const parseLorePage = (
 
   const metadata: MutableLorePageMetadata = {
     bibliography,
+    card: decoded.card ?? decoded.description,
     description: decoded.description,
     group: decoded.group,
+    prerequisites: decoded.prerequisites ?? [],
     routePath:
       decoded.group === "system" ? `/systems/${slug}` : `/lore/${slug}`,
     slug,

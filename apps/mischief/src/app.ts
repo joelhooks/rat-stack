@@ -6,6 +6,7 @@ import type {
 } from "@rat-stack/core/contracts";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
+import { Learner } from "@rat-stack/learn";
 import * as AlchemyHttp from "alchemy/Http";
 import type { Context } from "effect";
 import { Cause, Effect, Layer, Option, Predicate, Schema } from "effect";
@@ -23,7 +24,8 @@ import {
   errorPageTemplates,
   originToken,
 } from "./bundled-content.generated.js";
-import { capabilities, contentLayer, search } from "./capabilities/index.js";
+import { capabilities, search } from "./capabilities/index.js";
+import { learnLayer } from "./capabilities/learn.js";
 import type { ContentCatalogData as ContentCatalog } from "./content-data.js";
 import { ContentStore } from "./content-store.js";
 import {
@@ -1226,14 +1228,18 @@ const webBotAuthRoutes = (options: WebBotAuthOptions) =>
     webBotAuthResponse(options)
   );
 
-const contentRequests = (store: ContentStore["Service"]) =>
+const contentRequests = (
+  store: ContentStore["Service"],
+  learner: Learner["Service"]
+) =>
   HttpRouter.middleware<{
-    provides: ContentStore;
+    provides: ContentStore | Learner;
     handles: AssetReadError | ResourceNotFound;
   }>()(
     (httpEffect) =>
       httpEffect.pipe(
         Effect.provideService(ContentStore, store),
+        Effect.provideService(Learner, learner),
         Effect.catchTags({
           AssetReadError: () =>
             HttpServerRequest.HttpServerRequest.pipe(
@@ -1261,11 +1267,17 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         options.contentStore ??
         (yield* ContentStore.pipe(
           Effect.provide(
-            contentLayer.pipe(
+            ContentStore.layer.pipe(
               Layer.provide(Layer.succeed(StaticAssets, assets))
             )
           )
         ));
+
+      const learner = yield* Learner.pipe(
+        Effect.provide(
+          learnLayer.pipe(Layer.provide(Layer.succeed(ContentStore, store)))
+        )
+      );
 
       return Layer.mergeAll(
         unsubscribeRoutes,
@@ -1295,8 +1307,13 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         webBotAuthRoutes(options.webBotAuth ?? { enabled: false }),
         assetRoutes(assets, store)
       ).pipe(
-        Layer.provideMerge(contentRequests(store)),
-        Layer.provideMerge(Layer.succeed(ContentStore, store)),
+        Layer.provideMerge(contentRequests(store, learner)),
+        Layer.provideMerge(
+          Layer.merge(
+            Layer.succeed(ContentStore, store),
+            Layer.succeed(Learner, learner)
+          )
+        ),
         Layer.provideMerge(privateHttpTracingLayer)
       );
     })
