@@ -5,7 +5,7 @@ import {
   learnNextContract,
   learnRecordContract,
 } from "@rat-stack/core/learn";
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 
 import { Learner } from "./learner.js";
 
@@ -27,7 +27,16 @@ export const learnCard = implement(learnCardContract, ({ id, depth }) =>
 );
 
 export const learnNext = implement(learnNextContract, ({ progress, context }) =>
-  Learner.use((learner) => learner.next(progress, context))
+  Effect.gen(function* selectNext() {
+    const selectedContext = context ?? {
+      at: yield* Clock.currentTimeMillis,
+      ids: [],
+    };
+
+    return yield* Learner.use((learner) =>
+      learner.next(progress, selectedContext)
+    );
+  })
 );
 
 export const learnRecord = implement(

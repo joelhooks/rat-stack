@@ -259,15 +259,30 @@ const decodeLoreFrontmatter = (
   rawText: string
 ): LoreFrontmatter => {
   try {
-    return Schema.decodeUnknownSync(loreFrontmatterSchema)(
-      frontmatterData(rawText, sourcePath)
-    );
+    const data = frontmatterData(rawText, sourcePath);
+
+    const sources = Schema.decodeUnknownSync(
+      Schema.Array(Schema.Union([Schema.String, bibliographySourceSchema])),
+      { onExcessProperty: "error" }
+    )(data.sources);
+
+    return Schema.decodeUnknownSync(loreFrontmatterSchema)({
+      ...data,
+      sources,
+    });
   } catch (error) {
     if (Schema.is(ContentBuildError)(error)) {
       throw error;
     }
 
-    throw buildError("frontmatter", sourcePath, error);
+    throw buildError(
+      "frontmatter",
+      sourcePath,
+      new Error(
+        "Repair the frontmatter schema. Linked sources require url, title, publisher, note, and accessed. Recorded sources require kind: recording, title, recordedAt (YYYY-MM-DD), and note, with no url.",
+        { cause: error }
+      )
+    );
   }
 };
 
@@ -370,9 +385,13 @@ const validateLoreTerms = (sourcePath: string, decoded: LoreFrontmatter) => {
 
 const validateLoreSources = (sourcePath: string, decoded: LoreFrontmatter) => {
   for (const source of [
-    ...decoded.sources.map((entry) =>
-      Schema.is(Schema.String)(entry) ? entry : entry.url
-    ),
+    ...decoded.sources.flatMap((entry) => {
+      if (Schema.is(Schema.String)(entry)) {
+        return [entry];
+      }
+
+      return entry.kind === "recording" ? [] : [entry.url];
+    }),
     ...(decoded.url === undefined ? [] : [decoded.url]),
   ]) {
     let parsed: URL;
@@ -426,6 +445,25 @@ export const parseLorePage = (
   validateLoreSources(sourcePath, decoded);
 
   const bibliography = decoded.sources.map((source) => {
+    if (!Schema.is(Schema.String)(source) && source.kind === "recording") {
+      if (
+        [source.title, source.note].some(
+          (value) => value.trim() === "" || /[\r\n]/u.test(value)
+        ) ||
+        /https?:\/\//u.test(source.title)
+      ) {
+        throw buildError(
+          "bibliography",
+          sourcePath,
+          new Error(
+            "recording sources require a plain title, note, and ISO recordedAt date"
+          )
+        );
+      }
+
+      return source;
+    }
+
     if (
       Schema.is(Schema.String)(source) ||
       [source.title, source.note, source.publisher].some(
@@ -456,7 +494,9 @@ export const parseLorePage = (
       decoded.group === "system" ? `/systems/${slug}` : `/lore/${slug}`,
     slug,
     sourcePath,
-    sources: bibliography.map((source) => source.url),
+    sources: bibliography.flatMap((source) =>
+      source.kind === "linked" ? [source.url] : []
+    ),
     terms,
     title: decoded.title,
   };

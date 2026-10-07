@@ -93,12 +93,90 @@ export class Learner extends Context.Service<
 
           const presentations: LearnSelection["cards"][number][] = [];
 
-          for (const id of new Set(context.ids)) {
-            const found = yield* card(id);
+          const known = new Map(
+            normalized.concepts.map((item) => [item.id, item])
+          );
 
-            const before =
-              normalized.concepts.find((item) => item.id === id) ??
-              newConcept(id);
+          const resolve = Effect.fn("Learner.prerequisite")(function* resolve(
+            found: Card,
+            visited: ReadonlySet<string>
+          ): Effect.fn.Return<Card | null, LearnError> {
+            if (visited.has(found.id)) {
+              return yield* new LearnError({
+                id: found.id,
+                reason:
+                  "Cyclic prerequisites; repair the concept deck metadata.",
+              });
+            }
+
+            for (const id of found.prerequisites) {
+              const prerequisite = known.get(id);
+
+              if (prerequisite?.dismissed === true) {
+                continue;
+              }
+
+              if ((prerequisite?.familiarity ?? 0) === 0) {
+                return yield* resolve(
+                  yield* card(id),
+                  new Set([...visited, found.id])
+                );
+              }
+            }
+
+            return found;
+          });
+
+          const available = yield* cards;
+          const terms = context.terms ?? [];
+          const termIds: string[] = [];
+
+          for (const term of terms) {
+            const owners = available.filter((item) =>
+              item.terms.some(
+                (candidate) =>
+                  candidate.trim().toLowerCase() === term.trim().toLowerCase()
+              )
+            );
+
+            const owner =
+              owners.find((item) => item.kind !== "skill") ?? owners[0];
+
+            if (owner === undefined) {
+              return yield* new LearnError({
+                id: "term",
+                reason: "Unknown public term; call learnDeck for valid terms.",
+              });
+            }
+
+            termIds.push(owner.id);
+          }
+
+          const requested = [...context.ids, ...termIds];
+          const defaultSelection = requested.length === 0;
+
+          const candidates = defaultSelection
+            ? [
+                ...available.filter(
+                  (item) => (known.get(item.id)?.familiarity ?? 0) === 0
+                ),
+                ...available.filter(
+                  (item) => (known.get(item.id)?.familiarity ?? 0) > 0
+                ),
+              ].map((item) => item.id)
+            : requested;
+
+          const offered = new Set<string>();
+
+          for (const id of new Set(candidates)) {
+            const found = yield* resolve(yield* card(id), new Set());
+
+            if (found === null || offered.has(found.id)) {
+              continue;
+            }
+
+            offered.add(found.id);
+            const before = known.get(found.id) ?? newConcept(found.id);
 
             const depth = yield* evaluateConcept(
               before,
@@ -108,6 +186,10 @@ export class Learner extends Context.Service<
 
             if (depth !== null) {
               presentations.push({ card: found, depth });
+
+              if (defaultSelection) {
+                break;
+              }
             }
           }
 

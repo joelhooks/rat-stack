@@ -26,7 +26,20 @@ export class InvalidLearnDeck extends Schema.TaggedError<InvalidLearnDeck>()(
   }
 ) {}
 
-export const deriveDeck = (pages: readonly CardSource[]) => {
+const priorityDiagnostics = (
+  priority: readonly string[],
+  ids: ReadonlySet<string>
+) =>
+  priority.flatMap((id) =>
+    !ids.has(id) || priority.filter((entry) => entry === id).length > 1
+      ? [{ id, reason: "Priority ids must be unique, existing concepts." }]
+      : []
+  );
+
+export const deriveDeck = (
+  pages: readonly CardSource[],
+  priority: readonly string[] = []
+) => {
   const errors: (typeof CardDiagnostic.Type)[] = [];
   const warnings: (typeof CardDiagnostic.Type)[] = [];
   const ids = new Set(pages.map((page) => page.id));
@@ -113,12 +126,20 @@ export const deriveDeck = (pages: readonly CardSource[]) => {
     }
   }
 
+  errors.push(...priorityDiagnostics(priority, ids));
+
   if (errors.length > 0) {
     throw new InvalidLearnDeck({ errors });
   }
 
+  const order = new Map(priority.map((id, index) => [id, index]));
+
   return {
-    cards: cards.toSorted((a, b) => a.id.localeCompare(b.id)),
+    cards: cards.toSorted(
+      (a, b) =>
+        (order.get(a.id) ?? priority.length) -
+          (order.get(b.id) ?? priority.length) || a.id.localeCompare(b.id)
+    ),
     warnings,
   };
 };

@@ -33,10 +33,10 @@ export const learnCardContract = defineContract("learnCard", {
 export const learnNextContract = defineContract("learnNext", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "Select explanations for concept ids in play. Returns progress without recording a presentation.",
+    "Select concepts in play, resolving unintroduced prerequisites first. Without context, offer the next concept in deck order. Selection records no presentation.",
   failure: LearnError,
   input: Schema.Struct({
-    context: LearnContextSchema,
+    context: Schema.optional(LearnContextSchema),
     progress: ProgressSchema,
   }),
   output: LearnSelectionSchema,

@@ -51,6 +51,8 @@ Four capabilities serve the deck and learning events:
 
 The learning lifecycle uses XState under Effect.
 
+Selection follows deck order when context is absent. A public context term selects its owner and resolves unintroduced prerequisites first. A shown walkthrough introduces a prerequisite. Dismissed prerequisites count as satisfied; dismissed cards stay silent.
+
 - New concepts receive a walkthrough.
 - Introduced concepts receive a line, or a paragraph after seven days.
 - Familiar concepts receive a line after seven days.

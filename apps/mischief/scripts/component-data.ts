@@ -1,12 +1,27 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 
-export const bibliographySourceSchema = Schema.Struct({
+export const linkedSourceSchema = Schema.Struct({
   accessed: Schema.String,
+  kind: Schema.Literal("linked").pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed("linked"))
+  ),
   note: Schema.String,
   publisher: Schema.String,
   title: Schema.String,
   url: Schema.String,
 });
+
+export const recordingSourceSchema = Schema.Struct({
+  kind: Schema.Literal("recording"),
+  note: Schema.String,
+  recordedAt: Schema.String.check(Schema.isPattern(/^\d{4}-\d{2}-\d{2}$/u)),
+  title: Schema.String,
+});
+
+export const bibliographySourceSchema = Schema.Union([
+  linkedSourceSchema,
+  recordingSourceSchema,
+]);
 
 export type BibliographySource = typeof bibliographySourceSchema.Type;
 

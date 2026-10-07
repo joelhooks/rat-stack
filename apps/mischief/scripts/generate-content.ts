@@ -940,6 +940,12 @@ const program = Effect.gen(function* generateContent() {
       .readFileString(path.join(root, sourcePath))
       .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
 
+  const learnCoverageText = yield* readText(".brain/data/learn-coverage.json");
+
+  const learnCoverage = yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(Schema.Array(Schema.String))
+  )(learnCoverageText);
+
   const snapshot = yield* openGitSnapshot(
     root,
     process.argv.includes("--git-snapshot")
@@ -2811,6 +2817,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const contentVersion = digest(
     [
+      learnCoverageText,
       homeMarkdownTemplate,
       homeBodyHtml,
       noVerifyAgentMarkdown,
@@ -3223,7 +3230,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const resources = normalizeSources({ lawSources, loreSources, skillSources });
 
-  const learnCards = yield* buildLearningDeck(loreTexts, skillTexts);
+  const learnCards = yield* buildLearningDeck(
+    loreTexts,
+    skillTexts,
+    learnCoverage
+  );
 
   const contentData = [
     {

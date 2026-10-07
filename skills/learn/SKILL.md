@@ -42,9 +42,12 @@ The default local store is `~/.rat-learn/`. `RAT_LEARN_DIRECTORY` selects anothe
 2. Keep that matching step local. Select only real concept ids from the deck.
 3. Call local `learnNext` when an Effect, Alchemy, or XState idea appears in the work.
 4. Set `context.ids` to those concept ids and `context.at` to the current Unix time in milliseconds.
-5. Set `context.asked` only when the operator asks for an explanation.
-6. Supply empty version 1 progress to satisfy the shared contract. The local tools read their own log.
-7. Follow the returned depth. Present one relevant concept at a time.
+5. You may use `context.terms` instead of ids. Pass only public terms from the deck.
+6. The tool resolves a term's owner and offers an unmet prerequisite first.
+7. Omit context to follow the ordered learning path. Dismissed prerequisites do not block it.
+8. Set `context.asked` only when the operator asks for an explanation.
+9. Supply empty version 1 progress to satisfy the shared contract. The local tools read their own log.
+10. Follow the returned depth. Present one relevant concept at a time.
 
 | Depth | Presentation |
 | --- | --- |

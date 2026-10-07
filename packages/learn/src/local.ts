@@ -6,7 +6,7 @@ import {
   learnNextContract,
   learnRecordContract,
 } from "@rat-stack/core/learn";
-import { Config, Effect, Layer, Schema } from "effect";
+import { Clock, Config, Effect, Layer, Schema } from "effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 
 import { learnCard, learnDeck } from "./capabilities.js";
@@ -70,9 +70,14 @@ export const localLearnNext = implement(
       "Select from the local event log. Supplied progress is ignored; only learnRecord writes events.",
   },
   ({ context }) =>
-    LearnerProgress.use((store) => store.next(context)).pipe(
-      Effect.mapError(storeFailure)
-    )
+    Effect.gen(function* selectLocalNext() {
+      const selectedContext = context ?? {
+        at: yield* Clock.currentTimeMillis,
+        ids: [],
+      };
+
+      return yield* LearnerProgress.use((store) => store.next(selectedContext));
+    }).pipe(Effect.mapError(storeFailure))
 );
 
 export const localLearnRecord = implement(

@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 
 export const ConceptIdSchema = Schema.String.check(
   Schema.isPattern(/^[a-z0-9]+(?:[-.][a-z0-9]+)*$/u)
@@ -73,7 +73,10 @@ export const LearnTaskSchema = Schema.Struct({
 export const LearnContextSchema = Schema.Struct({
   asked: Schema.optional(Schema.Boolean),
   at: LearnTimestampSchema,
-  ids: Schema.Array(ConceptIdSchema),
+  ids: Schema.Array(ConceptIdSchema).pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed([]))
+  ),
+  terms: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
 export const PresentationSchema = Schema.Struct({
