@@ -3,7 +3,10 @@ import { expect, it } from "@effect/vitest";
 import { Effect, Predicate } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
-import { compileReaderBody } from "../../mischief/scripts/reader-body-document.ts";
+import {
+  compileReaderBody,
+  readerWorkshopCount,
+} from "../../mischief/scripts/reader-body-document.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
@@ -72,7 +75,7 @@ it.effect(
           expect(original).toBeDefined();
 
           const before = yield* compileReaderBody(
-            original?.html ?? "",
+            original?.html.replaceAll("__RATSTACK_ORIGIN__", page.origin) ?? "",
             page.page.sourcePath
           );
 
@@ -86,6 +89,9 @@ it.effect(
             page.page.sourcePath
           );
 
+          expect(readerWorkshopCount(rendered.html), page.page.path).toBe(
+            readerWorkshopCount(original?.html ?? "")
+          );
           expect(after.heading, page.page.path).toBe(before.heading);
           expect(after.breadcrumb, page.page.path).toEqual(before.breadcrumb);
           expect(normalizedNodes(after.nodes), page.page.path).toEqual(

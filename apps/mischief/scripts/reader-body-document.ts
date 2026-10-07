@@ -11,6 +11,12 @@ import {
 import type { ReaderNodeValue } from "../../web/src/client/reader-node.js";
 import { ReaderInputError } from "./reader-input-error.ts";
 
+export const readerWorkshopCount = (html: string) =>
+  DomUtils.getElementsByTagName("aside", parseDocument(html).children).filter(
+    (element) =>
+      element.attribs.class?.split(/\s+/u).includes("workshop-callout") === true
+  ).length;
+
 const ReaderBody = Schema.Struct({
   breadcrumb: Schema.optional(ReaderBreadcrumb),
   heading: Schema.String,

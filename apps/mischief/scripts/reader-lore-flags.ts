@@ -2,7 +2,10 @@ import { Effect, Schema } from "effect";
 
 import { ReaderFlags } from "../../web/src/client/reader-model.js";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
-import { compileReaderBody } from "./reader-body-document.ts";
+import {
+  compileReaderBody,
+  readerWorkshopCount,
+} from "./reader-body-document.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
 export const readerLoreFlags = Effect.fn("readerLoreFlags")(
@@ -15,7 +18,10 @@ export const readerLoreFlags = Effect.fn("readerLoreFlags")(
 
     return yield* Effect.validate(pages, (page) =>
       Effect.gen(function* lorePage() {
-        const body = yield* compileReaderBody(page.html, page.sourcePath);
+        const body = yield* compileReaderBody(
+          page.html.replaceAll("__RATSTACK_ORIGIN__", origin),
+          page.sourcePath
+        );
 
         return yield* Schema.decodeUnknownEffect(ReaderFlags)({
           bibliography: [],
@@ -35,7 +41,8 @@ export const readerLoreFlags = Effect.fn("readerLoreFlags")(
           },
           snippets: [],
           terms: [],
-          workshop: houseAdCopy,
+          workshop:
+            readerWorkshopCount(page.html) > 0 ? houseAdCopy : undefined,
         });
       })
     );
