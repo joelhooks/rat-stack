@@ -54,7 +54,6 @@ import {
   assertDocumentTitle,
   assertLoreTerms,
   assertGlossaryLinks,
-  frontmatterTerms,
   frontmatterValue,
   glossaryEntries,
   glossaryMarkdown,
@@ -2131,20 +2130,9 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "Systems"
   );
 
-  const glossaryPages = [
-    ...loreTexts,
-    ...skillTexts.map((skill) => ({
-      description: skill.description,
-      routePath: skill.routePath,
-      terms: frontmatterTerms(skill.rawText, skill.sourcePath),
-      title: skill.name,
-    })),
-  ];
+  const glossaryPages = [...loreTexts, ...skillTexts];
 
-  const glossaryTerms = glossaryEntries(
-    glossaryPages,
-    yield* readText("AGENTS.md")
-  );
+  const glossaryTerms = glossaryEntries(glossaryPages);
 
   assertGlossaryLinks(
     glossaryTerms,
@@ -2170,15 +2158,19 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const llmsSourceMarkdown = [
     "# ratstack.sh",
     "",
-    "Build an app and its cloud as one typed program with Effect and Alchemy. The fence makes the easy path the right one.",
+    "Build an app and its cloud infrastructure in one TypeScript program.",
+    "",
+    "Effect describes work with typed failures and required services. A service is a named interface for one job. Alchemy declares cloud resources and plans changes before applying them.",
+    "",
+    "The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts.",
     "",
     "## Read this repo",
     "",
     "- [Home](__RATSTACK_ORIGIN__/): short overview",
-    "- [Glossary](__RATSTACK_ORIGIN__/glossary): A–Z terms, summaries, and pages",
+    "- [Glossary](__RATSTACK_ORIGIN__/glossary): A–Z terms with definitions and teaching pages",
     "- [Public content corpus](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
     "- [HTTP API](__RATSTACK_ORIGIN__/openapi.json): routes, inputs, outputs, and errors",
-    "- [MCP server](__RATSTACK_ORIGIN__/mcp): tools for search, reading, and sandboxed code",
+    "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
     "",
     agentNextActions(originToken),
     "## Source files",
