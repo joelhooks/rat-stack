@@ -48,6 +48,19 @@ Dillon Mulroy compares Effect with Spring and NestJS:
 
 > Effect has probably the most novel dependency injection system that I've worked with. I've worked in enterprise languages like Java, done the whole Spring system. I've worked with NestJS. Effect's dependency injection is genuinely fantastic and really, really nice to work with.
 
+<HumanOnly>
+<figure>
+<a href="https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4"><img src="/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg" width="480" height="853" style="max-width: 16rem" alt="Dillon Mulroy, recorded outdoors. Play his one-minute clip on Effect dependency injection." /></a>
+<figcaption><a href="https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4">Watch Dillon's one-minute clip</a>.</figcaption>
+</figure>
+</HumanOnly>
+
+<AgentOnly>
+
+[Watch Dillon's one-minute clip](https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4).
+
+</AgentOnly>
+
 ## Requirements stay visible
 
 An `Effect<A, E, R>` describes its result, failure, and required services. The `R` type tracks those requirements. The compiler rejects execution while a required service remains in `R`.

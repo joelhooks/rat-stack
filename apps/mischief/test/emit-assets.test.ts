@@ -8,6 +8,7 @@ import { mischiefRoutes } from "../src/app.js";
 import { contentResources, ogImagePath } from "./content-fixture.js";
 import {
   cartridgesImageJpegBase64,
+  dillonPosterJpegBase64,
   faviconIcoBase64,
   appleTouchIconPngBase64,
   ratSvg,
@@ -175,6 +176,10 @@ it.effect(
         {
           base64: cartridgesImageJpegBase64,
           path: "/lore/cartridges/snes-sfam-cartridges.jpg",
+        },
+        {
+          base64: dillonPosterJpegBase64,
+          path: "/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg",
         },
       ];
 
