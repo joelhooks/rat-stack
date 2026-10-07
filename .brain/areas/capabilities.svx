@@ -1,6 +1,6 @@
 ---
 title: "Capabilities"
-description: "Domain behaviors on generated surfaces share one schema-typed contract and one handler."
+description: "Named application actions exposed through generated interfaces share one definition and one server-side implementation."
 group: system
 terms:
   - "capability contract"
@@ -35,20 +35,36 @@ sources:
 
 ## What it does
 
-A capability is one named behavior. `defineContract` names it and defines input, output, and failure as Effect schemas. It also sets behavior annotations and approval requirements. `implement` binds the contract to one server-side handler.
+A capability is one named action with a contract and a server-side handler.
+The contract declares the name, input, output, failure, and metadata. The handler implements the action on the server.
 
-The projections in `packages/capability` turn capabilities into a command line, HTTP API with OpenAPI, MCP toolkit, RPC group, and code mode.
+Effect is a library for describing work with typed failures and required services.
+A service is a named interface for one job.
+Schema describes accepted values, their TypeScript types, and the rules for checking and converting them at runtime.
+
+`defineContract` declares input, output, and failure with Effect Schema.
+It sets metadata describing the action, such as whether it is read-only, and any approval requirements.
+`implement` connects the contract to one handler.
+
+A projection builds a callable interface from a capability.
+The projections in `packages/capability` provide:
+
+- A command line.
+- An HTTP API with OpenAPI, which describes its routes, inputs, outputs, and errors.
+- MCP tools. Model Context Protocol lets an agent discover and call tools.
+- RPC calls. Remote procedure call lets a client call a named server operation.
+- Code mode, which combines capability calls in one program inside a restricted environment.
 See [one capability, every surface](/lore/one-capability-every-surface) for why.
 
 ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`. The registry lives in `apps/mischief/src/capabilities/index.ts`. The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
 
 ## The standard
 
-- Domain behaviors exposed through generated routes, tools, and commands come from capabilities. Static pages, discovery documents, result pages, and protocol routing are composed separately. `Rpc.make`, `RpcGroup.make`, `HttpApi*`, `Tool.make`, and `Toolkit.make` outside `packages/capability` fail lint (`rat-stack-boundaries/no-hand-rolled-surface`).
+- Application actions exposed through generated routes, tools, and commands come from capabilities. Static pages, discovery documents, result pages, and protocol routing are composed separately. `Rpc.make`, `RpcGroup.make`, `HttpApi*`, `Tool.make`, and `Toolkit.make` outside `packages/capability` fail lint (`rat-stack-boundaries/no-hand-rolled-surface`).
 - Input, output, and failure are Effect schemas. JSON Schema, OpenAPI, and the code-mode declarations are derived from them, never written by hand.
 - Invalid input is rejected before the handler runs.
-- A declared failure comes back typed. MCP returns it as a tool error.
-- A capability that needs approval adds an `Approval` requirement and an `ApprovalDenied` failure on every surface. Approval is denied by default. HTTP answers a denial with 403.
+- A declared failure returns the declared error type. MCP returns it as a tool error.
+- A capability that needs approval adds an `Approval` requirement and an `ApprovalDenied` failure on every interface. Approval is denied by default. HTTP answers a denial with 403.
 - Browser code imports contracts only, never handlers (`rat-stack-boundaries/no-browser-server-imports`).
 - Code mode reaches only capabilities, through their schemas.
 
@@ -56,8 +72,8 @@ ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`
 
 - `curl -sS https://ratstack.sh/openapi.json | jq -r '.paths | keys[]'` lists one route per capability. The MCP `tools/list` request in the [agent guide](/llms.txt) returns the same seven names.
 - `pnpm --filter @rat-stack/capability test` covers input rejection before the handler and typed failures as tool errors. It checks approval denial as a 403 and a typed tool error, denial by default, and code-mode calls through capability schemas.
-- `pnpm lint` fails on any surface built outside `packages/capability`.
+- `pnpm lint` fails on any callable interface built outside `packages/capability`.
 
-## Removing a surface
+## Removing an interface
 
 The README's Keep or cut table lists the files for "No HTTP", "No MCP", and "No code mode." Cutting MCP cuts code mode, because code mode is built on the MCP toolkit.

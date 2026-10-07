@@ -1,6 +1,6 @@
 ---
 title: "Analytics"
-description: "One event per HTTP request, stored unchanged in an Iceberg table on R2 and shaped at query time."
+description: "One event per HTTP request, stored unchanged for queries to select and interpret later."
 group: system
 terms:
   - "request analytics"
@@ -45,23 +45,30 @@ sources:
 
 ## What it does
 
-The `packages/events` [cartridge](/lore/cartridges) records one JSON event for each HTTP request when capture is enabled.
-It follows [capture first, shape later](/lore/capture-first). The sink stores each event as sent. Queries shape it later.
+The `packages/events` [cartridge](/lore/cartridges) is a package for one job, with its implementation and required infrastructure.
+It records one JSON event for each HTTP request when capture is enabled.
+
+It follows [capture first, shape later](/lore/capture-first). Each event is stored unchanged. Queries select and interpret its fields later.
+
+A stream receives events. A pipeline copies them to a sink, the destination that writes the stored files.
 
 1. `withEventCapture` wraps the Worker's fetch handler.
 2. It sends the event in the background after building the response.
-3. A Worker binding sends the event to an unstructured Cloudflare Pipelines stream.
+3. A Worker binding, a declared connection to a resource, sends the event to an unstructured Cloudflare Pipelines stream.
 4. The pipeline runs `INSERT INTO <sink> SELECT * FROM <stream>`.
 5. A Basin Catalog sink writes Parquet files to the Iceberg table `default.events_raw` in R2.
 
-Public HTTP ingest is off. The sink writes files every 300 seconds by default.
+R2 is Cloudflare's object storage. Parquet stores data by column in files. Iceberg organizes those files as a table.
+Basin Catalog makes the table queryable with SQL.
+
+Sending events through the public HTTP endpoint is disabled. The sink writes files every 300 seconds by default.
 See [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks/available-sinks/r2-data-catalog/).
 
 Each event holds:
 
-- A visitor id and UUIDv7 message id.
-- A server block: host, received time, salted IP hash, and user agent.
-- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone. It also includes the Cloudflare data center and the network's AS number and organization.
+- A visitor id and UUIDv7 message id. UUIDv7 is a time-ordered identifier format.
+- A server block: host, received time, salted IP hash, and user agent. The hash combines the IP with a secret salt to produce a one-way value.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone. It also includes the Cloudflare data center and the network's autonomous system number, which identifies the network, and its organization.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.
@@ -74,10 +81,10 @@ Each event holds:
 - The HTTP request body never reaches an event.
 - Credential, email, code, and session query keys are removed.
 - Basin stores an IP address only as a salted hash.
-- Geography comes from `request.cf`, which Cloudflare derives at the edge. The capture code never derives it from the IP.
+- Geography comes from `request.cf`, which Cloudflare derives in its data centers. The capture code never derives it from the IP.
 - Latitude, longitude, postal code, and metro code are never stored. The Mischief Worker sets `captureCity` to store city.
 - A missing or malformed `request.cf` field is left out; it never fails the request.
-- In `persistent` mode, the server sets a first-party HttpOnly cookie. A browser keeps one id across visits.
+- In `persistent` mode, the server sets a first-party HttpOnly cookie, which browser scripts cannot read. A browser keeps one id across visits.
 - In `daily` mode, no cookie is set. An id never repeats on a later day.
 - Each row is `{ "value": <event> }`. The unstructured stream requires the `value` column.
 - Ingest accepts events without `value`, but the pipeline drops them as `missing_field`.
@@ -91,7 +98,8 @@ All three Worker declarations share `privateObservability` in `apps/mischief/src
 - RpcBackend.
 - Website.
 
-The policy disables per-request invocation logs and traces. Application `console` and Effect error logs remain enabled.
+The policy disables per-request invocation logs and traces. Application `console` and Effect error logs remain enabled. Effect is the library that describes work with typed failures and required services.
+A service is a named interface for one job.
 
 500s log their cause with an incident id.
 
@@ -101,7 +109,7 @@ See [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/
 Client IPs reach Basin only as salted hashes. The Worker policy prevents automatic request-header dumps in stored invocation logs.
 Application logs must not print raw IPs or request headers.
 
-These settings apply after deployment. They do not erase previously stored logs.
+These settings apply after deployment. They do not erase stored logs from earlier deployments.
 
 ## Switches
 
@@ -120,12 +128,12 @@ See [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks
 1. Check an HTML response in `persistent` mode without a `rat_vid` cookie. The response must set one.
 2. Check `pipelinesUserErrorsAdaptiveGroups` for zero pipeline errors.
 3. Check `pipelinesSinkAdaptiveGroups` for records and files written. See [Metrics and analytics](https://developers.cloudflare.com/basin-pipelines/observability/metrics/).
-4. Find the warehouse with `wrangler basin catalog get <bucket>`.
-5. Query it with `wrangler basin sql query <warehouse> "<sql>"`. Wrangler reads `WRANGLER_BASIN_SQL_AUTH_TOKEN`. See [Query data](https://developers.cloudflare.com/basin-sql/query-data/).
+4. Find the queryable catalog with `wrangler basin catalog get <bucket>`.
+5. Query it with `wrangler basin sql query <warehouse> "<sql>"`. The command calls the catalog a warehouse. Wrangler reads `WRANGLER_BASIN_SQL_AUTH_TOKEN`. See [Query data](https://developers.cloudflare.com/basin-sql/query-data/).
 6. Run `pnpm --filter @rat-stack/mischief exec vitest run test/worker-observability.test.ts`.
 7. Review the deployed Worker settings before claiming the invocation-log policy is active.
 
-A cookie proves that the persistent capture wrapper is enabled. It does not prove warehouse delivery.
+A cookie proves that the persistent capture wrapper is enabled. It does not prove that an event is stored in the table.
 
 ```sql
 SELECT json_get_str(value, 'body', 'path') AS path, count(*) AS requests

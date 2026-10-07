@@ -1,9 +1,9 @@
 ---
-title: "Hosted agent front door"
+title: "Hosted agent interfaces"
 description: "Discovery documents, HTTP, MCP, A2A, and bounded code mode expose the public reference to agents."
 group: system
 terms:
-  - "hosted agent front door"
+  - "hosted agent interfaces"
 sources:
   - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
     title: "Hosted application routes"
@@ -35,17 +35,21 @@ sources:
 ## What it does
 
 `apps/mischief` hosts the public documentation and agent interfaces.
+A capability is one named action with shared input, output, and failure definitions and a server-side implementation.
 
-- Discovery cards describe MCP and A2A.
-- [OpenAPI](/openapi.json) describes the HTTP capability surface.
-- The [agent guide](/llms.txt) explains connection, search, read, and graph traversal.
+- MCP means Model Context Protocol. It lets an agent discover and call tools.
+- A2A means Agent2Agent protocol. This site uses it to answer documentation questions through search and read.
+- Discovery cards describe how to connect with each protocol.
+- [OpenAPI](/openapi.json) describes the HTTP API for the registered capabilities, including inputs, outputs, and errors.
+- The [agent guide](/llms.txt) explains connection, search, read, and following links between documentation pages.
 - The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
 
 ### Run a program instead of several calls
 
 Use `POST /api/execute` with a JSON `code` string. The MCP `execute` tool runs the same job.
 
-[Code mode](/lore/one-program-can-replace-several-tool-calls) runs content capabilities in one program. `joinInterest` stays outside the sandbox.
+[Code mode](/lore/one-program-can-replace-several-tool-calls) runs several capability calls in one program inside a restricted environment.
+`joinInterest` cannot run there.
 
 Source: callable definitions in [`apps/mischief/src/capabilities/index.ts` at `445b1a20b51a5492f8e586daeb9306e8011b7673`, lines 34–45](https://github.com/joelhooks/rat-stack/blob/445b1a20b51a5492f8e586daeb9306e8011b7673/apps/mischief/src/capabilities/index.ts#L34-L45).
 
@@ -57,24 +61,26 @@ return { title: page.title, id: page.id };
 
 The program passes the search result directly to read.
 
-MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless. Older clients initialize sessions backed by a Durable Object.
+MCP supports protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. The newest is stateless. Older clients initialize sessions backed by a Durable Object, Cloudflare's feature for persistent state and compute.
 
-A2A answers documentation questions through search and read. Browser RPC serves the browser separately.
+A2A answers documentation questions through search and read. RPC means remote procedure call: a client calls a named operation on the server. Browser RPC serves the browser separately.
 
 ## The standard
 
-- Domain calls use shared capability schemas and handlers.
+- Application calls use shared capability value definitions and server-side implementations.
 - Discovery and static pages handle routing. Domain calls stay in capability handlers.
 - Public API access needs no account or access token.
-- [Interest signup](/systems/interest) has its own consent and confirmation boundary.
-- `execute` runs an async function body in a fresh Dynamic Worker with `globalOutbound: null`.
+- [Interest signup](/systems/interest) has its own consent and email-confirmation rules.
+- `execute` runs an async function body in a fresh Dynamic Worker, a Cloudflare Worker loaded at runtime.
+- It sets `globalOutbound: null` to block outbound network access.
 - Imports, exports, and `fetch` are unavailable.
 - The program can call only declared capabilities.
 - API and MCP allow 120 requests per IP per 60 seconds.
 - Execute also allows 6 per IP and 300 total per 60 seconds.
 - Native Cloudflare counters apply separately per location.
 
-These routes exist today. A generic front-door cartridge remains planned.
+These routes exist today. A reusable cartridge for agent interfaces remains planned.
+A cartridge is a package for one job, with its implementation and required infrastructure.
 
 ## How to check
 
