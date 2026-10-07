@@ -36,7 +36,7 @@ export const withReaderWebsite =
   ) =>
     Effect.gen(function* routeReaderWebsite() {
       const request = yield* HttpServerRequest.HttpServerRequest;
-      const { pathname } = new URL(request.url, "https://ratstack.sh");
+      const { pathname } = new URL(request.originalUrl, "https://ratstack.sh");
 
       if (!forwardsToReaderWebsite(pathname, request.headers.accept, routes)) {
         return yield* fallback;

@@ -18,6 +18,8 @@ const pathSchema = Schema.Union([
     "/mcp",
     "/llms.txt",
     "/.well-known/mcp.json",
+    "//unconverted",
+    "//assets/x.js",
     "/assets/main-abc123.js",
   ]),
   Schema.String,
@@ -60,7 +62,7 @@ it.effect.prop(
   ({ accept, path }) =>
     Effect.gen(function* checkRouting() {
       const url = new URL("https://ratstack.sh");
-      url.pathname = `/${path.replace(/^\/+/u, "")}`;
+      url.pathname = path.startsWith("/") ? path : `/${path}`;
 
       const request = new Request(url, {
         headers: { accept },
