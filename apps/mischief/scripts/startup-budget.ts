@@ -2,6 +2,11 @@ import { NodeServices } from "@effect/platform-node";
 import { Context, Effect, FileSystem, Schema } from "effect";
 
 import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
+import {
+  feedbackAuthBuild,
+  feedbackGatewayBuild,
+} from "../src/auth/build-options.ts";
+import { PublicAuthBundleLeak } from "./startup-auth-dependency.ts";
 import { assertBuildOnlyModules } from "./startup-build-dependency.ts";
 
 const BundleGraph = Schema.fromJsonString(
@@ -20,10 +25,13 @@ class StartupBudgetExceeded extends Schema.TaggedError<StartupBudgetExceeded>()(
     budget: Schema.Finite,
     bytes: Schema.Finite,
     scope: Schema.Literals(["entry", "javascript-upload"]),
+    worker: Schema.Literals(["Mischief", "LearnFeedbackAuth"]),
   }
 ) {}
 
-const program = Effect.gen(function* measureMischiefBundle() {
+const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
+  worker: "Mischief" | "LearnFeedbackAuth"
+) {
   const fs = yield* FileSystem.FileSystem;
   const bundler = yield* WorkerBundle;
 
@@ -33,32 +41,60 @@ const program = Effect.gen(function* measureMischiefBundle() {
     services: Context.empty(),
   };
 
+  const directory =
+    worker === "Mischief" ? "dist/startup" : "dist/startup-auth";
+
+  const main =
+    worker === "Mischief"
+      ? "../src/worker.ts"
+      : "../src/auth/private-worker.ts";
+
+  const exports: Record<string, typeof durableObject> = {};
+
+  if (worker === "Mischief") {
+    Object.assign(exports, {
+      Interest: durableObject,
+      InterestIndex: durableObject,
+      LegacyMcp: durableObject,
+    });
+  }
+
   const bundle = yield* bundler.build({
     compatibility: { date: "2026-05-28", flags: ["nodejs_compat"] },
     entry: {
-      exports: {
-        Interest: durableObject,
-        InterestIndex: durableObject,
-        LegacyMcp: durableObject,
-      },
+      exports,
       kind: "effect",
     },
     extraOptions: {
+      ...(worker === "Mischief" ? feedbackGatewayBuild : feedbackAuthBuild),
       bundleAnalyzer: { fileName: "analysis.json", format: "json" },
-      output: { dir: "dist/startup" },
+      output: { dir: directory },
     },
-    id: "Mischief",
-    main: new URL("../src/worker.ts", import.meta.url).pathname,
+    id: worker,
+    main: new URL(main, import.meta.url).pathname,
     stack: { name: "RatStack", stage: "prod" },
   });
 
   const graph = yield* Schema.decodeEffect(BundleGraph)(
-    yield* fs.readFileString("dist/startup/analysis.json")
+    yield* fs.readFileString(`${directory}/analysis.json`)
   );
 
-  yield* assertBuildOnlyModules(graph.modules.map((module) => module.path));
+  const modules = graph.modules.map((module) => module.path);
+  yield* assertBuildOnlyModules(modules);
 
-  yield* fs.makeDirectory("dist/startup", { recursive: true });
+  if (worker === "Mischief") {
+    const authModules = modules.filter((path) =>
+      /(?:^|\/)packages\/auth\/(?:dist|src)\/|(?:^|\/)better-auth(?:@|\/)|(?:^|\/)@better-auth\//u.test(
+        path
+      )
+    );
+
+    if (authModules.length > 0) {
+      return yield* new PublicAuthBundleLeak({ modules: authModules });
+    }
+  }
+
+  yield* fs.makeDirectory(directory, { recursive: true });
 
   for (const file of bundle.files) {
     const blob = new Blob([file.content]);
@@ -67,7 +103,7 @@ const program = Effect.gen(function* measureMischiefBundle() {
       yield* Effect.promise(blob.arrayBuffer.bind(blob))
     );
 
-    yield* fs.writeFile(`dist/startup/${file.path}`, bytes);
+    yield* fs.writeFile(`${directory}/${file.path}`, bytes);
   }
 
   const [entry] = bundle.files;
@@ -95,7 +131,7 @@ const program = Effect.gen(function* measureMischiefBundle() {
   const upload = new Response(form);
 
   yield* fs.writeFile(
-    "dist/startup/worker.bundle",
+    `${directory}/worker.bundle`,
     new Uint8Array(yield* Effect.promise(upload.arrayBuffer.bind(upload)))
   );
 
@@ -106,7 +142,7 @@ const program = Effect.gen(function* measureMischiefBundle() {
     .reduce((total, file) => total + new Blob([file.content]).size, 0);
 
   yield* Effect.log(
-    `Mischief entry: ${bytes} bytes; budget: ${entryBudgetBytes}; complete JS upload: ${javascriptBytes} bytes; budget: ${javascriptBudgetBytes}`
+    `${worker} entry: ${bytes} bytes; budget: ${entryBudgetBytes}; complete JS upload: ${javascriptBytes} bytes; budget: ${javascriptBudgetBytes}`
   );
 
   if (bytes > entryBudgetBytes) {
@@ -114,6 +150,7 @@ const program = Effect.gen(function* measureMischiefBundle() {
       budget: entryBudgetBytes,
       bytes,
       scope: "entry",
+      worker,
     });
   }
 
@@ -122,10 +159,27 @@ const program = Effect.gen(function* measureMischiefBundle() {
       budget: javascriptBudgetBytes,
       bytes: javascriptBytes,
       scope: "javascript-upload",
+      worker,
     });
   }
 
-  return bytes;
+  yield* fs.writeFileString(
+    `${directory}/metrics.json`,
+    JSON.stringify({
+      entryBudgetBytes,
+      entryBytes: bytes,
+      javascriptBudgetBytes,
+      javascriptBytes,
+      worker,
+    })
+  );
+
+  return { entryBytes: bytes, javascriptBytes, worker };
 });
+
+const program = Effect.validate(
+  ["Mischief", "LearnFeedbackAuth"] as const,
+  measureWorker
+);
 
 await Effect.runPromise(program.pipe(Effect.provide(NodeServices.layer)));

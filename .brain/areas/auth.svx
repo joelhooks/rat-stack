@@ -42,11 +42,25 @@ This check is middleware: code that runs around a call.
 A capability is one named action with shared value definitions and a server-side implementation.
 `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and in-memory test people.
 
-ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, where devtools calls run as test people.
+The public sign-in surface is gated by `AUTH_ENABLED`, which defaults to false.
+When enabled, [learn feedback](/systems/learn#feedback-sign-in) uses phone approval and a separate feedback-only credential.
+
+The phone page signs in through Better Auth. The agent never receives a sign-in session.
+The stock device-token exchange is disabled.
+
+Mischief serves the phone page and the public feedback projections.
+It calls the private `LearnFeedbackAuth` Worker through a [Worker binding](/lore/bindings).
+That Worker owns Better Auth, the D1 database, and the signing secret.
+It has no public route and sets `workersDev` to false.
+
+The web app's dev server also uses auth, where devtools calls can run as test people.
 
 ## The standard
 
 - An RPC call without a valid session fails as `Unauthenticated`. That is the only auth failure sent to the client.
+- Feedback credentials permit `learnFeedback` only. They cannot provide `CurrentPerson` to another capability.
+- Off keeps only the database and signing-secret foundation. It exposes no auth route, feedback tool, or private Worker.
+- Mischief contains no Better Auth implementation. Both Worker uploads stay below 2,500,000 JavaScript bytes.
 - A session whose user id fails the person-id schema check also fails as `Unauthenticated`.
 - Test people and `rat_test_person` never reach production. Lint keeps `@rat-stack/auth/devtools` inside dev folders, the CLI, and tests (`rat-stack-boundaries/no-devtools-in-production`).
 - A production build of the web app contains no dev module, no devtools code, and no test person.
@@ -54,4 +68,7 @@ ratstack.sh has no sign-in. Today auth runs only in the web app's dev server, wh
 ## How to check
 
 - `pnpm --filter @rat-stack/auth test` signs up, signs in, reads a session, protects an RPC call, and runs devtools calls as a test person.
+- `pnpm --filter @rat-stack/mischief exec vitest run test/feedback-auth.test.ts` checks phone approval and feedback storage through a separate private server.
+- The same tests check flag-off routes and tool discovery.
+- `pnpm --filter @rat-stack/mischief startup:check` measures both uploads and rejects auth implementation modules in Mischief.
 - `pnpm --filter @rat-stack/web exec vitest run test/production-bundle.test.ts` builds the web app for production and checks the bundle.

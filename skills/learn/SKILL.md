@@ -32,7 +32,9 @@ Configure the agent's stdio MCP client to run this command from that checkout:
 node apps/cli/dist/cli.js mcp
 ```
 
-Add `--devtools` when checking recorded calls. The local tool descriptions say they use the local event log. Public MCP and HTTP learning tools use supplied progress and store nothing.
+Add `--devtools` when checking recorded calls. The local tool descriptions say they use the local event log. Public MCP and HTTP progress tools use supplied progress and store no progress.
+
+Feedback is a separate signed-in operation. It does not synchronize learning progress.
 
 The default local store is `~/.rat-learn/`. `RAT_LEARN_DIRECTORY` selects another local directory. `RAT_LEARN_ORIGIN` selects the public deck origin.
 
@@ -93,6 +95,24 @@ Use the CLI commands for selection and recording. They use the same local store 
 Build first, then run `node apps/cli/dist/cli.js learnNext` with `--context` and `--progress` JSON flags. Record with `learnRecord --event` and `--progress`. Use current timestamps for real learning events.
 
 If the deck or CLI is unavailable, report that limit and continue the task. Do not claim that progress was saved. Never hand-edit the JSONL files.
+
+## Leave feedback with phone approval
+
+Use this flow only when the operator asks to leave feedback on a public card. The server exposes these tools only when `AUTH_ENABLED` is true. If they are absent from MCP, report that feedback sign-in is unavailable on that surface. Do not retry.
+
+1. Draft the feedback with the operator. Keep it about the public card.
+2. Call `learnFeedbackStart` with an empty input.
+3. Show the returned `userCode` and `verificationUrl` to the operator.
+4. The operator opens the URL on their phone, signs in, and checks the code.
+5. The operator chooses **Approve feedback only** or **Deny**.
+6. Call `learnFeedbackPoll` with the returned `deviceCode`. Wait at least the returned `interval` between calls.
+7. Stop on `denied` or `expired`. On `polled-too-fast`, wait the returned interval before another poll.
+8. After `approved`, call `learnFeedback` with `token`, `cardId`, and the agreed `feedback` text.
+9. Confirm storage only after the [capability](/systems/capabilities) returns a feedback id.
+
+The credential permits `learnFeedback` only. It is not a sign-in session or a credential for another tool. It expires with the device grant. The provider's device-code lifetime is thirty minutes, and its polling interval is five seconds. A new device flow is required after expiry. Do not use the stock `/auth/device/token` endpoint; it is disabled.
+
+Keep the credential out of local learning JSONL, feedback text, examples, and shared messages. Do not include private code, prompts, paths, credentials, or names in feedback. A failed call does not prove storage. Automatic retry can store a second feedback row; ask before repeating an uncertain write.
 
 ## Privacy
 

@@ -4,6 +4,7 @@ import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
 
 export const MISCHIEF_CONFIG_NAMES = [
+  "AUTH_ENABLED",
   "DROVR_API_BASE",
   "DROVR_AGENT_INTAKE_CREDENTIAL",
   "DROVR_INTAKE_CREDENTIAL",

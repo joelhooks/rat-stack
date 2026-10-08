@@ -1,12 +1,17 @@
 ---
 title: "Learn mode presents concepts at useful depths"
-description: "An agent presents source-derived concepts during real work and keeps learning events in a private local log."
+description: "An agent explains public concepts, keeps progress local, and leaves card feedback after phone approval."
 group: system
 terms:
   - "learn mode"
   - "concept deck"
   - "learning progress"
 sources:
+  - url: https://github.com/better-auth/better-auth/tree/better-auth%401.6.2/packages/better-auth/src/plugins/device-authorization
+    title: "Pinned device authorization plugin"
+    publisher: "GitHub better-auth/better-auth"
+    note: "Device codes, cookie-authenticated approval, provider lifetime, and polling interval. The application disables its full-session token exchange."
+    accessed: "2026-10-08"
   - url: https://github.com/joelhooks/rat-stack/blob/553cb64b93e8b2b15f4215ef36786b14d3754949/packages/learn/src/local-store.ts
     title: "Local progress adapter"
     publisher: "GitHub joelhooks/rat-stack"
@@ -77,9 +82,41 @@ Public HTTP and MCP calls operate on supplied progress. The public server stores
 | `tasks.jsonl` | Rebuildable concept ids and presentation depths. |
 | `README.md` | Store shape and recovery instructions. |
 
+### Feedback sign-in
+
+Feedback is separate from learning progress. A person signs in through Better Auth and approves an agent's code on their phone.
+The agent receives a credential that permits `learnFeedback` only. The database stores feedback against the approving person.
+
+| Capability | Job |
+| --- | --- |
+| `learnFeedbackStart` | Return a short code, verification URL, lifetime, and polling interval. |
+| `learnFeedbackPoll` | Report pending, approval, denial, expiry, or polling too fast. |
+| `learnFeedback` | Validate the credential and card, then store the agreed feedback. |
+
+The phone page is `/learn/approve`. It shows the code and requires sign-in before approval.
+The stock `/auth/device/token` endpoint is disabled because it issues a full sign-in session.
+
+Feedback credentials are separate signed values. They cannot authenticate a normal Better Auth session.
+
+The device machine reflects the provider's stored approval facts. Its declared Effect actors inspect the grant and issue the credential.
+The credential machine checks signature, audience, expiry, and the current grant before it returns an author.
+
+Learn owns the `FeedbackAuthor` [port](/lore/hexagonal-architecture). Mischief provides its auth adapter inside each request.
+Learn imports no auth provider.
+
+`AUTH_ENABLED` defaults to false. Off removes sign-in routes, the phone page, feedback HTTP operations, and feedback MCP tools.
+The D1 database and signing-secret foundation stay declared to keep state and resource ownership.
+On adds Better Auth table migrations and the Worker bindings that use them.
+
+Feedback writes are not replay-idempotent. Each successful call stores a new row.
+An uncertain write needs a storage check before another attempt.
+
 ## The standard
 
 - The operator opts in. The skill stops when the operator opts out.
+- Feedback requires a signed-in person's approval. Denial and expiry issue no credential.
+- A feedback credential grants no authority to any other capability.
+- Feedback credentials never enter local progress files, feedback text, or published examples.
 - Questions require separate opt-in. The agent asks at most one check-in per long session.
 - Selection does not record a presentation. The agent records `shown` after presenting.
 - Events contain concept ids and learning metadata. They contain no code, paths, names, or prompts.
@@ -134,10 +171,26 @@ node apps/cli/dist/cli.js learnNext \
 
 Check one event in `log.jsonl`. Repeat the record command and confirm that the event count stays one. Confirm outbound deck requests contain only an empty JSON body.
 
+With feedback sign-in enabled in a test composition:
+
+1. Call `learnFeedbackStart` and open its verification URL while signed out.
+2. Sign in on the phone, check the code, and approve feedback access.
+3. Poll with `learnFeedbackPoll`, respecting its interval.
+4. Call `learnFeedback` with a real public card id and the agreed text.
+5. Confirm the returned id and the stored person's id.
+6. Check that the credential cannot authenticate a normal session or authorize another capability.
+7. Repeat with denial and expiry. Confirm neither grants feedback access.
+8. Disable the flag. Confirm the routes, OpenAPI operations, and MCP tools are absent.
+
+The tests use memory auth for the HTTP seam. They do not establish deployed D1 health.
+The schema limits feedback to 2,000 characters, card ids to 200, and credentials to 4,096.
+These are initial input bounds, not measured traffic limits.
+
 Run the implementation checks:
 
 ```sh
 pnpm --filter @rat-stack/learn test
+pnpm --filter @rat-stack/auth test
 pnpm --filter @rat-stack/mischief generate
 pnpm turbo run check test build --concurrency=1
 ```

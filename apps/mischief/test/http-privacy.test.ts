@@ -113,6 +113,13 @@ it.effect(
         "/normal?ticket=private-ticket-value",
         "/normal?TOKEN=private-uppercase-value",
         "/normal?%74icket=private-encoded-key-value",
+        "/auth/get-session",
+        "/auth/device/approve",
+        "/api/learnFeedbackStart",
+        "/api/learnFeedbackPoll",
+        "/api/learnFeedback",
+        "/learn/approve?user_code=ABCD1234",
+        "/normal?user_code=ABCD1234",
       ]) {
         const response = yield* makeRequestEffect(
           new Request(`https://ratstack.sh${target}`),
