@@ -1,6 +1,7 @@
 ---
 title: "Alchemy and the next generation of infrastructure as code"
 description: "Sam Goodwin describes Alchemy's stateful TypeScript model for infrastructure resources."
+plain: "Sam Goodwin describes Alchemy resources as stateful TypeScript functions that create, update and delete."
 group: source
 speaker: "Sam Goodwin"
 date: 2025-04-14

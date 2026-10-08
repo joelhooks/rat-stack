@@ -1,6 +1,14 @@
 ---
 title: "Engine-neutral tokens keep adapters replaceable"
 description: "The highlighter port exposes text, roles, and font styles rather than Shiki types."
+plain: "The highlighter port speaks in plain tokens, so Shiki or a plain adapter can sit behind it."
+diagram: |-
+  Highlighter port
+    token: text, role,
+           fontStyle
+    ├ Shiki adapter
+    └ plain adapter
+  caller never sees Shiki
 group: concept
 terms:
   - "engine-neutral token"

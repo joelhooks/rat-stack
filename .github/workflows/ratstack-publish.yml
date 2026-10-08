@@ -1,0 +1,53 @@
+name: Publish ratstack
+
+on:
+  push:
+    tags: ["ratstack-v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ratstack-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 24.18.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+          registry-url: https://registry.npmjs.org
+      - name: Require the tag to match a released commit and the package version
+        run: |
+          version="$(node -p 'require("./apps/cli/npm/ratstack/package.json").version')"
+          if [ "$GITHUB_REF_NAME" != "ratstack-v$version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match ratstack@$version. Bump apps/cli/npm/ratstack/package.json and apps/cli/src/version.ts together, then tag ratstack-v<version>." >&2
+            exit 1
+          fi
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "Tag $GITHUB_REF_NAME points at a commit that is not on main. Tag a merged commit." >&2
+            exit 1
+          fi
+      - name: Enable corepack pnpm
+        run: corepack enable && corepack prepare pnpm@11.3.0 --activate
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Fetch pinned source objects
+        run: pnpm sources:fetch
+      - name: Check, test, and build
+        run: pnpm turbo run check test build --concurrency=1
+      - name: Publish with npm trusted publishing
+        working-directory: apps/cli/dist/npm
+        run: npm publish --access public

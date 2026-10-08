@@ -2,7 +2,9 @@ import {
   learnCardContract,
   learnDeckContract,
   learnNextContract,
+  learnPreferencesContract,
   learnRecordContract,
+  learnSetPreferencesContract,
 } from "@rat-stack/core/contracts";
 import { Effect, Schema } from "effect";
 
@@ -68,10 +70,10 @@ export const copyPrompts = {
     text: [
       "Turn on rat-stack learn mode for me.",
       `1. Connect to the rat-stack MCP server at https://ratstack.sh/mcp. Use ${learnDeckContract.name} and ${learnCardContract.name} to read the public concept deck.`,
-      "2. Install the rat-stack skills with npx skills add joelhooks/rat-stack, then follow https://ratstack.sh/skills/learn.",
-      `3. Keep my progress local in ~/.rat-learn/. Use the local ${learnNextContract.name} and ${learnRecordContract.name} tools from a rat-stack checkout, as the skill says.`,
+      "2. Install the rat-stack skills with DO_NOT_TRACK=1 npx skills add joelhooks/rat-stack, then follow https://ratstack.sh/skills/learn.",
+      `3. Keep my progress and display preferences local in ~/.rat-learn/. Use the local ${learnNextContract.name}, ${learnRecordContract.name}, ${learnPreferencesContract.name} and ${learnSetPreferencesContract.name} tools from a fresh rat-stack clone, as the skill says. Never pull over my uncommitted changes.`,
       "4. Never send my code, file paths, names, repository names, or prompts.",
-      "5. Ask me to confirm before you start. Keep questions off unless I turn them on. Stop when I say learn mode off.",
+      "5. Then show me the first concept right away. When I later say learn mode on or next concept, show the next one. Keep questions off unless I turn them on. Stop when I say learn mode off.",
     ].join("\n"),
   },
   mcp: {

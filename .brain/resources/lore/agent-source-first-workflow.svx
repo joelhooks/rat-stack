@@ -1,6 +1,18 @@
 ---
 title: "Source-first workflow"
 description: "Michael Arnaldi says agents should inspect a library's current source instead of trusting stale model knowledge."
+plain: "Michael Arnaldi says agents learn a fast-moving library best from its current source, not from old model knowledge."
+diagram: |-
+  current source
+    │ agent reads
+    ▼
+  change
+    │
+    ▼
+  diagnostics, tests, lint
+    │ feedback
+    ▼
+  next change
 group: concept
 terms:
   - "source-first workflow"

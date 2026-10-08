@@ -1,6 +1,7 @@
 ---
 title: "Chris Tate"
 description: "Chris Tate shares public experiments in generative UI and fast model judgments."
+plain: "Chris Tate shares experiments in generative UI that renders components and actions in milliseconds."
 group: person
 terms:
   - "Chris Tate"

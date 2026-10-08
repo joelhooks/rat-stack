@@ -1,16 +1,21 @@
 import { implement } from "@rat-stack/capability/implement";
 import {
+  LearnerPreferences,
   LearnerProgress,
   LearnError,
   learnDeckContract,
   learnNextContract,
+  learnPreferencesContract,
   learnRecordContract,
+  learnSetPreferencesContract,
 } from "@rat-stack/core/learn";
 import { Clock, Config, Effect, Layer, Schema } from "effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 
 import { learnCard, learnDeck } from "./capabilities.js";
 import { Learner } from "./learner.js";
+
+export { localLearnerPreferencesLayer } from "./local-preferences.js";
 
 export { localLearnerProgressLayer } from "./local-store.js";
 
@@ -97,9 +102,32 @@ export const localLearnRecord = implement(
     )
 );
 
+const preferencesFailure = () =>
+  new LearnError({
+    id: "preferences",
+    reason:
+      "Local preferences could not be read or written. Check that ~/.rat-learn/preferences.json is valid JSON with width, visual and snippet fields, or remove it to use the defaults.",
+  });
+
+export const learnPreferences = implement(learnPreferencesContract, () =>
+  LearnerPreferences.use((preferences) => preferences.read).pipe(
+    Effect.mapError(preferencesFailure)
+  )
+);
+
+export const learnSetPreferences = implement(
+  learnSetPreferencesContract,
+  (change) =>
+    LearnerPreferences.use((preferences) => preferences.update(change)).pipe(
+      Effect.mapError(preferencesFailure)
+    )
+);
+
 export const localLearnCapabilities = [
   learnDeck,
   learnCard,
   localLearnNext,
   localLearnRecord,
+  learnPreferences,
+  learnSetPreferences,
 ] as const;

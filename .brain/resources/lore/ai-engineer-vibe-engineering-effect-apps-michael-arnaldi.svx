@@ -1,6 +1,7 @@
 ---
 title: "Vibe engineering Effect apps"
 description: "Michael Arnaldi shows how source, tests, and diagnostics can guide agents working with Effect."
+plain: "Michael Arnaldi says agents should learn Effect from its source and get feedback from diagnostics, tests and lint."
 group: source
 speaker: "Michael Arnaldi"
 date: 2026-05-07

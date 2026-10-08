@@ -1,6 +1,17 @@
 ---
 title: "Double opt-in"
 description: "The visitor gets one confirmation email and is counted only after using its link."
+plain: "A visitor counts only after using the link in one confirmation email, and the link opens a page with a button."
+diagram: |-
+  confirmation email
+    │ visitor opens link
+    ▼
+  page with a button
+    │ visitor presses it
+    ▼
+  counted
+
+  mail scanner GET → not counted
 group: concept
 terms:
   - "double opt-in"

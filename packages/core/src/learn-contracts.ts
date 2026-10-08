@@ -7,8 +7,11 @@ import {
   LearnDepthSchema,
   LearnError,
   LearnEventSchema,
+  LearnPreferencesChangeSchema,
+  LearnPreferencesSchema,
   LearnSelectionSchema,
   ProgressSchema,
+  SuppliedProgressSchema,
 } from "./learn-model.js";
 
 export const learnDeckContract = defineContract("learnDeck", {
@@ -33,11 +36,11 @@ export const learnCardContract = defineContract("learnCard", {
 export const learnNextContract = defineContract("learnNext", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "Select concepts in play, resolving unintroduced prerequisites first. Without context, offer the next concept in deck order. Selection records no presentation.",
+    "Select concepts in play, resolving unintroduced prerequisites first. Without context, offer the next concept in deck order. Omitted progress means none yet. Selection records no presentation.",
   failure: LearnError,
   input: Schema.Struct({
     context: Schema.optional(LearnContextSchema),
-    progress: ProgressSchema,
+    progress: SuppliedProgressSchema,
   }),
   output: LearnSelectionSchema,
 });
@@ -45,8 +48,32 @@ export const learnNextContract = defineContract("learnNext", {
 export const learnRecordContract = defineContract("learnRecord", {
   annotations: { idempotent: false, readOnly: true },
   description:
-    "Fold a presentation or learning event into supplied progress. The public server stores nothing.",
+    "Fold a presentation or learning event into supplied progress; omitted progress means none yet. The public server stores nothing.",
   failure: LearnError,
-  input: Schema.Struct({ event: LearnEventSchema, progress: ProgressSchema }),
+  input: Schema.Struct({
+    event: LearnEventSchema,
+    progress: SuppliedProgressSchema,
+  }),
   output: ProgressSchema,
 });
+
+export const learnPreferencesContract = defineContract("learnPreferences", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "Read local display preferences: width, visual style and snippet terseness. Without a preferences file, the default is narrow inline text with full snippets. Preferences never leave the machine.",
+  failure: LearnError,
+  input: Schema.Struct({}),
+  output: LearnPreferencesSchema,
+});
+
+export const learnSetPreferencesContract = defineContract(
+  "learnSetPreferences",
+  {
+    annotations: { idempotent: true, readOnly: false },
+    description:
+      "Change local display preferences when the operator asks. Omitted fields keep their current value.",
+    failure: LearnError,
+    input: LearnPreferencesChangeSchema,
+    output: LearnPreferencesSchema,
+  }
+);

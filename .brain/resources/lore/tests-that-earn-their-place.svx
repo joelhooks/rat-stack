@@ -1,6 +1,16 @@
 ---
 title: "Tests prove behavior through supplied services"
 description: "Supply services through Layers, choose properties or models for domain rules, and reject tests that cannot detect broken behavior."
+plain: "Test only behavior that lacks proof, and state the expected answer without reusing the code under test."
+diagram: |-
+  it.effect(...)
+    │ returns an Effect
+    ▼
+  Effect.provide(layer)
+    │ runs the real code
+    ▼
+  expect(...).toBe(110)
+    fixed answer, not a rerun
 group: idea
 terms:
   - "tests that earn their place"
