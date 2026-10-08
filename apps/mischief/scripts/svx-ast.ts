@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 import { Parser } from "htmlparser2";
-import type { Nodes, Root, RootContent, Text } from "mdast";
+import type { Nodes, PhrasingContent, Root, RootContent, Text } from "mdast";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
@@ -52,6 +52,25 @@ const textWithEncodedMarkup: NonNullable<
   NonNullable<StringifyOptions["handlers"]>["text"]
 > = (node: Text, _parent, state, info) =>
   state.safe(node.value, { ...info, encode: ["&", "<"] });
+
+const characterReference = (character: string) =>
+  `&#x${(character.codePointAt(0) ?? 0).toString(16).toUpperCase()};`;
+
+const htmlCodeWithPipes = (
+  children: readonly PhrasingContent[]
+): PhrasingContent[] =>
+  children.map((child) => {
+    if (child.type === "inlineCode" && child.value.includes("|")) {
+      return {
+        type: "html",
+        value: `<code>${child.value.replaceAll(/[&<>{|}]/gu, characterReference)}</code>`,
+      };
+    }
+
+    return "children" in child
+      ? { ...child, children: htmlCodeWithPipes(child.children) }
+      : child;
+  });
 
 const mdsvexSourceProcessor = unified()
   .use(remarkParse)
@@ -146,8 +165,15 @@ export const parseContentMarkdown = (
 export const stringifyContentMarkdown = (root: Root) =>
   processor.stringify(root);
 
-export const stringifyMdsvexSourceMarkdown = (root: Root) =>
-  mdsvexSourceProcessor.stringify(root);
+export const stringifyMdsvexSourceMarkdown = (root: Root) => {
+  visitContentNodes(root, (node) => {
+    if (node.type === "tableCell") {
+      node.children = htmlCodeWithPipes(node.children);
+    }
+  });
+
+  return mdsvexSourceProcessor.stringify(root);
+};
 
 export const frontmatterData = (
   source: string,
