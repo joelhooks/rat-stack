@@ -158,19 +158,33 @@ Each record contains only:
 
 - The outcome.
 - Exception names, sanitized messages, and stack locations.
+- Console levels and sanitized text from traces with exceptions or an exception outcome.
 - The script version id, when Cloudflare supplies it.
 - The event time, or `null` when absent.
 - The URL path without its query string, or `null` without a fetch event.
 
-Exception messages retain recognized diagnostic phrases only.
-Other messages become `[redacted message]`; custom exception names become `[redacted name]`.
-This rule also covers secrets that Cloudflare removes from trace headers before delivery.
+Exception messages keep ordinary diagnostic text, including quoted property names.
+Redaction removes credential-shaped values, emails, IP addresses, and URL query strings.
+Credential rules cover bearer tokens, key assignments, known token prefixes, JWTs, private keys, and long opaque values.
+Custom exception names become `[redacted name]`.
+
+Credential rules apply even when Cloudflare removes sensitive header values before delivery.
+They cannot identify every secret written as ordinary prose.
 
 Stack locations retain a source filename, line, and column.
 They exclude function names, directory paths, URLs, and the first error line.
-Known header, cookie, and query values are removed from exception text before storage.
 
-The archive never stores request headers, IP addresses, cookies, query strings, bodies, console messages, or diagnostic-channel payloads.
+Known credential-header, cookie, and query values are removed from exception and console text at token boundaries.
+Ordinary header values do not participate in redaction.
+Paths use credential-shape rules instead of substitutions from unrelated headers or query values.
+
+Console records keep the level and redacted string arguments for exception outcomes or traces with exceptions.
+Structured arguments and serialized request payloads are omitted.
+Missing levels stay `null`; older records can have no console field.
+
+The archive excludes request headers, bodies, and diagnostic-channel payloads.
+Redaction removes recognized private values from diagnostic text.
+
 The tail Worker has no public HTTP route and disables its own observability.
 Mischief keeps invocation logs and traces disabled.
 Crash capture operates independently of `EVENTS_ENABLED`.
