@@ -38,9 +38,15 @@ export const forwardsToReaderWebsite = (
       );
     }));
 
+export type ReaderResponseHeaders = (
+  pagePath: string,
+  response: HttpServerResponse.HttpServerResponse
+) => Effect.Effect<HttpServerResponse.HttpServerResponse>;
+
 export const withReaderWebsite =
   (
     website: AssetBinding | Effect.Effect<AssetBinding>,
+    responseHeaders: ReaderResponseHeaders,
     routes: readonly string[] = readerWebsiteRoutes
   ) =>
   <E, R>(
@@ -68,11 +74,14 @@ export const withReaderWebsite =
       const vary = headers.get("vary");
       headers.set("vary", vary === null ? "Accept" : `${vary}, Accept`);
 
-      return HttpServerResponse.fromWeb(
-        new Response(response.body, {
-          headers,
-          status: response.status,
-          statusText: response.statusText,
-        })
+      return yield* responseHeaders(
+        pathname,
+        HttpServerResponse.fromWeb(
+          new Response(response.body, {
+            headers,
+            status: response.status,
+            statusText: response.statusText,
+          })
+        )
       );
     });

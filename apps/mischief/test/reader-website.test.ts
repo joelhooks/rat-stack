@@ -57,7 +57,15 @@ const website = {
     ),
 };
 
-const route = withReaderWebsite(website)(
+const unchanged = (
+  _pagePath: string,
+  response: HttpServerResponse.HttpServerResponse
+) => Effect.succeed(response);
+
+const route = withReaderWebsite(
+  website,
+  unchanged
+)(
   Effect.succeed(
     HttpServerResponse.text("Mischief", {
       headers: { "x-mischief": "true" },
@@ -175,6 +183,7 @@ it.effect(
 
         const response = yield* withReaderWebsite(
           missing,
+          unchanged,
           routes
         )(fallback).pipe(
           Effect.provideService(
