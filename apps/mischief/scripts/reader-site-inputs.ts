@@ -175,10 +175,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       });
     }
 
-    const tokenmaxxHtml = tokenmaxxDocumentHtml.replaceAll(
-      "__COPY_SCRIPT__",
-      ""
-    );
+    const tokenmaxxHtml = tokenmaxxDocumentHtml;
 
     const pages = [
       ...manifestPages,

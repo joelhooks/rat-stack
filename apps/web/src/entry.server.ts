@@ -6,6 +6,7 @@ import {
   renderToString,
 } from "foldkit/experimental/server";
 import { readerErrorShell, readerErrorTemplate } from "virtual:reader-error";
+import { readerPageShells } from "virtual:reader-shells";
 
 import {
   ReaderErrorPage,
@@ -14,6 +15,7 @@ import {
 import { ReaderFlags, readerInit } from "./client/reader-model.js";
 import { pages } from "./client/reader-pages.js";
 import { readerView } from "./features/reader.js";
+import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
 import {
@@ -167,7 +169,7 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       );
     }
 
-    const promptRoute = route === "/prompts" || route.startsWith("/prompts/");
+    const promptRoute = isWorkerFirstReaderRoute(route);
     const prerender = new URL(request.url).origin === readerPrerenderOrigin;
 
     if (
@@ -194,8 +196,21 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
 
     const headers = yield* previewHeaders(request);
 
+    const shell = readerPageShells[route];
+
     if (promptRoute && !prerender) {
       headers.set("Vary", "Accept");
+    }
+
+    if (shell !== undefined && !prerender) {
+      headers.set("Content-Type", "text/html; charset=utf-8");
+
+      return Responded(
+        new Response(injectIntoTemplate(shell, application), {
+          headers,
+          status: page.page.status,
+        })
+      );
     }
 
     if ([...headers].length > 0) {

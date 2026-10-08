@@ -17,9 +17,6 @@ export {
   robotsText,
   staticAssetGeneration,
   staticContentVersion,
-  tokenmaxxDocumentHtml,
-  tokenmaxxCopyScriptHash,
-  tokenmaxxCopyScript,
   tokenmaxxMarkdown,
 } from "../src/content.js";
 
