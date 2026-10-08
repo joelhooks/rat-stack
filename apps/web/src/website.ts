@@ -20,6 +20,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
         runWorkerFirst: [
           "/rpc",
           "/rpc/*",
+          "/__error",
           "/__rat",
           "/__rat/*",
           "/prompts",
@@ -29,6 +30,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
       env: { BACKEND: RpcBackend },
       observability: privateObservability,
       rootDir: "../web",
+      workersDev: false,
     } satisfies Cloudflare.Website.FoldkitProps;
 
     if (!preview) {

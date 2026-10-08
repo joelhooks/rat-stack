@@ -61,5 +61,8 @@ it.effect(
         domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
       });
       expect(compiled.resources.Website?.Props).not.toHaveProperty("domain");
+      expect(compiled.resources.Website?.Props).toMatchObject({
+        workersDev: false,
+      });
     }).pipe(Effect.provide(services))
 );

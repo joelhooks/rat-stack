@@ -1,18 +1,36 @@
-import { Effect } from "effect";
+import { Effect, Option, Schema } from "effect";
 import {
+  injectIntoTemplate,
   Rendered,
   Responded,
   renderToString,
 } from "foldkit/experimental/server";
+import { readerErrorShell, readerErrorTemplate } from "virtual:reader-error";
 
+import {
+  ReaderErrorPage,
+  readerErrorPath,
+} from "../../mischief/src/reader-error-page.js";
 import { ReaderFlags, readerInit } from "./client/reader-model.js";
 import { pages } from "./client/reader-pages.js";
 import { readerView } from "./features/reader.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
+import { ReaderErrorTemplate } from "./server/reader-error-template.js";
+import {
+  readerErrorFlags,
+  readerErrorShell as errorShellFor,
+} from "./server/reader-error.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
 import { WebsiteBindings } from "./server/website-bindings.js";
 
 export const prerenderPaths = pages.map((page) => page.page.path);
+
+const errorTemplate =
+  Schema.decodeUnknownSync(ReaderErrorTemplate)(readerErrorTemplate);
+
+const decodeErrorPage = Schema.decodeUnknownEffect(
+  Schema.fromJsonString(ReaderErrorPage)
+);
 
 const previewHeaders = Effect.fn("reader.previewHeaders")(
   function* previewHeaders(request: Request) {
@@ -60,6 +78,52 @@ const responded = Effect.fn("reader.responded")(function* responded(
   );
 });
 
+const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
+  function* renderErrorRoute(request: Request) {
+    if (request.method !== "POST") {
+      return yield* responded(
+        request,
+        new Response("Error pages accept POST", {
+          headers: { Allow: "POST" },
+          status: 405,
+        })
+      );
+    }
+
+    const errorPage = yield* Effect.tryPromise(request.text.bind(request)).pipe(
+      Effect.flatMap(decodeErrorPage),
+      Effect.option
+    );
+
+    if (Option.isNone(errorPage)) {
+      return yield* responded(
+        request,
+        new Response("Error pages need a ReaderErrorPage JSON body", {
+          status: 400,
+        })
+      );
+    }
+
+    const application = yield* renderToString(
+      { Flags: ReaderFlags, init: readerInit, view: readerView },
+      { flags: readerErrorFlags(errorTemplate, errorPage.value) }
+    );
+
+    const headers = yield* previewHeaders(request);
+    headers.set("Content-Type", "text/html; charset=utf-8");
+
+    return Responded(
+      new Response(
+        injectIntoTemplate(
+          errorShellFor(readerErrorShell, errorPage.value),
+          application
+        ),
+        { headers, status: errorPage.value.code }
+      )
+    );
+  }
+);
+
 export const renderReaderPage = Effect.fn("reader.renderPage")(
   function* renderReaderPage(request: Request) {
     const { pathname } = new URL(request.url);
@@ -75,6 +139,10 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       const bindings = yield* WebsiteBindings;
 
       return yield* responded(request, yield* bindings.forward(request));
+    }
+
+    if (pathname === readerErrorPath) {
+      return yield* renderErrorRoute(request);
     }
 
     if (request.method !== "GET" && request.method !== "HEAD") {

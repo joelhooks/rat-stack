@@ -1,18 +1,10 @@
+import { Match } from "effect";
+
 import { errorPageTemplates } from "./bundled-content.generated.js";
 import { renderStaticDocument } from "./html.js";
+import type { ReaderErrorPage } from "./reader-error-page.js";
 
-export interface ErrorPage {
-  readonly code: number;
-  readonly title: string;
-  readonly message: string;
-  readonly path: string;
-  readonly details?: { readonly html: string; readonly markdown: string };
-  readonly matches?: readonly {
-    readonly title: string;
-    readonly routePath: string;
-    readonly description: string;
-  }[];
-}
+export type ErrorPage = typeof ReaderErrorPage.Type;
 
 const escapeHtml = (value: string) =>
   value
@@ -35,6 +27,18 @@ const escapeMarkdown = (value: string) =>
 
 const fill = (template: string, values: Readonly<Record<string, string>>) =>
   template.replaceAll(/ERROR_[A-Z_]+/gu, (token) => values[token] ?? token);
+
+const errorDetails = (page: ErrorPage, html: boolean) =>
+  page.details === undefined
+    ? ""
+    : Match.valueTags(page.details, {
+        Incident: ({ id }) =>
+          html ? `<p>Incident id: ${id}</p>` : `Incident id: ${id}`,
+        NoVerify: () =>
+          html
+            ? errorPageTemplates.noVerifyDetails.html
+            : errorPageTemplates.noVerifyDetails.markdown,
+      });
 
 export const renderErrorPage = (
   page: ErrorPage,
@@ -77,7 +81,7 @@ export const renderErrorPage = (
   return fill(template, {
     ERROR_ACTIONS: actions,
     ERROR_CODE: String(page.code),
-    ERROR_DETAILS: (html ? page.details?.html : page.details?.markdown) ?? "",
+    ERROR_DETAILS: errorDetails(page, html),
     ERROR_MESSAGE: escape(page.message),
     ERROR_PATH: escape(page.path),
     ERROR_TITLE: escape(page.title),
