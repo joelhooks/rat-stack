@@ -23,11 +23,46 @@ const ReaderBody = Schema.Struct({
   nodes: Schema.Array(ReaderNodeSchema),
 });
 
+export interface ReaderCopyPromptText {
+  readonly id: string;
+  readonly text: string;
+}
+
+type Element = Parameters<typeof DomUtils.getAttributeValue>[0];
+
+const hasClass = (element: Element, name: string) =>
+  (element.attribs.class ?? "").split(/\s+/u).includes(name);
+
 export const compileReaderNodes = (
   nodes: ReturnType<typeof parseDocument>["children"],
-  sourcePath: string
+  sourcePath: string,
+  copyPrompts: readonly ReaderCopyPromptText[] = []
 ) => {
   const failures: string[] = [];
+
+  const copyPrompt = (element: Element): ReaderNodeValue => {
+    const button = DomUtils.findOne(
+      (candidate) => candidate.name === "button",
+      element.children
+    );
+
+    const prompt = copyPrompts.find(
+      (entry) => entry.text === button?.attribs["data-text"]
+    );
+
+    if (button === null || prompt === undefined) {
+      failures.push(
+        "Copy control text matches no known copy prompt; add the prompt to copyPrompts in apps/mischief/scripts/component-data.ts"
+      );
+
+      return ReaderNode.Text({ value: "" });
+    }
+
+    return ReaderNode.CopyPrompt({
+      id: prompt.id,
+      primary: hasClass(button, "copy-primary"),
+    });
+  };
 
   const convert = (node: (typeof nodes)[number]): ReaderNodeValue => {
     if (node.type === ElementType.Text) {
@@ -44,6 +79,10 @@ export const compileReaderNodes = (
       );
 
       return ReaderNode.Text({ value: "" });
+    }
+
+    if (node.name === "span" && hasClass(node, "copy-actions")) {
+      return copyPrompt(node);
     }
 
     const children = node.children.map(convert);
@@ -92,7 +131,11 @@ export const compileReaderNodes = (
   return Schema.decodeSync(Schema.Array(ReaderNodeSchema))(converted);
 };
 
-const readBody = (html: string, sourcePath: string) => {
+const readBody = (
+  html: string,
+  sourcePath: string,
+  copyPrompts: readonly ReaderCopyPromptText[]
+) => {
   const document = parseDocument(html);
   const mains = DomUtils.getElementsByTagName("main", document.children);
   const main = mains.at(0);
@@ -170,12 +213,20 @@ const readBody = (html: string, sourcePath: string) => {
               .trim(),
           },
     heading: DomUtils.textContent(heading),
-    nodes: compileReaderNodes(main.children.slice(headingIndex), sourcePath),
+    nodes: compileReaderNodes(
+      main.children.slice(headingIndex),
+      sourcePath,
+      copyPrompts
+    ),
   });
 };
 
 export const compileReaderBody = Effect.fn("compileReaderBody")(
-  function* compileReaderBody(html: string, sourcePath: string) {
+  function* compileReaderBody(
+    html: string,
+    sourcePath: string,
+    copyPrompts: readonly ReaderCopyPromptText[] = []
+  ) {
     return yield* Effect.try({
       catch: (cause) =>
         new ReaderInputError({
@@ -185,7 +236,7 @@ export const compileReaderBody = Effect.fn("compileReaderBody")(
             : "Cannot project the reader body; repair the generated document structure",
           sourcePath,
         }),
-      try: () => readBody(html, sourcePath),
+      try: () => readBody(html, sourcePath, copyPrompts),
     });
   }
 );

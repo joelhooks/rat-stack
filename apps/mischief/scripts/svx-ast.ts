@@ -1,9 +1,10 @@
 import { Schema } from "effect";
 import { Parser } from "htmlparser2";
-import type { Nodes, Root, RootContent } from "mdast";
+import type { Nodes, Root, RootContent, Text } from "mdast";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
+import type { Options as StringifyOptions } from "remark-stringify";
 import { unified } from "unified";
 import type { Node } from "unist";
 import { parse as parseYaml } from "yaml";
@@ -23,26 +24,45 @@ declare module "mdast" {
 
 const frontmatterSchema = Schema.JsonObject;
 
+const stringifyOptions = {
+  bullet: "-",
+  fences: true,
+  handlers: {
+    yaml: (node: Nodes) => {
+      if (node.type !== "yaml") {
+        throw buildError(
+          "frontmatter stringify",
+          "<inline>",
+          new Error("Expected a yaml node")
+        );
+      }
+
+      return `---\n${node.value}\n---`;
+    },
+  },
+  listItemIndent: "one",
+} as const;
+
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
-  .use(remarkStringify, {
-    bullet: "-",
-    fences: true,
-    handlers: {
-      yaml: (node: Nodes) => {
-        if (node.type !== "yaml") {
-          throw buildError(
-            "frontmatter stringify",
-            "<inline>",
-            new Error("Expected a yaml node")
-          );
-        }
+  .use(remarkStringify, stringifyOptions);
 
-        return `---\n${node.value}\n---`;
-      },
+const textWithEncodedMarkup: NonNullable<
+  NonNullable<StringifyOptions["handlers"]>["text"]
+> = (node: Text, _parent, state, info) =>
+  state.safe(node.value, { ...info, encode: ["&", "<"] });
+
+const mdsvexSourceProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkStringify, {
+    ...stringifyOptions,
+    handlers: {
+      ...stringifyOptions.handlers,
+      text: textWithEncodedMarkup,
     },
-    listItemIndent: "one",
+    unsafe: [{ character: "&", inConstruct: "phrasing" }],
   });
 
 export const scanLeadingFrontmatterFence = (
@@ -125,6 +145,9 @@ export const parseContentMarkdown = (
 
 export const stringifyContentMarkdown = (root: Root) =>
   processor.stringify(root);
+
+export const stringifyMdsvexSourceMarkdown = (root: Root) =>
+  mdsvexSourceProcessor.stringify(root);
 
 export const frontmatterData = (
   source: string,
