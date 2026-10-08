@@ -1,6 +1,7 @@
 ---
 title: "Sam Goodwin"
 description: "Sam Goodwin presents Alchemy as infrastructure built from Effect programs and typed requirements."
+plain: "Sam Goodwin presents Alchemy as infrastructure built from Effect programs with typed requirements."
 group: person
 terms:
   - "Sam Goodwin"

@@ -1,6 +1,15 @@
 ---
 title: "The fence"
 description: "The fence makes the safe path enforceable and makes bypasses fail loudly."
+plain: "The fence makes the safe path enforceable, so bad shortcuts fail loudly and the rule beats the prose."
+diagram: |-
+  more durable
+    codebase
+    static analysis
+    rules
+    skills
+    style guides
+  less enforceable
 group: idea
 terms:
   - "the fence"

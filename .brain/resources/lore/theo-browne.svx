@@ -1,6 +1,7 @@
 ---
 title: "Theo Browne"
 description: "Theo Browne discusses broader software work and model reliability in public talks."
+plain: "Theo Browne talks about wider software work and why a model's ordinary reliability matters."
 group: person
 terms:
   - "Theo Browne"

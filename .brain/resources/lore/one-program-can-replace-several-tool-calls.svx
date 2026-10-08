@@ -1,6 +1,15 @@
 ---
 title: "One program can replace several tool calls"
 description: "Code mode combines typed content calls inside one bounded execute request."
+plain: "Code mode runs one small program that chains typed content calls inside a single bounded request."
+diagram: |-
+  POST /api/execute
+    search → read → backlinks
+    │ each call decoded
+    ▼
+  one result
+  sandbox: no network,
+  100 ms CPU, 5 subrequests
 group: idea
 updated: "2026-10-06"
 terms:

@@ -1,6 +1,15 @@
 ---
 title: "OpenAPI describes the refusal too"
 description: "The generated HTTP contract declares inputs, outputs, and the bodyless 400 returned when decoding fails."
+plain: "The generated OpenAPI document also declares the empty 400 returned when a request fails to decode."
+diagram: |-
+  request
+    ├ fails to decode
+    │   400, empty body
+    └ decodes
+        ├ success → 200
+        └ domain failure
+            422 with a body
 group: idea
 terms:
   - "OpenAPI"

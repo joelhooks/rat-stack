@@ -1,6 +1,12 @@
 ---
 title: "One schema, three surfaces"
 description: "A capability contract feeds CLI, HTTP, and MCP; OpenAPI is generated output, not their input."
+plain: "One capability contract feeds CLI, HTTP and MCP; OpenAPI is generated from it, not fed into them."
+diagram: |-
+  contract + handler
+  ├ toHttpApi → HTTP, OpenAPI
+  ├ toCommand → CLI
+  └ toToolkit → MCP tools
 group: idea
 terms:
   - "surface"

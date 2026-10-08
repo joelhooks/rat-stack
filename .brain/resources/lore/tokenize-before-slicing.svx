@@ -1,6 +1,15 @@
 ---
 title: "Tokenize the whole file before slicing"
 description: "Select lines after tokenization so each excerpt retains the file's lexical context."
+plain: "Highlight the whole file first, then select lines, so an excerpt keeps the file's comment and string context."
+diagram: |-
+  whole file
+    │ tokenize every line
+    ▼
+  select ranges
+    │ keep line numbers
+    ▼
+  gap between ranges
 group: concept
 terms:
   - "whole-file tokenization"

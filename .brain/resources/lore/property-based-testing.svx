@@ -1,6 +1,15 @@
 ---
 title: "Property-based testing"
 description: "State a rule that must hold for every input, then let a generator hunt for the smallest input that breaks it."
+plain: "State a rule that holds for every input, and let a generator find the smallest input that breaks it."
+diagram: |-
+  Arbitrary.schema(...)
+    │ many inputs
+    ▼
+  rule holds for each?
+    ├ yes → pass
+    └ no  → shrink to the
+            smallest failure
 group: concept
 terms:
   - "property-based testing"

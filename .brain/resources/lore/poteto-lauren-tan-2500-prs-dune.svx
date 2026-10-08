@@ -1,6 +1,7 @@
 ---
 title: "Lauren Tan: Dune, trust, and agent skills"
 description: "Lauren Tan describes verification, a trust ladder, and an agent-oriented application framework."
+plain: "Lauren Tan says verification checks that a feature works, while skills can encode senior engineering habits."
 group: source
 speaker: "Lauren Tan"
 date: 2026-09-21

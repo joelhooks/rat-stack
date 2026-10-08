@@ -1,6 +1,11 @@
 ---
 title: "There is no ISR on Cloudflare"
 description: "SvelteKit's Vercel ISR setting does not configure Workers Cache; our local bake-off did not prove cache reuse."
+plain: "SvelteKit's ISR switch is a Vercel feature; rat-stack serves static assets on Cloudflare instead."
+diagram: |-
+  static assets  chosen
+  prerender      compared
+  Workers Cache  unproven
 group: idea
 terms:
   - "ISR"

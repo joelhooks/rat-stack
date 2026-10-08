@@ -1,6 +1,13 @@
 ---
 title: "Run Effect at the integration boundary"
 description: "Build the runtime where foreign code enters, reuse its services, and dispose it when that integration ends."
+plain: "Keep code as Effects and run them only where a process, framework or callback needs a result."
+diagram: |-
+  CLI     → runMain
+  router  → toWebHandler
+  Promise → ManagedRuntime
+            + close on exit
+  test    → it.effect
 group: idea
 created_at: "2026-10-06"
 updated_at: "2026-10-06"

@@ -1,6 +1,15 @@
 ---
 title: "Pin the source and report drift separately"
 description: "A pinned excerpt stays fixed while a separate diagnostic compares it with HEAD."
+plain: "A pinned excerpt keeps its text fixed; a separate warning reports when HEAD has changed those lines."
+diagram: |-
+  repo + full SHA + path
+    │ git object
+    ▼
+  pinned text (fixed)
+    │ compare with HEAD
+    ▼
+  drift → warning only
 group: concept
 terms:
   - "pinned source"
