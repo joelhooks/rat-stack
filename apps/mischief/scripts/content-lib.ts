@@ -1401,8 +1401,49 @@ export const parseDebtLintOutput = (raw: string): DebtLintResult => {
   }
 };
 
+const tableRowPrefix = "| cell |\n| --- |\n| ";
+
+const firstCellHtml = (cell: string) => {
+  let start: number | undefined;
+
+  visitContentNodes(
+    parseContentMarkdown(`${tableRowPrefix}${cell} |\n`),
+    (node) => {
+      const offset = node.position?.start.offset;
+
+      if (node.type === "html" && offset !== undefined && start === undefined) {
+        start = offset - tableRowPrefix.length;
+      }
+    }
+  );
+
+  return start;
+};
+
+const escapeCellHtml = (cell: string): string => {
+  const start = firstCellHtml(cell);
+
+  return start === undefined
+    ? cell
+    : escapeCellHtml(`${cell.slice(0, start)}\\${cell.slice(start)}`);
+};
+
+const escapeCellPipes = (cell: string) => {
+  let escaped = "";
+  let backslashes = 0;
+
+  for (let index = 0; index < cell.length; index += 1) {
+    const character = cell.charAt(index);
+
+    escaped += character === "|" && backslashes % 2 === 0 ? "\\|" : character;
+    backslashes = character === "\\" ? backslashes + 1 : 0;
+  }
+
+  return escaped;
+};
+
 const tableCell = (value: string) =>
-  value.replaceAll("|", "\\|").replaceAll(/\s+/gu, " ").trim();
+  escapeCellHtml(escapeCellPipes(value.replaceAll(/\s+/gu, " ").trim()));
 
 export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
   const counts = new Map<string, number>();

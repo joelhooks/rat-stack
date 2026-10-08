@@ -1,6 +1,8 @@
 import { NodeServices } from "@effect/platform-node";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
+import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
+import { readerErrorTemplate } from "../../mischief/scripts/reader-error-flags.ts";
 import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
 import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
@@ -9,8 +11,13 @@ import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
+import type { ReaderPageFlags } from "../src/client/reader-model.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
-import { isReaderRoutePath } from "../src/reader-routes.ts";
+import {
+  isReaderRoutePath,
+  readerNoStoreRoutePaths,
+} from "../src/reader-routes.ts";
+import { ReaderErrorTemplate } from "../src/server/reader-error-template.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
@@ -62,10 +69,13 @@ const readerPages = Effect.gen(function* readerPages() {
   const lore = yield* readerLoreFlags(origin);
   const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
+  const bodies = yield* readerBodyFlags(origin);
   const systemsSkills = yield* readerSystemsSkillsFlags(origin);
-  const pages = [home, ...lore, learn, ...prompts, ...systemsSkills];
 
-  return yield* Effect.forEach((page: (typeof pages)[number]) =>
+  const pages = [home, ...lore, learn, ...prompts, ...systemsSkills, ...bodies];
+  const error = yield* readerErrorTemplate(origin);
+
+  const decoded = yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({
       ...page,
       page: {
@@ -79,22 +89,50 @@ const readerPages = Effect.gen(function* readerPages() {
       },
     })
   )(pages);
+
+  return { error, pages: decoded };
 }).pipe(Effect.provide(NodeServices.layer));
 
 export const prepareReader = Effect.fn("reader.prepare")(
   function* prepareReader(root: string) {
     const fs = yield* FileSystem.FileSystem;
-    const pages = yield* readerPages;
+    const { error, pages } = yield* readerPages;
 
     const encoded = yield* Schema.encodeEffect(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
     )(pages);
 
+    const encodedError = yield* Schema.encodeEffect(
+      Schema.fromJsonString(ReaderErrorTemplate)
+    )(error);
+
     yield* fs.makeDirectory(`${root}/dist`, { recursive: true });
     yield* fs.writeFileString(`${root}/dist/reader-pages.json`, encoded);
+    yield* fs.writeFileString(`${root}/dist/reader-error.json`, encodedError);
   },
   Effect.provide(NodeServices.layer)
 );
+
+const readerRouteHeaders = (
+  pages: readonly ReaderPageFlags[],
+  production: boolean
+) =>
+  pages
+    .map((page) => {
+      const lines = [
+        ...(readerNoStoreRoutePaths.includes(page.page.path)
+          ? ["  Cache-Control: no-store"]
+          : []),
+        ...(production && page.page.metadata.robots === "noindex"
+          ? ["  X-Robots-Tag: noindex"]
+          : []),
+      ];
+
+      return lines.length === 0
+        ? ""
+        : `${page.page.path}\n${lines.join("\n")}\n`;
+    })
+    .join("");
 
 export const finalizeReader = Effect.fn("reader.finalize")(
   function* finalizeReader(root: string, clientDirectory: string) {
@@ -178,11 +216,15 @@ export const finalizeReader = Effect.fn("reader.finalize")(
 
       return yield* fs.writeFileString(
         headerPath,
-        `/*\n  X-Robots-Tag: noindex\n  X-Preview-Commit: ${commit.value}\n`
+        `/*\n  X-Robots-Tag: noindex\n  X-Preview-Commit: ${commit.value}\n${readerRouteHeaders(pages, false)}`
       );
     }
 
-    return yield* fs.remove(headerPath, { force: true });
+    const routeHeaders = readerRouteHeaders(pages, true);
+
+    return yield* routeHeaders === ""
+      ? fs.remove(headerPath, { force: true })
+      : fs.writeFileString(headerPath, routeHeaders);
   },
   Effect.provide(NodeServices.layer)
 );

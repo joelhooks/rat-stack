@@ -29,6 +29,8 @@ import { contentAssetsForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { ContentStore } from "./content-store.js";
+import CrashTail from "./crash-tail.js";
+import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
@@ -288,12 +290,18 @@ export const makeMischief = (
       )
     );
 
-    const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
+    const website = Schema.decodeUnknownEffect(AssetBindingSchema)(
+      environment.WEBSITE
+    );
+
+    const app = (yield* HttpRouter.toHttpEffect(workerRoutes).pipe(
+      Effect.orDie
+    )).pipe(
+      Effect.provideService(ErrorPageRenderer, websiteErrorPages(website))
+    );
 
     const readerApp = withReaderWebsite(
-      Schema.decodeUnknownEffect(AssetBindingSchema)(environment.WEBSITE).pipe(
-        Effect.orDie
-      ),
+      website.pipe(Effect.orDie),
       readerResponseHeaders(contentStore)
     )(app);
 
@@ -406,6 +414,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
       main: import.meta.url,
       observability: privateObservability,
+      tailConsumers: [yield* CrashTail],
     };
   }),
   makeMischiefWorker

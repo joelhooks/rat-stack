@@ -20,10 +20,7 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
-import {
-  errorPageTemplates,
-  originToken,
-} from "./bundled-content.generated.js";
+import { originToken } from "./bundled-content.generated.js";
 import { capabilities, search } from "./capabilities/index.js";
 import { learnLayer } from "./capabilities/learn.js";
 import type { ContentCatalogData as ContentCatalog } from "./content-data.js";
@@ -49,6 +46,7 @@ import {
   tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./content.js";
+import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
 import { renderStaticDocument } from "./html.js";
@@ -66,6 +64,7 @@ import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import { mcpContent } from "./mcp-content.js";
 import { promptLibraryLayer } from "./prompt-library.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
+import { IncidentDetails, NoVerifyDetails } from "./reader-error-page.js";
 import { logRequestIncident } from "./request-incidents.js";
 import {
   contentSecurityPolicy,
@@ -150,19 +149,26 @@ const errorResponse = (
   page: ErrorPage,
   isHtml = acceptsHtml(request)
 ) =>
-  HttpServerResponse.text(renderErrorPage(page, originOf(request), isHtml), {
-    contentType: isHtml
-      ? "text/html; charset=utf-8"
-      : "text/markdown; charset=utf-8",
-    status: page.code,
-  });
+  isHtml
+    ? ErrorPageRenderer.pipe(
+        Effect.flatMap((renderer) => renderer.html(page, originOf(request)))
+      )
+    : Effect.succeed(
+        HttpServerResponse.text(
+          renderErrorPage(page, originOf(request), false),
+          {
+            contentType: "text/markdown; charset=utf-8",
+            status: page.code,
+          }
+        )
+      );
 
 const searchNotFound = (request: HttpServerRequest.HttpServerRequest) => {
   const { pathname } = new URL(request.url, "https://ratstack.sh");
   const query = pathQuery(pathname);
 
   return search.handler({ limit: 3, query }).pipe(
-    Effect.map(({ matches }) =>
+    Effect.flatMap(({ matches }) =>
       errorResponse(request, {
         code: 404,
         matches,
@@ -359,10 +365,12 @@ const unavailableResponse = (request: HttpServerRequest.HttpServerRequest) =>
     !new URL(request.url, "https://ratstack.sh").pathname.endsWith(".md") &&
       acceptsHtml(request)
   ).pipe(
-    HttpServerResponse.setHeaders({
-      "cache-control": "no-store",
-      vary: "Accept",
-    })
+    Effect.map(
+      HttpServerResponse.setHeaders({
+        "cache-control": "no-store",
+        vary: "Accept",
+      })
+    )
   );
 
 const assetRoutes = (
@@ -420,7 +428,9 @@ const assetRoutes = (
             : assetPageResponse(request, path, page, isHtml, bytes);
         }).pipe(
           Effect.catchTag("AssetReadError", (error) =>
-            Effect.logError(error).pipe(Effect.as(unavailableResponse(request)))
+            Effect.logError(error).pipe(
+              Effect.andThen(unavailableResponse(request))
+            )
           )
         );
       }),
@@ -571,7 +581,7 @@ const mcp = mcpLayer(modernMcpProtocols);
 const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
   errorResponse(request, {
     code: 403,
-    details: errorPageTemplates.noVerifyDetails,
+    details: NoVerifyDetails.make({}),
     message: "The rat looks disappointed.",
     path: new URL(request.url, "https://ratstack.sh").pathname,
     title: "Forbidden",
@@ -725,9 +735,7 @@ const contentRoutes = () =>
             )
         ),
         ...(["/--no-verify", "/no-verify"] as const).map((path) =>
-          HttpRouter.add("GET", path, (request) =>
-            Effect.succeed(noVerifyResponse(request))
-          )
+          HttpRouter.add("GET", path, (request) => noVerifyResponse(request))
         ),
         HttpRouter.add("GET", "/*", (request) => {
           const { pathname } = new URL(request.url, "https://ratstack.sh");
@@ -1093,20 +1101,17 @@ export const errorPages = HttpRouter.middleware(
           machine || Cause.hasInterrupts(cause)
             ? Effect.failCause(cause)
             : logRequestIncident(cause, "content").pipe(
-                Effect.map((incidentId) =>
-                  HttpServerResponse.setHeader(
-                    errorResponse(request, {
-                      code: 500,
-                      details: {
-                        html: `<p>Incident id: ${incidentId}</p>`,
-                        markdown: `Incident id: ${incidentId}`,
-                      },
-                      message: "Something went wrong. Please try again.",
-                      path: pathname,
-                      title: "Internal server error",
-                    }),
-                    "X-Incident-Id",
-                    incidentId
+                Effect.flatMap((incidentId) =>
+                  errorResponse(request, {
+                    code: 500,
+                    details: IncidentDetails.make({ id: incidentId }),
+                    message: "Something went wrong. Please try again.",
+                    path: pathname,
+                    title: "Internal server error",
+                  }).pipe(
+                    Effect.map(
+                      HttpServerResponse.setHeader("X-Incident-Id", incidentId)
+                    )
                   )
                 )
               )
@@ -1128,7 +1133,7 @@ export const errorPages = HttpRouter.middleware(
         return response;
       }
 
-      const page = errorResponse(request, {
+      const page = yield* errorResponse(request, {
         code: response.status,
         message:
           response.status >= 500
@@ -1221,7 +1226,7 @@ const contentRequests = (
         Effect.catchTags({
           AssetReadError: () =>
             HttpServerRequest.HttpServerRequest.pipe(
-              Effect.map(unavailableResponse)
+              Effect.flatMap(unavailableResponse)
             ),
           ResourceNotFound: () =>
             Effect.succeed(

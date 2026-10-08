@@ -3,16 +3,21 @@ import { expect, it } from "@effect/vitest";
 import { Effect, Predicate, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { renderToString } from "foldkit/experimental/server";
-import { inertHtml } from "foldkit/html";
+import type { HtmlBuilder } from "foldkit/html";
 
 import {
   compileReaderBodies,
   compileReaderBody,
 } from "../../mischief/scripts/reader-body-document.ts";
+import { readerCopyPrompts } from "../../mischief/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+import type { ReaderMessage } from "../src/client/reader-message.js";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import { renderReaderNode } from "../src/features/reader-node.js";
+import { readerCopyControl } from "../src/features/reader.js";
+
+const prompts = readerCopyPrompts("https://ratstack.sh");
 
 const text = Schema.String.check(
   Schema.isPattern(/^[\u0020-\u007E\n\t]{0,60}$/u)
@@ -33,9 +38,14 @@ const Leaf = Schema.TaggedStruct("Element", {
   tag: Schema.Literals(["code", "strong", "em"]),
 });
 
+const CopyPromptNode = Schema.TaggedStruct("CopyPrompt", {
+  id: Schema.Literals(["connect", "page", "setup"]),
+  primary: Schema.Boolean,
+});
+
 const Branch = Schema.TaggedStruct("Element", {
   attributes,
-  children: Schema.Array(Schema.Union([TextNode, Leaf])),
+  children: Schema.Array(Schema.Union([TextNode, Leaf, CopyPromptNode])),
   tag: Schema.Literals(["div", "span"]),
 });
 
@@ -53,7 +63,9 @@ const normalize = (
   const result: ReaderNodeValue[] = [];
 
   for (const node of nodes) {
-    if (Predicate.isTagged(node, "Text")) {
+    if (Predicate.isTagged(node, "CopyPrompt")) {
+      result.push(node);
+    } else if (Predicate.isTagged(node, "Text")) {
       const previous = result.at(-1);
 
       if (node.value !== "") {
@@ -90,12 +102,25 @@ it.effect.prop(
         {
           Flags,
           init: (flags) => ({ commands: [], model: flags }),
-          view: (model) => ({
-            body: inertHtml.main(
+          view: (model, h: HtmlBuilder<typeof ReaderMessage.Type>) => ({
+            body: h.main(
               [],
               [
-                inertHtml.h1([], ["Round trip"]),
-                ...model.nodes.map((node) => renderReaderNode(node, inertHtml)),
+                h.h1([], ["Round trip"]),
+                ...model.nodes.map((node) =>
+                  renderReaderNode(node, h, (id, primary) =>
+                    readerCopyControl(
+                      {
+                        clipboardReady: true,
+                        copyPrompts: prompts,
+                        copyStates: {},
+                      },
+                      h,
+                      id,
+                      primary
+                    )
+                  )
+                ),
               ]
             ),
             title: "Round trip",
@@ -104,7 +129,11 @@ it.effect.prop(
         { flags: { nodes }, isHydratable: false }
       );
 
-      const parsed = yield* compileReaderBody(rendered.html, "generated tree");
+      const parsed = yield* compileReaderBody(
+        rendered.html,
+        "generated tree",
+        prompts
+      );
 
       expect(normalize(parsed.nodes.slice(1))).toEqual(normalize(nodes));
     })

@@ -1,75 +1,36 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, Predicate } from "effect";
+import { Effect } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import {
   compileReaderBody,
   readerWorkshopCount,
 } from "../../mischief/scripts/reader-body-document.ts";
-import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
+import {
+  readerBodyFlags,
+  readerCopyPrompts,
+} from "../../mischief/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
-import { ReaderNode } from "../src/client/reader-node.js";
-import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import { readerView } from "../src/features/reader.js";
-
-const normalizedNodes = (
-  nodes: readonly ReaderNodeValue[]
-): readonly ReaderNodeValue[] => {
-  const output: ReaderNodeValue[] = [];
-
-  for (const node of nodes) {
-    ReaderNode.$match(node, {
-      CopyPrompt: (prompt) => output.push(prompt),
-      Element: (element) =>
-        output.push(
-          ReaderNode.Element({
-            ...element,
-            attributes: element.attributes.toSorted((left, right) =>
-              left.name.localeCompare(right.name)
-            ),
-            children: normalizedNodes(element.children),
-          })
-        ),
-      Text: ({ value }) => {
-        const previous = output.at(-1);
-
-        if (value !== "") {
-          if (Predicate.isTagged(previous, "Text")) {
-            output[output.length - 1] = ReaderNode.Text({
-              value: previous.value + value,
-            });
-          } else {
-            output.push(ReaderNode.Text({ value }));
-          }
-        }
-      },
-    });
-  }
-
-  return output;
-};
+import { readerBodyRoutePaths } from "../src/reader-routes.js";
+import { normalizedNodes } from "./reader-node-normalize.js";
 
 it.effect(
-  "ReaderSiteParity: every published lore route preserves the complete human body and breadcrumb after Foldkit rendering",
+  "ReaderSiteParity: glossary, log, resources, tokenmaxx and public specs keep their complete human body, breadcrumb and metadata after Foldkit rendering",
   () =>
-    Effect.gen(function* loreParity() {
+    Effect.gen(function* bodyRouteParity() {
       const inputs = yield* prepareReaderSiteInputs;
+      const flags = yield* readerBodyFlags("https://ratstack.sh");
 
-      const pages = inputs.pages.filter(
-        (page) => page.path === "/lore" || page.path.startsWith("/lore/")
-      );
-
-      const flags = yield* readerLoreFlags("https://ratstack.sh");
-
-      expect(flags.map((page) => page.page.path)).toEqual(
-        pages.map((page) => page.path)
+      expect(flags.map((page) => page.page.path).toSorted()).toEqual(
+        readerBodyRoutePaths.toSorted()
       );
 
       yield* Effect.forEach((page: (typeof flags)[number]) =>
         Effect.gen(function* pageParity() {
-          const original = pages.find(
+          const original = inputs.pages.find(
             (candidate) => candidate.path === page.page.path
           );
 
@@ -77,7 +38,8 @@ it.effect(
 
           const before = yield* compileReaderBody(
             original?.html.replaceAll("__RATSTACK_ORIGIN__", page.origin) ?? "",
-            page.page.sourcePath
+            page.page.sourcePath,
+            readerCopyPrompts(page.origin)
           );
 
           const rendered = yield* renderToString(
@@ -87,7 +49,8 @@ it.effect(
 
           const after = yield* compileReaderBody(
             rendered.html,
-            page.page.sourcePath
+            page.page.sourcePath,
+            readerCopyPrompts(page.origin)
           );
 
           expect(readerWorkshopCount(rendered.html), page.page.path).toBe(

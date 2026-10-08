@@ -19,6 +19,16 @@
       "import": "./dist/basin.js",
       "default": "./dist/basin.js"
     },
+    "./crash": {
+      "types": "./src/crash.ts",
+      "import": "./dist/crash.js",
+      "default": "./dist/crash.js"
+    },
+    "./crash-r2": {
+      "types": "./src/crash-r2.ts",
+      "import": "./dist/crash-r2.js",
+      "default": "./dist/crash-r2.js"
+    },
     "./memory": {
       "types": "./src/memory.ts",
       "import": "./dist/memory.js",
