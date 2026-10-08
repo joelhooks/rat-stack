@@ -80,13 +80,14 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 - `pnpm deploy:rollback --profile <profile> --yes` restores prior Worker versions from a local apply receipt. It requires explicit approval; no automatic rollback runs.
 - Recovery evidence lives in gitignored `.rat/deploy/`. Rollback writes separate progress receipts and preserves its source.
 - Content-version mismatches retry for 120 seconds by default. `DEPLOY_CONTENT_VERSION_DEADLINE_MS` sets a bounded override; verdicts retain failed attempts.
-- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root commands run varlock in production mode; provider credentials remain profile-only.
+- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root schema imports `apps/mischief/.env.schema`, so deploy commands type the Worker's keys too; the root owns the keys it omits. The root commands run varlock in production mode; provider credentials remain profile-only.
 - Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
 - `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
 - Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
 - An allow-list does not grant approval. Replacements and deletions still need owner sign-off, recorded with `--ownerApproved` as well as exact allow entries. A refused plan names the resources in the verdict.
 - `--expectSha <full sha>` refuses to plan or apply unless `HEAD` is that commit and the tree is clean.
-- `DEPLOY_QUIET_WINDOWS` lists daily UTC windows when `deployProd` must not apply. Inside one, the driver waits up to `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` (default 0), then refuses.
+- `DEPLOY_QUIET_WINDOWS` lists UTC windows when `deployProd` must not apply: `HH:MM` times repeat daily, `:MM` times repeat hourly. Inside one, the driver waits up to `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` (default 0), then refuses.
+- Deploy commands write the full verdict to `.rat/deploy/<profile>/` and print one summary line with its `verdictPath`.
 - Classification reads Alchemy Plan values, including binding and task changes. Retention is a physical-resource backstop, not a delete guard: it removes state rows and leaves cloud objects. Apply receipts list confirmed retained orphans. Alchemy confirmations use the capability approval service; unattended input prompts fail typed.
 - Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
 - The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.

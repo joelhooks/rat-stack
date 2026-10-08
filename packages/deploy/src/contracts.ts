@@ -82,3 +82,64 @@ export const DeployVerdictSchema = Schema.Struct({
 });
 
 export type DeployVerdict = typeof DeployVerdictSchema.Type;
+
+export const DeployReportSchema = Schema.Struct({
+  checks: Schema.Array(
+    Schema.Struct({
+      check: Schema.String,
+      counts: Schema.Record(Schema.String, Schema.Natural),
+      outcome: Schema.String,
+      reason: Schema.String,
+    })
+  ),
+  keys: Schema.Array(Schema.String),
+  outcome: DeployVerdictSchema.fields.outcome,
+  profile: Schema.String,
+  reason: Schema.optional(Schema.String),
+  resources: Schema.optionalKey(Schema.Array(Schema.String)),
+  rollbackReceipt: Schema.optionalKey(Schema.String),
+  step: Schema.String,
+  verdictPath: Schema.optionalKey(Schema.String).annotateKey({
+    description:
+      "Absolute path of the full verdict JSON. Absent when the verdict could not be written.",
+  }),
+});
+
+export type DeployReport = typeof DeployReportSchema.Type;
+
+export const deployReport = (
+  profile: string,
+  verdict: DeployVerdict,
+  verdictPath: string | undefined
+): DeployReport => {
+  const report: DeployReport = {
+    checks: verdict.checks.map((row) => ({
+      check: row.check,
+      counts: row.counts,
+      outcome: row.outcome,
+      reason: row.reason,
+    })),
+    keys: verdict.keys,
+    outcome: verdict.outcome,
+    profile,
+    reason: verdict.reason,
+    step: verdict.step,
+  };
+
+  const withResources =
+    verdict.resources === undefined
+      ? report
+      : { ...report, resources: verdict.resources };
+
+  const withReceipt =
+    verdict.receipt?.profile === undefined
+      ? withResources
+      : {
+          ...withResources,
+          rollbackReceipt: `.rat/deploy/${encodeURIComponent(verdict.receipt.profile)}/last-apply.json`,
+        };
+
+  return verdictPath === undefined
+    ? withReceipt
+    : { ...withReceipt, verdictPath };
+};

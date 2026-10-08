@@ -6,12 +6,16 @@ const dayMs = 24 * 60 * minuteMs;
 
 const ClockTimeSchema = Schema.String.check(
   Schema.isPattern(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
-).annotate({ description: "UTC time of day as HH:MM" });
+).annotate({ description: "UTC time of day as HH:MM; repeats daily" });
 
-export const QuietWindowSchema = Schema.Struct({
-  end: ClockTimeSchema,
-  start: ClockTimeSchema,
-}).check(
+const MinuteOfHourSchema = Schema.String.check(
+  Schema.isPattern(/^:[0-5]\d$/u)
+).annotate({ description: "Minute of the hour as :MM; repeats hourly" });
+
+export const QuietWindowSchema = Schema.Union([
+  Schema.Struct({ end: ClockTimeSchema, start: ClockTimeSchema }),
+  Schema.Struct({ end: MinuteOfHourSchema, start: MinuteOfHourSchema }),
+]).check(
   Schema.makeFilter(
     (window) =>
       window.start !== window.end ||
@@ -61,31 +65,38 @@ export const quietWindowPolicy = Effect.fn("quietWindowPolicy")(
   }
 );
 
-const minuteOfDay = (time: string) =>
-  Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+const hourMs = 60 * minuteMs;
 
-const covers = (window: QuietWindow, minute: number) => {
-  const start = minuteOfDay(window.start);
-  const end = minuteOfDay(window.end);
+const periodMs = (window: QuietWindow) =>
+  window.start.startsWith(":") ? hourMs : dayMs;
+
+const offsetMs = (time: string) =>
+  time.startsWith(":")
+    ? Number(time.slice(1)) * minuteMs
+    : (Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))) * minuteMs;
+
+const covers = (window: QuietWindow, now: number) => {
+  const position = now % periodMs(window);
+  const start = offsetMs(window.start);
+  const end = offsetMs(window.end);
 
   return start < end
-    ? minute >= start && minute < end
-    : minute >= start || minute < end;
+    ? position >= start && position < end
+    : position >= start || position < end;
 };
 
 const endAfter = (window: QuietWindow, now: number) => {
-  const dayStart = now - (now % dayMs);
-  const end = dayStart + minuteOfDay(window.end) * minuteMs;
+  const period = periodMs(window);
+  const end = now - (now % period) + offsetMs(window.end);
 
-  return end > now ? end : end + dayMs;
+  return end > now ? end : end + period;
 };
 
 export const quietWindowEnd = (
   windows: readonly QuietWindow[],
   now: number
 ): Option.Option<number> => {
-  const minute = Math.floor((now % dayMs) / minuteMs);
-  const active = windows.filter((window) => covers(window, minute));
+  const active = windows.filter((window) => covers(window, now));
 
   return active.length === 0
     ? Option.none()

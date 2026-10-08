@@ -1,28 +1,30 @@
 import { Approval } from "@rat-stack/capability/approval";
 import { defineContract } from "@rat-stack/capability/contract";
 import { implement } from "@rat-stack/capability/implement";
-import { Effect, Runtime, Schema } from "effect";
+import { Effect, Option, Runtime, Schema } from "effect";
 
-import { DeployVerdictSchema } from "./contracts.js";
+import { DeployReportSchema, deployReport } from "./contracts.js";
+import type { DeployVerdict } from "./contracts.js";
 import { runDeploy } from "./machine.js";
 import { PlanRowSchema } from "./plan.js";
+import { ReceiptStore } from "./receipt-store.js";
 import { deployRollback } from "./rollback.js";
 import { CommitShaSchema } from "./source.js";
 
 export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
   "DeployNotHealthy",
-  { verdict: DeployVerdictSchema }
+  { report: DeployReportSchema }
 ) {
   override get [Runtime.errorExitCode]() {
-    if (this.verdict.outcome === "partial") {
+    if (this.report.outcome === "partial") {
       return 4;
     }
 
-    if (this.verdict.outcome === "crashed") {
+    if (this.report.outcome === "crashed") {
       return 5;
     }
 
-    return this.verdict.outcome === "unknown" ? 3 : 2;
+    return this.report.outcome === "unknown" ? 3 : 2;
   }
   override readonly [Runtime.errorReported] = true;
 }
@@ -40,7 +42,7 @@ export const deployPlanContract = defineContract("deployPlan", {
     "Read and classify the production deployment plan without applying it",
   failure: DeployNotHealthy,
   input,
-  output: DeployVerdictSchema,
+  output: DeployReportSchema,
 });
 
 export const deployProdContract = defineContract("deployProd", {
@@ -50,24 +52,39 @@ export const deployProdContract = defineContract("deployProd", {
   failure: DeployNotHealthy,
   input,
   needsApproval: true,
-  output: DeployVerdictSchema,
+  output: DeployReportSchema,
+});
+
+const reportVerdict = Effect.fn("reportVerdict")(function* reportVerdict(
+  profile: string,
+  verdict: DeployVerdict
+) {
+  const receipts = yield* ReceiptStore;
+
+  const saved = yield* receipts
+    .saveVerdict(profile, verdict)
+    .pipe(Effect.option);
+
+  return deployReport(profile, verdict, Option.getOrUndefined(saved));
 });
 
 export const deployPlan = implement(deployPlanContract, (value) =>
   runDeploy({ ...value, allow: value.allow ?? [], mode: "plan" }).pipe(
     Effect.provide(Approval.denyAll),
+    Effect.flatMap((verdict) => reportVerdict(value.profile, verdict)),
     Effect.filterOrFail(
-      (verdict) => verdict.outcome === "planned",
-      (verdict) => new DeployNotHealthy({ verdict })
+      (report) => report.outcome === "planned",
+      (report) => new DeployNotHealthy({ report })
     )
   )
 );
 
 export const deployProd = implement(deployProdContract, (value) =>
   runDeploy({ ...value, allow: value.allow ?? [], mode: "prod" }).pipe(
+    Effect.flatMap((verdict) => reportVerdict(value.profile, verdict)),
     Effect.filterOrFail(
-      (verdict) => verdict.outcome === "healthy",
-      (verdict) => new DeployNotHealthy({ verdict })
+      (report) => report.outcome === "healthy",
+      (report) => new DeployNotHealthy({ report })
     )
   )
 );
