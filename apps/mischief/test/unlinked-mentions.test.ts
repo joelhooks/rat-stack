@@ -1,11 +1,9 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path, Schema } from "effect";
-import { compile } from "mdsvex";
-import remarkGfm from "remark-gfm";
-import type { Plugin } from "unified";
 
 import { buildError } from "../scripts/content-lib.ts";
+import { markdownHast } from "../scripts/markdown-html.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -28,15 +26,13 @@ const collect = Effect.fn("collectMentionFixture")(function* collect(
 ) {
   const prose: UnlinkedProse[] = [];
 
-  const output = yield* Effect.tryPromise({
+  const output = yield* Effect.try({
     catch: (cause) =>
       buildError("mention fixture compile", "mention-fixture.svx", cause),
-    // @effect-diagnostics-next-line asyncFunction:off -- Flatten mdsvex’s nested Promise declaration at its compiler boundary.
-    try: async () =>
-      await compile(source, {
+    try: () =>
+      markdownHast(source, {
         rehypePlugins: [collectUnlinkedProse(prose)],
-        // SAFETY: remark-gfm is a remark plugin over mdast; mdsvex bundles older unified declarations.
-        remarkPlugins: [remarkGfm as Plugin],
+        sourcePath: "mention-fixture.svx",
       }),
   });
 

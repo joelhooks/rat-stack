@@ -12,8 +12,10 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `packages/capability/test/mcp-harness.ts` | Effect's own `McpServer` tests | The server layer becomes a web handler; a fetch shim keeps the session headers. |
 | `packages/capability/src/sandbox-subprocess.ts`, `packages/capability/test/sandbox-orphan.test.ts`, VM-timeout cases in `packages/capability/test/sandbox.test.ts` | ported from a downstream fix to the vendored capability package |  |
 | `tools/oxlint/anti-slop/` | [dmmulroy/anti-slop](https://github.com/dmmulroy/anti-slop) at `c44ef22`, MIT | Vendored and owned; see `UPSTREAM.md` there. Its files keep upstream's comments. |
-| `apps/mischief/src/house-ad.svelte` | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
-| `apps/mischief/src/copy-prompt.svelte` | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
+| `apps/mischief/scripts/smartypants.ts` | [parse-latin](https://github.com/wooorm/parse-latin) and [retext-smartypants](https://github.com/retextjs/retext-smartypants), MIT, Copyright (c) Titus Wormer, as bundled in `mdsvex@0.12.8` | Ported to TypeScript over a reduced node model, without the backtick rule, so doubled backticks and apostrophes stay literal as in GFM. |
+| `apps/mischief/scripts/markdown-html.ts` | [mdast-util-to-hast](https://github.com/syntax-tree/mdast-util-to-hast) and [mdurl](https://github.com/markdown-it/mdurl) `encode`, MIT, as bundled in `mdsvex@0.12.8`; [Svelte](https://github.com/sveltejs/svelte) `clean_nodes` whitespace rules at `svelte@5.57.1`, MIT | Ported to keep the generated HTML unchanged after Svelte and mdsvex left the workspace. |
+| `apps/mischief/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
+| `apps/mischief/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
 ## Wiki prose style warnings (MIT)
 
@@ -39,7 +41,7 @@ The port removes project-specific orchestration. Deployment policy, the local Al
 
 ## Lucide bot icon (ISC)
 
-The inline bot SVG in `apps/mischief/src/copy-prompt.svelte` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).
+The inline bot SVG in the copy prompt in `apps/mischief/scripts/document-html.ts` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).
 
 Copyright (c) 2026 Lucide Icons and Contributors
 

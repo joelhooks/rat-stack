@@ -3,7 +3,7 @@ import { CardSchema } from "@rat-stack/core/learn";
 import type { Card } from "@rat-stack/core/learn";
 import { LoreGraph } from "@rat-stack/lore";
 import type { LoreGraphService } from "@rat-stack/lore";
-import { Context, Effect, Exit, Layer, Schema } from "effect";
+import { Context, Effect, Layer, Option, Ref, Schema } from "effect";
 
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import {
@@ -68,9 +68,22 @@ const readData = <A>(
     )
   );
 
-const cacheData = <A, E>(effect: Effect.Effect<A, E>) =>
-  Effect.cachedWithTTL(effect, (exit) =>
-    Exit.isSuccess(exit) ? "Infinity" : 0
+const cacheCompletedData = <A, E>(effect: Effect.Effect<A, E>) =>
+  Ref.make<Option.Option<A>>(Option.none()).pipe(
+    Effect.map((completed) =>
+      Effect.gen(function* readCompletedData() {
+        const cached = yield* Ref.get(completed);
+
+        if (Option.isSome(cached)) {
+          return cached.value;
+        }
+
+        const value = yield* effect;
+        yield* Ref.set(completed, Option.some(value));
+
+        return value;
+      })
+    )
   );
 
 const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
@@ -78,7 +91,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
 ) {
   const assets = yield* StaticAssets;
 
-  const learnDeck = yield* cacheData(
+  const learnDeck = yield* cacheCompletedData(
     readData(
       assets,
       "/_content/learn.json",
@@ -90,11 +103,11 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
     ).pipe(Effect.map((deck) => deck.cards))
   );
 
-  const catalog = yield* cacheData(
+  const catalog = yield* cacheCompletedData(
     readData(assets, "/_content/catalog.json", ContentCatalog, generation)
   );
 
-  const index = yield* cacheData(
+  const index = yield* cacheCompletedData(
     readData(
       assets,
       "/_content/search.json",
@@ -103,7 +116,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
     )
   );
 
-  const graph = yield* cacheData(
+  const graph = yield* cacheCompletedData(
     readData(assets, "/_content/graph.json", GraphSnapshot, generation).pipe(
       Effect.flatMap((snapshot) =>
         LoreGraph.pipe(Effect.provide(LoreGraph.layer(snapshot)))

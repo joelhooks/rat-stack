@@ -72,7 +72,7 @@ const htmlCodeWithPipes = (
       : child;
   });
 
-const mdsvexSourceProcessor = unified()
+const sourceMarkdownProcessor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkStringify, {
@@ -165,14 +165,14 @@ export const parseContentMarkdown = (
 export const stringifyContentMarkdown = (root: Root) =>
   processor.stringify(root);
 
-export const stringifyMdsvexSourceMarkdown = (root: Root) => {
+export const stringifySourceMarkdown = (root: Root) => {
   visitContentNodes(root, (node) => {
     if (node.type === "tableCell") {
       node.children = htmlCodeWithPipes(node.children);
     }
   });
 
-  return mdsvexSourceProcessor.stringify(root);
+  return sourceMarkdownProcessor.stringify(root);
 };
 
 export const frontmatterData = (

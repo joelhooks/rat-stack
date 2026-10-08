@@ -1,16 +1,14 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Predicate, Schema } from "effect";
+import { Effect, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
-import { compile } from "mdsvex";
-import { compile as compileSvelte } from "svelte/compiler";
-import { render } from "svelte/server";
 
 import {
   buildBlockIndex,
   paragraphAnchors,
 } from "../scripts/content-blocks.ts";
 import type { ContentBlock } from "../scripts/content-blocks.ts";
-import { buildError, escapeSvelteBraces } from "../scripts/content-lib.ts";
+import { buildError } from "../scripts/content-lib.ts";
+import { markdownHast, renderMarkdownHtml } from "../scripts/markdown-html.ts";
 
 const indexFor = (rawText: string) =>
   buildBlockIndex([
@@ -80,16 +78,14 @@ it.effect(
       for (const theme of ["one", "two"]) {
         const blocks: ContentBlock[] = [];
 
-        yield* Effect.tryPromise({
+        yield* Effect.try({
           catch: (cause) => buildError("test compile", "fixture.svx", cause),
-          // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this rendering-test Promise boundary.
-          try: async () =>
-            await compile(source, {
-              highlight: {
-                highlighter: (code) =>
-                  `<pre class="${theme}"><code>${code}</code></pre>`,
-              },
+          try: () =>
+            markdownHast(source, {
+              highlight: (code) =>
+                `<pre class="${theme}"><code>${code}</code></pre>`,
               rehypePlugins: [paragraphAnchors(source, blocks)],
+              sourcePath: "fixture.svx",
             }),
         });
 
@@ -98,49 +94,15 @@ it.effect(
     })
 );
 
-const compiledModule = Schema.Struct({
-  default: Schema.declare((value): value is Parameters<typeof render>[0] =>
-    Predicate.isFunction(value)
-  ),
-});
-
-const renderMarkdown = Effect.fn("renderMarkdown")(function* renderMarkdown(
-  source: string
-) {
-  const compiled = yield* Effect.tryPromise({
+const renderMarkdown = (source: string) =>
+  Effect.try({
     catch: (cause) => buildError("test compile", "fixture.svx", cause),
-    // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this rendering-test Promise boundary.
-    try: async () =>
-      await compile(source, {
-        rehypePlugins: [paragraphAnchors(source), escapeSvelteBraces],
+    try: () =>
+      renderMarkdownHtml(source, {
+        rehypePlugins: [paragraphAnchors(source)],
+        sourcePath: "fixture.svx",
       }),
   });
-
-  const compiledCode = yield* Schema.decodeUnknownEffect(
-    Schema.Struct({ code: Schema.String })
-  )(compiled);
-
-  const output = compileSvelte(compiledCode.code, { generate: "server" }).js
-    .code;
-
-  const executable = output.replaceAll(
-    "'svelte/internal/server'",
-    JSON.stringify(import.meta.resolve("svelte/internal/server"))
-  );
-
-  const moduleUrl = `data:text/javascript;base64,${Buffer.from(executable).toString("base64")}`;
-
-  const moduleValue: unknown = yield* Effect.tryPromise({
-    catch: (cause) => buildError("test module", "fixture.svx", cause),
-    // oxlint-disable-next-line typescript/promise-function-async -- Node owns the module-loader Promise boundary.
-    try: () => import(moduleUrl),
-  });
-
-  const component =
-    yield* Schema.decodeUnknownEffect(compiledModule)(moduleValue);
-
-  return render(component.default, { props: {} }).body;
-});
 
 it.effect("paragraph links resolve in tight, loose and nested lists", () =>
   Effect.gen(function* renderedAnchors() {

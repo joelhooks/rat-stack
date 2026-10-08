@@ -178,16 +178,21 @@ it.effect(
 );
 
 it.effect(
-  "loads nothing at construction, deduplicates catalogs, and fetches only one page on warm reads",
+  "loads nothing at construction, isolates cold reads, and reuses completed data on warm reads",
   () =>
     Effect.gen(function* fetchCounts() {
       const { calls, fixture, store } = yield* makeFixture();
       expect(yield* Ref.get(calls)).toEqual([]);
 
-      yield* Effect.all([store.catalog, store.catalog], {
+      const catalogs = yield* Effect.all([store.catalog, store.catalog], {
         concurrency: "unbounded",
       });
-      expect(yield* Ref.get(calls)).toEqual(["/_content/catalog.json"]);
+
+      expect(catalogs).toEqual([fixture.catalog, fixture.catalog]);
+      expect(yield* Ref.get(calls)).toEqual([
+        "/_content/catalog.json",
+        "/_content/catalog.json",
+      ]);
 
       for (const page of fixture.pages) {
         yield* store.read(page.id);
@@ -203,7 +208,7 @@ it.effect(
       const paths = yield* Ref.get(calls);
       expect(
         paths.filter((target) => target === "/_content/catalog.json")
-      ).toHaveLength(1);
+      ).toHaveLength(2);
       expect(
         paths.filter((target) => target === "/_content/search.json")
       ).toHaveLength(1);

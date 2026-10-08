@@ -10,6 +10,8 @@ import type {
   Variable,
 } from "@oxlint/plugins";
 
+import { auditedStringRegexes } from "../apps/mischief/scripts/source-regex-policy.ts";
+
 type RuleContext = Context;
 
 type NodeOfType<Type extends ESTree.Node["type"]> = Extract<
@@ -39,8 +41,7 @@ const workspacePath = (filename: string) => {
 };
 
 const isRuntimeSource = (filename: string) =>
-  /^(?:apps|packages)\/[^/]+\/src\/.+/u.test(filename) &&
-  !filename.endsWith(".svelte");
+  /^(?:apps|packages)\/[^/]+\/src\/.+/u.test(filename);
 
 const unwrapExpression = (node: ESTree.Expression): ESTree.Expression => {
   if (
@@ -1178,11 +1179,97 @@ const learnSnippetIdiom = defineRule({
   },
 });
 
+const rawSourceNames = new Set([
+  "frontmatter",
+  "markdown",
+  "rawText",
+  "source",
+  "sourceText",
+  "svx",
+]);
+
+const isRawSourceIdentifier = (node: ESTree.Node) =>
+  node.type === "Identifier" && rawSourceNames.has(node.name);
+
+const auditedExpressions = new Set(
+  auditedStringRegexes
+    .filter((entry) => entry.reason !== "")
+    .map((entry) => entry.expression)
+);
+
+const auditedContentRegex = defineRule({
+  create(context) {
+    const requireAudit = (node: ESTree.Node) => {
+      const expression = context.sourceCode.getText(node);
+
+      if (!auditedExpressions.has(expression)) {
+        context.report({ data: { expression }, messageId: "unaudited", node });
+      }
+    };
+
+    return {
+      CallExpression(node) {
+        const { callee } = node;
+
+        if (
+          callee.type !== "MemberExpression" ||
+          callee.property.type !== "Identifier"
+        ) {
+          return;
+        }
+
+        const method = callee.property.name;
+
+        const sourceArgument =
+          (method === "exec" || method === "test") &&
+          node.arguments.some(isRawSourceIdentifier);
+
+        const sourceReceiver =
+          (method === "match" ||
+            method === "matchAll" ||
+            method === "search") &&
+          isRawSourceIdentifier(callee.object);
+
+        if (sourceArgument || sourceReceiver) {
+          context.report({ messageId: "sourceRegex", node });
+        }
+      },
+      Literal(node) {
+        if ("regex" in node && node.regex !== undefined) {
+          requireAudit(node);
+        }
+      },
+      NewExpression(node) {
+        if (
+          node.callee.type === "Identifier" &&
+          node.callee.name === "RegExp"
+        ) {
+          requireAudit(node);
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep regular expressions in the content pipeline to audited expressions over parsed values, never over svx source.",
+    },
+    messages: {
+      sourceRegex:
+        "A regular expression over raw svx source is forbidden. Parse the source with svx-ast and match parsed values instead.",
+      unaudited:
+        "Unaudited regular expression {{expression}}. Match a parsed value, then add the expression and its reason to apps/mischief/scripts/source-regex-policy.ts.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-patterns" },
   rules: {
     "acquire-release-constructs-in-acquire-body":
       acquireReleaseConstructsInAcquireBody,
+    "audited-content-regex": auditedContentRegex,
     "contract-binding-matches-name": contractBindingMatchesName,
     "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
