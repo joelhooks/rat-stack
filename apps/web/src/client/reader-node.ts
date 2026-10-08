@@ -91,6 +91,7 @@ export const ReaderNodeAttribute = Schema.Struct({
 });
 
 export type ReaderNodeValue = Data.TaggedEnum<{
+  CopyPrompt: { readonly id: string; readonly primary: boolean };
   Element: {
     readonly attributes: readonly (typeof ReaderNodeAttribute.Type)[];
     readonly children: readonly ReaderNodeValue[];
@@ -104,6 +105,10 @@ export const ReaderNode = Data.taggedEnum<ReaderNodeValue>();
 export const ReaderNodeSchema: Schema.Codec<ReaderNodeValue> = Schema.suspend(
   () =>
     Schema.Union([
+      Schema.TaggedStruct("CopyPrompt", {
+        id: Schema.String,
+        primary: Schema.Boolean,
+      }),
       Schema.TaggedStruct("Text", { value: Schema.String }),
       Schema.TaggedStruct("Element", {
         attributes: Schema.Array(ReaderNodeAttribute),

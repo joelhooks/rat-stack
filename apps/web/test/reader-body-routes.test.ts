@@ -7,7 +7,10 @@ import {
   compileReaderBody,
   readerWorkshopCount,
 } from "../../mischief/scripts/reader-body-document.ts";
-import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
+import {
+  readerBodyFlags,
+  readerCopyPrompts,
+} from "../../mischief/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
 import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
 import { readerView } from "../src/features/reader.js";
@@ -15,7 +18,7 @@ import { readerBodyRoutePaths } from "../src/reader-routes.js";
 import { normalizedNodes } from "./reader-node-normalize.js";
 
 it.effect(
-  "ReaderSiteParity: glossary, log, resources and public specs keep their complete human body, breadcrumb and metadata after Foldkit rendering",
+  "ReaderSiteParity: glossary, log, resources, tokenmaxx and public specs keep their complete human body, breadcrumb and metadata after Foldkit rendering",
   () =>
     Effect.gen(function* bodyRouteParity() {
       const inputs = yield* prepareReaderSiteInputs;
@@ -35,7 +38,8 @@ it.effect(
 
           const before = yield* compileReaderBody(
             original?.html.replaceAll("__RATSTACK_ORIGIN__", page.origin) ?? "",
-            page.page.sourcePath
+            page.page.sourcePath,
+            readerCopyPrompts(page.origin)
           );
 
           const rendered = yield* renderToString(
@@ -45,7 +49,8 @@ it.effect(
 
           const after = yield* compileReaderBody(
             rendered.html,
-            page.page.sourcePath
+            page.page.sourcePath,
+            readerCopyPrompts(page.origin)
           );
 
           expect(readerWorkshopCount(rendered.html), page.page.path).toBe(

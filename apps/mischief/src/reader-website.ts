@@ -19,6 +19,7 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/resources/peers",
   "/resources/same-version-repos",
   "/resources/schema-projections-and-code-mode",
+  "/tokenmaxx",
   "/vendor/README.md",
   "/learn",
   "/lore",

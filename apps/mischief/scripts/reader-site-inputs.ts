@@ -4,6 +4,10 @@ import { DomUtils, parseDocument } from "htmlparser2";
 
 import { ReaderReferences } from "../../web/src/page-descriptor.ts";
 import { ContentAssetManifest } from "../src/asset-manifest.ts";
+import {
+  staticAssetGeneration,
+  tokenmaxxDocumentHtml,
+} from "../src/bundled-content.generated.ts";
 import { ContentCatalog } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { parseLorePage } from "./content-lib.ts";
@@ -161,7 +165,31 @@ export const prepareReaderSiteInputs = Effect.gen(
         )
       );
 
-    const pages = yield* Effect.forEach(readPage)(manifest.pages);
+    const manifestPages = yield* Effect.forEach(readPage)(manifest.pages);
+
+    if (staticAssetGeneration !== manifest.generation) {
+      return yield* new ReaderInputError({
+        message:
+          "The bundled tokenmaxx document and the content manifest have different generations; regenerate content before building the reader",
+        sourcePath: "apps/mischief/src/bundled-content.generated.ts",
+      });
+    }
+
+    const tokenmaxxHtml = tokenmaxxDocumentHtml.replaceAll(
+      "__COPY_SCRIPT__",
+      ""
+    );
+
+    const pages = [
+      ...manifestPages,
+      {
+        html: tokenmaxxHtml,
+        metadata: documentMetadata("/tokenmaxx", tokenmaxxHtml),
+        path: "/tokenmaxx",
+        sourcePath: "apps/mischief/content/tokenmaxx.md",
+        status: 200,
+      },
+    ];
 
     const source = yield* fs
       .readFileString(

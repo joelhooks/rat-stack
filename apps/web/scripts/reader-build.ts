@@ -9,8 +9,12 @@ import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
+import type { ReaderPageFlags } from "../src/client/reader-model.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
-import { isReaderRoutePath } from "../src/reader-routes.ts";
+import {
+  isReaderRoutePath,
+  readerNoStoreRoutePaths,
+} from "../src/reader-routes.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
@@ -96,6 +100,27 @@ export const prepareReader = Effect.fn("reader.prepare")(
   Effect.provide(NodeServices.layer)
 );
 
+const readerRouteHeaders = (
+  pages: readonly ReaderPageFlags[],
+  production: boolean
+) =>
+  pages
+    .map((page) => {
+      const lines = [
+        ...(readerNoStoreRoutePaths.includes(page.page.path)
+          ? ["  Cache-Control: no-store"]
+          : []),
+        ...(production && page.page.metadata.robots === "noindex"
+          ? ["  X-Robots-Tag: noindex"]
+          : []),
+      ];
+
+      return lines.length === 0
+        ? ""
+        : `${page.page.path}\n${lines.join("\n")}\n`;
+    })
+    .join("");
+
 export const finalizeReader = Effect.fn("reader.finalize")(
   function* finalizeReader(root: string, clientDirectory: string) {
     const fs = yield* FileSystem.FileSystem;
@@ -178,11 +203,15 @@ export const finalizeReader = Effect.fn("reader.finalize")(
 
       return yield* fs.writeFileString(
         headerPath,
-        `/*\n  X-Robots-Tag: noindex\n  X-Preview-Commit: ${commit.value}\n`
+        `/*\n  X-Robots-Tag: noindex\n  X-Preview-Commit: ${commit.value}\n${readerRouteHeaders(pages, false)}`
       );
     }
 
-    return yield* fs.remove(headerPath, { force: true });
+    const routeHeaders = readerRouteHeaders(pages, true);
+
+    return yield* routeHeaders === ""
+      ? fs.remove(headerPath, { force: true })
+      : fs.writeFileString(headerPath, routeHeaders);
   },
   Effect.provide(NodeServices.layer)
 );

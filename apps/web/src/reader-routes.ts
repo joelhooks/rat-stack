@@ -17,8 +17,11 @@ export const readerBodyRoutePaths: readonly string[] = [
   "/resources/peers",
   "/resources/same-version-repos",
   "/resources/schema-projections-and-code-mode",
+  "/tokenmaxx",
   "/vendor/README.md",
 ];
+
+export const readerNoStoreRoutePaths: readonly string[] = ["/tokenmaxx"];
 
 export const isReaderRoutePath = (path: string) =>
   readerRoutePaths.includes(path) ||

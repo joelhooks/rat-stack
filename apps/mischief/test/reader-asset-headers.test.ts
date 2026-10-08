@@ -18,6 +18,7 @@ import {
 } from "../../web/scripts/reader-build.ts";
 import { ReaderFlags } from "../../web/src/client/reader-model.js";
 import type { ReaderPageFlags } from "../../web/src/client/reader-model.js";
+import { readerNoStoreRoutePaths } from "../../web/src/reader-routes.js";
 
 class PreparedReaderPages extends Context.Service<
   PreparedReaderPages,
@@ -135,6 +136,25 @@ it.layer(PreparedReaderPages.layer)((test) => {
 
         const routes = pages.map((page) => page.page.path);
 
+        const noStoreRules = routes.flatMap((route) =>
+          readerNoStoreRoutePaths.includes(route)
+            ? [route, "Cache-Control: no-store"]
+            : []
+        );
+
+        const productionRules = pages.flatMap((page) => {
+          const lines = [
+            ...(readerNoStoreRoutePaths.includes(page.page.path)
+              ? ["Cache-Control: no-store"]
+              : []),
+            ...(page.page.metadata.robots === "noindex"
+              ? ["X-Robots-Tag: noindex"]
+              : []),
+          ];
+
+          return lines.length === 0 ? [] : [page.page.path, ...lines];
+        });
+
         const writeStage = Effect.fn("writeReaderStageFixture")(
           function* writeStage(origin: string, robots: "index" | "noindex") {
             const staged = pages.map((page) => ({
@@ -191,6 +211,7 @@ it.layer(PreparedReaderPages.layer)((test) => {
           "/*",
           "X-Robots-Tag: noindex",
           `X-Preview-Commit: ${commit}`,
+          ...noStoreRules,
         ]);
 
         for (const route of routes) {
@@ -208,7 +229,16 @@ it.layer(PreparedReaderPages.layer)((test) => {
           )
         );
 
-        expect(yield* fs.exists(headerPath)).toBe(false);
+        if (productionRules.length === 0) {
+          expect(yield* fs.exists(headerPath)).toBe(false);
+        } else {
+          expect(
+            (yield* fs.readFileString(headerPath))
+              .trim()
+              .split("\n")
+              .map((line) => line.trim())
+          ).toEqual(productionRules);
+        }
 
         for (const route of routes) {
           yield* assertMetadata(

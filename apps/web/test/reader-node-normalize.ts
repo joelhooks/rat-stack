@@ -10,6 +10,7 @@ export const normalizedNodes = (
 
   for (const node of nodes) {
     ReaderNode.$match(node, {
+      CopyPrompt: (prompt) => output.push(prompt),
       Element: (element) =>
         output.push(
           ReaderNode.Element({
