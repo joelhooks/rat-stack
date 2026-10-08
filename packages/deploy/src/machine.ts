@@ -7,18 +7,21 @@ import {
   join,
   setupEffect,
 } from "@xstate/effect";
-import { Cause, Effect, Schema } from "effect";
+import { Cause, Clock, Effect, Schema } from "effect";
 import { types } from "xstate";
 
-import { ApplyReceiptSchema, DeployInputSchema } from "./contracts.js";
-import type {
-  DeployInput,
+import {
+  ApplyReceiptSchema,
+  DeployInputSchema,
   DeployStepError,
-  DeployVerdict,
 } from "./contracts.js";
+import type { DeployInput, DeployVerdict } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
 import { classifyRows, PlanRowsSchema } from "./plan.js";
 import type { PlanRow } from "./plan.js";
+import { quietWindowKeys, readQuietWindow } from "./quiet-window.js";
+import { decideSource } from "./source.js";
+import type { CheckoutState } from "./source.js";
 
 type StepResult<A> =
   | { readonly kind: "ok"; readonly value: A }
@@ -51,8 +54,82 @@ const stepResult = <A, R>(
 interface DeployContext {
   readonly input: DeployInput;
   readonly plan: readonly PlanRow[];
+  readonly quietDeadline?: number;
+  readonly quietUntil: number;
   readonly verdict: DeployVerdict;
 }
+
+type SourceResult =
+  | { readonly kind: "skipped" }
+  | { readonly kind: "match"; readonly checkout: CheckoutState }
+  | {
+      readonly kind: "refused";
+      readonly checkout?: CheckoutState;
+      readonly keys: readonly string[];
+      readonly reason: string;
+    }
+  | { readonly kind: "crashed" };
+
+const source = fromEffect({
+  effect: ({ input }) => {
+    const expected = input.expectSha;
+
+    if (expected === undefined) {
+      return Effect.succeed<SourceResult>({ kind: "skipped" });
+    }
+
+    return stepResult(DeployRunner.use((runner) => runner.source())).pipe(
+      Effect.map((result): SourceResult => {
+        if (result.kind !== "ok") {
+          return result;
+        }
+
+        const decision = decideSource(expected, result.value);
+
+        return decision.kind === "match"
+          ? { checkout: result.value, kind: "match" }
+          : {
+              checkout: result.value,
+              keys: ["expectSha"],
+              kind: "refused",
+              reason: decision.reason,
+            };
+      })
+    );
+  },
+  schemas: {
+    input: Schema.Struct({ expectSha: DeployInputSchema.fields.expectSha }),
+  },
+});
+
+const quietWindow = fromEffect({
+  effect: ({ input }) =>
+    stepResult(
+      readQuietWindow(input.deadline).pipe(
+        Effect.mapError(
+          () =>
+            new DeployStepError({
+              keys: [...quietWindowKeys],
+              reason: "quiet-window-config-invalid",
+              step: "quietWindow",
+            })
+        )
+      )
+    ),
+  schemas: {
+    input: Schema.Struct({ deadline: Schema.optionalKey(Schema.Natural) }),
+  },
+});
+
+const awaitQuietWindow = fromEffect({
+  effect: ({ input }) =>
+    Effect.gen(function* awaitQuietWindowEnd() {
+      const now = yield* Clock.currentTimeMillis;
+
+      yield* Effect.sleep(Math.max(0, input.until - now));
+    }),
+  schemas: { input: Schema.Struct({ until: Schema.Natural }) },
+});
 
 const preflight = fromEffect({
   effect: ({ input }) =>
@@ -118,21 +195,31 @@ const checksOutcome = (
 };
 
 export const deployMachine = setupEffect({
-  actors: { apply, checks, classify, plan, preflight },
+  actors: {
+    apply,
+    awaitQuietWindow,
+    checks,
+    classify,
+    plan,
+    preflight,
+    quietWindow,
+    source,
+  },
   schemas: { context: types<DeployContext>(), input: DeployInputSchema },
 }).createMachine({
   context: ({ input }) => ({
     input,
     plan: [],
+    quietUntil: 0,
     verdict: {
       checks: [],
       keys: [],
       outcome: "unknown",
       rows: [],
-      step: "preflight",
+      step: "source",
     },
   }),
-  initial: "preflight",
+  initial: "source",
   output: ({ context }) => context.verdict,
   states: {
     apply: {
@@ -192,6 +279,17 @@ export const deployMachine = setupEffect({
     },
     applyCrashed: { type: "final" },
     applyUnsuccessful: { type: "final" },
+    awaitingQuietWindow: {
+      invoke: {
+        input: ({ context }) => ({ until: context.quietUntil }),
+        onDone: { target: "quietWindow" },
+        onError: {
+          context: ({ context }) => ended(context, "crashed", "quietWindow"),
+          target: "quietWindowCrashed",
+        },
+        src: "awaitQuietWindow",
+      },
+    },
     checks: {
       invoke: {
         input: ({ context }) =>
@@ -252,14 +350,21 @@ export const deployMachine = setupEffect({
         }),
         onDone: ({ context, event }) => {
           if (event.output.outcome !== "pass") {
+            const { verdict } = ended(
+              context,
+              event.output.outcome === "unknown" ? "unknown" : "refused",
+              "classify",
+              context.verdict.keys,
+              event.output.error.reason
+            );
+
             return {
-              context: ended(
-                context,
-                event.output.outcome === "unknown" ? "unknown" : "refused",
-                "classify",
-                context.verdict.keys,
-                event.output.error.reason
-              ),
+              context: {
+                verdict: {
+                  ...verdict,
+                  resources: event.output.error.resources,
+                },
+              },
               target: "refused",
             };
           }
@@ -282,7 +387,7 @@ export const deployMachine = setupEffect({
             context: {
               verdict: { ...context.verdict, rows: event.output.rows },
             },
-            target: "apply",
+            target: "quietWindow",
           };
         },
         onError: {
@@ -372,7 +477,124 @@ export const deployMachine = setupEffect({
       },
     },
     preflightCrashed: { type: "final" },
+    quietWindow: {
+      invoke: {
+        input: ({ context }) =>
+          context.quietDeadline === undefined
+            ? {}
+            : { deadline: context.quietDeadline },
+        onDone: ({ context, event }) => {
+          if (event.output.kind === "crashed") {
+            return {
+              context: ended(context, "crashed", "quietWindow"),
+              target: "quietWindowCrashed",
+            };
+          }
+
+          if (event.output.kind === "refused") {
+            return {
+              context: ended(
+                context,
+                "refused",
+                "quietWindow",
+                event.output.keys,
+                event.output.reason
+              ),
+              target: "refused",
+            };
+          }
+
+          const decision = event.output.value;
+
+          if (decision.kind === "refused") {
+            return {
+              context: ended(
+                context,
+                "refused",
+                "quietWindow",
+                [...quietWindowKeys],
+                decision.reason
+              ),
+              target: "refused",
+            };
+          }
+
+          if (decision.kind === "wait") {
+            return {
+              context: {
+                quietDeadline: decision.deadline,
+                quietUntil: decision.until,
+              },
+              target: "awaitingQuietWindow",
+            };
+          }
+
+          return {
+            context: { quietDeadline: decision.deadline },
+            target: "apply",
+          };
+        },
+        onError: {
+          context: ({ context }) => ended(context, "crashed", "quietWindow"),
+          target: "quietWindowCrashed",
+        },
+        src: "quietWindow",
+      },
+    },
+    quietWindowCrashed: { type: "final" },
     refused: { type: "final" },
+    source: {
+      invoke: {
+        input: ({ context }) =>
+          context.input.expectSha === undefined
+            ? {}
+            : { expectSha: context.input.expectSha },
+        onDone: ({ context, event }) => {
+          if (event.output.kind === "crashed") {
+            return {
+              context: ended(context, "crashed", "source"),
+              target: "sourceCrashed",
+            };
+          }
+
+          if (event.output.kind === "refused") {
+            const { verdict } = ended(
+              context,
+              "refused",
+              "source",
+              event.output.keys,
+              event.output.reason
+            );
+
+            return {
+              context: {
+                verdict:
+                  event.output.checkout === undefined
+                    ? verdict
+                    : { ...verdict, checkout: event.output.checkout },
+              },
+              target: "refused",
+            };
+          }
+
+          return {
+            context: {
+              verdict:
+                event.output.kind === "match"
+                  ? { ...context.verdict, checkout: event.output.checkout }
+                  : context.verdict,
+            },
+            target: "preflight",
+          };
+        },
+        onError: {
+          context: ({ context }) => ended(context, "crashed", "source"),
+          target: "sourceCrashed",
+        },
+        src: "source",
+      },
+    },
+    sourceCrashed: { type: "final" },
     verdict: { type: "final" },
   },
 });

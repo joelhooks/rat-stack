@@ -7,6 +7,7 @@ import { DeployVerdictSchema } from "./contracts.js";
 import { runDeploy } from "./machine.js";
 import { PlanRowSchema } from "./plan.js";
 import { deployRollback } from "./rollback.js";
+import { CommitShaSchema } from "./source.js";
 
 export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
   "DeployNotHealthy",
@@ -28,6 +29,7 @@ export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
 
 const input = Schema.Struct({
   allow: Schema.optionalKey(Schema.Array(PlanRowSchema)),
+  expectSha: Schema.optionalKey(CommitShaSchema),
   ownerApproved: Schema.optionalKey(Schema.Boolean),
   profile: Schema.NonEmptyString,
 });

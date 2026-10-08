@@ -2,11 +2,16 @@ import { describe, expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
 import type { Verdict } from "@rat-stack/check-harness";
 import { createEffectActor, join, send } from "@xstate/effect";
-import { Effect, Schema } from "effect";
+import { Clock, ConfigProvider, Effect, Fiber, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
+import { TestClock } from "effect/testing";
 
 import { DeployStepError } from "../src/contracts.js";
-import type { ApplyReceipt, DeployVerdict } from "../src/contracts.js";
+import type {
+  ApplyReceipt,
+  DeployInput,
+  DeployVerdict,
+} from "../src/contracts.js";
 import { DeployRunner } from "../src/deploy-runner.js";
 import { deployMachine } from "../src/machine.js";
 import type { PlanRow } from "../src/plan.js";
@@ -20,13 +25,44 @@ const Signal = Schema.Literals([
   "unknown",
 ]);
 
+const SourceSignal = Schema.Literals([
+  "unchecked",
+  "match",
+  "moved",
+  "dirty",
+  "crash",
+  "refused",
+]);
+
+const WindowSignal = Schema.Literals(["none", "clear", "waitable", "blocked"]);
+
 const Scenario = Schema.Struct({
   apply: Signal,
   checks: Signal,
   mode: Schema.Literals(["plan", "prod"]),
   plan: Signal,
   preflight: Signal,
+  source: SourceSignal,
+  window: WindowSignal,
 });
+
+const expectedSha = "a".repeat(40);
+
+const dayMs = 86_400_000;
+
+const quietWindowEndMs = dayMs + 30 * 60_000;
+
+const quietWindowEnv = (signal: typeof WindowSignal.Type) => {
+  const windows =
+    signal === "clear"
+      ? [{ end: "13:00", start: "12:00" }]
+      : [{ end: "00:30", start: "23:45" }];
+
+  return {
+    DEPLOY_QUIET_WINDOWS: signal === "none" ? "" : JSON.stringify(windows),
+    DEPLOY_QUIET_WINDOW_MAX_WAIT_MS: signal === "blocked" ? "60000" : "3600000",
+  };
+};
 
 const probes = Arbitrary.array(Arbitrary.schema(Schema.String), {
   maxLength: 20,
@@ -105,7 +141,20 @@ interface Model {
 }
 
 const model = (scenario: typeof Scenario.Type): Model => {
-  const calls = ["preflight"];
+  const calls: string[] = [];
+
+  if (scenario.source !== "unchecked") {
+    calls.push("source");
+
+    if (scenario.source !== "match") {
+      return {
+        calls,
+        outcome: scenario.source === "crash" ? "crashed" : "refused",
+      };
+    }
+  }
+
+  calls.push("preflight");
 
   if (scenario.preflight !== "pass") {
     return {
@@ -134,6 +183,10 @@ const model = (scenario: typeof Scenario.Type): Model => {
 
   if (scenario.mode === "plan") {
     return { calls, outcome: "planned" };
+  }
+
+  if (scenario.window === "blocked") {
+    return { calls, outcome: "refused" };
   }
 
   calls.push("apply");
@@ -190,6 +243,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
   generated: readonly string[]
 ) {
   const calls: string[] = [];
+  let appliedAt = -1;
 
   const settle = <A>(
     step: DeployStepError["step"],
@@ -216,8 +270,21 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
       return Effect.succeed(value);
     });
 
+  const checkout = {
+    changed: scenario.source === "dirty" ? ["apps/web/src/main.ts"] : [],
+    head: scenario.source === "moved" ? "b".repeat(40) : expectedSha,
+  };
+
   const runner = DeployRunner.of({
-    apply: () => settle("apply", scenario.apply, receipt(scenario.apply)),
+    apply: () =>
+      Clock.currentTimeMillis.pipe(
+        Effect.tap((now) =>
+          Effect.sync(() => {
+            appliedAt = now;
+          })
+        ),
+        Effect.andThen(settle("apply", scenario.apply, receipt(scenario.apply)))
+      ),
     checks: () => settle("checks", scenario.checks, [check(scenario.checks)]),
     plan: () =>
       settle("plan", scenario.plan, {
@@ -230,20 +297,62 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
       }),
     preflight: () =>
       settle("preflight", scenario.preflight, ["EXAMPLE_REQUIRED"]),
+    source: () =>
+      settle(
+        "source",
+        scenario.source === "crash" || scenario.source === "refused"
+          ? scenario.source
+          : "pass",
+        checkout
+      ),
   });
 
+  yield* TestClock.setTime(dayMs - 10 * 60_000);
+
+  const input: DeployInput = {
+    allow: [],
+    mode: scenario.mode,
+    profile: "test-profile",
+  };
+
   const actor = yield* createEffectActor(deployMachine, {
-    input: { allow: [], mode: scenario.mode, profile: "test-profile" },
+    input:
+      scenario.source === "unchecked"
+        ? input
+        : { ...input, expectSha: expectedSha },
   }).pipe(
     Effect.provideService(DeployRunner, runner),
+    Effect.provideService(
+      ConfigProvider.ConfigProvider,
+      ConfigProvider.fromEnv({ env: quietWindowEnv(scenario.window) })
+    ),
     Effect.provide(Approval.denyAll)
   );
 
   // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level errors remain defects; the model checks explicit terminal step outcomes.
-  const result = yield* join(actor).pipe(Effect.orDie);
+  const running = yield* join(actor).pipe(Effect.orDie, Effect.forkChild);
+  yield* TestClock.adjust("2 hours");
+  const result = yield* Fiber.join(running);
   const expected = model(scenario);
   expect(result.outcome).toBe(expected.outcome);
   expect(calls).toStrictEqual(expected.calls);
+
+  if (calls.includes("apply")) {
+    expect(appliedAt >= quietWindowEndMs).toBe(scenario.window === "waitable");
+  }
+
+  if (result.step === "quietWindow") {
+    expect(result.reason).toBe("inside-quiet-window");
+  }
+
+  if (scenario.source === "moved" || scenario.source === "dirty") {
+    expect(result.checkout).toStrictEqual(checkout);
+    expect(result.reason).toBe(
+      scenario.source === "moved"
+        ? "checkout-head-does-not-match-expected-sha"
+        : "checkout-has-uncommitted-changes"
+    );
+  }
 
   if (
     result.outcome === "crashed" &&
@@ -274,6 +383,8 @@ const Passing = {
   mode: "prod",
   plan: "pass",
   preflight: "pass",
+  source: "unchecked",
+  window: "none",
 } as const;
 
 describe("deployment command model", () => {
@@ -288,6 +399,91 @@ describe("deployment command model", () => {
         yield* replay({ ...Passing, apply: scenario.apply }, generated);
         yield* replay({ ...Passing, checks: scenario.checks }, generated);
         yield* replay({ ...Passing, mode: "plan" }, generated);
+        yield* replay({ ...Passing, source: scenario.source }, generated);
+        yield* replay({ ...Passing, window: scenario.window }, generated);
+      }),
+    { arbitrary: { runs: 300 } }
+  );
+});
+
+const GeneratedRow = Schema.Struct({
+  action: Schema.Literals(["create", "update", "replace", "delete", "noop"]),
+  allowed: Schema.Boolean,
+});
+
+describe("plan guard", () => {
+  it.effect.prop(
+    "an unexpected create, delete or replace stops before apply and names the resource",
+    {
+      generated: Schema.Array(GeneratedRow).check(Schema.isMaxLength(12)),
+      ownerApproved: Schema.Boolean,
+    },
+    ({ generated, ownerApproved }) =>
+      Effect.gen(function* test() {
+        const rows = generated.map((row, index) => ({
+          action: row.action,
+          resource: `Resource${index}`,
+        }));
+
+        const allow = rows.filter(
+          (_, index) => generated[index]?.allowed === true
+        );
+
+        const calls: string[] = [];
+
+        const runner = DeployRunner.of({
+          apply: () =>
+            Effect.sync(() => {
+              calls.push("apply");
+
+              return receipt("pass");
+            }),
+          checks: () => Effect.succeed([check("pass")]),
+          plan: () =>
+            Effect.succeed({
+              receipt: { ...receipt("fail"), outcome: "prepared" as const },
+              rows,
+            }),
+          preflight: () => Effect.succeed([]),
+          source: () => Effect.succeed({ changed: [], head: expectedSha }),
+        });
+
+        const actor = yield* createEffectActor(deployMachine, {
+          input: { allow, mode: "prod", ownerApproved, profile: "test" },
+        }).pipe(
+          Effect.provideService(DeployRunner, runner),
+          Effect.provide(Approval.denyAll)
+        );
+
+        // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level errors remain defects; the property checks the refused verdict.
+        const result = yield* join(actor).pipe(Effect.orDie);
+
+        const unexpected = rows.filter(
+          (row, index) =>
+            (row.action === "create" ||
+              row.action === "delete" ||
+              row.action === "replace") &&
+            (generated[index]?.allowed !== true ||
+              (row.action !== "create" && !ownerApproved))
+        );
+
+        if (unexpected.length === 0) {
+          expect(result.outcome).toBe("healthy");
+          expect(calls).toStrictEqual(["apply"]);
+
+          return;
+        }
+
+        expect(result.outcome).toBe("refused");
+        expect(result.step).toBe("classify");
+        expect(calls).toStrictEqual([]);
+        const named = new Set(result.resources);
+
+        expect(unexpected.some((row) => named.has(row.resource))).toBe(true);
+
+        for (const resource of named) {
+          expect(rows.some((row) => row.resource === resource)).toBe(true);
+        }
       }),
     { arbitrary: { runs: 300 } }
   );
