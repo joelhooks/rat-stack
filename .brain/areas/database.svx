@@ -1,6 +1,16 @@
 ---
 title: "Database"
 description: "One interface records action runs and their outcomes in either Cloudflare D1 or Postgres through Hyperdrive."
+plain: "RunLog records action runs and their outcomes through one service, stored in D1 or Postgres through Hyperdrive."
+diagram: |-
+  caller
+    │ RunLog
+    │ record, listRecent
+    ▼
+  DatabaseVendor
+  ├ D1
+  └ Postgres + Hyperdrive
+    tables + migrations
 group: system
 terms:
   - "run log"

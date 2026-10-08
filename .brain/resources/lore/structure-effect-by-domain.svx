@@ -1,6 +1,15 @@
 ---
 title: "Structure an Effect codebase by domain"
 description: "Start with folders for application work, services and Layers in the same file, and startup code that supplies implementations."
+plain: "Group files by domain, keep each service with its Layer, and give each entrypoint one composition root."
+diagram: |-
+  src/
+  ├ files/
+  │ ├ file-inspector.ts
+  │ └ stats.ts
+  ├ platform/
+  │ └ files-node.ts
+  └ main.ts
 group: idea
 terms:
   - "Composition root"

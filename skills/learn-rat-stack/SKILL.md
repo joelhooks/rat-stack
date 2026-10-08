@@ -2,6 +2,18 @@
 name: learn-rat-stack
 updated: "2026-10-06"
 description: Trace a capability through Effect, XState, five projections, the CLI, and Alchemy. Try hosted search and read.
+plain: "Trace one action from its contract through a handler, a service, a machine, five surfaces, the CLI and the cloud."
+diagram: |-
+  contract
+    │ handler
+    │ service + machine
+    ▼
+  one capability
+  ├ CLI
+  ├ HTTP
+  ├ MCP
+  ├ code mode
+  └ RPC
 ---
 
 # Learn the stack

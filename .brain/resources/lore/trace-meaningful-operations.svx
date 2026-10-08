@@ -1,6 +1,16 @@
 ---
 title: "Trace operations where they mean something"
 description: "Name useful operations, add safe context, and distinguish creating a span from delivering it to a backend."
+plain: "Name the operations a person needs to understand, add only safe context, and prove export separately from the span."
+diagram: |-
+  Effect.fn("X.inspect")
+    │ span: name, timing
+    │ + safe attributes
+    ▼
+  exporter + transport
+    │ delivery is a
+    ▼ separate step
+  collector receipt
 group: idea
 created_at: "2026-10-06"
 updated_at: "2026-10-06"

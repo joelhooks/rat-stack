@@ -1,6 +1,7 @@
 ---
 title: "mdsvex left unified"
 description: "The next parser leaves unified; the CommonMark migrator still uses remark."
+plain: "The next mdsvex parser leaves the unified ecosystem, so rat-stack stays on mdsvex 0.12.8 for now."
 group: idea
 terms:
   - "mdsvex"

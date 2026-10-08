@@ -5,6 +5,10 @@
     "paths": {
       "@effect/vitest": [
         "../../../packages/core/node_modules/@effect/vitest/dist/index.d.ts"
+      ],
+      "@rat-stack/capability": ["../../../packages/capability/src/index.ts"],
+      "@xstate/effect": [
+        "../../../packages/core/node_modules/@xstate/effect/dist/xstate-effect.d.ts"
       ]
     }
   },

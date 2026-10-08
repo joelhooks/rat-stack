@@ -1,6 +1,13 @@
 ---
 title: "One snippet model feeds both renderers"
 description: "HTML and agent Markdown derive their code, repository, commit, path, and line numbers from the same snippet."
+plain: "HTML and agent Markdown are both built from the same snippet model, so both show the same source facts."
+diagram: |-
+  CodeSnippet
+    lines, gaps, provenance
+    ├ HTML: colour, numbers
+    └ Markdown: fenced code
+  same source facts
 group: concept
 terms:
   - "snippet model"

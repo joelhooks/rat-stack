@@ -1,6 +1,7 @@
 ---
 title: "Why JavaScript is broken: Effect and TypeScript"
 description: "Michael Arnaldi argues that production JavaScript needs one composable model for errors, dependencies, and cleanup."
+plain: "Michael Arnaldi says Promises leave errors, cancellation and cleanup hard to compose, and Effect types them in one model."
 group: source
 speaker: "Michael Arnaldi"
 date: 2025-07-14

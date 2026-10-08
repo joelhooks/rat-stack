@@ -1,6 +1,16 @@
 ---
 title: "No comments"
 description: "Code comments are banned because names, types, tests, and boundaries should carry the meaning."
+plain: "Code comments are banned; put the reason in a name, a type, a test, a commit or the Brain."
+diagram: |-
+  reason
+    ├ name or type
+    ├ test
+    ├ commit message
+    └ Brain
+
+  kept: tool directive
+        -- reason, SAFETY:
 group: idea
 terms:
   - "no comments"

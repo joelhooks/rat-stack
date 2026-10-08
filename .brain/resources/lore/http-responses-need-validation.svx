@@ -1,6 +1,16 @@
 ---
 title: "HTTP success needs a status check and a decoder"
 description: "Supply the client, check the response status, decode accepted data, and name failures at the adapter boundary."
+plain: "A finished HTTP request is not success. Check the status and decode the body before trusting the data."
+diagram: |-
+  client.get(url)
+    │ filterStatusOk
+    │   not 2xx → status error
+    ▼
+  schemaBodyJson(Release)
+    │   bad body → body error
+    ▼
+  Release { version }
 group: idea
 created_at: "2026-10-06"
 updated_at: "2026-10-06"

@@ -1,6 +1,18 @@
 ---
 title: "Interest signup"
 description: "Agent-only applications start email confirmation through interfaces owned by core and delivery implemented in a separate package."
+plain: "An agent applies for a person with joinInterest; the person confirms by email, and delivery lives in its own package."
+diagram: |-
+  agent asks, person approves
+    │ joinInterest
+    ▼
+  SubscriberIntake port
+    │ delivery adapter
+    ▼
+  confirmation email
+    │ person clicks link
+    ▼
+  signup confirmed
 group: system
 terms:
   - "interest signup"

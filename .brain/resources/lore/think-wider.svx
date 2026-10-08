@@ -1,6 +1,7 @@
 ---
 title: "Think wider"
 description: "Theo Browne asks developers to cover more product breadth instead of adding depth in one narrow area."
+plain: "Theo asks developers to cover more product breadth instead of piling depth into one narrow area."
 group: concept
 terms:
   - "think wider"

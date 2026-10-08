@@ -1,6 +1,16 @@
 ---
 title: "Auth"
 description: "Email and password sign-in through Better Auth, with the signed-in person provided to each RPC call."
+plain: "Better Auth signs people in with email and password, and middleware gives each RPC call the signed-in person."
+diagram: |-
+  /auth email + password
+    │ Better Auth session
+    ▼
+  RPC call
+    │ CurrentPersonMiddleware
+    ▼
+  handler gets
+  CurrentPerson id
 group: system
 terms:
   - "Better Auth"

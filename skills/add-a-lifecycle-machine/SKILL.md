@@ -1,6 +1,16 @@
 ---
 name: add-a-lifecycle-machine
 description: Learn how XState owns a lifecycle while Effect owns its work, errors, and services.
+plain: "XState owns the named states of a lifecycle, while declared Effect actors do its work and keep errors typed."
+diagram: |-
+  reading
+    │ fromEffect actor
+    │ runs the work
+    ├ ok   → inspected
+    └ fail → unreadable
+             FileStatsError
+  started by
+  createEffectActor
 ---
 
 # Add a lifecycle machine

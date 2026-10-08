@@ -1,6 +1,17 @@
 ---
 name: rat-stack-mode
 description: Route non-trivial rat-stack code, data, design, investigation, and documentation tasks to every matching playbook and principle.
+plain: "For non-trivial work, read the principles index first, then follow every playbook that matches the task."
+diagram: |-
+  AGENTS.md is law
+    │
+  read principles index
+    │ open each leaf that
+    │ bears on a decision
+    ▼
+  matching playbooks
+    │
+  report rules → choices
 ---
 
 # Work in rat-stack mode

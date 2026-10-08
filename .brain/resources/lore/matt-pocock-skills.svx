@@ -1,6 +1,7 @@
 ---
 title: "Matt Pocock's skills"
 description: "Matt Pocock's skills repo packages the agent skills he says he uses every day, built to be small, adaptable, and composable."
+plain: "Matt Pocock's skills are small, adaptable agent skills he says he uses every day for real engineering."
 group: idea
 terms:
   - "Matt Pocock's skills"

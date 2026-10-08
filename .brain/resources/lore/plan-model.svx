@@ -1,6 +1,7 @@
 ---
 title: "The plan model"
 description: "Sam Goodwin describes Alchemy's plan outputs as a way to inspect infrastructure before deployment."
+plain: "Sam Goodwin describes Alchemy's plan model: output values connect resources, and you see the plan before deploy."
 group: concept
 terms:
   - "plan model"

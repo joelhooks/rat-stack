@@ -1,6 +1,16 @@
 ---
 title: "Schemas define the boundary"
 description: "Define accepted data with Schema, decode unknown input before dispatch, and encode results through the declared contract."
+plain: "Define accepted data with Schema, decode unknown input before the handler, and encode results through the contract."
+diagram: |-
+  unknown JSON
+    │ decode with Schema
+    ├ bad → typed error
+    ▼
+  Match { kind, score, title }
+    │ handler
+    ▼
+  encode through output
 group: idea
 terms:
   - "schema-driven development"

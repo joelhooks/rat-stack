@@ -1,6 +1,18 @@
 ---
 name: learn
 description: Present Effect, Alchemy, XState, and application-design concepts during real work when the operator enables learn mode. Use for adaptive explanations and local learning progress.
+plain: "When learn mode is on, the agent offers one relevant concept at a time and records progress in a local log."
+diagram: |-
+  work mentions an idea
+    │ match deck terms
+    ▼
+  learnNext
+    │ unmet prerequisite
+    │ first
+    ▼
+  one concept, at its depth
+    │
+  record what happened
 terms:
   - "learn mode"
 ---

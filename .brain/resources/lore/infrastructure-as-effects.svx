@@ -1,6 +1,16 @@
 ---
 title: "Infrastructure as effects"
 description: "Sam Goodwin relates application operations to infrastructure requirements in one typed program."
+plain: "Sam Goodwin treats app operations and the cloud policies they need as parts of one typed program."
+diagram: |-
+  client operation
+    │ implies
+    ▼
+  policy requirement
+    │ supplied when the
+    │ function is built
+    ▼
+  deployed resource
 group: concept
 terms:
   - "infrastructure as effects"
