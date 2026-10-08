@@ -1,0 +1,32 @@
+---
+title: "Rat's Nest keeps the code public and the inventory private"
+description: "Joel's purpose-built on-prem cloud uses rat-stack and Alchemy, with private inventory outside the public repo."
+group: idea
+terms:
+  - "Rat's Nest"
+sources: []
+learn: false
+---
+
+> "Rat's Nest is my own purpose-built on-prem cloud to support my development, business, and content creation work."
+>
+> Joel Hooks
+
+Rat's Nest succeeds joelclaw, Joel's earlier agent system.
+It uses rat-stack and [Alchemy](/lore/infrastructure-as-effects) to declare infrastructure as code.
+
+Joel builds Rat's Nest in public.
+A series will document the build.
+The project has no public repository yet.
+
+## Public code, private inventory
+
+The design rule is **public code, private inventory**.
+
+- Hostnames, IPs, sites, ports, and machine inventory live outside the repo.
+- A fence built from the private inventory blocks those details from public commits.
+
+[The fence](/lore/the-fence) explains how rules become enforced checks.
+[Cartridges](/lore/cartridges) explain rat-stack's service and infrastructure pattern.
+
+See [Rat King](/lore/rat-king) for the encrypted AT Protocol agent network.
