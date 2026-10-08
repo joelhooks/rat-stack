@@ -18,10 +18,6 @@ const sourcesFor = (name: string) =>
 const sameOrigin = (url: string) =>
   url.startsWith("/") && !url.startsWith("//");
 
-const imagesProductionAlsoBlocks = new Set([
-  "https://github.com/joelhooks/rat-stack/actions/workflows/ci.yml/badge.svg",
-]);
-
 const dataSchemes = new Set(["application/json", "application/ld+json"]);
 
 const allows = (name: string, url: string) => {
@@ -93,11 +89,9 @@ it.layer(NodeServices.layer)((test) => {
           }
 
           for (const image of document.querySelectorAll("img")) {
-            const source = image.getAttribute("src") ?? "";
-
             expect(
-              allows("img-src", source) ||
-                imagesProductionAlsoBlocks.has(source)
+              allows("img-src", image.getAttribute("src") ?? ""),
+              image.getAttribute("src") ?? ""
             ).toBe(true);
           }
 

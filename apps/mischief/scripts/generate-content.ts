@@ -26,7 +26,11 @@ import { compile as compileSvelte } from "svelte/compiler";
 import { render } from "svelte/server";
 
 import { agentNextActions } from "../src/agent-guide.ts";
-import { normalizeSources, contentPagePath } from "../src/content-data.ts";
+import {
+  ContentResourceSchema,
+  normalizeSources,
+  contentPagePath,
+} from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
@@ -57,6 +61,7 @@ import {
   frontmatterValue,
   glossaryEntries,
   glossaryMarkdown,
+  dropOffSiteImages,
   escapeSvelteBraces,
   assertSkillGroups,
   buildError,
@@ -637,6 +642,7 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
               linkedLoreTerms
             ),
             collectUnlinkedProse(unlinkedProse),
+            dropOffSiteImages,
             escapeSvelteBraces,
           ],
         }).then(decodeMdsvexOutput),
@@ -3318,12 +3324,24 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
-  const resources = normalizeSources({
-    lawSources,
-    loreSources,
-    promptSources,
-    skillSources,
-  });
+  const resources = yield* Schema.decodeUnknownEffect(
+    Schema.Array(ContentResourceSchema)
+  )(
+    normalizeSources({
+      lawSources,
+      loreSources,
+      promptSources,
+      skillSources,
+    })
+  ).pipe(
+    Effect.mapError((cause) =>
+      buildError(
+        "content resources",
+        "apps/mischief/src/content-data.ts",
+        cause
+      )
+    )
+  );
 
   const learnCards = yield* buildLearningDeck(
     loreTexts,

@@ -113,6 +113,7 @@ export const readerAssetInputs = Effect.gen(function* readerAssetInputs() {
 
   return {
     directory: paths.join(root, "assets", manifest.generation),
+    documents: paths.join(root, "documents", manifest.generation),
     manifest,
   };
 });
@@ -122,7 +123,7 @@ export const prepareReaderSiteInputs = Effect.gen(
     const fs = yield* FileSystem.FileSystem;
     const paths = yield* Path.Path;
     const repository = new URL("../../../", import.meta.url).pathname;
-    const { directory, manifest } = yield* readerAssetInputs;
+    const { directory, documents, manifest } = yield* readerAssetInputs;
 
     const catalog = yield* fs
       .readFileString(paths.join(directory, "_content/catalog.json"))
@@ -142,7 +143,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       catalog.data.resources.find((resource) => resource.routePath === route);
 
     const readPage = (entry: (typeof manifest.pages)[number]) =>
-      fs.readFileString(paths.join(directory, entry.html.slice(1))).pipe(
+      fs.readFileString(paths.join(documents, entry.document.slice(1))).pipe(
         Effect.flatMap((html) =>
           Effect.try({
             catch: (cause) =>
