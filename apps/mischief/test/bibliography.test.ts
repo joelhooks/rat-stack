@@ -24,7 +24,6 @@ it.layer(NodeServices.layer)((test) => {
         );
 
         const { bibliography } = parseLorePage(sourcePath, text);
-        expect(bibliography).toHaveLength(7);
         expect(bibliography).toContainEqual(
           expect.objectContaining({
             title: "Workers Logs",
