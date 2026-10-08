@@ -26,6 +26,19 @@ export type {
   Progress,
 } from "./learn-model.js";
 
+export {
+  FeedbackCredential,
+  FeedbackDevice,
+  FeedbackGrant,
+  FeedbackInput,
+  FeedbackPoll,
+  FeedbackRequest,
+  LearnUnauthenticated,
+  learnFeedbackContract,
+  learnFeedbackPollContract,
+  learnFeedbackStartContract,
+} from "./learn-feedback.js";
+
 export { LearnerProgress, LearnerProgressError } from "./learner-progress.js";
 
 export {

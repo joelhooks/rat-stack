@@ -27,6 +27,12 @@ export {
   learnRecordContract,
 } from "./learn-contracts.js";
 
+export {
+  learnFeedbackContract,
+  learnFeedbackPollContract,
+  learnFeedbackStartContract,
+} from "./learn-feedback.js";
+
 export { NoPath } from "./no-path.js";
 
 export { UnknownPage } from "./unknown-page.js";
