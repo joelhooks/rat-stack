@@ -1,6 +1,7 @@
 ---
 title: "DHH on Omarchy and the agent OS"
 description: "David Heinemeier Hansson reflects on agency, agents, and building with language."
+plain: "DHH calls making things from plain English perhaps the most addictive thing he has found."
 group: source
 speaker: "David Heinemeier Hansson"
 date: 2026-09-18

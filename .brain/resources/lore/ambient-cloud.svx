@@ -1,6 +1,7 @@
 ---
 title: "Ambient cloud"
 description: "Sam Goodwin describes a cloud experience where credentials and accounts become available through one interface."
+plain: "Sam Goodwin describes an ambient cloud: your accounts and credentials sit behind one login and a cloud wallet."
 group: concept
 terms:
   - "ambient cloud"

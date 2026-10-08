@@ -1,6 +1,7 @@
 ---
 title: "Anti-money"
 description: "Sam Goodwin frames Alchemy as reducing SaaS products to libraries and shifting value elsewhere."
+plain: "Sam calls Alchemy anti-money: turn SaaS products into libraries, then ask what is still worth managing."
 group: concept
 terms:
   - "anti-money"

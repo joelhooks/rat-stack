@@ -1,6 +1,16 @@
 ---
 title: "Build-time work stays out of requests"
 description: "Git reads and highlighting produce static assets before the Worker handles requests."
+plain: "Do slow work like Git reads and highlighting at build time, so requests only read finished static files."
+diagram: |-
+  build time
+    Git reads, Shiki
+    │ writes assets
+    ▼
+  static assets
+    ▲ reads only
+    │
+  request time (Worker)
 group: concept
 terms:
   - "build-time work"

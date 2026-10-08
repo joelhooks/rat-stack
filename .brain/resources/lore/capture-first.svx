@@ -1,6 +1,18 @@
 ---
 title: "Capture first, shape later"
 description: "Store events without rejecting them for an evolving event shape, then decide their shape when you query."
+plain: "Store every event you are allowed to store, unchanged, and shape it later when you query it."
+diagram: |-
+  request
+    │ allowed facts only
+    ▼
+  unstructured stream
+    │ SELECT *
+    ▼
+  Iceberg table
+    │ shape at read time
+    ▼
+  queries
 group: idea
 terms:
   - "capture first"

@@ -1,6 +1,7 @@
 ---
 title: "AI Engineer World's Fair 2026: Software has changed"
 description: "Theo Browne argues that stronger models call for wider software work and extensible products."
+plain: "Theo says developers miss what new models can do when they keep asking them for the same narrow tasks."
 group: source
 speaker: "Theo Browne"
 date: 2026-07-08

@@ -1,6 +1,13 @@
 ---
 title: "Layer composition makes dependencies explicit"
 description: "Supply a service's dependencies, choose which services remain visible, and reuse Layer identity within a build."
+plain: "Wire Layers together before you run. provide keeps a dependency private; provideMerge shows it to callers too."
+diagram: |-
+  Notes.layer needs FileSystem
+  provide(files)
+    → exposes Notes
+  provideMerge(files)
+    → exposes Notes, FileSystem
 group: idea
 terms:
   - "Layer composition"

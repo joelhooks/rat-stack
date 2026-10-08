@@ -1,6 +1,14 @@
 ---
 title: "A clean playground"
 description: "rat-stack is a place to do real work with pieces that stay easy to add and remove."
+plain: "Everything here does real work, and you can add or remove any piece without breaking the rest."
+diagram: |-
+  remove one bin
+    │
+    ▼
+  other imports unchanged
+  bindings stay contained
+  full gate passes
 group: idea
 terms:
   - "clean playground"

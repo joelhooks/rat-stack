@@ -1,6 +1,14 @@
 ---
 title: "Accumulate independent errors before writing output"
 description: "Check every independent job before any job writes an asset."
+plain: "Check every independent job first and report all failures together. Write output only when every check passes."
+diagram: |-
+  jobs: a  b  c  d
+  check each, no early stop
+    ✗ b   ✗ d
+    │
+    ├ any failure → report all
+    └ none → write assets
 group: concept
 terms:
   - "error accumulation"

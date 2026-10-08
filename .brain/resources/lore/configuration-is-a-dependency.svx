@@ -1,6 +1,15 @@
 ---
 title: "Configuration is a supplied, validated dependency"
 description: "Parse configuration when a Layer builds, reject invalid values, and supply controlled settings in tests."
+plain: "Read and check settings once, when a Layer builds, and give code typed values through a service."
+diagram: |-
+  ConfigProvider (source)
+    │ APP_ENV
+    ▼
+  Config.Literals + default
+    │ invalid → ConfigError
+    ▼
+  AppConfig { appEnv }
 group: idea
 terms:
   - "Configuration Layer"

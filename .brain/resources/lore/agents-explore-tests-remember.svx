@@ -1,6 +1,15 @@
 ---
 title: "Agents explore, tests remember"
 description: "Let agent users explore scenarios; turn a good bug reproduction into a repeatable test."
+plain: "Let agents click through scenarios to find bugs, then turn a good reproduction into a repeatable test."
+diagram: |-
+  agent users explore
+    │ find a failure
+    ▼
+  good reproduction
+    │ smallest useful case
+    ▼
+  repeatable test
 group: idea
 terms:
   - "agents explore, tests remember"

@@ -1,6 +1,11 @@
 ---
 title: "Bindings"
 description: "Sam Goodwin describes bindings as the place where runtime permissions and configuration meet infrastructure."
+plain: "A binding gives a service its permission and its environment variable together."
+diagram: |-
+  binding = permission
+          + environment variable
+  methods used → least privilege
 group: concept
 terms:
   - binding
