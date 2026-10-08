@@ -1,6 +1,7 @@
 ---
 title: "Distilled"
 description: "Sam Goodwin describes Effect-native provider SDKs and typed errors under the Distilled name."
+plain: "Sam Goodwin describes Distilled as Effect-native provider SDKs with tagged errors, even for undocumented ones."
 group: concept
 terms:
   - "Distilled"

@@ -1,6 +1,7 @@
 ---
 title: "Effect Office Hours 26: Community projects and Alchemy"
 description: "The hosts discuss Alchemy Effect's typed resource requirements, plans, and deployment stages."
+plain: "The hosts look at an early Alchemy Effect, whose types show the resources and policies a deploy needs."
 group: source
 speaker: "Effect Office Hours hosts"
 date: 2026-04-23

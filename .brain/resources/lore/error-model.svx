@@ -1,6 +1,17 @@
 ---
 title: "Handle expected failures without hiding defects"
 description: "Declare expected failures, preserve their context, and recover by tag without turning crashes into successful outcomes."
+plain: "Give expected failures a type and context, recover by tag, and never turn a crash into a success."
+diagram: |-
+  fs error
+    │ mapError
+    ▼
+  ReadError { path, reason }
+    │ catchTag("ReadError")
+    ▼
+  report, then fail again
+
+  defect → stays a defect
 group: concept
 terms:
   - "Effect error model"

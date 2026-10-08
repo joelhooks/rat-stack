@@ -1,6 +1,7 @@
 ---
 title: "David Khourshid"
 description: "David Khourshid teaches state machines with XState and argues for model-based and property-based testing."
+plain: "David Khourshid teaches state machines with XState and argues for model-based and property-based testing."
 group: person
 terms:
   - "David Khourshid"

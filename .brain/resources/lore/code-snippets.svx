@@ -1,6 +1,18 @@
 ---
 title: "Code snippets quote a pinned source"
 description: "Shipped design brief: pinned Git objects, typed diagnostics, and one build-only snippet model for both views."
+plain: "A code excerpt quotes an exact pinned source, checks its metadata, and builds both reader views from one model."
+diagram: |-
+  fence → CodeRequest
+    │ read pinned Git object
+    ▼
+  ResolvedCode
+    │ tokenize, select lines
+    ▼
+  CodeSnippet
+    │ all jobs pass preflight
+    ▼
+  HTML + agent Markdown
 group: idea
 terms:
   - "code snippets"

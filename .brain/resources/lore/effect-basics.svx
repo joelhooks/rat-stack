@@ -1,6 +1,17 @@
 ---
 title: "Effect basics"
 description: "An Effect describes work, expected failures, and required services before a runtime executes it."
+plain: "An Effect describes work, how it can fail, and the services it needs. A runtime runs it later."
+diagram: |-
+  Effect<A, E, R>
+    A  success value
+    E  expected failure
+    R  required services
+
+  build → compose → provide
+    │
+    ▼
+  runtime runs it
 group: concept
 terms:
   - "Effect basics"

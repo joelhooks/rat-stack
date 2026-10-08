@@ -1,6 +1,7 @@
 ---
 title: "Effect: Production-Grade TypeScript"
 description: "Michael Arnaldi presents Effect as a set of shared primitives for production TypeScript."
+plain: "Michael Arnaldi says production software needs shared tools for dependencies, retries and telemetry, not one-off code."
 group: source
 speaker: "Michael Arnaldi"
 date: 2026-01-08

@@ -1,6 +1,7 @@
 ---
 title: "Cloud as a library"
 description: "Sam Goodwin argues that cloud services can be consumed as libraries inside an application."
+plain: "Sam Goodwin says the whole cloud can become a library you use inside your application."
 group: concept
 terms:
   - "cloud as a library"
