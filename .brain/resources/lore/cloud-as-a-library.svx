@@ -22,6 +22,6 @@ sources:
 
 Sam's phrase is that "the whole cloud becomes a library." [Watch from 29:50](https://youtu.be/MtKHzAH6uXM?t=1790).
 
-Theo closes his talk with a related line about building your own AWS. [Watch from 15:13](https://youtu.be/xUnRQ9vLXxo?t=913). In the same talk, he says an extensible product can let users add vertical features the author did not predict. [14:37](https://youtu.be/xUnRQ9vLXxo?t=877).
+Theo closes his talk with a related line about building your own AWS. [Watch from 15:13](https://youtu.be/xUnRQ9vLXxo?t=913). In the same talk, he says an extensible product can let users add features within a product area that the author did not predict. [14:37](https://youtu.be/xUnRQ9vLXxo?t=877).
 
 Sources: [Sam Goodwin on Alchemy](/lore/devtools-fm-sam-goodwin-alchemy) and [AI Engineer World's Fair 2026](/lore/aiewf-2026-everything-we-knew-about-software-has-changed-theo-browne).

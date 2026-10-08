@@ -1,6 +1,6 @@
 ---
 title: "Distilled"
-description: "Sam Goodwin describes Effect-native provider SDKs and typed errors under the Distilled name."
+description: "Sam Goodwin describes provider client libraries that return Effects and named error types under the Distilled name."
 group: concept
 terms:
   - "Distilled"
@@ -14,6 +14,7 @@ sources:
 
 # Distilled
 
-Sam describes Distilled as providing Effect-native SDKs with tagged errors, including errors that provider specifications do not document. [Effect Office Hours 27, 55:19](https://youtu.be/fPSxB7ZgSJw?t=3319) [56:35](https://youtu.be/fPSxB7ZgSJw?t=3395).
+Sam describes Distilled as providing provider client libraries that return Effects with named error types.
+These include errors that provider specifications do not document. [Effect Office Hours 27, 55:19](https://youtu.be/fPSxB7ZgSJw?t=3319) [56:35](https://youtu.be/fPSxB7ZgSJw?t=3395).
 
 See [Effect Office Hours 27](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects).
