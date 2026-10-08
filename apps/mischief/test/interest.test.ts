@@ -44,6 +44,7 @@ import {
   sitemapXml,
 } from "./content-fixture.js";
 import { fakeIntake, fakeIntakeLayer } from "./fixtures/fake-intake.js";
+import { generatedTokenmaxxPage } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -144,17 +145,15 @@ it.effect(
   () =>
     withInterest((handler) =>
       Effect.gen(function* applicationViews() {
-        for (const accept of ["text/html", "text/markdown"]) {
-          const response = yield* getView(handler, "/tokenmaxx", accept);
-          const text = yield* responseBody(response);
-          expect(response.status).toBe(200);
-          expect(response.headers.get("x-robots-tag")).toBe("noindex");
-          expect(response.headers.get("cache-control")).toBe("no-store");
-          const policy = response.headers.get("content-security-policy") ?? "";
-          expect(policy).not.toContain("postshiba");
-          expect(policy).not.toContain("worker-src");
-          expect(policy).toContain("form-action 'none'");
+        const response = yield* getView(handler, "/tokenmaxx", "text/markdown");
+        expect(response.status).toBe(200);
+        expect(response.headers.get("x-robots-tag")).toBe("noindex");
+        expect(response.headers.get("cache-control")).toBe("no-store");
 
+        for (const [view, text] of [
+          ["html", generatedTokenmaxxPage],
+          ["markdown", yield* responseBody(response)],
+        ] as const) {
           for (const retired of [
             "<form",
             "shield-shiba",
@@ -180,7 +179,7 @@ it.effect(
             "Check your setup before you come. Your coding agent finds what"
           );
 
-          if (accept === "text/html") {
+          if (view === "html") {
             const buttons = htmlTokens(text).filter(
               (token) => token.kind === "open" && token.name === "button"
             );
@@ -205,7 +204,6 @@ it.effect(
             );
             expect(primary[0]?.attributes["aria-label"]).toBe("Copy prompt");
             expect(text).toContain('role="status" aria-live="polite"');
-            expect(text).toContain('label.textContent = "Copied ✓"');
             expect(text).not.toContain("Copy for agent");
             expect(text).not.toContain("Apply through your agent");
             expect(text).toContain(
@@ -647,35 +645,16 @@ const setupPromptLines = [
   "4. Tell me what is missing.",
 ];
 
-const sha256Base64 = (value: string) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-    () => crypto.subtle.digest("SHA-256", new TextEncoder().encode(value))
-  ).pipe(
-    Effect.map((digest) =>
-      btoa(String.fromCodePoint(...new Uint8Array(digest)))
-    )
-  );
-
 it.effect(
-  "serves the workshop page unlisted, noindex, with an agent application button",
+  "keeps the workshop page unlisted and noindex, with an agent application button",
   () =>
     withLiveInterest((handler) =>
       Effect.gen(function* servesPage() {
-        const response = yield* call(
-          handler,
-          new Request("https://ratstack.sh/tokenmaxx", {
-            headers: { accept: "text/html" },
-          })
-        );
-
-        const html = yield* text(response);
+        const response = yield* tokenmaxxPage(handler, "text/markdown");
+        const html = generatedTokenmaxxPage;
 
         expect(response.status).toBe(200);
         expect(response.headers.get("x-robots-tag")).toBe("noindex");
-        expect(response.headers.get("content-security-policy")).toContain(
-          "form-action 'none'"
-        );
         expect(html).toContain('<meta name="robots" content="noindex"');
         expect(html).not.toContain("<form");
         expect(html).toContain(
@@ -726,24 +705,13 @@ it.effect(
     )
 );
 
-it.effect("keeps the only rat in the nav brand on the workshop page", () =>
-  withLiveInterest((handler) =>
-    Effect.gen(function* servesOneRat() {
-      const response = yield* call(
-        handler,
-        new Request("https://ratstack.sh/tokenmaxx", {
-          headers: { accept: "text/html" },
-        })
-      );
+it("keeps the only rat in the nav brand on the workshop page", () => {
+  const html = generatedTokenmaxxPage;
+  const body = html.slice(html.indexOf("<body"));
 
-      const html = yield* text(response);
-      const body = html.slice(html.indexOf("<body"));
-
-      expect(body.match(/🐀/gu)).toHaveLength(1);
-      expect(body).toContain("<strong>🐀 Rat Stack</strong>");
-    })
-  )
-);
+  expect(body.match(/🐀/gu)).toHaveLength(1);
+  expect(body).toContain("<strong>🐀 Rat Stack</strong>");
+});
 
 it.effect("serves the credited screenshot", () =>
   withLiveInterest((handler) =>
@@ -1350,8 +1318,7 @@ it.effect("GET reads the token state and never confirms; POST confirms", () =>
 it.effect("shows the setup prompt in both views, as folded text in HTML", () =>
   withLiveInterest((handler) =>
     Effect.gen(function* views() {
-      const htmlResponse = yield* tokenmaxxPage(handler, "text/html");
-      const html = yield* text(htmlResponse);
+      const html = generatedTokenmaxxPage;
 
       const markdown = yield* text(
         yield* tokenmaxxPage(handler, "text/markdown")
@@ -1365,9 +1332,8 @@ it.effect("shows the setup prompt in both views, as folded text in HTML", () =>
       expect(html).toContain(
         '<details class="prompt-text"><summary>See the prompt</summary>'
       );
-      expect(html).toContain("<script>");
       expect(html).toContain("<pre><code>");
-      expect(html).not.toContain("__COPY_SCRIPT__");
+      expect(html).not.toContain("<script");
       expect(markdown).not.toContain("<button");
       expect(markdown).not.toContain("<script");
       expect(markdown).toContain("```text\nCheck my setup");
@@ -1375,59 +1341,29 @@ it.effect("shows the setup prompt in both views, as folded text in HTML", () =>
   )
 );
 
-it.effect(
-  "has one copy button, hidden until the script runs, and the setup prompt readable without it",
-  () =>
-    withLiveInterest((handler) =>
-      Effect.gen(function* withoutScript() {
-        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+it("has one copy button, hidden until the reader enables it, and the setup prompt readable without it", () => {
+  const html = generatedTokenmaxxPage;
 
-        const buttons = [
-          ...html.matchAll(
-            /<button type="button" class="copy(?: copy-primary)?"[^>]*>/gu
-          ),
-        ];
+  const buttons = [
+    ...html.matchAll(
+      /<button type="button" class="copy(?: copy-primary)?"[^>]*>/gu
+    ),
+  ];
 
-        expect(buttons).toHaveLength(1);
-        expect(buttons[0]?.[0]).toContain("copy-primary");
+  expect(buttons).toHaveLength(1);
+  expect(buttons[0]?.[0]).toContain("copy-primary");
 
-        for (const [button] of buttons) {
-          expect(button).toContain(" hidden");
-        }
+  for (const [button] of buttons) {
+    expect(button).toContain(" hidden");
+  }
 
-        expect(html).toContain("<pre><code>Check my setup");
-      })
-    )
-);
-
-it.effect(
-  "allows the copy script by hash only and never unsafe-inline scripts",
-  () =>
-    withLiveInterest((handler) =>
-      Effect.gen(function* strictPolicy() {
-        const response = yield* tokenmaxxPage(handler, "text/html");
-        const html = yield* text(response);
-        const policy = response.headers.get("content-security-policy") ?? "";
-
-        const scriptSrc =
-          /script-src (?<sources>[^;]*)/u.exec(policy)?.groups?.sources ?? "";
-
-        const body =
-          /<script>(?<body>[\s\S]*?)<\/script>/u.exec(html)?.groups?.body ?? "";
-
-        expect(body.length).toBeGreaterThan(0);
-        expect(scriptSrc).toContain(`'sha256-${yield* sha256Base64(body)}'`);
-        expect(scriptSrc).not.toContain("unsafe-inline");
-        expect(scriptSrc).not.toContain("unsafe-eval");
-        expect(policy).toContain("default-src 'none'");
-      })
-    )
-);
+  expect(html).toContain("<pre><code>Check my setup");
+});
 
 it.effect("offers a labeled prompt for a consent-first agent application", () =>
   withLiveInterest((handler) =>
     Effect.gen(function* pagePrompt() {
-      const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+      const html = generatedTokenmaxxPage;
 
       const markdown = yield* text(
         yield* tokenmaxxPage(handler, "text/markdown")
@@ -1458,7 +1394,7 @@ it.effect(
   () =>
     withLiveInterest((handler) =>
       Effect.gen(function* agentLinks() {
-        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+        const html = generatedTokenmaxxPage;
 
         const markdown = yield* text(
           yield* tokenmaxxPage(handler, "text/markdown")
@@ -1486,7 +1422,7 @@ it.effect(
   () =>
     withLiveInterest((handler) =>
       Effect.gen(function* applicationViews() {
-        const html = yield* text(yield* tokenmaxxPage(handler, "text/html"));
+        const html = generatedTokenmaxxPage;
 
         const markdown = yield* text(
           yield* tokenmaxxPage(handler, "text/markdown")

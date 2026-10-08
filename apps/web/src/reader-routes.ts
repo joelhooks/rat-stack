@@ -22,6 +22,9 @@ export const readerBodyRoutePaths: readonly string[] = [
   "/vendor/README.md",
 ];
 
+export const isWorkerFirstReaderRoute = (path: string) =>
+  path === "/prompts" || path.startsWith("/prompts/");
+
 export const readerNoStoreRoutePaths: readonly string[] = ["/tokenmaxx"];
 
 export const isReaderRoutePath = (path: string) =>

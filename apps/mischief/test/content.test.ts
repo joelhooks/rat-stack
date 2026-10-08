@@ -56,7 +56,6 @@ import {
   loreIndexMarkdown,
   loreSources,
   ogImages,
-  noVerifyDocumentHtml,
   originToken,
   skillIndexDocumentHtml,
   skillIndexMarkdown,
@@ -527,7 +526,6 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         skillIndexDocumentHtml,
         loreIndexDocumentHtml,
         systemsIndexDocumentHtml,
-        noVerifyDocumentHtml,
         tokenmaxxDocumentHtml,
         interestResultDocumentHtml,
         interestConfirmDocumentHtml,
@@ -778,7 +776,6 @@ it.layer(NodeServices.layer)("generated content", (test) => {
           { documentHtml: skillIndexDocumentHtml, routePath: "/skills" },
           { documentHtml: loreIndexDocumentHtml, routePath: "/lore" },
           { documentHtml: systemsIndexDocumentHtml, routePath: "/systems" },
-          { documentHtml: noVerifyDocumentHtml, routePath: "/--no-verify" },
           { documentHtml: tokenmaxxDocumentHtml, routePath: "/tokenmaxx" },
           { documentHtml: interestResultDocumentHtml, routePath: "/tokenmaxx" },
           {

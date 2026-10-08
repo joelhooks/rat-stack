@@ -41,8 +41,6 @@ import {
   loreIndexDocumentHtml,
   systemsIndexMarkdown,
   systemsIndexDocumentHtml,
-  noVerifyMarkdown,
-  noVerifyDocumentHtml,
   tokenmaxxMarkdown,
   tokenmaxxDocumentHtml,
   lawSources,
@@ -103,11 +101,6 @@ const pages = [
     documentHtml: systemsIndexDocumentHtml,
     routePath: "/systems",
     text: systemsIndexMarkdown,
-  },
-  {
-    documentHtml: noVerifyDocumentHtml,
-    routePath: "/--no-verify",
-    text: noVerifyMarkdown,
   },
   {
     documentHtml: tokenmaxxDocumentHtml,

@@ -16,6 +16,7 @@ import {
   SkillSource,
   contentPagePath,
 } from "../src/content-data.js";
+import { renderStaticDocument } from "../src/html.js";
 import { AssetReadError } from "../src/static-assets-error.js";
 import { StaticAssets } from "../src/static-assets.js";
 
@@ -67,6 +68,14 @@ const documentFor = (route: string) => {
 
   return bytes(page.html).toString("utf-8");
 };
+
+export const generatedReaderPage = (route: string) =>
+  renderStaticDocument("https://ratstack.sh", documentFor(route));
+
+export const generatedTokenmaxxPage = renderStaticDocument(
+  "https://ratstack.sh",
+  runtime.tokenmaxxDocumentHtml
+);
 
 export const homeDocumentHtml = documentFor("/");
 
