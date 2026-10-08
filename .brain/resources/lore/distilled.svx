@@ -1,6 +1,7 @@
 ---
 title: "Distilled"
 description: "Sam Goodwin describes provider client libraries that return Effects and named error types under the Distilled name."
+plain: "Sam Goodwin describes Distilled as Effect-native provider SDKs with tagged errors, even for undocumented ones."
 group: concept
 terms:
   - "Distilled"

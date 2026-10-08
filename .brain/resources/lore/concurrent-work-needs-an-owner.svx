@@ -1,6 +1,15 @@
 ---
 title: "Concurrent work needs an owner and a bound"
 description: "Limit active work, retain result order, and stop child work when its owning lifetime ends."
+plain: "Limit how much work runs at once, and give child work an owner that stops it when the owner ends."
+diagram: |-
+  forEach(6 items)
+    concurrency: 2
+    results in input order
+
+  Effect.scoped
+    └ forkScoped child
+  scope closes → child stops
 group: idea
 created_at: "2026-10-06"
 updated_at: "2026-10-06"

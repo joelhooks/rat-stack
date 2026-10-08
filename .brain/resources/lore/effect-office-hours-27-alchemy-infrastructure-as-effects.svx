@@ -1,6 +1,7 @@
 ---
 title: "Effect Office Hours 27: Alchemy, infrastructure as effects"
 description: "Sam Goodwin presents Alchemy as a system built with Effect for planning, testing, and deploying infrastructure."
+plain: "Sam Goodwin shows Alchemy planning, testing and deploying infrastructure as Effects, with types tracking providers."
 group: source
 speaker: "Sam Goodwin"
 date: 2026-04-30

@@ -1,6 +1,16 @@
 ---
 title: "Effect's design lineage"
 description: "Michael Arnaldi describes Effect's path from financial software needs through ZIO influence and TypeScript iterations."
+plain: "Effect began with a fintech team's needs in TypeScript and adapted ZIO's goals through several versions."
+diagram: |-
+  fintech team needs
+    tests, DI, retries
+    │
+    ▼
+  first Effect
+    │ ZIO goals, adapted
+    ▼
+  TypeScript iterations
 group: concept
 terms:
   - "Effect design lineage"
