@@ -18,4 +18,4 @@ sources:
 
 Theo says developers can miss new model capabilities when they keep prompting for the same narrow tasks. [02:35](https://youtu.be/xUnRQ9vLXxo?t=155) [02:58](https://youtu.be/xUnRQ9vLXxo?t=178)
 
-He separates breadth from depth: products can cover more ground while leaving users room to build missing vertical features. [13:07](https://youtu.be/xUnRQ9vLXxo?t=787) [13:23](https://youtu.be/xUnRQ9vLXxo?t=803) [14:37](https://youtu.be/xUnRQ9vLXxo?t=877)
+He separates breadth from depth: products can cover more ground while leaving users room to build missing features within a product area. [13:07](https://youtu.be/xUnRQ9vLXxo?t=787) [13:23](https://youtu.be/xUnRQ9vLXxo?t=803) [14:37](https://youtu.be/xUnRQ9vLXxo?t=877)

@@ -9,7 +9,7 @@ it.prop(
   "only the exact prepared ReaderFlags literal is exempt from executable-string checks",
   { page: Arbitrary.schema(ReaderFlags) },
   ({ page }) => {
-    const preparedInput = [
+    const input = [
       {
         ...page,
         blocks: [
@@ -27,7 +27,7 @@ it.prop(
 
     const payload = Schema.encodeSync(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
-    )(preparedInput);
+    )(input);
 
     const prepared = Schema.decodeSync(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
@@ -36,6 +36,19 @@ it.prop(
     const code = `var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(${payload}); const rat_call = "rat_test_person";`;
     const runtime = readerCodeWithoutPageData(code, prepared);
 
+    const unrecognized = JSON.stringify(
+      prepared.map((document) => ({
+        ...document,
+        registration: "rat_call",
+      }))
+    );
+
+    expect(() =>
+      readerCodeWithoutPageData(
+        `var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(${unrecognized});`,
+        prepared
+      )
+    ).toThrow();
     expect(runtime).toBe(
       'var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))([]); const rat_call = "rat_test_person";'
     );

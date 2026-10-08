@@ -67,7 +67,11 @@ import { mcpContent } from "./mcp-content.js";
 import { promptLibraryLayer } from "./prompt-library.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
 import { logRequestIncident } from "./request-incidents.js";
-import { contentSecurityPolicy } from "./security.js";
+import {
+  contentSecurityPolicy,
+  readerContentSecurityPolicy,
+  secureResponse,
+} from "./security.js";
 import { StaticAssets } from "./static-assets.js";
 import { decodeEd25519PrivateJwk, publicKeyDirectory } from "./web-bot-auth.js";
 
@@ -201,8 +205,6 @@ const staticPaths = new Set([
   "/.well-known/api-catalog",
   "/.well-known/mcp.json",
 ]);
-
-const htmlRevalidateEveryVisit = "no-cache";
 
 const staticCacheControl =
   "public, max-age=60, s-maxage=31536000, stale-while-revalidate=86400";
@@ -1017,6 +1019,19 @@ const discoveryPath = (pagePath: string, catalog: ContentCatalog) => {
   return "/";
 };
 
+const discoveryLink = (
+  store: ContentStore["Service"],
+  pagePath: string,
+  status: number
+) =>
+  status >= 500 || machinePath(pagePath)
+    ? Effect.succeed(linkHeaderForPage("/"))
+    : store.catalog.pipe(
+        Effect.map((catalog) =>
+          linkHeaderForPage(discoveryPath(pagePath, catalog))
+        )
+      );
+
 const linkHeaders = (store: ContentStore["Service"]) =>
   HttpRouter.middleware(
     (httpEffect) =>
@@ -1025,35 +1040,29 @@ const linkHeaders = (store: ContentStore["Service"]) =>
         const response = yield* httpEffect;
         const pagePath = new URL(request.url, "https://ratstack.sh").pathname;
 
-        if (response.status >= 500 || machinePath(pagePath)) {
-          return HttpServerResponse.setHeader(
-            response,
-            "Link",
-            linkHeaderForPage("/")
-          );
-        }
-
-        const catalog = yield* store.catalog;
-
         return HttpServerResponse.setHeader(
           response,
           "Link",
-          linkHeaderForPage(discoveryPath(pagePath, catalog))
+          yield* discoveryLink(store, pagePath, response.status)
         );
       }),
     { global: true }
   );
 
-const securityHeaders = {
-  "cross-origin-opener-policy": "same-origin",
-  "cross-origin-resource-policy": "same-origin",
-  "permissions-policy": "camera=(), microphone=(), geolocation=()",
-  "referrer-policy": "strict-origin-when-cross-origin",
-  "strict-transport-security": "max-age=31536000; includeSubDomains",
-  "x-content-type-options": "nosniff",
-  "x-fence": "electrified",
-  "x-frame-options": "DENY",
-};
+export const readerResponseHeaders =
+  (store: ContentStore["Service"]) =>
+  (pagePath: string, response: HttpServerResponse.HttpServerResponse) =>
+    discoveryLink(store, pagePath, response.status).pipe(
+      Effect.catchTag("AssetReadError", () =>
+        Effect.succeed(linkHeaderForPage("/"))
+      ),
+      Effect.map((link) =>
+        secureResponse(
+          HttpServerResponse.setHeader(response, "Link", link),
+          readerContentSecurityPolicy
+        )
+      )
+    );
 
 const errorTitles = new Map([
   [400, "Bad request"],
@@ -1141,41 +1150,9 @@ export const errorPages = HttpRouter.middleware(
 const securityHeadersMiddleware = HttpRouter.middleware(
   (httpEffect) =>
     httpEffect.pipe(
-      Effect.map((response) => {
-        const contentType = response.headers["content-type"] ?? "";
-
-        const secured = HttpServerResponse.setHeaders(
-          response,
-          securityHeaders
-        ).pipe(
-          HttpServerResponse.setHeaders(
-            response.status >= 500
-              ? { "cache-control": "no-store" }
-              : response.headers
-          )
-        );
-
-        const embeddable = contentType.startsWith("image/")
-          ? HttpServerResponse.setHeader(
-              secured,
-              "cross-origin-resource-policy",
-              "cross-origin"
-            )
-          : secured;
-
-        return contentType.startsWith("text/html")
-          ? HttpServerResponse.setHeaders(embeddable, {
-              "cache-control":
-                response.status >= 500
-                  ? "no-store"
-                  : (response.headers["cache-control"] ??
-                    htmlRevalidateEveryVisit),
-              "content-security-policy":
-                response.headers["content-security-policy"] ??
-                contentSecurityPolicy("'none'"),
-            })
-          : embeddable;
-      })
+      Effect.map((response) =>
+        secureResponse(response, contentSecurityPolicy("'none'"))
+      )
     ),
   { global: true }
 );

@@ -49,6 +49,10 @@ sources:
     accessed: "2026-10-02"
 ---
 
+A capability is a named action with a typed contract and a handler.
+Code mode combines calls to those actions in one program.
+MCP (Model Context Protocol) lets an agent discover and call tools.
+
 ratstack.sh already offers code mode:
 
 - `POST /api/execute`.
@@ -85,9 +89,10 @@ Three typed calls use one outer request. This run measures neither latency nor t
 
 `joinInterest` belongs to the outer API/MCP registry. It does not belong to the sandbox's callable list.
 
-[`packages/capability/src/to-code-mode.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts) builds the catalog and TypeScript declarations. Every guest call returns to a host invoker. The invoker decodes input and encodes output or declared failure.
+[`packages/capability/src/to-code-mode.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts) builds the catalog and TypeScript declarations. Every call from sandbox code returns to application code that validates input and runs the handler.
+That code encodes the output or declared failure.
 
-[`sandbox-worker-loader.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts) runs a fresh Dynamic Worker with:
+[`sandbox-worker-loader.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts) runs a fresh Dynamic Worker, a Worker loaded to execute sandbox code, with:
 
 - No outbound network.
 - A 100 ms CPU limit.
@@ -96,7 +101,7 @@ Three typed calls use one outer request. This run measures neither latency nor t
 
 Imports, exports, and fetch are unavailable.
 
-The [HTTP and MCP gates](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) use [native rate limits](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts):
+The [HTTP and MCP rate-limit checks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) use [native rate limits](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts):
 
 - Six execute calls per IP per minute.
 - 300 execute calls total per minute.
@@ -104,6 +109,6 @@ The [HTTP and MCP gates](https://github.com/joelhooks/rat-stack/blob/main/apps/m
 
 Combining calls does not waive these limits.
 
-Use the [agent guide](/llms.txt) for the endpoint and invocation format. See [MCP](/lore/mcp-is-another-surface) for the tool transport.
+Use the [agent guide](/llms.txt) for the endpoint and call format. See [MCP](/lore/mcp-is-another-surface) for the tool transport.
 
 See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

@@ -5,6 +5,8 @@ description: Learn how XState owns a lifecycle while Effect owns its work, error
 
 # Add a lifecycle machine
 
+A lifecycle machine defines named states and the events that permit movement between them. Effect describes work with typed failures and required dependencies. A service is a named interface for one job. Schema defines accepted values and their runtime checks.
+
 Copy `packages/core/src/inspect-machine.ts` when the work has states that matter. Keep a direct Effect when it does not.
 
 Before changing Effect or XState code, read `node_modules/effect/AGENTS.md`. Then read the pinned XState and `@xstate/effect` source listed in `AGENTS.md`.
@@ -28,7 +30,7 @@ const performWork = fromEffect({
 });
 ```
 
-These actors carry typed errors and service dependencies. Declare them through `setupEffect`. Do not return an Effect from an inline XState callback.
+An actor is a running unit that processes events or performs work for a machine. These actors carry typed errors and service dependencies. Declare them through `setupEffect`. Do not return an Effect from an inline XState callback.
 
 ## 3. Build the machine
 
@@ -108,7 +110,7 @@ export const runThingMachine = Effect.fn("runThingMachine")(function* (
 
 A missing result or machine-level error is a bug in this design. A known product error belongs in the final result. `join` has an `unknown` machine-error channel, so the example uses one narrow diagnostic override before `Effect.orDie`.
 
-Call the runner from the capability handler. Provide its service layer in `apps/cli/src/cli.ts`.
+Call the runner from the capability handler, the server-side implementation of one named action. Provide its service Layer in `apps/cli/src/cli.ts`. A Layer builds services and supplies their construction dependencies.
 
 ## 5. Generate inputs and command histories
 
@@ -119,10 +121,10 @@ Copy the complete test template at `skills/add-a-lifecycle-machine/templates/lif
 - Derive generated inputs, outputs, and failures from the domain schemas.
 - Keep the model independent: pending until work settles, then one immutable terminal outcome.
 - Use `getShortestPaths` from `xstate/graph` to cover both endings for each generated input and actor result. This export shares the XState pin; do not install `@xstate/graph` for XState 6.
-- Use `getPathsFromEvents` to explore generated histories. Check the contract after every step. Stop pure traversal at the first terminal event. Only the actor interpreter rejects later delivery.
+- Use `getPathsFromEvents` to explore generated histories. Check the lifecycle rules after every step. Stop pure traversal at the first terminal event. Only the actor interpreter rejects later delivery.
 - Run the same generated commands against `createEffectActor`. Control real child completion through a `Deferred` service fake. Do not inject completion events to settle a running actor.
 - Check input forwarding, result preservation, typed failures, and the runner's Effect error channel. Probe after completion and check that neither output nor work changes.
-- Keep seam examples with `it.layer`; they do not replace generated tests.
+- Keep integration examples with `it.layer`; they do not replace generated tests.
 
 `it.effect.prop` supplies virtual time. For delayed work, add a wait command and use `TestClock.adjust` from `effect/testing`:
 
@@ -135,7 +137,7 @@ assertAgainstModel(actor.getSnapshot(), model);
 
 Model the deadline independently. Check before, at, and after it. Never use wall-clock sleeps to wait for retries or deadlines.
 
-Before trusting the property, temporarily violate a contract in the machine. Run the new tests and record the failing shrunk input and replay token. Restore the machine, then prove the tests pass. Keep mutation evidence in the packet or review report. Keep it out of production code.
+Before trusting the property, temporarily break a lifecycle rule in the machine. Run the new tests and record the failing shrunk input and replay token. Restore the machine, then prove the tests pass. Keep mutation evidence in the packet or review report. Keep it out of production code.
 
 The `xstate-effect/no-inline-effect` rule blocks inline Effect logic. Fix the code instead of disabling the rule.
 

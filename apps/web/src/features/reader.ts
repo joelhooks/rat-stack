@@ -246,7 +246,7 @@ export const readerView = (
           ...readerReferences(model, h),
         ]
       ),
-      readerFooter(h),
+      readerFooter(h, !/^\/(?:systems|skills)(?:\/|$)/u.test(model.page.path)),
     ]
   ),
   canonical: `${model.origin}${model.page.metadata.canonicalPath}`,

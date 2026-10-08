@@ -21,12 +21,12 @@ const program = Command.runWith(root, { version: "0.1.0" })(
   process.argv.slice(2)
 ).pipe(
   Effect.catchTag("DeployNotHealthy", (failure) =>
-    Console.log(JSON.stringify(failure.verdict)).pipe(
+    Console.log(JSON.stringify(failure.report)).pipe(
       Effect.andThen(
-        failure.verdict.receipt?.profile === undefined
+        failure.report.rollbackReceipt === undefined
           ? Effect.void
           : Console.log(
-              `Recovery requires approval: pnpm deploy:rollback --profile ${shellArgument(failure.verdict.receipt.profile)} --receipt ${shellArgument(`.rat/deploy/${encodeURIComponent(failure.verdict.receipt.profile)}/last-apply.json`)} --yes`
+              `Recovery requires approval: pnpm deploy:rollback --profile ${shellArgument(failure.report.profile)} --receipt ${shellArgument(failure.report.rollbackReceipt)} --yes`
             )
       ),
       Effect.andThen(Effect.fail(failure))

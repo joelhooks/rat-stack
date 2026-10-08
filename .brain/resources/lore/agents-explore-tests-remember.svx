@@ -41,7 +41,7 @@ sources:
 
 > @joelhooks And when those agents find good reproduction steps for a bug, convert that into playwright tests.
 
-Agent users click through scenarios and find failures. A good reproduction becomes a deterministic Playwright regression test that remembers the path.
+Agent users click through scenarios and find failures. A good reproduction becomes a repeatable Playwright regression test that repeats the actions and checks their result.
 
 rat-stack has yet to build this fifty-agent exploration and Playwright workflow.
 
@@ -53,15 +53,15 @@ We connect the proposal to three practices:
 
 - [Model-based testing](/lore/model-based-testing) generates sequences of actions and checks the system against a model. Agent users can propose action sequences for exploration. Model-based testing also needs a model and assertions.
 - [Property-based testing](/lore/property-based-testing) shrinks a failure to a small counterexample. Keep the smallest useful failing case from exploration, rather than every step the agent happened to take.
-- [The fence](/lore/the-fence) puts a correction into an enforceable check. A reproduced mistake earns a test when it exposes a genuine behavior gap. Tests that merely pin a patch add no such coverage. See [tests that earn their place](/lore/tests-that-earn-their-place).
+- [The fence](/lore/the-fence) puts a correction into an enforceable check. A reproduced mistake earns a test when it exposes a genuine behavior gap. Tests that only check the shape of a fix add no such coverage. See [tests that earn their place](/lore/tests-that-earn-their-place).
 
 ## A human-driven example
 
-A human-driven signup proof found a five-second intake timeout and a confirmation email's `/confirm` link returning 404. A person found both failures. The resulting checks use Effect tests.
+A human-driven signup check found a five-second application-submission timeout and a confirmation email's `/confirm` link returning 404. A person found both failures. The resulting checks use Effect tests.
 
 [Commit 222edd8](https://github.com/joelhooks/rat-stack/commit/222edd833ccc19f41da236f6556a5a09dace1582) raised the timeout to twenty seconds and made timeout request an immediate retry.
 
 - The [intake test](https://github.com/joelhooks/rat-stack/blob/222edd833ccc19f41da236f6556a5a09dace1582/packages/core/test/interest-intake.test.ts) uses `TestClock` and a hanging fake HTTP client to check the retry outcome.
 - The [route test](https://github.com/joelhooks/rat-stack/blob/222edd833ccc19f41da236f6556a5a09dace1582/apps/mischief/test/interest.test.ts) checks that GET and POST to `/confirm` return 308. It also checks that the GET redirect preserves the token query.
 
-These checks can run without repeating the live proof.
+These checks can run without repeating the live check.

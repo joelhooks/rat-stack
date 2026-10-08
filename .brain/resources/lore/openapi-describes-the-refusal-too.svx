@@ -43,11 +43,11 @@ sources:
 
 Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts) derives the document from that HttpApi.
 
-## The document must describe a decode refusal
+## The document must describe rejected request input
 
 [Commit 8766790](https://github.com/joelhooks/rat-stack/commit/876679087c9fb1b10827140c54c0bfc3c2c4ff2e) adds `HttpApiError.BadRequestNoContent` to every endpoint built by `toHttpApi`. Request decoding already returns an empty 400. The document needs to say so.
 
-The decode refusal has an empty body rather than `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
+The rejected request input produces an empty response body rather than `application/problem+json`. The [route test](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/test/to-http-api-routes.test.ts) sends an invalid payload and checks:
 
 - Status 400.
 - No content type.
@@ -55,7 +55,10 @@ The decode refusal has an empty body rather than `application/problem+json`. The
 
 The document has a `BadRequest` response description with no `content` field. A reader uses that distinction to decide whether to parse the error body.
 
-A declared failure defaults to 422 unless its schema names another HTTP status. A plain union keeps each member’s status, including on default POST routes. Template children with annotated union members now receive those statuses instead of 422. Checked or refined unions retain their whole-union status.
+A declared failure defaults to 422 unless its schema names another HTTP status. A plain union keeps each member’s status, including on default POST routes. Projects created from the template with annotated union members now receive those statuses instead of 422.
+
+A refinement adds a check that limits accepted values.
+Checked or refined unions retain their whole-union status.
 
 A declared domain failure differs from a request decode failure. See [schema-driven development](/lore/schemas-define-the-boundary) for that boundary. See [generating surfaces](/lore/one-schema-three-surfaces) for the document's source.
 
