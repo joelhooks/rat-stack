@@ -215,6 +215,7 @@ export interface LorePageMetadata {
   readonly date?: string;
   readonly description: string;
   readonly diagram?: string;
+  readonly learn?: boolean;
   readonly plain?: string;
   readonly group: LoreGroup;
   readonly routePath: `/lore/${string}` | `/systems/${string}`;
@@ -233,6 +234,7 @@ const loreFrontmatterSchema = Schema.Struct({
   description: Schema.String,
   diagram: Schema.optional(Schema.String),
   group: Schema.Literals(["idea", "concept", "source", "person", "system"]),
+  learn: Schema.optional(Schema.Boolean),
   plain: Schema.optional(Schema.String),
   prerequisites: Schema.optional(Schema.Array(Schema.String)),
   sources: Schema.Array(
@@ -519,6 +521,10 @@ export const parseLorePage = (
 
   if (decoded.diagram !== undefined) {
     metadata.diagram = decoded.diagram;
+  }
+
+  if (decoded.learn !== undefined) {
+    metadata.learn = decoded.learn;
   }
 
   if (decoded.url !== undefined) {

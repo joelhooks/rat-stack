@@ -40,13 +40,15 @@ Learn mode explains the technology and principles used in real work. [The learn 
 
 The build derives a concept deck from public lore, system pages, and skills. Cards preserve page titles, summaries, terms, references, and links. Explicit prerequisite metadata supplies prerequisite ids.
 
+A page that is not a concept, such as an announcement, sets `learn: false` in its frontmatter. The build leaves it out of the deck and logs its id.
+
 A card can also teach with three optional fields:
 
 | Field | Source | Content |
 | --- | --- | --- |
 | `plain` | Page frontmatter | One line in plain words, shown before the claim. |
 | `snippet` | `.brain/data/learn-cards/<id>.ts` | The smallest idiomatic TypeScript for the idea. |
-| `diagram` | Page frontmatter | Plain text, at most 30 columns and 12 rows. |
+| `diagram` | Page frontmatter | Plain text, at most 30 columns and 12 rows of one-column characters. |
 
 A capability is one named action with shared value definitions and a server-side implementation.
 Four capabilities serve the deck and learning events. Two local capabilities serve display preferences:
@@ -101,6 +103,7 @@ Public HTTP and MCP calls operate on supplied progress. The public server stores
 - Identical events append once. A writer lock protects each operation.
 - Derived copies can be replaced. An incomplete source log fails without writes.
 - Cards preserve source text. The build accumulates reference and prerequisite errors.
+- Every card needs a public reference. Only `learn: false` removes a page from the deck, and the build logs each one.
 - The build compiles every snippet with the real `tsc` and the Effect diagnostics. It collects every failure before it stops.
 - A missing snippet or diagram is a coverage warning. The build reports the counts.
 - `rat-stack-patterns/learn-snippet-idiom` keeps snippets on the service idiom: operations, a namespaced key, `static layer` with `Service.of`, and `Effect.provide` at the edge.

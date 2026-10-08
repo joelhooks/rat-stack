@@ -24,6 +24,7 @@ export interface CardSource {
   readonly snippet?: string | undefined;
   readonly snippetDiagnostics?: readonly string[] | undefined;
   readonly diagram?: string | undefined;
+  readonly learn?: boolean | undefined;
 }
 
 export interface TeachingCoverage {
@@ -158,13 +159,27 @@ const priorityDiagnostics = (
       : []
   );
 
+const optOutWarnings = (candidates: readonly CardSource[]) =>
+  candidates.flatMap((page) =>
+    page.learn === false
+      ? [
+          {
+            id: page.id,
+            reason:
+              "Opted out with learn: false; the page is not a learn card.",
+          },
+        ]
+      : []
+  );
+
 export const deriveDeck = (
-  pages: readonly CardSource[],
+  candidates: readonly CardSource[],
   priority: readonly string[] = [],
   snippetIds: readonly string[] = []
 ) => {
   const errors: (typeof CardDiagnostic.Type)[] = [];
-  const warnings: (typeof CardDiagnostic.Type)[] = [];
+  const pages = candidates.filter((page) => page.learn !== false);
+  const warnings: (typeof CardDiagnostic.Type)[] = optOutWarnings(candidates);
   const ids = new Set(pages.map((page) => page.id));
   const routes = new Map(pages.map((page) => [page.routePath, page.id]));
   const cards: Card[] = [];

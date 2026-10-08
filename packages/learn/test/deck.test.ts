@@ -132,3 +132,53 @@ it("rejects a snippet file that names no concept", () => {
     "lore.ghost: Snippet file names no concept"
   );
 });
+
+const announcements = Arbitrary.array(
+  Arbitrary.schema(
+    Schema.Struct({ optedOut: Schema.Boolean, referenced: Schema.Boolean })
+  ),
+  { maxLength: 8, minLength: 1 }
+);
+
+it.prop(
+  "learn: false removes a page from the deck, and every remaining card still needs a reference",
+  { announcements },
+  ({ announcements: pages }) => {
+    const sources = pages.map(({ optedOut, referenced }, index) => ({
+      ...source("Summary."),
+      id: `lore.page-${index}`,
+      learn: optedOut ? false : undefined,
+      routePath: `/lore/page-${index}`,
+      sources: referenced ? ["https://ratstack.sh/lore"] : [],
+    }));
+
+    const kept = sources.filter((page) => page.learn === undefined);
+    const optedOut = sources.filter((page) => page.learn === false);
+
+    const unreferenced = kept.filter((page) => page.sources.length === 0);
+
+    try {
+      const deck = deriveDeck(sources);
+
+      expect(unreferenced).toStrictEqual([]);
+      expect(deck.cards.map((card) => card.id).toSorted()).toStrictEqual(
+        kept.map((page) => page.id).toSorted()
+      );
+      expect(deck.coverage.cards).toBe(kept.length);
+
+      for (const page of optedOut) {
+        expect(deck.warnings.map((warning) => warning.id)).toContain(page.id);
+      }
+    } catch (error) {
+      const failure = Schema.decodeUnknownSync(InvalidLearnDeck)(error);
+
+      expect(
+        [...new Set(failure.errors.map((entry) => entry.id))].toSorted()
+      ).toStrictEqual(unreferenced.map((page) => page.id).toSorted());
+
+      for (const page of unreferenced) {
+        expect(failure.message).toContain(`- ${page.id}: Missing reference`);
+      }
+    }
+  }
+);

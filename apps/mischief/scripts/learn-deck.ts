@@ -48,6 +48,7 @@ export const buildLearningDeck = Effect.fn("buildLearningDeck")(
                   page.group === "system"
                     ? ("system" as const)
                     : ("lore" as const),
+                learn: page.learn,
                 plain: page.plain,
                 prerequisites: page.prerequisites,
                 routePath: page.routePath,
