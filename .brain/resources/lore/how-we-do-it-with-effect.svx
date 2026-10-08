@@ -1,6 +1,16 @@
 ---
 title: "Effect keeps the surfaces on one contract"
 description: "Schema owns values, projections build interfaces, and Layers supply implementations."
+plain: "Effect Schema owns the values, projections build each interface, and Layers supply the implementations."
+diagram: |-
+  contract (Schema)
+    │ implement
+    ▼
+  capability
+    ├ CLI command
+    ├ HTTP API
+    └ MCP toolkit
+  Layers supply services
 group: idea
 terms:
   - "Effect surfaces"

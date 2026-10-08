@@ -1,6 +1,7 @@
 ---
 title: "Happy Path 116: Infrastructure as effects"
 description: "Sam Goodwin connects Effect requirements, infrastructure policies, and runtime behavior."
+plain: "Sam Goodwin says Effect lets Alchemy plan infrastructure as a program the compiler checks before deploy."
 group: source
 speaker: "Sam Goodwin"
 date: 2025-09-19

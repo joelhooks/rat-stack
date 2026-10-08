@@ -1,6 +1,15 @@
 ---
 title: "MCP is another surface"
 description: "MCP lists and calls schema-typed tools; rat-stack projects the same handlers instead of adding MCP-only behavior."
+plain: "MCP lists and calls schema-typed tools; rat-stack projects the same handlers instead of writing MCP-only code."
+diagram: |-
+  contract + handler
+    │ toToolkit
+    ▼
+  MCP server
+    ├ tools/list
+    └ tools/call
+  same job over HTTP, CLI
 group: idea
 terms:
   - "MCP"

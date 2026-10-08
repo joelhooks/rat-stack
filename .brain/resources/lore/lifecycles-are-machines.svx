@@ -1,6 +1,15 @@
 ---
 title: "Lifecycles are machines"
 description: "XState owns finite lifecycle states while declared Effect actors own side effects."
+plain: "Put finite states, retries and cancellation in an XState machine, and side effects in declared Effect actors."
+diagram: |-
+  sending
+    │ invoke sendMail
+    ├ done  → sent
+    └ error → failed
+
+  machine: transitions
+  actor:   the side effect
 group: idea
 terms:
   - "lifecycles are machines"

@@ -1,6 +1,7 @@
 ---
 title: "Michael Arnaldi"
 description: "Michael Arnaldi develops Effect and explains its TypeScript design in public talks."
+plain: "Michael Arnaldi develops Effect and explains its TypeScript design in public talks."
 group: person
 terms:
   - "Michael Arnaldi"

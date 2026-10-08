@@ -1,6 +1,16 @@
 ---
 title: "One capability, every surface"
 description: "A schema-typed contract and one handler feed every interface rat-stack keeps."
+plain: "One schema-typed contract and one handler feed every interface: CLI, HTTP, MCP, RPC and code mode."
+diagram: |-
+  defineContract
+    name, schemas
+    │ implement(handler)
+    ▼
+  capability
+    ├ CLI   ├ HTTP
+    ├ MCP   ├ RPC
+    └ code mode
 group: idea
 terms:
   - "one capability, every surface"

@@ -1,6 +1,7 @@
 ---
 title: "Lauren Tan's skills"
 description: "Lauren Tan (poteto) publishes skills in several repos: brainmaxxing for memory and skill improvement, noodle for skill-based orchestration, how for explaining a codebase, and a verification-skill example."
+plain: "Lauren Tan publishes skills for memory, skill-based orchestration, explaining a codebase, and verification."
 group: idea
 terms:
   - "Lauren Tan's skills"
