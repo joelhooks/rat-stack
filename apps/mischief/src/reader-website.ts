@@ -85,6 +85,16 @@ export const withReaderWebsite =
         binding.fetch.bind(binding, webRequest)
       );
 
+      if (response.status === 404) {
+        if (response.body !== null) {
+          yield* Effect.tryPromise(
+            response.body.cancel.bind(response.body)
+          ).pipe(Effect.ignore);
+        }
+
+        return yield* fallback;
+      }
+
       const headers = new Headers(response.headers);
       const vary = headers.get("vary");
       headers.set("vary", vary === null ? "Accept" : `${vary}, Accept`);

@@ -10,7 +10,7 @@ import {
 } from "effect";
 
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
-import { ReaderRouteLedger } from "../src/page-descriptor.ts";
+import { ReaderMetadata, ReaderRouteLedger } from "../src/page-descriptor.ts";
 import { isReaderRoutePath } from "../src/reader-routes.ts";
 
 const program = Effect.gen(function* emitReaderLedger() {
@@ -54,6 +54,82 @@ const program = Effect.gen(function* emitReaderLedger() {
     ];
   });
 
+  const errorTemplate = yield* fs
+    .readFileString(
+      new URL("../dist/reader-error.json", import.meta.url).pathname
+    )
+    .pipe(
+      Effect.flatMap(
+        Schema.decodeUnknownEffect(
+          Schema.fromJsonString(
+            Schema.Struct({
+              page: Schema.Struct({
+                page: Schema.Struct({
+                  metadata: ReaderMetadata,
+                  sourcePath: Schema.String,
+                }),
+              }),
+            })
+          )
+        )
+      )
+    );
+
+  const errorRoutes = [
+    ...["/no-verify", "/--no-verify"].map((path) => ({
+      code: 403,
+      message: "The rat looks disappointed.",
+      path,
+      title: "Forbidden",
+    })),
+    {
+      code: 404,
+      message: "That bin got pulled out.",
+      path: "/*",
+      title: "Not found",
+    },
+  ].flatMap((errorPage) => {
+    const { metadata, sourcePath } = errorTemplate.page.page;
+
+    const filled = (text: string) =>
+      text
+        .replace("ERROR_CODE", String(errorPage.code))
+        .replace("ERROR_TITLE", errorPage.title)
+        .replace("ERROR_MESSAGE", errorPage.message);
+
+    const route = {
+      metadata: {
+        ...metadata,
+        description: filled(metadata.description),
+        title: filled(metadata.title),
+      },
+      path: errorPage.path,
+      sourcePath,
+      status: errorPage.code,
+    };
+
+    return [
+      {
+        ...route,
+        preview: {
+          availability: "included",
+          representation: "html",
+          status: errorPage.code,
+        },
+        representation: "html",
+      },
+      {
+        ...route,
+        preview: {
+          availability: "representation-not-projected",
+          representation: "html",
+          status: errorPage.code,
+        },
+        representation: "markdown",
+      },
+    ];
+  });
+
   const ledger = yield* Schema.decodeUnknownEffect(ReaderRouteLedger)({
     anchorAdditions: [],
     deliberateChanges: [
@@ -68,7 +144,7 @@ const program = Effect.gen(function* emitReaderLedger() {
     ],
     generation: inputs.generation,
     routes: Array.sort(
-      routes,
+      [...routes, ...errorRoutes],
       Order.Struct({ path: Order.String, representation: Order.String })
     ),
   });

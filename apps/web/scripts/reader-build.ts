@@ -2,6 +2,7 @@ import { NodeServices } from "@effect/platform-node";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
 import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
+import { readerErrorTemplate } from "../../mischief/scripts/reader-error-flags.ts";
 import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
 import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
@@ -16,6 +17,7 @@ import {
   isReaderRoutePath,
   readerNoStoreRoutePaths,
 } from "../src/reader-routes.ts";
+import { ReaderErrorTemplate } from "../src/server/reader-error-template.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
 
 const readerPages = Effect.gen(function* readerPages() {
@@ -71,8 +73,9 @@ const readerPages = Effect.gen(function* readerPages() {
   const systemsSkills = yield* readerSystemsSkillsFlags(origin);
 
   const pages = [home, ...lore, learn, ...prompts, ...systemsSkills, ...bodies];
+  const error = yield* readerErrorTemplate(origin);
 
-  return yield* Effect.forEach((page: (typeof pages)[number]) =>
+  const decoded = yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({
       ...page,
       page: {
@@ -86,19 +89,26 @@ const readerPages = Effect.gen(function* readerPages() {
       },
     })
   )(pages);
+
+  return { error, pages: decoded };
 }).pipe(Effect.provide(NodeServices.layer));
 
 export const prepareReader = Effect.fn("reader.prepare")(
   function* prepareReader(root: string) {
     const fs = yield* FileSystem.FileSystem;
-    const pages = yield* readerPages;
+    const { error, pages } = yield* readerPages;
 
     const encoded = yield* Schema.encodeEffect(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
     )(pages);
 
+    const encodedError = yield* Schema.encodeEffect(
+      Schema.fromJsonString(ReaderErrorTemplate)
+    )(error);
+
     yield* fs.makeDirectory(`${root}/dist`, { recursive: true });
     yield* fs.writeFileString(`${root}/dist/reader-pages.json`, encoded);
+    yield* fs.writeFileString(`${root}/dist/reader-error.json`, encodedError);
   },
   Effect.provide(NodeServices.layer)
 );

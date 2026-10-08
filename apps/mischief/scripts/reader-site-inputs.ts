@@ -49,7 +49,7 @@ const jsonLdPolicy = (path: string) => {
     : "none";
 };
 
-const documentMetadata = (path: string, html: string) => {
+export const documentMetadata = (path: string, html: string) => {
   const document = parseDocument(html);
   const tags = DomUtils.getElementsByTagName("meta", document.children);
   const title = DomUtils.getElementsByTagName("title", document.children).at(0);
