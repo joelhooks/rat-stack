@@ -897,14 +897,6 @@ const educateEllipsis = (
   node.value = "\u2026";
 };
 
-const educateBackticks = (node: LatinLeaf) => {
-  if (node.value === "``") {
-    node.value = "\u201C";
-  } else if (node.value === "''") {
-    node.value = "\u201D";
-  }
-};
-
 const educateDashes = (node: LatinLeaf) => {
   if (node.value === "--") {
     node.value = "\u2014";
@@ -920,7 +912,6 @@ const educate = (node: LatinParent) => {
     if (isMark(child)) {
       educateQuote(child, index, node);
       educateEllipsis(child, index, node);
-      educateBackticks(child);
       educateDashes(child);
     } else if (isParent(child)) {
       educate(child);
