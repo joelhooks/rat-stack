@@ -4,8 +4,6 @@ import { Drift, codeIdentity, prepareCode } from "@rat-stack/code-snippets";
 import type { CodeSnippet } from "@rat-stack/code-snippets";
 import { plainLayer } from "@rat-stack/code-snippets/plain";
 import { Context, Effect, FileSystem, Layer, Schema } from "effect";
-import { mdsvex } from "mdsvex";
-import { compile } from "svelte/compiler";
 import { expect } from "vitest";
 
 import { collectBuildFences } from "../scripts/code-inputs.ts";
@@ -19,6 +17,7 @@ import {
 import type { ComponentRegistry } from "../scripts/component-registry.ts";
 import { ContentBuildError } from "../scripts/content-error.ts";
 import { openGitSnapshot } from "../scripts/git-snapshot.ts";
+import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
 import { peerComponentRegistry, peerPins, PeerRows } from "../scripts/peers.ts";
 import {
   contentLinkHrefs,
@@ -49,10 +48,9 @@ import {
 } from "./generated-content.js";
 
 it.effect(
-  "keeps audience content inside native HTML wrappers valid at the mdsvex boundary",
+  "keeps audience content inside native HTML wrappers as one HTML block",
   () =>
-    Effect.gen(function* checkNativeHtmlAudienceBoundary() {
-      const processor = mdsvex({ extensions: [".svx"] });
+    Effect.sync(() => {
       const targets: readonly ["human", "agent"] = ["human", "agent"];
 
       for (const target of targets) {
@@ -62,16 +60,9 @@ it.effect(
         );
 
         expect(markdown.trim()).toBe(`<div>before ${target} after</div>`);
-
-        const compiled = yield* Effect.promise(
-          processor.markup.bind(processor, {
-            content: markdown,
-            filename: "wrapper.svx",
-          })
-        );
-
-        expect(compiled).toBeDefined();
-        compile(compiled?.code ?? "", { generate: "server" });
+        expect(
+          renderMarkdownHtml(markdown, { sourcePath: "wrapper.svx" })
+        ).toBe(`<div>before ${target} after</div>`);
       }
     })
 );

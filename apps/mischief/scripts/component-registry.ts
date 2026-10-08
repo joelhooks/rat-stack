@@ -11,7 +11,7 @@ import {
   htmlTokens,
   parseContentMarkdown,
   stringifyContentMarkdown,
-  stringifyMdsvexSourceMarkdown,
+  stringifySourceMarkdown,
   visitContentNodes,
 } from "./svx-ast.ts";
 
@@ -554,7 +554,7 @@ const componentRanges = (
           "component attributes",
           sourcePath,
           new Error(
-            `${token.name} accepts only quoted string attributes, not Svelte expressions`
+            `${token.name} accepts only quoted string attributes, not expressions`
           )
         );
       }
@@ -787,9 +787,7 @@ export const renderSvxMarkdown = (
   options: Partial<ComponentRenderContext> = {},
   registry = createComponentRegistry()
 ) =>
-  (target === "human"
-    ? stringifyMdsvexSourceMarkdown
-    : stringifyContentMarkdown)(
+  (target === "human" ? stringifySourceMarkdown : stringifyContentMarkdown)(
     transformComponentMarkdown(
       source,
       target,

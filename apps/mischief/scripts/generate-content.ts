@@ -19,11 +19,7 @@ import {
   Stream,
 } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
-import { compile as compileMdsvex } from "mdsvex";
 import satori from "satori";
-import type { Component } from "svelte";
-import { compile as compileSvelte } from "svelte/compiler";
-import { render } from "svelte/server";
 
 import { agentNextActions } from "../src/agent-guide.ts";
 import {
@@ -62,7 +58,6 @@ import {
   glossaryEntries,
   glossaryMarkdown,
   dropOffSiteImages,
-  escapeSvelteBraces,
   assertSkillGroups,
   buildError,
   ContentBuildError,
@@ -94,6 +89,11 @@ import {
 import { lawSpecs } from "./content-specs.ts";
 import type { SourceSpec } from "./content-specs.ts";
 import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
+import {
+  renderCopyPrompt,
+  renderDocumentShell,
+  renderHouseAd,
+} from "./document-html.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
 import {
@@ -103,6 +103,7 @@ import {
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { buildLearningDeck } from "./learn-deck.ts";
 import { collectLearnSnippets } from "./learn-snippets.ts";
+import { renderMarkdownHtml } from "./markdown-html.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import { validatePromptSources } from "./prompt-source.ts";
 import {
@@ -175,8 +176,6 @@ const escapeHtml = (value: string) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-const svelteServerUrl = import.meta.resolve("svelte/internal/server");
-
 interface PublicSpec extends SourceSpec {
   readonly rawText: string;
   readonly text: string;
@@ -189,8 +188,6 @@ interface OgPage {
 }
 
 interface DocumentProps {
-  readonly AgentPointer?: ServerComponent;
-  readonly agentPointerHtml?: string;
   readonly bodyHtml: string;
   readonly discoveryLinks:
     | ReturnType<typeof markdownDiscoveryLinks>
@@ -209,24 +206,8 @@ interface DocumentProps {
   readonly title: string;
 }
 
-type ServerComponent = Component<
-  Partial<DocumentProps> & Partial<Omit<CopyPromptSpec, "agentFence">>
->;
-
 const digest = (text: string) =>
   createHash("sha256").update(text).digest("hex");
-
-const ServerComponentSchema = Schema.declare(
-  (value): value is ServerComponent => Predicate.isFunction(value)
-);
-
-const CompiledModule = Schema.Struct({ default: ServerComponentSchema });
-
-const decodeCompiledModule = Schema.decodeUnknownSync(CompiledModule);
-
-const decodeMdsvexOutput = Schema.decodeUnknownSync(
-  Schema.Struct({ code: Schema.String })
-);
 
 type HastPropertyValue =
   | boolean
@@ -386,17 +367,6 @@ Read [the fence](/lore/the-fence) and [the command policy](https://github.com/jo
 const ogImagePath = (routePath: string) =>
   `/og${routePath === "/" ? "/home" : routePath}.png`;
 
-const escapeSvelteCodeHtml = (value: string) =>
-  value
-    .replaceAll("{", "&#123;")
-    .replaceAll("}", "&#125;")
-    .replaceAll("`", "&#96;");
-
-const makeCodeHighlighter =
-  (highlighter: FenceHighlighter["Service"]) =>
-  (code: string, lang: string | null | undefined) =>
-    escapeSvelteCodeHtml(highlighter.render(code, lang));
-
 const makeOgElement = (page: OgPage, emojiDataUrl: string) => ({
   key: null,
   props: {
@@ -507,59 +477,8 @@ const renderRatPng = (ratSvg: string, size: number, background?: string) =>
     },
   });
 
-const loadCompiledComponent = Effect.fn("loadCompiledComponent")(
-  function* loadCompiledComponent(source: string, sourcePath: string) {
-    const compiled = yield* Effect.try({
-      catch: (cause) => buildError("Svelte compile", sourcePath, cause),
-      try: () =>
-        compileSvelte(source, {
-          css: "injected",
-          filename: sourcePath,
-          generate: "server",
-        }).js.code,
-    });
-
-    const executable = compiled.replaceAll(
-      "'svelte/internal/server'",
-      JSON.stringify(svelteServerUrl)
-    );
-
-    const moduleUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(executable)}`;
-
-    const loaded = yield* Effect.tryPromise({
-      catch: (cause) => buildError("Svelte module load", sourcePath, cause),
-      // oxlint-disable-next-line typescript/promise-function-async -- Node's module loader owns this Promise-returning boundary.
-      try: () => import(moduleUrl).then(decodeCompiledModule),
-    });
-
-    return loaded.default;
-  }
-);
-
-const copyPromptRenderer = Effect.fn("copyPromptRenderer")(
-  function* copyPromptRenderer() {
-    const fileSystem = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const sourcePath = "apps/mischief/src/copy-prompt.svelte";
-
-    const source = yield* fileSystem
-      .readFileString(
-        path.join(import.meta.dirname, "../src/copy-prompt.svelte")
-      )
-      .pipe(Effect.mapError((cause) => buildError("read", sourcePath, cause)));
-
-    const component = yield* loadCompiledComponent(source, sourcePath);
-
-    return (spec: CopyPromptSpec) =>
-      normalizeHtmlAttributeNewlines(
-        stripHtmlComments(render(component, { props: spec }).body),
-        "data-text"
-      )
-        .replaceAll("{", "&#123;")
-        .replaceAll("}", "&#125;")
-        .trim();
-  }
-);
+const renderPromptHtml = (spec: CopyPromptSpec) =>
+  normalizeHtmlAttributeNewlines(renderCopyPrompt(spec), "data-text");
 
 const defaultGraphRegistry = createComponentRegistry({
   Ref: { agent: () => [], human: () => [] },
@@ -609,22 +528,19 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
     const unlinkedProse: UnlinkedProse[] = [];
 
     const renderPrompt = source.includes("<CopyPrompt")
-      ? yield* copyPromptRenderer()
+      ? renderPromptHtml
       : undefined;
 
     const htmlSource = deriveHtmlMarkdown(source, renderPrompt, registry);
 
-    const transformed = yield* Effect.tryPromise({
-      catch: (cause) => buildError("mdsvex compile", sourcePath, cause),
-      // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this Promise boundary.
-      try: async () =>
-        await compileMdsvex(htmlSource, {
-          extensions: [".md", ".svx"],
-          filename: sourcePath,
-          highlight: {
-            highlighter: makeCodeHighlighter(highlighter),
-            optimise: false,
-          },
+    const bodyHtml = yield* Effect.try({
+      catch: (cause) =>
+        Schema.is(ContentBuildError)(cause)
+          ? cause
+          : buildError("markdown html", sourcePath, cause),
+      try: () =>
+        renderMarkdownHtml(htmlSource, {
+          highlight: highlighter.render,
           rehypePlugins: [
             ...(["/lore/", "/systems/", "/skills/"].some((prefix) =>
               routePath.startsWith(prefix)
@@ -644,19 +560,9 @@ const compileMarkdownBody = Effect.fn("compileMarkdownBody")(
             ),
             collectUnlinkedProse(unlinkedProse),
             dropOffSiteImages,
-            escapeSvelteBraces,
           ],
-        }).then(decodeMdsvexOutput),
-    });
-
-    const component = yield* loadCompiledComponent(
-      transformed.code,
-      sourcePath
-    );
-
-    const bodyHtml = yield* Effect.try({
-      catch: (cause) => buildError("Svelte body render", sourcePath, cause),
-      try: () => render(component, { props: {} }).body,
+          sourcePath,
+        }),
     });
 
     return {
@@ -708,38 +614,13 @@ const validateLoreTermClaims = (
   });
 
 const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
-  shell: ServerComponent,
   props: DocumentProps,
   sourcePath: string
 ) {
-  const fileSystem = yield* FileSystem.FileSystem;
-
-  const pointerSource = yield* fileSystem
-    .readFileString(
-      new URL("../src/agent-pointer.svelte", import.meta.url).pathname
-    )
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("read", "agent-pointer.svelte", cause)
-      )
-    );
-
-  const AgentPointer = yield* loadCompiledComponent(
-    pointerSource,
-    "agent-pointer.svelte"
-  );
-
-  const rendered = yield* Effect.try({
-    catch: (cause) => buildError("Svelte document render", sourcePath, cause),
-    try: () =>
-      render(shell, {
-        props: {
-          ...props,
-          AgentPointer,
-          agentPointerHtml: agentPointerHumanHtml,
-          bodyHtml: `${countHtmlElements(props.bodyHtml, "h1") > 0 ? props.bodyHtml : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`}${props.contentDates?.dateModified === undefined ? "" : `<p>Content updated <time datetime="${props.contentDates.dateModified}">${props.contentDates.dateModified}</time>.</p>`}`,
-        },
-      }),
+  const rendered = renderDocumentShell({
+    ...props,
+    agentPointerHtml: agentPointerHumanHtml,
+    bodyHtml: `${countHtmlElements(props.bodyHtml, "h1") > 0 ? props.bodyHtml : `<h1>${escapeHtml(props.breadcrumbName ?? props.title)}</h1>${props.bodyHtml}`}${props.contentDates?.dateModified === undefined ? "" : `<p>Content updated <time datetime="${props.contentDates.dateModified}">${props.contentDates.dateModified}</time>.</p>`}`,
   });
 
   const document = `<!doctype html>
@@ -757,7 +638,7 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
     return yield* new ContentBuildError({
       cause: new Error("Static documents must not contain client scripts"),
       sourcePath,
-      stage: "Svelte document render",
+      stage: "document render",
     });
   }
 
@@ -1018,12 +899,6 @@ const program = Effect.gen(function* generateContent() {
     });
 
   const stylesheet = yield* readText("apps/mischief/src/rat.css");
-  const shellSource = yield* readText("apps/mischief/src/document.svelte");
-
-  const shell = yield* loadCompiledComponent(
-    shellSource,
-    "apps/mischief/src/document.svelte"
-  );
 
   const emojiSvg = stripHtmlComments(
     yield* readText("assets/emoji/1f400.svg")
@@ -1045,14 +920,7 @@ const program = Effect.gen(function* generateContent() {
       )
     );
 
-  const houseAdSourcePath = "apps/mischief/src/house-ad.svelte";
-
-  const houseAdComponent = yield* loadCompiledComponent(
-    yield* readText(houseAdSourcePath),
-    houseAdSourcePath
-  );
-
-  const houseAdHtml = render(houseAdComponent, { props: houseAdCopy }).body;
+  const houseAdHtml = renderHouseAd(houseAdCopy);
 
   const peerSourcePath = ".brain/resources/peers.svx";
   const peerDataPath = ".brain/data/peers.json";
@@ -2281,8 +2149,21 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     },
     {
       pageRoute: "/",
-      sourcePath: "apps/mischief/src/document.svelte",
-      text: shellSource,
+      sourcePath: "apps/mischief/scripts/document-html.ts",
+      text: Object.values(
+        renderDocumentShell({
+          agentPointerHtml: agentPointerHumanHtml,
+          bodyHtml: "",
+          description: "",
+          discoveryLinks: markdownDiscoveryLinks("/"),
+          houseAdHtml,
+          ogImageUrl: "",
+          origin: "https://ratstack.sh",
+          path: "/",
+          stylesheet: "",
+          title: "",
+        })
+      ).join(""),
     },
     {
       pageRoute: "/",
@@ -2728,7 +2609,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion: string
   ) =>
     renderDocument(
-      shell,
       {
         bodyHtml: addInboundCounts(bodyHtml, metadata.path, backlinkIndex),
         discoveryLinks: markdownDiscoveryLinks(metadata.path),
@@ -2837,8 +2717,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
             relativePaths
               .filter(
                 (relativePath) =>
-                  (relativePath.endsWith(".ts") ||
-                    relativePath.endsWith(".svelte")) &&
+                  relativePath.endsWith(".ts") &&
                   !relativePath.endsWith(".generated.ts")
               )
               .map((relativePath) => `${directory}/${relativePath}`)
@@ -3181,7 +3060,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   };
 
   const errorPageDocumentHtml = yield* renderDocument(
-    shell,
     {
       bodyHtml: errorBody.bodyHtml.replaceAll(
         "ERROR_CODE ERROR_TITLE</h1>",
@@ -3235,7 +3113,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   );
 
   const unsubscribeDocumentHtml = yield* renderDocument(
-    shell,
     {
       bodyHtml: unsubscribeBody,
       description: "Stop getting emails about the Rat Stack workshop?",

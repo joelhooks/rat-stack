@@ -72,6 +72,16 @@ export default defineConfig({
         "rat-stack-boundaries/no-feature-transport": "error",
       },
     },
+    {
+      files: [
+        "apps/mischief/scripts/content-lib.ts",
+        "apps/mischief/scripts/generate-content.ts",
+        "apps/mischief/scripts/wiki-prose.ts",
+      ],
+      rules: {
+        "rat-stack-patterns/audited-content-regex": "error",
+      },
+    },
   ],
   rules: {
     "anti-slop-effect/no-manual-effect-error-tag": "error",

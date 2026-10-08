@@ -1533,14 +1533,6 @@ export { copyPrompts } from "./component-data.ts";
 
 export type { CopyPromptSpec } from "./component-data.ts";
 
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-
 export const renderBibliography = (sources: readonly BibliographySource[]) => {
   const registry = createComponentRegistry();
   const context = componentContext({ sources });
@@ -1564,15 +1556,6 @@ export const renderBibliography = (sources: readonly BibliographySource[]) => {
           )}`,
   };
 };
-
-const skippedByBraceEscaper = new Set(["code", "pre"]);
-
-const hasBrace = /[{}]/u;
-
-const braceSafeText = (value: string): LoreHastNode => ({
-  type: "raw",
-  value: escapeHtml(value).replaceAll("{", "&#123;").replaceAll("}", "&#125;"),
-});
 
 interface ImageHastNode {
   readonly type: string;
@@ -1612,29 +1595,6 @@ export const dropOffSiteImages = () => (tree: ImageHastNode) => {
   };
 
   keep(tree);
-};
-
-export const escapeSvelteBraces = () => (tree: LoreHastNode) => {
-  const visit = (node: LoreHastNode): void => {
-    if (
-      node.children === undefined ||
-      skippedByBraceEscaper.has(node.tagName ?? "")
-    ) {
-      return;
-    }
-
-    node.children = node.children.map((child) => {
-      if (child.type === "text" && hasBrace.test(child.value ?? "")) {
-        return braceSafeText(child.value ?? "");
-      }
-
-      visit(child);
-
-      return child;
-    });
-  };
-
-  visit(tree);
 };
 
 export const withMarkdownTitle = (

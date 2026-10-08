@@ -9,8 +9,6 @@ import { plainLayer } from "@rat-stack/code-snippets/plain";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
 import { Effect, Layer, Schema } from "effect";
 import { Parser } from "htmlparser2";
-import { compile as compileMdsvex } from "mdsvex";
-import { compile } from "svelte/compiler";
 
 import {
   codeComponent,
@@ -21,7 +19,8 @@ import {
   createComponentRegistry,
   renderSvxMarkdown,
 } from "../scripts/component-registry.ts";
-import { escapeSvelteBraces, buildError } from "../scripts/content-lib.ts";
+import { buildError } from "../scripts/content-lib.ts";
+import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
 import { parseContentMarkdown } from "../scripts/svx-ast.ts";
 
 const sha = "a".repeat(40);
@@ -252,7 +251,7 @@ it.effect(
     )
 );
 
-it.effect("decorated code survives the real mdsvex/Svelte boundary", () =>
+it.effect("decorated code survives the markdown HTML pipeline", () =>
   Effect.gen(function* compilerSeam() {
     const source =
       '```ts {1} title="example.ts"\nconst object = { value: `<tag>` };\n```';
@@ -270,17 +269,12 @@ it.effect("decorated code survives the real mdsvex/Svelte boundary", () =>
 
     const html = renderSvxMarkdown(source, "human", {}, registry);
 
-    const compiled = yield* Effect.tryPromise({
-      catch: (cause) => buildError("code compiler seam", "page.svx", cause),
-      // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this Promise compiler boundary.
-      try: async () =>
-        await compileMdsvex(html, {
-          highlight: false,
-          rehypePlugins: [escapeSvelteBraces],
-        }),
+    const rendered = yield* Effect.try({
+      catch: (cause) => buildError("code pipeline seam", "page.svx", cause),
+      try: () => renderMarkdownHtml(html, { sourcePath: "page.svx" }),
     });
 
-    expect(compiled).toBeDefined();
-    compile(compiled?.code ?? "", { generate: "server" });
+    expect(codeText(rendered)).toBe("const object = { value: `<tag>` };");
+    expect(codeText(rendered)).toBe(codeText(html));
   }).pipe(Effect.provide(layer))
 );
