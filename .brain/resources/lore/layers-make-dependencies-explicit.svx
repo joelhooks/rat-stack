@@ -34,8 +34,8 @@ sources:
     accessed: "2026-10-06"
 ---
 
-A Layer describes how to build a service from other services.
-Compose the graph before running the application. Keep dependencies private unless callers need them too.
+A service is a named interface. A Layer describes how to build a service from other services.
+Choose and supply the services and their dependencies before running the application. Keep dependencies private unless callers need them too.
 
 ## Supply dependencies without changing the domain
 
@@ -60,7 +60,7 @@ Production callers that need only the inspector can keep its implementation depe
 
 ## Reuse Layer identity when sharing construction
 
-Sharing follows Layer identity within a memoization context. Equivalent construction code does not make two Layer values identical.
+Sharing follows Layer identity within a build context that remembers which Layer values it has already constructed. Equivalent construction code does not make two Layer values identical.
 Sharing is limited to that construction context.
 
 The fixture gives two consumers a resource. One case shares a Layer value; the other calls the Layer factory again.
@@ -89,7 +89,8 @@ Read which services callers need. Retaining every dependency exposes implementat
 ## Effect idiom and house rule
 
 - Layers carry output services, construction failures, and input requirements. Composition resolves the requirements.
-- In rat-stack, each entrypoint owns its composition root. A cartridge must pull out without breaking unrelated packages.
+- In rat-stack, each entrypoint, where the application starts, chooses and supplies implementations in its composition root.
+- A cartridge packages one job and its infrastructure. It must be removable without breaking unrelated packages.
 - The application chooses its workspace layout and adapter package boundaries.
 
 See also: [service construction](/lore/services-capture-dependencies), [domain structure](/lore/structure-effect-by-domain), [cartridges](/lore/cartridges), and [testing](/lore/tests-that-earn-their-place).

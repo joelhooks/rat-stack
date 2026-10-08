@@ -7,6 +7,10 @@ description: Learn which pieces depend on each other, then keep only the ones yo
 
 Delete interfaces your product will not use. Do not keep code because you might need it one day.
 
+A capability is one named action with a contract and a server-side handler. The contract defines its name, input, output, failure, and metadata. A projection builds a callable interface from capabilities.
+
+CLI means command-line interface. MCP (Model Context Protocol) lets an agent discover and call tools. Effect describes work with typed failures and required dependencies.
+
 Read `AGENTS.md` first. Keep unrelated product work. Check imports and tests before deleting files.
 
 ## Smallest version: command line only
@@ -27,7 +31,7 @@ For CLI only, delete:
 
 - unused projections and their matching tests in `packages/capability/src` and `packages/capability/test`, only after tracing imports from the keep list
 
-Keep `apps/cli/src/surfaces.ts` with only the `toCommand` composition and its imports. Remove these unused CLI surfaces:
+Keep `apps/cli/src/surfaces.ts` with only the `toCommand` composition and its imports. Remove these unused CLI interfaces:
 
 - `catalog`, `openapi`, `serve`, and `mcp` commands from `apps/cli/src/command.ts`
 - `apps/cli/test/serve.test.ts`
@@ -101,12 +105,12 @@ Delete:
 
 In `apps/web`, swap `devtoolsRoutes` for `contentRoutes` in `src/dev/backend.ts`, point the `development` condition of `#devtools-overlay` in `apps/web/package.json` at `./src/features/shared/no-devtools.tsx`, and delete `src/dev/devtools`, `src/dev/client`, and `src/dev/features`. `vite dev` keeps serving search and read; `test/dev-content-routes.test.ts` covers that path.
 
-`CallWatch`, `aroundHandlers`, `invokerFor`, and `watchActor` stay in `packages/capability`. Devtools provides `CallWatch` at the composition boundary to observe calls without wrapping capability lists; its default is a no-op. `aroundHandlers` remains the explicit wrapper for policy over one list, while `invokerFor` is code mode's dispatch path and `watchActor` lets machines report to devtools without depending on it.
+`CallWatch`, `aroundHandlers`, `invokerFor`, and `watchActor` stay in `packages/capability`. Devtools supplies `CallWatch` when the application is assembled. It observes calls without wrapping capability lists; its default does nothing. `aroundHandlers` remains the explicit policy wrapper over one list. `invokerFor` calls capabilities for code mode. `watchActor` lets machines report to devtools without depending on it.
 
 ## Clean up after each cut
 
 1. Remove stale exports from `packages/capability/src/index.ts` and any affected package barrel.
-2. Remove stale imports, layers, commands, and tests found by the compiler.
+2. Remove stale imports, Layers, commands, and tests found by the compiler. A Layer builds services and supplies their construction dependencies. A service is a named interface for one job.
 3. Update the package table in `AGENTS.md` so repo law matches the clone.
 4. Refresh the lockfile and format intentional changes:
 

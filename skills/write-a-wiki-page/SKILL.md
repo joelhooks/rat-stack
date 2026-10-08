@@ -44,6 +44,8 @@ After:
 
 > The handler decodes input with the schema before dispatch.
 
+A schema defines accepted values and their runtime checks. A handler implements an action on the server.
+
 Generation warns on sentences above 25 words and paragraphs above four sentences in lore and systems. Warnings show `file:line`, the count, and the limit. The generator prints a total too.
 
 The check reads parsed prose, including list paragraphs. It skips code, tables, blockquotes, and frontmatter. Warnings never fail the build. Fix new warnings or explain why they remain.
@@ -193,4 +195,4 @@ Never name the email delivery partner or list vendor in public prose. Describe t
 9. Check glossary links, block references, citations, and the bibliography.
 10. Record checks and any explained warnings before committing.
 
-Fix failures without weakening the fence. Verify deployment separately from the build.
+Fix failures without weakening the fence: compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. Verify deployment separately from the build.

@@ -35,10 +35,13 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A Scope owns resource cleanup. A fiber is an independently running Effect.
+Acquisition obtains a resource; release cleans it up.
+
 Construct the resource inside an acquisition Effect. Register release before handing the resource to its caller.
 Keep use inside the resource's lifetime.
 
-## Bracket one use
+## Acquire, use, and release one resource
 
 The migration adapter opens a Postgres client inside `Effect.tryPromise`.
 `acquireUseRelease` gives the client to migration work and then runs shutdown.
@@ -76,7 +79,7 @@ Its finalizer increments a separate release counter.
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-18
 ```
 
-The matrix exercises success, expected failure, and interruption.
+The test cases exercise success, expected failure, and interruption.
 Each case must acquire once and release once. It also checks that the selected exit actually occurred.
 
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=37-55
@@ -96,7 +99,7 @@ Ordinary callers still need declared failures in the typed channel.
 
 ## Effect idiom and house rule
 
-- A Scope owns finalizers; brackets arrange acquisition, use, and release.
+- A Scope owns finalizers; acquire/use/release operations arrange that sequence.
 - In rat-stack, construct resources inside acquisition. The lint fence checks this shape.
 - In rat-stack, [machines own finite business lifecycles](/lore/lifecycles-are-machines). Resource cleanup does not replace a lifecycle machine.
 
