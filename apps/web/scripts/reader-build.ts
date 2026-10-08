@@ -8,6 +8,7 @@ import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
+import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
 import { ReaderFlags } from "../src/client/reader-model.ts";
 import type { ReaderPageFlags } from "../src/client/reader-model.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
@@ -67,7 +68,9 @@ const readerPages = Effect.gen(function* readerPages() {
   const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
   const bodies = yield* readerBodyFlags(origin);
-  const pages = [home, ...lore, learn, ...prompts, ...bodies];
+  const systemsSkills = yield* readerSystemsSkillsFlags(origin);
+
+  const pages = [home, ...lore, learn, ...prompts, ...systemsSkills, ...bodies];
 
   return yield* Effect.forEach((page: (typeof pages)[number]) =>
     Schema.decodeUnknownEffect(ReaderFlags)({

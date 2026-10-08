@@ -46,7 +46,10 @@ export const readerWorkshop = <Message>(
     ]
   );
 
-export const readerFooter = <Message>(h: HtmlBuilder<Message>) =>
+export const readerFooter = <Message>(
+  h: HtmlBuilder<Message>,
+  includePrompts = true
+) =>
   h.footer(
     [h.Class(stylex.props(readerStyles.bounded).className ?? "")],
     [
@@ -63,7 +66,9 @@ export const readerFooter = <Message>(h: HtmlBuilder<Message>) =>
                 [
                   h.li([], [h.a([h.Href("/learn")], ["learn mode"])]),
                   h.li([], [h.a([h.Href("/glossary")], ["glossary"])]),
-                  h.li([], [h.a([h.Href("/prompts")], ["prompts"])]),
+                  ...(includePrompts
+                    ? [h.li([], [h.a([h.Href("/prompts")], ["prompts"])])]
+                    : []),
                   h.li([], [h.a([h.Href("/log")], ["change log"])]),
                   h.li([], [h.a([h.Href("/resources/peers")], ["peers"])]),
                 ]

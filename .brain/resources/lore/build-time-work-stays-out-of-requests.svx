@@ -23,21 +23,21 @@ sources:
     accessed: "2026-10-02"
 ---
 
-The existing [asset writer](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/emit-assets.ts) emits content-addressed output.
+The existing [asset writer](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/emit-assets.ts) emits output identified by a hash of its content.
 The Worker reads that output through [static assets](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts).
 
 The [code-snippets design brief](/lore/code-snippets) keeps Git reads and highlighting in build-time work.
 Request-time work receives static output.
 It does not resolve Git objects or start Shiki.
 
-The proposed gate checks that neither the snippet package nor Shiki enters the startup bundle.
+The proposed check verifies that neither the snippet package nor Shiki enters the startup bundle.
 The existing [startup budget](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/startup-budget.ts) limits:
 - Entry JavaScript to 3,300,000 bytes.
 - Complete JavaScript upload to 5,000,000 bytes.
 
-Check the bundle graph as well as its size to prove the import boundary.
+Check the modules included in the bundle, as well as its size, to verify which packages it includes.
 
-[Preflight](/lore/accumulate-independent-errors) finishes before asset emission.
+[Checks before writing output](/lore/accumulate-independent-errors) finish before assets are written.
 [Pinned sources](/lore/pinned-sources-can-report-drift) require no generation-time network fetch.
 
 See [the glossary](/glossary) for build-time work and request-time work.

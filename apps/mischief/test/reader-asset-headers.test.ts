@@ -59,7 +59,7 @@ const assertMetadata = Effect.fn("assertReaderAssetMetadata")(
   function* assertMetadata(
     file: string,
     canonical: string,
-    isPreview: boolean
+    expectedRobots: "index" | "noindex"
   ) {
     const fs = yield* FileSystem.FileSystem;
     const html = yield* fs.readFileString(file);
@@ -76,7 +76,7 @@ const assertMetadata = Effect.fn("assertReaderAssetMetadata")(
       (element) => element.attribs.rel === "canonical"
     );
 
-    if (isPreview) {
+    if (expectedRobots === "noindex") {
       expect(robots).toBe("noindex");
     } else {
       expect(robots).not.toBe("noindex");
@@ -215,7 +215,11 @@ it.layer(PreparedReaderPages.layer)((test) => {
         ]);
 
         for (const route of routes) {
-          yield* assertMetadata(outputPath(route), `${origin}${route}`, true);
+          yield* assertMetadata(
+            outputPath(route),
+            `${origin}${route}`,
+            "noindex"
+          );
         }
 
         yield* fs.writeFileString(
@@ -240,11 +244,11 @@ it.layer(PreparedReaderPages.layer)((test) => {
           ).toEqual(productionRules);
         }
 
-        for (const route of routes) {
+        for (const page of pages) {
           yield* assertMetadata(
-            outputPath(route),
-            `https://ratstack.sh${route}`,
-            false
+            outputPath(page.page.path),
+            `https://ratstack.sh${page.page.path}`,
+            page.page.metadata.robots
           );
         }
       }),

@@ -47,13 +47,16 @@ sources:
     accessed: "2026-10-02"
 ---
 
+An Effect Schema defines accepted values and provides types and runtime checks.
+Our shared contract describes one action's input, output, failures, and metadata.
 Effect Schema owns inputs, outputs, and failures in our shared [`contract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts). [`implement.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/implement.ts) binds the handler and its approval requirement.
 
+A projection builds an interface from a capability, a named action with a contract and handler.
 The HTTP projection creates an Effect HttpApi. Other projections create CLI commands and an AI toolkit from the same contracts.
 
 [`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) and [`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) supply implementations with Layers.
 
-## Follow one surface at a time
+## Follow one interface at a time
 
 - [MCP is another surface](/lore/mcp-is-another-surface): discover and call the toolkit over the protocol.
 - [OpenAPI describes the refusal too](/lore/openapi-describes-the-refusal-too): derive the HTTP document and declare the bodyless decode failure.

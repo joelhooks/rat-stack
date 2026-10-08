@@ -32,6 +32,11 @@ const readerBreadcrumb = (
   return h.a([h.Href("/")], ["source files"]);
 };
 
+const footerLinksPrompts = (path: string) =>
+  path === "/" ||
+  path === "/learn" ||
+  /^\/(?:lore|prompts)(?:\/|$)/u.test(path);
+
 export const readerCopyControl = (
   model: Pick<ReaderModel, "clipboardReady" | "copyPrompts" | "copyStates">,
   h: HtmlBuilder<typeof ReaderMessage.Type>,
@@ -257,7 +262,7 @@ export const readerView = (
             ...readerReferences(model, h),
           ]
         ),
-        readerFooter(h),
+        readerFooter(h, footerLinksPrompts(model.page.path)),
       ]
     ),
     canonical: `${model.origin}${model.page.metadata.canonicalPath}`,

@@ -30,7 +30,7 @@ Keep HEAD out of the immutable snippet cache.
 The cache key identifies the pinned source.
 A separate diagnostic observes source drift.
 
-If a shallow clone lacks the object, tell the author to fetch history.
+If a shallow clone does not contain the pinned Git file or commit object, tell the author to fetch history.
 Do not fetch it during content generation.
 
 This boundary keeps [build-time work](/lore/build-time-work-stays-out-of-requests) local.
