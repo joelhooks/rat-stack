@@ -15,7 +15,7 @@ import {
   DeployInputSchema,
   DeployStepError,
 } from "./contracts.js";
-import type { DeployInput, DeployVerdict } from "./contracts.js";
+import type { ApplyReceipt, DeployInput, DeployVerdict } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
 import { classifyRows, PlanRowsSchema } from "./plan.js";
 import type { PlanRow } from "./plan.js";
@@ -179,6 +179,14 @@ const ended = (
   verdict: { ...context.verdict, keys, outcome, reason, step },
 });
 
+const withApplyReceipt = (
+  verdict: DeployVerdict,
+  receipt: ApplyReceipt
+): DeployVerdict =>
+  receipt.providerErrors === undefined
+    ? { ...verdict, receipt }
+    : { ...verdict, providerErrors: receipt.providerErrors, receipt };
+
 const checksOutcome = (
   values: readonly Verdict[]
 ): DeployVerdict["outcome"] => {
@@ -250,12 +258,11 @@ export const deployMachine = setupEffect({
             return {
               context: {
                 verdict: {
-                  ...context.verdict,
+                  ...withApplyReceipt(context.verdict, event.output.value),
                   outcome:
                     event.output.value.outcome === "prepared"
                       ? "unknown"
                       : event.output.value.outcome,
-                  receipt: event.output.value,
                   step: "apply",
                 },
               },
@@ -265,7 +272,7 @@ export const deployMachine = setupEffect({
 
           return {
             context: {
-              verdict: { ...context.verdict, receipt: event.output.value },
+              verdict: withApplyReceipt(context.verdict, event.output.value),
             },
             target: "checks",
           };
