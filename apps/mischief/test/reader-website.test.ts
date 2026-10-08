@@ -3,6 +3,7 @@ import { Effect, Schema } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
+import { acceptsHtml } from "../src/negotiation.js";
 import {
   forwardsToReaderWebsite,
   readerWebsiteRoutes,
@@ -46,12 +47,31 @@ const acceptSchema = Schema.Literals([
   "",
 ]);
 
+const userAgentSchema = Schema.Literals([
+  "",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+  "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)",
+  "Twitterbot/1.0",
+  "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)",
+  "curl/8.9.1",
+]);
+
+const serverRequest = (path: string, accept: string, userAgent = "") =>
+  HttpServerRequest.fromWeb(
+    new Request(`https://ratstack.sh${path}`, {
+      headers: { accept, "user-agent": userAgent },
+    })
+  );
+
 const website = {
   // oxlint-disable-next-line typescript/promise-function-async -- The service binding stub returns Cloudflare's native Promise.
   fetch: (request: Request) =>
     Promise.resolve(
       new Response("Foldkit", {
-        headers: { "x-forwarded-url": request.url },
+        headers: {
+          "x-forwarded-accept": request.headers.get("accept") ?? "",
+          "x-forwarded-url": request.url,
+        },
         status: 201,
       })
     ),
@@ -74,15 +94,15 @@ const route = withReaderWebsite(
 );
 
 it.effect.prop(
-  "forwards only allow-listed HTML pages or Website assets",
-  { accept: acceptSchema, path: pathSchema },
-  ({ accept, path }) =>
+  "forwards allow-listed pages exactly when Mischief would answer HTML, plus Website assets",
+  { accept: acceptSchema, path: pathSchema, userAgent: userAgentSchema },
+  ({ accept, path, userAgent }) =>
     Effect.gen(function* checkRouting() {
       const url = new URL("https://ratstack.sh");
       url.pathname = path.startsWith("/") ? path : `/${path}`;
 
       const request = new Request(url, {
-        headers: { accept },
+        headers: { accept, "user-agent": userAgent },
       });
 
       const actualPath = new URL(request.url).pathname;
@@ -97,12 +117,11 @@ it.effect.prop(
             family.every((segment, index) => segment === segments[index])
         );
 
+      const asset = actualPath.startsWith("/assets/");
+
       const expected =
-        actualPath.startsWith("/assets/") ||
-        (readerPath &&
-          ["text/html", "text/html; charset=utf-8", "TEXT/HTML"].includes(
-            accept
-          ));
+        asset ||
+        (readerPath && acceptsHtml(HttpServerRequest.fromWeb(request)));
 
       const response = yield* route.pipe(
         Effect.provideService(
@@ -119,29 +138,31 @@ it.effect.prop(
       if (expected) {
         expect(response.headers["x-forwarded-url"]).toBe(request.url);
         expect(response.headers.vary).toContain("Accept");
+        expect(response.headers["x-forwarded-accept"]).toBe(
+          asset ? accept : "text/html"
+        );
       }
     })
 );
 
 it.effect("keeps the reader, asset, and agent seams separate", () =>
   Effect.gen(function* checkSeams() {
-    for (const [path, accept, expected] of [
-      ["/", "text/html", 201],
-      ["/?source=reader", "text/html", 201],
-      ["/", "*/*", 200],
-      ["/", "text/markdown", 200],
-      ["/assets/x.js", "*/*", 201],
-      ["/mcp", "text/html", 200],
-      ["/llms.txt", "text/html", 200],
+    for (const [path, accept, userAgent, expected] of [
+      ["/", "text/html", "", 201],
+      ["/?source=reader", "text/html", "", 201],
+      ["/", "*/*", "", 200],
+      ["/", "*/*", "Slackbot-LinkExpanding 1.0", 201],
+      ["/", "*/*", "Mozilla/5.0", 201],
+      ["/", "*/*", "Mozilla/5.0 (compatible; GPTBot/1.2)", 200],
+      ["/", "text/markdown", "Mozilla/5.0", 200],
+      ["/assets/x.js", "*/*", "", 201],
+      ["/mcp", "text/html", "", 200],
+      ["/llms.txt", "text/html", "", 200],
     ] as const) {
-      const request = new Request(`https://ratstack.sh${path}`, {
-        headers: { accept },
-      });
-
       const response = yield* route.pipe(
         Effect.provideService(
           HttpServerRequest.HttpServerRequest,
-          HttpServerRequest.fromWeb(request)
+          serverRequest(path, accept, userAgent)
         )
       );
 
@@ -155,9 +176,12 @@ it.prop(
   {
     accept: acceptSchema,
     path: pathSchema,
+    userAgent: userAgentSchema,
   },
-  ({ accept, path }) => {
-    expect(forwardsToReaderWebsite(path, accept, [])).toBe(false);
+  ({ accept, path, userAgent }) => {
+    expect(
+      forwardsToReaderWebsite(serverRequest("/", accept, userAgent), path, [])
+    ).toBe(false);
   }
 );
 
@@ -199,13 +223,14 @@ it.effect(
 
 it("supports future route families without broad prefix matches", () => {
   const routes = ["/prompts", "/prompts/*", "/learn"];
-  expect(forwardsToReaderWebsite("/prompts/example", "text/html", routes)).toBe(
-    true
-  );
-  expect(forwardsToReaderWebsite("/promptspam", "text/html", routes)).toBe(
-    false
-  );
-  expect(forwardsToReaderWebsite("/learn", "text/markdown", routes)).toBe(
-    false
-  );
+  const html = serverRequest("/", "text/html");
+  expect(forwardsToReaderWebsite(html, "/prompts/example", routes)).toBe(true);
+  expect(forwardsToReaderWebsite(html, "/promptspam", routes)).toBe(false);
+  expect(
+    forwardsToReaderWebsite(
+      serverRequest("/", "text/markdown"),
+      "/learn",
+      routes
+    )
+  ).toBe(false);
 });

@@ -11,6 +11,7 @@ import {
   htmlTokens,
   parseContentMarkdown,
   stringifyContentMarkdown,
+  stringifyMdsvexSourceMarkdown,
   visitContentNodes,
 } from "./svx-ast.ts";
 
@@ -786,7 +787,9 @@ export const renderSvxMarkdown = (
   options: Partial<ComponentRenderContext> = {},
   registry = createComponentRegistry()
 ) =>
-  stringifyContentMarkdown(
+  (target === "human"
+    ? stringifyMdsvexSourceMarkdown
+    : stringifyContentMarkdown)(
     transformComponentMarkdown(
       source,
       target,

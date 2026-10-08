@@ -1,12 +1,16 @@
 import { expect, it } from "@effect/vitest";
 import { Effect, Layer, Schema } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { readerResponseHeaders } from "../src/app.js";
 import { ContentStore } from "../src/content-store.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { nodeAssetsLayer } from "../src/node-content.js";
-import { withReaderWebsite } from "../src/reader-website.js";
+import {
+  isReaderWebsiteRoute,
+  withReaderWebsite,
+} from "../src/reader-website.js";
 import {
   readerContentSecurityPolicy,
   securityHeaders,
@@ -60,8 +64,22 @@ const pathFrom = ({ family, slug }: typeof forwardedPath.Type) =>
     : family;
 
 it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
+  test.effect(
+    "every catalog page is a Website reader route, so Mischief never renders page HTML",
+    () =>
+      Effect.gen(function* catalogPagesForward() {
+        const store = yield* ContentStore;
+        const catalog = yield* store.catalog;
+
+        expect(catalog.pageRoutes.length).toBeGreaterThan(0);
+        expect(
+          catalog.pageRoutes.filter((route) => !isReaderWebsiteRoute(route))
+        ).toEqual([]);
+      })
+  );
+
   test.effect.prop(
-    "every forwarded HTML or asset response carries Mischief's security and discovery headers",
+    "every forwarded HTML or asset response carries Mischief's security and discovery headers, and a Website 404 falls back to Mischief",
     { path: forwardedPath, upstream: websiteResponse },
     ({ path: generated, upstream }) =>
       Effect.gen(function* checkForwardedHeaders() {
@@ -91,7 +109,14 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
         const response = yield* withReaderWebsite(
           website,
           readerResponseHeaders(store)
-        )(Effect.die("Mischief must not render a forwarded path")).pipe(
+        )(
+          Effect.succeed(
+            HttpServerResponse.text("Mischief", {
+              headers: { "x-mischief-fallback": "rendered" },
+              status: 404,
+            })
+          )
+        ).pipe(
           Effect.provideService(
             HttpServerRequest.HttpServerRequest,
             HttpServerRequest.fromWeb(
@@ -101,6 +126,14 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
             )
           )
         );
+
+        expect(response.headers["x-mischief-fallback"]).toBe(
+          upstream.status === 404 ? "rendered" : undefined
+        );
+
+        if (upstream.status === 404) {
+          return;
+        }
 
         const image = upstream.contentType.startsWith("image/");
         const html = upstream.contentType.startsWith("text/html");

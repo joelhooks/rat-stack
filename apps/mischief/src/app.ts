@@ -22,10 +22,7 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
 import { feedbackRequests } from "./auth/feedback-access.js";
 import type { feedbackAccess } from "./auth/feedback-access.js";
-import {
-  errorPageTemplates,
-  originToken,
-} from "./bundled-content.generated.js";
+import { originToken } from "./bundled-content.generated.js";
 import {
   authenticatedCapabilities,
   capabilities,
@@ -50,14 +47,11 @@ import {
   sitemapXml,
   staticContentVersion,
   staticAssetGeneration,
-  tokenmaxxDocumentHtml,
-  tokenmaxxCopyScript,
-  tokenmaxxCopyScriptHash,
   tokenmaxxMarkdown,
 } from "./content.js";
+import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
-import { renderStaticDocument } from "./html.js";
 import {
   privateHttpTracingLayer,
   privateMcpTracingLayer,
@@ -70,8 +64,10 @@ import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
 import { mcpContent } from "./mcp-content.js";
+import { acceptedMediaTypes, acceptsHtml } from "./negotiation.js";
 import { promptLibraryLayer } from "./prompt-library.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
+import { IncidentDetails, NoVerifyDetails } from "./reader-error-page.js";
 import { logRequestIncident } from "./request-incidents.js";
 import {
   contentSecurityPolicy,
@@ -95,51 +91,6 @@ const json = (body: Schema.Json, contentType = "application/json") =>
 const originOf = (request: HttpServerRequest.HttpServerRequest) =>
   new URL(request.url, "https://ratstack.sh").origin;
 
-const previewCrawler =
-  /(?:Twitterbot|facebookexternalhit|Facebot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|Bluesky|Mastodon|Pinterestbot|redditbot|Applebot)/iu;
-
-const agentCrawler =
-  /(?:GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|PerplexityBot|Perplexity-User|Google-Extended|CCBot|Bytespider|Amazonbot|cohere-ai|Meta-ExternalAgent|MistralAI-User|DuckAssistBot|Applebot-Extended)/iu;
-
-const acceptedMediaTypes = (accept: string | undefined) =>
-  (accept ?? "")
-    .split(",")
-    .map((entry) => {
-      const [mediaType, ...parameters] = entry.trim().toLowerCase().split(";");
-
-      const quality = parameters
-        .map((parameter) => parameter.trim())
-        .find((parameter) => parameter.startsWith("q="));
-
-      return { mediaType: mediaType ?? "", rejected: quality === "q=0" };
-    })
-    .filter((entry) => entry.mediaType !== "" && !entry.rejected)
-    .map((entry) => entry.mediaType);
-
-const acceptsHtml = (request: HttpServerRequest.HttpServerRequest) => {
-  const accepted = acceptedMediaTypes(request.headers.accept);
-
-  if (accepted.includes("text/html")) {
-    return true;
-  }
-
-  if (accepted.includes("text/markdown")) {
-    return false;
-  }
-
-  const userAgent = request.headers["user-agent"] ?? "";
-
-  if (previewCrawler.test(userAgent)) {
-    return true;
-  }
-
-  if (agentCrawler.test(userAgent)) {
-    return false;
-  }
-
-  return userAgent.startsWith("Mozilla/");
-};
-
 const pathQuery = (pathname: string) => {
   const segments = pathname.split("/").filter((segment) => segment !== "");
   const last = segments.pop() ?? "";
@@ -156,19 +107,26 @@ const errorResponse = (
   page: ErrorPage,
   isHtml = acceptsHtml(request)
 ) =>
-  HttpServerResponse.text(renderErrorPage(page, originOf(request), isHtml), {
-    contentType: isHtml
-      ? "text/html; charset=utf-8"
-      : "text/markdown; charset=utf-8",
-    status: page.code,
-  });
+  isHtml
+    ? ErrorPageRenderer.pipe(
+        Effect.flatMap((renderer) => renderer.html(page, originOf(request)))
+      )
+    : Effect.succeed(
+        HttpServerResponse.text(
+          renderErrorPage(page, originOf(request), false),
+          {
+            contentType: "text/markdown; charset=utf-8",
+            status: page.code,
+          }
+        )
+      );
 
 const searchNotFound = (request: HttpServerRequest.HttpServerRequest) => {
   const { pathname } = new URL(request.url, "https://ratstack.sh");
   const query = pathQuery(pathname);
 
   return search.handler({ limit: 3, query }).pipe(
-    Effect.map(({ matches }) =>
+    Effect.flatMap(({ matches }) =>
       errorResponse(request, {
         code: 404,
         matches,
@@ -223,8 +181,8 @@ const staticRepresentation = () => "default";
 const staticEtag = (path: string, representation: string) =>
   `W/"${staticContentVersion}:${representation}:${encodeURIComponent(path)}"`;
 
-const assetEtag = (path: string, representation: string) =>
-  `W/"${staticAssetGeneration}:${representation}:${encodeURIComponent(path)}"`;
+const assetEtag = (path: string) =>
+  `W/"${staticAssetGeneration}:default:${encodeURIComponent(path)}"`;
 
 const matchesEtag = (requestValue: string | undefined, etag: string) =>
   requestValue
@@ -283,7 +241,7 @@ const assetImageResponse = (
   path: string,
   bytes: Uint8Array
 ) => {
-  const etag = assetEtag(path, "default");
+  const etag = assetEtag(path);
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
 
   let headers = HttpHeaders.set(
@@ -309,47 +267,25 @@ const assetImageResponse = (
 const assetPageResponse = (
   request: HttpServerRequest.HttpServerRequest,
   path: string,
-  page: string,
-  isHtml: boolean,
   bytes: Uint8Array
 ) => {
-  const etag = assetEtag(path, isHtml ? "html" : "default");
+  const etag = assetEtag(path);
   const revalidated = matchesEtag(request.headers["if-none-match"], etag);
 
-  let headers = HttpHeaders.fromInput({
-    "cache-control": isHtml ? "no-cache" : assetCacheControl,
+  const headers = HttpHeaders.fromInput({
+    "cache-control": assetCacheControl,
     etag,
     vary: "Accept",
     "x-ratstack-cache": revalidated ? "REVALIDATED" : "MISS",
   });
 
-  if (isHtml) {
-    headers = HttpHeaders.set(
-      headers,
-      "content-security-policy",
-      contentSecurityPolicy(
-        "'none'",
-        page === "/" ? tokenmaxxCopyScriptHash : undefined
-      )
-    );
-  }
-
   if (revalidated) {
     return HttpServerResponse.empty({ headers, status: 304 });
   }
 
-  const text = new TextDecoder().decode(bytes);
-
   return HttpServerResponse.text(
-    isHtml
-      ? renderStaticDocument(originOf(request), text)
-      : text.replaceAll(originToken, originOf(request)),
-    {
-      contentType: isHtml
-        ? "text/html; charset=utf-8"
-        : "text/markdown; charset=utf-8",
-      headers,
-    }
+    new TextDecoder().decode(bytes).replaceAll(originToken, originOf(request)),
+    { contentType: "text/markdown; charset=utf-8", headers }
   );
 };
 
@@ -365,10 +301,12 @@ const unavailableResponse = (request: HttpServerRequest.HttpServerRequest) =>
     !new URL(request.url, "https://ratstack.sh").pathname.endsWith(".md") &&
       acceptsHtml(request)
   ).pipe(
-    HttpServerResponse.setHeaders({
-      "cache-control": "no-store",
-      vary: "Accept",
-    })
+    Effect.map(
+      HttpServerResponse.setHeaders({
+        "cache-control": "no-store",
+        vary: "Accept",
+      })
+    )
   );
 
 const assetRoutes = (
@@ -411,22 +349,18 @@ const assetRoutes = (
             return yield* httpEffect;
           }
 
-          const isHtml =
-            page !== undefined && path === page && acceptsHtml(request);
-
           const stem = page === "/" ? "/index" : page;
-
-          const assetPath =
-            page === undefined ? path : `${stem}.${isHtml ? "html" : "md"}`;
-
+          const assetPath = page === undefined ? path : `${stem}.md`;
           const bytes = yield* assets.read(assetPath);
 
           return page === undefined
             ? assetImageResponse(request, path, bytes)
-            : assetPageResponse(request, path, page, isHtml, bytes);
+            : assetPageResponse(request, path, bytes);
         }).pipe(
           Effect.catchTag("AssetReadError", (error) =>
-            Effect.logError(error).pipe(Effect.as(unavailableResponse(request)))
+            Effect.logError(error).pipe(
+              Effect.andThen(unavailableResponse(request))
+            )
           )
         );
       }),
@@ -601,43 +535,24 @@ export const mcpLayer = (
 const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
   errorResponse(request, {
     code: 403,
-    details: errorPageTemplates.noVerifyDetails,
+    details: NoVerifyDetails.make({}),
     message: "The rat looks disappointed.",
     path: new URL(request.url, "https://ratstack.sh").pathname,
     title: "Forbidden",
   });
 
-export const tokenmaxxResponse = (
-  request: HttpServerRequest.HttpServerRequest
-) =>
-  Effect.gen(function* tokenmaxxPage() {
-    const isHtml = acceptsHtml(request);
+export const tokenmaxxResponse = Effect.gen(function* tokenmaxxPage() {
+  const body = yield* withAvailablePageTicket(tokenmaxxMarkdown);
 
-    const body = isHtml
-      ? renderStaticDocument(
-          originOf(request),
-          tokenmaxxDocumentHtml
-        ).replaceAll(
-          "__COPY_SCRIPT__",
-          `<script>${tokenmaxxCopyScript}</script>`
-        )
-      : yield* withAvailablePageTicket(tokenmaxxMarkdown);
-
-    return HttpServerResponse.text(body, {
-      contentType: isHtml
-        ? "text/html; charset=utf-8"
-        : "text/markdown; charset=utf-8",
-      headers: {
-        "cache-control": "no-store",
-        "content-security-policy": contentSecurityPolicy(
-          "'none'",
-          tokenmaxxCopyScriptHash
-        ),
-        vary: "Accept",
-        "x-robots-tag": "noindex",
-      },
-    });
+  return HttpServerResponse.text(body, {
+    contentType: "text/markdown; charset=utf-8",
+    headers: {
+      "cache-control": "no-store",
+      vary: "Accept",
+      "x-robots-tag": "noindex",
+    },
   });
+});
 
 const contentRoutes = () =>
   Layer.unwrap(
@@ -646,13 +561,13 @@ const contentRoutes = () =>
       const store = yield* ContentStore;
 
       return Layer.mergeAll(
-        HttpRouter.add("GET", "/tokenmaxx", (request) => {
-          const response = tokenmaxxResponse(request);
-
-          return Option.isSome(tickets)
-            ? response.pipe(Effect.provideService(IntakeTicket, tickets.value))
-            : response;
-        }),
+        HttpRouter.add("GET", "/tokenmaxx", () =>
+          Option.isSome(tickets)
+            ? tokenmaxxResponse.pipe(
+                Effect.provideService(IntakeTicket, tickets.value)
+              )
+            : tokenmaxxResponse
+        ),
         HttpRouter.add("GET", "/llms.txt", (request) =>
           store.catalog.pipe(
             Effect.map((catalog) =>
@@ -755,9 +670,7 @@ const contentRoutes = () =>
             )
         ),
         ...(["/--no-verify", "/no-verify"] as const).map((path) =>
-          HttpRouter.add("GET", path, (request) =>
-            Effect.succeed(noVerifyResponse(request))
-          )
+          HttpRouter.add("GET", path, (request) => noVerifyResponse(request))
         ),
         HttpRouter.add("GET", "/*", (request) => {
           const { pathname } = new URL(request.url, "https://ratstack.sh");
@@ -1123,20 +1036,17 @@ export const errorPages = HttpRouter.middleware(
           machine || Cause.hasInterrupts(cause)
             ? Effect.failCause(cause)
             : logRequestIncident(cause, "content").pipe(
-                Effect.map((incidentId) =>
-                  HttpServerResponse.setHeader(
-                    errorResponse(request, {
-                      code: 500,
-                      details: {
-                        html: `<p>Incident id: ${incidentId}</p>`,
-                        markdown: `Incident id: ${incidentId}`,
-                      },
-                      message: "Something went wrong. Please try again.",
-                      path: pathname,
-                      title: "Internal server error",
-                    }),
-                    "X-Incident-Id",
-                    incidentId
+                Effect.flatMap((incidentId) =>
+                  errorResponse(request, {
+                    code: 500,
+                    details: IncidentDetails.make({ id: incidentId }),
+                    message: "Something went wrong. Please try again.",
+                    path: pathname,
+                    title: "Internal server error",
+                  }).pipe(
+                    Effect.map(
+                      HttpServerResponse.setHeader("X-Incident-Id", incidentId)
+                    )
                   )
                 )
               )
@@ -1158,7 +1068,7 @@ export const errorPages = HttpRouter.middleware(
         return response;
       }
 
-      const page = errorResponse(request, {
+      const page = yield* errorResponse(request, {
         code: response.status,
         message:
           response.status >= 500
@@ -1252,7 +1162,7 @@ const contentRequests = (
         Effect.catchTags({
           AssetReadError: () =>
             HttpServerRequest.HttpServerRequest.pipe(
-              Effect.map(unavailableResponse)
+              Effect.flatMap(unavailableResponse)
             ),
           ResourceNotFound: () =>
             Effect.succeed(

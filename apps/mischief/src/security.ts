@@ -8,14 +8,11 @@ const policy = (sources: {
 }) =>
   `default-src 'none'; style-src ${sources.styles}; img-src 'self' data:; script-src ${sources.scripts}; connect-src 'self' https://cloudflareinsights.com; base-uri ${sources.base}; form-action ${sources.formAction}; frame-ancestors 'none'`;
 
-export const contentSecurityPolicy = (
-  formAction: "'none'" | "'self'",
-  scriptHash?: string
-) =>
+export const contentSecurityPolicy = (formAction: "'none'" | "'self'") =>
   policy({
     base: "'none'",
     formAction,
-    scripts: `https://static.cloudflareinsights.com${scriptHash === undefined ? "" : ` '${scriptHash}'`}`,
+    scripts: "https://static.cloudflareinsights.com",
     styles: "'unsafe-inline'",
   });
 

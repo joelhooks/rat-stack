@@ -1,6 +1,15 @@
 ---
 title: "Configuration is a supplied, validated dependency"
 description: "Parse configuration when a Layer builds, reject invalid values, and supply controlled settings in tests."
+plain: "Read and check settings once, when a Layer builds, and give code typed values through a service."
+diagram: |-
+  ConfigProvider (source)
+    │ APP_ENV
+    ▼
+  Config.Literals + default
+    │ invalid → ConfigError
+    ▼
+  AppConfig { appEnv }
 group: idea
 terms:
   - "Configuration Layer"
@@ -34,6 +43,9 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A service is a named interface. A Layer describes how to build it and supply its dependencies.
+Schema defines accepted values and checks data at runtime.
+
 Read configuration when its Layer builds. Expose parsed values through a service rather than reading environment variables throughout domain code.
 
 ## Define accepted values before reading them
@@ -48,7 +60,7 @@ The environment name and accepted values live together. The default does not mak
 Effect's `Config.schema` can describe more complex validated settings.
 Use the Schema-backed path instead of writing a second parser for the same domain rule.
 
-## Replace the source, not the parser
+## Supply another configuration source
 
 A `ConfigProvider` supplies raw configuration inputs.
 Tests can replace the source with `fromUnknown` while still exercising the production parsing Layer.
@@ -71,14 +83,14 @@ rat-stack's factory provides these two ways to supply configuration.
 ## Common wrong approach
 
 Reading `process.env` inside each domain method ties the method to the host and allows inconsistent parsing.
-A config service moves that choice to construction and gives tests a replacement boundary.
+A config service moves that choice to construction and gives tests a service they can replace.
 
 Keep missing settings and rejected settings distinct. Let construction fail when a supplied value violates the schema.
 
 ## Effect idiom and house rule
 
 - Config parses supplied data and reports typed failures. ConfigProvider selects the source.
-- In rat-stack, declare environment inputs in `.env.schema`. Alchemy provider credentials come from profiles, not environment variables.
+- In rat-stack, declare environment inputs in `.env.schema`. Alchemy provider credentials come from profiles. Do not supply them through environment variables.
 - Do not unwrap a redacted value for logs or public examples.
 
 See also: [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), [failures](/lore/error-model), and [tests](/lore/tests-that-earn-their-place).

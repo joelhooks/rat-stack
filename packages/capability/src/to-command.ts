@@ -42,7 +42,10 @@ const primitiveKind = (ast: SchemaAST.AST): FieldSpec["kind"] =>
 
 const describe = (field: PlainSchema): FieldSpec => {
   let ast: SchemaAST.AST = field.ast;
-  let optional = ast.context?.isOptional === true;
+
+  let optional =
+    ast.context?.isOptional === true ||
+    SchemaAST.toEncoded(ast).context?.isOptional === true;
 
   const description = SchemaAST.resolveDescription(ast);
 

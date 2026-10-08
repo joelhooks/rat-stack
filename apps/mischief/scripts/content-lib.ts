@@ -214,6 +214,9 @@ export interface LorePageMetadata {
   readonly prerequisites: readonly string[];
   readonly date?: string;
   readonly description: string;
+  readonly diagram?: string;
+  readonly learn?: boolean;
+  readonly plain?: string;
   readonly group: LoreGroup;
   readonly routePath: `/lore/${string}` | `/systems/${string}`;
   readonly slug: string;
@@ -229,7 +232,10 @@ const loreFrontmatterSchema = Schema.Struct({
   card: Schema.optional(Schema.String),
   date: Schema.optional(Schema.String),
   description: Schema.String,
+  diagram: Schema.optional(Schema.String),
   group: Schema.Literals(["idea", "concept", "source", "person", "system"]),
+  learn: Schema.optional(Schema.Boolean),
+  plain: Schema.optional(Schema.String),
   prerequisites: Schema.optional(Schema.Array(Schema.String)),
   sources: Schema.Array(
     Schema.Union([Schema.String, bibliographySourceSchema])
@@ -507,6 +513,18 @@ export const parseLorePage = (
 
   if (decoded.speaker !== undefined) {
     metadata.speaker = decoded.speaker;
+  }
+
+  if (decoded.plain !== undefined) {
+    metadata.plain = decoded.plain;
+  }
+
+  if (decoded.diagram !== undefined) {
+    metadata.diagram = decoded.diagram;
+  }
+
+  if (decoded.learn !== undefined) {
+    metadata.learn = decoded.learn;
   }
 
   if (decoded.url !== undefined) {
@@ -1383,8 +1401,49 @@ export const parseDebtLintOutput = (raw: string): DebtLintResult => {
   }
 };
 
+const tableRowPrefix = "| cell |\n| --- |\n| ";
+
+const firstCellHtml = (cell: string) => {
+  let start: number | undefined;
+
+  visitContentNodes(
+    parseContentMarkdown(`${tableRowPrefix}${cell} |\n`),
+    (node) => {
+      const offset = node.position?.start.offset;
+
+      if (node.type === "html" && offset !== undefined && start === undefined) {
+        start = offset - tableRowPrefix.length;
+      }
+    }
+  );
+
+  return start;
+};
+
+const escapeCellHtml = (cell: string): string => {
+  const start = firstCellHtml(cell);
+
+  return start === undefined
+    ? cell
+    : escapeCellHtml(`${cell.slice(0, start)}\\${cell.slice(start)}`);
+};
+
+const escapeCellPipes = (cell: string) => {
+  let escaped = "";
+  let backslashes = 0;
+
+  for (let index = 0; index < cell.length; index += 1) {
+    const character = cell.charAt(index);
+
+    escaped += character === "|" && backslashes % 2 === 0 ? "\\|" : character;
+    backslashes = character === "\\" ? backslashes + 1 : 0;
+  }
+
+  return escaped;
+};
+
 const tableCell = (value: string) =>
-  value.replaceAll("|", "\\|").replaceAll(/\s+/gu, " ").trim();
+  escapeCellHtml(escapeCellPipes(value.replaceAll(/\s+/gu, " ").trim()));
 
 export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
   const counts = new Map<string, number>();
@@ -1514,6 +1573,46 @@ const braceSafeText = (value: string): LoreHastNode => ({
   type: "raw",
   value: escapeHtml(value).replaceAll("{", "&#123;").replaceAll("}", "&#125;"),
 });
+
+interface ImageHastNode {
+  readonly type: string;
+  readonly tagName?: string;
+  readonly value?: string;
+  children?: ImageHastNode[];
+  readonly properties?: { readonly src?: string };
+}
+
+const emptiedByImageRemoval = new Set(["a", "p"]);
+
+const loadsFromThisSite = (source: string) =>
+  source.startsWith("data:") ||
+  (source.startsWith("/") && !source.startsWith("//"));
+
+const carriesContent = (node: ImageHastNode) =>
+  node.type !== "text" || (node.value ?? "").trim() !== "";
+
+export const dropOffSiteImages = () => (tree: ImageHastNode) => {
+  const keep = (node: ImageHastNode): boolean => {
+    if (node.tagName === "img") {
+      return loadsFromThisSite(node.properties?.src ?? "");
+    }
+
+    if (node.children === undefined) {
+      return true;
+    }
+
+    const before = node.children.length;
+    node.children = node.children.filter(keep);
+
+    return (
+      node.children.length === before ||
+      !emptiedByImageRemoval.has(node.tagName ?? "") ||
+      node.children.some(carriesContent)
+    );
+  };
+
+  keep(tree);
+};
 
 export const escapeSvelteBraces = () => (tree: LoreHastNode) => {
   const visit = (node: LoreHastNode): void => {

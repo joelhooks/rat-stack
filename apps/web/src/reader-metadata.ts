@@ -1,6 +1,6 @@
 import type { ReaderPageMetadata } from "./page-descriptor.js";
 
-const escapeAttribute = (value: string): string =>
+export const escapeAttribute = (value: string): string =>
   value
     .replaceAll("&", "&amp;")
     .replaceAll('"', "&quot;")

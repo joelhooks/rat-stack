@@ -1,6 +1,17 @@
 ---
 title: "Handle expected failures without hiding defects"
 description: "Declare expected failures, preserve their context, and recover by tag without turning crashes into successful outcomes."
+plain: "Give expected failures a type and context, recover by tag, and never turn a crash into a success."
+diagram: |-
+  fs error
+    │ mapError
+    ▼
+  ReadError { path, reason }
+    │ catchTag("ReadError")
+    ▼
+  report, then fail again
+
+  defect → stays a defect
 group: concept
 terms:
   - "Effect error model"
@@ -48,19 +59,22 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A defect is an unexpected execution failure.
+
 Declare failures that callers can handle. Keep defects distinct from those declared outcomes.
 Catch a failure where the application can recover or report it truthfully.
 
 ## Give expected failures a type and useful context
 
-`Schema.TaggedError` defines a yieldable error with a tag and declared fields.
+`Schema.TaggedError` defines a yieldable error: an error a generator can raise with `yield*`.
+Its tag identifies the error type; its fields retain context.
 `FileStatsError` keeps the path and the filesystem reason.
 
 ```ts repo=rat-stack path=packages/core/src/stats.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-26
 ```
 
 Inside a generator, `return yield*` can raise a yieldable error directly.
-`Effect.fail` can also place an error in the expected failure channel.
+`Effect.fail` can also place an error in the expected failure channel, the `E` parameter of the Effect type.
 Do not throw an ordinary exception to represent a declared refusal.
 
 ## Translate implementation failures without losing their meaning
@@ -73,7 +87,7 @@ The inspector uses `Effect.mapError` to translate a filesystem failure into its 
 Translation keeps the failed path and the source message. Callers receive `FileStatsError`, not a filesystem dependency.
 
 If a domain error needs to carry an unknown source error, `Schema.Defect()` can describe that field.
-A field using that schema does not itself turn an expected error into a runtime defect.
+Such a field does not itself turn an expected error into a runtime [defect](/lore/effect-basics).
 
 ## Recover or report at a named boundary
 
@@ -82,7 +96,7 @@ Use `catchTags` when several tagged failures need different handlers.
 
 The CLI reports the inspection failure, then fails again:
 
-```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-15
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=d88169f85b736dd49994e07b475fb8c26d62d191 lines=15-17
 ```
 
 A fallback is appropriate only when its value is a valid domain result.
@@ -91,7 +105,7 @@ Do not turn a failed inspection into empty file statistics just to complete the 
 ## Do not use orDie to hide ordinary failures
 
 `Effect.orDie` removes expected failures from the typed channel by turning them into defects.
-The inspection machine uses it at the actor boundary because its expected file failure already travels through the `Unreadable` outcome.
+The inspection [machine](/lore/lifecycles-are-machines) uses it where the machine's result is handed back to Effect because its expected file failure already travels through the `Unreadable` outcome.
 An unexpected actor failure or missing outcome is a programming failure at that boundary.
 
 This is a specific boundary decision. File reads still return `FileStatsError` to ordinary callers.
@@ -106,8 +120,8 @@ Keep refusal, unexpected failure, and successful completion distinct.
 
 ## Effect idiom and house rule
 
-- Expected failures appear in the Effect type. Tagged handlers can recover without swallowing defects.
-- In rat-stack, errors retain source context and repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
+- Expected failures appear in the [Effect](/lore/effect-basics) type. Tagged handlers can recover without swallowing defects.
+- In rat-stack, errors name their source and give repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
 - The application chooses which lifecycles need machines and which diagnostic fields each error needs.
 
 See also: [schemas](/lore/schemas-define-the-boundary), [author-facing diagnostics](/lore/errors-are-part-of-the-interface), [independent failures](/lore/accumulate-independent-errors), and [lifecycles](/lore/lifecycles-are-machines).

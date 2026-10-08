@@ -1,6 +1,15 @@
 ---
 name: write-a-wiki-page
 description: Write or revise public wiki pages with short prose, cited claims, meaningful visuals, and pinned code snippets.
+plain: "Write short plain prose, add a visual only when it explains, quote code from pinned source, and cite each claim."
+diagram: |-
+  1 choose the kind
+  2 write short prose
+  3 visual if it explains
+  4 quote pinned code
+  5 link and cite claims
+  6 check components
+  7 finish
 ---
 
 # Write a wiki page
@@ -43,6 +52,8 @@ Before:
 After:
 
 > The handler decodes input with the schema before dispatch.
+
+A schema defines accepted values and their runtime checks. A handler implements an action on the server.
 
 Generation warns on sentences above 25 words and paragraphs above four sentences in lore and systems. Warnings show `file:line`, the count, and the limit. The generator prints a total too.
 
@@ -193,4 +204,4 @@ Never name the email delivery partner or list vendor in public prose. Describe t
 9. Check glossary links, block references, citations, and the bibliography.
 10. Record checks and any explained warnings before committing.
 
-Fix failures without weakening the fence. Verify deployment separately from the build.
+Fix failures without weakening the fence: compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. Verify deployment separately from the build.

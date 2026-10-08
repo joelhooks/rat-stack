@@ -1,6 +1,7 @@
 ---
 title: "Sam Goodwin on Alchemy"
 description: "Sam Goodwin explains Alchemy's Effect model, plans, bindings, and cloud-library idea."
+plain: "Sam Goodwin explains how Alchemy uses Effect, plans and bindings, and says the cloud becomes a library."
 group: source
 speaker: "Sam Goodwin"
 date: 2026-05-11

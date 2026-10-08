@@ -6,7 +6,7 @@ export const ContentAssetManifest = Schema.Struct({
   images: Schema.Array(Schema.String),
   pages: Schema.Array(
     Schema.Struct({
-      html: Schema.String,
+      document: Schema.String,
       markdown: Schema.String,
       route: Schema.String,
     })

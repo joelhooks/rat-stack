@@ -1,6 +1,17 @@
 ---
 title: "Double opt-in"
 description: "The visitor gets one confirmation email and is counted only after using its link."
+plain: "A visitor counts only after using the link in one confirmation email, and the link opens a page with a button."
+diagram: |-
+  confirmation email
+    │ visitor opens link
+    ▼
+  page with a button
+    │ visitor presses it
+    ▼
+  counted
+
+  mail scanner GET → not counted
 group: concept
 terms:
   - "double opt-in"
@@ -22,6 +33,7 @@ sources:
 
 With [double opt-in](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/tokenmaxx-interest-form.svx), the visitor gets one confirmation email. They count only after using its link.
 
+GET is the HTTP method for reading a page.
 The link opens a page with a button because:
 
 > Mail scanners follow links, and a GET that confirms would count a scanner as a person.

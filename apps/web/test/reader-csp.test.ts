@@ -89,9 +89,10 @@ it.layer(NodeServices.layer)((test) => {
           }
 
           for (const image of document.querySelectorAll("img")) {
-            expect(allows("img-src", image.getAttribute("src") ?? "")).toBe(
-              true
-            );
+            expect(
+              allows("img-src", image.getAttribute("src") ?? ""),
+              image.getAttribute("src") ?? ""
+            ).toBe(true);
           }
 
           expect(
@@ -131,6 +132,7 @@ it.layer(NodeServices.layer)((test) => {
           inlineStyles
         );
         expect(sourcesFor("form-action")).toEqual(["'none'"]);
-      })
+      }),
+    { timeout: 60_000 }
   );
 });

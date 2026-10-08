@@ -1,6 +1,13 @@
 ---
 title: "Run Effect at the integration boundary"
-description: "Build the runtime where foreign code enters, reuse its services, and dispose it when that integration ends."
+description: "Build the runtime where a calling framework enters, reuse its services, and dispose it when that integration ends."
+plain: "Keep code as Effects and run them only where a process, framework or callback needs a result."
+diagram: |-
+  CLI     → runMain
+  router  → toWebHandler
+  Promise → ManagedRuntime
+            + close on exit
+  test    → it.effect
 group: idea
 created_at: "2026-10-06"
 updated_at: "2026-10-06"
@@ -40,16 +47,19 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A service is a named interface. A Layer describes how to build a service and supply its dependencies.
+A runtime executes Effects. A managed runtime keeps constructed services until disposal.
+
 Keep service methods as Effects. Run them where a process, framework, or callback requires execution.
 The integration boundary owns the runtime's lifetime.
 
-## Use the bridge the host needs
+## Use the calling framework's Effect integration
 
-| Host | Suitable execution boundary |
+| Calling framework or process | Suitable execution boundary |
 | --- | --- |
 | One CLI process | Compose the program, then use `NodeRuntime.runMain` |
 | Effect-native HTTP router | Adapt its Layer with `HttpRouter.toWebHandler` |
-| Foreign Promise-based framework | Reuse a `ManagedRuntime` owned by that integration |
+| Framework that expects native Promises rather than Effects | Reuse a `ManagedRuntime` owned by that integration |
 | Effect-aware test | Let `it.effect` or `it.layer` execute the test |
 
 A managed runtime is one integration tool. It is not required inside every Effect application.
@@ -66,7 +76,7 @@ The development backend already uses a router bridge:
 
 `toWebHandler` also returns a disposal function.
 This module keeps only the handler; the excerpt does not prove explicit disposal on development-server shutdown.
-Do not present that missing receipt as established resource cleanup.
+Do not present that missing shutdown check as established resource cleanup.
 
 ## Own a foreign runtime explicitly
 
@@ -93,10 +103,10 @@ The adapter under test owns the manual runtime.
 ```
 
 The test wraps the subject's native Promises with Effect adapters.
-Its outer bracket also closes the subject if an assertion fails.
+Its acquire/use/release cleanup also closes the subject if an assertion fails.
 Check the running server's shutdown behavior separately.
 
-## Adopt one edge at a time
+## Integrate one calling framework at a time
 
 1. Identify the process or framework that requires execution.
 2. Keep the job's input, output and failures typed inside Effect.
@@ -108,14 +118,14 @@ Check the running server's shutdown behavior separately.
 ## Common mistakes
 
 - Create a runtime for each domain method. Construction and cleanup lose a clear owner.
-- Return native Promises throughout the domain. Typed failures and requirements no longer compose through the Effect description.
+- Return native Promises throughout the domain. Replacing Effects with native Promises loses composition of typed failures and requirements.
 - Forget to dispose a long-lived runtime.
 - Assume a framework's shutdown is proven because the adapter returns a close function.
 
 ## Effect idiom and house rule
 
 - Runners and framework bridges execute Effects; runtime owners manage their Layers and disposal.
-- In rat-stack, [capabilities remain the shared action edge](/lore/one-capability-every-surface). A new runner does not authorize a raw bypass.
+- In rat-stack, [capabilities remain the shared interface for application actions](/lore/one-capability-every-surface). A new runner does not authorize a handler that skips the capability contract.
 - In rat-stack, test harnesses use [Effect-aware tests](/lore/tests-that-earn-their-place), not manually created runtimes.
 
 Read [scopes](/lore/scopes-own-resources) when deciding what the integration owns.

@@ -1,0 +1,32 @@
+{
+  "name": "ratstack",
+  "version": "0.1.0",
+  "description": "Learn rat-stack one concept at a time: the local learn commands and an MCP server.",
+  "keywords": [
+    "effect",
+    "learn",
+    "mcp",
+    "rat-stack"
+  ],
+  "homepage": "https://ratstack.sh/learn",
+  "bugs": "https://github.com/joelhooks/rat-stack/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelhooks/rat-stack.git",
+    "directory": "apps/cli/npm/ratstack"
+  },
+  "bin": {
+    "ratstack": "ratstack"
+  },
+  "files": [
+    "ratstack",
+    "ratstack.js",
+    "README.md",
+    "THIRD_PARTY_LICENSES.md"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

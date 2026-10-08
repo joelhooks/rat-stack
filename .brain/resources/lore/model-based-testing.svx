@@ -1,6 +1,17 @@
 ---
 title: "Model-based testing"
 description: "Describe what a system should do as a small model, generate action sequences, and check the real system against the model."
+plain: "Describe expected behavior as a small model, generate action sequences, and check the real system after each step."
+diagram: |-
+  generate steps
+    push push pop push
+    │
+    ▼
+  after every step
+    real system == model
+    │
+  failure shrinks to the
+  fewest steps
 group: concept
 terms:
   - "model-based testing"

@@ -1,6 +1,16 @@
 ---
 title: "Devtools"
 description: "Development-only capabilities inspect calls and lifecycle transitions without entering production bundles."
+plain: "Development-only rat_* capabilities record calls and machine transitions; production bundles never include them."
+diagram: |-
+  dev app only
+    │
+  CallWatch   → calls
+  watchActor  → transitions
+    │ recording Layer
+    ▼
+  rat_* tools
+  list read call replay diff
 group: system
 terms:
   - "devtools system"

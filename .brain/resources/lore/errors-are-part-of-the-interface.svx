@@ -1,6 +1,13 @@
 ---
 title: "Errors are part of the interface"
 description: "An author error needs a location, the rejected input, and a repair."
+plain: "An error an author sees must say where it happened, what input was rejected, and how to fix it."
+diagram: |-
+  RangeOutOfBounds
+    at: lore/x.svx:12
+    requested: 1-40
+    fileLength: 31
+    fix: Choose lines 1-31
 group: concept
 terms:
   - "diagnostic context"
@@ -42,4 +49,4 @@ Use [error accumulation](/lore/accumulate-independent-errors) to report unrelate
 
 Related reading: *Exceptional Ruby* and *Confident Ruby*, both by [Avdi Grimm](https://avdi.codes/books/).
 
-See [the glossary](/glossary) for diagnostic context and repair instruction.
+See the glossary for [diagnostic context](/glossary) and repair instruction.

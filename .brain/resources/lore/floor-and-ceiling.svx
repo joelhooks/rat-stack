@@ -1,6 +1,7 @@
 ---
 title: "Floor and ceiling"
 description: "Theo Browne argues that a model's ordinary reliability matters more than its peak on long agent runs."
+plain: "Theo says a model's ordinary reliability matters more than its best result when an agent works for hours."
 group: concept
 terms:
   - "floor and ceiling"

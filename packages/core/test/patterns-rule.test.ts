@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import {
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -21,6 +22,7 @@ const plugin = path.join(repoRoot, "scripts/oxlint-plugin-patterns.ts");
 const rules = [
   "rat-stack-patterns/acquire-release-constructs-in-acquire-body",
   "rat-stack-patterns/contract-binding-matches-name",
+  "rat-stack-patterns/learn-snippet-idiom",
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/watch-effect-actors",
 ];
@@ -229,6 +231,40 @@ describe("rat-stack pattern rules", () => {
     );
 
     expect(result.status).toBe(0);
+  });
+
+  it("flags a primitive service provided with provideService in a learn snippet", () => {
+    const primitive =
+      'import { Context, Effect } from "effect";\n\nexport class Greeting extends Context.Service<Greeting, string>()("Greeting") {}\n\nexport const main = Effect.gen(function* greet() { return yield* Greeting; }).pipe(Effect.provideService(Greeting, "hi"));\n';
+
+    const snippet = lintFixture(".brain/data/learn-cards", primitive);
+
+    const runtime = lintFixture("packages/core/src", primitive);
+
+    expectRuleSoft(snippet, "Shape the service as operations");
+    expectRuleSoft(snippet, "Give the service a namespaced key");
+    expectRuleSoft(snippet, "Attach static readonly layer");
+    expectRuleSoft(snippet, "Provide the service's static layer at the edge");
+    expect.soft(runtime.status).toBe(0);
+  });
+
+  it("accepts every learn card snippet in the repo", () => {
+    const directory = path.join(repoRoot, ".brain/data/learn-cards");
+
+    const snippets = readdirSync(directory).filter((file) =>
+      file.endsWith(".ts")
+    );
+
+    expect(snippets.length).toBeGreaterThan(0);
+
+    for (const file of snippets) {
+      const result = lintFixture(
+        ".brain/data/learn-cards",
+        readFileSync(path.join(directory, file), "utf-8")
+      );
+
+      expect.soft(result.output, file).not.toContain("learn-snippet-idiom");
+    }
   });
 
   it("flags an Effect-backed actor that is never watched", () => {

@@ -122,7 +122,7 @@
       ]
     },
     "@rat-stack/infra#test": {
-      "dependsOn": ["^build", "@rat-stack/web#build"],
+      "dependsOn": ["^build", "@rat-stack/web#build", "@rat-stack/web#test"],
       "outputs": [],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/**"]
     },

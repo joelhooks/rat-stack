@@ -1057,12 +1057,134 @@ const watchEffectActors = defineRule({
   },
 });
 
+const isLearnSnippet = (filename: string) =>
+  /(?:^|\/)\.brain\/data\/learn-cards\/.+\.ts$/u.test(filename);
+
+const primitiveServiceTypes = new Set([
+  "TSAnyKeyword",
+  "TSBigIntKeyword",
+  "TSBooleanKeyword",
+  "TSLiteralType",
+  "TSNumberKeyword",
+  "TSStringKeyword",
+  "TSSymbolKeyword",
+  "TSUnknownKeyword",
+]);
+
+const serviceDeclaration = (superClass: ESTree.Expression | null) => {
+  if (superClass?.type !== "CallExpression") {
+    return null;
+  }
+
+  const factory = superClass.callee;
+
+  if (
+    factory.type !== "CallExpression" ||
+    factory.callee.type !== "MemberExpression" ||
+    staticPropertyName(factory.callee) !== "Service"
+  ) {
+    return null;
+  }
+
+  const [key] = superClass.arguments;
+
+  return {
+    key: key === undefined || key.type === "SpreadElement" ? null : key,
+    operations: factory.typeArguments?.params[1] ?? null,
+  };
+};
+
+const staticLayerOf = (body: ESTree.ClassBody) =>
+  body.body.find(
+    (member) =>
+      member.type === "PropertyDefinition" &&
+      member.static &&
+      member.key.type === "Identifier" &&
+      member.key.name === "layer"
+  );
+
+const learnSnippetIdiom = defineRule({
+  create(context) {
+    if (!isLearnSnippet(workspacePath(context.filename))) {
+      return {};
+    }
+
+    const checkService = (node: ESTree.Class) => {
+      const service = serviceDeclaration(node.superClass);
+
+      if (service === null) {
+        return;
+      }
+
+      if (
+        service.operations !== null &&
+        primitiveServiceTypes.has(service.operations.type)
+      ) {
+        context.report({ messageId: "operations", node: service.operations });
+      }
+
+      const key = service.key === null ? null : stringValue(service.key);
+
+      if (key === null || !key.includes("/")) {
+        context.report({
+          messageId: "namespacedKey",
+          node: service.key ?? node,
+        });
+      }
+
+      const layer = staticLayerOf(node.body);
+
+      const className = node.id?.name;
+
+      const usesOf =
+        layer !== undefined &&
+        className !== undefined &&
+        context.sourceCode.getText(layer).includes(`${className}.of(`);
+
+      if (!usesOf) {
+        context.report({ messageId: "staticLayer", node: layer ?? node });
+      }
+    };
+
+    return {
+      CallExpression(node) {
+        if (
+          node.callee.type === "MemberExpression" &&
+          staticPropertyName(node.callee)?.startsWith("provideService") === true
+        ) {
+          context.report({ messageId: "provideLayer", node });
+        }
+      },
+      ClassDeclaration: checkService,
+      ClassExpression: checkService,
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep learn card snippets on the installed effect/AGENTS.md service idiom.",
+    },
+    messages: {
+      namespacedKey:
+        'Give the service a namespaced key such as "myapp/Greeter", so two services never share an identifier.',
+      operations:
+        "Shape the service as operations, for example { readonly greet: (name: string) => Effect.Effect<string> }. A primitive value belongs in Config or a Context.Reference.",
+      provideLayer:
+        "Provide the service's static layer at the edge with Effect.provide(Service.layer). provideService hides how the implementation is built.",
+      staticLayer:
+        "Attach static readonly layer to the service and build its value with Service.of, so the implementation sits beside the interface.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-patterns" },
   rules: {
     "acquire-release-constructs-in-acquire-body":
       acquireReleaseConstructsInAcquireBody,
     "contract-binding-matches-name": contractBindingMatchesName,
+    "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "watch-effect-actors": watchEffectActors,
   },

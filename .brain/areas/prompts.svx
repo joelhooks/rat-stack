@@ -1,6 +1,13 @@
 ---
 title: "One prompt serves people and agents"
 description: "Source-owned agent prompts with typed discovery and copyable browser pages."
+plain: "Each published prompt has one source: people read and copy it at /prompts, agents fetch it as Markdown."
+diagram: |-
+  prompt source
+  ├ /prompts page
+  │   copy + credit
+  └ listPrompts, getPrompt
+      Markdown by default
 group: system
 terms: ["agent prompt"]
 sources:
@@ -13,6 +20,10 @@ sources:
 
 ## What it does
 
+A prompt is a saved set of instructions for an agent.
+A capability is one named action with shared value definitions and a server-side implementation.
+A projection builds a callable interface from capabilities.
+
 - `/prompts` lists published prompts.
 - Each detail page shows the full prompt, a copy control, and its credit.
 - Markdown is the default representation. Browsers request HTML.
@@ -22,7 +33,8 @@ sources:
 
 - `.brain/resources/prompts/` owns the source. The content build owns derived assets.
 - Title, description, and body must contain text. Validation reports independent failures together.
-- Core owns the `PromptLibrary` port. Content and CLI adapters supply it.
+- Core owns the `PromptLibrary` port, an interface for listing and reading prompts.
+- Content and command-line adapters implement that interface for their data sources.
 - The public catalogue requires no identity or mutable database record.
 - Existing Worker infrastructure serves the assets. No prompt execution or scheduling occurs here.
 - Foldkit Messages and Commands own clipboard interaction. Prompt text remains unchanged.

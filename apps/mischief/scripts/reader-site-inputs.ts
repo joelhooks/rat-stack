@@ -4,6 +4,10 @@ import { DomUtils, parseDocument } from "htmlparser2";
 
 import { ReaderReferences } from "../../web/src/page-descriptor.ts";
 import { ContentAssetManifest } from "../src/asset-manifest.ts";
+import {
+  staticAssetGeneration,
+  tokenmaxxDocumentHtml,
+} from "../src/bundled-content.generated.ts";
 import { ContentCatalog } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { parseLorePage } from "./content-lib.ts";
@@ -45,7 +49,7 @@ const jsonLdPolicy = (path: string) => {
     : "none";
 };
 
-const documentMetadata = (path: string, html: string) => {
+export const documentMetadata = (path: string, html: string) => {
   const document = parseDocument(html);
   const tags = DomUtils.getElementsByTagName("meta", document.children);
   const title = DomUtils.getElementsByTagName("title", document.children).at(0);
@@ -109,6 +113,7 @@ export const readerAssetInputs = Effect.gen(function* readerAssetInputs() {
 
   return {
     directory: paths.join(root, "assets", manifest.generation),
+    documents: paths.join(root, "documents", manifest.generation),
     manifest,
   };
 });
@@ -118,7 +123,7 @@ export const prepareReaderSiteInputs = Effect.gen(
     const fs = yield* FileSystem.FileSystem;
     const paths = yield* Path.Path;
     const repository = new URL("../../../", import.meta.url).pathname;
-    const { directory, manifest } = yield* readerAssetInputs;
+    const { directory, documents, manifest } = yield* readerAssetInputs;
 
     const catalog = yield* fs
       .readFileString(paths.join(directory, "_content/catalog.json"))
@@ -138,7 +143,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       catalog.data.resources.find((resource) => resource.routePath === route);
 
     const readPage = (entry: (typeof manifest.pages)[number]) =>
-      fs.readFileString(paths.join(directory, entry.html.slice(1))).pipe(
+      fs.readFileString(paths.join(documents, entry.document.slice(1))).pipe(
         Effect.flatMap((html) =>
           Effect.try({
             catch: (cause) =>
@@ -161,7 +166,28 @@ export const prepareReaderSiteInputs = Effect.gen(
         )
       );
 
-    const pages = yield* Effect.forEach(readPage)(manifest.pages);
+    const manifestPages = yield* Effect.forEach(readPage)(manifest.pages);
+
+    if (staticAssetGeneration !== manifest.generation) {
+      return yield* new ReaderInputError({
+        message:
+          "The bundled tokenmaxx document and the content manifest have different generations; regenerate content before building the reader",
+        sourcePath: "apps/mischief/src/bundled-content.generated.ts",
+      });
+    }
+
+    const tokenmaxxHtml = tokenmaxxDocumentHtml;
+
+    const pages = [
+      ...manifestPages,
+      {
+        html: tokenmaxxHtml,
+        metadata: documentMetadata("/tokenmaxx", tokenmaxxHtml),
+        path: "/tokenmaxx",
+        sourcePath: "apps/mischief/content/tokenmaxx.md",
+        status: 200,
+      },
+    ];
 
     const source = yield* fs
       .readFileString(

@@ -1,6 +1,14 @@
 ---
 title: "HATEOAS"
 description: "Links in a representation tell its reader what to do next; rat-stack applies that idea to agent-facing pages and responses."
+plain: "Links in a response tell the reader what it can do next; rat-stack wants agent surfaces to carry those links."
+diagram: |-
+  agent reads /llms.txt
+    ├ rules
+    ├ lore
+    └ skills
+  each page links onward
+  agent picks next step
 group: idea
 terms:
   - HATEOAS

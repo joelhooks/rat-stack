@@ -1,6 +1,18 @@
 ---
 title: "Code snippets quote a pinned source"
 description: "Shipped design brief: pinned Git objects, typed diagnostics, and one build-only snippet model for both views."
+plain: "A code excerpt quotes an exact pinned source, checks its metadata, and builds both reader views from one model."
+diagram: |-
+  fence → CodeRequest
+    │ read pinned Git object
+    ▼
+  ResolvedCode
+    │ tokenize, select lines
+    ▼
+  CodeSnippet
+    │ all jobs pass preflight
+    ▼
+  HTML + agent Markdown
 group: idea
 terms:
   - "code snippets"
@@ -97,10 +109,13 @@ It reports changed selected lines as warnings without replacing the pinned text.
 
 ## The authoring syntax
 
-Fences are the only authoring syntax. Authors do not write `<Code>` elements.
+A Markdown code fence is a block delimited by backticks. It differs from rat-stack's enforcement fence.
+
+Code fences are the only authoring syntax. Authors do not write `<Code>` elements.
 The internal component renderer remains an implementation detail.
 
-Fence metadata has these parts:
+Fence metadata means options on the opening line of a Markdown code block.
+It has these parts:
 - An optional language token.
 - Whitespace-separated `key=value` pairs.
 - At most one highlight set, such as `{3,5-7}`.
@@ -109,7 +124,7 @@ Fence metadata has these parts:
 The accepted keys are `repo`, `path`, `at`, `lines`, and `title`.
 Unknown keys, duplicate keys, and malformed metadata are errors.
 
-The shipped request records content, selection, and provenance:
+The shipped request records content, selection, and source repository, commit, file, and line numbers:
 
 ```ts repo=rat-stack path=packages/code-snippets/src/model.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=17-31 {20,26} title="Decoded CodeRequest"
 ```
@@ -146,6 +161,8 @@ Later stages receive decoded values.
 
 ## The pipeline
 
+Preflight checks every independent snippet job before any generated output is written.
+
 <Diagram alt="Collect produces CodeRequest; resolve produces ResolvedCode; highlight produces HighlightedFile; decorate produces CodeSnippet; preflight permits HTML and agent Markdown emission.">
 
 ```text
@@ -174,10 +191,10 @@ Each stage adds facts. Both renderers use the same final model.
 
 | Stage | Adds or checks |
 | --- | --- |
-| Collect | Walk mdast code nodes; scan metadata; Schema-decode requests and source locations. |
+| Collect | Walk Markdown syntax-tree code nodes; scan metadata; Schema-decode requests and source locations. |
 | Resolve | Read source text; determine file length and language; check ranges; derive a source link. |
 | Highlight | Produce tokens for every source line. |
-| Decorate | Select numbered lines; attach highlights, collapsed gaps, provenance, and diagnostics. |
+| Decorate | Select numbered lines; attach highlights, collapsed gaps, source details, and diagnostics. |
 | Emit | Write assets only after every independent job passes preflight. |
 
 [Whole-file tokenization](/lore/tokenize-before-slicing) comes before range selection.
@@ -185,7 +202,9 @@ This preserves the preceding source context for multiline comments and strings.
 
 ## Ports and adapters
 
+A port is an application-owned interface. An adapter implements that interface for a provider.
 The package follows [ports and adapters](/lore/hexagonal-architecture).
+
 Its core owns stage schemas, errors, and selection rules. Core imports neither Git nor Shiki.
 
 `SourceRepository` resolves repository id, commit, and path through a decoded registry.
@@ -199,20 +218,23 @@ A GitHub, GitLab, Forgejo, or link-free entry needs no core change.
 The [highlighter port](/lore/engine-neutral-tokens-keep-adapters-replaceable) exposes:
 - Per-line tokens containing `text`, `role`, and `fontStyle`.
 - Language, alias, and theme catalogues.
-- An engine fingerprint for caching.
+- An engine fingerprint: an identifier for the highlighter, version, and settings used in cache keys.
 
 The `/shiki` adapter uses the existing build-only Shiki 3.23.0 pin.
 Shiki token types stay inside that adapter.
 A `/plain` adapter supplies uncoloured tokens for core tests.
 
+A service is a named interface. A Layer describes how to build a service and supply its dependencies.
+A Scope owns resource cleanup.
+
 [Layers](/lore/layer-constructor-pattern) provide the adapters. Shiki acquisition and disposal stay inside a scoped Layer.
 
-Mischief owns mdast collection, renderer dispatch, markup, CSS, and reporting.
+Mischief collects Markdown syntax-tree nodes, chooses component renderers, and owns markup, CSS, and reporting.
 Syntax styles obey [the fence](/lore/the-fence), including the existing accent rule.
 
 ### Cache boundaries
 
-Build-scoped caches reuse immutable successes:
+During one build, caches reuse successful results whose inputs cannot change:
 - Blob cache: repository, commit, and path.
 - Whole-file token cache: content key and engine settings.
 - Render cache: the canonical snippet content key.
@@ -260,7 +282,7 @@ See [model-based testing](/lore/model-based-testing) and [tests that earn their 
 | P3 | Accepted ranges are positive, ordered, disjoint, and strictly within source bounds. |
 | P4 | Visible line numbers, collapsed gaps, and highlights match the independent array model. |
 | P5 | Selected tokens match whole-file Shiki tokens, including multiline comments and template strings. |
-| P6 | HTML, agent Markdown, and pinned source agree on selected text and provenance. |
+| P6 | HTML, agent Markdown, and pinned source agree on selected text, repository, commit, file, and line numbers. |
 | P7 | Exactly `k` independent failures produce `k` diagnostics and no asset writes. |
 | P8 | Repeated rendering with an identical content key produces identical bytes. Every output-affecting input participates in the key. |
 
@@ -274,7 +296,7 @@ The package uses 40 runs per property.
 P5 exercises Shiki. Other core properties use the plain adapter.
 
 The test suite also checks:
-- One exact-message example per error tag at the diagnostic seam.
+- One exact-message example per error tag at the interface that reports errors.
 - Byte comparisons for ordinary fences under the decided default language rule.
 - A planted range or slicing bug that makes its property fail.
 - Startup bundle checks for the build-only boundary.
@@ -297,7 +319,7 @@ The scanner accepts only the grammar documented above, a stricter subset than th
 ## Build-only limits
 
 There is no remote source adapter, mirror synchronization, or persistent snippet cache in this design.
-A shallow clone must already contain the pinned commit and blob.
+A shallow clone must already contain the pinned commit and file-content Git object.
 Generation performs no checkout and no network fetch.
 
 Run `pnpm sources:fetch` explicitly before generation when pinned objects are missing. It uses the configured bootstrap remote and verifies the requested commits.

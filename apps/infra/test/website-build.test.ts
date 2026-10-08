@@ -144,9 +144,15 @@ it.layer(NodeServices.layer)((test) => {
 
           if (page?.origin === "https://ratstack.sh") {
             expect(proof.robots).not.toBe("noindex");
-            expect(
-              yield* fs.exists(path.join(result.clientDirectory, "_headers"))
-            ).toBe(false);
+
+            const headerPath = path.join(result.clientDirectory, "_headers");
+
+            const headers = (yield* fs.exists(headerPath))
+              ? yield* fs.readFileString(headerPath)
+              : "";
+
+            expect(headers).not.toMatch(/^\/\*$/mu);
+            expect(headers).not.toContain("X-Preview-Commit");
           } else {
             expect(proof.robots).toBe("noindex");
           }

@@ -66,11 +66,7 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
       !manifest.pages.every((page) => {
         const stem = page.route === "/" ? "/index" : page.route;
 
-        return (
-          pages.has(page.route) &&
-          page.html === `${stem}.html` &&
-          page.markdown === `${stem}.md`
-        );
+        return pages.has(page.route) && page.markdown === `${stem}.md`;
       })
     ) {
       return yield* failure("routes", manifestPath, manifest.pages);
@@ -94,7 +90,7 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
     }
 
     for (const file of [
-      ...manifest.pages.flatMap((page) => [page.html, page.markdown]),
+      ...manifest.pages.map((page) => page.markdown),
       ...manifest.images,
       ...(manifest.data ?? []),
     ]) {

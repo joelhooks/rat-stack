@@ -29,7 +29,7 @@ const manifestAt = (directory: string) =>
   });
 
 it.effect(
-  "emits every static representation and image with the served bytes",
+  "emits every page and image, deploys no page HTML, and serves the Markdown and image bytes unchanged",
   () =>
     Effect.gen(function* emittedContentParity() {
       const fs = yield* FileSystem.FileSystem;
@@ -54,6 +54,22 @@ it.effect(
         false
       );
 
+      const deployedRoot = `${directory}/assets/${manifest.generation}`;
+
+      const deployed = yield* fs.readDirectory(deployedRoot, {
+        recursive: true,
+      });
+
+      expect(deployed.filter((file) => file.endsWith(".html"))).toEqual([]);
+
+      for (const file of deployed.filter(
+        (entry) => entry.endsWith(".json") || entry.endsWith(".md")
+      )) {
+        const text = yield* fs.readFileString(`${deployedRoot}/${file}`);
+
+        expect(text.toLowerCase().includes("<!doctype html"), file).toBe(false);
+      }
+
       yield* Effect.acquireUseRelease(
         Effect.sync(() =>
           HttpRouter.toWebHandler(
@@ -63,39 +79,35 @@ it.effect(
         ),
         ({ handler }) =>
           Effect.gen(function* compareServedAssets() {
+            const svxLink = /(?:href="|\]\()\/[^"\s)]*\.svx(?:[?#"\s)]|$)/u;
+
             for (const page of manifest.pages) {
-              for (const representation of ["html", "markdown"] as const) {
-                const expected = yield* fs.readFileString(
-                  `${directory}/assets/${manifest.generation}${page[representation]}`
-                );
+              const html = yield* fs.readFileString(
+                `${directory}/documents/${manifest.generation}${page.document}`
+              );
 
-                const response = yield* Effect.promise(
-                  handler.bind(
-                    undefined,
-                    new Request(`https://ratstack.sh${page.route}`, {
-                      headers: {
-                        accept:
-                          representation === "html"
-                            ? "text/html"
-                            : "text/markdown",
-                      },
-                    }),
-                    undefined
-                  )
-                );
+              const expected = yield* fs.readFileString(
+                `${directory}/assets/${manifest.generation}${page.markdown}`
+              );
 
-                const body = yield* Effect.promise(
-                  response.text.bind(response)
-                );
+              const response = yield* Effect.promise(
+                handler.bind(
+                  undefined,
+                  new Request(`https://ratstack.sh${page.route}`, {
+                    headers: { accept: "text/markdown" },
+                  }),
+                  undefined
+                )
+              );
 
-                expect(body).not.toMatch(
-                  /(?:href="|\]\()\/[^"\s)]*\.svx(?:[?#"\s)]|$)/u
-                );
-                expect(response.status).toBe(200);
-                expect(body).toBe(
-                  expected.replaceAll(originToken, "https://ratstack.sh")
-                );
-              }
+              const body = yield* Effect.promise(response.text.bind(response));
+
+              expect(html).not.toMatch(svxLink);
+              expect(body).not.toMatch(svxLink);
+              expect(response.status).toBe(200);
+              expect(body).toBe(
+                expected.replaceAll(originToken, "https://ratstack.sh")
+              );
             }
 
             for (const page of manifest.pages.filter((entry) =>
@@ -219,10 +231,13 @@ it.effect(
       expect(
         yield* fs.exists(`${directory}/assets/${previous.generation}/old.md`)
       ).toBe(false);
+      expect(
+        yield* fs.exists(`${directory}/documents/${previous.generation}`)
+      ).toBe(false);
       expect(current).toEqual({
         generation: current.generation,
         images: [],
-        pages: [{ html: "/new.html", markdown: "/new.md", route: "/new" }],
+        pages: [{ document: "/new.html", markdown: "/new.md", route: "/new" }],
       });
     }).pipe(Effect.scoped, Effect.provide(NodeServices.layer))
 );

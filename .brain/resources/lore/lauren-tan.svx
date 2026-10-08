@@ -1,6 +1,7 @@
 ---
 title: "Lauren Tan"
 description: "Lauren Tan describes verification and agent-oriented architecture in her public talk about Dune."
+plain: "Lauren Tan builds trust in agent work through verification, skills and an agent-friendly codebase."
 group: person
 terms:
   - "Lauren Tan"

@@ -2,24 +2,42 @@
 name: learn-rat-stack
 updated: "2026-10-06"
 description: Trace a capability through Effect, XState, five projections, the CLI, and Alchemy. Try hosted search and read.
+plain: "Trace one action from its contract through a handler, a service, a machine, five surfaces, the CLI and the cloud."
+diagram: |-
+  contract
+    │ handler
+    │ service + machine
+    ▼
+  one capability
+  ├ CLI
+  ├ HTTP
+  ├ MCP
+  ├ code mode
+  └ RPC
 ---
 
 # Learn the stack
 
-Start with one [capability](/systems/capabilities): `inspectFile`. Follow its [contract](/systems/capabilities), handler, service, machine, and [projections](/lore/one-capability-every-surface). Then try the hosted content tools.
+Start with `inspectFile`, a [capability](/systems/capabilities): one named action with a contract and a server-side handler. The [contract](/systems/capabilities) defines its name, input, output, failure, and metadata. The handler implements the action.
+
+A service is a named interface for one job. A machine defines states and the events that permit movement between them. A [projection](/lore/one-capability-every-surface) builds a callable interface from capabilities.
+
+Follow these parts, then try the hosted content tools.
 
 Read [Effect basics](/lore/effect-basics) before this trace if the computation model is new. For implementation tasks, use [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [testing](/lore/tests-that-earn-their-place).
 
 ## The pieces
 
-- Effect supplies schemas, services, typed errors, and Layers.
+- Effect describes work with typed failures and required dependencies.
+- Schema defines accepted values and their runtime checks.
+- A Layer builds services and supplies their construction dependencies.
 - XState owns finite lifecycles. The Effect bridge runs their declared actors.
 - TypeScript 7 and Effect diagnostics check types and Effect usage.
-- Oxlint, Oxfmt, Vitest, and lefthook enforce [the fence](/lore/the-fence).
+- Oxlint, Oxfmt, Vitest, and lefthook enforce [the fence](/lore/the-fence): checks and hooks that reject prohibited code and shortcuts.
 - pnpm and Turborepo connect packages and cache checks.
 - Alchemy declares the cloud. Follow [learn Alchemy](/skills/learn-alchemy) for the deployment graph.
 
-## One action, five surfaces
+## One action, five interfaces
 
 ```text
                      ┌─ CLI
@@ -89,7 +107,7 @@ The machine starts in `reading`. It finishes in `inspected` or `unreadable`.
 
 ### 5. Project the registered actions
 
-The CLI's server surfaces use the same `capabilities` list.
+The command-line interface (CLI) projects the same `capabilities` list for each server interface.
 
 ```ts repo=rat-stack path=apps/cli/src/surfaces.ts at=5c0f78e03d69ff9ea00f6b95d02cc36a3de91a0b lines=21-32 {21,23,25,29}
 
@@ -103,7 +121,7 @@ The RPC [projection](/lore/one-capability-every-surface) derives contracts from 
 
 A projection takes a registry and reuses its domain handlers.
 
-### 6. Wire the CLI
+### 6. Connect the CLI
 
 `toCommand` derives each command. `inspectFile` also gets the `stats` alias.
 
@@ -121,7 +139,7 @@ The command keeps the shared handler.
 
 ### 7. Compose the cloud
 
-Alchemy declares the Stack, Cloudflare providers, and state. The Stack includes `Mischief` and `Website`.
+An Alchemy Stack groups one cloud infrastructure program and its outputs. Alchemy declares the Stack, Cloudflare providers, and state. The Stack includes `Mischief` and `Website`.
 
 ```ts repo=rat-stack path=apps/infra/alchemy.run.ts at=5c0f78e03d69ff9ea00f6b95d02cc36a3de91a0b lines=12-18,114-119 {12,15-16,114-115}
 
@@ -164,7 +182,7 @@ Follow repo law and pinned code when an example is stale.
 
 - Add schemas and a shared action: [`add-a-capability`](/skills/add-a-capability).
 - Model a lifecycle: [add a lifecycle machine](/skills/add-a-lifecycle-machine).
-- Remove a surface: [keep or cut](/skills/keep-or-cut).
+- Remove an interface: [keep or cut](/skills/keep-or-cut).
 - Follow the cloud footprint: [learn Alchemy](/skills/learn-alchemy).
 
 ## Finish

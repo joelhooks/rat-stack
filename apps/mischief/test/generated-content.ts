@@ -16,6 +16,7 @@ import {
   SkillSource,
   contentPagePath,
 } from "../src/content-data.js";
+import { renderStaticDocument } from "../src/html.js";
 import { AssetReadError } from "../src/static-assets-error.js";
 import { StaticAssets } from "../src/static-assets.js";
 
@@ -36,6 +37,11 @@ if (manifest.generation !== runtime.staticAssetGeneration) {
 
 const assetsRoot = new URL(
   `../dist/content/assets/${manifest.generation}/`,
+  import.meta.url
+);
+
+const documentsRoot = new URL(
+  `../dist/content/documents/${manifest.generation}/`,
   import.meta.url
 );
 
@@ -65,8 +71,16 @@ const documentFor = (route: string) => {
     throw new Error(`No generated fixture for ${route}`);
   }
 
-  return bytes(page.html).toString("utf-8");
+  return readFileSync(new URL(page.document.slice(1), documentsRoot), "utf-8");
 };
+
+export const generatedReaderPage = (route: string) =>
+  renderStaticDocument("https://ratstack.sh", documentFor(route));
+
+export const generatedTokenmaxxPage = renderStaticDocument(
+  "https://ratstack.sh",
+  runtime.tokenmaxxDocumentHtml
+);
 
 export const homeDocumentHtml = documentFor("/");
 

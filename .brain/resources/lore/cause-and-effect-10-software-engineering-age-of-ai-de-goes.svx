@@ -1,6 +1,7 @@
 ---
 title: "Cause & Effect 10: Software engineering in the age of AI"
 description: "John De Goes, Michael Arnaldi, and Johannes Schickling discuss engineering judgment as code gets cheaper."
+plain: "As code gets cheap, the speakers say system shape, verification and control of complexity matter more."
 group: source
 speaker: "John De Goes, Michael Arnaldi, and Johannes Schickling"
 date: 2026-08-07

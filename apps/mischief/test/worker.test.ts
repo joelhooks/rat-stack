@@ -17,7 +17,6 @@ import type {
   NativeRateLimitBinding,
   RateLimitBindings,
 } from "../src/rate-limits.js";
-import { contentSecurityPolicy } from "../src/security.js";
 import {
   a2aAgentCard,
   agentSkillPath,
@@ -35,7 +34,13 @@ import {
   robotsText,
   skills,
 } from "./content-fixture.js";
-import { loreSources, tokenmaxxCopyScriptHash } from "./generated-content.js";
+import {
+  generatedReaderPage,
+  glossaryIndexDocumentHtml,
+  lawSources,
+  loreIndexDocumentHtml,
+  loreSources,
+} from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 type WebHandler = (request: Request) => Promise<Response>;
@@ -76,11 +81,6 @@ const makeFakeStaticResponseCache = (): FakeStaticResponseCache => {
   };
 };
 
-const htmlHomeRequest = () =>
-  new Request("http://localhost/", {
-    headers: { accept: "text/html" },
-  });
-
 const expectedSecurityHeaders = {
   "cross-origin-opener-policy": "same-origin",
   "cross-origin-resource-policy": "same-origin",
@@ -95,21 +95,13 @@ const expectedSecurityHeaders = {
 const expectedContentSecurityPolicy =
   "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; script-src https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
-const expectSecurityHeaders = (
-  response: Response,
-  html: boolean,
-  copy = false
-) => {
+const expectSecurityHeaders = (response: Response, html: boolean) => {
   for (const [name, value] of Object.entries(expectedSecurityHeaders)) {
     expect(response.headers.get(name), name).toBe(value);
   }
 
-  const policy = copy
-    ? contentSecurityPolicy("'none'", tokenmaxxCopyScriptHash)
-    : expectedContentSecurityPolicy;
-
   expect(response.headers.get("content-security-policy")).toBe(
-    html ? policy : null
+    html ? expectedContentSecurityPolicy : null
   );
 };
 
@@ -381,39 +373,12 @@ const makeTestPrivateJwk = Effect.promise(
 );
 
 it.effect(
-  "serves the catalogue as Markdown by default and HTML on request",
+  "serves the catalogue as Markdown and keeps the generated reader documents complete",
   () =>
     withHandler((handler) =>
       Effect.gen(function* testCatalogue() {
         const markdownResponse = yield* Effect.promise(
           handler.bind(undefined, new Request("http://localhost/"))
-        );
-
-        const htmlResponse = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/", {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
-        const skillsHtmlResponse = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/skills", {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
-        const skillHtmlResponse = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/skills/learn-rat-stack", {
-              headers: { accept: "text/html" },
-            })
-          )
         );
 
         const resource = lawResources.find(
@@ -432,51 +397,23 @@ it.effect(
           )
         );
 
-        const resourceHtmlResponse = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request(`http://localhost${resource.routePath}`, {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
         const markdown = yield* Effect.promise(
           markdownResponse.text.bind(markdownResponse)
         );
 
-        const html = yield* Effect.promise(
-          htmlResponse.text.bind(htmlResponse)
-        );
+        const html = generatedReaderPage("/");
 
-        const skillsHtml = yield* Effect.promise(
-          skillsHtmlResponse.text.bind(skillsHtmlResponse)
-        );
+        const skillsHtml = generatedReaderPage("/skills");
 
-        const skillHtml = yield* Effect.promise(
-          skillHtmlResponse.text.bind(skillHtmlResponse)
-        );
+        const skillHtml = generatedReaderPage("/skills/learn-rat-stack");
 
         const resourceMarkdown = yield* Effect.promise(
           resourceMarkdownResponse.text.bind(resourceMarkdownResponse)
         );
 
-        const resourceHtml = yield* Effect.promise(
-          resourceHtmlResponse.text.bind(resourceHtmlResponse)
-        );
+        const resourceHtml = generatedReaderPage(resource.routePath);
 
-        const agentsHtmlResponse = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/AGENTS.md", {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
-        const agentsHtml = yield* Effect.promise(
-          agentsHtmlResponse.text.bind(agentsHtmlResponse)
-        );
+        const agentsHtml = generatedReaderPage("/AGENTS.md");
 
         const logResponse = yield* Effect.promise(
           handler.bind(undefined, new Request("http://localhost/log.md"))
@@ -513,7 +450,6 @@ it.effect(
           "[Purpose and boundaries of rat-stack (VISION.md)](/VISION.md)"
         );
         expect(markdown).toContain("## Connect an agent");
-        expect(htmlResponse.headers.get("content-type")).toContain("text/html");
         expect(html).toContain(
           "<title>Rat Stack: an app and its cloud as one typed program</title>"
         );
@@ -554,19 +490,9 @@ it.effect(
         expect(html).toContain(
           '<meta name="twitter:card" content="summary_large_image"'
         );
-        expect(html).toContain("navigator.clipboard.writeText");
-        expect(htmlResponse.headers.get("content-security-policy")).toContain(
-          "sha256-"
-        );
-        expect(skillsHtmlResponse.headers.get("content-type")).toContain(
-          "text/html"
-        );
         expect(skillsHtml).toContain('<h1 id="learn-the-stack">');
         expect(skillsHtml).toContain(
           "working app to teach the pieces inside it"
-        );
-        expect(skillHtmlResponse.headers.get("content-type")).toContain(
-          "text/html"
         );
         expect(skillHtml).toContain('<nav aria-label="Breadcrumb"');
         expect(skillHtml).toContain('<h1 id="learn-the-stack">');
@@ -636,9 +562,6 @@ it.effect(
           "text/markdown"
         );
         expect(resourceMarkdown).toBe(resource.text);
-        expect(resourceHtmlResponse.headers.get("content-type")).toContain(
-          "text/html"
-        );
         expect(resourceHtml).toContain(
           `<title>${resource.title} | rat-stack</title>`
         );
@@ -700,241 +623,233 @@ it.effect(
     )
 );
 
-it.effect("publishes lore to human and agent surfaces", () =>
-  withHandler((handler) =>
-    Effect.gen(function* testLoreSurfaces() {
-      const page = loreResources.find(
-        (resource) => resource.name === "one-capability-every-surface"
-      );
+it.effect(
+  "publishes lore to agent surfaces and the generated reader document",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* testLoreSurfaces() {
+        const page = loreResources.find(
+          (resource) => resource.name === "one-capability-every-surface"
+        );
 
-      if (page === undefined) {
-        throw new Error("Missing capability lore page");
-      }
+        if (page === undefined) {
+          throw new Error("Missing capability lore page");
+        }
 
-      const loreSource = loreSources.find(
-        (source) => source.slug === page.name
-      );
+        const loreSource = loreSources.find(
+          (source) => source.slug === page.name
+        );
 
-      const [source] = loreSource?.sources ?? [];
+        const [source] = loreSource?.sources ?? [];
 
-      if (source === undefined) {
-        throw new Error("Capability lore page has no public source");
-      }
+        if (source === undefined) {
+          throw new Error("Capability lore page has no public source");
+        }
 
-      const loreIndexMarkdown = yield* responseText(
-        handler,
-        new Request("http://localhost/lore")
-      );
+        const loreIndexMarkdown = yield* responseText(
+          handler,
+          new Request("http://localhost/lore")
+        );
 
-      const loreIndexHtml = yield* responseText(
-        handler,
-        new Request("http://localhost/lore", {
-          headers: { accept: "text/html" },
-        })
-      );
+        const loreIndexHtml = loreIndexDocumentHtml;
 
-      const pageMarkdown = yield* responseText(
-        handler,
-        new Request(`http://localhost${page.routePath}`)
-      );
+        const pageMarkdown = yield* responseText(
+          handler,
+          new Request(`http://localhost${page.routePath}`)
+        );
 
-      const pageHtml = yield* responseText(
-        handler,
-        new Request(`http://localhost${page.routePath}`, {
-          headers: { accept: "text/html" },
-        })
-      );
+        const pageHtml = loreSource?.documentHtml ?? "";
 
-      const llms = yield* responseText(
-        handler,
-        new Request("http://localhost/llms.txt")
-      );
+        const llms = yield* responseText(
+          handler,
+          new Request("http://localhost/llms.txt")
+        );
 
-      const llmsFull = yield* responseText(
-        handler,
-        new Request("http://localhost/llms-full.txt")
-      );
+        const llmsFull = yield* responseText(
+          handler,
+          new Request("http://localhost/llms-full.txt")
+        );
 
-      const sitemap = yield* responseText(
-        handler,
-        new Request("http://localhost/sitemap.xml")
-      );
+        const sitemap = yield* responseText(
+          handler,
+          new Request("http://localhost/sitemap.xml")
+        );
 
-      expect(loreIndexMarkdown).toContain(`[${page.title}](${page.routePath})`);
-      expect(loreIndexHtml).toContain('<a href="/lore">lore</a>');
-      expect(loreIndexHtml).toContain("Rat Stack lore | rat-stack");
-      expect(pageMarkdown).toBe(page.text);
-      expect(pageHtml).toContain(`<title>${page.title} | rat-stack</title>`);
-      expect(pageHtml).toContain('<h2 id="sources">Sources</h2><ol>');
-      expect(pageHtml).toContain(`<a href="${source}">`);
-      expect(pageHtml).not.toContain(`>${source}</a>`);
-      expect(pageHtml).toContain("Accessed 2026-10-01.");
-      expect(pageHtml).toContain(
-        '<li><a href="/lore/an-mcp-your-users-want">An MCP your users want</a>'
-      );
-      expect(llms).toContain("## Lore");
-      expect(llms).toContain(`[${page.title}](${page.routePath})`);
-      expect(llmsFull).toContain(page.bodyMarkdown);
-      expect(sitemap).toContain(`https://ratstack.sh${page.routePath}`);
+        expect(loreIndexMarkdown).toContain(
+          `[${page.title}](${page.routePath})`
+        );
+        expect(loreIndexHtml).toContain('<a href="/lore">lore</a>');
+        expect(loreIndexHtml).toContain("Rat Stack lore | rat-stack");
+        expect(pageMarkdown).toBe(page.text);
+        expect(pageHtml).toContain(`<title>${page.title} | rat-stack</title>`);
+        expect(pageHtml).toContain('<h2 id="sources">Sources</h2><ol>');
+        expect(pageHtml).toContain(`<a href="${source}">`);
+        expect(pageHtml).not.toContain(`>${source}</a>`);
+        expect(pageHtml).toContain("Accessed 2026-10-01.");
+        expect(pageHtml).toContain(
+          '<li><a href="/lore/an-mcp-your-users-want">An MCP your users want</a>'
+        );
+        expect(llms).toContain("## Lore");
+        expect(llms).toContain(`[${page.title}](${page.routePath})`);
+        expect(llmsFull).toContain(page.bodyMarkdown);
+        expect(sitemap).toContain(`https://ratstack.sh${page.routePath}`);
 
-      const searchResponse = yield* postMcp(
-        handler,
-        "search-lore",
-        "tools/call",
-        {
-          arguments: { limit: 20, query: "one capability every surface" },
-          name: "search",
-        },
-        "search"
-      );
+        const searchResponse = yield* postMcp(
+          handler,
+          "search-lore",
+          "tools/call",
+          {
+            arguments: { limit: 20, query: "one capability every surface" },
+            name: "search",
+          },
+          "search"
+        );
 
-      const searchResult = yield* Schema.decodeUnknownEffect(SearchOutput)(
-        (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
-          yield* readJson(searchResponse)
-        )).result.structuredContent
-      );
+        const searchResult = yield* Schema.decodeUnknownEffect(SearchOutput)(
+          (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
+            yield* readJson(searchResponse)
+          )).result.structuredContent
+        );
 
-      const match = searchResult.matches.find((entry) => entry.id === page.id);
+        const match = searchResult.matches.find(
+          (entry) => entry.id === page.id
+        );
 
-      expect(match).toMatchObject({ id: page.id, kind: "lore" });
+        expect(match).toMatchObject({ id: page.id, kind: "lore" });
 
-      const readResponse = yield* postMcp(
-        handler,
-        "read-lore",
-        "tools/call",
-        { arguments: { id: page.id }, name: "read" },
-        "read"
-      );
+        const readResponse = yield* postMcp(
+          handler,
+          "read-lore",
+          "tools/call",
+          { arguments: { id: page.id }, name: "read" },
+          "read"
+        );
 
-      const readResult = yield* Schema.decodeUnknownEffect(ReadOutput)(
-        (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
-          yield* readJson(readResponse)
-        )).result.structuredContent
-      );
+        const readResult = yield* Schema.decodeUnknownEffect(ReadOutput)(
+          (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
+            yield* readJson(readResponse)
+          )).result.structuredContent
+        );
 
-      expect(readResult).toMatchObject({
-        id: page.id,
-        kind: "lore",
-        text: page.text,
-      });
+        expect(readResult).toMatchObject({
+          id: page.id,
+          kind: "lore",
+          text: page.text,
+        });
 
-      const resourcesResponse = yield* postMcp(
-        handler,
-        "list-lore-resources",
-        "resources/list"
-      );
+        const resourcesResponse = yield* postMcp(
+          handler,
+          "list-lore-resources",
+          "resources/list"
+        );
 
-      const resources = yield* Schema.decodeUnknownEffect(NamedListResponse)(
-        yield* readJson(resourcesResponse)
-      );
+        const resources = yield* Schema.decodeUnknownEffect(NamedListResponse)(
+          yield* readJson(resourcesResponse)
+        );
 
-      expect(
-        resources.result.resources?.map((resource) => resource.name)
-      ).toContain(page.name);
-    })
-  )
+        expect(
+          resources.result.resources?.map((resource) => resource.name)
+        ).toContain(page.name);
+      })
+    )
 );
 
-it.effect("serves the debt ledger across page and agent surfaces", () =>
-  withHandler((handler) =>
-    Effect.gen(function* testDebtLedgerPage() {
-      const debt = lawResources.find(
-        (resource) => resource.routePath === "/debt.md"
-      );
+it.effect(
+  "serves the debt ledger to agents and the generated reader document",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* testDebtLedgerPage() {
+        const debt = lawResources.find(
+          (resource) => resource.routePath === "/debt.md"
+        );
 
-      if (debt === undefined) {
-        throw new Error("Missing debt ledger resource");
-      }
+        if (debt === undefined) {
+          throw new Error("Missing debt ledger resource");
+        }
 
-      const markdownResponse = yield* Effect.promise(
-        handler.bind(undefined, new Request("http://localhost/debt.md"))
-      );
+        const markdownResponse = yield* Effect.promise(
+          handler.bind(undefined, new Request("http://localhost/debt.md"))
+        );
 
-      const markdown = yield* Effect.promise(
-        markdownResponse.text.bind(markdownResponse)
-      );
+        const markdown = yield* Effect.promise(
+          markdownResponse.text.bind(markdownResponse)
+        );
 
-      const htmlResponse = yield* Effect.promise(
-        handler.bind(
-          undefined,
-          new Request("http://localhost/debt.md", {
-            headers: { accept: "text/html" },
-          })
-        )
-      );
+        const page =
+          lawSources.find((source) => source.routePath === "/debt.md")
+            ?.documentHtml ?? "";
 
-      const page = yield* Effect.promise(htmlResponse.text.bind(htmlResponse));
+        const fullText = yield* responseText(
+          handler,
+          new Request("http://localhost/llms-full.txt")
+        );
 
-      const fullText = yield* responseText(
-        handler,
-        new Request("http://localhost/llms-full.txt")
-      );
+        const imageResponse = yield* Effect.promise(
+          handler.bind(
+            undefined,
+            new Request(`http://localhost${ogImagePath(debt.routePath)}`)
+          )
+        );
 
-      const imageResponse = yield* Effect.promise(
-        handler.bind(
-          undefined,
-          new Request(`http://localhost${ogImagePath(debt.routePath)}`)
-        )
-      );
+        const searchResponse = yield* postMcp(
+          handler,
+          "search-debt-ledger",
+          "tools/call",
+          {
+            arguments: { limit: 10, query: "Debt only shrinks" },
+            name: "search",
+          },
+          "search"
+        );
 
-      const searchResponse = yield* postMcp(
-        handler,
-        "search-debt-ledger",
-        "tools/call",
-        {
-          arguments: { limit: 10, query: "Debt only shrinks" },
-          name: "search",
-        },
-        "search"
-      );
+        const searchResult = yield* Schema.decodeUnknownEffect(SearchOutput)(
+          (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
+            yield* readJson(searchResponse)
+          )).result.structuredContent
+        );
 
-      const searchResult = yield* Schema.decodeUnknownEffect(SearchOutput)(
-        (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
-          yield* readJson(searchResponse)
-        )).result.structuredContent
-      );
+        const match = searchResult.matches.find(
+          (entry) => entry.id === debt.id
+        );
 
-      const match = searchResult.matches.find((entry) => entry.id === debt.id);
+        const readResponse = yield* postMcp(
+          handler,
+          "read-debt-ledger",
+          "tools/call",
+          { arguments: { id: debt.id }, name: "read" },
+          "read"
+        );
 
-      const readResponse = yield* postMcp(
-        handler,
-        "read-debt-ledger",
-        "tools/call",
-        { arguments: { id: debt.id }, name: "read" },
-        "read"
-      );
+        const readResult = yield* Schema.decodeUnknownEffect(ReadOutput)(
+          (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
+            yield* readJson(readResponse)
+          )).result.structuredContent
+        );
 
-      const readResult = yield* Schema.decodeUnknownEffect(ReadOutput)(
-        (yield* Schema.decodeUnknownEffect(ToolCallResponse)(
-          yield* readJson(readResponse)
-        )).result.structuredContent
-      );
-
-      expect(markdownResponse.status).toBe(200);
-      expect(markdownResponse.headers.get("content-type")).toContain(
-        "text/markdown"
-      );
-      expect(markdown).toContain('> "Debt only shrinks."');
-      expect(markdown).toContain("Total: **");
-      expect(markdown).toContain("no reason given");
-      expect(markdown).toContain("tools/oxlint/anti-slop/");
-      expect(htmlResponse.headers.get("content-type")).toContain("text/html");
-      expect(page).toMatch(/<table\b[^>]*>/u);
-      expect(fullText).toContain(`# ${debt.routePath}`);
-      expect(llmsText("https://ratstack.sh")).toContain(
-        `[Lint and type escape ledger (debt.md)](${debt.routePath})`
-      );
-      expect(publicPaths).toContain(debt.routePath);
-      expect(imageResponse.status).toBe(200);
-      expect(imageResponse.headers.get("content-type")).toBe("image/png");
-      expect(match).toMatchObject({ id: debt.id, kind: "law" });
-      expect(readResult).toMatchObject({
-        id: debt.id,
-        kind: "law",
-        text: debt.text,
-      });
-    })
-  )
+        expect(markdownResponse.status).toBe(200);
+        expect(markdownResponse.headers.get("content-type")).toContain(
+          "text/markdown"
+        );
+        expect(markdown).toContain('> "Debt only shrinks."');
+        expect(markdown).toContain("Total: **");
+        expect(markdown).toContain("no reason given");
+        expect(markdown).toContain("tools/oxlint/anti-slop/");
+        expect(page).toMatch(/<table\b[^>]*>/u);
+        expect(fullText).toContain(`# ${debt.routePath}`);
+        expect(llmsText("https://ratstack.sh")).toContain(
+          `[Lint and type escape ledger (debt.md)](${debt.routePath})`
+        );
+        expect(publicPaths).toContain(debt.routePath);
+        expect(imageResponse.status).toBe(200);
+        expect(imageResponse.headers.get("content-type")).toBe("image/png");
+        expect(match).toMatchObject({ id: debt.id, kind: "law" });
+        expect(readResult).toMatchObject({
+          id: debt.id,
+          kind: "law",
+          text: debt.text,
+        });
+      })
+    )
 );
 
 it.effect("sets security headers on every response", () =>
@@ -943,7 +858,7 @@ it.effect("sets security headers on every response", () =>
       const htmlResponse = yield* Effect.promise(
         handler.bind(
           undefined,
-          new Request("http://localhost/", {
+          new Request("http://localhost/not-found", {
             headers: { accept: "text/html" },
           })
         )
@@ -961,7 +876,8 @@ it.effect("sets security headers on every response", () =>
         handler.bind(undefined, new Request("http://localhost/not-found"))
       );
 
-      expectSecurityHeaders(htmlResponse, true, true);
+      expect(htmlResponse.status).toBe(404);
+      expectSecurityHeaders(htmlResponse, true);
       expectSecurityHeaders(markdownResponse, false);
       expectSecurityHeaders(openapiResponse, false);
       expectSecurityHeaders(notFoundResponse, false);
@@ -1152,84 +1068,6 @@ it.effect(
 );
 
 it.effect(
-  "negotiates HTML for explicit preview crawlers without changing default Markdown",
-  () =>
-    withHandler((handler) =>
-      Effect.gen(function* testPreviewCrawlerNegotiation() {
-        const crawler = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/", {
-              headers: { "user-agent": "Twitterbot/1.0" },
-            })
-          )
-        );
-
-        const plain = yield* Effect.promise(
-          handler.bind(undefined, new Request("http://localhost/"))
-        );
-
-        const browser = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/", {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
-        const request = (headers: Record<string, string>) =>
-          Effect.promise(
-            handler.bind(
-              undefined,
-              new Request("http://localhost/", { headers })
-            )
-          );
-
-        const validator = yield* request({
-          accept: "*/*",
-          "user-agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
-        });
-
-        const gptBot = yield* request({
-          accept: "*/*",
-          "user-agent":
-            "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.2; +https://openai.com/gptbot",
-        });
-
-        const claudeBot = yield* request({
-          "user-agent":
-            "Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
-        });
-
-        const curl = yield* request({
-          accept: "*/*",
-          "user-agent": "curl/8.7.1",
-        });
-
-        const browserWantsMarkdown = yield* request({
-          accept: "text/markdown",
-          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) Firefox/130.0",
-        });
-
-        expect(crawler.headers.get("content-type")).toContain("text/html");
-        expect(plain.headers.get("content-type")).toContain("text/markdown");
-        expect(browser.headers.get("content-type")).toContain("text/html");
-        expect(validator.headers.get("content-type")).toContain("text/html");
-        expect(gptBot.headers.get("content-type")).toContain("text/markdown");
-        expect(claudeBot.headers.get("content-type")).toContain(
-          "text/markdown"
-        );
-        expect(curl.headers.get("content-type")).toContain("text/markdown");
-        expect(browserWantsMarkdown.headers.get("content-type")).toContain(
-          "text/markdown"
-        );
-      })
-    )
-);
-
-it.effect(
   "keeps asset representations and validators out of the generic discovery cache",
   () => {
     const cache = makeFakeStaticResponseCache();
@@ -1237,22 +1075,6 @@ it.effect(
     return withHandler(
       (handler) =>
         Effect.gen(function* testStaticCache() {
-          const firstHtml = yield* Effect.promise(
-            handler.bind(undefined, htmlHomeRequest())
-          );
-
-          const firstHtmlBody = yield* Effect.promise(
-            firstHtml.text.bind(firstHtml)
-          );
-
-          const secondHtml = yield* Effect.promise(
-            handler.bind(undefined, htmlHomeRequest())
-          );
-
-          const secondHtmlBody = yield* Effect.promise(
-            secondHtml.text.bind(secondHtml)
-          );
-
           const markdownResponse = yield* Effect.promise(
             handler.bind(undefined, new Request("http://localhost/"))
           );
@@ -1269,16 +1091,13 @@ it.effect(
             cachedMarkdown.text.bind(cachedMarkdown)
           );
 
-          const etag = firstHtml.headers.get("etag");
+          const etag = markdownResponse.headers.get("etag");
 
           const revalidated = yield* Effect.promise(
             handler.bind(
               undefined,
               new Request("http://localhost/", {
-                headers: {
-                  accept: "text/html",
-                  "if-none-match": etag ?? "missing",
-                },
+                headers: { "if-none-match": etag ?? "missing" },
               })
             )
           );
@@ -1291,46 +1110,25 @@ it.effect(
             handler.bind(undefined, new Request("http://localhost/favicon.svg"))
           );
 
-          const crawlerHtml = yield* Effect.promise(
-            handler.bind(
-              undefined,
-              new Request("http://localhost/", {
-                headers: { "user-agent": "Twitterbot/1.0" },
-              })
-            )
-          );
-
-          expect(firstHtml.headers.get("x-ratstack-cache")).toBe("MISS");
-          expect(secondHtml.headers.get("x-ratstack-cache")).toBe("MISS");
-          expect(secondHtml.headers.get("cache-control")).toBe("no-cache");
-          expectSecurityHeaders(secondHtml, true, true);
-          expect(secondHtmlBody).toBe(firstHtmlBody);
-          expect(firstHtml.headers.get("cache-control")).toBe("no-cache");
           expect(cachedMarkdown.headers.get("x-ratstack-cache")).toBe("MISS");
           expect(cachedMarkdownBody).toBe(markdownBody);
           expect(markdownResponse.headers.get("cache-control")).toContain(
             "s-maxage=31536000"
           );
-          expect(firstHtml.headers.get("vary")).toBe("Accept");
+          expect(markdownResponse.headers.get("vary")).toBe("Accept");
           expect(etag).toMatch(/^W\//u);
           expect(markdownResponse.headers.get("x-ratstack-cache")).toBe("MISS");
-          expect(markdownResponse.headers.get("etag")).not.toBe(etag);
           expect(revalidated.status).toBe(304);
           expect(revalidated.headers.get("x-ratstack-cache")).toBe(
             "REVALIDATED"
           );
-          expectSecurityHeaders(revalidated, true, true);
+          expectSecurityHeaders(revalidated, false);
           expect(mcp.headers.get("x-ratstack-cache")).toBeNull();
           expect(mcp.headers.get("x-fence")).toBe("electrified");
           expect(favicon.headers.get("x-ratstack-cache")).toBe("MISS");
           expect(favicon.headers.get("x-fence")).toBe("electrified");
           expect(favicon.headers.get("cache-control")).toContain(
             "s-maxage=31536000"
-          );
-          expect(crawlerHtml.headers.get("x-ratstack-cache")).toBe("MISS");
-          expect(crawlerHtml.headers.get("cache-control")).toBe("no-cache");
-          expect(crawlerHtml.headers.get("content-type")).toContain(
-            "text/html"
           );
           expect(cache.matchKeys).toHaveLength(0);
           expect(cache.putKeys).toHaveLength(0);
@@ -1367,7 +1165,7 @@ it.effect(
 );
 
 it.effect(
-  "negotiates the glossary and points agents at the same markdown in HTML and HTTP",
+  "serves the glossary Markdown and points agents at it from the generated reader document",
   () =>
     withHandler((handler) =>
       Effect.gen(function* glossaryDiscovery() {
@@ -1375,22 +1173,11 @@ it.effect(
           handler.bind(undefined, new Request("http://localhost/glossary"))
         );
 
-        const rendered = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("http://localhost/glossary", {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
         const markdown = yield* Effect.promise(plain.text.bind(plain));
-        const html = yield* Effect.promise(rendered.text.bind(rendered));
+        const html = glossaryIndexDocumentHtml;
 
         expect(plain.status).toBe(200);
-        expect(rendered.status).toBe(200);
         expect(plain.headers.get("content-type")).toContain("text/markdown");
-        expect(rendered.headers.get("content-type")).toContain("text/html");
         expect(markdown).toContain("[port](/lore/hexagonal-architecture) →");
         expect(markdown).toContain(
           "> For agents: start with the [agent guide](https://ratstack.sh/llms.txt)."
@@ -1398,11 +1185,8 @@ it.effect(
         expect(html).toContain(
           '<link rel="alternate" type="text/markdown" href="/glossary"'
         );
-        expect(rendered.headers.get("link")).toContain(
+        expect(plain.headers.get("link")).toContain(
           '</glossary>; rel="alternate"; type="text/markdown"'
-        );
-        expect(html).toContain(
-          'class="agent-pointer visually-hidden" aria-hidden="true"'
         );
         expect(html.indexOf("For agents:")).toBeLessThan(
           html.indexOf('<h1 id="glossary"')
@@ -1411,7 +1195,6 @@ it.effect(
           '<p class="agent-pointer visually-hidden" aria-hidden="true">'
         );
         expect(html).toContain('<a href="/resources/peers">peers</a>');
-        expect(rendered.headers.get("cache-control")).toBe("no-cache");
       })
     )
 );

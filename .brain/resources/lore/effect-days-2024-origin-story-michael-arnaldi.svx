@@ -1,6 +1,7 @@
 ---
 title: "Effect Days 2024: The origin story"
 description: "Michael Arnaldi traces Effect to a TypeScript team's needs for tests, dependencies, and resource safety."
+plain: "Michael Arnaldi traces Effect to a fintech team that needed tests, dependencies, resource safety and retries."
 group: source
 speaker: "Michael Arnaldi"
 date: 2024-06-24
