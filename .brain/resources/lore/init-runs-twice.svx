@@ -1,6 +1,14 @@
 ---
 title: "Worker init runs twice"
 description: "Alchemy Worker initialization runs in deploy and runtime contexts, so resource declarations need a boundary."
+plain: "A Worker's init runs at deploy and again at runtime, so deploy-only resources need a guard."
+diagram: |-
+  init effect
+    ├ deploy: Stage exists
+    │   declare resources
+    └ runtime: no Stage
+        skip declarations
+        serve requests
 group: idea
 terms:
   - "Worker init runs twice"

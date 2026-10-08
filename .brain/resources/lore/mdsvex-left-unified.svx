@@ -1,6 +1,7 @@
 ---
 title: "mdsvex left unified"
 description: "The next parser leaves unified; the CommonMark migrator still uses remark."
+plain: "The next mdsvex parser leaves the unified ecosystem, so rat-stack stays on mdsvex 0.12.8 for now."
 group: idea
 terms:
   - "mdsvex"
@@ -32,6 +33,11 @@ sources:
     note: "Published migrator dependencies"
     accessed: "2026-10-02"
 ---
+
+mdsvex compiles Markdown with Svelte components. unified processes documents through plugins.
+remark processes Markdown, and rehype processes HTML.
+
+CommonMark specifies Markdown syntax. GitHub Flavored Markdown (GFM) adds features to that syntax.
 
 In [Discussion #259](https://github.com/pngwn/MDsveX/discussions/259), pngwn gives four reasons to leave unified:
 

@@ -1,29 +1,14 @@
 #!/usr/bin/env node
 
-import { homedir } from "node:os";
-
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Approval } from "@rat-stack/capability";
 import { FileInspector } from "@rat-stack/core";
-import {
-  localLearnerProgressLayer,
-  remoteLearnerLayer,
-} from "@rat-stack/learn/local";
-import { Console, Effect, Layer, Path } from "effect";
+import { Console, Effect, Layer } from "effect";
 
 import { runCommand } from "./command.js";
 import { remoteJoinInterestLayer } from "./join-interest.js";
+import { localLearnLayer } from "./learn-layer.js";
 import { localPromptLibraryLayer } from "./prompts.js";
-
-const localProgressLayer = Layer.unwrap(
-  Effect.gen(function* localProgress() {
-    const path = yield* Path.Path;
-
-    return localLearnerProgressLayer(path.join(homedir(), ".rat-learn")).pipe(
-      Layer.provideMerge(remoteLearnerLayer)
-    );
-  })
-).pipe(Layer.provide(NodeServices.layer));
 
 const program = runCommand(process.argv.slice(2)).pipe(
   // oxlint-disable-next-line promise/prefer-await-to-callbacks -- Oxlint mistakes this Effect handler for an async Promise callback.
@@ -35,7 +20,7 @@ const program = runCommand(process.argv.slice(2)).pipe(
       Layer.provideMerge(FileInspector.layer, NodeServices.layer),
       remoteJoinInterestLayer,
       localPromptLibraryLayer.pipe(Layer.provide(NodeServices.layer)),
-      localProgressLayer,
+      localLearnLayer,
       Approval.denyAll
     )
   )

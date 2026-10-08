@@ -1,6 +1,7 @@
 ---
 title: "Effect Days 2025: Building Effect 4"
 description: "Michael Arnaldi presents Effect 4 as a redesign shaped by production feedback."
+plain: "Michael Arnaldi presents Effect 4 as a redesign driven by production feedback from Effect 3."
 group: source
 speaker: "Michael Arnaldi"
 date: 2025-04-08

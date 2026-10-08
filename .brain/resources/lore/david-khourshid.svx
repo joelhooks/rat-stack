@@ -1,6 +1,7 @@
 ---
 title: "David Khourshid"
 description: "David Khourshid teaches state machines with XState and argues for model-based and property-based testing."
+plain: "David Khourshid teaches state machines with XState and argues for model-based and property-based testing."
 group: person
 terms:
   - "David Khourshid"
@@ -34,6 +35,9 @@ David Khourshid wrote [Model-Based Testing in React with State Machines](https:/
 
 In the testing lesson of his Frontend Masters course on XState, he describes a test model as "a state machine, and the state machine represents all of your given when then statements in a single state machine." He adds that model-based testing lets you "test any application whether they're using state machines or not." [Testing, State Machines in JavaScript with XState, v2](https://frontendmasters.com/courses/xstate-v2/testing/)
 
-XState carries that idea in `xstate/graph` with `createTestModel` and `getShortestPaths`. [Graph & Paths](https://stately.ai/docs/graph)
+XState is a library for defining and running state machines.
+It carries that idea in `xstate/graph` with `createTestModel` and `getShortestPaths`. [Graph & Paths](https://stately.ai/docs/graph)
 
-On 2026-10-01 he told Joel, "I need to get you on the MBT/PBT train." [X](https://x.com/davidkpiano/status/2105670489091834297) This repo uses both: see [model-based testing](/lore/model-based-testing) and [property-based testing](/lore/property-based-testing).
+On 2026-10-01 he told Joel, "I need to get you on the MBT/PBT train." [X](https://x.com/davidkpiano/status/2105670489091834297) MBT means model-based testing: compare the application with a model across action sequences.
+PBT means property-based testing: check rules with generated inputs.
+This repo uses both: see [model-based testing](/lore/model-based-testing) and [property-based testing](/lore/property-based-testing).

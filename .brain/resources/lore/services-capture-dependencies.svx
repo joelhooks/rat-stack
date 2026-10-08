@@ -1,6 +1,13 @@
 ---
 title: "A service captures its construction dependencies"
 description: "Build a service with its dependencies, then expose methods that callers can use without rebuilding the graph."
+plain: "Give a service its dependencies once, when it is built. Callers then need only the service."
+diagram: |-
+  make: needs FileSystem
+    │ captures fs
+    ▼
+  read(path): needs never
+  caller: needs Notes only
 group: idea
 terms:
   - "Service construction"
@@ -39,13 +46,16 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A service is a named interface. A Layer describes how to build a service and supply its dependencies.
+A context holds supplied service implementations.
+
 Build a service once with the dependencies its implementation needs. Return methods that use those captured values.
 Callers then require only the service.
 
 ## Name the job before the implementation
 
 `Context.Service` names a service and describes its interface.
-`Effect.Effect<FileStats, FileStatsError>` declares the method's success and expected failure. Its omitted requirement parameter is `never`.
+`Effect.Effect<FileStats, FileStatsError>` declares the method's success and [expected failure](/lore/error-model). Its omitted requirement parameter is `never`.
 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-15
 ```
@@ -62,9 +72,9 @@ Do not create a function that only returns another `Effect.gen` wrapper.
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=17-35
 ```
 
-`inspect` closes over the filesystem value. It keeps read failures typed and returns a domain result.
+`inspect` retains the filesystem value captured during construction. It keeps read failures typed and returns a domain result.
 
-The service method composes Effects. It does not run an imperative runtime inside the computation.
+The service method composes Effects. It does not run a separate runtime that executes the work immediately inside the computation.
 
 ## Construction dependencies are not request identity
 
@@ -82,12 +92,12 @@ Resolving the filesystem inside every `inspect` call leaves `FileSystem` in that
 The caller must now know the implementation dependency. Capturing it during construction removes that requirement from the method.
 
 Rebuilding the service inside every call also loses the intended construction lifetime.
-Supply its Layer at the [composition root](/lore/layers-make-dependencies-explicit).
+Supply its Layer at the [composition root](/lore/layers-make-dependencies-explicit), the startup code that chooses and supplies implementations.
 
 ## Effect idiom and house rule
 
 - Services describe behavior. Layers supply implementations and resolve construction requirements.
-- In rat-stack, keep `make` and `static layer` beside the service. Core owns job-shaped ports; adapters own provider code.
+- In rat-stack, keep `make` and `static layer` beside the service. Core owns service interfaces named for application jobs; adapters own provider code.
 - rat-stack also uses capability projections, cartridge packages, and a no-comments rule.
 
 See also: [domain structure](/lore/structure-effect-by-domain), [Layer composition](/lore/layers-make-dependencies-explicit), [the Layer constructor pattern](/lore/layer-constructor-pattern), and [testing through services](/lore/tests-that-earn-their-place).

@@ -1,6 +1,7 @@
 ---
 title: "Effect Meetup SF 2023: Why Effect?"
 description: "Michael Arnaldi introduces Effect as a shared runtime for production TypeScript concerns."
+plain: "Michael Arnaldi presents Effect as the missing standard library for production TypeScript."
 group: source
 speaker: "Michael Arnaldi"
 date: 2023-12-11

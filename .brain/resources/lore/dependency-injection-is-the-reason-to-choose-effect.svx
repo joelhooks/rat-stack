@@ -1,6 +1,13 @@
 ---
 title: "Dependency injection is the reason to choose Effect"
 description: "Effect tracks service requirements in types and supplies replaceable implementations through Layers."
+plain: "Effect's types list the services code needs, so you can swap in another implementation, such as one for tests."
+diagram: |-
+  welcome: needs Mailer
+    ├ provide Mailer.layer
+    │   → sends mail
+    └ provide Mailer.test
+        → sends nothing
 group: idea
 terms:
   - "dependency injection"

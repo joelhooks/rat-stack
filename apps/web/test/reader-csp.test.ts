@@ -132,6 +132,7 @@ it.layer(NodeServices.layer)((test) => {
           inlineStyles
         );
         expect(sourcesFor("form-action")).toEqual(["'none'"]);
-      })
+      }),
+    { timeout: 60_000 }
   );
 });

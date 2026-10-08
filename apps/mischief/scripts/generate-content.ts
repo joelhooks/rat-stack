@@ -102,6 +102,7 @@ import {
 } from "./glossary-first-use.ts";
 import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { buildLearningDeck } from "./learn-deck.ts";
+import { collectLearnSnippets } from "./learn-snippets.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import { validatePromptSources } from "./prompt-source.ts";
 import {
@@ -3346,7 +3347,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const learnCards = yield* buildLearningDeck(
     loreTexts,
     skillTexts,
-    learnCoverage
+    learnCoverage,
+    yield* collectLearnSnippets(root)
   );
 
   const contentData = [

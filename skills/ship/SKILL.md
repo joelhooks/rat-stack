@@ -1,6 +1,18 @@
 ---
 name: ship
 description: Learn how to ship a change through merge, CI, release, stage deployment, rollout, verification, rollback and flags.
+plain: "Ship by evidence: merge, deploy a candidate, verify it, and roll back to a recorded version when needed."
+diagram: |-
+  merge
+    │ CI
+    ▼
+  release + deploy stage
+    │ canary, checks
+    ▼
+  promote + readback
+    ├ WAIT: missing evidence
+    ├ HOLD: needs a decision
+    └ rollback: old version
 ---
 
 # Ship a change

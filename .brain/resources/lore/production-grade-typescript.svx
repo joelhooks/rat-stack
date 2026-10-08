@@ -1,6 +1,7 @@
 ---
 title: "Production-grade TypeScript"
 description: "Michael Arnaldi defines production-grade software through reliability, observability, testability, and maintainability."
+plain: "Michael Arnaldi calls software production-grade when it stays resilient, observable, testable and easy to change."
 group: concept
 terms:
   - "production-grade TypeScript"

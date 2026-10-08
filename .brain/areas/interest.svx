@@ -1,6 +1,18 @@
 ---
 title: "Interest signup"
 description: "Agent-only applications start email confirmation through interfaces owned by core and delivery implemented in a separate package."
+plain: "An agent applies for a person with joinInterest; the person confirms by email, and delivery lives in its own package."
+diagram: |-
+  agent asks, person approves
+    │ joinInterest
+    ▼
+  SubscriberIntake port
+    │ delivery adapter
+    ▼
+  confirmation email
+    │ person clicks link
+    ▼
+  signup confirmed
 group: system
 terms:
   - "interest signup"
@@ -69,9 +81,13 @@ See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separ
 
 ### Applicant identity
 
-`joinInterest` accepts optional `name` and `x` fields. The name trims whitespace and allows 1–100 characters, enough for a preferred name while keeping the field short. Skipped fields and historical applications omit both keys.
+`joinInterest` accepts optional `name` and `x` fields.
+The name trims whitespace and allows 1–100 characters. This keeps preferred names short.
+Skipped fields and historical applications omit both keys.
 
-- The X field accepts a handle or profile URL and stores `https://x.com/handle` in lowercase. Handles allow 1–15 ASCII letters, digits or underscores, including existing short handles. It refuses status, intent and navigation URLs.
+- The X field accepts a handle or profile URL and stores `https://x.com/handle` in lowercase.
+  Handles allow 1–15 ASCII letters, digits or underscores, including existing short handles.
+  It refuses status, intent and navigation URLs.
 - [X documents the 15-character limit](https://help.x.com/en/managing-your-account/x-username-rules) and [the allowed characters](https://help.x.com/en/managing-your-account/change-x-handle). Its current account-renaming guidance requires more than four characters. This field reads existing profiles rather than registering usernames.
 - Identity is stored in protected form in the application's `started` event, which records the start of an application.
   It uses the same contact key as the answers. Erasure removes that key and its rows.
@@ -79,7 +95,8 @@ See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separ
 - Capability observers receive identity fields with their values removed.
   Request analytics, trace spans, and logs never receive those values.
   A trace span records an operation's timing and outcome.
-- MCP request tracing is disabled in the protocol implementation for modern and legacy protocols. The protocol’s `tools/call` span records raw parameters before the capability observer can redact them.
+- MCP request tracing is disabled in the protocol implementation for modern and legacy protocols.
+  The protocol's `tools/call` span records raw parameters before the capability observer can remove sensitive values.
 
 ## How to check
 

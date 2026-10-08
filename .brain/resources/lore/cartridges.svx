@@ -1,6 +1,12 @@
 ---
 title: "Cartridges"
 description: "A cartridge owns one job and brings the infrastructure its service needs."
+plain: "A cartridge is one service and its cloud resources in a Layer. Swap the Layer to change vendor; callers stay the same."
+diagram: |-
+  RunLog (the API)
+    ├ RunLog.layer: D1
+    └ RunLog.postgres
+  caller needs RunLog only
 group: idea
 terms:
   - cartridge

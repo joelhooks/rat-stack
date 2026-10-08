@@ -1,6 +1,15 @@
 ---
 title: "Hexagonal architecture"
 description: "Ports name the application's jobs; adapters connect them to the outside world."
+plain: "Ports name the jobs inside the application; adapters connect those jobs to the outside world."
+diagram: |-
+  outside   │ inside
+  ──────────┼──────────────
+  CLI, MCP ─┼▶ capability
+  HTTP      │    │
+            │    ▼
+  HTTP mail◀┼─ port (job)
+  memory   ◀┼─ port (job)
 group: idea
 terms:
   - "hexagonal architecture"

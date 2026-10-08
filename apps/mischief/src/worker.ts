@@ -29,6 +29,7 @@ import { contentAssetsForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { ContentStore } from "./content-store.js";
+import CrashTail from "./crash-tail.js";
 import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
@@ -413,6 +414,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
       main: import.meta.url,
       observability: privateObservability,
+      tailConsumers: [yield* CrashTail],
     };
   }),
   makeMischiefWorker

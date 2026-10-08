@@ -1,6 +1,7 @@
 ---
 title: "Happy Path 81: TypeScript and effects"
 description: "Michael Arnaldi describes Effect's TypeScript design and its typed outputs, errors, and requirements."
+plain: "Michael Arnaldi describes an Effect by its output, its predictable failures and its requirements."
 group: source
 speaker: "Michael Arnaldi"
 date: 2024-04-05
