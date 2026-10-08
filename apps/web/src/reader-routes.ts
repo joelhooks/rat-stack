@@ -8,6 +8,7 @@ export const readerBodyRoutePaths: readonly string[] = [
   "/AGENTS.md",
   "/README.md",
   "/VISION.md",
+  "/debt.md",
   "/glossary",
   "/log",
   "/log.md",
