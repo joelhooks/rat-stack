@@ -8,8 +8,12 @@ import {
   Schema,
 } from "effect";
 
-import { ApplyReceiptSchema, DeployStepError } from "./contracts.js";
-import type { ApplyReceipt } from "./contracts.js";
+import {
+  ApplyReceiptSchema,
+  DeployStepError,
+  DeployVerdictSchema,
+} from "./contracts.js";
+import type { ApplyReceipt, DeployVerdict } from "./contracts.js";
 import { RollbackReceiptSchema } from "./rollback-contracts.js";
 import type { RollbackReceipt } from "./rollback-contracts.js";
 import { RollbackRefused } from "./rollback-refused.js";
@@ -30,6 +34,10 @@ export class ReceiptStore extends Context.Service<
     ) => Effect.Effect<string, DeployStepError>;
     readonly saveRollback: (
       receipt: RollbackReceipt
+    ) => Effect.Effect<string, DeployStepError>;
+    readonly saveVerdict: (
+      profile: string,
+      verdict: DeployVerdict
     ) => Effect.Effect<string, DeployStepError>;
   }
 >()("@rat-stack/deploy/ReceiptStore") {
@@ -167,6 +175,32 @@ export class ReceiptStore extends Context.Service<
                 `${folder(receipt.profile)}/last-rollback.json`,
                 text
               );
+            }),
+          saveVerdict: (profile, verdict) =>
+            Effect.gen(function* saveVerdict() {
+              const time = yield* Clock.currentTimeMillis;
+
+              const text = yield* Schema.encodeEffect(
+                Schema.fromJsonString(DeployVerdictSchema, { space: 2 })
+              )(verdict).pipe(
+                Effect.mapError(
+                  () =>
+                    new DeployStepError({
+                      keys: [],
+                      reason: "verdict-encoding-refused",
+                      step: "checks",
+                    })
+                )
+              );
+
+              const path = yield* write(
+                `${folder(profile)}/verdict-${time}.json`,
+                text
+              );
+
+              yield* write(`${folder(profile)}/last-verdict.json`, text);
+
+              return paths.resolve(path);
             }),
         });
       })

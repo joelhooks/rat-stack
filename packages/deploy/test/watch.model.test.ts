@@ -7,9 +7,11 @@ import { TestClock } from "effect/testing";
 import {
   fixedWatchRoutes,
   nextWatchEvidence,
+  printableBody,
   sitemapRoutes,
   sweepSlice,
   watchDeployment,
+  watchVerdict,
 } from "../src/watch.js";
 import type { WatchEvidence } from "../src/watch.js";
 
@@ -273,5 +275,70 @@ it.effect(
       expect(new Set(requests.map((row) => row.accept))).toStrictEqual(
         new Set(["application/xml", "*/*", "text/html"])
       );
+    })
+);
+
+const controlCodes = new Set([
+  ...Array.from({ length: 32 }, (_, code) => code).filter(
+    (code) => code !== 9 && code !== 10
+  ),
+  ...Array.from({ length: 33 }, (_, offset) => 127 + offset),
+]);
+
+const unprintable = {
+  test: (text: string) =>
+    Array.from(
+      { length: text.length },
+      (_, index) => text.codePointAt(index) ?? 0
+    ).some((code) => controlCodes.has(code)),
+};
+
+const failingProbe = (path: string) => path === "/r/4" || path === "/auth.md";
+
+it.prop(
+  "a stored body never holds a control character other than newline or tab",
+  {
+    bytes: Schema.Array(
+      Schema.Int.check(Schema.isBetween({ maximum: 255, minimum: 0 }))
+    ).check(Schema.isMaxLength(64)),
+  },
+  ({ bytes }) => {
+    const raw = new TextDecoder().decode(new Uint8Array(bytes));
+    const body = printableBody(new Uint8Array(bytes));
+
+    expect(unprintable.test(body)).toBe(false);
+    expect(body === raw).toBe(!unprintable.test(raw));
+  },
+  { arbitrary: { runs: 500 } }
+);
+
+it.effect(
+  "the watch verdict keeps every rejected probe and only rejected probes",
+  () =>
+    Effect.gen(function* testRejected() {
+      const routes = Array.from({ length: 12 }, (_, index) => `/r/${index}`);
+      const requests: { readonly accept: string; readonly path: string }[] = [];
+
+      const fiber = yield* watchVerdict("https://example.test").pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          site(routes, failingProbe, requests)
+        ),
+        Effect.forkChild
+      );
+
+      yield* TestClock.adjust(11 * 60_000);
+      const verdict = yield* Fiber.join(fiber);
+      const rejected = requests.filter((row) => failingProbe(row.path)).length;
+
+      expect(rejected).toBeGreaterThan(0);
+      expect(verdict.provenance).toHaveLength(rejected);
+      expect(verdict.counts.nonOk).toBe(rejected);
+      expect(verdict.counts.observed).toBeGreaterThan(rejected);
+
+      for (const row of verdict.provenance ?? []) {
+        expect(row.status).toContain('"status":500');
+        expect(row.status).toContain('"cfRay":"ray-first"');
+      }
     })
 );
