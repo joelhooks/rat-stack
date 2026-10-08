@@ -40,6 +40,11 @@ const assetsRoot = new URL(
   import.meta.url
 );
 
+const documentsRoot = new URL(
+  `../dist/content/documents/${manifest.generation}/`,
+  import.meta.url
+);
+
 const bytes = (path: string) =>
   readFileSync(new URL(path.slice(1), assetsRoot));
 
@@ -66,7 +71,7 @@ const documentFor = (route: string) => {
     throw new Error(`No generated fixture for ${route}`);
   }
 
-  return bytes(page.html).toString("utf-8");
+  return readFileSync(new URL(page.document.slice(1), documentsRoot), "utf-8");
 };
 
 export const generatedReaderPage = (route: string) =>

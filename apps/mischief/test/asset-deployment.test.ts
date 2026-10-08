@@ -196,7 +196,13 @@ it.layer(NodeServices.layer)((nodeIt) => {
         }).pipe(Effect.flip);
 
         expect(imageDrift.reason).toBe("images");
-        yield* fs.remove(path.join(assets, "index.html"));
+
+        yield* fs.remove(path.join(directory, "documents"), {
+          recursive: true,
+        });
+
+        expect(yield* assetDirectoryForBuild(directory, runtime)).toBe(assets);
+        yield* fs.remove(path.join(assets, "index.md"));
 
         const fileDrift = yield* assetDirectoryForBuild(
           directory,
@@ -204,8 +210,8 @@ it.layer(NodeServices.layer)((nodeIt) => {
         ).pipe(Effect.flip);
 
         expect(fileDrift.reason).toBe("file");
-        expect(fileDrift.path).toBe(path.join(assets, "index.html"));
-        yield* fs.writeFileString(path.join(assets, "index.html"), "");
+        expect(fileDrift.path).toBe(path.join(assets, "index.md"));
+        yield* fs.writeFileString(path.join(assets, "index.md"), "");
 
         const emptyFile = yield* assetDirectoryForBuild(
           directory,
