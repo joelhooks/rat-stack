@@ -62,6 +62,25 @@ Rollback needs explicit capability approval. Missing, malformed or oversized rec
 
 No remote runner, canary, traffic split or release queue is implemented. Keep production smoke checks until the typed checks qualify the deployment.
 
+## Read escaped Worker crashes
+
+A Cloudflare 1101 without an incident id can escape Mischief's request handler. Read the private crash archive before assigning a cause. Do not enable invocation logs or print raw trace events.
+
+The production plan should create `MischiefCrashTail` and its retained `MischiefCrashBucket`. Mischief receives an in-place `tailConsumers` update. No Basin catalog, stream, pipeline, or additional application secret is required. The tail Worker has no public endpoint and disables its own observability. The archive runs independently of request analytics.
+
+1. Verify Mischief's deployed `tailConsumers` names `MischiefCrashTail`'s physical Worker name.
+2. Obtain the crash bucket's physical name from the plan.
+3. Follow [Analytics: Read crashes without a dashboard](/systems/analytics#read-crashes-without-a-dashboard).
+4. List one UTC day with at most 20 keys per page, using an R2 read-only S3 profile.
+5. Fetch an exact object key. Compare its event time, route path, and script version with the failed probe.
+6. Use the stack locations to investigate that version. Fix the observed cause in a separate packet.
+
+Records keep sanitized diagnostic phrases rather than arbitrary exception text. Unknown messages and custom error names are redacted. Headers, cookies, IPs, query strings, request bodies, and console logs are excluded. Delivery is best effort; an empty listing does not establish health. Missing time, version, or route stays `null`. Replayed deliveries can create duplicate objects.
+
+Before shipping, run the full gate and `pnpm --filter @rat-stack/events exec vitest run test/crash.test.ts`. A local passing property does not establish Cloudflare delivery. After shipping, require an actual stored failed trace before claiming the archive works. Do not add a public crash trigger to obtain that proof.
+
+To disable crash capture, remove Mischief's tail-consumer attachment through an approved Alchemy update. Verify the deployed attachment is empty. Do not assume a code-version rollback restores script settings. Keep the retained bucket and its objects for investigation. Deleting or orphaning archive resources requires the normal plan review and owner approval.
+
 ## Local inputs
 
 The three root deployment commands use `APP_ENV=production` with varlock. Put private application resolvers in gitignored `.env.production.local`. Keep each key declared in `.env.schema`.
