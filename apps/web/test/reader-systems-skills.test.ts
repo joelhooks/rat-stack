@@ -111,7 +111,8 @@ it.effect("Reader routing preserves same-generation agent Markdown bytes", () =>
       );
 
       const route = withReaderWebsite(
-        Effect.die("Agent Markdown must not touch the HTML reader binding")
+        Effect.die("Agent Markdown must not touch the HTML reader binding"),
+        () => Effect.die("Agent Markdown must not get reader headers")
       )(fallback);
 
       for (const accept of ["*/*", "text/markdown"]) {
