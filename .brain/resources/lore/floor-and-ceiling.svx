@@ -21,7 +21,7 @@ sources:
 
 # Floor and ceiling
 
-Theo distinguishes a model's best performance from its ordinary floor. He says the floor matters more when an agent must work through a long task. [04:19](https://youtu.be/iBrAWpjXNxs?t=259) [05:31](https://youtu.be/iBrAWpjXNxs?t=331).
+Theo distinguishes a model's best performance from its ordinary reliability, which he calls the floor. He calls best performance the ceiling. He says the floor matters more when an agent must work through a long task. [04:19](https://youtu.be/iBrAWpjXNxs?t=259) [05:31](https://youtu.be/iBrAWpjXNxs?t=331).
 
 He illustrates how small failure rates across repeated time windows compound over a four-hour run. [22:39](https://youtu.be/iBrAWpjXNxs?t=1359) [23:19](https://youtu.be/iBrAWpjXNxs?t=1399).
 

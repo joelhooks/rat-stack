@@ -59,19 +59,22 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A defect is an unexpected execution failure.
+
 Declare failures that callers can handle. Keep defects distinct from those declared outcomes.
 Catch a failure where the application can recover or report it truthfully.
 
 ## Give expected failures a type and useful context
 
-`Schema.TaggedError` defines a yieldable error with a tag and declared fields.
+`Schema.TaggedError` defines a yieldable error: an error a generator can raise with `yield*`.
+Its tag identifies the error type; its fields retain context.
 `FileStatsError` keeps the path and the filesystem reason.
 
 ```ts repo=rat-stack path=packages/core/src/stats.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-26
 ```
 
 Inside a generator, `return yield*` can raise a yieldable error directly.
-`Effect.fail` can also place an error in the expected failure channel.
+`Effect.fail` can also place an error in the expected failure channel, the `E` parameter of the Effect type.
 Do not throw an ordinary exception to represent a declared refusal.
 
 ## Translate implementation failures without losing their meaning
@@ -102,7 +105,7 @@ Do not turn a failed inspection into empty file statistics just to complete the 
 ## Do not use orDie to hide ordinary failures
 
 `Effect.orDie` removes expected failures from the typed channel by turning them into defects.
-The inspection machine uses it at the actor boundary because its expected file failure already travels through the `Unreadable` outcome.
+The inspection machine uses it where the machine's result is handed back to Effect because its expected file failure already travels through the `Unreadable` outcome.
 An unexpected actor failure or missing outcome is a programming failure at that boundary.
 
 This is a specific boundary decision. File reads still return `FileStatsError` to ordinary callers.

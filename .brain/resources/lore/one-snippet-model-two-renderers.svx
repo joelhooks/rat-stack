@@ -1,6 +1,6 @@
 ---
 title: "One snippet model feeds both renderers"
-description: "HTML and agent Markdown derive their code and provenance from the same snippet."
+description: "HTML and agent Markdown derive their code, repository, commit, path, and line numbers from the same snippet."
 plain: "HTML and agent Markdown are both built from the same snippet model, so both show the same source facts."
 diagram: |-
   CodeSnippet
@@ -35,13 +35,13 @@ The proposed `CodeSnippet` carries:
 - Diagnostics.
 
 HTML adds colour, a filename, numbered lines, and a source link.
-Agent Markdown adds provenance and a fenced code block.
+Agent Markdown adds the repository, commit, path, and original line numbers, plus a Markdown code block.
 Both renderers use the same source facts.
 
-Renderer parity means both views preserve those shared facts.
+Both views preserve the same source facts.
 The planned property compares each view with the pinned source.
 
 [Whole-file tokenization](/lore/tokenize-before-slicing) supplies the tokens.
 [Engine-neutral tokens](/lore/engine-neutral-tokens-keep-adapters-replaceable) keep renderer input independent of Shiki.
 
-See [the glossary](/glossary) for snippet model and renderer parity.
+See [the glossary](/glossary) for snippet model and renderer parity, the term for views preserving the same source facts.

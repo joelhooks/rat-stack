@@ -34,6 +34,11 @@ sources:
     accessed: "2026-10-02"
 ---
 
+mdsvex compiles Markdown with Svelte components. unified processes documents through plugins.
+remark processes Markdown, and rehype processes HTML.
+
+CommonMark specifies Markdown syntax. GitHub Flavored Markdown (GFM) adds features to that syntax.
+
 In [Discussion #259](https://github.com/pngwn/MDsveX/discussions/259), pngwn gives four reasons to leave unified:
 
 - Performance.

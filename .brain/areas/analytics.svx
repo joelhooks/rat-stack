@@ -18,6 +18,16 @@ terms:
   - "request analytics"
   - "events_raw"
 sources:
+  - url: https://developers.cloudflare.com/workers/observability/logs/tail-workers/
+    title: "Tail Workers"
+    publisher: "Cloudflare docs"
+    note: "Tail consumers receive producer execution traces, including uncaught exceptions."
+    accessed: "2026-10-08"
+  - url: https://developers.cloudflare.com/r2/examples/aws/aws-cli/
+    title: "AWS CLI with R2"
+    publisher: "Cloudflare docs"
+    note: "S3-compatible object listing and reads through an authenticated R2 endpoint."
+    accessed: "2026-10-08"
   - url: https://developers.cloudflare.com/basin-pipelines/streams/manage-streams/
     title: "Manage streams"
     publisher: "Cloudflare docs"
@@ -80,7 +90,9 @@ Each event holds:
 
 - A visitor id and UUIDv7 message id. UUIDv7 is a time-ordered identifier format.
 - A server block: host, received time, salted IP hash, and user agent. The hash combines the IP with a secret salt to produce a one-way value.
-- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone. It also includes the Cloudflare data center and the network's autonomous system number, which identifies the network, and its organization.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone.
+  It also includes the Cloudflare data center, the network's autonomous system number, and its organization.
+  The autonomous system number identifies the network.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.
@@ -104,7 +116,7 @@ Each event holds:
 
 ## Worker logs
 
-All three Worker declarations share `privateObservability` in `apps/mischief/src/observability.ts`:
+The three HTTP Worker declarations share `privateObservability` in `apps/mischief/src/observability.ts`:
 
 - Mischief.
 - RpcBackend.
@@ -122,6 +134,86 @@ Client IPs reach Basin only as salted hashes. The Worker policy prevents automat
 Application logs must not print raw IPs or request headers.
 
 These settings apply after deployment. They do not erase stored logs from earlier deployments.
+
+## Crash archive
+
+Mischief declares `MischiefCrashTail` as an Alchemy `tailConsumers` entry.
+The tail Worker receives execution traces after Mischief finishes an invocation.
+It records failed outcomes and traces with exceptions, including exceptions after a successful response.
+
+Successful traces without exceptions produce no object.
+Initialization exceptions keep their event time and script version even when the trace has no fetch event.
+
+The events cartridge owns the `CrashArchive` port and its R2 adapter.
+A private `MischiefCrashBucket` holds one immutable JSON object per failed trace.
+Keys use `crashes/<UTC-day>/<random-id>.json`.
+Separate objects prevent concurrent deliveries from overwriting a daily file.
+
+There is no daily aggregate or second store.
+
+Each record contains only:
+
+- The outcome.
+- Exception names, sanitized messages, and stack locations.
+- The script version id, when Cloudflare supplies it.
+- The event time, or `null` when absent.
+- The URL path without its query string, or `null` without a fetch event.
+
+Exception messages retain recognized diagnostic phrases only.
+Other messages become `[redacted message]`; custom exception names become `[redacted name]`.
+This rule also covers secrets that Cloudflare removes from trace headers before delivery.
+
+Stack locations retain a source filename, line, and column.
+They exclude function names, directory paths, URLs, and the first error line.
+Known header, cookie, and query values are removed from exception text before storage.
+
+The archive never stores request headers, IP addresses, cookies, query strings, bodies, console messages, or diagnostic-channel payloads.
+The tail Worker has no public HTTP route and disables its own observability.
+Mischief keeps invocation logs and traces disabled.
+Crash capture operates independently of `EVENTS_ENABLED`.
+
+R2 permits direct object reads without a catalog, pipeline, or sink token.
+The archive supplies best-effort evidence.
+Missing records do not prove health.
+Cloudflare delivery limits, missing stack data, and archive failures can leave gaps.
+
+Null fields stay unknown; they do not acquire guessed values.
+Replayed deliveries can create duplicate records with different object keys.
+The bucket retains its objects when removed from the Stack.
+
+### Read crashes without a dashboard
+
+Use an R2 read-only S3 profile for the archive.
+Get the physical bucket name from the production plan for `MischiefCrashBucket`.
+Use a UTC-day prefix to bound the listing.
+The following commands need AWS CLI and an authenticated R2 S3 profile.
+
+```sh
+aws --profile <r2-read-profile> \
+  --endpoint-url https://<account-id>.r2.cloudflarestorage.com \
+  s3api list-objects-v2 --bucket <crash-bucket> \
+  --prefix crashes/2026-10-08/ --max-keys 20 --no-paginate
+```
+
+Read `Contents[].Key` from the result.
+If `IsTruncated` is true, pass `NextContinuationToken` with `--continuation-token` for the next page.
+Fetch one exact key; do not sync the entire archive.
+
+```sh
+aws --profile <r2-read-profile> \
+  --endpoint-url https://<account-id>.r2.cloudflarestorage.com \
+  s3api get-object --bucket <crash-bucket> \
+  --key <listed-key> crash.json
+```
+
+Compare `eventTime`, `path`, and `scriptVersion` with the failed deployment probe.
+Read stack locations against that script version's source.
+A Cloudflare ray id is not stored, so this comparison is a correlation rather than an exact join.
+Fix the observed cause in a separate change.
+
+Before deployment, run `pnpm --filter @rat-stack/events exec vitest run test/crash.test.ts`.
+After deployment, verify the tail consumer attachment and read an actual failed trace from R2.
+Local tests prove projection and archive writes; they do not prove Cloudflare delivery.
 
 ## Switches
 
@@ -173,7 +265,8 @@ Properties cover:
 - No sensitive query keys.
 
 The visitor model follows ids across devices, cookies, and days.
-The observability test checks every application Worker declaration against the shared policy.
+The observability test checks every application Worker declaration against a named privacy policy.
+HTTP Workers use `privateObservability`; the tail Worker uses the stricter `silentObservability`.
 
 ## Removing it
 

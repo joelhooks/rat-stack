@@ -23,11 +23,14 @@ import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
 
-import { mischiefRoutes } from "./app.js";
+import { mischiefRoutes, readerResponseHeaders } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
 import { contentAssetsForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
+import { ContentStore } from "./content-store.js";
+import CrashTail from "./crash-tail.js";
+import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
@@ -243,8 +246,26 @@ export const makeMischief = (
           Effect.provide(StaticAssets.layer(assetBinding.value))
         );
 
+    const contentStore = yield* ContentStore.pipe(
+      Effect.provide(
+        ContentStore.layer.pipe(
+          Layer.provide(
+            Layer.succeed(
+              StaticAssets,
+              assets ??
+                Option.getOrElse(
+                  yield* Effect.serviceOption(StaticAssets),
+                  () => StaticAssets.unavailable
+                )
+            )
+          )
+        )
+      )
+    );
+
     const workerRoutes = mischiefRoutes({
       assets,
+      contentStore,
       interest:
         interest === undefined
           ? undefined
@@ -269,12 +290,19 @@ export const makeMischief = (
       )
     );
 
-    const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
+    const website = Schema.decodeUnknownEffect(AssetBindingSchema)(
+      environment.WEBSITE
+    );
+
+    const app = (yield* HttpRouter.toHttpEffect(workerRoutes).pipe(
+      Effect.orDie
+    )).pipe(
+      Effect.provideService(ErrorPageRenderer, websiteErrorPages(website))
+    );
 
     const readerApp = withReaderWebsite(
-      Schema.decodeUnknownEffect(AssetBindingSchema)(environment.WEBSITE).pipe(
-        Effect.orDie
-      )
+      website.pipe(Effect.orDie),
+      readerResponseHeaders(contentStore)
     )(app);
 
     return {
@@ -386,6 +414,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
       main: import.meta.url,
       observability: privateObservability,
+      tailConsumers: [yield* CrashTail],
     };
   }),
   makeMischiefWorker

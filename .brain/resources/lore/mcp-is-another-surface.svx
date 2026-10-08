@@ -45,11 +45,11 @@ sources:
 The Model Context Protocol lets an agent client discover and call tools. The [tools specification](https://modelcontextprotocol.io/specification/2025-06-18/server/tools) defines:
 
 - `tools/list` for discovery.
-- `tools/call` for invocation.
+- `tools/call` for calling a tool.
 - Input JSON Schema.
 - Optional output JSON Schema.
 
-A client that speaks MCP can discover names and arguments without learning a separate invocation format. In rat-stack, MCP [projects the shared handler](/lore/one-schema-three-surfaces).
+A client that speaks MCP can discover names and arguments without learning a separate call format. In rat-stack, MCP [projects the shared handler](/lore/one-schema-three-surfaces).
 
 ## The projection
 

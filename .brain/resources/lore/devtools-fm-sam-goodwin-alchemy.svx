@@ -16,6 +16,7 @@ sources:
 
 # Sam Goodwin on Alchemy
 
-Sam describes Effect as a computation with typed errors and requirements, built from layers. He compares Alchemy's earlier await-based model with a plan model and explains how bindings connect runtime needs to infrastructure. [05:02](https://youtu.be/MtKHzAH6uXM?t=302) [15:25](https://youtu.be/MtKHzAH6uXM?t=925) [26:00](https://youtu.be/MtKHzAH6uXM?t=1560) [29:35](https://youtu.be/MtKHzAH6uXM?t=1775)
+Sam describes Effect as a computation with typed errors and requirements, built from layers. He compares Alchemy's earlier await-based model with a plan model, which describes infrastructure changes before applying them.
+He explains how bindings connect runtime needs to infrastructure. [05:02](https://youtu.be/MtKHzAH6uXM?t=302) [15:25](https://youtu.be/MtKHzAH6uXM?t=925) [26:00](https://youtu.be/MtKHzAH6uXM?t=1560) [29:35](https://youtu.be/MtKHzAH6uXM?t=1775)
 
 Sam calls the cloud a library at 29:50. [Watch the moment](https://youtu.be/MtKHzAH6uXM?t=1790).

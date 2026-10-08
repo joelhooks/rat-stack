@@ -36,7 +36,7 @@ sources:
     accessed: "2026-10-01"
 ---
 
-A Cloudflare Worker's initialization effect runs twice. It runs when Alchemy declares deploy-time resources and when the Worker starts in an isolate. Those contexts do not have the same services.
+A Cloudflare Worker's initialization effect runs twice. It runs when Alchemy declares deploy-time resources and when the Worker starts in an isolate, a separate execution environment. Those contexts do not have the same services.
 
 On 2026-09-24, stage-specific rate-limit declarations used `yield* Stage` in the Worker initializer. The runtime did not have that deploy-time service, so production returned error 1101 for about three minutes.
 
@@ -46,4 +46,4 @@ The first change, [commit 95687ec](https://github.com/joelhooks/rat-stack/commit
 
 Put 95687ec's unguarded declarations back and the test fails with `Service not found: Stage`, the same failure production hit. Every earlier check exercised only the deploy side. [Merge commit ae312a1](https://github.com/joelhooks/rat-stack/commit/ae312a13e91c395a97404a565871d7a96de11388) carries the fix into the merged branch.
 
-See [cartridges](/lore/cartridges) for the rule that each resource belongs to its Layer and [the fence](/lore/the-fence) for the test gate that keeps this boundary visible.
+See [cartridges](/lore/cartridges) for the rule that each resource belongs to its Layer and [the fence](/lore/the-fence) for the required tests that check this separation.

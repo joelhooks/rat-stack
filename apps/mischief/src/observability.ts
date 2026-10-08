@@ -5,3 +5,9 @@ export const privateObservability = {
   logs: { enabled: true, invocationLogs: false },
   traces: { enabled: false },
 } satisfies WorkerObservability;
+
+export const silentObservability = {
+  ...privateObservability,
+  enabled: false,
+  logs: { enabled: false, invocationLogs: false },
+} satisfies WorkerObservability;

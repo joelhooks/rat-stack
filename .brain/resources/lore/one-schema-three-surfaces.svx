@@ -53,13 +53,19 @@ sources:
 
 > my approach wrt to the agentic backend is to cover cli/api/mcp with a single openapi schema that is used to generate all three
 
-His example is this repository. The code makes the direction more precise:
+His example is this repository. A capability is a named action with a contract and handler.
+A contract defines the shared input, output, failures, and metadata.
+Effect Schema supplies types and runtime checks for these values.
+
+The code makes the direction more precise:
 
 - A capability contract owns Effect schemas.
 - HttpApi, OpenAPI, CLI, and MCP derive from that contract.
 - CLI and MCP do not consume the generated OpenAPI JSON.
 
-Each invocation interface, or surface, shares the same behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
+Each interface for calling the action, or surface, shares the same behavior. [`defineContract`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/contract.ts) owns input, output, failure, description, and annotations. `implement` binds one handler.
+
+A projection builds an interface from a capability.
 
 ## One contract feeds the projections
 
@@ -87,6 +93,6 @@ Each call receives the same capability list.
 
 One HttpApi definition supplies the HTTP implementation and its OpenAPI document. The broader shared definition is the capability contract. This split avoids three independently maintained schemas.
 
-See [MCP](/lore/mcp-is-another-surface), [OpenAPI](/lore/openapi-describes-the-refusal-too), and [code mode](/lore/one-program-can-replace-several-tool-calls) for each surface.
+See [MCP](/lore/mcp-is-another-surface), [OpenAPI](/lore/openapi-describes-the-refusal-too), and [code mode](/lore/one-program-can-replace-several-tool-calls) for each interface.
 
 See [how we do it with Effect](/lore/how-we-do-it-with-effect) for the whole path.

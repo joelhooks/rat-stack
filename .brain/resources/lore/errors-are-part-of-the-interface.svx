@@ -33,7 +33,7 @@ sources:
 The [code-snippets design brief](/lore/code-snippets) requires an author-facing error for each rejected snippet.
 
 Each error carries:
-- A typed error tag.
+- A typed error tag: the name identifying the declared error type.
 - The source document and line.
 - The rejected request.
 - Requested ranges and actual file length, when available.

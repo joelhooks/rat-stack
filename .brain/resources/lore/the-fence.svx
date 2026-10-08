@@ -1,6 +1,6 @@
 ---
 title: "The fence"
-description: "The fence makes the safe path enforceable and makes bypasses fail loudly."
+description: "The fence uses compiler checks, lint rules, and hooks to reject unsafe shortcuts."
 plain: "The fence makes the safe path enforceable, so bad shortcuts fail loudly and the rule beats the prose."
 diagram: |-
   more durable
@@ -39,17 +39,19 @@ sources:
     accessed: "2026-10-01"
 ---
 
+The fence is the compiler checks, lint rules, tests, and hooks that enforce project rules.
+
 “Cheating is uncomfortable” means the repo must stop bad shortcuts. Type-aware Oxlint checks project boundaries and patterns. Effect language-service diagnostics run through TypeScript. Lefthook runs checks before a commit, and harness hooks block `git … --no-verify`.
 
-The fence wins over prose. If a rule and a paragraph disagree, follow the enforced rule and fix the paragraph.
+If an enforced check and a paragraph disagree, follow the enforced rule and fix the paragraph.
 
-The pieces live in `oxlint.config.ts`, `scripts/oxlint-plugin-boundaries.ts`, `scripts/oxlint-plugin-patterns.ts`, `tsconfig.base.json`, `lefthook.yml`, and `scripts/vcs-command-policy.js`. `pnpm turbo run check test build` is the repo gate. Do not weaken a hook to get a green result.
+The pieces live in `oxlint.config.ts`, `scripts/oxlint-plugin-boundaries.ts`, `scripts/oxlint-plugin-patterns.ts`, `tsconfig.base.json`, `lefthook.yml`, and `scripts/vcs-command-policy.js`. `pnpm turbo run check test build` is the required validation command. Do not weaken a hook to get a green result.
 
-A fence has limits. The lint rules use syntax and known aliases; they do not resolve every dynamic import, package condition, or cross-file re-export. The public Brain note [Oxlint rule limits](/resources/lint-rule-limits) lists those edges.
+A fence has limits. The lint rules use syntax and known aliases; they do not resolve every dynamic import, package condition, or cross-file re-export. The public Brain note [Oxlint rule limits](/resources/lint-rule-limits) lists those cases.
 
 When lint misses a case, improve the rule or boundary. These rules cannot establish whole-program behavior.
 
-## Where a correction lands
+## Where to enforce a correction
 
 Lauren Tan describes five places to put a correction, from more durable to less enforceable: the codebase, static analysis, rules, skills, and style guides. She says to move a correction as high on that ladder as it can go. [Watch from 15:00](https://video.twimg.com/amplify_video/2101938030122868736/vid/avc1/3442x2160/BQlPlAZCEVPDemv1.mp4#t=900) [18:20](https://video.twimg.com/amplify_video/2101938030122868736/vid/avc1/3442x2160/BQlPlAZCEVPDemv1.mp4#t=1100).
 

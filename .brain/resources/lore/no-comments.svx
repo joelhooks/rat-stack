@@ -28,12 +28,12 @@ sources:
     accessed: "2026-10-01"
 ---
 
-The code rule bans prose comments because agents copy them, and a comment that explains a workaround can spread the workaround. Put the reason where the code can enforce or reveal it: in a name, a type, a test, a commit message, or the Brain.
+The code rule bans prose comments because agents copy them, and a comment that explains a workaround can spread the workaround. Put the reason where the code can enforce or reveal it: in a name, a type, a test, a commit message, or the project's `.brain/` notes.
 
-Three forms remain. Tool directives can suppress a specific diagnostic with a reason after `--`, as in `// oxlint-disable-next-line rule -- reason`. A one-line `SAFETY:` invariant can sit above a type assertion and name what makes it safe.
+Three forms remain. Tool directives can suppress a specific diagnostic with a reason after `--`, as in `// oxlint-disable-next-line rule -- reason`. A one-line `SAFETY:` statement above a type assertion names the condition that must remain true to make it safe.
 
 Plain JavaScript can keep JSDoc blocks made only of type tags, because those tags provide type syntax. TypeScript's comment directives also need an inline reason, and the configured lint rule decides which directives may stay.
 
-Before running `pnpm fix`, move each comment's reason into a symbol, type, test, commit, or Brain note. `--fix` can delete prose comments and leave the workaround behind.
+Before running `pnpm fix`, move each comment's reason into a symbol, type, test, commit, or `.brain/` note. `--fix` can delete prose comments and leave the workaround behind.
 
 See [the fence](/lore/the-fence) for how the rule is enforced and [tests that earn their place](/lore/tests-that-earn-their-place) for the test that can replace a comment.

@@ -1,6 +1,6 @@
 ---
 title: "There is no ISR on Cloudflare"
-description: "SvelteKit's Vercel ISR setting does not configure Workers Cache; our local bake-off did not prove cache reuse."
+description: "SvelteKit's Vercel ISR setting does not configure Workers Cache; our local comparison did not prove cache reuse."
 plain: "SvelteKit's ISR switch is a Vercel feature; rat-stack serves static assets on Cloudflare instead."
 diagram: |-
   static assets  chosen
@@ -48,6 +48,9 @@ sources:
     accessed: "2026-10-02"
 ---
 
+ISR means incremental static regeneration: storing generated content and refreshing it later.
+A Cloudflare Worker runs request-handling code. Its entrypoint is where that code starts.
+
 There is no SvelteKit `isr` switch for the Cloudflare adapter. [That configuration belongs to adapter-vercel](https://svelte.dev/docs/kit/adapter-vercel).
 
 [Vercel ISR](https://vercel.com/docs/incremental-static-regeneration) stores generated content and regenerates it. [Kit #661](https://github.com/sveltejs/kit/issues/661) asks for a general regeneration feature.
@@ -56,7 +59,7 @@ Cloudflare can still cache rendered pages.
 
 [Workers Cache](https://blog.cloudflare.com/workers-cache/) puts a cache in front of a Worker entrypoint. Its [stale-while-revalidate behavior](https://developers.cloudflare.com/workers/cache/) serves a stale response while the Worker refreshes it.
 
-## What our bake-off proves
+## What our comparison proves
 
 We compare three local candidates:
 
@@ -64,7 +67,7 @@ We compare three local candidates:
 - A SvelteKit prerender gateway.
 - A Workers Cache entrypoint.
 
-The cache candidate mints a marker inside the rendering entrypoint. Repeated identical requests do not reuse it.
+The cache candidate creates a marker inside the rendering entrypoint. Repeated identical requests do not reuse it.
 
 An assets response carries `CF-Cache-Status: HIT`. That proves only asset-cache reuse. The selected Miniflare implementation does not implement Workers Cache handling.
 
@@ -75,13 +78,13 @@ The cache candidate's home-page Markdown timings are:
 | Cold: first application request in a fresh runtime | 8.25 ms |
 | Warm: median of 20 sequential requests | 1.69 ms |
 
-Neither number measures an edge cache HIT.
+Neither number measures reuse of a cached response in Cloudflare's data centers (`HIT`).
 
 The check does not prove:
 
 - Stale-while-revalidate.
 - Purge.
-- Representation isolation across Workers Cache HITs.
+- Separate caching for HTML and Markdown responses across Workers Cache HITs.
 
 The accepted configuration leaves cache behavior unproven.
 

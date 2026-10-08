@@ -1,6 +1,6 @@
 ---
 title: "HATEOAS"
-description: "Links in a representation tell its reader what to do next; rat-stack applies that idea to agent surfaces."
+description: "Links in a representation tell its reader what to do next; rat-stack applies that idea to agent-facing pages and responses."
 plain: "Links in a response tell the reader what it can do next; rat-stack wants agent surfaces to carry those links."
 diagram: |-
   agent reads /llms.txt
@@ -54,11 +54,11 @@ Joel Hooks puts the agent-facing principle this way:
 
 > My theory about hypertext as the engine of application state is that HATOS style links and pointers should be part of agentic surfaces in that we want to show them what they can do next and give that sort of guidance to agents and bake it in at that layer where humans don't necessarily need to see that you know the information architecture is different and has a different scale
 
-Joel applies the idea to links and pointers on agent surfaces: `llms.txt`, the markdown variant, MCP responses, and capability responses. They should show the agent what it can do next. Humans need not see all that guidance because the agent's information architecture differs in shape and scale. `AgentOnly` variants are where that extra guidance belongs.
+Joel applies the idea to links and pointers on agent-facing pages and responses: `llms.txt`, the markdown variant, MCP responses, and capability responses. They should show the agent what it can do next. Humans need not see all that guidance because information and next actions are organized differently for agents. `AgentOnly` variants are where that extra guidance belongs.
 
 ## What exists, and what is direction
 
-[Content negotiation](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) serves markdown by default and HTML when requested. It also recognizes browser and crawler user agents; a browser can receive HTML without an explicit Accept header. `/llms.txt` is the agent front door. The [content generator](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) gives that guide links to rules, lore, skills, and the full docs, and builds HTML "Linked from" backlinks from the lore graph.
+[Content negotiation](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) serves markdown by default and HTML when requested. It also recognizes browser and crawler user agents; a browser can receive HTML without an explicit Accept header. `/llms.txt` is the starting point for an agent. The [content generator](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) gives that guide links to rules, lore, skills, and the full docs, and builds HTML "Linked from" backlinks from the lore graph.
 
 [Audience variants](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts) retain `AgentOnly` blocks in agent markdown and remove them from HTML. `/tokenmaxx` has inline next-action guidance. Its [AgentOnly blocks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md) link to the agent guide and related lore, explain the harness pieces, and guide preparation.
 
@@ -70,4 +70,4 @@ Next-action links in capability and MCP responses remain a goal. The projections
 
 The [agent guide](/llms.txt) gives the search → read → graph workflow.
 
-[One capability, every surface](/lore/one-capability-every-surface) describes the existing projections. These pieces apply the hypermedia idea; they are not a claim that every rat-stack surface satisfies all of Fielding's REST constraints.
+[One capability, every surface](/lore/one-capability-every-surface) describes the existing projections. These pieces apply the hypermedia idea; they are not a claim that every rat-stack interface satisfies all of Fielding's REST constraints.

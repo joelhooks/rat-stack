@@ -46,7 +46,7 @@ The [capture-first](/lore/capture-first) events cartridge is tested this way. Fo
 - The response body and status are preserved.
 - Persistent HTML may add the visitor cookie.
 - The request body never reaches the event.
- For any query string, credential and email keys never survive. A failing sink does not change the response body or status. [Analytics](/systems/analytics) documents cookie behavior and the warehouse proof boundary.
+ For any query string, credential and email keys never survive. A failing sink does not change the response body or status. [Analytics](/systems/analytics) documents cookie behavior and what the checks establish about storage in Basin.
 
 A property earns its place only if breaking the code breaks it. When first written, the events tests did not fail when `token` was removed from the sensitive-key list. The property compared the filter with the same function it was testing.
 

@@ -4,7 +4,10 @@ import { Effect, FileSystem, Path } from "effect";
 import type { PlatformError } from "effect/PlatformError";
 import { expect } from "vitest";
 
-import { privateObservability } from "../src/observability.js";
+import {
+  privateObservability,
+  silentObservability,
+} from "../src/observability.js";
 
 const sourceFiles = (
   directory: string
@@ -47,7 +50,9 @@ const workerDeclarations = (source: string) => [
 ];
 
 const policyAssignments = (source: string) => [
-  ...source.matchAll(/\bobservability:\s*privateObservability\b/gu),
+  ...source.matchAll(
+    /\bobservability:\s*(?:privateObservability|silentObservability)\b/gu
+  ),
 ];
 
 it.effect(
@@ -85,5 +90,9 @@ it.effect("keeps custom logs but disables invocation metadata and traces", () =>
     expect(privateObservability.logs.enabled).toBe(true);
     expect(privateObservability.logs.invocationLogs).toBe(false);
     expect(privateObservability.traces.enabled).toBe(false);
+    expect(silentObservability.enabled).toBe(false);
+    expect(silentObservability.logs.enabled).toBe(false);
+    expect(silentObservability.logs.invocationLogs).toBe(false);
+    expect(silentObservability.traces.enabled).toBe(false);
   })
 );

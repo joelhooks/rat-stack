@@ -30,6 +30,9 @@ sources:
 
 # Michael Arnaldi
 
+Dependency injection supplies service implementations to callers.
+Resource safety means cleaning up resources after use. Concurrency control manages work that runs at the same time.
+
 Michael traces Effect to a TypeScript team's needs for dependency injection, reliable tests, resource safety, concurrency control, and retries. [Effect Days 2024, 08:40](https://youtu.be/7sJc3Z4mh1w?t=520).
 
-He describes Effect computations through their outputs, predictable failures, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).
+He describes Effect computations through their outputs, predictable failures, and requirements: the services the work needs. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).

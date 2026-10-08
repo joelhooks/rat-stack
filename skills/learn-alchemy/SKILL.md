@@ -16,7 +16,9 @@ diagram: |-
 
 # Learn Alchemy
 
-Alchemy 2 is Effect-native infrastructure as code. It lets one program declare resources, bindings, deployment state, and the Worker that uses them.
+Alchemy 2 declares and deploys cloud resources through Effect programs. Effect describes work with typed failures and required dependencies. One program declares resources, bindings, deployment state, and the Worker that uses them.
+
+A service is a named interface for one job. A Layer builds services and supplies their construction dependencies. A contract defines an action's name, input, output, failure, and metadata.
 
 Start with this repo's Cloudflare resources. Alchemy also supports other providers. Learn the vocabulary to write infrastructure and check planned changes.
 
@@ -24,12 +26,12 @@ Sam Goodwin describes an Effect as a promise with more information: its return v
 
 ## The vocabulary
 
-- **Stack** groups one infrastructure program and its outputs. Rat-stack exports `Alchemy.Stack("RatStack", ...)` in `apps/infra/alchemy.run.ts`.
+- **Alchemy Stack** groups one infrastructure program and its outputs. Rat-stack exports `Alchemy.Stack("RatStack", ...)` in `apps/infra/alchemy.run.ts`.
 - **Provider** supplies the cloud API implementation. `Cloudflare.providers()` appears in the Stack options in `apps/infra/alchemy.run.ts`.
 - **State** records the resources that a Stack already owns. Rat-stack uses `Cloudflare.state()` in `apps/infra/alchemy.run.ts`.
 - **Resource** is a declared cloud object such as a Zone, DNS record, DNSSEC setting, or Worker. Each gets a stable logical name in `apps/infra/alchemy.run.ts`.
 - **Binding** is a typed runtime value attached to a Worker. Rat-stack declares the `CODE_SANDBOX` WorkerLoader and four RateLimit bindings in `apps/mischief/src/worker.ts`.
-- **Plan** is the graph diff before a provider changes anything. Read it with the `plan` script in `apps/infra/package.json`.
+- **Plan** shows differences between declared resources and stored deployment state before a provider changes anything. Read it with the `plan` script in `apps/infra/package.json`.
 - **Stage** names an isolated deployment state. Rat-stack's production stage is `prod`; the unflagged default is `live_$USER`.
 - **Profile** holds provider credentials for the Alchemy CLI. This repo uses an Alchemy profile, not environment variables, for Cloudflare authentication.
 - **Adopt** means take ownership of an existing resource explicitly. The existing `ratstack.sh` Zone and its DNSSEC setting use `adopt(true)` in `apps/infra/alchemy.run.ts`.
@@ -48,7 +50,7 @@ Read `apps/infra/alchemy.run.ts` from top to bottom.
 7. `Cloudflare.DNS.Dnssec` keeps DNSSEC active. It is adopted for the same reason as the Zone.
 8. `Mischief` declares the Worker with `ratstack.sh` as its custom domain, `www.ratstack.sh` as a redirect, and port 1337 for dev.
 9. The Worker construction yields its WorkerLoader and four RateLimit bindings: `API_PER_IP`, `EXECUTE_GLOBAL`, `EXECUTE_PER_IP`, and `INTEREST_PER_IP`. `Effect.provide(Cloudflare.Workers.RateLimitBinding)` supplies the RateLimit client layer.
-10. `apps/mischief/src/worker.ts` also yields the Interest and InterestIndex Durable Objects. `EVENTS_ENABLED` chooses `Basin` or `basinFoundation`: both keep the bucket, stream, and visitor salt; enabled adds the catalog, sink, and pipeline. Subscriber delivery is provided at the Worker composition boundary, outside core.
+10. `apps/mischief/src/worker.ts` also yields the Interest and InterestIndex Durable Objects. `EVENTS_ENABLED` chooses `Basin` or `basinFoundation`: both keep the bucket, stream, and visitor salt; enabled adds the catalog, sink, and pipeline. The Worker supplies the subscriber delivery implementation when it starts, outside core.
 11. The Stack yields `Website` from `apps/web/src/website.ts` and returns both `mischiefUrl` and `websiteUrl`.
 
 The outputs omit the production DNS declarations:
@@ -88,7 +90,7 @@ const bindings = environment as RateLimitBindings & {
 
 `apps/mischief/src/rate-limits.ts` keeps the four native binding names and their numeric namespace IDs together. `rateLimitsFrom` calls the native `.limit({ key })` method and turns a failed runtime call into a defect instead of failing open.
 
-`apps/mischief/src/sandbox-worker-loader.ts` consumes the `CODE_SANDBOX` binding. It loads a fresh Dynamic Worker with limits and `globalOutbound: null`, so the code-mode Worker can compute and call declared capabilities without reaching the network.
+`apps/mischief/src/sandbox-worker-loader.ts` consumes the `CODE_SANDBOX` binding. It loads a fresh Dynamic Worker with limits and `globalOutbound: null`, so the code-mode Worker can compute and call declared capabilities without reaching the network. A capability is one named action with shared value definitions and a server-side implementation.
 
 Sam describes the constructor as a Layer: declare dependencies in the Effect, use them, then return the implementation. In his React analogy, dependencies are the hooks at the top. The returned Worker is the component.
 
@@ -109,7 +111,7 @@ Run the plan first. It shows `create`, `update`, `adopt`, and `noop` actions bef
 
 Production is stage `prod`. Pass `--stage prod` to the Alchemy CLI. An unflagged deploy defaults to `live_$USER`, which can create a second Worker instead of updating production. Never run an indiscriminate stage destroy. Name the stage explicitly and read its plan first.
 
-Alchemy v2 keeps plan-time outputs boxed until deployment while still letting resources reference one another. Sam compares this to Pulumi's output model. The engine sees the graph before it acts. Plans need no hand-written await chains or accidental concurrency.
+Alchemy v2 represents outputs as values whose contents become available during deployment. Resources can still reference one another. Sam compares this to Pulumi's output model. The engine sees the graph before it acts. The engine orders resource operations without hand-written await chains.
 
 ## Why not wrangler.toml or Terraform
 
@@ -123,7 +125,7 @@ Keep an existing tool when it already owns the state and the team knows its revi
 
 - The Worker bundle uses Alchemy's Rolldown path, and Node's type stripping is outside the normal TypeScript program. A red `pnpm typecheck` does not stop Alchemy from producing a deploy plan or bundle. Run `pnpm turbo run check test build` first and inspect the failing task. Do not use a deploy to bypass a red gate.
 - Cloudflare API changes have broken Alchemy releases before. Check the pinned version in `apps/infra/package.json` and the generated pins page before changing it.
-- The repo pins Alchemy to a beta and Effect to a release candidate. Alpha and beta APIs drift. Read the current pins and vendored source before copying an example from elsewhere.
+- The repo pins Alchemy to a beta. Alpha and beta APIs drift. Read the current pins and vendored source before copying an example from elsewhere.
 - Cloudflare rejected string rate-limit namespace IDs during a deploy even though the local type allowed them. `apps/mischief/src/rate-limits.ts` uses numeric IDs and documents the boundary.
 - `adopt(true)` authorizes adoption. Without it, Alchemy refuses to take over an existing Zone. Keep adoption narrow and never assume a resource is safe to destroy.
 - Profiles carry Cloudflare credentials. Do not add provider tokens to `.env`, source files, or Worker bindings for CLI convenience.
@@ -136,7 +138,7 @@ Keep an existing tool when it already owns the state and the team knows its revi
 
 ## Read before changing
 
-1. Read `AGENTS.md` for pins, commands, boundaries, and the validation fence.
+1. Read `AGENTS.md` for pins, commands, boundaries, and the fence: checks and hooks that reject prohibited code and shortcuts.
 2. Read `VISION.md` for why the scaffold keeps infrastructure and application contracts explicit.
 3. Read `apps/infra/alchemy.run.ts` for the Stack and the cloud footprint.
 4. Read `apps/infra/package.json` for plan, deploy, dev, and destroy scripts.

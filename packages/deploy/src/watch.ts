@@ -51,6 +51,19 @@ export class WatchFailed extends Schema.TaggedError<WatchFailed>()(
 
 export const failureBodyBytes = 4096;
 
+const isUnprintable = (codePoint: number) =>
+  (codePoint < 0x20 && codePoint !== 0x09 && codePoint !== 0x0a) ||
+  (codePoint >= 0x7f && codePoint <= 0x9f);
+
+export const printableBody = (bytes: Uint8Array) =>
+  Array.from(new TextDecoder().decode(bytes), (character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+
+    return isUnprintable(codePoint)
+      ? `\\u${codePoint.toString(16).padStart(4, "0")}`
+      : character;
+  }).join("");
+
 export const nextWatchEvidence = (
   previous: WatchEvidence,
   observations: readonly WatchObservation[]
@@ -170,7 +183,7 @@ const probeRoute = Effect.fn("probeRoute")(function* probeRoute(
 
     const observation = {
       ...request,
-      body: new TextDecoder().decode(new Uint8Array(bytes)),
+      body: printableBody(new Uint8Array(bytes)),
       cfRay: response.headers["cf-ray"],
       incidentId: response.headers["x-incident-id"],
       observedAt,
@@ -433,16 +446,21 @@ export const watchVerdict = Effect.fn("watchVerdict")(function* watchVerdict(
 
   const failed = Result.isFailure(result);
 
+  const rejected = evidence.observations.flatMap((row, index) =>
+    row.status === 200 ? [] : [{ index, row }]
+  );
+
   return {
     check: "post-deploy-watch",
     control: 1,
     counts: {
       cycles: evidence.cycles,
+      nonOk: rejected.length,
       observed: evidence.observations.length,
       routes: evidence.routes.length,
     },
     observedAt: yield* Clock.currentTimeMillis,
-    provenance: evidence.observations.map((row, index) => ({
+    provenance: rejected.map(({ index, row }) => ({
       fetchedAt: row.observedAt,
       id: `watch:${index}`,
       source: `${baseUrl}${row.route}`,

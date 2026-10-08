@@ -50,11 +50,13 @@ sources:
     accessed: "2026-10-06"
 ---
 
+Telemetry means logs, metrics, and traces.
+
 Name the operation a person needs to understand. Add only context safe for that operation's telemetry.
 
 A tracing span records an operation's timing and outcome. Export is a separate delivery step.
 
-## Name the operation, not each expression
+## Name meaningful operations
 
 `FileInspector.inspect` uses a named `Effect.fn`:
 
@@ -63,7 +65,7 @@ A tracing span records an operation's timing and outcome. Export is a separate d
 
 Use a named `fn` for a reusable operation that deserves a span.
 Use `withSpan` around an existing Effect when that boundary carries useful meaning.
-Use `fnUntraced` for reusable functions that do not need tracing, especially small library functions and hot paths.
+Use `fnUntraced` for reusable functions that do not need tracing, especially small library functions and frequently executed code.
 
 Do not create a span merely because a helper exists.
 Choose boundaries that answer a question about the job's duration, dependencies or failure.
@@ -84,9 +86,13 @@ Structured attributes can outlive the request. Structure does not make a private
 
 Use `annotateCurrentSpan` when adding attributes inside the operation.
 Use `annotateSpans` when supplying annotations through an enclosing Effect.
-Review the resulting payload, not only the annotation call.
+Review the resulting payload as well as the annotation call.
 
 ## Supply an exporter, serializer and transport
+
+The exporter prepares trace data. The serializer encodes it. The transport sends it.
+
+OTLP means OpenTelemetry Protocol. A collector receives trace data.
 
 The checked fixture composes the OTLP tracer with JSON serialization and an in-memory HTTP client:
 
@@ -115,7 +121,7 @@ The fixture observes a serialized export request. It does not prove backend acce
 | Collector receipt | That collector accepted the payload |
 | A queried stored trace | The backend retained a trace you can retrieve |
 
-None of these receipts substitutes for the next delivery boundary.
+None of these observations substitutes for the next delivery boundary.
 
 ## Keep other observers distinct
 
@@ -135,7 +141,7 @@ Do not claim a log was delivered because it appeared in a local console.
 
 ## Effect idiom and house rule
 
-- Instrument meaningful operations and compose explicit observability Layers at the runtime edge.
+- Instrument meaningful operations and compose explicit observability Layers where the application starts and runs Effects.
 - In rat-stack, keep private values scoped and report each observed delivery boundary honestly.
 - In rat-stack, actor watching and capability recording remain their own devtools paths.
 

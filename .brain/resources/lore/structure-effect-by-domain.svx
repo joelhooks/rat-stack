@@ -1,6 +1,6 @@
 ---
 title: "Structure an Effect codebase by domain"
-description: "Start with domain folders, colocated services and Layers, and one composition root per entrypoint."
+description: "Start with folders for application work, services and Layers in the same file, and startup code that supplies implementations."
 plain: "Group files by domain, keep each service with its Layer, and give each entrypoint one composition root."
 diagram: |-
   src/
@@ -76,10 +76,14 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A domain is an area of application work. A service is a named interface for that work.
+A Layer describes how to build a service and supply its dependencies.
+
 Group files by domain: `src/coding/edit.ts` puts an edit operation with the coding work it belongs to.
 Keep one service and its Layer in each file. Capture dependencies when building the service, so callers need only that service.
 
-At each entrypoint, assemble and provide Layers in a composition root. Keep platform adapters behind service ports.
+An entrypoint is where the application starts. Its composition root chooses and supplies implementations.
+Keep platform adapters behind service interfaces. An adapter implements an interface for a platform or provider.
 
 [Justin Bennett asked about folders and service organization](https://x.com/just_be_dev/status/2107194260860613059).
 [Sam Goodwin's answer](https://x.com/samgoodwin89/status/2107204053151428850):
@@ -122,7 +126,7 @@ See [service construction](/lore/services-capture-dependencies) for the full pat
 
 ### Provide Layers at the entrypoint
 
-The composition root chooses implementations and supplies the application's service graph.
+The composition root chooses implementations and supplies the application's services and their dependencies.
 Give each entrypoint its own root. Our CLI assembles dependencies before running the program.
 
 ```ts repo=rat-stack path=apps/cli/src/cli.ts at=54d356037c994f89698760a4727be71d0005a087 lines=16-25
@@ -148,8 +152,8 @@ See [hexagonal architecture](/lore/hexagonal-architecture).
 
 | Take the Effect idiom | rat-stack adds |
 | --- | --- |
-| Services and composable Layers | Colocated `make` and `static layer` |
-| Schema-backed boundaries | Capability contracts and derived surface projections |
+| Services and composable Layers | `make` and `static layer` in the same file |
+| Schema-backed boundaries | Capability contracts and derived interface projections |
 | Replaceable implementations | Cartridges with an add/remove test |
 | Typed failures and scoped effects | XState lifecycles through `@xstate/effect` |
 | Effect-aware tests | Property/model testing and a manual-runtime ban |
@@ -160,6 +164,8 @@ See [hexagonal architecture](/lore/hexagonal-architecture).
 
 Sam favors domain folders. Effect leaves folder layout to the application.
 Sam also calls one API route per file potentially controversial. rat-stack keeps one capability per file and derives routes.
+
+A monorepo is one repository containing several packages.
 Choose monorepo versus single-package layout separately from the service graph.
 
 New to Effect? Start with [Effect basics](/lore/effect-basics).

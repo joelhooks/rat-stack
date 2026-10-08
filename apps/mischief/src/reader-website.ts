@@ -7,11 +7,30 @@ import type { AssetBinding } from "./static-assets.js";
 export const readerWebsiteRoutes: readonly string[] = [
   "/",
   "/assets/*",
+  "/AGENTS.md",
+  "/README.md",
+  "/VISION.md",
+  "/debt.md",
+  "/glossary",
+  "/log",
+  "/log.md",
+  "/pins.md",
+  "/resources/effect-4-reference-projects",
+  "/resources/lint-rule-limits",
+  "/resources/peers",
+  "/resources/same-version-repos",
+  "/resources/schema-projections-and-code-mode",
+  "/tokenmaxx",
+  "/vendor/README.md",
   "/learn",
   "/lore",
   "/lore/*",
   "/prompts",
   "/prompts/*",
+  "/systems",
+  "/systems/*",
+  "/skills",
+  "/skills/*",
 ];
 
 export const forwardsToReaderWebsite = (
@@ -34,9 +53,15 @@ export const forwardsToReaderWebsite = (
       );
     }));
 
+export type ReaderResponseHeaders = (
+  pagePath: string,
+  response: HttpServerResponse.HttpServerResponse
+) => Effect.Effect<HttpServerResponse.HttpServerResponse>;
+
 export const withReaderWebsite =
   (
     website: AssetBinding | Effect.Effect<AssetBinding>,
+    responseHeaders: ReaderResponseHeaders,
     routes: readonly string[] = readerWebsiteRoutes
   ) =>
   <E, R>(
@@ -60,15 +85,28 @@ export const withReaderWebsite =
         binding.fetch.bind(binding, webRequest)
       );
 
+      if (response.status === 404) {
+        if (response.body !== null) {
+          yield* Effect.tryPromise(
+            response.body.cancel.bind(response.body)
+          ).pipe(Effect.ignore);
+        }
+
+        return yield* fallback;
+      }
+
       const headers = new Headers(response.headers);
       const vary = headers.get("vary");
       headers.set("vary", vary === null ? "Accept" : `${vary}, Accept`);
 
-      return HttpServerResponse.fromWeb(
-        new Response(response.body, {
-          headers,
-          status: response.status,
-          statusText: response.statusText,
-        })
+      return yield* responseHeaders(
+        pathname,
+        HttpServerResponse.fromWeb(
+          new Response(response.body, {
+            headers,
+            status: response.status,
+            statusText: response.statusText,
+          })
+        )
       );
     });

@@ -29,7 +29,11 @@ sources:
 
 # Infrastructure as effects
 
-Sam describes runtime clients, business logic, infrastructure policies, and deployed resources as related parts of a cloud application. A client operation can imply a policy requirement that is supplied when the function is built. [Happy Path 116, 28:00](https://youtu.be/YEn4A7XxgF4?t=1680) [30:31](https://youtu.be/YEn4A7XxgF4?t=1831).
+Sam describes runtime clients, business logic, infrastructure policies, and deployed resources as related parts of a cloud application.
+
+A policy requirement names the permissions an operation needs.
+A client operation can imply a policy requirement that is supplied when the function is built.
+Effect tracks required services in its type. [Happy Path 116, 28:00](https://youtu.be/YEn4A7XxgF4?t=1680) [30:31](https://youtu.be/YEn4A7XxgF4?t=1831).
 
 He says this structure can keep provider implementations out of the runtime bundle. [Effect Office Hours 27, 70:55](https://youtu.be/fPSxB7ZgSJw?t=4255).
 

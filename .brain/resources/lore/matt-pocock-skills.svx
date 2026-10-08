@@ -29,13 +29,13 @@ sources:
 
 The README says the skills are "designed to be small, easy to adapt, and composable," and work with any model. It invites you to hack around with them and make them your own. [README](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md)
 
-The README organizes them around four failure modes. When an agent misses your intent, it prescribes a grilling session: [`grill-me`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity/grill-me/SKILL.md) for non-code work and [`grill-with-docs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/grill-with-docs/SKILL.md).
+The README organizes them around four failure modes. When an agent misses your intent, it prescribes a question-and-answer session to clarify intent: [`grill-me`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity/grill-me/SKILL.md) for non-code work and [`grill-with-docs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/grill-with-docs/SKILL.md).
 
-`grill-with-docs` also builds a shared language in `GLOSSARY.md` and ADRs.
+`grill-with-docs` also builds a shared language in `GLOSSARY.md` and architecture decision records (ADRs).
 
-For code that doesn't work it points to feedback loops, with [`tdd`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md) and [`diagnosing-bugs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/diagnosing-bugs/SKILL.md). For a ball of mud it points to [`improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/improve-codebase-architecture/SKILL.md).
+For code that doesn't work it points to feedback loops, with [`tdd`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/tdd/SKILL.md) and [`diagnosing-bugs`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/diagnosing-bugs/SKILL.md). For code with tangled responsibilities it points to [`improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering/improve-codebase-architecture/SKILL.md).
 
-The reference section splits the skills on one axis. User-invoked skills run only when you type them. The agent can also select model-invoked skills automatically. It lists engineering and productivity groups, including `to-spec`, `to-tickets`, `implement`, `triage`, `handoff`, and `writing-for-agents`.
+The reference section splits the skills by whether the user or agent starts them. User-invoked skills run only when you type them. The agent can also select model-invoked skills automatically. It lists engineering and productivity groups, including `to-spec`, `to-tickets`, `implement`, `triage`, `handoff`, and `writing-for-agents`.
 
 There are two ways to install. The Claude Code plugin installs the set as a managed, read-only bundle that updates when Matt ships. The `npx skills@latest add mattpocock/skills` installer copies editable files into your project. The README says to pick one.
 

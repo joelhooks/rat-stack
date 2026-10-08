@@ -25,6 +25,8 @@ sources:
 
 # Sam Goodwin
 
-Sam describes a cloud application as a computation with an infrastructure context, flow, result, or error. [Happy Path 116, 24:55](https://youtu.be/YEn4A7XxgF4?t=1495).
+Sam describes a cloud application as a computation: a description of work with a result or error.
+Its infrastructure context is the cloud environment and dependencies in which it runs.
+Its flow is the sequence of work. [Happy Path 116, 24:55](https://youtu.be/YEn4A7XxgF4?t=1495).
 
 He explains that runtime clients, business logic, and infrastructure policies stay related even when they live in separate files. [Happy Path 116, 30:31](https://youtu.be/YEn4A7XxgF4?t=1831).

@@ -32,7 +32,12 @@ sources:
     accessed: "2026-10-01"
 ---
 
-Use an XState machine for finite domain states, retries, cancellation, or a lifecycle you need to resume or inspect. Model the states and transitions explicitly instead of accumulating booleans whose combinations have no meaning.
+Use an XState machine for the application's named states, retries, cancellation, or a lifecycle you need to resume or inspect.
+Model the states and the events that move between them instead of accumulating booleans whose combinations have no meaning.
+
+An actor is a running unit that performs declared work.
+A side effect is work outside the state description, such as reading a file.
+A scope owns cleanup when that work ends.
 
 `setupEffect` declares actors. `fromEffect` defines an Effect-backed side effect with an input schema. `createEffectActor` starts the machine inside Effect's scope.
 

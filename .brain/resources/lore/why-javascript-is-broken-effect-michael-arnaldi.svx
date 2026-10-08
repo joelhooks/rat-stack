@@ -18,4 +18,4 @@ sources:
 
 Michael argues that Promise and async/await divide synchronous from asynchronous code while leaving errors, cancellation, and resource cleanup difficult to compose. [07:43](https://youtu.be/und9h4xiIz4?t=463) [10:10](https://youtu.be/und9h4xiIz4?t=610)
 
-He describes Effect as a lazy computation that keeps errors and requirements typed. He distinguishes failures a program handles from defects it lets escape. [11:05](https://youtu.be/und9h4xiIz4?t=665) [12:32](https://youtu.be/und9h4xiIz4?t=752) [23:38](https://youtu.be/und9h4xiIz4?t=1418)
+He describes Effect as a lazy computation: work described now and executed later, with typed errors and requirements. He distinguishes failures a program handles from defects it lets escape. [11:05](https://youtu.be/und9h4xiIz4?t=665) [12:32](https://youtu.be/und9h4xiIz4?t=752) [23:38](https://youtu.be/und9h4xiIz4?t=1418)

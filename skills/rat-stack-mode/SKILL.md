@@ -16,13 +16,15 @@ diagram: |-
 
 # Work in rat-stack mode
 
-[AGENTS.md](/AGENTS.md) is law. [VISION.md](/VISION.md) owns pieces, trust, floor, range, the cartridge test, and shrinking debt. Use this skill to choose playbooks under those rules.
+[AGENTS.md](/AGENTS.md) is law. [VISION.md](/VISION.md) sets the intent, reliability goals, scope, package-removal test, and shrinking debt. Use this skill to choose playbooks under those rules.
+
+A capability is one named action with shared value definitions and a server-side implementation. A cartridge is a package for one job with its implementation and required infrastructure.
 
 ## Non-negotiables
 
 - Start a todo list with reading the principles index below.
 - Open every leaf that bears on a decision. Report which rules changed which choices.
-- Name the data shape, system of record, derived copies, and writer before writing code.
+- Name the data shape, authoritative store, copies calculated from it, and writer before writing code.
 - Reuse stores when their facts and operation guarantees fit. Reporting does not justify gating unrelated execution.
 - Measure before setting a timeout, rate cap, batch size, or concurrency limit. Put the baseline first; requested values remain hypotheses.
 
@@ -56,7 +58,7 @@ Leaves live in the repo; read them from a checkout.
 - `skills/rat-stack-mode/principles/bound-every-read.md`: listing, querying, exporting, or rebuilding data.
 - `skills/rat-stack-mode/principles/one-writer-per-partition.md`: updating shared mutable state.
 - `skills/rat-stack-mode/principles/make-operations-idempotent.md`: replaying commands or recovering after crashes.
-- `skills/rat-stack-mode/principles/subtract-before-you-add.md`: sequencing new work or removing unused surfaces.
+- `skills/rat-stack-mode/principles/subtract-before-you-add.md`: sequencing new work or removing unused interfaces.
 
 **Verification**
 
@@ -91,12 +93,12 @@ Match every applicable playbook; a capability with new persistence matches capab
 - States, retries, or cancellation: [add-a-lifecycle-machine](/skills/add-a-lifecycle-machine).
 - New persistence: [add-a-store](/skills/add-a-store).
 - Public prose or skill pages: [write-a-wiki-page](/skills/write-a-wiki-page).
-- Package or surface choices: [keep-or-cut](/skills/keep-or-cut).
+- Package or interface choices: [keep-or-cut](/skills/keep-or-cut).
 - Stateful design, replacement, or read-model design: [uncomplect](/skills/uncomplect).
 - Pins, recurring bad patterns, or repository maintenance: [gardener](/skills/gardener).
-- Peer research or shared-line bumps: [find-peers](/skills/find-peers).
+- Peer research or shared dependency updates: [find-peers](/skills/find-peers).
 - Cloud resources or unfamiliar deployment wiring: [learn-alchemy](/skills/learn-alchemy).
-- Unfamiliar stack seams: [learn-rat-stack](/skills/learn-rat-stack).
+- Unfamiliar stack integration: [learn-rat-stack](/skills/learn-rat-stack).
 
 `write-a-query`, `add-a-read-model`, `explore-limits`, and `investigate-a-failure` are planned. Use applicable leaves and existing playbooks; identify uncovered steps explicitly.
 

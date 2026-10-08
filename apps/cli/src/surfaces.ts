@@ -14,10 +14,11 @@ import { devtools, devtoolsLayer } from "@rat-stack/devtools";
 import { learnCapabilities } from "@rat-stack/learn";
 import { localLearnCapabilities } from "@rat-stack/learn/local";
 import { Effect, Layer, Logger } from "effect";
-import { McpProtocol, McpServer } from "effect/ai";
+import { McpServer } from "effect/ai";
 import { HttpRouter } from "effect/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 
+import { mcpProtocols } from "./mcp-protocols.js";
 import { VERSION } from "./version.js";
 
 export const capabilities = [
@@ -51,15 +52,9 @@ export const serverLayer = (port: number) =>
 export const webServer = (port: number) =>
   HttpRouter.serve(routes).pipe(Layer.provide(serverLayer(port)));
 
-const protocols = [
-  McpProtocol.v2025_06_18,
-  McpProtocol.v2025_03_26,
-  McpProtocol.v2024_11_05,
-] as const;
-
 const stdio = McpServer.layerStdio({
   name: "rat-stack",
-  protocols,
+  protocols: mcpProtocols,
   version: VERSION,
 });
 
@@ -103,7 +98,7 @@ export const devtoolsRoutes = withDevtools(
           McpServer.layerHttp({
             name: "rat-stack-devtools",
             path: DEVTOOLS_MCP_PATH,
-            protocols,
+            protocols: mcpProtocols,
             version: VERSION,
           })
         )

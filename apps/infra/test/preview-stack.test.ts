@@ -48,6 +48,7 @@ it.effect.prop(
               runWorkerFirst: [
                 "/rpc",
                 "/rpc/*",
+                "/__error",
                 "/__rat",
                 "/__rat/*",
                 "/prompts",

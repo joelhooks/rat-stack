@@ -50,11 +50,14 @@ sources:
     accessed: "2026-10-06"
 ---
 
+Schema defines accepted values and checks data at runtime.
+An adapter implements an application interface for a provider.
+
 A fulfilled HTTP request is not proof of application success.
 Check the status and decode the body before passing provider data into the application.
 Use the `effect/http` modules.
 
-## Check the protocol, not only the connection
+## Check the protocol response
 
 The deployment checker decodes tool discovery through `ToolsResponse`.
 It also requires status 200 and the expected tool names.
@@ -94,20 +97,20 @@ It does not start an HTTP server or call a provider.
 | 200, malformed JSON | Named body-phase failure |
 | 200, string instead of integer | Named body-phase failure |
 
-These transport seams establish the fixture's status and decoding policy.
+These tests of the HTTP client interface establish the fixture's status and decoding policy.
 Check live endpoint health separately.
 
 ## Decide whether replay is safe before adding retries
 
-`retryTransient` can retry transient responses and errors.
+A transient failure may be temporary. `retryTransient` can retry transient responses and errors.
 Its classification does not prove that repeating an operation is safe.
 A write can complete remotely even when its response is lost.
 
 Before retrying a write:
 
-1. Identify the operation's replay or idempotency guarantee.
+1. Identify the operation's replay or idempotency guarantee: whether repeating it can create a second change.
 2. Decide which failures allow another attempt.
-3. Measure the budget and select the schedule.
+3. Measure the retry budget, the allowed attempts or time, and select the schedule.
 4. Preserve the final named failure when the budget ends.
 
 Do not copy example delays or retry counts into production as measured limits.
@@ -122,8 +125,8 @@ The fixture establishes no production retry budget.
 
 ## Effect idiom and house rule
 
-- Supply `HttpClient`, compose request policies, decode responses, and translate failures at the adapter edge.
-- In rat-stack, core owns job-shaped ports. Provider clients remain in adapters under [hexagonal architecture](/lore/hexagonal-architecture).
+- Supply `HttpClient`, compose request policies, decode responses, and translate failures at the adapter's interface with the provider.
+- In rat-stack, core owns service interfaces named for application jobs. Provider clients remain in adapters under [hexagonal architecture](/lore/hexagonal-architecture).
 - In rat-stack, [machines own finite retry lifecycles](/lore/lifecycles-are-machines). Effect also has native schedules and retry operators.
 
 Read [schemas](/lore/schemas-define-the-boundary) and [failures](/lore/error-model) before defining the adapter's accepted data.
