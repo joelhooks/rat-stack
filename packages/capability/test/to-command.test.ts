@@ -46,6 +46,21 @@ const optionalKey = implement(optionalKeyContract, ({ note }) =>
   Effect.succeed(note ?? "none")
 );
 
+const defaultedContract = defineContract("defaulted", {
+  description: "A capability whose field has a decoding default",
+  failure: Schema.Never,
+  input: Schema.Struct({
+    note: Schema.String.pipe(
+      Schema.withDecodingDefaultKey(Effect.succeed("default"))
+    ),
+  }),
+  output: Schema.String,
+});
+
+const defaulted = implement(defaultedContract, ({ note }) =>
+  Effect.succeed(note)
+);
+
 const TestLayer = Layer.mergeAll(
   TestConsole.layer,
   CliOutput.layer(CliOutput.defaultFormatter({ colors: false })),
@@ -85,6 +100,9 @@ describe("toCommand", () => {
 
         yield* run(toCommand(optionalKey), []);
         expect(JSON.parse(yield* lastLine)).toBe("none");
+
+        yield* run(toCommand(defaulted), []);
+        expect(JSON.parse(yield* lastLine)).toBe("default");
       })
     );
 

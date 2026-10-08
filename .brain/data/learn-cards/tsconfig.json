@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@effect/vitest": [
+        "../../../packages/core/node_modules/@effect/vitest/dist/index.d.ts"
+      ]
+    }
+  },
+  "include": ["*.ts"]
+}

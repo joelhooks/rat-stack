@@ -1,6 +1,7 @@
 ---
 title: "CascadiaJS 2026: It's time to rethink everything"
 description: "Theo Browne compares how cloud infrastructure and coding agents changed the cost of experimentation."
+plain: "Theo says agents change software the way the cloud changed infrastructure, so revisit old ideas about Git, files and packages."
 group: source
 speaker: "Theo Browne"
 date: 2026-06-17

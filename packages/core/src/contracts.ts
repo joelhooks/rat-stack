@@ -17,6 +17,7 @@ export {
   LearnContextSchema,
   LearnDepthSchema,
   LearnEventSchema,
+  LearnPreferencesSchema,
   ProgressSchema,
 } from "./learn-model.js";
 
@@ -24,7 +25,9 @@ export {
   learnCardContract,
   learnDeckContract,
   learnNextContract,
+  learnPreferencesContract,
   learnRecordContract,
+  learnSetPreferencesContract,
 } from "./learn-contracts.js";
 
 export { NoPath } from "./no-path.js";

@@ -12,11 +12,13 @@ Learn mode explains the ideas behind rat-stack-shaped apps while your own agent 
 
 ## Turn it on
 
-Copy this prompt into your agent. The agent asks you to confirm before it starts.
+Copy this prompt into your agent. The agent shows the first concept as soon as it is set up.
 
 <CopyPrompt id="learn" />
 
-The first path starts with [why dependency injection is the reason to choose Effect](/lore/dependency-injection-is-the-reason-to-choose-effect).
+The first path starts with [context and requirements](/lore/context-and-requirements), then [how a service captures its dependencies](/lore/services-capture-dependencies). Later, say "learn mode on" or "next concept" for the next one.
+
+A walkthrough shows one plain sentence, the claim, a short TypeScript snippet, and a small text diagram. The build compiles every snippet against the pinned versions.
 
 ## How deep it goes
 
@@ -33,13 +35,19 @@ Progress stays on your machine in `~/.rat-learn/`. Only the learn tools write th
 - `log.jsonl` holds the learning events. It is the source.
 - `cards.jsonl` holds concept progress, rebuilt from the log.
 - `tasks.jsonl` holds concept ids and depths, rebuilt from the log.
+- `preferences.json` holds display width, visual style, and snippet length. The default is narrow inline text.
 
 The records hold concept ids, timestamps, depth, familiarity, and dismissal state.
 
 ## What is never sent
 
 - Your code, file paths, names, repository names, and prompts.
-- Your progress. The public deck and card tools need no progress, and they store nothing.
+- Your progress or preferences. The public deck and card tools need neither, and they store nothing.
+
+The skills installer sends anonymous usage data by default. `DO_NOT_TRACK=1` turns it off:
+
+- Install with `DO_NOT_TRACK=1 npx skills add joelhooks/rat-stack`.
+- Remove with `DO_NOT_TRACK=1 npx skills remove joelhooks/rat-stack`.
 
 ## Turn it off
 

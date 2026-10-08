@@ -1,6 +1,13 @@
 ---
 title: "A service captures its construction dependencies"
 description: "Build a service with its dependencies, then expose methods that callers can use without rebuilding the graph."
+plain: "Give a service its dependencies once, when it is built. Callers then need only the service."
+diagram: |-
+  make: needs FileSystem
+    │ captures fs
+    ▼
+  read(path): needs never
+  caller: needs Notes only
 group: idea
 terms:
   - "Service construction"

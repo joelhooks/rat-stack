@@ -1,6 +1,13 @@
 ---
 title: "A Layer as constructor"
 description: "Sam Goodwin compares an Effect Layer that builds a service to a constructor."
+plain: "A Layer is like a constructor: it builds a service from the parts that service needs."
+diagram: |-
+  class        Layer
+  ──────────   ──────────────
+  new X()      X.layer
+  fields       Ref.make(0)
+  methods      X.of({ ... })
 group: concept
 terms:
   - "Layer constructor"

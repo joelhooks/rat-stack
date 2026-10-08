@@ -6,6 +6,7 @@ import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Approval } from "@rat-stack/capability";
 import { FileInspector } from "@rat-stack/core";
 import {
+  localLearnerPreferencesLayer,
   localLearnerProgressLayer,
   remoteLearnerLayer,
 } from "@rat-stack/learn/local";
@@ -19,9 +20,12 @@ const localProgressLayer = Layer.unwrap(
   Effect.gen(function* localProgress() {
     const path = yield* Path.Path;
 
-    return localLearnerProgressLayer(path.join(homedir(), ".rat-learn")).pipe(
-      Layer.provideMerge(remoteLearnerLayer)
-    );
+    const directory = path.join(homedir(), ".rat-learn");
+
+    return Layer.merge(
+      localLearnerProgressLayer(directory),
+      localLearnerPreferencesLayer(directory)
+    ).pipe(Layer.provideMerge(remoteLearnerLayer));
   })
 ).pipe(Layer.provide(NodeServices.layer));
 
