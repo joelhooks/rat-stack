@@ -86,7 +86,7 @@ Its finalizer increments a separate release counter.
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-18
 ```
 
-The matrix exercises success, expected failure, and interruption.
+The matrix exercises success, [expected failure](/lore/error-model), and interruption.
 Each case must acquire once and release once. It also checks that the selected exit actually occurred.
 
 ```ts repo=rat-stack path=packages/core/test/scoped-resource.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=37-55

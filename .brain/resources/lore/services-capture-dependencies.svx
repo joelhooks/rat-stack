@@ -52,7 +52,7 @@ Callers then require only the service.
 ## Name the job before the implementation
 
 `Context.Service` names a service and describes its interface.
-`Effect.Effect<FileStats, FileStatsError>` declares the method's success and expected failure. Its omitted requirement parameter is `never`.
+`Effect.Effect<FileStats, FileStatsError>` declares the method's success and [expected failure](/lore/error-model). Its omitted requirement parameter is `never`.
 
 ```ts repo=rat-stack path=packages/core/src/file-inspector.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=6-15
 ```

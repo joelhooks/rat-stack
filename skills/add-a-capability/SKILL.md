@@ -22,7 +22,7 @@ Define the shared contract once. Implement its handler where the data and infras
 
 Put cross-process contracts in `packages/core/src/contracts.ts` and import `defineContract` from `@rat-stack/capability/contract`.
 
-1. Define the input, output, and expected failure schemas.
+1. Define the input, output, and [expected failure](/lore/error-model) schemas.
 2. Give the contract a stable name and short description.
 3. Use `Schema.Struct` for the input.
 4. Set honest annotations such as `readOnly`, `idempotent`, `destructive`, and `openWorld`.

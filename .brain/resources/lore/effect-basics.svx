@@ -98,7 +98,7 @@ Use a generator when the next step needs values from earlier steps.
 
 ## Expected failures and defects are different
 
-An expected failure belongs in `E`, where callers can handle it by its declared type or tag.
+An [expected failure](/lore/error-model) belongs in `E`, where callers can handle it by its declared type or tag.
 A defect is an unexpected execution failure.
 Logging a failure does not make the operation successful.
 [Handle expected failures without hiding defects](/lore/error-model) shows the file error and its CLI handler.
