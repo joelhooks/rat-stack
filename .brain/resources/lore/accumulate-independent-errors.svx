@@ -26,7 +26,7 @@ sources:
     accessed: "2026-10-02"
 ---
 
-Effect 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651) evaluates every collection element.
+[Effect](/lore/effect-basics) 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651) evaluates every collection element.
 It returns all failures as a non-empty array when any element fails.
 Successful values are discarded in that case.
 
@@ -41,7 +41,7 @@ The proposed order is:
 3. Report each failure with [diagnostic context](/lore/errors-are-part-of-the-interface).
 4. Write assets only when all checks succeed.
 
-Error accumulation runs across jobs. Each job must pass validation before highlighting.
+Error accumulation means reporting every independent failure together. Here it runs across jobs. Each job must pass validation before highlighting.
 
 The planned property inserts exactly `k` independent failures.
 It expects exactly `k` diagnostics and zero asset writes.

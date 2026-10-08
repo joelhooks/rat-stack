@@ -49,4 +49,4 @@ Use [error accumulation](/lore/accumulate-independent-errors) to report unrelate
 
 Related reading: *Exceptional Ruby* and *Confident Ruby*, both by [Avdi Grimm](https://avdi.codes/books/).
 
-See [the glossary](/glossary) for diagnostic context and repair instruction.
+See the glossary for [diagnostic context](/glossary) and repair instruction.
