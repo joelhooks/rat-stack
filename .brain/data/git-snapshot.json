@@ -109,7 +109,7 @@
     "apps/cli/src/cli.ts": "6ef4c46cd55d41500cf277071a85b113a822f302a46cf09bbc52d880a5dcb69c",
     "apps/cli/src/command.ts": "a168621f8f02328f4ed9b91451d9df37fa07c3d66f8419d761313e38045cf193",
     "apps/cli/src/surfaces.ts": "d57daff80b3d47e8c7f5a339bec5f1ba02aefa538875aa72abd386a2a4c8fa89",
-    "apps/infra/alchemy.run.ts": "9113bc0980f70dc7118c42312319d3f3ec8e63341e63e22e559218870c99e955",
+    "apps/infra/alchemy.run.ts": "a4ba24bb9820165caec9f459dde715f1fcc2065fcde704b62883c3c30cb270b3",
     "apps/mischief/src/worker.ts": "5d595b2998d1a6d1375dcf92568dd372fd8eb00bfab4a402c6f28869530278b2",
     "apps/web/src/dev/backend.ts": "6f4f74b38714cff663f8cd631b595714d3fac3dd0b32b789c89b6c4391f50c53",
     "packages/capability/src/sandbox-subprocess.ts": "4845c3967fd8a2635f233c0f971f18b79c7dddb6eae1a31cb9f86978e7c60225",

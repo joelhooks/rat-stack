@@ -1,6 +1,7 @@
 import * as Alchemy from "alchemy";
 import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import * as Drizzle from "alchemy/Drizzle/Providers";
 import { retain } from "alchemy/RemovalPolicy";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -15,7 +16,7 @@ import { Website } from "../web/src/website.js";
 export default Alchemy.Stack(
   "RatStack",
   {
-    providers: Cloudflare.providers(),
+    providers: Layer.mergeAll(Cloudflare.providers(), Drizzle.providers()),
     state: Cloudflare.state(),
   },
   Effect.gen(function* stack() {
