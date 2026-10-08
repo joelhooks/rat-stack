@@ -163,6 +163,7 @@ it.effect.prop(
             })),
           }),
         preflight: () => Effect.succeed([]),
+        source: () => Effect.succeed({ changed: [], head: "" }),
       });
 
       const actor = yield* createEffectActor(deployMachine, {

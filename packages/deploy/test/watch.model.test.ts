@@ -4,7 +4,13 @@ import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import { TestClock } from "effect/testing";
 
-import { nextWatchEvidence, watchDeployment } from "../src/watch.js";
+import {
+  fixedWatchRoutes,
+  nextWatchEvidence,
+  sitemapRoutes,
+  sweepSlice,
+  watchDeployment,
+} from "../src/watch.js";
 import type { WatchEvidence } from "../src/watch.js";
 
 it.effect.prop(
@@ -16,7 +22,13 @@ it.effect.prop(
   },
   ({ history }) =>
     Effect.sync(() => {
-      let evidence: WatchEvidence = { cycles: 0, observations: [], streak: 0 };
+      let evidence: WatchEvidence = {
+        cycles: 0,
+        observations: [],
+        routes: [],
+        streak: 0,
+      };
+
       let expected = 0;
 
       for (const [index, status] of history.entries()) {
@@ -49,25 +61,185 @@ it.effect.prop(
   { arbitrary: { runs: 100 } }
 );
 
+it.prop(
+  "one sweep of cycles probes every sitemap route",
+  {
+    count: Schema.Int.check(Schema.isBetween({ maximum: 400, minimum: 0 })),
+    offset: Schema.Int.check(Schema.isBetween({ maximum: 500, minimum: 0 })),
+    sweepCycles: Schema.Int.check(
+      Schema.isBetween({ maximum: 60, minimum: 1 })
+    ),
+  },
+  ({ count, offset, sweepCycles }) => {
+    const routes = Array.from({ length: count }, (_, index) => `/r/${index}`);
+    const probed = new Set<string>();
+
+    for (let cycle = offset; cycle < offset + sweepCycles; cycle += 1) {
+      const slice = sweepSlice(routes, cycle, sweepCycles);
+      expect(slice.length).toBeLessThanOrEqual(Math.ceil(count / sweepCycles));
+
+      for (const route of slice) {
+        probed.add(route);
+      }
+    }
+
+    expect(probed.size).toBe(
+      offset % sweepCycles === 0 || count === 0 ? count : probed.size
+    );
+
+    if (offset === 0) {
+      expect([...probed].toSorted()).toStrictEqual(routes.toSorted());
+    }
+  },
+  { arbitrary: { runs: 300 } }
+);
+
+const Loc = Schema.Struct({
+  foreign: Schema.Boolean,
+  path: Schema.Literals([
+    "/",
+    "/llms.txt",
+    "/AGENTS.md",
+    "/lore/effect-basics",
+    "/lore/fence",
+    "/systems/auth",
+    "/learn",
+    "/log",
+  ]),
+});
+
+it.prop(
+  "sitemap discovery keeps each same-origin route once and leaves fixed routes to every cycle",
+  { locs: Schema.Array(Loc).check(Schema.isMaxLength(40)) },
+  ({ locs }) => {
+    const xml = `<urlset>${locs
+      .map(
+        (loc) =>
+          `<url><loc>${loc.foreign ? "https://elsewhere.test" : "https://example.test"}${loc.path}</loc></url>`
+      )
+      .join("\n")}</urlset>`;
+
+    const fixed = new Set<string>(fixedWatchRoutes.map((row) => row.route));
+
+    const expected = [
+      ...new Set(
+        locs.flatMap((loc) =>
+          loc.foreign || fixed.has(loc.path) ? [] : [loc.path]
+        )
+      ),
+    ];
+
+    expect(sitemapRoutes("https://example.test/", xml)).toStrictEqual(expected);
+  },
+  { arbitrary: { runs: 200 } }
+);
+
+const sitemap = (routes: readonly string[]) =>
+  `<urlset>${routes
+    .map((route) => `<url><loc>https://example.test${route}</loc></url>`)
+    .join("")}</urlset>`;
+
+const site = (
+  routes: readonly string[],
+  failing: (path: string) => boolean,
+  requests: { readonly accept: string; readonly path: string }[],
+  latencyMs = 0
+) =>
+  HttpClient.make((request) => {
+    const path = new URL(request.url).pathname;
+    requests.push({ accept: request.headers.accept ?? "missing", path });
+
+    if (path === "/sitemap.xml") {
+      return Effect.succeed(
+        HttpClientResponse.fromWeb(request, new Response(sitemap(routes)))
+      );
+    }
+
+    return Effect.as(
+      Effect.sleep(latencyMs),
+      HttpClientResponse.fromWeb(
+        request,
+        failing(path)
+          ? new Response("x".repeat(10_000), {
+              headers: {
+                "cf-ray": "ray-first",
+                "x-incident-id": "incident-first",
+              },
+              status: 500,
+            })
+          : new Response("ok")
+      )
+    );
+  });
+
+it.effect(
+  "a clean watch probes every sitemap route under both accept headers",
+  () =>
+    Effect.gen(function* testCoverage() {
+      const routes = Array.from({ length: 37 }, (_, index) => `/r/${index}`);
+      const requests: { readonly accept: string; readonly path: string }[] = [];
+
+      const fiber = yield* watchDeployment(
+        "https://example.test",
+        300,
+        10
+      ).pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          site(routes, () => false, requests)
+        ),
+        Effect.forkChild
+      );
+
+      yield* TestClock.adjust(1000);
+      const evidence = yield* Fiber.join(fiber);
+
+      expect(evidence.routes).toStrictEqual(routes);
+
+      for (const route of routes) {
+        for (const accept of ["*/*", "text/html"]) {
+          expect(
+            requests.some((row) => row.path === route && row.accept === accept)
+          ).toBe(true);
+        }
+      }
+    })
+);
+
+it.effect(
+  "a watch that runs out of time before sweeping every route fails as incomplete",
+  () =>
+    Effect.gen(function* testIncomplete() {
+      const routes = Array.from({ length: 37 }, (_, index) => `/r/${index}`);
+
+      const fiber = yield* watchDeployment(
+        "https://example.test",
+        300,
+        10
+      ).pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          site(routes, () => false, [], 50)
+        ),
+        Effect.flip,
+        Effect.forkChild
+      );
+
+      yield* TestClock.adjust(1000);
+      const failure = yield* Fiber.join(fiber);
+
+      expect(failure.reason).toBe("route-coverage-incomplete");
+      expect(failure.evidence.routes).toStrictEqual(routes);
+    })
+);
+
 it.effect(
   "two failing cycles stop early and retain first incident and bounded body",
   () =>
     Effect.gen(function* testWatch() {
-      const requests: string[] = [];
+      const requests: { readonly accept: string; readonly path: string }[] = [];
 
-      const client = HttpClient.make((request) => {
-        requests.push(request.headers.accept ?? "missing");
-
-        return Effect.succeed(
-          HttpClientResponse.fromWeb(
-            request,
-            new Response("x".repeat(1000), {
-              headers: { "x-incident-id": "incident-first" },
-              status: 500,
-            })
-          )
-        );
-      });
+      const client = site(["/r/0", "/r/1"], (path) => path === "/", requests);
 
       const fiber = yield* watchDeployment(
         "https://example.test",
@@ -87,13 +259,19 @@ it.effect(
       if (Result.isFailure(result)) {
         expect(result.failure.reason).toBe("consecutive-content-500-cycles");
         expect(result.failure.evidence.cycles).toBe(2);
-        expect(result.failure.evidence.observations[0]?.incidentId).toBe(
-          "incident-first"
+
+        const failure = result.failure.evidence.observations.find(
+          (row) => row.status === 500
         );
-        expect(result.failure.evidence.observations[0]?.body).toHaveLength(300);
+
+        expect(failure?.incidentId).toBe("incident-first");
+        expect(failure?.cfRay).toBe("ray-first");
+        expect(failure?.body).toHaveLength(4096);
       }
 
-      expect(requests).toHaveLength(24);
-      expect(new Set(requests)).toStrictEqual(new Set(["*/*", "text/html"]));
+      expect(requests.filter((row) => row.path === "/")).toHaveLength(4);
+      expect(new Set(requests.map((row) => row.accept))).toStrictEqual(
+        new Set(["application/xml", "*/*", "text/html"])
+      );
     })
 );
