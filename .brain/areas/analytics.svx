@@ -126,6 +126,9 @@ These settings apply after deployment. They do not erase stored logs from earlie
 ## Crash archive
 
 Mischief declares `MischiefCrashTail` as an Alchemy `tailConsumers` entry.
+`registerCrashTail` registers a native tail listener through the host Worker's `listen` method.
+Returning a `tail` method from the Effect Worker shape does not register this listener.
+
 The tail Worker receives execution traces after Mischief finishes an invocation.
 It records failed outcomes and traces with exceptions, including exceptions after a successful response.
 
@@ -200,6 +203,7 @@ A Cloudflare ray id is not stored, so this comparison is a correlation rather th
 Fix the observed cause in a separate change.
 
 Before deployment, run `pnpm --filter @rat-stack/events exec vitest run test/crash.test.ts`.
+Run `pnpm --filter @rat-stack/mischief exec vitest run test/crash-tail.test.ts` to exercise Alchemy's exported tail dispatcher.
 After deployment, verify the tail consumer attachment and read an actual failed trace from R2.
 Local tests prove projection and archive writes; they do not prove Cloudflare delivery.
 
