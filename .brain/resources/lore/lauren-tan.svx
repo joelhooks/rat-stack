@@ -16,4 +16,4 @@ sources:
 
 Lauren Tan describes verification, skills, and an agent-friendly codebase as ways to build trust in agent work. [Watch from 06:45](https://video.twimg.com/amplify_video/2101938030122868736/vid/avc1/3442x2160/BQlPlAZCEVPDemv1.mp4#t=405).
 
-Her Dune framework organizes an application around named features, entrypoints, clients, hosts, and typed edges. [Watch from 19:01](https://video.twimg.com/amplify_video/2101938030122868736/vid/avc1/3442x2160/BQlPlAZCEVPDemv1.mp4#t=1141).
+Her Dune framework organizes an application around named features, entrypoints, clients, hosts, and typed interfaces between those parts. [Watch from 19:01](https://video.twimg.com/amplify_video/2101938030122868736/vid/avc1/3442x2160/BQlPlAZCEVPDemv1.mp4#t=1141).

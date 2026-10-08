@@ -34,7 +34,7 @@ It suits anything with history: sessions, retries, lifecycles.
 
 [David Khourshid](/lore/david-khourshid) described the approach with state machines in [Model-Based Testing in React with State Machines](https://css-tricks.com/model-based-testing-in-react-with-state-machines/). XState builds it into `xstate/graph`: `createTestModel` wraps a machine, and `getShortestPaths` turns it into test paths. "Path generation enables model-based testing - generating test cases directly from your state machine." [Graph & Paths](https://stately.ai/docs/graph)
 
-Effect 4's `Arbitrary.array` generates command sequences. Its documentation uses a state machine as the example, and failed sequences shrink by removing irrelevant commands. [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts)
+Effect 4's `Arbitrary.array` generates command sequences. Its documentation uses a state machine as the example, and failed sequences shrink: the generator removes irrelevant commands to reduce the failing sequence. [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts)
 
 In rat-stack, [the visitor identity model](https://github.com/joelhooks/rat-stack/blob/main/packages/events/test/visitor.model.test.ts) generates visits from three devices.
 Visits may keep or drop the cookie. Visits also cross day boundaries.

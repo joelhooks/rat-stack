@@ -1,6 +1,6 @@
 ---
 title: "Effect Office Hours 27: Alchemy, infrastructure as effects"
-description: "Sam Goodwin presents Alchemy as an Effect-native system for planning, testing, and deploying infrastructure."
+description: "Sam Goodwin presents Alchemy as a system built with Effect for planning, testing, and deploying infrastructure."
 group: source
 speaker: "Sam Goodwin"
 date: 2026-04-30
@@ -15,6 +15,12 @@ sources:
 
 # Effect Office Hours 27: Alchemy, infrastructure as effects
 
-Sam describes an agent-oriented workflow from an empty project through deployment, tests, CI, and operations. Effects and Layers let the type system track the resource providers a Stack needs; real-infrastructure tests check behavior after deployment. [03:38](https://youtu.be/fPSxB7ZgSJw?t=218) [07:01](https://youtu.be/fPSxB7ZgSJw?t=421) [16:01](https://youtu.be/fPSxB7ZgSJw?t=961)
+Sam describes a workflow for coding agents from an empty project through deployment, tests, CI, and operations.
+An Effect describes work with typed failures and required services.
+A Layer describes how to build services and supply their dependencies.
+An Alchemy Stack is the infrastructure program that declares cloud resources.
 
-He explains bindings as application capabilities that can inform least-privilege policies. The runtime and infrastructure stay related without bundling provider implementations into the application. [58:16](https://youtu.be/fPSxB7ZgSJw?t=3496) [59:23](https://youtu.be/fPSxB7ZgSJw?t=3563) [70:55](https://youtu.be/fPSxB7ZgSJw?t=4255)
+Effects and Layers let the type system track the resource providers a Stack needs.
+Tests using real infrastructure check behavior after deployment. [03:38](https://youtu.be/fPSxB7ZgSJw?t=218) [07:01](https://youtu.be/fPSxB7ZgSJw?t=421) [16:01](https://youtu.be/fPSxB7ZgSJw?t=961)
+
+He explains bindings as application capabilities that can inform least-privilege policies, which limit permissions to the application methods in use. The runtime and infrastructure stay related without bundling provider implementations into the application. [58:16](https://youtu.be/fPSxB7ZgSJw?t=3496) [59:23](https://youtu.be/fPSxB7ZgSJw?t=3563) [70:55](https://youtu.be/fPSxB7ZgSJw?t=4255)
