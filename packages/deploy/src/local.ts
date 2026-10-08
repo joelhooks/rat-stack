@@ -39,6 +39,7 @@ import { DeployRunner } from "./deploy-runner.js";
 import { validateDeployInputs } from "./inputs.js";
 import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
+import { applyWithProviderEvidence } from "./provider-errors.js";
 import { ReceiptStore } from "./receipt-store.js";
 import { watchVerdict } from "./watch.js";
 import {
@@ -608,18 +609,28 @@ export const localLayer = (
           )
         );
 
-        const exit = yield* Stacks.apply({
-          ...value,
-          session: {
-            ...value.session,
-            context: Context.add(
-              value.session.context,
-              Interaction,
-              interaction
-            ),
-          },
-        }).pipe(
-          Effect.provideService(Progress, (event) =>
+        const { exit, providerErrors } = yield* applyWithProviderEvidence(
+          (observedClient) =>
+            Stacks.apply({
+              ...value,
+              session: {
+                ...value.session,
+                context: Context.add(
+                  Context.add(
+                    value.session.context,
+                    HttpClient.HttpClient,
+                    observedClient
+                  ),
+                  Interaction,
+                  interaction
+                ),
+              },
+            }),
+          Option.getOrElse(
+            Context.getOption(value.session.context, HttpClient.HttpClient),
+            () => client
+          ),
+          (event) =>
             Predicate.isTagged(event, "apply.resource.status") &&
             [
               "created",
@@ -642,10 +653,14 @@ export const localLayer = (
                       : Effect.void
                   )
                 )
-              : Effect.void
-          ),
-          Effect.exit
+              : Effect.void,
+          Object.values(credentialHeaders(credential.value)).flatMap(
+            (header) => [header, header.replace(/^Bearer\s+/iu, "")]
+          )
         );
+
+        const diagnosticFields =
+          providerErrors.length === 0 ? {} : { providerErrors };
 
         const updated = yield* Ref.get(completed);
 
@@ -665,6 +680,7 @@ export const localLayer = (
               failureOutcome,
               yield* Ref.get(retainedOrphans)
             ),
+            ...diagnosticFields,
             contentGeneration: generation.value,
             previousVersions: prior,
           };
