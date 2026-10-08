@@ -93,6 +93,21 @@ A2A answers documentation questions through search and read. RPC means remote pr
 These routes exist today. A reusable cartridge for agent interfaces remains planned.
 A cartridge is a package for one job, with its implementation and required infrastructure.
 
+## Content asset cache
+
+`ContentStore` shares completed catalogs, search indexes, learning decks, and graph views within one Worker isolate.
+Concurrent cold requests each perform their own asset reads.
+The cache stores a value only after its read and validation succeed.
+Failed or interrupted reads leave the cache empty.
+
+Pending reads must not use a shared promise, fiber, latch, or response body.
+Those values can belong to the first request's runtime context.
+Warm requests reuse decoded data without new asset I/O.
+
+`test/cold-content-runtime.test.ts` sends concurrent first requests through a fresh local Worker.
+Its asset adapter adds a delay to make cold reads overlap.
+The test uses workerd, production content routes, and the reader wrapper.
+
 ## How to check
 
 1. Read the [MCP connection card](/.well-known/mcp.json).
@@ -104,5 +119,6 @@ A cartridge is a package for one job, with its implementation and required infra
 7. Read the document.
 8. Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
 9. Confirm the live cards and capability list before advertising a new agent path.
+10. Run `pnpm --filter @rat-stack/mischief exec vitest run test/cold-content-runtime.test.ts` to check cold-request isolation.
 
 Check a new deploy live as well as running local tests.
