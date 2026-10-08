@@ -323,12 +323,18 @@ importers:
 
   apps/mischief:
     dependencies:
+      '@rat-stack/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../../packages/capability
       '@rat-stack/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@rat-stack/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@rat-stack/events':
         specifier: workspace:*
         version: link:../../packages/events

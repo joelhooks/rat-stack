@@ -18,9 +18,12 @@ export const privateHttpTracingLayer = Layer.effect(
       return (
         previous(request) ||
         url.pathname.startsWith("/operator/interest") ||
+        url.pathname.startsWith("/auth/") ||
+        url.pathname.startsWith("/api/learnFeedback") ||
+        url.pathname === "/learn/approve" ||
         url.pathname === UNSUBSCRIBE_PATH ||
         [...url.searchParams.keys()].some((key) =>
-          ["t", "token", "ticket"].includes(key.toLowerCase())
+          ["t", "token", "ticket", "user_code"].includes(key.toLowerCase())
         )
       );
     };

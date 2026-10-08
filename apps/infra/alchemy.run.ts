@@ -4,9 +4,11 @@ import * as Cloudflare from "alchemy/Cloudflare";
 import { retain } from "alchemy/RemovalPolicy";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
 
+import privateAuth from "../mischief/src/auth/private-worker.js";
 import Mischief from "../mischief/src/worker.js";
 import { Website } from "../web/src/website.js";
 
@@ -123,5 +125,14 @@ export default Alchemy.Stack(
     });
 
     return { mischiefUrl: mischief.url, websiteUrl: website.url };
-  })
+  }).pipe(
+    Effect.provide(
+      Layer.unwrap(
+        Config.Boolean("AUTH_ENABLED").pipe(
+          Config.withDefault(false),
+          Effect.map((enabled) => (enabled ? privateAuth : Layer.empty))
+        )
+      )
+    )
+  )
 );

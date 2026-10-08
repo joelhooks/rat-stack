@@ -1,21 +1,19 @@
 import { BetterAuth, Memory } from "@alchemy.run/better-auth";
-import type {
-  BetterAuthInstance,
-  BetterAuthProps,
-} from "@alchemy.run/better-auth";
+import type { BetterAuthProps } from "@alchemy.run/better-auth";
 import { CloudflareD1 } from "@alchemy.run/better-auth/CloudflareD1";
 import { CloudflareHyperdrive } from "@alchemy.run/better-auth/CloudflareHyperdrive";
 import { DatabaseVendor } from "@rat-stack/database";
-import { Context, Effect, Layer, Match } from "effect";
+import { Effect, Layer, Match } from "effect";
 
-export const authOptions = {
-  basePath: "/auth",
-  emailAndPassword: { enabled: true },
-} as const;
+import { authOptions } from "./auth-options.js";
+import { AuthService } from "./auth-service.js";
 
-export type AuthInstance = BetterAuthInstance<typeof authOptions>;
+export { authOptions } from "./auth-options.js";
+
+export type { AuthInstance } from "./auth-options.js";
 
 export interface AuthLayerOptions {
+  readonly baseURL?: string;
   readonly id?: string;
   readonly secret?: BetterAuthProps["secret"];
 }
@@ -24,10 +22,8 @@ export interface MemoryLayerOptions {
   readonly baseURL?: string;
 }
 
-// @effect-diagnostics-next-line leakingRequirements:off -- Better Auth methods intentionally retain the per-request RuntimeContext requirement.
-export class Auth extends Context.Service<Auth, AuthInstance>()(
-  "@rat-stack/auth/Auth"
-) {
+// @effect-diagnostics-next-line leakingRequirements:off -- Better Auth methods intentionally retain per-request RuntimeContext requirements.
+export class Auth extends AuthService {
   static layer(options: AuthLayerOptions = {}) {
     return Layer.unwrap(
       Effect.gen(function* buildAuthLayer() {
@@ -49,10 +45,15 @@ export class Auth extends Context.Service<Auth, AuthInstance>()(
             ? authOptions
             : { ...authOptions, id: options.id };
 
+        const optionsWithUrl =
+          options.baseURL === undefined
+            ? optionsWithId
+            : { ...optionsWithId, baseURL: options.baseURL };
+
         const configuredOptions =
           options.secret === undefined
-            ? optionsWithId
-            : { ...optionsWithId, secret: options.secret };
+            ? optionsWithUrl
+            : { ...optionsWithUrl, secret: options.secret };
 
         return Layer.effect(
           Auth,
