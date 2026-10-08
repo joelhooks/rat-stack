@@ -1,3 +1,12 @@
+export { intakeApplicationsQuery } from "./applications-query.js";
+
+export { basinIntakeEvents, IntakeBackfill } from "./basin-intake-events.js";
+
+export type {
+  IntakeRowSink,
+  UnstructuredIntakeRow,
+} from "./basin-intake-events.js";
+
 export {
   codeSignals,
   INSTANT_TICKET_MILLIS,
@@ -17,6 +26,11 @@ export {
 export type { IntakeLiveSettings } from "./intake-live.js";
 
 export {
+  mirrorIntakeEvents,
+  mirroredIntakeEventsLayer,
+} from "./mirrored-intake-events.js";
+
+export {
   doIntakeVault,
   IntakeVault,
   makeMemoryIntakeVault,
@@ -34,6 +48,21 @@ export {
 } from "./jev-abuse-score.js";
 
 export type { JevSettings } from "./jev-abuse-score.js";
+
+export {
+  contactRowId,
+  erasedRow,
+  erasedRowId,
+  INTAKE_TABLE,
+  IntakeContactRowSchema,
+  IntakeErasedRowSchema,
+  IntakeRowSchema,
+  IntakeRowSourceSchema,
+  IntakeStatementRowSchema,
+  recordRows,
+} from "./intake-rows.js";
+
+export type { IntakeRow, IntakeRowSource, RowStamp } from "./intake-rows.js";
 
 export { unsealApplication } from "./read-application.js";
 
