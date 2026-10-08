@@ -78,7 +78,9 @@ Each event holds:
 
 - A visitor id and UUIDv7 message id. UUIDv7 is a time-ordered identifier format.
 - A server block: host, received time, salted IP hash, and user agent. The hash combines the IP with a secret salt to produce a one-way value.
-- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone. It also includes the Cloudflare data center and the network's autonomous system number, which identifies the network, and its organization.
+- Coarse geography from Cloudflare's [`request.cf`](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties): continent, country, EU membership, region and region code, city, and time zone.
+  It also includes the Cloudflare data center, the network's autonomous system number, and its organization.
+  The autonomous system number identifies the network.
 - A request block: method, path, status, duration, accept type, and content type.
 - Whether the request carries a signed agent header.
 - The referrer's origin and path.

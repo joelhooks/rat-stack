@@ -44,11 +44,14 @@ sources:
 Choose how many operations may run at once. Give child work an owner that can stop it.
 A completed caller must not silently leave its work running.
 
-## Bound a traversal before running it
+## Bound collection processing before running it
+
+A traversal processes each input in a collection. An Effect describes work before execution.
 
 `Effect.forEach` describes one Effect per input and collects results in input order.
-Its concurrency option bounds active operations, not the input collection's size.
-The checked fixture measures active work with a Ref.
+Its concurrency option bounds active operations.
+The input collection can be larger than that bound.
+The checked fixture measures active work with a Ref, an Effect value that stores mutable state.
 
 ```ts repo=rat-stack path=packages/capability/test/fixtures/wiki/bounded-traversal.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=8-30
 ```
@@ -59,7 +62,7 @@ It requires completed work, no remaining activity, input-order results, and a pe
 ```ts repo=rat-stack path=packages/capability/test/concurrency-ownership.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=7-26
 ```
 
-The expectation uses the supplied bound, not a copy of the traversal's scheduling algorithm.
+The expectation uses the supplied bound. It is independent of the traversal's scheduling algorithm.
 
 A planted violation replaced the bound with `unbounded`.
 The property failed with seven active operations against a bound of one. The restored implementation passes.
@@ -67,7 +70,8 @@ Measure production limits separately from these generated test counts.
 
 ## Stop child work with its Scope
 
-The sandbox writes queued input to a child process through a scoped fiber:
+The sandbox writes queued input to a child process through a scoped fiber: child work that stops when its owning Scope closes.
+A fiber is an independently running Effect. A Scope owns cleanup.
 
 ```ts repo=rat-stack path=packages/capability/src/sandbox-subprocess.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=224-229
 ```
@@ -78,7 +82,7 @@ When the owner closes, the child must observe interruption before the enclosing 
 ```ts repo=rat-stack path=packages/capability/test/concurrency-ownership.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=30-46
 ```
 
-A Deferred confirms that work started. The test does not depend on an arbitrary sleep.
+A Deferred is an Effect value completed once to signal that work started. The test does not depend on an arbitrary sleep.
 
 Use [scopes](/lore/scopes-own-resources) to decide the lifetime before choosing a fork operation.
 Different fork operations carry different ownership rules; do not treat their names as interchangeable.
@@ -93,7 +97,8 @@ Its consumer stops after the first completed outcome.
 
 `Stream.mapEffect` keeps decoding and dispatch in the stream description. The consumer does not launch eager Promises for each line.
 
-Backpressure lets downstream demand limit upstream progress. An unbounded queue can decouple the producer from that demand.
+Backpressure lets the consumer limit how quickly the producer can continue.
+An unbounded queue can let the producer keep adding data.
 
 The producer uses `Queue.unbounded`. This code does not prove a bounded producer queue or bounded total memory.
 A bounded consumer is not enough when producers can accumulate data faster than it is consumed.

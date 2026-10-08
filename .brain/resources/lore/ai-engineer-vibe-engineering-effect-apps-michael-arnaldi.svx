@@ -15,6 +15,10 @@ sources:
 
 # Vibe engineering Effect apps
 
+Effect is a TypeScript library for describing work with typed results, failures, and required services.
+
 Michael says an agent should learn a fast-moving library from its source repository. Stale model knowledge and giant prompts are less reliable. [08:51](https://youtu.be/Wmp2Tku2PrI?t=531) [12:59](https://youtu.be/Wmp2Tku2PrI?t=779)
 
-He describes repository feedback from diagnostics, tests, lint rules, saved patterns, and short-lived contexts. He recommends choosing patterns for the project and model. [30:30](https://youtu.be/Wmp2Tku2PrI?t=1830) [38:15](https://youtu.be/Wmp2Tku2PrI?t=2295) [58:08](https://youtu.be/Wmp2Tku2PrI?t=3488)
+He describes repository feedback from compiler diagnostics, tests, lint checks, saved patterns, and short-lived contexts.
+
+Diagnostics report compiler problems. Lint checks reject code patterns that break project rules. He recommends choosing patterns for the project and model. [30:30](https://youtu.be/Wmp2Tku2PrI?t=1830) [38:15](https://youtu.be/Wmp2Tku2PrI?t=2295) [58:08](https://youtu.be/Wmp2Tku2PrI?t=3488)
