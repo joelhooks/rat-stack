@@ -73,6 +73,16 @@ Rollback needs explicit capability approval. Missing, malformed or oversized rec
 
 No remote runner, canary, traffic split or release queue is implemented. Keep production smoke checks until the typed checks qualify the deployment.
 
+## Read failed script uploads
+
+If apply fails after "uploading script", read `providerErrors` in the apply receipt and verdict. The compact command report includes them too.
+
+Each entry contains `resource`, `code` and a redacted `message`. A missing code is `null`, not the HTTP status. Missing resource metadata also stays `null`. Do not infer a provider cause from missing evidence.
+
+The driver preserves completed resources and stops before health checks after failed apply. It excludes request headers, request bodies and unrelated response fields. Recognized credentials and private identifiers are redacted. These rules cannot identify every secret written as ordinary prose. Review messages before sharing them.
+
+Run `pnpm --filter @rat-stack/deploy exec vitest run test/provider-failure.model.test.ts test/provider-evidence.test.ts` to check the failing-provider seam. This local proof does not reproduce a production upload error or change provider retries.
+
 ## Read escaped Worker crashes
 
 A Cloudflare 1101 without an incident id can escape Mischief's request handler. Read the private crash archive before assigning a cause. Do not enable invocation logs or print raw trace events.

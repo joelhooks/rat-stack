@@ -14,6 +14,14 @@ export const DeployInputSchema = Schema.Struct({
 
 export type DeployInput = typeof DeployInputSchema.Type;
 
+export const ProviderErrorSchema = Schema.Struct({
+  code: Schema.NullOr(Schema.Int),
+  message: Schema.String,
+  resource: Schema.NullOr(Schema.String),
+});
+
+export type ProviderError = typeof ProviderErrorSchema.Type;
+
 export const ApplyReceiptSchema = Schema.Struct({
   appliedAt: Schema.optionalKey(Schema.Natural),
   contentGeneration: Schema.optionalKey(Schema.NonEmptyString),
@@ -30,6 +38,7 @@ export const ApplyReceiptSchema = Schema.Struct({
     Schema.Record(Schema.String, Schema.String)
   ),
   profile: Schema.optionalKey(Schema.NonEmptyString),
+  providerErrors: Schema.optionalKey(Schema.Array(ProviderErrorSchema)),
   retainedOrphans: Schema.Array(Schema.String),
   updated: Schema.Array(Schema.String),
   versionReadbacks: Schema.optionalKey(Schema.Array(VerdictSchema)),
@@ -74,6 +83,7 @@ export const DeployVerdictSchema = Schema.Struct({
     "crashed",
     "unknown",
   ]),
+  providerErrors: Schema.optionalKey(Schema.Array(ProviderErrorSchema)),
   reason: Schema.optional(Schema.String),
   receipt: Schema.optional(ApplyReceiptSchema),
   resources: Schema.optionalKey(Schema.Array(Schema.String)),
@@ -95,6 +105,7 @@ export const DeployReportSchema = Schema.Struct({
   keys: Schema.Array(Schema.String),
   outcome: DeployVerdictSchema.fields.outcome,
   profile: Schema.String,
+  providerErrors: Schema.optionalKey(Schema.Array(ProviderErrorSchema)),
   reason: Schema.optional(Schema.String),
   resources: Schema.optionalKey(Schema.Array(Schema.String)),
   rollbackReceipt: Schema.optionalKey(Schema.String),
@@ -126,10 +137,15 @@ export const deployReport = (
     step: verdict.step,
   };
 
+  const withProviderErrors =
+    verdict.providerErrors === undefined
+      ? report
+      : { ...report, providerErrors: verdict.providerErrors };
+
   const withResources =
     verdict.resources === undefined
-      ? report
-      : { ...report, resources: verdict.resources };
+      ? withProviderErrors
+      : { ...withProviderErrors, resources: verdict.resources };
 
   const withReceipt =
     verdict.receipt?.profile === undefined
