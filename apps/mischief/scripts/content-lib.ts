@@ -1574,6 +1574,46 @@ const braceSafeText = (value: string): LoreHastNode => ({
   value: escapeHtml(value).replaceAll("{", "&#123;").replaceAll("}", "&#125;"),
 });
 
+interface ImageHastNode {
+  readonly type: string;
+  readonly tagName?: string;
+  readonly value?: string;
+  children?: ImageHastNode[];
+  readonly properties?: { readonly src?: string };
+}
+
+const emptiedByImageRemoval = new Set(["a", "p"]);
+
+const loadsFromThisSite = (source: string) =>
+  source.startsWith("data:") ||
+  (source.startsWith("/") && !source.startsWith("//"));
+
+const carriesContent = (node: ImageHastNode) =>
+  node.type !== "text" || (node.value ?? "").trim() !== "";
+
+export const dropOffSiteImages = () => (tree: ImageHastNode) => {
+  const keep = (node: ImageHastNode): boolean => {
+    if (node.tagName === "img") {
+      return loadsFromThisSite(node.properties?.src ?? "");
+    }
+
+    if (node.children === undefined) {
+      return true;
+    }
+
+    const before = node.children.length;
+    node.children = node.children.filter(keep);
+
+    return (
+      node.children.length === before ||
+      !emptiedByImageRemoval.has(node.tagName ?? "") ||
+      node.children.some(carriesContent)
+    );
+  };
+
+  keep(tree);
+};
+
 export const escapeSvelteBraces = () => (tree: LoreHastNode) => {
   const visit = (node: LoreHastNode): void => {
     if (

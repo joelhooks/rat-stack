@@ -55,23 +55,32 @@ export const emitAssets = Effect.fn("emitAssets")(
     const generation = contentAssetGeneration(input);
 
     const assets = path.join(input.directory, "assets", generation);
+    const documents = path.join(input.directory, "documents", generation);
     yield* fs.makeDirectory(assets, { recursive: true });
+    yield* fs.makeDirectory(documents, { recursive: true });
     const pages: (typeof ContentAssetManifest.Type.pages)[number][] = [];
 
     for (const page of input.pages) {
       const name = page.routePath === "/" ? "/index" : page.routePath;
-      const html = `${name}.html`;
+      const document = `${name}.html`;
       const markdown = `${name}.md`;
-      yield* fs.makeDirectory(path.dirname(path.join(assets, html.slice(1))), {
-        recursive: true,
-      });
+      yield* fs.makeDirectory(
+        path.dirname(path.join(documents, document.slice(1))),
+        { recursive: true }
+      );
+      yield* fs.makeDirectory(
+        path.dirname(path.join(assets, markdown.slice(1))),
+        {
+          recursive: true,
+        }
+      );
       const temporaryHtml = path.join(temporary, "page.html");
       const temporaryMarkdown = path.join(temporary, "page.md");
       yield* fs.writeFileString(temporaryHtml, page.documentHtml);
       yield* fs.writeFileString(temporaryMarkdown, page.text);
-      yield* fs.rename(temporaryHtml, path.join(assets, html.slice(1)));
+      yield* fs.rename(temporaryHtml, path.join(documents, document.slice(1)));
       yield* fs.rename(temporaryMarkdown, path.join(assets, markdown.slice(1)));
-      pages.push({ html, markdown, route: page.routePath });
+      pages.push({ document, markdown, route: page.routePath });
     }
 
     for (const image of input.images) {
@@ -105,18 +114,20 @@ export const emitAssets = Effect.fn("emitAssets")(
     const manifestPath = path.join(input.directory, "manifest.json");
     yield* fs.rename(temporaryManifest, manifestPath);
 
-    for (const entry of yield* fs.readDirectory(
-      path.join(input.directory, "assets")
-    )) {
-      const current = yield* Schema.decodeEffect(
-        Schema.fromJsonString(ContentAssetManifest)
-      )(yield* fs.readFileString(manifestPath));
+    for (const tree of ["assets", "documents"]) {
+      for (const entry of yield* fs.readDirectory(
+        path.join(input.directory, tree)
+      )) {
+        const current = yield* Schema.decodeEffect(
+          Schema.fromJsonString(ContentAssetManifest)
+        )(yield* fs.readFileString(manifestPath));
 
-      if (entry !== generation && entry !== current.generation) {
-        yield* fs.remove(path.join(input.directory, "assets", entry), {
-          force: true,
-          recursive: true,
-        });
+        if (entry !== generation && entry !== current.generation) {
+          yield* fs.remove(path.join(input.directory, tree, entry), {
+            force: true,
+            recursive: true,
+          });
+        }
       }
     }
 

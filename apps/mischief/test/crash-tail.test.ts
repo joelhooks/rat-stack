@@ -32,7 +32,16 @@ const trace = {
     },
   ],
   executionModel: "stateless",
-  logs: [],
+  logs: [
+    {
+      level: "error",
+      message: [
+        "Native tail handler failed to initialize",
+        "private-cookie",
+        { body: "not stored", headers: { cookie: "private-cookie" } },
+      ],
+    },
+  ],
   outcome: "exception",
   scriptName: "mischief",
   scriptVersion: { id: "a470d540-7b23-4642-8a47-0d6093ec2fef" },
@@ -91,12 +100,19 @@ it.effect(
       expect(record.scriptVersion).toBe(trace.scriptVersion.id);
       expect(record.exceptions).toEqual([
         {
-          message: "Cannot read properties of undefined (reading [quoted])",
+          message: "Cannot read properties of undefined (reading '[redacted]')",
           name: "TypeError",
           stack: ["worker.js:123:45"],
         },
       ]);
+      expect(record.logs).toEqual([
+        {
+          level: "error",
+          message: ["Native tail handler failed to initialize", "[redacted]"],
+        },
+      ]);
       expect(JSON.stringify(rows)).not.toContain("private-cookie");
+      expect(JSON.stringify(rows)).not.toContain("not stored");
       expect(JSON.stringify(rows)).not.toContain("private-query");
       expect(JSON.stringify(rows)).not.toContain("203.0.113.7");
     })

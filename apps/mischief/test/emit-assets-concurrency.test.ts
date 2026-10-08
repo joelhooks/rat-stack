@@ -54,7 +54,7 @@ it.effect(
 
         expect(
           yield* fs.readFileString(
-            `${directory}/assets/${manifest.generation}${page.html}`
+            `${directory}/documents/${manifest.generation}${page.document}`
           )
         ).toBe(source?.documentHtml);
         expect(
@@ -68,6 +68,14 @@ it.effect(
       expect(yield* fs.readDirectory(`${directory}/assets`)).toEqual([
         manifest.generation,
       ]);
+      expect(yield* fs.readDirectory(`${directory}/documents`)).toEqual([
+        manifest.generation,
+      ]);
+      expect(
+        (yield* fs.readDirectory(`${directory}/assets/${manifest.generation}`, {
+          recursive: true,
+        })).filter((file) => file.endsWith(".html"))
+      ).toEqual([]);
 
       for (const image of manifest.images) {
         expect(

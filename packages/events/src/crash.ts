@@ -30,9 +30,23 @@ const ExceptionSchema = Schema.Struct({
   stack: Schema.Array(Schema.String),
 });
 
+const LogLevelSchema = Schema.Literals([
+  "debug",
+  "info",
+  "log",
+  "warn",
+  "error",
+]);
+
+const CrashLogSchema = Schema.Struct({
+  level: Schema.NullOr(LogLevelSchema),
+  message: Schema.Array(Schema.String),
+});
+
 export const CrashRecordSchema = Schema.Struct({
   eventTime: EventTimeSchema,
   exceptions: Schema.Array(ExceptionSchema),
+  logs: Schema.optional(Schema.Array(CrashLogSchema)),
   outcome: OutcomeSchema,
   path: Schema.NullOr(Schema.String),
   scriptVersion: Schema.NullOr(Schema.String),
@@ -58,6 +72,14 @@ export const TraceSchema = Schema.Struct({
       name: Schema.String,
       stack: Schema.optional(Schema.String),
     })
+  ),
+  logs: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        level: Schema.optional(Schema.String),
+        message: Schema.Array(Schema.Unknown),
+      })
+    )
   ),
   outcome: Schema.String,
   scriptVersion: Schema.optional(
@@ -86,51 +108,52 @@ const redact = (text: string, secrets: readonly string[]) => {
   let result = text;
 
   for (const secret of secrets) {
-    if (secret !== "") {
-      result = result.replaceAll(secret, "[redacted]");
-    }
+    result = result.replaceAll(
+      secret,
+      (match, offset: number, input: string) =>
+        /[\p{L}\p{N}_%-]/u.test(input.slice(offset - 1, offset)) ||
+        /[\p{L}\p{N}_%-]/u.test(
+          input.slice(offset + match.length, offset + match.length + 1)
+        )
+          ? match
+          : "[redacted]"
+    );
   }
 
   return result
-    .replaceAll(/https?:\/\/[^\s)]+/gu, "[url]")
+    .replaceAll(/https?:\/\/[^\s/@]+:[^\s/@]+@/giu, "https://[redacted]@")
+    .replaceAll(
+      /(?<path>(?:https?:\/\/|\/)[^\s"'`()?]*)\?[^\s"'`)\]}]*/giu,
+      "$<path>?[redacted]"
+    )
+    .replaceAll(/\?[^\s"'`)\]}]*=[^\s"'`)\]}]*/gu, "?[redacted]")
+    .replaceAll(/\bBearer\s+[^\s"'`,;)]+/giu, "Bearer [redacted]")
+    .replaceAll(
+      /(?<label>\b(?:[a-z][\w-]*[_-])?(?:authorization|cookie|password|passwd|secret|token|key|api[_-]?key|access[_-]?key|private[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|credential)\b["']?\s*[:=]\s*["']?)[^\s"'`,;})]+/giu,
+      "$<label>[redacted]"
+    )
+    .replaceAll(
+      /-----BEGIN [\w ]*PRIVATE KEY-----[\s\S]*?-----END [\w ]*PRIVATE KEY-----/gu,
+      "[redacted]"
+    )
+    .replaceAll(
+      /\b(?:sk[_-](?:live|test|proj)[_-]|sk-|gh[pousr]_|github_pat_|xox[baprs]-|AKIA)[A-Za-z0-9_%.-]+/gu,
+      "[redacted]"
+    )
+    .replaceAll(
+      /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/gu,
+      "[redacted]"
+    )
+    .replaceAll(
+      /\b(?:[a-f\d]{32,}|(?=[A-Za-z\d_+-]*[A-Z])(?=[A-Za-z\d_+-]*[a-z])(?=[A-Za-z\d_+-]*\d)[A-Za-z\d_+-]{32,})={0,2}\b/gu,
+      "[redacted]"
+    )
     .replaceAll(/\b(?:\d{1,3}\.){3}\d{1,3}\b/gu, "[ip]")
     .replaceAll(
       /\b(?:[\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}\b|[\da-fA-F:]*::[\da-fA-F:]*/gu,
       "[ip]"
     )
-    .replaceAll(/[\w.+-]+@[\w.-]+/gu, "[email]")
-    .replaceAll(/(?<quote>["'`]).*?\k<quote>/gu, "[quoted]");
-};
-
-const diagnosticMessage = (text: string, secrets: readonly string[]) => {
-  const sanitized = redact(text, secrets);
-
-  if (
-    /^Cannot read propert(?:y|ies) (?:\[quoted\] |of )?(?:undefined|null)(?: \(reading \[quoted\]\))?$/u.test(
-      sanitized
-    )
-  ) {
-    return sanitized;
-  }
-
-  const diagnostics = [
-    "is not a function",
-    "is not defined",
-    "Maximum call stack size exceeded",
-    "The script will never generate a response",
-    "Cannot perform I/O on behalf of a different request",
-    "Disallowed operation called within global scope",
-    "Script startup exceeded CPU time limit",
-    "Network connection lost",
-    "Invalid URL",
-    "Unexpected token",
-    "Unexpected end of JSON input",
-  ];
-
-  return (
-    diagnostics.find((message) => sanitized.includes(message)) ??
-    "[redacted message]"
-  );
+    .replaceAll(/[\w.+%-]+(?:@|%40)[\w.%+-]+/giu, "[email]");
 };
 
 const diagnosticName = (name: string) =>
@@ -159,7 +182,14 @@ export const projectCrash = Effect.fn("projectCrash")(
 
     const request = trace.event?.request;
     const url = request === undefined ? undefined : parseUrl(request.url);
-    const headerValues = Object.values(request?.headers ?? {});
+
+    const headerValues = Object.entries(request?.headers ?? {})
+      .filter(([key]) =>
+        /^(?:authorization|proxy-authorization|cookie|(?:x-)?(?:api-key|auth-token|access-token|secret))$/iu.test(
+          key
+        )
+      )
+      .map(([, value]) => value);
 
     const cookieValues = Object.entries(request?.headers ?? {})
       .filter(([key]) => key.toLowerCase() === "cookie")
@@ -185,11 +215,11 @@ export const projectCrash = Effect.fn("projectCrash")(
     const record: CrashRecord = {
       eventTime: trace.eventTimestamp,
       exceptions: trace.exceptions.map((exception) => ({
-        message: diagnosticMessage(exception.message, secrets),
+        message: redact(exception.message, secrets),
         name: diagnosticName(exception.name),
         stack: (exception.stack ?? "").split("\n").flatMap((line) => {
           const frame =
-            /^\s*at\s+.*?(?<file>[\w.-]+\.(?:js|mjs|cjs|ts)):(?<line>\d+):(?<column>\d+)\)?\s*$/u.exec(
+            /^\s*at\s+(?:.*\()?\s*(?<file>[\w.-]+\.(?:js|mjs|cjs|ts)):(?<line>\d+)(?::(?<column>\d+))?\)?\s*$/u.exec(
               line
             );
 
@@ -197,16 +227,33 @@ export const projectCrash = Effect.fn("projectCrash")(
             ? []
             : [
                 redact(
-                  `${frame.groups?.file}:${frame.groups?.line}:${frame.groups?.column}`,
+                  [frame.groups?.file, frame.groups?.line, frame.groups?.column]
+                    .filter(Schema.is(Schema.String))
+                    .join(":"),
                   secrets
                 ),
               ];
         }),
       })),
+      logs:
+        trace.outcome !== "exception" && trace.exceptions.length === 0
+          ? []
+          : (trace.logs ?? []).map((log) => ({
+              level: Schema.is(LogLevelSchema)(log.level) ? log.level : null,
+              message: log.message
+                .filter(Schema.is(Schema.String))
+                .map((message) =>
+                  /(?:["']?(?:headers|body|request)["']?\s*[:=]\s*[[{])|^\s*(?:\{|\[\s*["'{[])/iu.test(
+                    message
+                  )
+                    ? "[structured log omitted]"
+                    : redact(message, secrets)
+                ),
+            })),
       outcome: Schema.is(OutcomeSchema)(trace.outcome)
         ? trace.outcome
         : "unknown",
-      path: url === undefined ? null : redact(url.pathname, secrets),
+      path: url === undefined ? null : redact(url.pathname, []),
       scriptVersion: trace.scriptVersion?.id ?? null,
     };
 

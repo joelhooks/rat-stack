@@ -29,7 +29,7 @@ const manifestAt = (directory: string) =>
   });
 
 it.effect(
-  "emits every page and image and serves the Markdown and image bytes unchanged",
+  "emits every page and image, deploys no page HTML, and serves the Markdown and image bytes unchanged",
   () =>
     Effect.gen(function* emittedContentParity() {
       const fs = yield* FileSystem.FileSystem;
@@ -54,6 +54,22 @@ it.effect(
         false
       );
 
+      const deployedRoot = `${directory}/assets/${manifest.generation}`;
+
+      const deployed = yield* fs.readDirectory(deployedRoot, {
+        recursive: true,
+      });
+
+      expect(deployed.filter((file) => file.endsWith(".html"))).toEqual([]);
+
+      for (const file of deployed.filter(
+        (entry) => entry.endsWith(".json") || entry.endsWith(".md")
+      )) {
+        const text = yield* fs.readFileString(`${deployedRoot}/${file}`);
+
+        expect(text.toLowerCase().includes("<!doctype html"), file).toBe(false);
+      }
+
       yield* Effect.acquireUseRelease(
         Effect.sync(() =>
           HttpRouter.toWebHandler(
@@ -67,7 +83,7 @@ it.effect(
 
             for (const page of manifest.pages) {
               const html = yield* fs.readFileString(
-                `${directory}/assets/${manifest.generation}${page.html}`
+                `${directory}/documents/${manifest.generation}${page.document}`
               );
 
               const expected = yield* fs.readFileString(
@@ -215,10 +231,13 @@ it.effect(
       expect(
         yield* fs.exists(`${directory}/assets/${previous.generation}/old.md`)
       ).toBe(false);
+      expect(
+        yield* fs.exists(`${directory}/documents/${previous.generation}`)
+      ).toBe(false);
       expect(current).toEqual({
         generation: current.generation,
         images: [],
-        pages: [{ html: "/new.html", markdown: "/new.md", route: "/new" }],
+        pages: [{ document: "/new.html", markdown: "/new.md", route: "/new" }],
       });
     }).pipe(Effect.scoped, Effect.provide(NodeServices.layer))
 );
