@@ -3,15 +3,16 @@ import { Effect, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { DomUtils, parseDocument } from "htmlparser2";
 import type { Nodes, Table, TableCell } from "mdast";
-import { compile } from "mdsvex";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 
 import {
+  buildError,
   debtLedgerMarkdown,
   deriveHtmlMarkdown,
 } from "../scripts/content-lib.ts";
+import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
 
 const proseWithTags = [
   "a",
@@ -99,10 +100,6 @@ const visibleText = (node: Nodes): string => {
 
 const collapsed = (value: string) => value.replaceAll(/\s+/gu, " ").trim();
 
-const decodeCompiled = Schema.decodeUnknownSync(
-  Schema.Struct({ code: Schema.String })
-);
-
 it.prop(
   "no debt directive or reason reaches agent Markdown as raw HTML",
   {
@@ -146,17 +143,17 @@ it.effect.prop(
     Effect.gen(function* rendersCells() {
       const markdown = ledgerFor(directive, reason);
 
-      const compiled = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-        () =>
-          compile(deriveHtmlMarkdown(markdown), { extensions: [".md"] }).then(
-            decodeCompiled
-          )
-      );
+      const html = yield* Effect.try({
+        catch: (cause) => buildError("debt ledger html", "debt.md", cause),
+        try: () =>
+          renderMarkdownHtml(deriveHtmlMarkdown(markdown), {
+            sourcePath: "debt.md",
+          }),
+      });
 
       const rows = DomUtils.getElementsByTagName(
         "tr",
-        parseDocument(compiled.code).children
+        parseDocument(html).children
       );
 
       const cells = DomUtils.getElementsByTagName("td", rows.at(-1) ?? []);

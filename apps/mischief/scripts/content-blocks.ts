@@ -3,10 +3,10 @@ import { createHash } from "node:crypto";
 
 import { Effect } from "effect";
 import type { Nodes } from "mdast";
-import { compile } from "mdsvex";
 import type { Plugin } from "unified";
 
 import { buildError } from "./content-lib.ts";
+import { markdownHast } from "./markdown-html.ts";
 import {
   htmlPlainText,
   parseContentMarkdown,
@@ -265,13 +265,12 @@ export const buildBlockIndex = (pages: readonly BlockPage[]) =>
   Effect.forEach((page: BlockPage) => {
     const blocks: ContentBlock[] = [];
 
-    return Effect.tryPromise({
+    return Effect.try({
       catch: (cause) => buildError("block index", page.routePath, cause),
-      // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this build-time Promise parser.
-      try: async () =>
-        await compile(page.rawText, {
-          highlight: false,
+      try: () =>
+        markdownHast(page.rawText, {
           rehypePlugins: [paragraphAnchors(page.rawText, blocks)],
+          sourcePath: page.routePath,
         }),
     }).pipe(
       Effect.map(

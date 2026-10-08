@@ -32,7 +32,7 @@ The authority is Mischief's route code plus the generated content manifest, not 
 
 At the inspected PR checkout, `apps/mischief/dist/content/manifest.json` contains 124 page entries. This is a branch inventory, not a fresh production count. Regenerate and compare it with current main before implementation. Special request-time routes sit outside that manifest.
 
-Every normal HTML page uses `apps/mischief/src/document.svelte`. It supplies the head, primary navigation, breadcrumb, agent pointer, workshop placement, main, and footer. `generate-content.ts` compiles Markdown bodies and renders the Svelte shell at build time. Runtime serves those generated assets.
+At plan time, every normal HTML page used `apps/mischief/src/document.svelte` for the head, primary navigation, breadcrumb, agent pointer, workshop placement, main, and footer. Svelte and mdsvex are now gone. `generate-content.ts` renders Markdown bodies with `scripts/markdown-html.ts` and the shell with `scripts/document-html.ts` at build time. Foldkit, the error fallback, and the interest and unsubscribe pages read those generated documents.
 
 | Reader route | Current body and renderer | Foldkit delivery |
 | --- | --- | --- |

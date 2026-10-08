@@ -3,8 +3,6 @@ import { expect, it } from "@effect/vitest";
 import { parseCodeRequest, sourceLines } from "@rat-stack/code-snippets";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
-import { compile as compileMdsvex } from "mdsvex";
-import { compile as compileSvelte } from "svelte/compiler";
 
 import { collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
@@ -18,7 +16,6 @@ import {
   deriveAgentMarkdown,
   deriveHtmlMarkdown,
   encodeIco,
-  escapeSvelteBraces,
   internalRouteForLink,
   isDebtSourcePath,
   linkLoreTerms,
@@ -1005,23 +1002,3 @@ it.layer(NodeServices.layer)("generated content", (test) => {
     })
   );
 });
-
-const decodeCompiledMarkdown = Schema.decodeUnknownSync(
-  Schema.Struct({ code: Schema.String })
-);
-
-it.effect("compiles braces in headings and prose for Svelte", () =>
-  Effect.gen(function* compilesBraces() {
-    const { code } = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-      () =>
-        compileMdsvex(
-          "## Advertise properties: {} again\n\nProse with {braces}.\n",
-          { extensions: [".md"], rehypePlugins: [escapeSvelteBraces] }
-        ).then(decodeCompiledMarkdown)
-    );
-
-    expect(() => compileSvelte(code, { generate: "server" })).not.toThrow();
-    expect(code).toContain("properties: &#123;&#125; again");
-  })
-);

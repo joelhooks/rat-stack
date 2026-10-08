@@ -1,6 +1,5 @@
 import { expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { compile } from "mdsvex";
 
 import {
   createComponentRegistry,
@@ -15,6 +14,7 @@ import {
   createRefComponent,
   extractBlockReferences,
 } from "../scripts/content-references.ts";
+import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
 import { parseContentMarkdown } from "../scripts/svx-ast.ts";
 
 const source =
@@ -29,11 +29,13 @@ const fixture = Effect.fn("fixture")(function* fixture() {
 });
 
 const compilePage = (markdown: string) =>
-  Effect.tryPromise({
+  Effect.try({
     catch: (cause) => buildError("test compile", "fixture.svx", cause),
-    // @effect-diagnostics-next-line asyncFunction:off -- mdsvex owns this rendering-test Promise boundary.
-    try: async () =>
-      await compile(markdown, { rehypePlugins: [paragraphAnchors(markdown)] }),
+    try: () =>
+      renderMarkdownHtml(markdown, {
+        rehypePlugins: [paragraphAnchors(markdown)],
+        sourcePath: "fixture.svx",
+      }),
   });
 
 it.effect(
@@ -81,10 +83,10 @@ it.effect(
         { rawText: source, routePath: "/lore/source", title: "Source page" },
       ]);
 
-      expect(embedded?.code).toContain('href="/lore/source#claim"');
-      expect(sourceHtml?.code).toContain('id="claim"');
-      expect(embedded?.code).toContain("from Source page");
-      expect(embedded?.code).toContain("Verbatim <strong>claim</strong>.");
+      expect(embedded).toContain('href="/lore/source#claim"');
+      expect(sourceHtml).toContain('id="claim"');
+      expect(embedded).toContain("from Source page");
+      expect(embedded).toContain("Verbatim <strong>claim</strong>.");
       expect(
         index.get("/lore/source")?.blocks.some((block) => block.id === "claim")
       ).toBe(true);

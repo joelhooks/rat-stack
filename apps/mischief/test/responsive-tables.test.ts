@@ -1,11 +1,14 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Schema } from "effect";
-import { compile } from "mdsvex";
-import remarkGfm from "remark-gfm";
-import type { Plugin } from "unified";
+import { Effect } from "effect";
+import type { PluggableList } from "unified";
 
-import { linkLoreTerms, responsiveTables } from "../scripts/content-lib.ts";
+import {
+  buildError,
+  linkLoreTerms,
+  responsiveTables,
+} from "../scripts/content-lib.ts";
 import { linkStackEntities } from "../scripts/content-links.ts";
+import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
 import {
   homeDocumentHtml,
   lawSources,
@@ -92,35 +95,34 @@ it.effect(
     })
 );
 
-const decodeCompiledTable = Schema.decodeUnknownSync(
-  Schema.Struct({ code: Schema.String })
-);
+const compileTable = (source: string, rehypePlugins: PluggableList) =>
+  Effect.try({
+    catch: (cause) => buildError("table fixture", "fixture.md", cause),
+    try: () => ({
+      code: renderMarkdownHtml(source, {
+        rehypePlugins,
+        sourcePath: "fixture.md",
+      }),
+    }),
+  });
 
 it.effect(
   "links library names but not headers or the ordinary word effect",
   () =>
     Effect.gen(function* compilesTermLinks() {
-      const result = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-        () =>
-          compile(
-            "| Effect | Alchemy | cartridge |\n| --- | --- | --- |\n| effect | Effect on requests | Effect follows a stop. Effect changes nothing. |\n\nAn ordinary effect.\n\nWe use Effect Schema and a cartridge.\n",
-            {
-              rehypePlugins: [
-                linkStackEntities,
-                linkLoreTerms(
-                  [
-                    { routePath: "/lore/effect", term: "Effect" },
-                    { routePath: "/lore/cartridges", term: "cartridge" },
-                  ],
-                  "/fixture",
-                  new Set<string>()
-                ),
-              ],
-              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
-              remarkPlugins: [remarkGfm as Plugin],
-            }
-          ).then(decodeCompiledTable)
+      const result = yield* compileTable(
+        "| Effect | Alchemy | cartridge |\n| --- | --- | --- |\n| effect | Effect on requests | Effect follows a stop. Effect changes nothing. |\n\nAn ordinary effect.\n\nWe use Effect Schema and a cartridge.\n",
+        [
+          linkStackEntities,
+          linkLoreTerms(
+            [
+              { routePath: "/lore/effect", term: "Effect" },
+              { routePath: "/lore/cartridges", term: "cartridge" },
+            ],
+            "/fixture",
+            new Set<string>()
+          ),
+        ]
       );
 
       expect(result.code).toContain("<th>Effect</th>");
@@ -142,17 +144,9 @@ it.effect(
   "derives card labels from formatted GFM headers without dropping empty cells",
   () =>
     Effect.gen(function* compilesResponsiveTable() {
-      const result = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-        () =>
-          compile(
-            "## Packages\n\n| **Package** | `Path` | Role |\n| --- | --- | --- |\n| `@rat-stack/capability` | packages/capability | |\n",
-            {
-              rehypePlugins: [responsiveTables],
-              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
-              remarkPlugins: [remarkGfm as Plugin],
-            }
-          ).then(decodeCompiledTable)
+      const result = yield* compileTable(
+        "## Packages\n\n| **Package** | `Path` | Role |\n| --- | --- | --- |\n| `@rat-stack/capability` | packages/capability | |\n",
+        [responsiveTables]
       );
 
       expect(result?.code).toContain('aria-label="Packages table"');
@@ -172,17 +166,9 @@ it.effect(
   "marks only single-letter cells under a Tier header with their tier",
   () =>
     Effect.gen(function* compilesTierTable() {
-      const result = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-        () =>
-          compile(
-            "| Tier | Repo | Effect | Alchemy | Checked | First seen |\n| --- | --- | --- | --- | --- | --- |\n| S | upstream | 4.0.0-rc.118 ≠¹ | 2.0.0-beta.79 | 2026-10-01 | 2026-09-23 |\n| C | screened | — | — | — | — |\n| SS | not a tier | — | — | — | — |\n\n| Grade | Repo |\n| --- | --- |\n| A | other table |\n",
-            {
-              rehypePlugins: [responsiveTables],
-              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
-              remarkPlugins: [remarkGfm as Plugin],
-            }
-          ).then(decodeCompiledTable)
+      const result = yield* compileTable(
+        "| Tier | Repo | Effect | Alchemy | Checked | First seen |\n| --- | --- | --- | --- | --- | --- |\n| S | upstream | 4.0.0-rc.118 ≠¹ | 2.0.0-beta.79 | 2026-10-01 | 2026-09-23 |\n| C | screened | — | — | — | — |\n| SS | not a tier | — | — | — | — |\n\n| Grade | Repo |\n| --- | --- |\n| A | other table |\n",
+        [responsiveTables]
       );
 
       expect(result.code).toContain('class="table-wrapper table-wide"');
@@ -203,17 +189,9 @@ it.effect(
   "stacks paired facts without losing dates, drift marks or footnotes",
   () =>
     Effect.gen(function* compilesPairedTable() {
-      const result = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- mdsvex owns this Promise boundary.
-        () =>
-          compile(
-            "| XState · bridge | Seen / checked | Studied | Repo |\n| --- | --- | --- | --- |\n| 6.0.0-alpha.59 =¹ · 0.1.0-alpha.2 = | 2026-09-23 · 2026-10-01 | [same-version-repos](/study) | [oscarmarina/blockquote-web-components](https://github.com/oscarmarina/blockquote-web-components) |\n",
-            {
-              rehypePlugins: [responsiveTables],
-              // SAFETY: remark-gfm implements the unified remark plugin interface used by mdsvex.
-              remarkPlugins: [remarkGfm as Plugin],
-            }
-          ).then(decodeCompiledTable)
+      const result = yield* compileTable(
+        "| XState · bridge | Seen / checked | Studied | Repo |\n| --- | --- | --- | --- |\n| 6.0.0-alpha.59 =¹ · 0.1.0-alpha.2 = | 2026-09-23 · 2026-10-01 | [same-version-repos](/study) | [oscarmarina/blockquote-web-components](https://github.com/oscarmarina/blockquote-web-components) |\n",
+        [responsiveTables]
       );
 
       expect(result.code).toContain(
