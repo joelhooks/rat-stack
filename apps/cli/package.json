@@ -9,7 +9,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && vite build -c ratstack.config.ts",
     "cli": "pnpm run --silent build && node dist/cli.js",
     "check": "pnpm run typecheck",
     "pretest": "pnpm run --silent build",
@@ -27,6 +27,7 @@
     "@effect/vitest": "4.0.0",
     "@types/node": "24.13.6",
     "typescript": "7.0.2",
+    "vite": "8.0.7",
     "vitest": "5.0.1"
   }
 }
