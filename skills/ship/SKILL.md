@@ -66,6 +66,8 @@ Use only deployment features marked on. When automation is off, the authorized o
 
 Prepare and verify releases concurrently. Changes to the same deployment stage must run one at a time. WAIT[stage-queue]: stop until the authorized release has its turn for that stage. The latest eligible candidate replaces older queued candidates; record that outcome.
 
+Name the exact commit you ship, and respect the stage's quiet windows. Put these guards in the deploy driver, never in a shell wrapper around it.
+
 No release queue or scheduler is implemented here. The authorized owner must enforce the sequence through the project's manual procedure.
 
 Check each release's exact version. Do not wait for another release's post-deploy check. Require an observed plan and read the deployed version back from the provider. Stored data must remain readable by both the candidate and the version that may be restored.
