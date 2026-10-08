@@ -5,10 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import { HttpRouter } from "effect/http";
 
 import { mischiefRoutes } from "../src/app.js";
-import {
-  staticAssetGeneration,
-  tokenmaxxCopyScriptHash,
-} from "../src/bundled-content.generated.js";
+import { staticAssetGeneration } from "../src/bundled-content.generated.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { StaticAssets } from "../src/static-assets.js";
 import { fixtureBytes } from "./generated-content.js";
@@ -23,12 +20,8 @@ const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
     return Promise.resolve(new Response(new Uint8Array(fixtureBytes(path))));
   }
 
-  const body = path.endsWith(".html")
-    ? "ASSET HTML __RATSTACK_ORIGIN__"
-    : "ASSET MARKDOWN";
-
   return Promise.resolve(
-    new Response(body, {
+    new Response("ASSET MARKDOWN __RATSTACK_ORIGIN__", {
       headers: {
         "cache-control": "private",
         "set-cookie": "should-not-leak=yes",
@@ -134,76 +127,67 @@ const withAssetHandler = <A, E, R>(
     );
   });
 
-it.effect("negotiates asset views without leaking native asset headers", () =>
-  withAssetHandler((handler, calls) =>
-    Effect.gen(function* negotiatedAssets() {
-      for (const accept of [
-        "",
-        "*/*",
-        "application/json",
-        "text/markdown",
-        "text/html;q=0",
-        "TEXT/HTML",
-      ]) {
-        const response = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request("https://ratstack.sh/", { headers: { accept } })
-          )
-        );
+it.effect(
+  "serves page assets as Markdown for every client and never reads page HTML or leaks native asset headers",
+  () =>
+    withAssetHandler((handler, calls) =>
+      Effect.gen(function* markdownAssets() {
+        for (const [accept, userAgent] of [
+          ["", ""],
+          ["*/*", ""],
+          ["application/json", ""],
+          ["text/markdown", ""],
+          ["text/html;q=0", ""],
+          ["TEXT/HTML", ""],
+          ["*/*", "Twitterbot/1.0"],
+          ["*/*", "Mozilla/5.0"],
+        ]) {
+          const response = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request("https://ratstack.sh/", {
+                headers: { accept, "user-agent": userAgent },
+              })
+            )
+          );
 
-        const isHtml = accept === "TEXT/HTML";
-        expect(yield* Effect.promise(response.text.bind(response))).toBe(
-          isHtml ? "ASSET HTML https://ratstack.sh" : "ASSET MARKDOWN"
-        );
-        expect(response.headers.get("vary")).toBe("Accept");
-        expect(response.headers.get("link")).toBe(linkHeaderForPage("/"));
-        expect(response.headers.get("set-cookie")).toBeNull();
-        expect(response.headers.get("x-fence")).toBe("electrified");
-        expect(calls.at(-1)).toBe(isHtml ? "/index.html" : "/index.md");
+          expect(yield* Effect.promise(response.text.bind(response))).toBe(
+            "ASSET MARKDOWN https://ratstack.sh"
+          );
+          expect(response.headers.get("content-type")).toContain(
+            "text/markdown"
+          );
+          expect(response.headers.get("vary")).toBe("Accept");
+          expect(response.headers.get("link")).toBe(linkHeaderForPage("/"));
+          expect(response.headers.get("set-cookie")).toBeNull();
+          expect(response.headers.get("x-fence")).toBe("electrified");
+          expect(calls.at(-1)).toBe("/index.md");
+        }
 
-        if (isHtml) {
-          expect(response.headers.get("cache-control")).toBe("no-cache");
-          expect(response.headers.get("content-security-policy")).toContain(
-            tokenmaxxCopyScriptHash
+        for (const [path, expected, canonical] of [
+          ["/index.md", "/index.md", "/"],
+          ["/lore/cartridges.md", "/lore/cartridges.md", "/lore/cartridges"],
+          ["/AGENTS.md", "/AGENTS.md.md", "/AGENTS.md"],
+        ]) {
+          const response = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request(`https://ratstack.sh${path}`, {
+                headers: { accept: "text/html" },
+              })
+            )
+          );
+
+          expect(response.status).toBe(200);
+          expect(calls.at(-1)).toBe(expected);
+          expect(response.headers.get("link")).toBe(
+            linkHeaderForPage(canonical ?? "/")
           );
         }
-      }
 
-      for (const [path, expected, canonical] of [
-        ["/index.md", "/index.md", "/"],
-        ["/lore/cartridges.md", "/lore/cartridges.md", "/lore/cartridges"],
-        ["/AGENTS.md", "/AGENTS.md.html", "/AGENTS.md"],
-      ]) {
-        const response = yield* Effect.promise(
-          handler.bind(
-            undefined,
-            new Request(`https://ratstack.sh${path}`, {
-              headers: { accept: "text/html" },
-            })
-          )
-        );
-
-        expect(response.status).toBe(200);
-        expect(calls.at(-1)).toBe(expected);
-        expect(response.headers.get("link")).toBe(
-          linkHeaderForPage(canonical ?? "/")
-        );
-      }
-
-      const crawler = yield* Effect.promise(
-        handler.bind(
-          undefined,
-          new Request("https://ratstack.sh/", {
-            headers: { "user-agent": "Twitterbot/1.0" },
-          })
-        )
-      );
-
-      expect(crawler.headers.get("content-type")).toContain("text/html");
-      expect(calls.at(-1)).toBe("/index.html");
-    })
-  )
+        expect(calls.filter((path) => path.endsWith(".html"))).toEqual([]);
+      })
+    )
 );
 
 it.effect(
@@ -228,7 +212,7 @@ it.effect(
             "public, max-age=86400",
           ],
           ["/favicon.ico", "image/x-icon", standard],
-          ["/", "text/html", "no-cache"],
+          ["/", "text/markdown", standard],
         ]) {
           const get = yield* Effect.promise(
             handler.bind(
@@ -285,7 +269,7 @@ it.effect(
           handler.bind(
             undefined,
             new Request("https://ratstack.sh/", {
-              headers: { accept: "text/html" },
+              headers: { accept: "text/markdown" },
             })
           )
         );
@@ -297,7 +281,7 @@ it.effect(
             undefined,
             new Request("https://ratstack.sh/", {
               headers: {
-                accept: "text/html",
+                accept: "text/markdown",
                 "if-none-match": first.headers.get("etag") ?? "",
               },
             })
@@ -305,7 +289,9 @@ it.effect(
         );
 
         expect(conditional.status).toBe(304);
-        expect(conditional.headers.get("cache-control")).toBe("no-cache");
+        expect(conditional.headers.get("cache-control")).toBe(
+          "public, max-age=14400, s-maxage=31536000, stale-while-revalidate=86400"
+        );
         expect(yield* Effect.promise(conditional.text.bind(conditional))).toBe(
           ""
         );
@@ -314,7 +300,7 @@ it.effect(
           handler.bind(
             undefined,
             new Request("https://ratstack.sh/", {
-              headers: { accept: "text/html" },
+              headers: { accept: "text/markdown" },
               method: "HEAD",
             })
           )
@@ -390,7 +376,7 @@ it.effect("fails visibly without caching when the asset binding misses", () =>
           expect(response.headers.get("vary")).toBe("Accept");
           expect(response.headers.get("cache-control")).toBe("no-store");
           expect(body).toContain("Static content is unavailable");
-          expect(body).not.toContain("ASSET HTML");
+          expect(body).not.toContain("ASSET MARKDOWN");
 
           if (path.endsWith(".md")) {
             expect(response.headers.get("content-type")).toContain(

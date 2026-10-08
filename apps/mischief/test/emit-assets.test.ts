@@ -29,7 +29,7 @@ const manifestAt = (directory: string) =>
   });
 
 it.effect(
-  "emits every static representation and image with the served bytes",
+  "emits every page and image and serves the Markdown and image bytes unchanged",
   () =>
     Effect.gen(function* emittedContentParity() {
       const fs = yield* FileSystem.FileSystem;
@@ -63,39 +63,35 @@ it.effect(
         ),
         ({ handler }) =>
           Effect.gen(function* compareServedAssets() {
+            const svxLink = /(?:href="|\]\()\/[^"\s)]*\.svx(?:[?#"\s)]|$)/u;
+
             for (const page of manifest.pages) {
-              for (const representation of ["html", "markdown"] as const) {
-                const expected = yield* fs.readFileString(
-                  `${directory}/assets/${manifest.generation}${page[representation]}`
-                );
+              const html = yield* fs.readFileString(
+                `${directory}/assets/${manifest.generation}${page.html}`
+              );
 
-                const response = yield* Effect.promise(
-                  handler.bind(
-                    undefined,
-                    new Request(`https://ratstack.sh${page.route}`, {
-                      headers: {
-                        accept:
-                          representation === "html"
-                            ? "text/html"
-                            : "text/markdown",
-                      },
-                    }),
-                    undefined
-                  )
-                );
+              const expected = yield* fs.readFileString(
+                `${directory}/assets/${manifest.generation}${page.markdown}`
+              );
 
-                const body = yield* Effect.promise(
-                  response.text.bind(response)
-                );
+              const response = yield* Effect.promise(
+                handler.bind(
+                  undefined,
+                  new Request(`https://ratstack.sh${page.route}`, {
+                    headers: { accept: "text/markdown" },
+                  }),
+                  undefined
+                )
+              );
 
-                expect(body).not.toMatch(
-                  /(?:href="|\]\()\/[^"\s)]*\.svx(?:[?#"\s)]|$)/u
-                );
-                expect(response.status).toBe(200);
-                expect(body).toBe(
-                  expected.replaceAll(originToken, "https://ratstack.sh")
-                );
-              }
+              const body = yield* Effect.promise(response.text.bind(response));
+
+              expect(html).not.toMatch(svxLink);
+              expect(body).not.toMatch(svxLink);
+              expect(response.status).toBe(200);
+              expect(body).toBe(
+                expected.replaceAll(originToken, "https://ratstack.sh")
+              );
             }
 
             for (const page of manifest.pages.filter((entry) =>

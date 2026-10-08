@@ -9,10 +9,11 @@ import {
   SIGNUP_UNAVAILABLE,
   withAvailablePageTicket,
 } from "../src/interest/page-ticket.js";
+import { generatedTokenmaxxPage } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 it.effect(
-  "HTML and markdown replace every page-ticket placeholder with a fresh page ticket",
+  "tokenmaxx Markdown replaces every page-ticket placeholder with a fresh page ticket",
   () =>
     Effect.gen(function* freshTickets() {
       const tickets = yield* IntakeTicket;
@@ -28,33 +29,23 @@ it.effect(
         PAGE_TICKET_SOURCE
       );
 
-      for (const accept of ["text/html", "text/markdown"]) {
-        const response = yield* tokenmaxxResponse(
-          HttpServerRequest.fromWeb(
-            new Request("https://ratstack.sh/tokenmaxx", {
-              headers: { accept },
-            })
-          )
-        );
+      const response = yield* tokenmaxxResponse;
 
-        expect(response.headers["cache-control"]).toBe("no-store");
+      expect(response.headers["cache-control"]).toBe("no-store");
 
-        const webResponse = HttpServerResponse.toWeb(response);
-        const body = yield* Effect.promise(webResponse.text.bind(webResponse));
-        expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
+      const webResponse = HttpServerResponse.toWeb(response);
+      const body = yield* Effect.promise(webResponse.text.bind(webResponse));
+      expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
 
-        if (accept === "text/markdown") {
-          const pageTicket =
-            /```text\n(?<ticket>\S+)\n```/u.exec(body)?.groups?.ticket ?? "";
+      const pageTicket =
+        /```text\n(?<ticket>\S+)\n```/u.exec(body)?.groups?.ticket ?? "";
 
-          expect(pageTicket.length).toBeGreaterThan(0);
-          expect(body).toContain(`"ticket": "${pageTicket}"`);
-          expect(body).toContain(`--ticket '${pageTicket}'`);
-          expect(
-            (yield* tickets.verify(pageTicket, "served-page")).source
-          ).toBe(PAGE_TICKET_SOURCE);
-        }
-      }
+      expect(pageTicket.length).toBeGreaterThan(0);
+      expect(body).toContain(`"ticket": "${pageTicket}"`);
+      expect(body).toContain(`--ticket '${pageTicket}'`);
+      expect((yield* tickets.verify(pageTicket, "served-page")).source).toBe(
+        PAGE_TICKET_SOURCE
+      );
     }).pipe(Effect.provide(IntakeTicket.testLayer))
 );
 
@@ -110,38 +101,47 @@ it.effect(
     })
 );
 
-it.effect("HTML mints no ticket and agent Markdown mints exactly one", () =>
-  Effect.gen(function* countViewTickets() {
-    const tickets = yield* IntakeTicket;
-    const mints = yield* Ref.make(0);
+it.effect(
+  "agent Markdown mints exactly one ticket per request and the reader page carries none",
+  () =>
+    Effect.gen(function* countViewTickets() {
+      const tickets = yield* IntakeTicket;
+      const mints = yield* Ref.make(0);
 
-    const counted = Layer.succeed(IntakeTicket, {
-      mint: (source) =>
-        tickets
-          .mint(source)
-          .pipe(Effect.tap(() => Ref.update(mints, (count) => count + 1))),
-      verify: tickets.verify,
-    });
+      const counted = Layer.succeed(IntakeTicket, {
+        mint: (source) =>
+          tickets
+            .mint(source)
+            .pipe(Effect.tap(() => Ref.update(mints, (count) => count + 1))),
+        verify: tickets.verify,
+      });
 
-    const { handler, dispose } = HttpRouter.toWebHandler(
-      mischiefRoutes().pipe(Layer.provide(TestSandbox), Layer.provide(counted))
-    );
-
-    yield* Effect.addFinalizer(() => Effect.promise(dispose));
-
-    for (const accept of ["text/html", "text/markdown"]) {
-      const response = yield* Effect.promise(
-        handler.bind(
-          undefined,
-          new Request("https://ratstack.sh/tokenmaxx", { headers: { accept } }),
-          Context.empty()
+      const { handler, dispose } = HttpRouter.toWebHandler(
+        mischiefRoutes().pipe(
+          Layer.provide(TestSandbox),
+          Layer.provide(counted)
         )
       );
 
-      expect(response.status).toBe(200);
-      expect(yield* Ref.get(mints)).toBe(accept === "text/html" ? 0 : 1);
-    }
-  }).pipe(Effect.scoped, Effect.provide(IntakeTicket.testLayer))
+      yield* Effect.addFinalizer(() => Effect.promise(dispose));
+
+      for (const expected of [1, 2]) {
+        const response = yield* Effect.promise(
+          handler.bind(
+            undefined,
+            new Request("https://ratstack.sh/tokenmaxx", {
+              headers: { accept: "text/markdown" },
+            }),
+            Context.empty()
+          )
+        );
+
+        expect(response.status).toBe(200);
+        expect(yield* Ref.get(mints)).toBe(expected);
+      }
+
+      expect(generatedTokenmaxxPage).not.toContain(PAGE_TICKET_PLACEHOLDER);
+    }).pipe(Effect.scoped, Effect.provide(IntakeTicket.testLayer))
 );
 
 it.effect("worker-built routes retain the ticket service for requests", () =>
@@ -183,17 +183,7 @@ it.effect("worker-built routes retain the ticket service for requests", () =>
       PAGE_TICKET_SOURCE
     );
 
-    const htmlResponse = yield* Effect.promise(
-      handler.bind(
-        undefined,
-        new Request("https://ratstack.sh/tokenmaxx", {
-          headers: { accept: "text/html" },
-        }),
-        Context.empty()
-      )
-    );
-
-    const html = yield* Effect.promise(htmlResponse.text.bind(htmlResponse));
+    const html = generatedTokenmaxxPage;
     expect(html).not.toContain(ticket);
     expect(html).not.toContain(PAGE_TICKET_PLACEHOLDER);
     expect(html).not.toContain("The page ticket is:");
@@ -202,7 +192,7 @@ it.effect("worker-built routes retain the ticket service for requests", () =>
 );
 
 it.effect(
-  "unavailable minting removes the submit section without affecting HTML",
+  "unavailable minting removes the submit section from agent Markdown only",
   () =>
     Effect.gen(function* unavailableTickets() {
       const tickets = yield* IntakeTicket;
@@ -228,32 +218,30 @@ it.effect(
         const { handler, dispose } = HttpRouter.toWebHandler(routes);
         yield* Effect.addFinalizer(() => Effect.promise(dispose));
 
-        for (const accept of ["text/markdown", "text/html"]) {
-          const response = yield* Effect.promise(
-            handler.bind(
-              undefined,
-              new Request("https://ratstack.sh/tokenmaxx", {
-                headers: { accept },
-              }),
-              Context.empty()
-            )
-          );
+        const response = yield* Effect.promise(
+          handler.bind(
+            undefined,
+            new Request("https://ratstack.sh/tokenmaxx", {
+              headers: { accept: "text/markdown" },
+            }),
+            Context.empty()
+          )
+        );
 
-          const body = yield* Effect.promise(response.text.bind(response));
-          expect(response.status).toBe(200);
-          expect(body).not.toContain(PAGE_TICKET_PLACEHOLDER);
-          expect(body).not.toContain('"ticket":');
-          expect(body).not.toContain("--ticket");
-          expect(body).not.toContain("The page ticket is:");
+        const body = yield* Effect.promise(response.text.bind(response));
+        expect(response.status).toBe(200);
 
-          if (accept === "text/markdown") {
-            expect(body).toContain(SIGNUP_UNAVAILABLE);
-            expect(body).toContain("What are you building?");
-          } else {
-            expect(body).not.toContain(SIGNUP_UNAVAILABLE);
-            expect(body).not.toContain("What are you building?");
-          }
+        for (const view of [body, generatedTokenmaxxPage]) {
+          expect(view).not.toContain(PAGE_TICKET_PLACEHOLDER);
+          expect(view).not.toContain('"ticket":');
+          expect(view).not.toContain("--ticket");
+          expect(view).not.toContain("The page ticket is:");
         }
+
+        expect(body).toContain(SIGNUP_UNAVAILABLE);
+        expect(body).toContain("What are you building?");
+        expect(generatedTokenmaxxPage).not.toContain(SIGNUP_UNAVAILABLE);
+        expect(generatedTokenmaxxPage).not.toContain("What are you building?");
       }
     }).pipe(Effect.scoped, Effect.provide(IntakeTicket.testLayer))
 );
