@@ -20,6 +20,8 @@ sources:
 
 # The plan model
 
+A plan model describes infrastructure changes before they are applied.
+
 Sam contrasts Alchemy's earlier await-based model with a plan model. He says Alchemy v2 adopted output values that can connect to other resources before deployment. The engine can show the plan before those values become readable at deployment. [Sam Goodwin on Alchemy, 26:00](https://youtu.be/MtKHzAH6uXM?t=1560).
 
 He also connects Effect purity with a reviewable plan and a concrete deployment result. [Happy Path 116, 12:22](https://youtu.be/YEn4A7XxgF4?t=742).

@@ -30,7 +30,7 @@ Effect 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%4
 It returns all failures as a non-empty array when any element fails.
 Successful values are discarded in that case.
 
-The [code-snippets design brief](/lore/code-snippets) uses this operation for preflight.
+The [code-snippets design brief](/lore/code-snippets) uses this operation for checks before writing assets.
 Each snippet is an independent job.
 A job stops when a dependent stage fails.
 Other jobs still run.
@@ -39,7 +39,7 @@ The proposed order is:
 1. Collect snippet jobs.
 2. Check every job.
 3. Report each failure with [diagnostic context](/lore/errors-are-part-of-the-interface).
-4. Write assets only when preflight succeeds.
+4. Write assets only when all checks succeed.
 
 Error accumulation runs across jobs. Each job must pass validation before highlighting.
 

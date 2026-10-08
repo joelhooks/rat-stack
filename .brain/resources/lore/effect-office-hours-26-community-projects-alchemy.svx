@@ -16,6 +16,6 @@ sources:
 
 # Effect Office Hours 26: Community projects and Alchemy
 
-The Alchemy segment is a short inspection of work in progress. The hosts describe an Effect-native infrastructure tool whose type requirements expose resource and policy dependencies. [81:52](https://youtu.be/X4BLYNVzjDA?t=4912) [83:05](https://youtu.be/X4BLYNVzjDA?t=4985)
+The Alchemy segment is a short inspection of work in progress. The hosts describe an infrastructure tool built with Effect whose type requirements expose resource and policy dependencies. [81:52](https://youtu.be/X4BLYNVzjDA?t=4912) [83:05](https://youtu.be/X4BLYNVzjDA?t=4985)
 
 They connect those requirements to planning, deployment stages, HTTP APIs, and a typed CLI preview. [84:10](https://youtu.be/X4BLYNVzjDA?t=5050) [86:21](https://youtu.be/X4BLYNVzjDA?t=5181)

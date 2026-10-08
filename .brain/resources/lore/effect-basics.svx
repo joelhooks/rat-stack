@@ -49,6 +49,8 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A service is a named interface for work. A context holds supplied service implementations.
+
 An Effect describes work. Build the description, compose it with other Effects, supply its services, then let a runtime execute it.
 
 ## Read the three type parameters
@@ -92,7 +94,9 @@ The generator describes work for the Effect runtime.
 Use `pipe` for short transforms, such as mapping a value, translating a failure, or providing a service.
 Use a generator when the next step needs values from earlier steps.
 
-- Generators and combinators both compose descriptions without running a nested runtime.
+- Combinators are functions that combine or transform Effects.
+
+Generators and combinators both compose descriptions without running a nested runtime.
 - In rat-stack, prefer `Effect.gen` for inline sequences. Use `Effect.fn` for reusable functions with useful tracing names.
 - Do not write long combinator chains merely to avoid a clear generator.
 
@@ -106,13 +110,15 @@ Logging a failure does not make the operation successful.
 ## Requirements name services to supply
 
 A requirement is a service the computation needs.
+A Layer describes how to build a service and supply its dependencies.
+
 Layers build implementations and satisfy their construction dependencies.
 Getting `FileInspector` from context requires that service; calling its captured `inspect` method needs no extra service.
 Read [service construction](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [context and requirements](/lore/context-and-requirements).
 
 ## Run at the application boundary
 
-The CLI builds and transforms a program with `pipe`, then provides its service graph.
+The CLI builds and transforms a program with `pipe`, then provides its services and their dependencies.
 `NodeRuntime.runMain` executes the final Effect:
 
 ```ts repo=rat-stack path=apps/cli/src/cli.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=16-25
@@ -152,4 +158,4 @@ Wrapping an already-started Promise also loses control over when its work begins
 9. [Concurrency](/lore/concurrent-work-needs-an-owner): bound work and stop owned children.
 10. [HTTP responses](/lore/http-responses-need-validation): check status and decode accepted data.
 11. [Tracing](/lore/trace-meaningful-operations): name meaningful operations and inspect export evidence.
-12. [Runtime boundaries](/lore/run-effect-at-the-boundary): execute through the host's bridge and connect disposal.
+12. [Runtime boundaries](/lore/run-effect-at-the-boundary): execute through the framework's Effect integration and connect disposal.

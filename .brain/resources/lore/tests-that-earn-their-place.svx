@@ -54,22 +54,25 @@ sources:
     accessed: "2026-10-06"
 ---
 
+A service is a named interface. A Layer describes how to build a service and supply its dependencies.
+A Scope owns cleanup. A capability is a named action; a projection converts it into an interface.
+
 Name the behavior that lacks proof before adding a test.
 Supply test services through Layers, return an Effect, and let `@effect/vitest` own its execution.
 
-## Test the behavior, not the shape of the implementation
+## Test behavior independently of the implementation
 
 A test that repeats the implementation cannot detect the same mistake in both places.
 A snapshot that only records a changed file does not prove a domain rule.
 If the existing suite already covers the reported behavior, fix the cause without adding a duplicate test.
 
 Our projection tests execute the produced CLI command, HTTP route, MCP tool, RPC call, or sandbox call.
-They check results and declared failures, not only whether a projection returned an object.
+They check results and declared failures. Returning a projection object does not establish correct behavior.
 
 ## Run an Effect through supplied services
 
-`it.effect` runs the Effect returned by the test. `it.layer` supplies a service graph to a block of tests.
-The file-inspection seam test uses real platform services and a scoped temporary file:
+`it.effect` runs the Effect returned by the test. `it.layer` supplies services and their dependencies to a block of tests.
+The file-inspection integration test uses real platform services and a scoped temporary file:
 
 ```ts repo=rat-stack path=packages/core/test/file-inspector.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=5,24-34
 ```
@@ -79,13 +82,13 @@ Do not assume its mutable state resets between tests in the same block.
 Use fresh construction or explicit reset when the behavior needs isolation.
 
 `TestClock` controls Effect time for sleeps and retries. Use it instead of waiting for wall-clock delays in a behavior test.
-Use `it.live` for a seam that needs live runtime services.
+Use `it.live` for an integration test that needs live runtime services.
 
 ## Choose the smallest proof that fits the rule
 
 | Behavior | Test shape |
 | --- | --- |
-| One integration edge | A seam example with supplied services |
+| One interface between components | An integration example with supplied services |
 | A rule over many inputs | `it.prop` or `it.effect.prop` |
 | State that depends on earlier actions | A model checked after generated commands |
 
@@ -112,7 +115,7 @@ An independent sensitive-key property closed the gap.
 ## Generate histories when order matters
 
 Visitor identity depends on the device, retained cookie, and day boundary.
-The model generates action sequences rather than picking one happy path:
+The model generates action sequences rather than picking one successful sequence:
 
 ```ts repo=rat-stack path=packages/events/test/visitor.model.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-14,89-100
 ```

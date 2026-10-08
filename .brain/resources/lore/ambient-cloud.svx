@@ -15,6 +15,7 @@ sources:
 
 # Ambient cloud
 
-At 43:00 in his conversation about Alchemy, Sam describes an ambient cloud: accounts and credentials held behind one login and a cloud wallet. [Watch the moment](https://youtu.be/MtKHzAH6uXM?t=2580).
+At 43:00, Sam describes an ambient cloud: cloud accounts and credentials available through one Alchemy login.
+He proposes a cloud wallet that manages API keys and cloud access. [Watch the moment](https://youtu.be/MtKHzAH6uXM?t=2580).
 
 See [Sam Goodwin on Alchemy](/lore/devtools-fm-sam-goodwin-alchemy).

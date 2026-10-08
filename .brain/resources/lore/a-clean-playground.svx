@@ -1,9 +1,9 @@
 ---
 title: "A clean playground"
-description: "rat-stack is a place to do real work with pieces that stay easy to add and remove."
+description: "rat-stack does real work with packages that stay easy to add and remove."
 plain: "Everything here does real work, and you can add or remove any piece without breaking the rest."
 diagram: |-
-  remove one bin
+  remove one package
     │
     ▼
   other imports unchanged
@@ -26,18 +26,24 @@ sources:
     accessed: "2026-10-01"
 ---
 
-The house rule is a clean, organized playground for real work, at any project size. Anything useful can go in if it passes the cartridge test. Label it, push it in, pull it out, keep it self-contained, and make it easy to throw away.
+Every package must do useful work and stay easy to add and remove.
+This is the house rule behind the "clean playground" name.
+A cartridge is a package for one job, with the resources that job needs.
+It must stay self-contained and easy to delete.
 
 Everything built here must do real work. `VISION.md` rejects toy examples that exist only to demonstrate a pattern.
 
-rat-stack is a reference that other projects vendor like a library.
+rat-stack is a reference that other projects copy and maintain as source.
 
-Its example CLI inspects real files. Its [database cartridge](/systems/database) owns a `RunLog` service and two vendor Layers. The website's search and read [capabilities](/systems/capabilities) serve the public repo. Each piece does real work.
+Its example CLI inspects real files. Its [database cartridge](/systems/database) owns a `RunLog` service and Layers for two database implementations.
 
-The clean-playground test asks what remains when one bin is removed. Removal must leave other packages' import paths unchanged, keep bindings contained, and pass the full gate.
+A service is a named interface for a job. A Layer describes how to build services and supply their dependencies.
+The website's search and read [capabilities](/systems/capabilities), named actions with shared contracts and handlers, serve the public repo. Each piece does real work.
 
-`VISION.md` describes the cartridge test. `AGENTS.md` assigns each package one job and sets the gate.
+The clean-playground test asks what remains when one package is removed. Removal must leave other packages' import paths unchanged, keep resource connections contained, and pass all required checks, tests, and builds.
 
-[Analytics](/systems/analytics) supplies another working bin, with an explicit removal checklist. [Interest signup](/systems/interest) keeps delivery in an [adapter package](/lore/hexagonal-architecture) outside core. One-line infrastructure removal remains unproven for that adapter.
+`VISION.md` describes the cartridge test. `AGENTS.md` assigns each package one job and sets the required checks.
 
-See [cartridges](/lore/cartridges) for the infrastructure example and [the fence](/lore/the-fence) for the checks that make removal honest.
+[Analytics](/systems/analytics) supplies another working package, with an explicit removal checklist. [Interest signup](/systems/interest) keeps delivery in an [adapter package](/lore/hexagonal-architecture) outside core. One-line infrastructure removal remains unproven for that adapter.
+
+See [cartridges](/lore/cartridges) for the infrastructure example and [the fence](/lore/the-fence), the compiler checks, lint rules, tests, and hooks that enforce these rules.

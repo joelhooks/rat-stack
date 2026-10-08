@@ -28,7 +28,9 @@ sources:
 
 # Context and requirements
 
-Sam describes the requirements channel as a way to model an infrastructure permission as a static effect. He connects that idea to Alchemy inferring which IAM policy a program needs. [Happy Path 116, 11:54](https://youtu.be/YEn4A7XxgF4?t=714).
+The requirements part of an Effect type names the services that the work needs.
+Sam describes this requirements channel as a way to model permissions before execution, which he calls a static effect.
+He connects that idea to Alchemy inferring which identity and access management (IAM) policy a program needs. [Happy Path 116, 11:54](https://youtu.be/YEn4A7XxgF4?t=714).
 
 Michael describes an Effect by its output, predictable failures, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).
 

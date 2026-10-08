@@ -18,4 +18,7 @@ sources:
 
 Michael presents Effect as a missing standard library for TypeScript, bringing typed errors and requirements, structured concurrency, observability, resource safety, and composition into one runtime. [01:44](https://youtu.be/BqUnsDnMnMo?t=104) [02:31](https://youtu.be/BqUnsDnMnMo?t=151)
 
-A Remix demo contrasts manual telemetry and nested error handling with Effect context, Schema, spans, metrics, and retry policies. [22:37](https://youtu.be/BqUnsDnMnMo?t=1357) [30:34](https://youtu.be/BqUnsDnMnMo?t=1834)
+Structured concurrency gives child work an owner that controls when it stops.
+Observability uses logs, metrics, and traces to understand a running system.
+
+A Remix demo contrasts manually added logs, metrics, and traces and nested error handling with Effect context, Schema, spans, metrics, and retry policies. [22:37](https://youtu.be/BqUnsDnMnMo?t=1357) [30:34](https://youtu.be/BqUnsDnMnMo?t=1834)

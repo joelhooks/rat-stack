@@ -24,11 +24,22 @@ Replacements and deletions need owner sign-off, recorded separately from the all
 
 A refused plan stops before apply. The verdict's `resources` field names each resource that needs an allow entry or owner sign-off.
 
+## Output
+
+`deployPlan` and `deployProd` write the full verdict to `.rat/deploy/<profile>/verdict-<time>.json` and copy it to `last-verdict.json`. Stdout gets one JSON line with the outcome, step, reason, each check's counts and `verdictPath`. Read the file with `jq`.
+
+- The watch verdict keeps only rejected probes. Counts hold the totals.
+- Stored bodies escape control characters other than newline and tab as `\uXXXX` text.
+- A failed deploy that has an apply receipt also prints the rollback command.
+
 ## Quiet windows
 
-A quiet window is a daily UTC time range when `deployProd` must not apply, for example while another project deploys to the same account. Planning still runs.
+A quiet window is a UTC time range when `deployProd` must not apply, for example while another project deploys to the same account. Planning still runs.
 
-- `DEPLOY_QUIET_WINDOWS` holds the windows as JSON, for example `[{"start":"14:00","end":"15:30"}]`. A window may cross midnight. Empty means no windows.
+- `DEPLOY_QUIET_WINDOWS` holds the windows as JSON. Empty means no windows.
+- `{"start":"14:00","end":"15:30"}` repeats every day. It may cross midnight.
+- `{"start":":59","end":":01"}` repeats every hour. It may cross the hour.
+- Both times in one window use the same form.
 - `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` sets how long the driver may wait. The default is 0, so it refuses at once. The maximum is one hour.
 - The check runs after the plan passes and just before apply. Inside a window, the driver waits for its end if that end comes within the bound. Otherwise it refuses with `inside-quiet-window`.
 - An invalid window list refuses with `quiet-window-config-invalid`.
@@ -66,6 +77,22 @@ No remote runner, canary, traffic split or release queue is implemented. Keep pr
 
 The three root deployment commands use `APP_ENV=production` with varlock. Put private application resolvers in gitignored `.env.production.local`. Keep each key declared in `.env.schema`.
 
-Varlock 1.20.0 supports `KEY=exec("command that returns the value")`. A local resolver can lease an application secret without shell exports. Keep machine-specific secret names and resolver commands out of public docs and checked-in files. Provider credentials still come only from the named Alchemy profile. Do not resolve provider credentials into environment variables.
+- The root `.env.schema` imports `apps/mischief/.env.schema`. Varlock types and validates the Worker's keys before planning.
+- The import omits the keys the root declares itself. Those keys keep the root's production requirements.
+- Imported defaults reach the deploy environment. They match the Worker's code defaults.
+
+Varlock 1.20.0 supports `KEY=exec("command that returns the value")`. A local resolver can lease an application secret without shell exports. Keep machine-specific secret names and resolver commands out of public docs and checked-in files.
+
+```text title=".env.production.local"
+ALCHEMY_PROFILE=my-profile
+EXAMPLE_API_KEY=exec(`my-secret-cli read example_api_key`)
+DEPLOY_QUIET_WINDOWS=[{"start":":59","end":":01"},{"start":"15:30","end":"16:30"}]
+DEPLOY_QUIET_WINDOW_MAX_WAIT_MS=600000
+```
+
+- `exec()` runs the command in a shell. It removes one trailing newline from the output.
+- A failed command stops before planning.
+- Each deploy command resolves the values again. No wrapper script exports them.
+- `varlock run` masks sensitive values in the command's output. Provider credentials still come only from the named Alchemy profile. Do not resolve provider credentials into environment variables.
 
 Use `APP_ENV=production pnpm exec varlock load --agent` to validate local resolution without printing sensitive values. Then use the root deployment command. Missing production inputs stop before planning.

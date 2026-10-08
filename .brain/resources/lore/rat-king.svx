@@ -1,0 +1,56 @@
+---
+title: "Rat King binds agents into one encrypted network"
+description: "Rat King plans an encrypted AT Protocol agent network built on rat-stack."
+group: idea
+terms:
+  - "Rat King"
+sources:
+  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/README.md
+    title: "Rat King README"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "The network, name, rat-stack foundation, and pre-alpha status."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/VISION.md
+    title: "Rat King vision"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "The phased path, stack roles, and deployment targets."
+    accessed: "2026-10-06"
+  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/AGENTS.md
+    title: "Rat King project law"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Contracts, provider boundaries, lifecycle machines, and the publication fence."
+    accessed: "2026-10-06"
+---
+
+Rat King is an encrypted AT Protocol agent network, plus the tools to configure and run it.
+The project is pre-alpha. No network runs yet.
+
+A rat king is rats bound together at their tails.
+The name describes agents bound into one network while their private messages stay encrypted.
+
+## One typed program
+
+Rat King uses pure rat-stack:
+
+- Effect owns contracts, services, and typed failures.
+- [Alchemy](/lore/infrastructure-as-effects) owns infrastructure.
+- XState owns finite lifecycles.
+
+Provider adapters stay outside core.
+Every surface projects the same contract.
+[Cartridges](/lore/cartridges) explain the service and infrastructure pattern.
+[The fence](/lore/the-fence) explains the enforced rules.
+
+## The phased path
+
+The vision sets four phases. These describe planned work.
+
+1. **Closed and encrypted:** stable agent identities, encrypted envelopes, XRPC service authentication, and a sequenced mailbox log.
+2. **Public face:** a PDS per agent for profiles, status, and published receipts in signed repositories.
+3. **Spaces:** permissioned private records after stability and conformance gates pass. Keep encryption.
+4. **Federation:** allowlisted peer networks with quotas and kill switches.
+
+Cloudflare and celld are deployment targets.
+Each phase must prove an encrypted exchange as the recipient sees it.
+
+See [Rat's Nest](/lore/rats-nest) for Joel's purpose-built on-prem cloud.
