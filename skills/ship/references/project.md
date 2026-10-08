@@ -77,6 +77,10 @@ No remote runner, canary, traffic split or release queue is implemented. Keep pr
 
 The three root deployment commands use `APP_ENV=production` with varlock. Put private application resolvers in gitignored `.env.production.local`. Keep each key declared in `.env.schema`.
 
+- The root `.env.schema` imports `apps/mischief/.env.schema`. Varlock types and validates the Worker's keys before planning.
+- The import omits the keys the root declares itself. Those keys keep the root's production requirements.
+- Imported defaults reach the deploy environment. They match the Worker's code defaults.
+
 Varlock 1.20.0 supports `KEY=exec("command that returns the value")`. A local resolver can lease an application secret without shell exports. Keep machine-specific secret names and resolver commands out of public docs and checked-in files.
 
 ```text title=".env.production.local"
