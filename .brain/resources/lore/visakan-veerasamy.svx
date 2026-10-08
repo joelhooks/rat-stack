@@ -1,6 +1,7 @@
 ---
 title: "Visakan Veerasamy"
 description: "Visakan Veerasamy writes about building a social graph of friendly, ambitious nerds."
+plain: "Visakan Veerasamy writes about building a social graph of friendly, ambitious nerds."
 group: person
 terms:
   - "Visakan Veerasamy"

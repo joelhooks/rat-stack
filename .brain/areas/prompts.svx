@@ -1,6 +1,13 @@
 ---
 title: "One prompt serves people and agents"
 description: "Source-owned agent prompts with typed discovery and copyable browser pages."
+plain: "Each published prompt has one source: people read and copy it at /prompts, agents fetch it as Markdown."
+diagram: |-
+  prompt source
+  ├ /prompts page
+  │   copy + credit
+  └ listPrompts, getPrompt
+      Markdown by default
 group: system
 terms: ["agent prompt"]
 sources:

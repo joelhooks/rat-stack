@@ -1,6 +1,16 @@
 ---
 title: "Two lines of curl is a front door"
 description: "One observed application used the Markdown page and llms.txt, then one POST; confirmation followed 88 seconds later."
+plain: "One observed agent read the Markdown page and llms.txt, then sent one POST; the person confirmed by email 88 seconds later."
+diagram: |-
+  GET /tokenmaxx  markdown
+  GET /llms.txt   +0.263 s
+    │ 18 min 16 s
+    ▼
+  POST /api/joinInterest
+    │ 200, no retry
+    ▼ 88 s
+  email confirmed
 group: idea
 terms:
   - "agent front door"

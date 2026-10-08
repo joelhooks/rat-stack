@@ -1,6 +1,18 @@
 ---
 name: add-a-store
 description: Add persistence behind a job-shaped service with schema validation, vendor Layers, migrations, bounded reads, and shared backend tests.
+plain: "Name the facts and their writer, then put validated, bounded reads and writes behind one job-shaped port."
+diagram: |-
+  facts + one writer
+    │
+  port: small named ops
+    │ decode input first
+    │ bound every read
+    ▼
+  vendor Layer
+    D1 or Postgres
+    │
+  same tests, each backend
 ---
 
 # Add a store

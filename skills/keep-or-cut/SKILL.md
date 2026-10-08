@@ -1,6 +1,17 @@
 ---
 name: keep-or-cut
 description: Learn which pieces depend on each other, then keep only the ones your project needs.
+plain: "Learn which pieces depend on each other, then cut the surfaces your project does not need."
+diagram: |-
+  smallest: CLI only
+  cut code mode
+  cut HTTP
+  cut MCP
+    code mode needs MCP
+  cut XState
+  cut devtools
+  then fix what the
+  compiler finds
 ---
 
 # Keep or cut rat-stack

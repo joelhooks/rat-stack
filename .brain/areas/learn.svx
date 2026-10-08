@@ -1,6 +1,18 @@
 ---
 title: "Learn mode presents concepts at useful depths"
 description: "An agent presents source-derived concepts during real work and keeps learning events in a private local log."
+plain: "The build turns public pages into a concept deck, and an agent presents cards while progress stays in a local log."
+diagram: |-
+  lore, systems, skills
+    │ build
+    ▼
+  deck of cards
+    plain, snippet, diagram
+    │ learnNext
+    ▼
+  one card during work
+    │
+  private local log
 group: system
 terms:
   - "learn mode"

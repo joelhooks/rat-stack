@@ -1,6 +1,19 @@
 ---
 title: "Capabilities"
 description: "Named application actions exposed through generated interfaces share one definition and one server-side implementation."
+plain: "A capability is one named action: a contract and one server handler, projected to every interface."
+diagram: |-
+  defineContract
+    name, input, output,
+    failure, metadata
+    │ implement
+    ▼
+  one handler
+  ├ CLI
+  ├ HTTP
+  ├ MCP
+  ├ RPC
+  └ code mode
 group: system
 terms:
   - "capability contract"

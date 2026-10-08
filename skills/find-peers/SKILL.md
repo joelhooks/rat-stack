@@ -1,6 +1,17 @@
 ---
 name: find-peers
 description: Refresh public peers, exact stack versions, and usefulness tiers every week or two and after each shared-line bump. Study source before adopting patterns.
+plain: "Every week or two, refresh public repos on the same pins and adopt a pattern only after reading its code."
+diagram: |-
+  refresh peers
+    │ exact versions
+    ▼
+  tier S to F, with evidence
+    │
+  ask one narrow question
+    │ read the files
+    ▼
+  adopt or reject, with why
 ---
 
 # Find peers

@@ -1,6 +1,18 @@
 ---
 title: "Analytics"
 description: "One event per HTTP request, stored unchanged for queries to select and interpret later."
+plain: "Each HTTP request becomes one JSON event, stored unchanged so later queries can choose which fields matter."
+diagram: |-
+  request
+    │ withEventCapture
+    ▼
+  event, sent in background
+    │ Pipelines stream
+    ▼
+  SELECT * into sink
+    │ Parquet files
+    ▼
+  Iceberg table in R2
 group: system
 terms:
   - "request analytics"

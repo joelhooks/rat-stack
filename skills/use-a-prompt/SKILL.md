@@ -1,6 +1,17 @@
 ---
 name: use-a-prompt
 description: Discover and read published rat-stack prompts before starting a task with one.
+plain: "List the published prompts, read one in full, review it with the task owner, then follow its approval rules."
+diagram: |-
+  listPrompts
+    │ choose a slug
+    ▼
+  getPrompt
+    │ full body + credit
+    ▼
+  review with the owner
+    │
+  follow its approvals
 ---
 
 # Use a published prompt

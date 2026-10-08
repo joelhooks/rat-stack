@@ -1,6 +1,18 @@
 ---
 name: gardener
 description: Keep rat-stack current and clean. Bump the bleeding-edge pins, learn from repos on the same versions, and turn every bad pattern into a lint rule before cleaning it up.
+plain: "Bump one pin line at a time, learn from peers, and write a failing lint rule before cleaning up a bad pattern."
+diagram: |-
+  check the pins
+    │
+  bump one line
+    │ lockfile, mirrors, docs
+    ▼
+  refresh peers
+    │
+  garden
+    rule fails first
+    then fix every case
 ---
 
 # Tend the garden

@@ -1,6 +1,17 @@
 ---
 title: "Fence"
 description: "The lint rules, compiler diagnostics, hooks, and gate that make a bad shortcut fail instead of asking an agent to avoid it."
+plain: "Lint rules, compiler diagnostics, hooks and CI make bad shortcuts fail instead of asking agents to avoid them."
+diagram: |-
+  code change
+    │ Oxlint + plugins
+    │ Effect diagnostics
+    ▼
+  pre-commit
+    check + test
+    no --no-verify
+    │
+  CI: check test build
 group: system
 terms:
   - "pre-commit gate"

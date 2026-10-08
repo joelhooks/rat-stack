@@ -1,6 +1,17 @@
 ---
 name: learn-alchemy
 description: Learn how Alchemy 2 turns an Effect program into a planned Cloudflare deployment.
+plain: "Alchemy 2 runs an Effect program as a plan: review its actions, then deploy to a named stage."
+diagram: |-
+  Stack program
+    │ resources, bindings
+    ▼
+  plan
+    create update adopt noop
+    │ review first
+    ▼
+  deploy --stage prod
+  default: live_$USER
 ---
 
 # Learn Alchemy

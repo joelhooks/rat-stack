@@ -1,6 +1,17 @@
 ---
 name: add-a-capability
 description: Learn how one contract and its handler become a command, HTTP route, MCP tool, browser RPC, and sandbox call.
+plain: "Define one contract, bind one handler, register it once, and every surface projects the same action."
+diagram: |-
+  1 defineContract
+      input, output, failure
+  2 implement
+      one handler
+  3 register
+      capabilities tuple
+  4 project
+      CLI HTTP MCP RPC code
+  5 test the handler
 ---
 
 # Add a capability

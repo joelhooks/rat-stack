@@ -1,6 +1,17 @@
 ---
 title: "Hosted agent interfaces"
 description: "Discovery documents, HTTP, MCP, A2A, and bounded code mode expose the public reference to agents."
+plain: "Agents reach the same public capabilities through discovery documents, HTTP, MCP, A2A, and bounded code mode."
+diagram: |-
+  llms.txt, discovery cards
+    │
+  ├ HTTP + OpenAPI
+  ├ MCP tools
+  ├ A2A questions
+  └ POST /api/execute
+    │
+  search read backlinks
+  neighbors mentions path
 group: system
 terms:
   - "hosted agent interfaces"

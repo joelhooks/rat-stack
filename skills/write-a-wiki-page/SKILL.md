@@ -1,6 +1,15 @@
 ---
 name: write-a-wiki-page
 description: Write or revise public wiki pages with short prose, cited claims, meaningful visuals, and pinned code snippets.
+plain: "Write short plain prose, add a visual only when it explains, quote code from pinned source, and cite each claim."
+diagram: |-
+  1 choose the kind
+  2 write short prose
+  3 visual if it explains
+  4 quote pinned code
+  5 link and cite claims
+  6 check components
+  7 finish
 ---
 
 # Write a wiki page

@@ -1,6 +1,17 @@
 ---
 name: uncomplect
 description: Find what a rat-stack design braids together, separate it into capabilities, cartridges, machines, features, and clients, and fence the separation so the next change cannot braid it again. Use when asked to simplify, review, or replace a design, "what would Rich Hickey do", "optimize for deletion", or "define this error out of existence".
+plain: "Find what a design braids together, separate the concerns, and add a fence so the next change cannot braid them again."
+diagram: |-
+  read source + receipts
+    │
+  find each braid
+    │
+  separate into
+    capability, cartridge,
+    machine, feature, client
+    │
+  fence the separation
 basis:
   - https://github.com/joelhooks/skills/tree/main/skills/uncomplect
 ---
