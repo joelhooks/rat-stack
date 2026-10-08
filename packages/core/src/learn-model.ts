@@ -33,10 +33,14 @@ export const SnippetSchema = Schema.NonEmptyString.check(
   )
 );
 
+const oneColumnCharacter = String.raw`[^\p{Cc}\p{Cf}\p{Cn}\p{Co}\p{Cs}\p{M}\p{Zl}\p{Zp}\p{Emoji_Presentation}\u{1100}-\u{115F}\u{2E80}-\u{A4CF}\u{AC00}-\u{D7A3}\u{F900}-\u{FAFF}\u{FE30}-\u{FE4F}\u{FF00}-\u{FF60}\u{FFE0}-\u{FFE6}\u{10000}-\u{10FFFF}]`;
+
+const diagramRow = `${oneColumnCharacter}{0,${DIAGRAM_COLUMNS}}`;
+
 export const DiagramSchema = Schema.NonEmptyString.check(
   Schema.isPattern(
     new RegExp(
-      `^[^\\n]{0,${DIAGRAM_COLUMNS}}(?:\\n[^\\n]{0,${DIAGRAM_COLUMNS}}){0,${DIAGRAM_ROWS - 1}}$`,
+      `^${diagramRow}(?:\\n${diagramRow}){0,${DIAGRAM_ROWS - 1}}$`,
       "u"
     )
   )

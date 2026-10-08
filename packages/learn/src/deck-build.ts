@@ -47,7 +47,7 @@ const teachingFields = [
   },
   {
     field: "diagram",
-    reason: `Diagram must fit ${DIAGRAM_COLUMNS} columns and ${DIAGRAM_ROWS} rows.`,
+    reason: `Diagram must fit ${DIAGRAM_COLUMNS} columns and ${DIAGRAM_ROWS} rows of one-column characters; replace tabs, emoji, wide CJK and combining marks.`,
     schema: DiagramSchema,
   },
 ] as const;

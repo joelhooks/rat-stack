@@ -37,15 +37,73 @@ const lines = Arbitrary.array(line, {
 const decodes = <A>(schema: Schema.Codec<A, string>, value: string) =>
   Exit.isSuccess(Schema.decodeUnknownExit(schema)(value));
 
+const oneColumnCharacters = [
+  "x",
+  " ",
+  ":",
+  "{",
+  "é",
+  "│",
+  "▼",
+  "├",
+  "└",
+  "─",
+  "→",
+  "✗",
+  "≈",
+] as const;
+
+const otherCharacters = [
+  "😀",
+  "⌚",
+  "𐁄",
+  "汉",
+  "가",
+  "Ａ",
+  "\u0301",
+  "\u200D",
+  "\t",
+  "\u2028",
+] as const;
+
+const diagramRow = Arbitrary.schema(
+  Schema.Struct({
+    narrow: Schema.Array(Schema.Literals(oneColumnCharacters)).check(
+      Schema.isMaxLength(DIAGRAM_COLUMNS + 3)
+    ),
+    other: Schema.Array(Schema.Literals(otherCharacters)).check(
+      Schema.isMaxLength(1)
+    ),
+  })
+);
+
+const diagramRows = Arbitrary.array(diagramRow, {
+  maxLength: DIAGRAM_ROWS + 3,
+  minLength: 1,
+});
+
 it.prop(
-  "a diagram decodes exactly when it is non-empty and fits the column and row limits",
-  { rows: lines },
+  "a diagram decodes exactly when it is non-empty and fits the column and row limits in one-column characters",
+  { rows: diagramRows },
   ({ rows }) => {
     const fits =
       rows.length <= DIAGRAM_ROWS &&
-      rows.every((row) => row.length <= DIAGRAM_COLUMNS);
+      rows.every(
+        ({ narrow, other }) =>
+          other.length === 0 && narrow.length <= DIAGRAM_COLUMNS
+      );
 
-    const text = rows.join("\n");
+    const text = rows
+      .map(({ narrow, other }) => {
+        const middle = Math.floor(narrow.length / 2);
+
+        return [
+          ...narrow.slice(0, middle),
+          ...other,
+          ...narrow.slice(middle),
+        ].join("");
+      })
+      .join("\n");
 
     expect(decodes(DiagramSchema, text)).toBe(fits && text !== "");
   }
