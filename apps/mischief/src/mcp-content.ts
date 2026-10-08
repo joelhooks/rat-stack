@@ -37,6 +37,7 @@ export const mcpContent = Layer.unwrap(
     const store = yield* ContentStore;
     const server = yield* McpServer.McpServer;
 
+    // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- Existing shared catalog registration awaits asset I/O; packet 1b removes this baseline pending cache.
     const registered = yield* Effect.cachedWithTTL(
       registerCatalog(store).pipe(
         Effect.provideService(McpServer.McpServer, server)

@@ -122,6 +122,7 @@ export default defineConfig({
     "rat-stack-patterns/contract-binding-matches-name": "error",
     "rat-stack-patterns/learn-snippet-idiom": "error",
     "rat-stack-patterns/no-module-level-mutable-state": "error",
+    "rat-stack-patterns/no-shared-pending-cache": "error",
     "rat-stack-patterns/watch-effect-actors": "error",
     "unicorn/throw-new-error": "off",
     "xstate-effect/no-inline-effect": "error",

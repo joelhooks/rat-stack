@@ -47,6 +47,7 @@ export class InterestTokens extends Context.Service<
     Layer.effect(
       this,
       Effect.gen(function* makeInterestTokens() {
+        // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- This service caches CryptoKey import from a fixed secret with no request-bound I/O.
         const loadKey = yield* Effect.cached(importKey(secret));
 
         const sign = Effect.fn("InterestTokens.sign")(function* sign(

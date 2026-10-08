@@ -31,6 +31,7 @@ export class Learner extends Context.Service<
     Layer.effect(
       Learner,
       Effect.gen(function* makeLearner() {
+        // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- Existing shared deck loader can await request I/O; packet 1b replaces this baseline cache with completed values.
         const cards = yield* Effect.cachedWithTTL(deck, (exit) =>
           Exit.isSuccess(exit) ? "Infinity" : 0
         );

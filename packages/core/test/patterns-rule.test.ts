@@ -24,6 +24,7 @@ const rules = [
   "rat-stack-patterns/contract-binding-matches-name",
   "rat-stack-patterns/learn-snippet-idiom",
   "rat-stack-patterns/no-module-level-mutable-state",
+  "rat-stack-patterns/no-shared-pending-cache",
   "rat-stack-patterns/watch-effect-actors",
 ];
 
@@ -139,6 +140,44 @@ describe("rat-stack pattern rules", () => {
 
     expect(result.status).toBe(0);
   });
+
+  it.each(["cached", "cachedWithTTL", "cachedInvalidateWithTTL"])(
+    "rejects %s in shared initialization and permits request-local work",
+    (name) => {
+      const message = "Cache completed values only";
+
+      const module = lintFixture(
+        "apps/mischief/src",
+        `import { Effect as E } from "effect"; export const shared = E.${name}(E.succeed(1), "Infinity");`
+      );
+
+      const service = lintFixture(
+        "packages/core/src",
+        `import { Effect, Layer } from "effect"; export const layer = Layer.effect(Tag, Effect.gen(function* () { return yield* Effect.${name}(loadAsset, "Infinity"); }));`
+      );
+
+      const contentStorePlant = lintFixture(
+        "apps/mischief/src",
+        `import { Effect, Exit } from "effect"; const cacheData = (effect) => Effect.${name}(effect, (exit) => Exit.isSuccess(exit) ? "Infinity" : 0); const makeStore = Effect.fn("ContentStore.make")(function* () { const catalog = yield* cacheData(readData(assets)); return { catalog }; });`
+      );
+
+      const request = lintFixture(
+        "apps/mischief/src",
+        `import { Effect } from "effect"; export const fetch = (request) => Effect.gen(function* () { return yield* Effect.${name}(read(request), "Infinity"); });`
+      );
+
+      const exception = lintFixture(
+        "packages/core/src",
+        `import { Effect } from "effect";\n// oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- This cache imports a CryptoKey from a fixed secret without request I/O.\nexport const shared = Effect.${name}(importKey(secret), "Infinity");`
+      );
+
+      expectRule(module, message);
+      expectRule(service, message);
+      expectRule(contentStorePlant, message);
+      expect(request.status).toBe(0);
+      expect(exception.status).toBe(0);
+    }
+  );
 
   it("flags module-level let and var in runtime source", () => {
     const counter = lintFixture(

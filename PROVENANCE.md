@@ -17,6 +17,13 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## effect-cloudflare-foldkit-template
+
+Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template), commit `04851db8649501bfaf8d2712429074ba0290a10f` (`04851db`). License: MIT, per the author via Joel, 2026-10-08. The repository has no LICENSE file or manifest license field at that revision.
+
+- `.brain/resources/lore/cache-completed-values.svx` and `scripts/oxlint-plugin-patterns.ts` adapt the lifetime guidance from `docs/architecture.md` (Be explicit about lifetimes) and `docs/guardrails.md` (Request lifetime).
+- The rule implementation and its fixtures are ours. The ContentStore example comes from rat-stack PR #64.
+
 ## Wiki prose style warnings (MIT)
 
 `apps/mischief/scripts/wiki-prose-style.ts` adapts the history-word and contrast-framing patterns and quoted-span exclusion from [Tardigrade's documentation lint](https://github.com/clavia-labs/tardigrade/blob/3289804a949a476620dd8c3b55a74ea41415ce01/tools/docs-lint.ts), commit `3289804a949a476620dd8c3b55a74ea41415ce01`.
