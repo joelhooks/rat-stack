@@ -80,7 +80,7 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 - `pnpm deploy:rollback --profile <profile> --yes` restores prior Worker versions from a local apply receipt. It requires explicit approval; no automatic rollback runs.
 - Recovery evidence lives in gitignored `.rat/deploy/`. Rollback writes separate progress receipts and preserves its source.
 - Content-version mismatches retry for 120 seconds by default. `DEPLOY_CONTENT_VERSION_DEADLINE_MS` sets a bounded override; verdicts retain failed attempts.
-- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root commands run varlock in production mode; provider credentials remain profile-only.
+- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root schema imports `apps/mischief/.env.schema`, so deploy commands type the Worker's keys too; the root owns the keys it omits. The root commands run varlock in production mode; provider credentials remain profile-only.
 - Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
 - `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
 - Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
