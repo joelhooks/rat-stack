@@ -20,8 +20,14 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
+import { feedbackRequests } from "./auth/feedback-access.js";
+import type { feedbackAccess } from "./auth/feedback-access.js";
 import { originToken } from "./bundled-content.generated.js";
-import { capabilities, search } from "./capabilities/index.js";
+import {
+  authenticatedCapabilities,
+  capabilities,
+  search,
+} from "./capabilities/index.js";
 import { learnLayer } from "./capabilities/learn.js";
 import type { ContentCatalogData as ContentCatalog } from "./content-data.js";
 import { ContentStore } from "./content-store.js";
@@ -446,6 +452,8 @@ const staticCaching = (cache: StaticResponseCache) =>
 
 export const toolkitProjection = toToolkit(capabilities);
 
+const authenticatedToolkitProjection = toToolkit(authenticatedCapabilities);
+
 const RateLimited = Schema.String.annotate({
   description:
     "Rate limit exceeded for this IP or for execute globally. Retry after the number of seconds in Retry-After.",
@@ -458,10 +466,29 @@ export const apiProjection = toHttpApi("ratstack.sh", capabilities, {
   prefix: "/api",
 });
 
+const authenticatedApiProjection = toHttpApi(
+  "ratstack.sh",
+  authenticatedCapabilities,
+  {
+    errors: [RateLimited],
+    prefix: "/api",
+  }
+);
+
 const apiRoutes = HttpApiBuilder.layer(apiProjection.api, {
   openapiPath: "/openapi.json",
 }).pipe(
   Layer.provide(apiProjection.layer),
+  Layer.provide(AlchemyHttp.Platform)
+);
+
+const authenticatedApiRoutes = HttpApiBuilder.layer(
+  authenticatedApiProjection.api,
+  {
+    openapiPath: "/openapi.json",
+  }
+).pipe(
+  Layer.provide(authenticatedApiProjection.layer),
   Layer.provide(AlchemyHttp.Platform)
 );
 
@@ -491,16 +518,19 @@ const mcpTransport = (
   }).pipe(Layer.provide(privateMcpTracingLayer));
 
 export const mcpLayer = (
-  protocols: typeof modernMcpProtocols | typeof legacyMcpProtocols
+  protocols: typeof modernMcpProtocols | typeof legacyMcpProtocols,
+  feedback = false
 ) =>
   Layer.mergeAll(
-    McpServer.toolkit(toolkitProjection.toolkit).pipe(
-      Layer.provide(toolkitProjection.layer)
-    ),
+    feedback
+      ? McpServer.toolkit(authenticatedToolkitProjection.toolkit).pipe(
+          Layer.provide(authenticatedToolkitProjection.layer)
+        )
+      : McpServer.toolkit(toolkitProjection.toolkit).pipe(
+          Layer.provide(toolkitProjection.layer)
+        ),
     mcpContent
   ).pipe(Layer.provide(mcpTransport(protocols)));
-
-const mcp = mcpLayer(modernMcpProtocols);
 
 const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
   errorResponse(request, {
@@ -1073,6 +1103,7 @@ export interface WebBotAuthOptions {
 }
 
 export interface MischiefRouteOptions {
+  readonly feedback?: ReturnType<typeof feedbackAccess> | undefined;
   readonly contentStore?: ContentStore["Service"] | undefined;
   readonly assets?: StaticAssets["Service"] | undefined;
   readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
@@ -1175,14 +1206,15 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
           rateLimits: options.rateLimits,
           tokens: options.joinTokens,
         }),
-        apiRoutes,
+        options.feedback === undefined ? apiRoutes : authenticatedApiRoutes,
+        options.feedback?.routes ?? Layer.empty,
         options.interest === undefined
           ? Layer.empty
           : interestRoutes({
               ...options.interest,
               rateLimits: options.rateLimits,
             }),
-        mcp,
+        mcpLayer(modernMcpProtocols, options.feedback !== undefined),
         securityHeadersMiddleware,
         errorPages,
         options.rateLimits === undefined && options.legacyMcp === undefined
@@ -1195,6 +1227,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         webBotAuthRoutes(options.webBotAuth ?? { enabled: false }),
         assetRoutes(assets, store)
       ).pipe(
+        Layer.provideMerge(options.feedback?.requests ?? feedbackRequests()),
         Layer.provideMerge(contentRequests(store, learner)),
         Layer.provideMerge(promptLibraryLayer),
         Layer.provideMerge(

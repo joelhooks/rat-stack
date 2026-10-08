@@ -8,6 +8,7 @@
     "migrations"
   ],
   "type": "module",
+  "sideEffects": false,
   "types": "./src/index.ts",
   "exports": {
     ".": {

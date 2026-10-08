@@ -26,6 +26,9 @@ import * as Redacted from "effect/Redacted";
 import { mischiefRoutes, readerResponseHeaders } from "./app.js";
 import type { MischiefRouteOptions } from "./app.js";
 import { contentAssetsForBuild } from "./asset-deployment.js";
+import { feedbackGatewayBuild } from "./auth/build-options.js";
+import type { feedbackAccess } from "./auth/feedback-access.js";
+import { feedbackInfrastructure } from "./auth/infrastructure.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { ContentStore } from "./content-store.js";
@@ -71,7 +74,8 @@ export const makeMischief = (
   legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
   interestDirectory: Layer.Layer<InterestDirectory>,
   events?: Context.Context<EventSink | VisitorSalt>,
-  agentSignup?: AgentSignupOptions
+  agentSignup?: AgentSignupOptions,
+  feedback?: ReturnType<typeof feedbackAccess>
 ) =>
   Effect.gen(function* makeMischiefInit() {
     if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
@@ -266,6 +270,7 @@ export const makeMischief = (
     const workerRoutes = mischiefRoutes({
       assets,
       contentStore,
+      feedback,
       interest:
         interest === undefined
           ? undefined
@@ -322,6 +327,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
     yield* Cloudflare.WorkerLoader("CODE_SANDBOX");
   }
+
+  const feedback = (yield* feedbackInfrastructure).pipe(Option.getOrUndefined);
 
   const legacyMcp = yield* LegacyMcp;
   const interests = yield* Interest;
@@ -384,12 +391,14 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
       () => interestIndex.getByName("index")
     ),
     events,
-    agentSignup
+    agentSignup,
+    feedback
   );
 }).pipe(
   Effect.provide(
     Layer.mergeAll(
       Cloudflare.Workers.RateLimitBinding,
+      Cloudflare.Workers.FetchBinding,
       outerHttpPrivacyRegistration
     )
   ),
@@ -408,6 +417,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
 
     return {
       assets,
+      build: feedbackGatewayBuild,
       compatibility: { date: "2026-05-28" },
       dev: { port: 1337 },
       domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },

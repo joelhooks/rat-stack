@@ -38,8 +38,10 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
+    "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
+    "@rat-stack/database": "workspace:*",
     "@rat-stack/events": "workspace:*",
     "@rat-stack/intake-live": "workspace:*",
     "@rat-stack/learn": "workspace:*",

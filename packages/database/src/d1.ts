@@ -14,20 +14,27 @@ export interface D1Options {
   readonly id: string;
 }
 
-export const D1 = ({ id }: D1Options) =>
+const makeD1Vendor = Effect.fn("makeD1Vendor")(function* makeD1Vendor({
+  id,
+}: D1Options) {
+  const migrations = yield* Drizzle.Schema(`${id}-d1-schema`, {
+    dialect: "sqlite",
+    out: databaseMigrationDirectory("d1"),
+    schema: databaseSchemaFile("d1"),
+  });
+
+  const database = yield* Cloudflare.D1.Database(`${id}-d1`, { migrations });
+
+  return { _tag: "D1" as const, database };
+});
+
+export const D1Vendor = (options: D1Options) =>
+  Layer.effect(DatabaseVendor, makeD1Vendor(options));
+
+export const D1 = (options: D1Options) =>
   Layer.unwrap(
     Effect.gen(function* buildD1Layer() {
-      const migrations = yield* Drizzle.Schema(`${id}-d1-schema`, {
-        dialect: "sqlite",
-        out: databaseMigrationDirectory("d1"),
-        schema: databaseSchemaFile("d1"),
-      });
-
-      const database = yield* Cloudflare.D1.Database(`${id}-d1`, {
-        migrations,
-      });
-
-      const vendor = { _tag: "D1" as const, database };
+      const vendor = yield* makeD1Vendor(options);
 
       return Layer.mergeAll(
         RunLogLayer(vendor),

@@ -1,6 +1,7 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
 import { getPrompt, listPrompts } from "@rat-stack/core";
 import { joinInterest } from "@rat-stack/core/join-interest";
+import { feedbackCapabilities } from "@rat-stack/learn/feedback";
 import { Layer } from "effect";
 
 import { ContentStore } from "../content-store.js";
@@ -84,5 +85,17 @@ export const executeProjection = {
 export const capabilities = [
   ...contentCapabilities,
   execute,
+  joinInterest,
+] as const;
+
+export const feedbackExecuteProjection = toExecuteCapability([
+  ...contentCapabilities,
+  ...feedbackCapabilities,
+] as const);
+
+export const authenticatedCapabilities = [
+  ...contentCapabilities,
+  ...feedbackCapabilities,
+  feedbackExecuteProjection.capability,
   joinInterest,
 ] as const;
