@@ -1,9 +1,9 @@
-import { Match } from "effect";
+import { Match, Option } from "effect";
 
 import type { ReaderErrorPage } from "../../../mischief/src/reader-error-page.js";
-import type { ReaderPageFlags } from "../client/reader-model.js";
 import { ReaderNode } from "../client/reader-node.js";
 import type { ReaderNodeValue } from "../client/reader-node.js";
+import type { ReaderPageFlags } from "../client/reader/model.js";
 import { escapeAttribute } from "../reader-metadata.js";
 import type { ReaderErrorTemplate } from "./reader-error-template.js";
 
@@ -125,23 +125,25 @@ export const readerErrorFlags = (
 ): ReaderPageFlags => {
   const tokens = pageTokens(page);
 
-  const bodyNodes = (template.page.bodyNodes ?? []).flatMap((node) => {
-    const slot = placeholder(node);
+  const bodyNodes = Option.getOrElse(template.page.bodyNodes, () => []).flatMap(
+    (node) => {
+      const slot = placeholder(node);
 
-    if (slot === "ERROR_ACTIONS") {
-      return actions(template, page);
+      if (slot === "ERROR_ACTIONS") {
+        return actions(template, page);
+      }
+
+      if (slot === "ERROR_DETAILS") {
+        return details(template, page);
+      }
+
+      return [fillNode(node, tokens)];
     }
-
-    if (slot === "ERROR_DETAILS") {
-      return details(template, page);
-    }
-
-    return [fillNode(node, tokens)];
-  });
+  );
 
   return {
     ...template.page,
-    bodyNodes,
+    bodyNodes: Option.some(bodyNodes),
     heading: fill(template.page.heading, tokens),
     page: {
       ...template.page.page,

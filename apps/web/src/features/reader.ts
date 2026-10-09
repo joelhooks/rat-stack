@@ -1,8 +1,15 @@
 import * as stylex from "@stylexjs/stylex";
+import { Option } from "effect";
 import type { Document, HtmlBuilder } from "foldkit/html";
 
-import { ReaderMessage } from "../client/reader-message.js";
-import type { ReaderModel } from "../client/reader-model.js";
+import { Message } from "../client/reader/message.js";
+import type { ReaderMessage } from "../client/reader/message.js";
+import {
+  ClipboardAccess,
+  copyStatusOf,
+  CopyStatus,
+} from "../client/reader/model.js";
+import type { ReaderModel } from "../client/reader/model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
@@ -19,12 +26,12 @@ import {
   systemsRouter,
 } from "./site-route.js";
 
-const copyStatusText = {
-  copied: "Copied ✓",
-  copying: "",
-  failed: "Copy failed. Select the text and copy it.",
-  idle: "",
-};
+const copyStatusText = CopyStatus.match({
+  Copied: () => "Copied ✓",
+  Copying: () => "",
+  Failed: () => "Copy failed. Select the text and copy it.",
+  Idle: () => "",
+});
 
 const siteSections = [
   [skillsRouter(), "skills"],
@@ -33,10 +40,7 @@ const siteSections = [
   [glossaryRouter(), "glossary"],
 ] as const;
 
-const readerBreadcrumb = (
-  path: string,
-  h: HtmlBuilder<typeof ReaderMessage.Type>
-) => {
+const readerBreadcrumb = (path: string, h: HtmlBuilder<ReaderMessage>) => {
   if (path.startsWith("/prompts")) {
     return h.a([h.Href(promptsRouter())], ["prompts"]);
   }
@@ -55,12 +59,14 @@ const footerLinksPrompts = (page: ReaderModel["page"]) =>
     /^\/(?:lore|prompts)(?:\/|$)/u.test(page.path));
 
 export const readerCopyControl = (
-  model: Pick<ReaderModel, "clipboardReady" | "copyPrompts" | "copyStates">,
-  h: HtmlBuilder<typeof ReaderMessage.Type>,
+  model: Pick<ReaderModel, "clipboardAccess" | "copyPrompts" | "copyStatuses">,
+  h: HtmlBuilder<ReaderMessage>,
   id: string,
   primary: boolean
 ) => {
   const prompt = model.copyPrompts.find((entry) => entry.id === id);
+  const status = copyStatusOf(model, id);
+  const copied = CopyStatus.guards.Copied(status);
 
   if (prompt === undefined) {
     throw new Error(`Missing copy prompt: ${id}`);
@@ -75,21 +81,18 @@ export const readerCopyControl = (
           h.Class(primary ? "copy copy-primary" : "copy"),
           h.DataAttribute("text", prompt.text),
           h.AriaLabel(prompt.label),
-          h.Hidden(!model.clipboardReady),
-          h.OnClick(ReaderMessage.CopyRequested({ id })),
-          h.DataAttribute("copied", String(model.copyStates[id] === "copied")),
+          h.Hidden(!ClipboardAccess.guards.Available(model.clipboardAccess)),
+          h.OnClick(Message.ClickedCopy({ id })),
+          h.DataAttribute("copied", String(copied)),
         ],
         [
-          readerCopyIcon(h, model.copyStates[id] === "copied"),
-          h.span(
-            [h.Class("copy-label")],
-            [model.copyStates[id] === "copied" ? "Copied ✓" : prompt.label]
-          ),
+          readerCopyIcon(h, copied),
+          h.span([h.Class("copy-label")], [copied ? "Copied ✓" : prompt.label]),
         ]
       ),
       h.span(
         [h.Class("copy-status"), h.Role("status"), h.AriaLive("polite")],
-        [copyStatusText[model.copyStates[id] ?? "idle"]]
+        [copyStatusText(status)]
       ),
     ]
   );
@@ -97,7 +100,7 @@ export const readerCopyControl = (
 
 const readerCopyPrompt = (
   model: ReaderModel,
-  h: HtmlBuilder<typeof ReaderMessage.Type>,
+  h: HtmlBuilder<ReaderMessage>,
   id: string
 ) => {
   const prompt = model.copyPrompts.find((entry) => entry.id === id);
@@ -120,9 +123,9 @@ const readerCopyPrompt = (
     : control;
 };
 
-export const readerView = (
+export const view = (
   model: ReaderModel,
-  h: HtmlBuilder<typeof ReaderMessage.Type>
+  h: HtmlBuilder<ReaderMessage>
 ): Document => {
   const copyControl = (id: string, primary: boolean) =>
     readerCopyControl(model, h, id, primary);
@@ -187,9 +190,10 @@ export const readerView = (
                 ". Every page is Markdown by default; add Accept: text/html for HTML.",
               ]
             ),
-            ...(model.workshop === undefined
-              ? []
-              : [readerWorkshop(model.workshop, h)]),
+            ...Option.match(model.workshop, {
+              onNone: () => [],
+              onSome: (workshop) => [readerWorkshop(workshop, h)],
+            }),
             ...(model.page.path === "/" ||
             model.page.path === "/lore" ||
             model.page.path === "/glossary" ||
@@ -201,24 +205,29 @@ export const readerView = (
                   h.nav(
                     [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
                     [
-                      model.breadcrumb === undefined
-                        ? readerBreadcrumb(model.page.path, h)
-                        : h.a(
-                            [h.Href(model.breadcrumb.href)],
-                            [model.breadcrumb.label]
-                          ),
-                      ` / ${model.breadcrumb?.name ?? model.heading}`,
+                      Option.match(model.breadcrumb, {
+                        onNone: () => readerBreadcrumb(model.page.path, h),
+                        onSome: (breadcrumb) =>
+                          h.a([h.Href(breadcrumb.href)], [breadcrumb.label]),
+                      }),
+                      ` / ${Option.match(model.breadcrumb, {
+                        onNone: () => model.heading,
+                        onSome: (breadcrumb) => breadcrumb.name,
+                      })}`,
                     ]
                   ),
                 ]),
-            ...(model.bodyNodes === undefined
-              ? [h.h1([], [model.heading])]
-              : model.bodyNodes.map((node) =>
-                  renderReaderNode(node, h, copyControl)
-                )),
+            ...Option.match(model.bodyNodes, {
+              onNone: () => [h.h1([], [model.heading])],
+              onSome: (nodes) =>
+                nodes.map((node) => renderReaderNode(node, h, copyControl)),
+            }),
             ...model.blocks.map((block) =>
               renderReaderBlock(block, h, {
-                anchors: model.references?.anchors ?? [],
+                anchors: Option.match(model.references, {
+                  onNone: () => [],
+                  onSome: (references) => references.anchors,
+                }),
                 codeFence: (value) => {
                   const resolved = model.codeFences.find(
                     (fence) => fence.value === value
@@ -234,7 +243,10 @@ export const readerView = (
                   ]);
                 },
                 copyPrompt: (id) => readerCopyPrompt(model, h, id),
-                inboundCounts: model.references?.inboundCounts ?? {},
+                inboundCounts: Option.match(model.references, {
+                  onNone: () => ({}),
+                  onSome: (references) => references.inboundCounts,
+                }),
                 pagePath: model.page.path,
                 snippet: (reference) => {
                   const resolved = model.snippets.find(

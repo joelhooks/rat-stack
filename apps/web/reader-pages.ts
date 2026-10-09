@@ -7,7 +7,7 @@ import type { Plugin } from "vite";
 import { finalizeReaderHtml } from "../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../mischief/scripts/reader-input-error.ts";
 import { prepareReader } from "./scripts/reader-build.js";
-import { ReaderFlags } from "./src/client/reader-model.js";
+import { ReaderFlags } from "./src/client/reader/model.js";
 import { readerMetadataHead } from "./src/reader-metadata.js";
 import { isWorkerFirstReaderRoute } from "./src/reader-routes.js";
 import { ReaderErrorTemplate } from "./src/server/reader-error-template.js";
@@ -25,7 +25,10 @@ const builtPages = Effect.gen(function* builtPages() {
 });
 
 const preparedPages = builtPages.pipe(
-  Effect.map((pages) => `export const readerPages = ${JSON.stringify(pages)};`),
+  Effect.flatMap(
+    Schema.encodeEffect(Schema.fromJsonString(Schema.Array(ReaderFlags)))
+  ),
+  Effect.map((pages) => `export const readerPages = ${pages};`),
   Effect.provide(NodeServices.layer)
 );
 
@@ -160,8 +163,12 @@ const preparedErrorModule = Effect.fn("reader.preparedErrorModule")(
       );
     }
 
+    const encodedTemplate = yield* Schema.encodeEffect(
+      Schema.fromJsonString(ReaderErrorTemplate)
+    )(template);
+
     return [
-      `export const readerErrorTemplate = ${JSON.stringify(template)};`,
+      `export const readerErrorTemplate = ${encodedTemplate};`,
       `export const readerErrorShell = ${JSON.stringify(errorShell)};`,
     ].join("\n");
   },

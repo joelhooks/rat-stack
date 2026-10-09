@@ -2,7 +2,7 @@ import { Effect, FileSystem, Path } from "effect";
 
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerAssetInputs } from "../../mischief/scripts/reader-site-inputs.ts";
-import type { ReaderPageFlags } from "../src/client/reader-model.ts";
+import type { ReaderPageFlags } from "../src/client/reader/model.ts";
 
 export const copyReaderAssets = Effect.fn("reader.copyAssets")(
   function* copyReaderAssets(

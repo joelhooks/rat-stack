@@ -12,8 +12,9 @@ import {
   readerCopyPrompts,
 } from "../../mischief/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
-import { readerView } from "../src/features/reader.js";
+import { init } from "../src/client/reader/init.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
+import { view } from "../src/features/reader.js";
 import { readerBodyRoutePaths } from "../src/reader-routes.js";
 import { normalizedNodes } from "./reader-node-normalize.js";
 
@@ -43,7 +44,7 @@ it.effect(
           );
 
           const rendered = yield* renderToString(
-            { Flags: ReaderFlags, init: readerInit, view: readerView },
+            { Flags: ReaderFlags, init, view },
             { flags: page, isHydratable: false }
           );
 

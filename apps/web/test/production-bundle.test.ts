@@ -14,7 +14,7 @@ import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { ContentAssetManifest } from "../../mischief/src/asset-manifest.js";
-import { ReaderFlags } from "../src/client/reader-model.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
 const webRoot = path.resolve(import.meta.dirname, "..");
@@ -88,8 +88,8 @@ const build = (nodeEnv: "development" | "production") => {
     );
 
     expect(worker.status, worker.stderr).toBe(0);
-    expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toContain(
-      "<h1>Rat Stack</h1>"
+    expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toMatch(
+      /<h1(?: [^>]*)?>Rat Stack<\/h1>/u
     );
 
     const contentRoot = path.resolve(webRoot, "../mischief/dist/content");

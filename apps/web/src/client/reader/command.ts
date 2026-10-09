@@ -1,7 +1,8 @@
 import { Effect, Schema } from "effect";
 import { Command } from "foldkit";
 
-import { ReaderMessage } from "./reader-message.js";
+import { Message } from "./message.js";
+import { ClipboardAccess } from "./model.js";
 
 class ClipboardFailure extends Schema.TaggedError<ClipboardFailure>()(
   "ClipboardFailure",
@@ -10,11 +11,14 @@ class ClipboardFailure extends Schema.TaggedError<ClipboardFailure>()(
 
 export const DetectClipboard = Command.define("DetectClipboard", {
   execute: Effect.sync(() =>
-    ReaderMessage.ClipboardReady({
-      available: navigator.clipboard !== undefined,
+    Message.CompletedDetectClipboard({
+      access:
+        navigator.clipboard === undefined
+          ? ClipboardAccess.Unavailable()
+          : ClipboardAccess.Available(),
     })
   ),
-  messages: [ReaderMessage.ClipboardReady],
+  messages: [Message.CompletedDetectClipboard],
 });
 
 export const CopyReaderText = Command.define("CopyReaderText", {
@@ -28,18 +32,18 @@ export const CopyReaderText = Command.define("CopyReaderText", {
       },
     }).pipe(
       Effect.match({
-        onFailure: () => ReaderMessage.CopyFailed({ id }),
-        onSuccess: () => ReaderMessage.CopySucceeded({ id }),
+        onFailure: () => Message.FailedCopyReaderText({ id }),
+        onSuccess: () => Message.SucceededCopyReaderText({ id }),
       })
     ),
-  messages: [ReaderMessage.CopyFailed, ReaderMessage.CopySucceeded],
+  messages: [Message.FailedCopyReaderText, Message.SucceededCopyReaderText],
 });
 
-export const ExpireCopyStatus = Command.define("ExpireCopyStatus", {
+export const WaitBeforeCopyReset = Command.define("WaitBeforeCopyReset", {
   args: { id: Schema.String },
   execute: ({ id }) =>
     Effect.sleep("2 seconds").pipe(
-      Effect.as(ReaderMessage.CopyStatusExpired({ id }))
+      Effect.as(Message.CompletedWaitBeforeCopyReset({ id }))
     ),
-  messages: [ReaderMessage.CopyStatusExpired],
+  messages: [Message.CompletedWaitBeforeCopyReset],
 });

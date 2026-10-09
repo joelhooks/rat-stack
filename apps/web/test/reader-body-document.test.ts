@@ -11,9 +11,10 @@ import {
 } from "../../mischief/scripts/reader-body-document.ts";
 import { readerCopyPrompts } from "../../mischief/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
-import type { ReaderMessage } from "../src/client/reader-message.js";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
+import type { ReaderMessage } from "../src/client/reader/message.js";
+import { ClipboardAccess } from "../src/client/reader/model.js";
 import { renderReaderNode } from "../src/features/reader-node.js";
 import { readerCopyControl } from "../src/features/reader.js";
 
@@ -102,7 +103,7 @@ it.effect.prop(
         {
           Flags,
           init: (flags) => ({ commands: [], model: flags }),
-          view: (model, h: HtmlBuilder<typeof ReaderMessage.Type>) => ({
+          view: (model, h: HtmlBuilder<ReaderMessage>) => ({
             body: h.main(
               [],
               [
@@ -111,9 +112,9 @@ it.effect.prop(
                   renderReaderNode(node, h, (id, primary) =>
                     readerCopyControl(
                       {
-                        clipboardReady: true,
+                        clipboardAccess: ClipboardAccess.Available(),
                         copyPrompts: prompts,
-                        copyStates: {},
+                        copyStatuses: {},
                       },
                       h,
                       id,

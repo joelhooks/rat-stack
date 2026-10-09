@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import type { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
-import type { ReaderModel } from "../client/reader-model.js";
+import type { ReaderModel } from "../client/reader/model.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
@@ -14,7 +15,7 @@ import {
 } from "./site-route.js";
 
 export const readerWorkshop = <Message>(
-  workshop: NonNullable<ReaderModel["workshop"]>,
+  workshop: Option.Option.Value<ReaderModel["workshop"]>,
   h: HtmlBuilder<Message>
 ) =>
   h.aside(

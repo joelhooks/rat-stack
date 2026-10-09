@@ -10,8 +10,8 @@ import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
-import { ReaderFlags } from "../src/client/reader-model.ts";
-import type { ReaderPageFlags } from "../src/client/reader-model.ts";
+import { ReaderFlags } from "../src/client/reader/model.ts";
+import type { ReaderPageFlags } from "../src/client/reader/model.ts";
 import { readerMetadataHead } from "../src/reader-metadata.ts";
 import {
   isReaderRoutePath,
@@ -19,6 +19,10 @@ import {
 } from "../src/reader-routes.ts";
 import { ReaderErrorTemplate } from "../src/server/reader-error-template.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
+
+const encodeFlags = Effect.forEach((page: ReaderPageFlags) =>
+  Schema.encodeEffect(ReaderFlags)(page)
+);
 
 const readerPages = Effect.gen(function* readerPages() {
   const previewCommit = yield* Config.option(
@@ -66,10 +70,10 @@ const readerPages = Effect.gen(function* readerPages() {
   }
 
   const home = yield* readerHomeFlags(origin);
-  const lore = yield* readerLoreFlags(origin);
+  const lore = yield* Effect.flatMap(readerLoreFlags(origin), encodeFlags);
   const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
-  const bodies = yield* readerBodyFlags(origin);
+  const bodies = yield* Effect.flatMap(readerBodyFlags(origin), encodeFlags);
   const systemsSkills = yield* readerSystemsSkillsFlags(origin);
 
   const pages = [home, ...lore, learn, ...prompts, ...systemsSkills, ...bodies];

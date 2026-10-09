@@ -1,18 +1,14 @@
+import { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
-import type { ReaderModel } from "../client/reader-model.js";
+import type { ReaderModel } from "../client/reader/model.js";
 import { changeLogRouter } from "./site-route.js";
 
-export const readerReferences = <Message>(
+const referencesView = <Message>(
   model: ReaderModel,
+  references: Option.Option.Value<ReaderModel["references"]>,
   h: HtmlBuilder<Message>
 ) => {
-  const { references } = model;
-
-  if (references === undefined) {
-    return [];
-  }
-
   const { lastChange: change } = references;
 
   return [
@@ -77,3 +73,12 @@ export const readerReferences = <Message>(
         ]),
   ];
 };
+
+export const readerReferences = <Message>(
+  model: ReaderModel,
+  h: HtmlBuilder<Message>
+) =>
+  Option.match(model.references, {
+    onNone: () => [],
+    onSome: (references) => referencesView(model, references, h),
+  });

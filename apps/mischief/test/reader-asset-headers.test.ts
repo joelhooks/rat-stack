@@ -16,8 +16,8 @@ import {
   finalizeReader,
   prepareReader,
 } from "../../web/scripts/reader-build.ts";
-import { ReaderFlags } from "../../web/src/client/reader-model.js";
-import type { ReaderPageFlags } from "../../web/src/client/reader-model.js";
+import { ReaderFlags } from "../../web/src/client/reader/model.js";
+import type { ReaderPageFlags } from "../../web/src/client/reader/model.js";
 import { readerNoStoreRoutePaths } from "../../web/src/reader-routes.js";
 
 class PreparedReaderPages extends Context.Service<
