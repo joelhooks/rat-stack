@@ -965,5 +965,18 @@
         "x": "codecology"
       }
     ]
+  },
+  {
+    "kind": "post",
+    "url": "https://github.com/alchemy-run/alchemy/pull/2176",
+    "title": "alchemy/Fold proposes Foldkit-style domain modelling for the backend",
+    "summary": "Open PR: aggregates, views, policies and stories over Effect RPC, hosted on Durable Objects with a transactional outbox.",
+    "date": "2026-10-09",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": "sam-goodwin",
+      "x": null
+    },
+    "source": "https://github.com/alchemy-run/alchemy/pull/2176"
   }
 ]
