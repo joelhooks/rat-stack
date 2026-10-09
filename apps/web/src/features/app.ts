@@ -5,12 +5,19 @@ import type { Document, Html, HtmlBuilder } from "foldkit/html";
 import { UrlRequest } from "foldkit/navigation";
 import { toString as urlToString } from "foldkit/url";
 
-import { LoadExternal, Navigate, ReadDoc, SearchDocs } from "../client/docs.js";
-import { Message, ReadState, SearchState } from "../client/model.js";
-import type { AppModel, AppMessage } from "../client/model.js";
-import type { DocumentQueries } from "../client/queries.js";
+import {
+  LoadExternal,
+  Navigate,
+  ReadDoc,
+  SearchDocs,
+} from "../client/docs/command.js";
+import { Message } from "../client/docs/message.js";
+import type { AppMessage } from "../client/docs/message.js";
+import { ReadState, SearchState } from "../client/docs/model.js";
+import type { AppModel } from "../client/docs/model.js";
+import type { DocumentQueries } from "../client/docs/queries.js";
 import { styles } from "./chrome.stylex.js";
-import { AppRoute, parseRoute, readRouter } from "./route.js";
+import { AppRoute, homeRouter, parseRoute, readRouter } from "./route.js";
 import type { AppRouteState } from "./route.js";
 
 const enterRoute = (
@@ -232,7 +239,10 @@ const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
     [h.Class("page")],
     [
       h.a(
-        [h.Class(stylex.props(styles.focus).className ?? ""), h.Href("/")],
+        [
+          h.Class(stylex.props(styles.focus).className ?? ""),
+          h.Href(homeRouter()),
+        ],
         ["← Back to search"]
       ),
       ReadState.match<Html>(model.read, {
@@ -279,7 +289,7 @@ export const view = (
           h.a(
             [
               h.Class(stylex.props(styles.brand, styles.focus).className ?? ""),
-              h.Href("/"),
+              h.Href(homeRouter()),
             ],
             ["🐀 Rat Stack"]
           ),
@@ -296,7 +306,7 @@ export const view = (
               h.a(
                 [
                   h.Class(stylex.props(styles.focus).className ?? ""),
-                  h.Href("/"),
+                  h.Href(homeRouter()),
                 ],
                 ["Back to search"]
               ),

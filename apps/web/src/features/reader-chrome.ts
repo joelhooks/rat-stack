@@ -1,11 +1,21 @@
 import * as stylex from "@stylexjs/stylex";
+import type { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
-import type { ReaderModel } from "../client/reader-model.js";
+import type { ReaderModel } from "../client/reader/model.js";
 import { readerStyles } from "./reader.stylex.js";
+import {
+  agentGuideRouter,
+  apiDocsRouter,
+  changeLogRouter,
+  glossaryRouter,
+  learnRouter,
+  peersRouter,
+  promptsRouter,
+} from "./site-route.js";
 
 export const readerWorkshop = <Message>(
-  workshop: NonNullable<ReaderModel["workshop"]>,
+  workshop: Option.Option.Value<ReaderModel["workshop"]>,
   h: HtmlBuilder<Message>
 ) =>
   h.aside(
@@ -64,13 +74,13 @@ export const readerFooter = <Message>(
               h.ul(
                 [],
                 [
-                  h.li([], [h.a([h.Href("/learn")], ["learn mode"])]),
-                  h.li([], [h.a([h.Href("/glossary")], ["glossary"])]),
+                  h.li([], [h.a([h.Href(learnRouter())], ["learn mode"])]),
+                  h.li([], [h.a([h.Href(glossaryRouter())], ["glossary"])]),
                   ...(includePrompts
-                    ? [h.li([], [h.a([h.Href("/prompts")], ["prompts"])])]
+                    ? [h.li([], [h.a([h.Href(promptsRouter())], ["prompts"])])]
                     : []),
-                  h.li([], [h.a([h.Href("/log")], ["change log"])]),
-                  h.li([], [h.a([h.Href("/resources/peers")], ["peers"])]),
+                  h.li([], [h.a([h.Href(changeLogRouter())], ["change log"])]),
+                  h.li([], [h.a([h.Href(peersRouter())], ["peers"])]),
                 ]
               ),
             ]
@@ -82,8 +92,11 @@ export const readerFooter = <Message>(
               h.ul(
                 [],
                 [
-                  h.li([], [h.a([h.Href("/llms.txt")], ["agent guide"])]),
-                  h.li([], [h.a([h.Href("/openapi.json")], ["API docs"])]),
+                  h.li(
+                    [],
+                    [h.a([h.Href(agentGuideRouter())], ["agent guide"])]
+                  ),
+                  h.li([], [h.a([h.Href(apiDocsRouter())], ["API docs"])]),
                   h.li(
                     [],
                     [
@@ -103,7 +116,7 @@ export const readerFooter = <Message>(
         [],
         [
           "Markdown by default. HTML when you ask for it. ",
-          h.a([h.Href("/llms.txt")], ["Agents start here"]),
+          h.a([h.Href(agentGuideRouter())], ["Agents start here"]),
           ".",
         ]
       ),

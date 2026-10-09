@@ -1,273 +1,352 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Document, HtmlBuilder } from "foldkit/html";
+import { Array, Option } from "effect";
+import type { Document, Html, HtmlBuilder } from "foldkit/html";
 
-import { ReaderMessage } from "../client/reader-message.js";
-import type { ReaderModel } from "../client/reader-model.js";
+import { Message } from "../client/reader/message.js";
+import type { ReaderMessage } from "../client/reader/message.js";
+import {
+  ClipboardAccess,
+  copyStatusOf,
+  CopyStatus,
+  findCopyPrompt,
+} from "../client/reader/model.js";
+import type { ReaderModel } from "../client/reader/model.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
+import type { SnippetReference } from "./reader-document.js";
 import { renderReaderNode } from "./reader-node.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
+import {
+  agentGuideRouter,
+  glossaryRouter,
+  homeRouter,
+  isWithinSection,
+  learnRouter,
+  loreRouter,
+  promptsRouter,
+  skillsRouter,
+  systemsRouter,
+  tokenmaxxRouter,
+} from "./site-route.js";
 
-const copyStatusText = {
-  copied: "Copied ✓",
-  copying: "",
-  failed: "Copy failed. Select the text and copy it.",
-  idle: "",
-};
+const copyStatusText = CopyStatus.match({
+  Copied: () => "Copied ✓",
+  Copying: () => "",
+  Failed: () => "Copy failed. Select the text and copy it.",
+  Idle: () => "",
+});
 
-const readerBreadcrumb = (
-  path: string,
-  h: HtmlBuilder<typeof ReaderMessage.Type>
-) => {
-  if (path.startsWith("/prompts")) {
-    return h.a([h.Href("/prompts")], ["prompts"]);
+const siteSections = [
+  [skillsRouter(), "skills"],
+  [loreRouter(), "lore"],
+  [systemsRouter(), "systems"],
+  [glossaryRouter(), "glossary"],
+] as const;
+
+const sectionIndexes: ReadonlySet<string> = new Set([
+  homeRouter(),
+  loreRouter(),
+  glossaryRouter(),
+  systemsRouter(),
+  skillsRouter(),
+  tokenmaxxRouter(),
+]);
+
+const missingReference = (h: HtmlBuilder<ReaderMessage>, description: string) =>
+  h.p([h.Class("reader-missing"), h.Role("note")], [description]);
+
+const readerBreadcrumb = (path: string, h: HtmlBuilder<ReaderMessage>) => {
+  if (isWithinSection(promptsRouter(), path)) {
+    return h.a([h.Href(promptsRouter())], ["prompts"]);
   }
 
-  if (path.startsWith("/lore/")) {
-    return h.a([h.Href("/lore")], ["lore"]);
+  if (path.startsWith(`${loreRouter()}/`)) {
+    return h.a([h.Href(loreRouter())], ["lore"]);
   }
 
-  return h.a([h.Href("/")], ["source files"]);
+  return h.a([h.Href(homeRouter())], ["source files"]);
 };
 
 const footerLinksPrompts = (page: ReaderModel["page"]) =>
   page.status < 400 &&
-  (page.path === "/" ||
-    page.path === "/learn" ||
-    /^\/(?:lore|prompts)(?:\/|$)/u.test(page.path));
+  (page.path === homeRouter() ||
+    page.path === learnRouter() ||
+    isWithinSection(loreRouter(), page.path) ||
+    isWithinSection(promptsRouter(), page.path));
 
 export const readerCopyControl = (
-  model: Pick<ReaderModel, "clipboardReady" | "copyPrompts" | "copyStates">,
-  h: HtmlBuilder<typeof ReaderMessage.Type>,
+  model: Pick<ReaderModel, "clipboardAccess" | "copyPrompts" | "copyStatuses">,
+  h: HtmlBuilder<ReaderMessage>,
   id: string,
   primary: boolean
 ) => {
-  const prompt = model.copyPrompts.find((entry) => entry.id === id);
+  const status = copyStatusOf(model, id);
+  const copied = CopyStatus.guards.Copied(status);
 
-  if (prompt === undefined) {
-    throw new Error(`Missing copy prompt: ${id}`);
-  }
-
-  return h.span(
-    [h.Class("copy-actions")],
-    [
-      h.button(
+  return Option.match(findCopyPrompt(model, id), {
+    onNone: () => missingReference(h, `The ${id} prompt is not in this page.`),
+    onSome: (prompt) =>
+      h.span(
+        [h.Class("copy-actions")],
         [
-          h.Type("button"),
-          h.Class(primary ? "copy copy-primary" : "copy"),
-          h.DataAttribute("text", prompt.text),
-          h.AriaLabel(prompt.label),
-          h.Hidden(!model.clipboardReady),
-          h.OnClick(ReaderMessage.CopyRequested({ id })),
-          h.DataAttribute("copied", String(model.copyStates[id] === "copied")),
-        ],
-        [
-          readerCopyIcon(h, model.copyStates[id] === "copied"),
+          h.button(
+            [
+              h.Type("button"),
+              h.Class(primary ? "copy copy-primary" : "copy"),
+              h.DataAttribute("text", prompt.text),
+              h.AriaLabel(prompt.label),
+              h.Hidden(
+                !ClipboardAccess.guards.Available(model.clipboardAccess)
+              ),
+              h.OnClick(Message.ClickedCopy({ id })),
+              h.DataAttribute("copied", String(copied)),
+            ],
+            [
+              readerCopyIcon(h, copied),
+              h.span(
+                [h.Class("copy-label")],
+                [copied ? "Copied ✓" : prompt.label]
+              ),
+            ]
+          ),
           h.span(
-            [h.Class("copy-label")],
-            [model.copyStates[id] === "copied" ? "Copied ✓" : prompt.label]
+            [h.Class("copy-status"), h.Role("status"), h.AriaLive("polite")],
+            [copyStatusText(status)]
           ),
         ]
       ),
-      h.span(
-        [h.Class("copy-status"), h.Role("status"), h.AriaLive("polite")],
-        [copyStatusText[model.copyStates[id] ?? "idle"]]
-      ),
-    ]
-  );
+  });
 };
 
 const readerCopyPrompt = (
   model: ReaderModel,
-  h: HtmlBuilder<typeof ReaderMessage.Type>,
+  h: HtmlBuilder<ReaderMessage>,
   id: string
 ) => {
-  const prompt = model.copyPrompts.find((entry) => entry.id === id);
   const control = readerCopyControl(model, h, id, false);
 
-  return prompt?.showText === true
-    ? h.div(
-        [h.Class("prompt")],
+  return Option.match(
+    Option.filter(findCopyPrompt(model, id), (prompt) => prompt.showText),
+    {
+      onNone: () => control,
+      onSome: (prompt) =>
+        h.div(
+          [h.Class("prompt")],
+          [
+            control,
+            h.details(
+              [h.Class("prompt-text")],
+              [
+                h.summary([], ["See the prompt"]),
+                h.pre([], [h.code([], [prompt.text])]),
+              ]
+            ),
+          ]
+        ),
+    }
+  );
+};
+
+const builtSnippet = (h: HtmlBuilder<ReaderMessage>, html: string) =>
+  h.div([h.Class("reader-snippet"), h.InnerHTML(html)]);
+
+const readerCodeFence = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>,
+  value: string
+) =>
+  Option.match(
+    Array.findFirst(model.codeFences, (fence) => fence.value === value),
+    {
+      onNone: () =>
+        missingReference(h, "This code block is not in the built page."),
+      onSome: ({ html }) => builtSnippet(h, html),
+    }
+  );
+
+const readerSnippet = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>,
+  reference: SnippetReference
+) =>
+  Option.match(
+    Array.findFirst(
+      model.snippets,
+      (snippet) =>
+        snippet.repo === reference.repo &&
+        snippet.path === reference.path &&
+        snippet.at === reference.at &&
+        snippet.lines === reference.lines
+    ),
+    {
+      onNone: () =>
+        missingReference(
+          h,
+          `The excerpt ${reference.path} lines ${reference.lines} is not in the built page.`
+        ),
+      onSome: ({ html }) => builtSnippet(h, html),
+    }
+  );
+
+const siteHeader = (h: HtmlBuilder<ReaderMessage>) =>
+  h.header(
+    [
+      h.Class(
+        stylex.props(readerStyles.bounded, readerStyles.header).className ?? ""
+      ),
+    ],
+    [
+      h.nav(
+        [h.AriaLabel("Primary navigation"), h.Class("site-nav")],
         [
-          control,
-          h.details(
-            [h.Class("prompt-text")],
+          h.a(
+            [h.Class("brand"), h.Href(homeRouter())],
+            [h.strong([], ["🐀 Rat Stack"])]
+          ),
+          h.div(
+            [h.Class("site-links")],
             [
-              h.summary([], ["See the prompt"]),
-              h.pre([], [h.code([], [prompt.text])]),
+              h.ul(
+                [],
+                siteSections.map(([href, name]) =>
+                  h.li([], [h.a([h.Href(href)], [name])])
+                )
+              ),
+              h.ul(
+                [],
+                [h.li([], [h.a([h.Href(agentGuideRouter())], ["agent guide"])])]
+              ),
             ]
           ),
         ]
-      )
-    : control;
-};
+      ),
+    ]
+  );
 
-export const readerView = (
+const agentPointer = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) =>
+  h.p(
+    [h.Class("agent-pointer visually-hidden"), h.AriaHidden(true)],
+    [
+      "For agents: start with the ",
+      h.a(
+        [h.Href(`${model.origin}${agentGuideRouter()}`), h.Tabindex(-1)],
+        ["agent guide"]
+      ),
+      ". Every page is Markdown by default; add Accept: text/html for HTML.",
+    ]
+  );
+
+const breadcrumbView = (
   model: ReaderModel,
-  h: HtmlBuilder<typeof ReaderMessage.Type>
-): Document => {
-  const copyControl = (id: string, primary: boolean) =>
-    readerCopyControl(model, h, id, primary);
-
-  return {
-    body: h.div(
-      [h.Class(stylex.props(readerStyles.shell).className ?? "")],
-      [
-        h.header(
+  h: HtmlBuilder<ReaderMessage>
+): readonly Html[] =>
+  sectionIndexes.has(model.page.path)
+    ? []
+    : [
+        h.nav(
+          [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
           [
-            h.Class(
-              stylex.props(readerStyles.bounded, readerStyles.header)
-                .className ?? ""
-            ),
-          ],
-          [
-            h.nav(
-              [h.AriaLabel("Primary navigation"), h.Class("site-nav")],
-              [
-                h.a(
-                  [h.Class("brand"), h.Href("/")],
-                  [h.strong([], ["🐀 Rat Stack"])]
-                ),
-                h.div(
-                  [h.Class("site-links")],
-                  [
-                    h.ul(
-                      [],
-                      ["skills", "lore", "systems", "glossary"].map((name) =>
-                        h.li([], [h.a([h.Href(`/${name}`)], [name])])
-                      )
-                    ),
-                    h.ul(
-                      [],
-                      [h.li([], [h.a([h.Href("/llms.txt")], ["agent guide"])])]
-                    ),
-                  ]
-                ),
-              ]
-            ),
+            Option.match(model.breadcrumb, {
+              onNone: () => readerBreadcrumb(model.page.path, h),
+              onSome: (breadcrumb) =>
+                h.a([h.Href(breadcrumb.href)], [breadcrumb.label]),
+            }),
+            ` / ${Option.match(model.breadcrumb, {
+              onNone: () => model.heading,
+              onSome: (breadcrumb) => breadcrumb.name,
+            })}`,
           ]
         ),
-        h.main(
-          [h.DataAttribute("path", model.page.path)],
-          [
-            h.p(
-              [h.Class("agent-pointer visually-hidden"), h.AriaHidden(true)],
-              [
-                "For agents: start with the ",
-                h.a(
-                  [h.Href(`${model.origin}/llms.txt`), h.Tabindex(-1)],
-                  ["agent guide"]
-                ),
-                ". Every page is Markdown by default; add Accept: text/html for HTML.",
-              ]
-            ),
-            ...(model.workshop === undefined
-              ? []
-              : [readerWorkshop(model.workshop, h)]),
-            ...(model.page.path === "/" ||
-            model.page.path === "/lore" ||
-            model.page.path === "/glossary" ||
-            model.page.path === "/systems" ||
-            model.page.path === "/skills" ||
-            model.page.path === "/tokenmaxx"
-              ? []
-              : [
-                  h.nav(
-                    [h.AriaLabel("Breadcrumb"), h.Class("breadcrumb")],
-                    [
-                      model.breadcrumb === undefined
-                        ? readerBreadcrumb(model.page.path, h)
-                        : h.a(
-                            [h.Href(model.breadcrumb.href)],
-                            [model.breadcrumb.label]
-                          ),
-                      ` / ${model.breadcrumb?.name ?? model.heading}`,
+      ];
+
+const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
+  ...Option.match(model.bodyNodes, {
+    onNone: () => [h.h1([], [model.heading])],
+    onSome: (nodes) =>
+      nodes.map((node) =>
+        renderReaderNode(node, h, (id, primary) =>
+          readerCopyControl(model, h, id, primary)
+        )
+      ),
+  }),
+  ...model.blocks.map((block) =>
+    renderReaderBlock(block, h, {
+      anchors: Option.match(model.references, {
+        onNone: () => [],
+        onSome: (references) => references.anchors,
+      }),
+      codeFence: (value) => readerCodeFence(model, h, value),
+      copyPrompt: (id) => readerCopyPrompt(model, h, id),
+      inboundCounts: Option.match(model.references, {
+        onNone: () => ({}),
+        onSome: (references) => references.inboundCounts,
+      }),
+      pagePath: model.page.path,
+      snippet: (reference) => readerSnippet(model, h, reference),
+    })
+  ),
+];
+
+const bibliographyView = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>
+): readonly Html[] =>
+  Array.match(model.bibliography, {
+    onEmpty: () => [],
+    onNonEmpty: (sources) => [
+      h.section(
+        [h.AriaLabelledBy("sources"), h.Class("bibliography")],
+        [
+          h.h2([h.Id("sources")], ["Sources"]),
+          h.ol(
+            [],
+            sources.map((source, index) =>
+              h.li(
+                [h.Id(`source-${index + 1}`)],
+                source.kind === "linked"
+                  ? [
+                      h.a([h.Href(source.url)], [source.title]),
+                      `. ${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
                     ]
-                  ),
-                ]),
-            ...(model.bodyNodes === undefined
-              ? [h.h1([], [model.heading])]
-              : model.bodyNodes.map((node) =>
-                  renderReaderNode(node, h, copyControl)
-                )),
-            ...model.blocks.map((block) =>
-              renderReaderBlock(block, h, {
-                anchors: model.references?.anchors ?? [],
-                codeFence: (value) => {
-                  const resolved = model.codeFences.find(
-                    (fence) => fence.value === value
-                  );
-
-                  if (resolved === undefined) {
-                    throw new Error("Missing built home code fence");
-                  }
-
-                  return h.div([
-                    h.Class("reader-snippet"),
-                    h.InnerHTML(resolved.html),
-                  ]);
-                },
-                copyPrompt: (id) => readerCopyPrompt(model, h, id),
-                inboundCounts: model.references?.inboundCounts ?? {},
-                pagePath: model.page.path,
-                snippet: (reference) => {
-                  const resolved = model.snippets.find(
-                    (snippet) =>
-                      snippet.repo === reference.repo &&
-                      snippet.path === reference.path &&
-                      snippet.at === reference.at &&
-                      snippet.lines === reference.lines
-                  );
-
-                  if (resolved === undefined) {
-                    throw new Error(
-                      `Missing built excerpt: ${reference.repo}:${reference.path}@${reference.at}:${reference.lines}`
-                    );
-                  }
-
-                  return h.div([
-                    h.Class("reader-snippet"),
-                    h.InnerHTML(resolved.html),
-                  ]);
-                },
-              })
-            ),
-            ...(model.bibliography.length === 0
-              ? []
-              : [
-                  h.section(
-                    [h.AriaLabelledBy("sources"), h.Class("bibliography")],
-                    [
-                      h.h2([h.Id("sources")], ["Sources"]),
-                      h.ol(
-                        [],
-                        model.bibliography.map((source, index) =>
-                          h.li(
-                            [h.Id(`source-${index + 1}`)],
-                            source.kind === "linked"
-                              ? [
-                                  h.a([h.Href(source.url)], [source.title]),
-                                  `. ${source.publisher}. ${source.note} Accessed ${source.accessed}.`,
-                                ]
-                              : [
-                                  `${source.title}. Recorded ${source.recordedAt}. ${source.note}.`,
-                                ]
-                          )
-                        )
-                      ),
+                  : [
+                      `${source.title}. Recorded ${source.recordedAt}. ${source.note}.`,
                     ]
-                  ),
-                ]),
-            ...readerReferences(model, h),
-          ]
-        ),
-        readerFooter(h, footerLinksPrompts(model.page)),
-      ]
-    ),
-    canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
-    ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
-    title: model.page.metadata.title,
-  };
-};
+              )
+            )
+          ),
+        ]
+      ),
+    ],
+  });
+
+export const view = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>
+): Document => ({
+  body: h.div(
+    [h.Class(stylex.props(readerStyles.shell).className ?? "")],
+    [
+      siteHeader(h),
+      h.main(
+        [h.DataAttribute("path", model.page.path)],
+        [
+          agentPointer(model, h),
+          ...Option.match(model.workshop, {
+            onNone: () => [],
+            onSome: (workshop) => [readerWorkshop(workshop, h)],
+          }),
+          ...breadcrumbView(model, h),
+          ...bodyView(model, h),
+          ...bibliographyView(model, h),
+          ...readerReferences(model, h),
+        ]
+      ),
+      readerFooter(h, footerLinksPrompts(model.page)),
+    ]
+  ),
+  canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
+  ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
+  title: model.page.metadata.title,
+});

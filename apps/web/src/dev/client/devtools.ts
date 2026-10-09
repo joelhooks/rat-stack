@@ -1,11 +1,11 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { devtoolsContracts } from "@rat-stack/devtools/contracts";
-import { Effect, Layer, Match, Schema } from "effect";
+import { Effect, Layer, Match, Option, Schema } from "effect";
 import { FetchHttpClient } from "effect/http";
 import { RpcClient, RpcSerialization } from "effect/rpc";
 import { Command } from "foldkit";
 
-import { Message } from "./model.js";
+import { Message } from "./message.js";
 
 const { group } = toRpcGroup(devtoolsContracts);
 
@@ -39,7 +39,7 @@ export const Inspect = Command.define("Inspect", {
       "diff",
       "person",
     ]),
-    person: Schema.NullOr(Schema.String),
+    person: Schema.Option(Schema.String),
     personName: Schema.String,
     to: Schema.String,
   },
@@ -71,9 +71,14 @@ export const Inspect = Command.define("Inspect", {
             ).pipe(
               Effect.flatMap((input) =>
                 client.rat_call(
-                  args.person === null
-                    ? { capability: args.capability, input }
-                    : { as: args.person, capability: args.capability, input }
+                  Option.match(args.person, {
+                    onNone: () => ({ capability: args.capability, input }),
+                    onSome: (as) => ({
+                      as,
+                      capability: args.capability,
+                      input,
+                    }),
+                  })
                 )
               ),
               json

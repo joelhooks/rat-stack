@@ -5,7 +5,6 @@ import { Effect, Layer, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 
 import { contentRoutes } from "../src/dev/content-routes.js";
-import { rpcRouteHandler } from "../src/server/rpc.js";
 
 const RpcExit = Schema.fromJsonString(
   Schema.Tuple([
@@ -36,13 +35,15 @@ it.effect("serves search over /rpc with no devtools involved", () =>
     };
 
     const response = yield* Effect.promise(
-      rpcRouteHandler(handler).bind(undefined, {
-        request: new Request("http://dev.test/rpc", {
-          body: JSON.stringify(request),
-          headers: { "content-type": "application/json" },
-          method: "POST",
-        }),
-      })
+      // @effect-diagnostics-next-line asyncFunction:off -- The Effect web handler is a Promise boundary.
+      async () =>
+        await handler(
+          new Request("http://dev.test/rpc", {
+            body: JSON.stringify(request),
+            headers: { "content-type": "application/json" },
+            method: "POST",
+          })
+        )
     );
 
     const body = yield* Effect.promise(response.text.bind(response));

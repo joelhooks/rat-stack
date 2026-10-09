@@ -5,8 +5,7 @@
   "type": "module",
   "imports": {
     "#backend": {
-      "development": "./src/dev/backend.ts",
-      "default": "./src/server/backend.ts"
+      "development": "./src/dev/backend.ts"
     },
     "#devtools-overlay": {
       "development": "./src/dev/client/entry.ts",

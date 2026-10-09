@@ -3,9 +3,10 @@ import { Console, Effect, FileSystem, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import { readerPrototypeFlags } from "../../mischief/scripts/reader-prototype-flags.ts";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.ts";
+import { init } from "../src/client/reader/init.ts";
+import { ReaderFlags } from "../src/client/reader/model.ts";
 import { serviceCaptureDocument } from "../src/client/service-capture-document.ts";
-import { readerView } from "../src/features/reader.ts";
+import { view } from "../src/features/reader.ts";
 
 const program = Effect.gen(function* renderLorePrototype() {
   const fs = yield* FileSystem.FileSystem;
@@ -17,7 +18,7 @@ const program = Effect.gen(function* renderLorePrototype() {
   });
 
   const rendered = yield* renderToString(
-    { Flags: ReaderFlags, init: readerInit, view: readerView },
+    { Flags: ReaderFlags, init, view },
     {
       flags,
       isHydratable: false,

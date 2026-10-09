@@ -1,11 +1,12 @@
 import { expect, it } from "@effect/vitest";
-import { Schema } from "effect";
+import { Option, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Scene from "foldkit/scene";
 import * as Story from "foldkit/story";
 
 import { Inspect } from "../src/dev/client/devtools.js";
-import { Message, Model } from "../src/dev/client/model.js";
+import { Message } from "../src/dev/client/message.js";
+import { Model } from "../src/dev/client/model.js";
 import { init, update, view } from "../src/dev/features/overlay/overlay.js";
 
 const fixture = init().model;
@@ -75,7 +76,7 @@ it("signing in selects a person that survives tab changes and closing the inspec
         capability: "search",
         input: '{"query":"capability"}',
         operation: "run",
-        person: "person-ada",
+        person: Option.some("person-ada"),
       });
 
       return simulation;
@@ -85,7 +86,7 @@ it("signing in selects a person that survives tab changes and closing the inspec
       Message.Loaded({ generation: 4, value: [] })
     ),
     Story.model((model) => {
-      expect(model.person).toBe("person-ada");
+      expect(model.person).toStrictEqual(Option.some("person-ada"));
     })
   );
 });

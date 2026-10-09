@@ -1,8 +1,8 @@
 import { Effect, Schema } from "effect";
 
-import { ReaderFlags } from "../../web/src/client/reader-model.js";
 import { ReaderNode } from "../../web/src/client/reader-node.js";
 import type { ReaderNodeValue } from "../../web/src/client/reader-node.js";
+import { ReaderFlags } from "../../web/src/client/reader/model.js";
 import { readerBodyRoutePaths } from "../../web/src/reader-routes.js";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { copyPrompts } from "./component-data.ts";

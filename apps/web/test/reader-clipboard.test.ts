@@ -11,10 +11,15 @@ import {
 } from "effect";
 
 import { prepareReader } from "../scripts/reader-build.ts";
-import { ReaderMessage } from "../src/client/reader-message.js";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
-import type { ReaderPageFlags } from "../src/client/reader-model.js";
-import { readerUpdate } from "../src/client/reader-update.js";
+import { init } from "../src/client/reader/init.js";
+import { Message } from "../src/client/reader/message.js";
+import {
+  ClipboardAccess,
+  copyStatusOf,
+  ReaderFlags,
+} from "../src/client/reader/model.js";
+import type { ReaderPageFlags } from "../src/client/reader/model.js";
+import { update } from "../src/client/reader/update.js";
 
 class ClipboardPage extends Context.Service<
   ClipboardPage,
@@ -73,18 +78,18 @@ const expectedCopyStatus = (
   failed: ReadonlySet<string>
 ) => {
   if (pending.has(id)) {
-    return "copying";
+    return "Copying";
   }
 
   if (copied.has(id)) {
-    return "copied";
+    return "Copied";
   }
 
   if (failed.has(id)) {
-    return "failed";
+    return "Failed";
   }
 
-  return "idle";
+  return "Idle";
 };
 
 it.layer(ClipboardPage.layer)((test) => {
@@ -98,37 +103,41 @@ it.layer(ClipboardPage.layer)((test) => {
         const pending = new Set<string>();
         const copied = new Set<string>();
         const failed = new Set<string>();
-        let available = false;
-        let { model } = readerInit(flags);
+        let access: (typeof ClipboardAccess.Type)["_tag"] = "Unknown";
+        let { model } = init(flags);
 
         for (const step of history) {
           const id =
             flags.copyPrompts[step.target]?.id ?? `unknown-${step.target}`;
 
           const messages = {
-            expire: ReaderMessage.CopyStatusExpired({ id }),
-            fail: ReaderMessage.CopyFailed({ id }),
-            ready: ReaderMessage.ClipboardReady({ available: true }),
-            request: ReaderMessage.CopyRequested({ id }),
-            succeed: ReaderMessage.CopySucceeded({ id }),
-            unavailable: ReaderMessage.ClipboardReady({ available: false }),
+            expire: Message.CompletedWaitBeforeCopyReset({ id }),
+            fail: Message.FailedCopyReaderText({ id }),
+            ready: Message.CompletedDetectClipboard({
+              access: ClipboardAccess.Available(),
+            }),
+            request: Message.ClickedCopy({ id }),
+            succeed: Message.SucceededCopyReaderText({ id }),
+            unavailable: Message.CompletedDetectClipboard({
+              access: ClipboardAccess.Unavailable(),
+            }),
           };
 
           switch (step.action) {
             case "ready": {
-              available = true;
+              access = "Available";
               break;
             }
 
             case "unavailable": {
-              available = false;
+              access = "Unavailable";
               break;
             }
 
             case "request": {
               if (
                 known.has(id) &&
-                available &&
+                access === "Available" &&
                 !pending.has(id) &&
                 !copied.has(id)
               ) {
@@ -168,17 +177,16 @@ it.layer(ClipboardPage.layer)((test) => {
             }
           }
 
-          ({ model } = readerUpdate(model, messages[step.action]));
-          expect(model.clipboardReady).toBe(available);
+          ({ model } = update(model, messages[step.action]));
+          expect(model.clipboardAccess._tag).toBe(access);
           expect(
-            Object.keys(model.copyStates).every((key) => known.has(key))
+            Object.keys(model.copyStatuses).every((key) => known.has(key))
           ).toBe(true);
           expect(model.blocks).toBe(flags.blocks);
           expect(model.copyPrompts).toBe(flags.copyPrompts);
 
           for (const prompt of flags.copyPrompts) {
-            const observed = model.copyStates[prompt.id] ?? "idle";
-            expect(observed).toBe(
+            expect(copyStatusOf(model, prompt.id)._tag).toBe(
               expectedCopyStatus(prompt.id, pending, copied, failed)
             );
           }

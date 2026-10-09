@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
-import { ReaderFlags } from "../client/reader-model.js";
 import { ReaderNodeSchema } from "../client/reader-node.js";
+import { ReaderFlags } from "../client/reader/model.js";
 
 export const ReaderErrorTemplate = Schema.Struct({
   actions: Schema.Array(ReaderNodeSchema),

@@ -3,8 +3,9 @@ import { Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { Command, given, message, model, story } from "foldkit/story";
 
-import { SearchDocs } from "../src/client/docs.js";
-import { Message, SearchState } from "../src/client/model.js";
+import { SearchDocs } from "../src/client/docs/command.js";
+import { Message } from "../src/client/docs/message.js";
+import { SearchState } from "../src/client/docs/model.js";
 import { update } from "../src/features/app.js";
 import { docsHome, docsResult } from "./docs-fixture.js";
 
