@@ -1,4 +1,22 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/http/Headers",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/rpc/RpcClient",
+          "effect/rpc/RpcGroup",
+          "effect/rpc/RpcMessage",
+          "effect/rpc/RpcMiddleware",
+          "effect/rpc/RpcServer"
+        ]
+      }
+    ]
+  },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

@@ -1,6 +1,38 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/ai/McpProtocol",
+          "effect/ai/McpServer",
+          "effect/http-api/HttpApiBuilder",
+          "effect/http-api/HttpApiClient",
+          "effect/http-api/HttpApiSchema",
+          "effect/http/FetchHttpClient",
+          "effect/http/Headers",
+          "effect/http/HttpBody",
+          "effect/http/HttpClient",
+          "effect/http/HttpClientError",
+          "effect/http/HttpClientRequest",
+          "effect/http/HttpClientResponse",
+          "effect/http/HttpEffect",
+          "effect/http/HttpMiddleware",
+          "effect/http/HttpRouter",
+          "effect/http/HttpServerError",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/http/UrlParams",
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner",
+          "effect/rpc/RpcClient",
+          "effect/rpc/RpcSerialization",
+          "effect/rpc/RpcServer"
+        ]
+      }
+    ],
     "allowImportingTsExtensions": true,
     "module": "Preserve",
     "moduleResolution": "Bundler",

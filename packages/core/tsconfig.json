@@ -1,4 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/http/HttpClient",
+          "effect/http/HttpClientResponse",
+          "effect/observability/OtlpSerialization",
+          "effect/observability/OtlpTracer",
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner"
+        ]
+      }
+    ]
+  },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

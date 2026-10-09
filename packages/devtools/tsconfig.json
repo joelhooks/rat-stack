@@ -1,4 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": ["effect/ai/Tool", "effect/rpc/RpcTest"]
+      }
+    ]
+  },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

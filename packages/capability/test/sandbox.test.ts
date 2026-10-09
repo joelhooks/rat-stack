@@ -97,7 +97,7 @@ describe("subprocess Sandbox", () => {
         yield* Effect.addFinalizer(() =>
           Effect.sync(() => {
             if (previous === undefined) {
-              delete process.env.RAT_STACK_SANDBOX_PARENT_SENTINEL;
+              Reflect.deleteProperty(process.env, key);
             } else {
               process.env[key] = previous;
             }

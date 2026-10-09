@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.86.1",
-    "@effect/tsgo": "0.45.0",
+    "@effect/tsgo": "0.51.1",
     "@foldkit/oxlint-plugin": "0.15.2",
     "@oxlint/plugins": "1.83.0",
     "@types/node": "24.13.6",

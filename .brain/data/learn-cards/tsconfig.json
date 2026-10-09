@@ -1,6 +1,34 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/ai/Tool",
+          "effect/ai/Toolkit",
+          "effect/cli/Argument",
+          "effect/cli/Command",
+          "effect/cli/Flag",
+          "effect/http-api/HttpApi",
+          "effect/http-api/HttpApiBuilder",
+          "effect/http-api/HttpApiEndpoint",
+          "effect/http-api/HttpApiError",
+          "effect/http-api/HttpApiGroup",
+          "effect/http-api/HttpApiMiddleware",
+          "effect/http-api/OpenApi",
+          "effect/http/HttpClient",
+          "effect/http/HttpClientResponse",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner",
+          "effect/rpc/Rpc",
+          "effect/rpc/RpcGroup"
+        ]
+      }
+    ],
     "noEmit": true,
     "paths": {
       "@effect/vitest": [
