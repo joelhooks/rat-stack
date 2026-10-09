@@ -1,4 +1,5 @@
 import { expect, it } from "@effect/vitest";
+import { SandboxDiagnostic } from "@rat-stack/capability";
 import { gateOutcome } from "@rat-stack/check-harness";
 import { Effect, Predicate, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
@@ -43,15 +44,23 @@ const bodyFor = (url: string, body: string) => {
   }
 
   if (body.includes("while(true)")) {
-    return Schema.TaggedStruct("SandboxError", {
-      reason: Schema.Literal("timeout"),
-    }).make({ reason: "timeout" });
+    return {
+      diagnostic: SandboxDiagnostic.make({
+        kind: "TimeoutExceeded",
+        message: "The program exceeded its time limit",
+      }),
+      result: null,
+    };
   }
 
   if (body.includes("fetch")) {
     return {
-      message:
-        "This worker is not permitted to access the internet via global functions",
+      diagnostic: SandboxDiagnostic.make({
+        kind: "ExecutionFailure",
+        message:
+          "This worker is not permitted to access the internet via global functions",
+      }),
+      result: null,
     };
   }
 
@@ -105,4 +114,78 @@ it.effect.prop(
       expect(results).toHaveLength(14);
     }),
   { arbitrary: { runs: 50 } }
+);
+
+it.effect.prop(
+  "sandbox health requires HTTP success, matching diagnostics, refused fetch, and null results",
+  {
+    httpSuccess: Schema.Boolean,
+    networkKind: Schema.Literals(["ExecutionFailure", "TimeoutExceeded"]),
+    nullResult: Schema.Boolean,
+    refusedFetch: Schema.Boolean,
+    timeoutKind: Schema.Literals(["TimeoutExceeded", "ExecutionFailure"]),
+  },
+  ({ httpSuccess, nullResult, timeoutKind, networkKind, refusedFetch }) =>
+    Effect.gen(function* qualifiesSandboxDiagnostics() {
+      const client = HttpClient.make((request) => {
+        const body = Predicate.isTagged(request.body, "Uint8Array")
+          ? new TextDecoder().decode(request.body.body)
+          : "";
+
+        const timeout = body.includes("while(true)");
+        const network = body.includes("fetch");
+        const sandbox = timeout || network;
+
+        const value = sandbox
+          ? {
+              diagnostic: SandboxDiagnostic.make({
+                kind: timeout ? timeoutKind : networkKind,
+                message:
+                  network && refusedFetch
+                    ? "This worker is not permitted to access the internet"
+                    : "Unrelated execution failure",
+              }),
+              result: nullResult ? null : 1,
+            }
+          : bodyFor(request.url, body);
+
+        return Effect.succeed(
+          HttpClientResponse.fromWeb(
+            request,
+            Response.json(value, {
+              headers: { etag: 'W/"test-generation:default:route"' },
+              status: sandbox && !httpSuccess ? 500 : 200,
+            })
+          )
+        );
+      });
+
+      const results = yield* postDeployChecks(
+        "https://example.com",
+        "test-generation",
+        0,
+        { ...contentVersionRetryDefaults, deadlineMs: 0 }
+      ).pipe(Effect.provideService(HttpClient.HttpClient, client));
+
+      const timeout = results.find((row) => row.check === "sandbox-timeout");
+
+      const network = results.find(
+        (row) => row.check === "sandbox-network-refused"
+      );
+
+      expect(timeout?.outcome).toBe(
+        httpSuccess && nullResult && timeoutKind === "TimeoutExceeded"
+          ? "passed"
+          : "failed"
+      );
+      expect(network?.outcome).toBe(
+        httpSuccess &&
+          nullResult &&
+          networkKind === "ExecutionFailure" &&
+          refusedFetch
+          ? "passed"
+          : "failed"
+      );
+    }),
+  { arbitrary: { runs: 100 } }
 );

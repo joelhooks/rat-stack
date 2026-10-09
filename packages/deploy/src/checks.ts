@@ -1,3 +1,4 @@
+import { SandboxDiagnostic } from "@rat-stack/capability";
 import { gateOutcome, runCheck } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
 import { Clock, Config, DateTime, Effect, Option, Schema } from "effect";
@@ -25,8 +26,9 @@ const SearchResponse = Schema.Struct({
   }),
 });
 
-const TimeoutResponse = Schema.TaggedStruct("SandboxError", {
-  reason: Schema.Literal("timeout"),
+const SandboxResponse = Schema.Struct({
+  diagnostic: Schema.NullOr(SandboxDiagnostic),
+  result: Schema.Json,
 });
 
 const ReadyResponse = Schema.Struct({
@@ -52,12 +54,6 @@ const RateDocument = Schema.Struct({
     }),
   }),
 });
-
-const NetworkResponse = Schema.Union([
-  Schema.Struct({ message: Schema.String }),
-  Schema.Struct({ error: Schema.Struct({ message: Schema.String }) }),
-  Schema.Struct({ result: Schema.Struct({ message: Schema.String }) }),
-]);
 
 export const measuredCheck = <E, R>(
   check: string,
@@ -451,21 +447,16 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
           );
 
           const document =
-            yield* HttpClientResponse.schemaBodyJson(NetworkResponse)(response);
+            yield* HttpClientResponse.schemaBodyJson(SandboxResponse)(response);
 
-          let message = "";
-
-          if ("message" in document) {
-            ({ message } = document);
-          } else if ("error" in document) {
-            ({ message } = document.error);
-          } else {
-            ({ message } = document.result);
-          }
-
-          return message
-            .toLowerCase()
-            .includes("not permitted to access the internet");
+          return (
+            response.status === 200 &&
+            document.result === null &&
+            document.diagnostic?.kind === "ExecutionFailure" &&
+            document.diagnostic.message
+              .toLowerCase()
+              .includes("not permitted to access the internet")
+          );
         })
       ),
       yield* measuredCheck(
@@ -476,9 +467,14 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
             JSON.stringify({ code: "while(true){}" })
           );
 
-          yield* HttpClientResponse.schemaBodyJson(TimeoutResponse)(response);
+          const document =
+            yield* HttpClientResponse.schemaBodyJson(SandboxResponse)(response);
 
-          return true;
+          return (
+            response.status === 200 &&
+            document.result === null &&
+            document.diagnostic?.kind === "TimeoutExceeded"
+          );
         })
       ),
       yield* measuredCheck(
