@@ -6,7 +6,7 @@ import type {
   Progress,
 } from "@rat-stack/core/learn";
 import { LearnError, newConcept } from "@rat-stack/core/learn";
-import { Context, Effect, Exit, Layer } from "effect";
+import { Context, Effect, Layer, Option, Ref } from "effect";
 
 import { evaluateConcept } from "./evaluate-concept.js";
 import { recordConcept } from "./progress-machine.js";
@@ -31,10 +31,22 @@ export class Learner extends Context.Service<
     Layer.effect(
       Learner,
       Effect.gen(function* makeLearner() {
-        // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- Existing shared deck loader can await request I/O; packet 1b replaces this baseline cache with completed values.
-        const cards = yield* Effect.cachedWithTTL(deck, (exit) =>
-          Exit.isSuccess(exit) ? "Infinity" : 0
+        const completed = yield* Ref.make<Option.Option<readonly Card[]>>(
+          Option.none()
         );
+
+        const cards = Effect.gen(function* readCompletedDeck() {
+          const cached = yield* Ref.get(completed);
+
+          if (Option.isSome(cached)) {
+            return cached.value;
+          }
+
+          const loaded = yield* deck;
+          yield* Ref.set(completed, Option.some(loaded));
+
+          return loaded;
+        });
 
         const card = Effect.fn("Learner.card")(function* findCard(id: string) {
           const found = (yield* cards).find((item) => item.id === id);

@@ -1,4 +1,4 @@
-import { Effect, Exit, Layer } from "effect";
+import { Effect, Layer, Option, Ref } from "effect";
 import * as McpServer from "effect/ai/McpServer";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
@@ -37,13 +37,20 @@ export const mcpContent = Layer.unwrap(
     const store = yield* ContentStore;
     const server = yield* McpServer.McpServer;
 
-    // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- Existing shared catalog registration awaits asset I/O; packet 1b removes this baseline pending cache.
-    const registered = yield* Effect.cachedWithTTL(
-      registerCatalog(store).pipe(
-        Effect.provideService(McpServer.McpServer, server)
-      ),
-      (exit) => (Exit.isSuccess(exit) ? "Infinity" : 0)
+    const completed = yield* Ref.make<Option.Option<"registered">>(
+      Option.none()
     );
+
+    const registered = Effect.gen(function* registerCompletedCatalog() {
+      if (Option.isSome(yield* Ref.get(completed))) {
+        return;
+      }
+
+      yield* registerCatalog(store).pipe(
+        Effect.provideService(McpServer.McpServer, server)
+      );
+      yield* Ref.set(completed, Option.some("registered"));
+    });
 
     return HttpRouter.middleware(
       (httpEffect) =>
