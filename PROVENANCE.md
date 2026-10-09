@@ -23,6 +23,8 @@ Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just
 
 - `.brain/resources/lore/cache-completed-values.svx` and `scripts/oxlint-plugin-patterns.ts` adapt the lifetime guidance from `docs/architecture.md` (Be explicit about lifetimes) and `docs/guardrails.md` (Request lifetime).
 - The rule implementation and its fixtures are ours. The ContentStore example comes from rat-stack PR #64.
+- `apps/web/src/AGENTS.md` adapts `src/ui/AGENTS.md` and `docs/guardrails.md`. The checked conventions come from Foldkit's `packages/create-foldkit-app/templates/base/FOLDKIT.md` at `foldkit@0.166.0` (MIT).
+- `apps/web/test/docs.story.test.ts` and `docs.scene.test.ts` adapt the testing approach from `src/ui/story.test.ts` and `src/ui/scene.test.ts`. They exercise rat-stack's document browser rather than the upstream counter.
 
 ## Wiki prose style warnings (MIT)
 
