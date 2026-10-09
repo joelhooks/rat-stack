@@ -110,6 +110,11 @@ Parse errors, invalid data, timeouts, and program failures also return diagnosti
 
 Host cancellation still interrupts execution.
 
+The HTTP execute response uses status 200 for execution diagnostics.
+Failure diagnostics have a null result.
+Consumers that parsed `SandboxError` bodies must read `diagnostic` instead.
+A health check must reject a non-null result when it expects failure.
+
 `toolCalls` lists admitted calls in dispatch order, including failed calls.
 `maxToolCalls` rejects extra calls before their handlers run.
 Both sandbox adapters run at most eight tool calls at once.

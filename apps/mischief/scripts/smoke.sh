@@ -16,11 +16,13 @@ post_json() {
 }
 
 assert_json() {
-  node --input-type=module - "$1" "$2" "${3:-}" <<'NODE'
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && node --input-type=module - "$1" "$2" "${3:-}" <<'NODE'
 import { readFile } from "node:fs/promises";
+import { SandboxDiagnostic } from "@rat-stack/capability";
+import { Schema } from "effect";
 const [file, kind, status] = process.argv.slice(2);
 const response = JSON.parse(await readFile(file, "utf8"));
-const raw = JSON.stringify(response);
+const SandboxResponse = Schema.Struct({ diagnostic: Schema.NullOr(SandboxDiagnostic), result: Schema.Json });
 const fail = (message) => { throw new Error(message); };
 switch (kind) {
   case "tools": {
@@ -34,13 +36,15 @@ switch (kind) {
     console.log(`execute search -> read: ${result.id} (${result.text.length} chars)`); break;
   }
   case "network": {
-    const message = [response?.message, response?.result?.message, response?.error?.message, raw].filter((value) => typeof value === "string").join(" ").toLowerCase();
-    if (/<html/iu.test(raw) || !message.includes("not permitted to access the internet")) fail("network access was not rejected as a SandboxError");
+    const document = Schema.decodeUnknownSync(SandboxResponse)(response);
+    if (status !== "200" || document.result !== null || document.diagnostic?.kind !== "ExecutionFailure" || !document.diagnostic.message.toLowerCase().includes("not permitted to access the internet")) fail("network access did not return a refused-fetch diagnostic with a null result");
     console.log(`execute network blocked: HTTP ${status}`); break;
   }
-  case "timeout":
-    if (response?._tag !== "SandboxError" || response?.reason !== "timeout" || !/CPU time limit|did not finish within|timeout/iu.test(raw)) fail("infinite program did not return a typed timeout SandboxError");
-    console.log("execute timeout: typed SandboxError (timeout)"); break;
+  case "timeout": {
+    const document = Schema.decodeUnknownSync(SandboxResponse)(response);
+    if (status !== "200" || document.result !== null || document.diagnostic?.kind !== "TimeoutExceeded") fail("infinite program did not return a timeout diagnostic with a null result");
+    console.log("execute timeout: TimeoutExceeded diagnostic"); break;
+  }
   case "mcp": {
     const matches = response?.result?.structuredContent?.matches;
     if (!Array.isArray(matches) || matches.length === 0 || typeof matches[0]?.id !== "string") fail("MCP search did not return a hit");
@@ -58,6 +62,7 @@ switch (kind) {
   default: fail(`unknown JSON assertion: ${kind}`);
 }
 NODE
+  )
 }
 
 routes=( "/" "/llms.txt" "/openapi.json" "/.well-known/mcp.json" "/.well-known/agent-skills/index.json" )
@@ -84,7 +89,7 @@ if ! network_summary="$(assert_json "$tmp_dir/network.json" network "$network_st
 printf '%s\n' "$network_summary"
 
 timeout_status="$(post_json /api/execute '{"code":"while(true){}"}' "$tmp_dir/timeout.json" 15)"
-if ! timeout_summary="$(assert_json "$tmp_dir/timeout.json" timeout)"; then printf 'timeout response (HTTP %s): ' "$timeout_status"; cat "$tmp_dir/timeout.json"; printf '\n'; fail "sandbox timeout check failed"; fi
+if ! timeout_summary="$(assert_json "$tmp_dir/timeout.json" timeout "$timeout_status")"; then printf 'timeout response (HTTP %s): ' "$timeout_status"; cat "$tmp_dir/timeout.json"; printf '\n'; fail "sandbox timeout check failed"; fi
 printf '%s\n' "$timeout_summary"
 
 mcp_status="$(curl --silent --show-error --max-time 20 --output "$tmp_dir/mcp-call.json" --write-out '%{http_code}' --request POST "${base_url}/mcp" --header 'accept: application/json, text/event-stream' --header 'content-type: application/json' --header 'MCP-Protocol-Version: 2026-07-28' --header 'Mcp-Method: tools/call' --header 'Mcp-Name: search' --data '{"jsonrpc":"2.0","id":"smoke-search","method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/clientCapabilities":{},"io.modelcontextprotocol/clientInfo":{"name":"rat-stack-smoke","version":"0.1.0"},"io.modelcontextprotocol/protocolVersion":"2026-07-28"},"name":"search","arguments":{"query":"learn-rat-stack","limit":1}}}')" || fail "MCP tools/call did not complete"
