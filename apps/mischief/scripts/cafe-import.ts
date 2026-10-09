@@ -78,6 +78,10 @@ const newsKindOf = (line: CrawlerLineValue): string | null => {
     return line.newsKind;
   }
 
+  if (!URL.canParse(line.url)) {
+    return null;
+  }
+
   const { hostname, pathname } = new URL(line.url);
 
   if (line.kind === "thread") {
@@ -289,20 +293,28 @@ const program = Effect.gen(function* cafeImport() {
   const projectLines = approved.filter(({ line }) => line.kind === "project");
   const newsLines = approved.filter(({ line }) => line.kind !== "project");
 
+  const candidateProjects = candidates.filter(
+    ({ line }) => line.kind === "project"
+  );
+
+  const candidateNews = candidates.filter(
+    ({ line }) => line.kind !== "project"
+  );
+
   const projectCheck = yield* Effect.result(
     decodeCafeEntries(
       CafeProject,
       input,
-      projectLines.map(({ line }) => projectValue(line))
-    ).pipe(Effect.mapError((issues) => issues.map(atLine(projectLines))))
+      candidateProjects.map(({ line }) => projectValue(line))
+    ).pipe(Effect.mapError((issues) => issues.map(atLine(candidateProjects))))
   );
 
   const newsCheck = yield* Effect.result(
     decodeCafeEntries(
       CafeNewsItem,
       input,
-      newsLines.map(({ line }) => newsValue(line))
-    ).pipe(Effect.mapError((issues) => issues.map(atLine(newsLines))))
+      candidateNews.map(({ line }) => newsValue(line))
+    ).pipe(Effect.mapError((issues) => issues.map(atLine(candidateNews))))
   );
 
   const rejected = [

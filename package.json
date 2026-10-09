@@ -35,7 +35,7 @@
     "typecheck": "turbo run typecheck",
     "typecheck-scripts": "tsc --noEmit -p tsconfig.json",
     "vendor:agent-sources": "./scripts/vendor-agent-sources.sh",
-    "cafe:import": "node apps/mischief/scripts/cafe-import.ts",
+    "cafe:import": "node scripts/cafe-import.ts",
     "find-peers": "node scripts/find-peers.ts"
   },
   "devDependencies": {
