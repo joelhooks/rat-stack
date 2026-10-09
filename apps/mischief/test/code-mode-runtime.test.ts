@@ -149,6 +149,8 @@ test.provider(
             "neighbors",
             "mentions",
             "path",
+            "listCafeNews",
+            "listCafeProjects",
             "learnDeck",
             "learnCard",
             "learnNext",

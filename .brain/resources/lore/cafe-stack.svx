@@ -79,6 +79,8 @@ sources:
 
 CAFE is a named stack. Each letter has one job.
 
+Read the [CAFE news](/news) and browse the [project directory](/directory).
+
 [Maxwell Brown](https://github.com/IMax153) coined the name; [Justin Bennett](https://github.com/just-be-dev) spread it with his template on 8 October 2026. That day, [Devin Jameson](https://github.com/devinjameson), Maxwell and [Sam Goodwin](https://github.com/sam-goodwin) streamed a CAFE build, and [Sebastian Lorenz](https://github.com/fubhy) wrote the explainer people share.
 
 | Letter | Part | Job |

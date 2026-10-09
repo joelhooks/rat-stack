@@ -1,5 +1,6 @@
 import { implement } from "@rat-stack/capability/implement";
 
+import { listCafeNews, listCafeProjects } from "./cafe-directory.js";
 import { inspectFileContract } from "./contracts.js";
 import { runInspectMachine } from "./inspect-machine.js";
 import { joinInterest } from "./join-interest.js";
@@ -14,4 +15,6 @@ export const capabilities = [
   joinInterest,
   listPrompts,
   getPrompt,
+  listCafeNews,
+  listCafeProjects,
 ] as const;

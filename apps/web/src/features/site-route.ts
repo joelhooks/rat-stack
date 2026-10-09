@@ -5,10 +5,13 @@ export const SiteRoute = Route.defineRouteUnion({
   AgentGuide: {},
   ApiDocs: {},
   ChangeLog: {},
+  Directory: {},
   Glossary: {},
   Home: {},
   Learn: {},
   Lore: {},
+  News: {},
+  NewsFeed: {},
   Peers: {},
   Prompts: {},
   Skills: {},
@@ -78,3 +81,18 @@ export const apiDocsRouter = pipe(
 
 export const isWithinSection = (section: string, path: string) =>
   path === section || path.startsWith(`${section}/`);
+
+export const newsRouter = pipe(
+  Route.literal("news"),
+  Route.mapTo(SiteRoute.News)
+);
+
+export const newsFeedRouter = pipe(
+  Route.literal("news.xml"),
+  Route.mapTo(SiteRoute.NewsFeed)
+);
+
+export const directoryRouter = pipe(
+  Route.literal("directory"),
+  Route.mapTo(SiteRoute.Directory)
+);

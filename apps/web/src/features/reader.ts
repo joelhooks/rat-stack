@@ -11,6 +11,7 @@ import {
   findCopyPrompt,
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
+import * as CafeView from "./cafe/index.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
@@ -270,6 +271,17 @@ const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
           readerCopyControl(model, h, id, primary)
         )
       ),
+  }),
+  ...Option.match(model.cafe, {
+    onNone: () => [],
+    onSome: (cafe) => [
+      h.submodel({
+        model: cafe,
+        slotId: "cafe",
+        toParentMessage: (message) => Message.GotCafeMessage({ message }),
+        view: CafeView.view,
+      }),
+    ],
   }),
   ...model.blocks.map((block) =>
     renderReaderBlock(block, h, {

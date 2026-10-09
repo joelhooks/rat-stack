@@ -1,0 +1,2320 @@
+[
+  {
+    "url": "https://github.com/Effect-TS/cafe",
+    "title": "cafe",
+    "summary": "A minimal chat app built with the CAFE stack, tested by agents against real Cloudflare.",
+    "date": "2026-10-08",
+    "repo": "Effect-TS/cafe",
+    "author": {
+      "github": "Effect-TS",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "alchemy.run.ts declares Cloudflare.Website.Foldkit",
+      "alchemy": "package.json depends on alchemy",
+      "foldkit": "packages/frontend/package.json depends on foldkit",
+      "effect": "package.json depends on effect"
+    },
+    "stars": 15,
+    "source": "https://github.com/Effect-TS/cafe"
+  },
+  {
+    "url": "https://github.com/just-be-dev/effect-cloudflare-foldkit-template",
+    "title": "effect-cloudflare-foldkit-template",
+    "summary": "A starter for TypeScript apps on Cloudflare with Effect 4, Foldkit, Bun, mise and Alchemy v2.",
+    "date": "2026-10-07",
+    "repo": "just-be-dev/effect-cloudflare-foldkit-template",
+    "author": {
+      "github": "just-be-dev",
+      "x": "just_be_dev"
+    },
+    "stack": {
+      "cloudflare": "src/platform/cloudflare/stack.ts declares Cloudflare.Website.Foldkit",
+      "alchemy": "package.json depends on alchemy 2.0.0-beta.81",
+      "foldkit": "package.json depends on foldkit 0.165.0",
+      "effect": "package.json depends on effect 4.0.0"
+    },
+    "stars": 40,
+    "source": "https://github.com/just-be-dev/effect-cloudflare-foldkit-template"
+  },
+  {
+    "url": "https://github.com/Manzanita-Research/pleat",
+    "title": "pleat",
+    "summary": "Algebraic, typed styles for Foldkit and Effect v4 that compile to atomic CSS.",
+    "date": "2026-10-09",
+    "repo": "Manzanita-Research/pleat",
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "site/alchemy.run.ts declares Cloudflare.Website.Foldkit",
+      "alchemy": "site/package.json depends on alchemy 2.0.0-beta.81",
+      "foldkit": "site/package.json depends on foldkit 0.167.0",
+      "effect": "site/package.json depends on effect 4.0.0"
+    },
+    "stars": 6,
+    "source": "https://github.com/Manzanita-Research/pleat"
+  },
+  {
+    "url": "https://github.com/Manzanita-Research/foldkit-dials",
+    "title": "foldkit-dials",
+    "summary": "Live tuning controls for Foldkit apps where every dial is an Effect Schema and every edit is a Message.",
+    "date": "2026-10-09",
+    "repo": "Manzanita-Research/foldkit-dials",
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "demo/alchemy.run.ts declares Cloudflare.Worker",
+      "alchemy": "demo/package.json depends on alchemy 2.0.0-beta.80",
+      "foldkit": "demo/package.json depends on foldkit",
+      "effect": "demo/package.json depends on effect"
+    },
+    "stars": 7,
+    "source": "https://github.com/Manzanita-Research/foldkit-dials"
+  },
+  {
+    "url": "https://github.com/mwarger/corefour",
+    "title": "Core Four",
+    "summary": "Pick the four games that shaped you and share them as a 2x2 poster.",
+    "date": "2026-09-28",
+    "repo": "mwarger/corefour",
+    "author": {
+      "github": "mwarger",
+      "x": "mwarger"
+    },
+    "stack": {
+      "cloudflare": "alchemy.run.ts declares Cloudflare.KV.Namespace",
+      "alchemy": "package.json depends on alchemy 2.0.0-beta.79",
+      "foldkit": "package.json depends on foldkit 0.163.0",
+      "effect": "package.json depends on effect 4.0.0-rc.116"
+    },
+    "stars": 2,
+    "source": "https://github.com/mwarger/corefour"
+  },
+  {
+    "url": "https://github.com/NigelThorne/foldkit-demo",
+    "title": "Little wins",
+    "summary": "A shared live counter built with Foldkit, Effect and Cloudflare Durable Objects, deployed with Alchemy.",
+    "date": "2026-10-08",
+    "repo": "NigelThorne/foldkit-demo",
+    "author": {
+      "github": "NigelThorne",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "alchemy.run.ts declares Cloudflare.DurableObject",
+      "alchemy": "package.json depends on alchemy 2.0.0-beta.81",
+      "foldkit": "package.json depends on foldkit 0.166.0",
+      "effect": "package.json depends on effect 4.0.0"
+    },
+    "stars": 0,
+    "source": "https://github.com/NigelThorne/foldkit-demo"
+  },
+  {
+    "url": "https://github.com/oscaromsn/LastreIA",
+    "title": "LastreIA",
+    "summary": "Document analysis and risk scoring for real estate transactions, built on Effect.",
+    "date": "2026-08-09",
+    "repo": "oscaromsn/LastreIA",
+    "author": {
+      "github": "oscaromsn",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": null,
+      "alchemy": null,
+      "foldkit": null,
+      "effect": "packages/core/package.json depends on effect"
+    },
+    "stars": 1,
+    "source": "https://github.com/oscaromsn/LastreIA"
+  },
+  {
+    "url": "https://github.com/bjacobso/triplex",
+    "title": "triplex",
+    "summary": "An Effect-native fact database for applications that have to explain themselves.",
+    "date": "2026-10-07",
+    "repo": "bjacobso/triplex",
+    "author": {
+      "github": "bjacobso",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "alchemy.run.ts declares Cloudflare.Website.StaticSite",
+      "alchemy": "package.json depends on alchemy",
+      "foldkit": "packages/dashboard/package.json depends on foldkit",
+      "effect": "package.json depends on effect"
+    },
+    "stars": 9,
+    "source": "https://github.com/bjacobso/triplex"
+  },
+  {
+    "url": "https://github.com/joelhooks/rat-stack",
+    "title": "rat-stack",
+    "summary": "An agentic TypeScript scaffold with Effect 4, XState 6, Alchemy infra and a fence that makes cheating uncomfortable.",
+    "date": "2026-10-08",
+    "repo": "joelhooks/rat-stack",
+    "author": {
+      "github": "joelhooks",
+      "x": null
+    },
+    "stack": {
+      "cloudflare": "apps/web/src/website.ts declares Cloudflare.Website.Foldkit",
+      "alchemy": "apps/infra/package.json depends on alchemy 2.0.0-beta.80",
+      "foldkit": "apps/web/package.json depends on foldkit 0.166.0",
+      "effect": "package.json depends on effect 4.0.0"
+    },
+    "stars": 95,
+    "source": "https://github.com/joelhooks/rat-stack"
+  },
+  {
+    "author": {
+      "github": "0x0f0f0f",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "0x0f0f0f/alchemy-likec4",
+    "source": "https://raw.githubusercontent.com/0x0f0f0f/alchemy-likec4/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"^4.0.1\"",
+      "foldkit": null
+    },
+    "stars": 3,
+    "summary": "Automatically generate a spec and interactive diagrams for your infra from Alchemy stacks!",
+    "title": "alchemy-likec4",
+    "url": "https://github.com/0x0f0f0f/alchemy-likec4"
+  },
+  {
+    "author": {
+      "github": "acoyfellow",
+      "x": null
+    },
+    "date": "2026-05-28",
+    "repo": "acoyfellow/effect-agents",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler ^4.0.0 and @cloudflare/workers-types ^4.20260521.1",
+      "effect": "package.json: effect 4.0.0-beta.73",
+      "foldkit": null
+    },
+    "stars": 5,
+    "summary": "Five hero examples of effectful AI agents built on Effect v4 (beta). Pure Effect programs; one local entrypoint; one Cloudflare Worker hosts all five.",
+    "title": "effect-agents",
+    "url": "https://effect-agents.coey.dev"
+  },
+  {
+    "author": {
+      "github": "acoyfellow",
+      "x": null
+    },
+    "date": "2026-06-24",
+    "repo": "acoyfellow/lab",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": "package.json: alchemy ^0.91.2",
+      "cloudflare": "wrangler ^4.78.0 and @cloudflare/workers-types ^4.20260317.1 in package.json; alchemy.run.ts present",
+      "effect": "package.json: effect 4.0.0-beta.51",
+      "foldkit": null
+    },
+    "stars": 11,
+    "summary": "Sandboxed isolates on Cloudflare Workers with typed capabilities. Effect + Worker Loaders.",
+    "title": "lab",
+    "url": "https://github.com/acoyfellow/lab"
+  },
+  {
+    "author": {
+      "github": "acoyfellow",
+      "x": null
+    },
+    "date": "2026-01-30",
+    "repo": "acoyfellow/ralphwiggums",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": "package.json: alchemy ^0.83.1; alchemy.run.ts present",
+      "cloudflare": "wrangler.toml present; @cloudflare/containers and @cloudflare/workers-types in package.json",
+      "effect": "package.json: effect ^3.19.14",
+      "foldkit": null
+    },
+    "stars": 8,
+    "summary": "Effect-first browser automation for Cloudflare Workers. Give it a prompt, get a completed task.",
+    "title": "ralphwiggums",
+    "url": "https://github.com/acoyfellow/ralphwiggums"
+  },
+  {
+    "author": {
+      "github": "alchemy-run",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "alchemy-run/alchemy",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"workspace:*\"",
+      "cloudflare": "pnpm-workspace.yaml catalog: \"@cloudflare/workers-types\": \"5.20261002.1\"",
+      "effect": "package.json: \"effect\": \"catalog:\"",
+      "foldkit": "packages/alchemy/package.json: \"foldkit\": \"catalog:\"; pnpm-workspace.yaml catalog: foldkit: \"^0.165.0\""
+    },
+    "stars": 1598,
+    "summary": "Infrastructure as Effects.",
+    "title": "alchemy-run/alchemy",
+    "url": "https://github.com/alchemy-run/alchemy"
+  },
+  {
+    "author": {
+      "github": "aryasaatvik",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "aryasaatvik/effect-platform-cloudflare",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler ^4.112.0; @cloudflare/workers-types ^4.20260702.1",
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Runs an Effect HTTP router as a Cloudflare Worker.",
+    "title": "effect-platform-cloudflare",
+    "url": "https://github.com/aryasaatvik/effect-platform-cloudflare"
+  },
+  {
+    "author": {
+      "github": "backpine",
+      "x": null
+    },
+    "date": "2026-01-04",
+    "repo": "backpine/effect-worker",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler ^4.55.0; wrangler.jsonc present; @cloudflare/workers-types ^4.20241127.0",
+      "effect": "package.json: effect ^3.19.14",
+      "foldkit": null
+    },
+    "stars": 21,
+    "summary": "Cloudflare Worker with request-scoped database connections via HttpApiMiddleware.",
+    "title": "effect-worker",
+    "url": "https://github.com/backpine/effect-worker"
+  },
+  {
+    "author": {
+      "github": "bjacobso",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "bjacobso/foldworks",
+    "source": "https://github.com/bjacobso/foldworks",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.76",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Website.Foldkit",
+      "effect": "package.json: effect catalog:effect (resolved version not checked)",
+      "foldkit": "alchemy.run.ts: Cloudflare.Website.Foldkit only; no foldkit dependency in package.json"
+    },
+    "stars": 12,
+    "summary": "Polished application primitives for Foldkit and StyleX.",
+    "title": "foldworks",
+    "url": "https://github.com/bjacobso/foldworks"
+  },
+  {
+    "author": {
+      "github": "bjorntech",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "bjorntech/alchemy-azure",
+    "source": "https://raw.githubusercontent.com/bjorntech/alchemy-azure/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"^4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 3,
+    "summary": "Microsoft Azure provider for Alchemy v2.",
+    "title": "@bjorntech/alchemy-azure",
+    "url": "https://github.com/bjorntech/alchemy-azure"
+  },
+  {
+    "author": {
+      "github": "bjorntech",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "bjorntech/alchemy-scaleway",
+    "source": "https://raw.githubusercontent.com/bjorntech/alchemy-scaleway/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"^4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 4,
+    "summary": "Scaleway providers for Alchemy v2.",
+    "title": "@bjorntech/alchemy-scaleway",
+    "url": "https://github.com/bjorntech/alchemy-scaleway"
+  },
+  {
+    "author": {
+      "github": "boozedog",
+      "x": null
+    },
+    "date": "2026-08-26",
+    "repo": "boozedog/foldstryx",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "packages/docs/package.json: \"effect\": \">=4.0.0-rc.109\"",
+      "foldkit": "packages/docs/package.json: \"foldkit\": \">=0.147.0\""
+    },
+    "stars": 3,
+    "summary": "Astryx-inspired styling for Foldkit, powered by StyleX",
+    "title": "boozedog/foldstryx",
+    "url": "https://github.com/boozedog/foldstryx"
+  },
+  {
+    "author": {
+      "github": "brandhaug",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "brandhaug/b2b-saas-starter",
+    "source": "https://github.com/brandhaug/b2b-saas-starter",
+    "stack": {
+      "alchemy": "package.json: alchemy catalog ref (resolved version not checked)",
+      "cloudflare": "alchemy.run.ts: Cloudflare.DurableObject, Cloudflare.Queues.Queue, Cloudflare.Email.SendEmail; package.json: @cloudflare/workers-types catalog ref",
+      "effect": "package.json: effect catalog ref (resolved version not checked)",
+      "foldkit": null
+    },
+    "stars": 50,
+    "summary": "Cloudflare-first B2B SaaS monorepo starter. TanStack Start, Effect v4, Drizzle on D1, Better Auth, Alchemy v2, REST + MCP, React Email, Storybook, Vitest, Playwright, oxlint, oxfmt, Vite+, pnpm.",
+    "title": "b2b-saas-starter",
+    "url": "https://github.com/brandhaug/b2b-saas-starter"
+  },
+  {
+    "author": {
+      "github": "choyai",
+      "x": null
+    },
+    "date": "2026-03-10",
+    "repo": "choyai/choyai-dev",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "web/package.json: \"effect\": \"^3.19.16\"",
+      "foldkit": "web/package.json: \"foldkit\": \"^0.15.0\""
+    },
+    "stars": 1,
+    "summary": "personal website.",
+    "title": "choyai/choyai-dev",
+    "url": "https://github.com/choyai/choyai-dev"
+  },
+  {
+    "author": {
+      "github": "chr33s",
+      "x": null
+    },
+    "date": "2026-09-29",
+    "repo": "chr33s/git",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.76 (dependency only; usage not checked)",
+      "cloudflare": "package.json: wrangler 4.129.1 (dependency only; usage not checked)",
+      "effect": "package.json: effect 4.0.0-rc.112",
+      "foldkit": "package.json: foldkit 0.158.2"
+    },
+    "stars": 12,
+    "summary": "Universal ai native Git smart-HTTP protocol server + browser, cli &amp; server clients",
+    "title": "git",
+    "url": "https://git.chr33s.dev"
+  },
+  {
+    "author": {
+      "github": "cill-i-am",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "cill-i-am/durable-pi",
+    "source": "https://github.com/cill-i-am/durable-pi",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.81",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Worker, Cloudflare.DurableObject, Cloudflare.Website.Vite",
+      "effect": "package.json: effect 4.0.1",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "A private continuous chat on Pi Durable and Cloudflare, with TanStack Start, shadcn Base UI, Better Auth, and Alchemy Effect.",
+    "title": "durable-pi",
+    "url": "https://github.com/cill-i-am/durable-pi"
+  },
+  {
+    "author": {
+      "github": "Consensys",
+      "x": null
+    },
+    "date": "2026-08-18",
+    "repo": "Consensys/c0",
+    "source": "https://raw.githubusercontent.com/Consensys/c0/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.67\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.100\"",
+      "foldkit": null
+    },
+    "stars": 105,
+    "summary": "c0 is an open-source AI platform built for organizational work, tools, and context. A single deployment to Cloudflare to get started.",
+    "title": "c0-agent",
+    "url": "https://github.com/Consensys/c0"
+  },
+  {
+    "author": {
+      "github": "crcorbett",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "crcorbett/instapaper-mcp",
+    "source": "https://github.com/crcorbett/instapaper-mcp",
+    "stack": {
+      "alchemy": "package.json: alchemy catalog:infrastructure (resolved version not checked)",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Worker, Cloudflare.KV.Namespace",
+      "effect": "package.json: effect catalog:effect (resolved version not checked)",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Private, approval-controlled Instapaper MCP service built with Effect, Cloudflare Workers and Alchemy",
+    "title": "instapaper-mcp",
+    "url": "https://github.com/crcorbett/instapaper-mcp"
+  },
+  {
+    "author": {
+      "github": "crosshatch",
+      "x": null
+    },
+    "date": "2026-09-22",
+    "repo": "crosshatch/liminal",
+    "source": "https://raw.githubusercontent.com/crosshatch/liminal/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.70\" (via pnpm-workspace.yaml catalog)",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"^4.0.0-beta.104\" (via pnpm-workspace.yaml catalog)",
+      "foldkit": null
+    },
+    "stars": 95,
+    "summary": "Effect x Cloudflare Durable Objects.",
+    "title": "liminal-root",
+    "url": "https://github.com/crosshatch/liminal"
+  },
+  {
+    "author": {
+      "github": "crutchcorn",
+      "x": null
+    },
+    "date": "2026-10-02",
+    "repo": "crutchcorn/causeeffect",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "packages/foldkit-jsx/package.json: \"effect\": \"4.0.0\"",
+      "foldkit": "packages/foldkit-jsx/package.json: \"foldkit\": \"^0.165.0\""
+    },
+    "stars": 1,
+    "summary": "JSX for Effect, with generator types preserved.",
+    "title": "crutchcorn/causeeffect",
+    "url": "https://github.com/crutchcorn/causeeffect"
+  },
+  {
+    "author": {
+      "github": "cschmatzler",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "cschmatzler/alibi",
+    "source": "https://raw.githubusercontent.com/cschmatzler/alibi/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "🦀 Rust backend implementation of @better-auth.",
+    "title": "alibi",
+    "url": "https://github.com/cschmatzler/alibi"
+  },
+  {
+    "author": {
+      "github": "dallenpyrah",
+      "x": null
+    },
+    "date": "2026-09-12",
+    "repo": "dallenpyrah/creasekit",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": "package.json: \"foldkit\": \"0.158.2\""
+    },
+    "stars": 1,
+    "summary": "Visual feedback for FoldKit: inspect elements, leave notes, and share context with coding agents through MCP.",
+    "title": "dallenpyrah/creasekit",
+    "url": "https://github.com/dallenpyrah/creasekit"
+  },
+  {
+    "author": {
+      "github": "danieljvdm",
+      "x": null
+    },
+    "date": "2026-10-04",
+    "repo": "danieljvdm/effect-cf",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler catalog:, @cloudflare/workers-types catalog:, @cloudflare/containers 0.3.7",
+      "effect": "package.json: effect catalog:",
+      "foldkit": null
+    },
+    "stars": 111,
+    "summary": "Effect-native primitives for Cloudflare Workers and bindings.",
+    "title": "effect-cf (danieljvdm)",
+    "url": "https://github.com/danieljvdm/effect-cf"
+  },
+  {
+    "author": {
+      "github": "darkmatter",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "darkmatter/standards",
+    "source": "https://raw.githubusercontent.com/darkmatter/standards/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.117\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Shared adhere rules.",
+    "title": "standards",
+    "url": "https://github.com/darkmatter/standards"
+  },
+  {
+    "author": {
+      "github": "Dhravya",
+      "x": null
+    },
+    "date": "2026-09-16",
+    "repo": "Dhravya/radish",
+    "source": "https://raw.githubusercontent.com/Dhravya/radish/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"^2.0.0-beta.77\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 531,
+    "summary": "Super fast drop-in replacement of Redis, but runs on Cloudflare Durable Objects",
+    "title": "radish",
+    "url": "https://github.com/Dhravya/radish"
+  },
+  {
+    "author": {
+      "github": "doeixd",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "doeixd/foldkit-plus",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": "package.json: \"foldkit\": \"0.165.0\""
+    },
+    "stars": 20,
+    "summary": "A Schema-first agent layer for Foldkit: project an application&#39;s Model and Message union into one contract, then expose it through WebMCP, MCP, or in-app agents.",
+    "title": "doeixd/foldkit-plus",
+    "url": "https://github.com/doeixd/foldkit-plus"
+  },
+  {
+    "author": {
+      "github": "Effect-TS",
+      "x": null
+    },
+    "date": "2026-08-19",
+    "repo": "Effect-TS/slopcop",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "apps/api/package.json: alchemy catalog: (2.0.0-beta.67); alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: Worker, D1Database, Cloudflare.Tunnel, Cloudflare.Access",
+      "effect": "apps/api/package.json: effect catalog: (4.0.0-beta.102)",
+      "foldkit": "apps/web/package.json: foldkit catalog: (0.138.0)"
+    },
+    "stars": 33,
+    "summary": "Effect's GitHub triage bot, with a Foldkit UI, deployed to Cloudflare via Alchemy; full CAFE verified.",
+    "title": "slopcop",
+    "url": "https://github.com/Effect-TS/slopcop"
+  },
+  {
+    "author": {
+      "github": "Effect-TS",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "Effect-TS/website",
+    "source": "https://raw.githubusercontent.com/Effect-TS/website/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\" (via pnpm-workspace.yaml catalog)",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.1\" (via pnpm-workspace.yaml catalog)",
+      "foldkit": null
+    },
+    "stars": 160,
+    "summary": "Source code for Effect&#39;s documentation website.",
+    "title": "website",
+    "url": "https://github.com/Effect-TS/website"
+  },
+  {
+    "author": {
+      "github": "elcokiin",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "elcokiin/trojes",
+    "source": "https://raw.githubusercontent.com/elcokiin/trojes/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.76\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"^4.0.0-rc.111\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Trojes is an idea capture built for the moments inspiration strikes. Optimized for speed of entry, not elaborate categorization at the point of capture.",
+    "title": "trojes",
+    "url": "https://github.com/elcokiin/trojes"
+  },
+  {
+    "author": {
+      "github": "elianiva",
+      "x": null
+    },
+    "date": "2026-10-02",
+    "repo": "elianiva/lutra",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.75; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Website, Cloudflare.providers, WorkerFirst",
+      "effect": "root package.json: effect 4.0.0-rc.112",
+      "foldkit": "packages/frontend/package.json: foldkit ^0.156.0"
+    },
+    "stars": 6,
+    "summary": "A Film-simulation focused image colour editing app",
+    "title": "Lutra",
+    "url": "https://lutra.elianiva.com"
+  },
+  {
+    "author": {
+      "github": "elianiva",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "elianiva/nook",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.80; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: Worker, D1, Cloudflare.Website; apps/frontend/package.json @cloudflare/workers-types ^5.20261003.1",
+      "effect": "root package.json: effect 4.0.0",
+      "foldkit": "apps/frontend/package.json: foldkit 0.166.0"
+    },
+    "stars": 2,
+    "summary": "SRS Flashcards App.",
+    "title": "Nook",
+    "url": "https://github.com/elianiva/nook"
+  },
+  {
+    "author": {
+      "github": "EnzoTironi",
+      "x": null
+    },
+    "date": "2026-09-28",
+    "repo": "EnzoTironi/zoen",
+    "source": "https://raw.githubusercontent.com/EnzoTironi/zoen/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.76\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Governed Worlds for households, shops, clinics, and finance — shared truth with evidence, rights, and erasure.",
+    "title": "zoen",
+    "url": "https://github.com/EnzoTironi/zoen"
+  },
+  {
+    "author": {
+      "github": "fairfield-consulting",
+      "x": null
+    },
+    "date": "2026-06-23",
+    "repo": "fairfield-consulting/site",
+    "source": "https://raw.githubusercontent.com/fairfield-consulting/site/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"^2.0.0-beta.57\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.48\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Website for Fairfield Consulting LLC.",
+    "title": "site",
+    "url": "https://github.com/fairfield-consulting/site"
+  },
+  {
+    "author": {
+      "github": "fbuireu",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "fbuireu/biancafiore",
+    "source": "https://github.com/fbuireu/biancafiore",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler 4.143.0; wrangler.toml present",
+      "effect": "package.json: effect 3.22.2 (Effect 3, not v4)",
+      "foldkit": null
+    },
+    "stars": 8,
+    "summary": "Portfolio and blog of content writer Bianca Fiore. Astro SSR on Cloudflare Workers, content from Contentful",
+    "title": "biancafiore",
+    "url": "https://github.com/fbuireu/biancafiore"
+  },
+  {
+    "author": {
+      "github": "fellz",
+      "x": null
+    },
+    "date": "2026-06-19",
+    "repo": "fellz/booking_widget_effect",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect ^4.0.0-beta.83",
+      "foldkit": "package.json: foldkit ^0.114.0"
+    },
+    "stars": 0,
+    "summary": "Hotel room booking widget in Effect-TS + foldkit (The Elm Architecture) — a correctness-focused port of a Vue 3 widget, closing all 13 audited state-modelling holes (9 structurally) with a typed error channel and Layer-based DI. Bilingual EN/RU docs.",
+    "title": "booking_widget_effect",
+    "url": "https://github.com/fellz/booking_widget_effect"
+  },
+  {
+    "author": {
+      "github": "fllstck",
+      "x": null
+    },
+    "date": "2026-09-28",
+    "repo": "fllstck/nebius-alchemy",
+    "source": "https://raw.githubusercontent.com/fllstck/nebius-alchemy/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.117\"",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "Alchemy 2.x package or app verified in package.json; Cloudflare not verified.",
+    "title": "nebius-alchemy",
+    "url": "https://github.com/fllstck/nebius-alchemy"
+  },
+  {
+    "author": {
+      "github": "foldkit",
+      "x": null
+    },
+    "date": "2026-08-26",
+    "repo": "foldkit/coverchart",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-rc.111",
+      "foldkit": "package.json: foldkit ^0.151.0; @foldkit/ui ^0.151.0"
+    },
+    "stars": 4,
+    "summary": "A Foldkit app for writing chord charts with lyrics.",
+    "title": "coverchart",
+    "url": "https://github.com/foldkit/coverchart"
+  },
+  {
+    "author": {
+      "github": "foldkit",
+      "x": null
+    },
+    "date": "2026-09-06",
+    "repo": "foldkit/patch-match",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-rc.112",
+      "foldkit": "package.json: foldkit 0.157.0; @foldkit/ui 0.157.0"
+    },
+    "stars": 1,
+    "summary": "Match the patch!",
+    "title": "patch-match",
+    "url": "https://github.com/foldkit/patch-match"
+  },
+  {
+    "author": {
+      "github": "frolic",
+      "x": null
+    },
+    "date": "2026-09-04",
+    "repo": "frolic/ens-ideas",
+    "source": "https://raw.githubusercontent.com/frolic/ens-ideas/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.62\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.98\"",
+      "foldkit": null
+    },
+    "stars": 32,
+    "summary": "Fast ENS search and ENS resolve API.",
+    "title": "ens-ideas",
+    "url": "https://github.com/frolic/ens-ideas"
+  },
+  {
+    "author": {
+      "github": "guidefari",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "guidefari/gbfm",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.81\"",
+      "cloudflare": "package.json: \"@cloudflare/workers-types\": \"5.20260923.1\"",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": "apps/www/package.json: \"foldkit\": \"0.167.0\""
+    },
+    "stars": 2,
+    "summary": "public archive of curated music.",
+    "title": "guidefari/gbfm",
+    "url": "https://github.com/guidefari/gbfm"
+  },
+  {
+    "author": {
+      "github": "guidefari",
+      "x": null
+    },
+    "date": "2026-09-27",
+    "repo": "guidefari/here_hugo",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": "apps/discord-crosspost/package.json: \"@cloudflare/vite-plugin\": \"1.47.0\"",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.116\"",
+      "foldkit": "apps/gpu/package.json: \"foldkit\": \"^0.163.0\""
+    },
+    "stars": 3,
+    "summary": "Monorepo of Cloudflare Worker apps, a Foldkit app in apps/gpu, and Alchemy at the root; full CAFE verified.",
+    "title": "guidefari/here_hugo",
+    "url": "https://github.com/guidefari/here_hugo"
+  },
+  {
+    "author": {
+      "github": "haoxiangliew",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "haoxiangliew/website",
+    "source": "https://raw.githubusercontent.com/haoxiangliew/website/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.1\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "personal website.",
+    "title": "website",
+    "url": "https://github.com/haoxiangliew/website"
+  },
+  {
+    "author": {
+      "github": "Hokia-Labs",
+      "x": null
+    },
+    "date": "2026-10-04",
+    "repo": "Hokia-Labs/stream",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: \"@cloudflare/vite-plugin\": \"^2.0.0-beta.sha-52b0dc0e9\"",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": "package.json: \"foldkit\": \"0.165.0\""
+    },
+    "stars": 0,
+    "summary": "Stream: engineering requirements graph and agent orchestration",
+    "title": "Hokia-Labs/stream",
+    "url": "https://github.com/Hokia-Labs/stream"
+  },
+  {
+    "author": {
+      "github": "imaimai17468",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "imaimai17468/imaimai-front-templete",
+    "source": "https://raw.githubusercontent.com/imaimai17468/imaimai-front-templete/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.81\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 73,
+    "summary": "いまいまいのフロント用テンプレートです。.",
+    "title": "my-app",
+    "url": "https://github.com/imaimai17468/imaimai-front-templete"
+  },
+  {
+    "author": {
+      "github": "IMax153",
+      "x": null
+    },
+    "date": "2026-10-01",
+    "repo": "IMax153/twitch-integrations",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "apps/api/package.json: alchemy catalog: (2.0.0-beta.79); alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: alchemy/Cloudflare import, Worker, Cloudflare.providers",
+      "effect": "apps/api/package.json: effect catalog: (4.0.0-rc.117)",
+      "foldkit": "apps/web/package.json: foldkit catalog: (0.164.0)"
+    },
+    "stars": 18,
+    "summary": "My custom Twitch integrations built with Effect.",
+    "title": "Twitch integrations",
+    "url": "https://github.com/IMax153/twitch-integrations"
+  },
+  {
+    "author": {
+      "github": "jackblanc",
+      "x": null
+    },
+    "date": "2026-09-28",
+    "repo": "jackblanc/opencode-event-bridge",
+    "source": "https://raw.githubusercontent.com/jackblanc/opencode-event-bridge/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.67\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.102\"",
+      "foldkit": null
+    },
+    "stars": 2,
+    "summary": "Implementation of Linear’s Agent API for OpenCode, powered by Cloudflare Workers.",
+    "title": "opencode-event-bridge",
+    "url": "https://github.com/jackblanc/opencode-event-bridge"
+  },
+  {
+    "author": {
+      "github": "jbt95",
+      "x": null
+    },
+    "date": "2026-08-15",
+    "repo": "jbt95/effect-cf",
+    "source": "https://github.com/jbt95/effect-cf",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: @cloudflare/workers-types ^4.20260128.0",
+      "effect": "package.json: effect 4.0.0-rc.109",
+      "foldkit": null
+    },
+    "stars": 23,
+    "summary": "Typed Effect clients for Cloudflare Workers with schema validation.",
+    "title": "effect-cf",
+    "url": "https://github.com/jbt95/effect-cf"
+  },
+  {
+    "author": {
+      "github": "jbt95",
+      "x": null
+    },
+    "date": "2026-02-01",
+    "repo": "jbt95/effect-kv",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "wrangler.toml present; @cloudflare/workers-types ^4.20260130.0",
+      "effect": "package.json: effect ^3.0.0",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "A lightweight, type-safe wrapper around Cloudflare KV using Effect.ts.",
+    "title": "effect-kv",
+    "url": "https://github.com/jbt95/effect-kv"
+  },
+  {
+    "author": {
+      "github": "jigargosar",
+      "x": null
+    },
+    "date": "2026-06-30",
+    "repo": "jigargosar/simply-gtd",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-beta.88",
+      "foldkit": "package.json: foldkit ^0.117.0"
+    },
+    "stars": 0,
+    "summary": "Getting Things Done task manager built with Foldkit and Effect.",
+    "title": "simply-gtd",
+    "url": "https://github.com/jigargosar/simply-gtd"
+  },
+  {
+    "author": {
+      "github": "johnschoeman",
+      "x": null
+    },
+    "date": "2026-09-03",
+    "repo": "johnschoeman/outsider-ui",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-rc.109",
+      "foldkit": "package.json: foldkit 0.148.2"
+    },
+    "stars": 1,
+    "summary": "A little game.",
+    "title": "outsider-ui",
+    "url": "https://github.com/johnschoeman/outsider-ui"
+  },
+  {
+    "author": {
+      "github": "jonbeckman",
+      "x": null
+    },
+    "date": "2026-01-29",
+    "repo": "jonbeckman/cf-container-orchestrator",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: @cloudflare/containers ^0.1.0; @cloudflare/workers-types ^4.20260129.0",
+      "effect": "package.json: effect ^3.19.15",
+      "foldkit": null
+    },
+    "stars": 12,
+    "summary": "Orchestrate Cloudflare Containers with min replica sets, restart policies, crash loop protection, and more. Built on Effect-TS.",
+    "title": "cf-container-orchestrator",
+    "url": "https://github.com/jonbeckman/cf-container-orchestrator"
+  },
+  {
+    "author": {
+      "github": "jonbeckman",
+      "x": null
+    },
+    "date": "2026-10-06",
+    "repo": "jonbeckman/solstatus",
+    "source": "https://raw.githubusercontent.com/jonbeckman/solstatus/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.72\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.107\"",
+      "foldkit": null
+    },
+    "stars": 748,
+    "summary": "An uptime monitoring service that is easy and cheap to run at scale. Create endpoint checks for uptime, latency, and status code. Supports OpsGenie for alerts.",
+    "title": "solstatus",
+    "url": "https://github.com/jonbeckman/solstatus"
+  },
+  {
+    "author": {
+      "github": "jordangarrison",
+      "x": null
+    },
+    "date": "2026-09-25",
+    "repo": "jordangarrison/tic-tac-toe-4-in-a-row",
+    "source": "https://github.com/jordangarrison/tic-tac-toe-4-in-a-row",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-rc.115",
+      "foldkit": "package.json: foldkit 0.160.0"
+    },
+    "stars": 0,
+    "summary": "An 8×8 exact-four scoring game built with Effect and Foldkit",
+    "title": "tic-tac-toe-4-in-a-row",
+    "url": "https://github.com/jordangarrison/tic-tac-toe-4-in-a-row"
+  },
+  {
+    "author": {
+      "github": "julia-script",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "julia-script/effect-inspect",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.1",
+      "foldkit": "package.json: foldkit 0.166.0; @foldkit/vite-plugin 0.26.1"
+    },
+    "stars": 26,
+    "summary": "Performance inspector and flame chart for Effect 4 programs, with a Foldkit frontend.",
+    "title": "effect-inspect",
+    "url": "https://github.com/julia-script/effect-inspect"
+  },
+  {
+    "author": {
+      "github": "just-be-dev",
+      "x": null
+    },
+    "date": "2026-10-02",
+    "repo": "just-be-dev/cf-effect-telemetry",
+    "source": "https://github.com/just-be-dev/cf-effect-telemetry",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: \"wrangler\": \"^4.115.0\"",
+      "effect": "package.json: \"@effect/tsgo\": \"^0.19.0\"",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "Effect v4 tracer provider for Cloudflare Workers custom spans",
+    "title": "cf-effect-telemetry",
+    "url": "https://github.com/just-be-dev/cf-effect-telemetry"
+  },
+  {
+    "author": {
+      "github": "just-be-dev",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "just-be-dev/foldmark",
+    "source": "https://github.com/just-be-dev/foldmark",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.165.0"
+    },
+    "stars": 1,
+    "summary": "Visual feedback for Foldkit applications and coding agents, built with Foldkit and Effect.",
+    "title": "foldmark",
+    "url": "https://github.com/just-be-dev/foldmark"
+  },
+  {
+    "author": {
+      "github": "just-be-dev",
+      "x": null
+    },
+    "date": "2026-07-18",
+    "repo": "just-be-dev/lost.pet",
+    "source": "https://raw.githubusercontent.com/just-be-dev/lost.pet/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"^2.0.0-beta.62\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.98\"",
+      "foldkit": null
+    },
+    "stars": 3,
+    "summary": "A service to help reunite lost pets with their owners",
+    "title": "lost-pet",
+    "url": "https://github.com/just-be-dev/lost.pet"
+  },
+  {
+    "author": {
+      "github": "just-be-dev",
+      "x": null
+    },
+    "date": "2026-08-15",
+    "repo": "just-be-dev/signals-of-interest",
+    "source": "https://github.com/just-be-dev/signals-of-interest",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.72\"",
+      "cloudflare": null,
+      "effect": "package.json: \"@effect/platform-bun\": \"4.0.0-rc.109\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "JSON Feed for Signals of Interest.",
+    "title": "signals-of-interest",
+    "url": "https://github.com/just-be-dev/signals-of-interest"
+  },
+  {
+    "author": {
+      "github": "kamn",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "kamn/empty-vessel",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.117\"",
+      "foldkit": "package.json: \"foldkit\": \"0.163.0\""
+    },
+    "stars": 0,
+    "summary": "An AI Agent system for Coding and more.",
+    "title": "kamn/empty-vessel",
+    "url": "https://github.com/kamn/empty-vessel"
+  },
+  {
+    "author": {
+      "github": "kcc989",
+      "x": null
+    },
+    "date": "2026-09-08",
+    "repo": "kcc989/sylph-tanstack-template",
+    "source": "https://github.com/kcc989/sylph-tanstack-template",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.74",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Website.Vite, Cloudflare.D* resource (grep truncated)",
+      "effect": "package.json: effect 4.0.0-rc.111",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Sylph Project template: TanStack Start, shadcn/ui, Effect, Better Auth on D1, and Alchemy on Cloudflare Workers",
+    "title": "sylph-tanstack-template",
+    "url": "https://github.com/kcc989/sylph-tanstack-template"
+  },
+  {
+    "author": {
+      "github": "kimlercorey",
+      "x": null
+    },
+    "date": "2026-10-08",
+    "repo": "kimlercorey/aimy-v0",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "core/package.json: \"effect\": \"^4.0.1\"",
+      "foldkit": "core/package.json: \"foldkit\": \"^0.166.0\""
+    },
+    "stars": 0,
+    "summary": "Aimy app whose core/ package uses Foldkit and Effect; no Alchemy or Cloudflare found.",
+    "title": "kimlercorey/aimy-v0",
+    "url": "https://github.com/kimlercorey/aimy-v0"
+  },
+  {
+    "author": {
+      "github": "krakcons",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "krakcons/krakstack-uptime",
+    "source": "https://github.com/krakcons/krakstack-uptime",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.81",
+      "cloudflare": "alchemy.run.ts: Cloudflare.providers; description says Cloudflare-native",
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "A Cloudflare-native uptime monitor and live status page powered by Effect, Datastar, and Alchemy.",
+    "title": "krakstack-uptime",
+    "url": "https://github.com/krakcons/krakstack-uptime"
+  },
+  {
+    "author": {
+      "github": "levinbaenninger",
+      "x": null
+    },
+    "date": "2026-09-25",
+    "repo": "levinbaenninger/echo",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"catalog:\"",
+      "foldkit": "apps/web/package.json: \"foldkit\": \"0.160.0\""
+    },
+    "stars": 0,
+    "summary": "Monorepo with a Foldkit web app in apps/web and an Alchemy API in apps/api on Effect; no Cloudflare package found.",
+    "title": "levinbaenninger/echo",
+    "url": "https://github.com/levinbaenninger/echo"
+  },
+  {
+    "author": {
+      "github": "liria24",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "liria24/avatio",
+    "source": "https://raw.githubusercontent.com/liria24/avatio/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.76\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 6,
+    "summary": "✨ Share your VRSNS avatars.",
+    "title": "avatio",
+    "url": "https://github.com/liria24/avatio"
+  },
+  {
+    "author": {
+      "github": "LordCoughmann",
+      "x": null
+    },
+    "date": "2026-10-01",
+    "repo": "LordCoughmann/effect-libs-browser",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: wrangler catalog:, @cloudflare/vitest-plugin catalog:",
+      "effect": "package.json: effect catalog:",
+      "foldkit": null
+    },
+    "stars": 5,
+    "summary": "Effect-native browser automation library family (@effect-libs/browser, @effect-libs/browser-cdp, @effect-libs/browser-playwright, @effect-libs/browser-stagehand, @effect-libs/browser-providers, @effect-libs/cloudflare-playwright)",
+    "title": "effect-libs-browser",
+    "url": "https://github.com/LordCoughmann/effect-libs-browser"
+  },
+  {
+    "author": {
+      "github": "LouisLec",
+      "x": null
+    },
+    "date": "2026-06-12",
+    "repo": "LouisLec/music-theory-lessons",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-beta.78",
+      "foldkit": "package.json: foldkit ^0.110.0"
+    },
+    "stars": 0,
+    "summary": "Interactive music theory lessons built with Foldkit and Effect.",
+    "title": "music-theory-lessons",
+    "url": "https://music-theory-lessons.vercel.app"
+  },
+  {
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "Manzanita-Research/foldkit-native",
+    "source": "https://github.com/Manzanita-Research/foldkit-native",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.165.0"
+    },
+    "stars": 21,
+    "summary": "FoldKit apps drawn natively by GPUI through gpuix.",
+    "title": "foldkit-native",
+    "url": "https://github.com/Manzanita-Research/foldkit-native"
+  },
+  {
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "Manzanita-Research/language-galaxy",
+    "source": "https://github.com/Manzanita-Research/language-galaxy",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.81",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Worker, Cloudflare.Website.Foldkit",
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.166.0"
+    },
+    "stars": 0,
+    "summary": "Explorable explanation of the functional programming family tree, built with Foldkit",
+    "title": "language-galaxy",
+    "url": "https://github.com/Manzanita-Research/language-galaxy"
+  },
+  {
+    "author": {
+      "github": "marcosvrs",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "marcosvrs/bellwatch",
+    "source": "https://raw.githubusercontent.com/marcosvrs/bellwatch/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.116\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Monitor Daft.ie new-home or rent listings and send alerts through Shoutrrr.",
+    "title": "bellwatch",
+    "url": "https://github.com/marcosvrs/bellwatch"
+  },
+  {
+    "author": {
+      "github": "Matthieusz",
+      "x": null
+    },
+    "date": "2026-10-06",
+    "repo": "Matthieusz/party-planner",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.81; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: alchemy/Cloudflare import, Worker, D1",
+      "effect": "root package.json: effect 4.0.0",
+      "foldkit": "root package.json: foldkit 0.165.0"
+    },
+    "stars": 0,
+    "summary": "Party planning app with Foldkit, an Effect HTTP API and Cloudflare D1; full CAFE verified.",
+    "title": "Party Planner",
+    "url": "https://github.com/Matthieusz/party-planner"
+  },
+  {
+    "author": {
+      "github": "mclean25",
+      "x": null
+    },
+    "date": "2026-10-04",
+    "repo": "mclean25/mclean-site",
+    "source": "https://raw.githubusercontent.com/mclean25/mclean-site/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "My personal site (Astro).",
+    "title": "mclean-site",
+    "url": "https://github.com/mclean25/mclean-site"
+  },
+  {
+    "author": {
+      "github": "mepuka",
+      "x": null
+    },
+    "date": "2026-08-04",
+    "repo": "mepuka/arxiv-json-worker",
+    "source": "https://github.com/mepuka/arxiv-json-worker",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.67",
+      "cloudflare": "alchemy.run.ts: Cloudflare.providers only; Worker shape per description",
+      "effect": "package.json: effect 4.0.0-beta.102",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "arXiv export API as clean JSON — Effect v4 + Alchemy Cloudflare Worker",
+    "title": "arxiv-json-worker",
+    "url": "https://github.com/mepuka/arxiv-json-worker"
+  },
+  {
+    "author": {
+      "github": "mikecfisher",
+      "x": null
+    },
+    "date": "2026-09-28",
+    "repo": "mikecfisher/railway-alchemy-provider",
+    "source": "https://raw.githubusercontent.com/mikecfisher/railway-alchemy-provider/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.65\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.102\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Effect-native Railway resources for Alchemy v2.",
+    "title": "railway-alchemy-provider",
+    "url": "https://github.com/mikecfisher/railway-alchemy-provider"
+  },
+  {
+    "author": {
+      "github": "mikecfisher",
+      "x": null
+    },
+    "date": "2026-07-28",
+    "repo": "mikecfisher/vercel-alchemy-provider",
+    "source": "https://raw.githubusercontent.com/mikecfisher/vercel-alchemy-provider/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.64\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.101\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Effect-native Vercel provider for Alchemy v2.",
+    "title": "vercel-alchemy-provider",
+    "url": "https://github.com/mikecfisher/vercel-alchemy-provider"
+  },
+  {
+    "author": {
+      "github": "mpsuesser",
+      "x": null
+    },
+    "date": "2026-08-25",
+    "repo": "mpsuesser/Dojo",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "package.json: alchemy catalog:; alchemy.run.ts present (version not read from catalog)",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Zone, Cloudflare.Website",
+      "effect": "package.json: effect catalog:",
+      "foldkit": "packages/app/package.json: foldkit catalog:"
+    },
+    "stars": 2,
+    "summary": "specialized interfaces for getting information out of ones head and into something maximally legible to an agent as efficiently as possible",
+    "title": "Dojo",
+    "url": "https://dojo.bingo"
+  },
+  {
+    "author": {
+      "github": "mynameistito",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "mynameistito/cf-unduck",
+    "source": "https://raw.githubusercontent.com/mynameistito/cf-unduck/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.80\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Fast DuckDuckGo bang redirects on Cloudflare Workers — edge-cached server-side redirects with an on-device SPA fallback. React 19 + Vite + TanStack Router.",
+    "title": "cf-unduck",
+    "url": "https://github.com/mynameistito/cf-unduck"
+  },
+  {
+    "author": {
+      "github": "NigelThorne",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "NigelThorne/stack_manager_website",
+    "source": "https://raw.githubusercontent.com/NigelThorne/stack_manager_website/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.81\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0\"",
+      "foldkit": "package.json: \"foldkit\": \"0.167.0\""
+    },
+    "stars": 0,
+    "summary": "Stack Manager product site, built with Foldkit and deployed to Cloudflare Pages using Alchemy.",
+    "title": "stack_manager_website",
+    "url": "https://github.com/NigelThorne/stack_manager_website"
+  },
+  {
+    "author": {
+      "github": "NolanGC",
+      "x": null
+    },
+    "date": "2026-07-10",
+    "repo": "NolanGC/foldkit-alchemy-starter",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.59; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: alchemy/Cloudflare import, Cloudflare.Website, Worker; backend/package.json @cloudflare/workers-types",
+      "effect": "root package.json: effect 4.0.0-beta.88",
+      "foldkit": "frontend/package.json: foldkit ^0.122.0"
+    },
+    "stars": 37,
+    "summary": "A small starter repo for building full-stack applications with Foldkit and Alchemy.",
+    "title": "Foldkit + Alchemy starter",
+    "url": "https://github.com/NolanGC/foldkit-alchemy-starter"
+  },
+  {
+    "author": {
+      "github": "NolanGC",
+      "x": null
+    },
+    "date": "2026-08-06",
+    "repo": "NolanGC/parcel",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.62; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: alchemy/Cloudflare import, Cloudflare.Zone, Cloudflare.Website, Worker",
+      "effect": "root package.json: effect 4.0.0-beta.97",
+      "foldkit": "frontend/package.json: foldkit ^0.131.0"
+    },
+    "stars": 1,
+    "summary": "a good email client.",
+    "title": "Parcel",
+    "url": "https://parcelmail.dev"
+  },
+  {
+    "author": {
+      "github": "NolanGC",
+      "x": null
+    },
+    "date": "2026-08-17",
+    "repo": "NolanGC/verified-todo",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy 2.0.0-beta.59; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: alchemy/Cloudflare import, Cloudflare.Website; backend/package.json @cloudflare/workers-types",
+      "effect": "root package.json: effect 4.0.0-beta.88",
+      "foldkit": "frontend/package.json: foldkit ^0.145.0"
+    },
+    "stars": 0,
+    "summary": "todo app built on a verifiable software stack.",
+    "title": "Verified Todo",
+    "url": "https://github.com/NolanGC/verified-todo"
+  },
+  {
+    "author": {
+      "github": "nr1brolyfan",
+      "x": null
+    },
+    "date": "2026-05-04",
+    "repo": "nr1brolyfan/effectful-cloudflare",
+    "source": "https://github.com/Marve10s/awesome-effect/blob/main/README.md",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: @cloudflare/workers-types ^4.20260128.0",
+      "effect": "package.json: effect ^4.0.0-beta",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Library for effectfully interacting with Cloudflare resources",
+    "title": "effectful-cloudflare",
+    "url": "https://github.com/nr1brolyfan/effectful-cloudflare"
+  },
+  {
+    "author": {
+      "github": "odysseaspapadimas",
+      "x": null
+    },
+    "date": "2026-08-26",
+    "repo": "odysseaspapadimas/briefsmith",
+    "source": "https://github.com/odysseaspapadimas/briefsmith",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.65",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Website.Vite",
+      "effect": "package.json: effect 4.0.0-beta.101",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Durable deep-research briefs with Effect, Alchemy, TanStack Start, and Cloudflare Workflows.",
+    "title": "briefsmith",
+    "url": "https://github.com/odysseaspapadimas/briefsmith"
+  },
+  {
+    "author": {
+      "github": "odysseaspapadimas",
+      "x": null
+    },
+    "date": "2026-08-29",
+    "repo": "odysseaspapadimas/polyphemus",
+    "source": "https://github.com/odysseaspapadimas/polyphemus",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.67",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Website.Vite; package.json: @cloudflare/sandbox 0.12.4",
+      "effect": "package.json: effect 4.0.0-beta.102",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "A bounded autonomous repository agent built with Effect, Pi, Alchemy, and Cloudflare Sandbox.",
+    "title": "polyphemus",
+    "url": "https://github.com/odysseaspapadimas/polyphemus"
+  },
+  {
+    "author": {
+      "github": "ofrades",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "ofrades/tesourofieis",
+    "source": "https://raw.githubusercontent.com/ofrades/tesourofieis/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.74\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"^4.0.0-rc.111\"",
+      "foldkit": null
+    },
+    "stars": 4,
+    "summary": "Espaço dedicado à oração, exposição e preservação das santas tradições da Igreja.",
+    "title": "@tesourofieis/expo",
+    "url": "https://github.com/ofrades/tesourofieis"
+  },
+  {
+    "author": {
+      "github": "oleksandr-antonenko",
+      "x": null
+    },
+    "date": "2026-09-24",
+    "repo": "oleksandr-antonenko/foldkit-extras",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "packages/foldkit-command-palette/package.json: \"effect\": \">=4.0.0-rc.112 <5\"",
+      "foldkit": "packages/foldkit-command-palette/package.json: \"foldkit\": \">=0.158.2 <0.159.0\""
+    },
+    "stars": 1,
+    "summary": "Foldkit UI building blocks: time-grid scheduler, grouped side navigation, ⌘K command palette",
+    "title": "oleksandr-antonenko/foldkit-extras",
+    "url": "https://github.com/oleksandr-antonenko/foldkit-extras"
+  },
+  {
+    "author": {
+      "github": "oscaromsn",
+      "x": null
+    },
+    "date": "2026-08-16",
+    "repo": "oscaromsn/pdpj-token-broker",
+    "source": "https://raw.githubusercontent.com/oscaromsn/pdpj-token-broker/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.72\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.109\"",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "Multi-tenant service that exchanges stored court credentials for short-lived PDPJ access tokens",
+    "title": "pdpj-token-broker",
+    "url": "https://github.com/oscaromsn/pdpj-token-broker"
+  },
+  {
+    "author": {
+      "github": "paperkeel",
+      "x": null
+    },
+    "date": "2026-09-10",
+    "repo": "paperkeel/error-wolf",
+    "source": "https://raw.githubusercontent.com/paperkeel/error-wolf/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.67\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.100\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "simple, fast, error-message compressor to save money",
+    "title": "error-wolf",
+    "url": "https://github.com/paperkeel/error-wolf"
+  },
+  {
+    "author": {
+      "github": "paperkeel",
+      "x": null
+    },
+    "date": "2026-09-03",
+    "repo": "paperkeel/secret-effects",
+    "source": "https://raw.githubusercontent.com/paperkeel/secret-effects/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.74\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Agent-first, API-only secret management on Cloudflare",
+    "title": "secret-effects",
+    "url": "https://github.com/paperkeel/secret-effects"
+  },
+  {
+    "author": {
+      "github": "PeterKruhoffer",
+      "x": null
+    },
+    "date": "2026-08-27",
+    "repo": "PeterKruhoffer/mossboard",
+    "source": "https://raw.githubusercontent.com/PeterKruhoffer/mossboard/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.72\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.108\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Silly little app for designing your garden.",
+    "title": "mossboard",
+    "url": "https://github.com/PeterKruhoffer/mossboard"
+  },
+  {
+    "author": {
+      "github": "Potti1234",
+      "x": null
+    },
+    "date": "2026-09-01",
+    "repo": "Potti1234/wide-effect",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.108\"",
+      "foldkit": "package.json: \"foldkit\": \"0.144.0\""
+    },
+    "stars": 1,
+    "summary": "Effect packages with a Foldkit integration in packages/foldkit and runnable examples.",
+    "title": "Potti1234/wide-effect",
+    "url": "https://github.com/Potti1234/wide-effect"
+  },
+  {
+    "author": {
+      "github": "Quick-Release",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "Quick-Release/gq-games-api",
+    "source": "https://github.com/Quick-Release/gq-games-api",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.81",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Worker; package.json: @cloudflare/workers-types 5.20261007.1",
+      "effect": "package.json: effect 4.0.1",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Research-first games API on Cloudflare with Alchemy, Effect, Hono, Vite+, and planned gq-crawl ingestion",
+    "title": "gq-games-api",
+    "url": "https://github.com/Quick-Release/gq-games-api"
+  },
+  {
+    "author": {
+      "github": "recally-io",
+      "x": null
+    },
+    "date": "2026-09-18",
+    "repo": "recally-io/recally",
+    "source": "https://raw.githubusercontent.com/recally-io/recally/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.77\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 44,
+    "summary": "Recally ✨ - AI-powered memory assistant for organizing digital content. Capture web articles, Twitter threads, videos, and more via browser extensions or Telegram. Features AI summarization, smart tagging, semantic search, and self-hosting. Open source (AGPLv3) alternative to Pocket/Readwise with enhanced AI capabilities and privacy control.",
+    "title": "recally",
+    "url": "https://github.com/recally-io/recally"
+  },
+  {
+    "author": {
+      "github": "Reilley64",
+      "x": null
+    },
+    "date": "2026-08-14",
+    "repo": "Reilley64/mtgfr",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "client/package.json: \"effect\": \"4.0.0-beta.102\"",
+      "foldkit": "client/package.json: \"foldkit\": \"^0.137.0\""
+    },
+    "stars": 1,
+    "summary": "Client package in client/ built with Foldkit and Effect; no Alchemy or Cloudflare found.",
+    "title": "Reilley64/mtgfr",
+    "url": "https://github.com/Reilley64/mtgfr"
+  },
+  {
+    "author": {
+      "github": "rjdellecese",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "rjdellecese/confect",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "apps/example/package.json: \"effect\": \"4.0.1\"",
+      "foldkit": "packages/foldkit/package.json: \"foldkit\": \"^0.165.0\""
+    },
+    "stars": 371,
+    "summary": "Use Effect with Convex!",
+    "title": "rjdellecese/confect",
+    "url": "https://github.com/rjdellecese/confect"
+  },
+  {
+    "author": {
+      "github": "roottool",
+      "x": null
+    },
+    "date": "2026-09-19",
+    "repo": "roottool/retort",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": "root package.json: alchemy ^2.0.0-beta.67; alchemy.run.ts present",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Worker, Cloudflare.KV, Cloudflare.D1 references",
+      "effect": "root package.json: effect >=4.0.0-beta.102",
+      "foldkit": "root package.json: foldkit ^0.137.0"
+    },
+    "stars": 0,
+    "summary": "A web page that shows you the infrastructure that is currently serving it.",
+    "title": "Retort",
+    "url": "https://github.com/roottool/retort"
+  },
+  {
+    "author": {
+      "github": "saiashirwad",
+      "x": null
+    },
+    "date": "2026-10-09",
+    "repo": "saiashirwad/foldkit-explore",
+    "source": "https://github.com/saiashirwad/foldkit-explore",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.167.0"
+    },
+    "stars": 0,
+    "summary": "Every state a Foldkit program can reach, on one page",
+    "title": "foldkit-explore",
+    "url": "https://github.com/saiashirwad/foldkit-explore"
+  },
+  {
+    "author": {
+      "github": "samebase",
+      "x": null
+    },
+    "date": "2026-10-06",
+    "repo": "samebase/alchemy-convex",
+    "source": "https://github.com/samebase/alchemy-convex",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.80",
+      "cloudflare": null,
+      "effect": "package.json: effect ^4.0.0 (caret range)",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Convex resources for Alchemy v2: projects, deploy keys, environment variables, and a deploy step",
+    "title": "alchemy-convex",
+    "url": "https://github.com/samebase/alchemy-convex"
+  },
+  {
+    "author": {
+      "github": "solcik",
+      "x": null
+    },
+    "date": "2026-10-02",
+    "repo": "solcik/agent-grilling",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-beta.97",
+      "foldkit": "package.json: foldkit 0.131.0; @foldkit/ui 0.131.0"
+    },
+    "stars": 2,
+    "summary": "grill — a local, always-on agent-question inbox: agents post batched decisions (options + a recommended pick, with markdown/image/HTML context) and you answer them in one browser panel. Effect v4 + Foldkit; CLI-driven.",
+    "title": "agent-grilling",
+    "url": "https://github.com/solcik/agent-grilling"
+  },
+  {
+    "author": {
+      "github": "SolZeroAI",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "SolZeroAI/platform",
+    "source": "https://raw.githubusercontent.com/SolZeroAI/platform/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.74\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.107\"",
+      "foldkit": null
+    },
+    "stars": 6,
+    "summary": "Give your work an agent. SolZero Agent deploys to Cloudflare and is low-cost, low-maintenance, scalable, and durable.",
+    "title": "s0-agent",
+    "url": "https://github.com/SolZeroAI/platform"
+  },
+  {
+    "author": {
+      "github": "sulthonuladib",
+      "x": null
+    },
+    "date": "2026-10-01",
+    "repo": "sulthonuladib/abogoboga",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.164.0"
+    },
+    "stars": 0,
+    "summary": "personal cryptocurrency arbitrage app.",
+    "title": "abogoboga",
+    "url": "https://github.com/sulthonuladib/abogoboga"
+  },
+  {
+    "author": {
+      "github": "sunwrobert",
+      "x": null
+    },
+    "date": "2026-03-18",
+    "repo": "sunwrobert/beautiful-mermaid-viewer",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect ^3.20.0",
+      "foldkit": "package.json: foldkit ^0.36.0"
+    },
+    "stars": 1,
+    "summary": "Live Mermaid diagram editor and previewer built with Foldkit.",
+    "title": "beautiful-mermaid-viewer",
+    "url": "https://beautiful-mermaid-viewer.sunwrobert.workers.dev"
+  },
+  {
+    "author": {
+      "github": "SyahrulBhudiF",
+      "x": null
+    },
+    "date": "2026-10-05",
+    "repo": "SyahrulBhudiF/Dearly",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": "package.json: @cloudflare/workers-types 5.20260724.1 (no alchemy or wrangler config at root)",
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": "package.json: foldkit 0.165.0"
+    },
+    "stars": 5,
+    "summary": "A private diary for composing dated memories on a freeform canvas.",
+    "title": "Dearly",
+    "url": "https://github.com/SyahrulBhudiF/Dearly"
+  },
+  {
+    "author": {
+      "github": "SyahrulBhudiF",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "SyahrulBhudiF/paste-preview",
+    "source": "https://raw.githubusercontent.com/SyahrulBhudiF/paste-preview/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.59\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.92\"",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "Paste n Preview, share your snippets.",
+    "title": "paste-preview",
+    "url": "https://github.com/SyahrulBhudiF/paste-preview"
+  },
+  {
+    "author": {
+      "github": "tao-io",
+      "x": null
+    },
+    "date": "2026-08-04",
+    "repo": "tao-io/foldkit-gallery",
+    "source": "https://github.com/foldhub/awesome-foldkit/blob/main/data/projects.toml",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: effect 4.0.0-beta.102",
+      "foldkit": "package.json: foldkit ^0.138.0; @foldkit/ui ^0.138.0"
+    },
+    "stars": 0,
+    "summary": "A real Foldkit app: all 24 @foldkit/ui components, one page each, and 146 Foldcase Showcases asserting their Models.",
+    "title": "foldkit-gallery",
+    "url": "https://github.com/tao-io/foldkit-gallery"
+  },
+  {
+    "author": {
+      "github": "tarkaworks",
+      "x": null
+    },
+    "date": "2026-08-05",
+    "repo": "tarkaworks/foldocs",
+    "source": "https://registry.npmjs.org/-/v1/search?text=foldkit",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"0.93.12\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.102\"",
+      "foldkit": "package.json: \"foldkit\": \"0.137.0\""
+    },
+    "stars": 24,
+    "summary": "The beautiful &amp; flexible Foldkit docs framework.",
+    "title": "tarkaworks/foldocs",
+    "url": "https://github.com/tarkaworks/foldocs"
+  },
+  {
+    "author": {
+      "github": "tomrford",
+      "x": null
+    },
+    "date": "2026-08-19",
+    "repo": "tomrford/vscope",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": null,
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-beta.78\"",
+      "foldkit": "packages/ui/package.json: \"foldkit\": \"0.106.0\""
+    },
+    "stars": 4,
+    "summary": "Local daemon + Foldkit UI for the vscope embedded debug interface (npx vscope)",
+    "title": "tomrford/vscope",
+    "url": "https://github.com/tomrford/vscope"
+  },
+  {
+    "author": {
+      "github": "toolbar23",
+      "x": null
+    },
+    "date": "2026-10-07",
+    "repo": "toolbar23/alchemy-k8s",
+    "source": "https://raw.githubusercontent.com/toolbar23/alchemy-k8s/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.74\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Alchemy providers for Hetzner and local k3s clusters",
+    "title": "alchemy-k8s",
+    "url": "https://github.com/toolbar23/alchemy-k8s"
+  },
+  {
+    "author": {
+      "github": "trmcnvn",
+      "x": null
+    },
+    "date": "2026-08-18",
+    "repo": "trmcnvn/dolan",
+    "source": "https://raw.githubusercontent.com/trmcnvn/dolan/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.72\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-rc.110\"",
+      "foldkit": null
+    },
+    "stars": 1,
+    "summary": "🤖 Personal Discord Bot.",
+    "title": "dolan",
+    "url": "https://github.com/trmcnvn/dolan"
+  },
+  {
+    "author": {
+      "github": "tvanhens",
+      "x": null
+    },
+    "date": "2026-09-11",
+    "repo": "tvanhens/ramose",
+    "source": "https://raw.githubusercontent.com/tvanhens/ramose/master/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.74\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \">=4.0.0-rc.110\"",
+      "foldkit": null
+    },
+    "stars": 11,
+    "summary": "Ramose — an immutable, reactive database built for agents and humans.",
+    "title": "ramose",
+    "url": "https://github.com/tvanhens/ramose"
+  },
+  {
+    "author": {
+      "github": "Tyago88",
+      "x": null
+    },
+    "date": "2026-09-26",
+    "repo": "Tyago88/open-seo-gabel",
+    "source": "https://raw.githubusercontent.com/Tyago88/open-seo-gabel/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.61\"",
+      "cloudflare": "alchemy.run.ts imports alchemy/Cloudflare",
+      "effect": "package.json: \"effect\": \"4.0.0-beta.93\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Open source alternative to Semrush and Ahrefs.",
+    "title": "open-seo",
+    "url": "https://github.com/Tyago88/open-seo-gabel"
+  },
+  {
+    "author": {
+      "github": "voidhashcom",
+      "x": null
+    },
+    "date": "2026-09-14",
+    "repo": "voidhashcom/voidhash",
+    "source": "https://raw.githubusercontent.com/voidhashcom/voidhash/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.77\" (via pnpm-workspace.yaml catalog)",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.112\" (via pnpm-workspace.yaml catalog)",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Open-source Voidhash platform. Contributions are welcome through pull requests; main is maintained by automated synchronization.",
+    "title": "@voidhash/root",
+    "url": "https://github.com/voidhashcom/voidhash"
+  },
+  {
+    "author": {
+      "github": "Wania-Labs",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "Wania-Labs/zstack",
+    "source": "https://github.com/Wania-Labs/zstack",
+    "stack": {
+      "alchemy": "package.json: alchemy 2.0.0-beta.80",
+      "cloudflare": "alchemy.run.ts: Cloudflare.Queues.Consumer",
+      "effect": "package.json: effect 4.0.0",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Opinionated TypeScript product starter (Cloudflare, Alchemy, Effect, TanStack).",
+    "title": "zstack",
+    "url": "https://github.com/Wania-Labs/zstack"
+  },
+  {
+    "author": {
+      "github": "Yeshwanthyk",
+      "x": null
+    },
+    "date": "2026-10-03",
+    "repo": "Yeshwanthyk/scotty",
+    "source": "https://raw.githubusercontent.com/Yeshwanthyk/scotty/main/package.json",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.79\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \"4.0.0-rc.117\"",
+      "foldkit": null
+    },
+    "stars": 0,
+    "summary": "Cloud coding agents for your repos. Beam up a task, steer it from anywhere, and try what they build.",
+    "title": "scotty",
+    "url": "https://github.com/Yeshwanthyk/scotty"
+  },
+  {
+    "author": {
+      "github": "yovanoc",
+      "x": null
+    },
+    "date": "2026-08-26",
+    "repo": "yovanoc/devchris",
+    "source": "https://github.com/foldkit/foldkit/network/dependents?dependent_type=REPOSITORY",
+    "stack": {
+      "alchemy": "package.json: \"alchemy\": \"2.0.0-beta.44\"",
+      "cloudflare": null,
+      "effect": "package.json: \"effect\": \">=4.0.0-beta.70 || >=4.0.0\"",
+      "foldkit": "foldkit-site/package.json: \"foldkit\": \"^0.101.0\""
+    },
+    "stars": 0,
+    "summary": "devchris.",
+    "title": "yovanoc/devchris",
+    "url": "https://github.com/yovanoc/devchris"
+  }
+]

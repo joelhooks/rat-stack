@@ -2,6 +2,12 @@ import { defineContract } from "@rat-stack/capability/contract";
 import { Schema } from "effect";
 
 import { AssetReadError } from "./asset-read-error.js";
+import {
+  CafeNewsList,
+  CafeNewsQuery,
+  CafeProjectList,
+  CafeProjectQuery,
+} from "./cafe.js";
 import { NoPath } from "./no-path.js";
 import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
@@ -10,6 +16,66 @@ import { UnknownPrompt } from "./unknown-prompt.js";
 export { UnknownPrompt } from "./unknown-prompt.js";
 
 export { AssetReadError } from "./asset-read-error.js";
+
+export {
+  CAFE_DIVERSITY_PENALTY,
+  CAFE_FRESHNESS_HOURS,
+  CafeAuthor,
+  CafeData,
+  CafeEngagement,
+  CafeLetter,
+  CafeNewsItem,
+  CafeNewsKind,
+  CafeNewsList,
+  CafeNewsQuery,
+  CafeNewsSort,
+  CafeProject,
+  CafeProjectList,
+  CafeProjectQuery,
+  CafeProjectSort,
+  CafeReply,
+  CafeSignal,
+  CafeStackEvidence,
+  CafeStory,
+  CafeThread,
+  GithubLogin,
+  HttpsUrl,
+  IsoDate,
+  OneLine,
+  RankedCafeNewsItem,
+  RepoName,
+  ReplyText,
+  XHandle,
+  XStatusUrl,
+  cafeDomain,
+  cafeLetterInitial,
+  cafeLetters,
+  cafeNewsScore,
+  cafeRankedAt,
+  cafeSignalWeights,
+  cafeSignals,
+  filterCafeProjects,
+  githubProfileUrl,
+  rankCafeNews,
+  selectCafeNews,
+  selectCafeProjects,
+  sortCafeNewsNewest,
+  sortCafeProjects,
+  verifiedLetters,
+  xProfileUrl,
+} from "./cafe.js";
+
+export type {
+  CafeDataValue,
+  CafeEngagementValue,
+  CafeLetterValue,
+  CafeNewsItemValue,
+  CafeNewsKindValue,
+  CafeProjectValue,
+  CafeSignalValue,
+  IsoDateValue,
+  RankedCafeNewsItemValue,
+} from "./cafe.js";
 
 export {
   CardSchema,
@@ -220,6 +286,24 @@ export const getPromptContract = defineContract("getPrompt", {
   failure: Schema.Union([UnknownPrompt, AssetReadError]),
   input: Schema.Struct({ slug: PromptSlug }),
   output: Prompt,
+});
+
+export const listCafeNewsContract = defineContract("listCafeNews", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "List reviewed CAFE stack news: Cloudflare, Alchemy, Foldkit and Effect releases, posts, videos, launches and X threads. Sort by rank (engagement signals with a freshness decay) or newest, and filter by kind.",
+  failure: AssetReadError,
+  input: CafeNewsQuery,
+  output: CafeNewsList,
+});
+
+export const listCafeProjectsContract = defineContract("listCafeProjects", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "List reviewed projects built on the CAFE stack, with per-letter stack evidence. Filter to projects that use every given letter and sort by last update or stars.",
+  failure: AssetReadError,
+  input: CafeProjectQuery,
+  output: CafeProjectList,
 });
 
 export const searchContract = defineContract("search", {

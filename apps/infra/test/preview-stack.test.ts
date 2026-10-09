@@ -99,6 +99,8 @@ it.effect.prop(
                 "neighbors",
                 "mentions",
                 "path",
+                "listCafeNews",
+                "listCafeProjects",
               ].includes(name)
             )
           ).toBe(true);

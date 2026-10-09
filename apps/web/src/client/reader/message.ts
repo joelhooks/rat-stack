@@ -1,6 +1,7 @@
 import { Schema } from "effect";
 import { defineMessageUnion } from "foldkit/message";
 
+import { Message as CafeMessage } from "../cafe/message.js";
 import { DetectedClipboardAccess } from "./model.js";
 
 export const Message = defineMessageUnion({
@@ -8,6 +9,7 @@ export const Message = defineMessageUnion({
   CompletedDetectClipboard: { access: DetectedClipboardAccess },
   CompletedWaitBeforeCopyReset: { id: Schema.String },
   FailedCopyReaderText: { id: Schema.String },
+  GotCafeMessage: { message: CafeMessage },
   SucceededCopyReaderText: { id: Schema.String },
 });
 

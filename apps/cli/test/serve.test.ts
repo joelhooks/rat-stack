@@ -1,6 +1,7 @@
 import { NodeHttpServer, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { FileInspector, PromptLibrary } from "@rat-stack/core";
+import { CafeDirectory, FileInspector, PromptLibrary } from "@rat-stack/core";
+import { CafeData } from "@rat-stack/core/contracts";
 import {
   ActorLog,
   CallLog,
@@ -24,6 +25,14 @@ const decodeOpenApi = Schema.decodeUnknownSync(
   Schema.Struct({ paths: Schema.Record(Schema.String, Schema.Unknown) })
 );
 
+const noCafe = CafeDirectory.layer(
+  Schema.decodeSync(CafeData)({
+    news: [],
+    projects: [],
+    rankedAt: "2026-10-09",
+  })
+);
+
 const AppLayer = HttpRouter.serve(routes, {
   disableListenLog: true,
   disableLogger: true,
@@ -31,7 +40,7 @@ const AppLayer = HttpRouter.serve(routes, {
   Layer.provide(Learner.layer(Effect.succeed([]))),
   Layer.provideMerge(NodeHttpServer.layerTest),
   Layer.provide(FileInspector.layer.pipe(Layer.provide(NodeServices.layer))),
-  Layer.provide(PromptLibrary.layer([]))
+  Layer.provide(Layer.merge(PromptLibrary.layer([]), noCafe))
 );
 
 describe("serve routes", () => {
@@ -44,7 +53,9 @@ describe("serve routes", () => {
       );
     }).pipe(
       Effect.provide(
-        serverLayer(0).pipe(Layer.provide(PromptLibrary.layer([])))
+        serverLayer(0).pipe(
+          Layer.provide(Layer.merge(PromptLibrary.layer([]), noCafe))
+        )
       )
     )
   );
@@ -135,7 +146,7 @@ describe("serve routes", () => {
           Layer.provide(Learner.layer(Effect.succeed([]))),
           Layer.provideMerge(NodeHttpServer.layerTest),
           Layer.provideMerge(devtoolsLayer()),
-          Layer.provide(PromptLibrary.layer([])),
+          Layer.provide(Layer.merge(PromptLibrary.layer([]), noCafe)),
           Layer.provide(
             FileInspector.layer.pipe(Layer.provide(NodeServices.layer))
           )
