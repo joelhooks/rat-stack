@@ -1,5 +1,6 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
+import { CafeDirectory } from "@rat-stack/core";
 import type {
   AssetReadError,
   ResourceNotFound,
@@ -23,9 +24,12 @@ import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
 import { feedbackRequests } from "./auth/feedback-access.js";
 import type { feedbackAccess } from "./auth/feedback-access.js";
 import { originToken } from "./bundled-content.generated.js";
+import { cafeDirectoryLayer } from "./cafe-directory.js";
+import { cafeAtomFeed } from "./cafe-feed.js";
 import {
   authenticatedCapabilities,
   capabilities,
+  listCafeNews,
   search,
 } from "./capabilities/index.js";
 import { learnLayer } from "./capabilities/learn.js";
@@ -157,6 +161,7 @@ export interface StaticResponseCache {
 
 const staticPaths = new Set([
   "/auth.md",
+  "/news.xml",
   "/llms.txt",
   "/llms-full.txt",
   "/openapi.json",
@@ -559,6 +564,7 @@ const contentRoutes = () =>
     Effect.gen(function* buildContentRoutes() {
       const tickets = yield* Effect.serviceOption(IntakeTicket);
       const store = yield* ContentStore;
+      const cafe = yield* CafeDirectory;
 
       return Layer.mergeAll(
         HttpRouter.add("GET", "/tokenmaxx", () =>
@@ -585,6 +591,16 @@ const contentRoutes = () =>
                   markdown(llmsFullText(originOf(request), catalog, resources))
                 )
               )
+            )
+          )
+        ),
+        HttpRouter.add("GET", "/news.xml", (request) =>
+          listCafeNews.handler({ limit: 50, sort: "newest" }).pipe(
+            Effect.provideService(CafeDirectory, cafe),
+            Effect.map((list) =>
+              HttpServerResponse.text(cafeAtomFeed(originOf(request), list), {
+                contentType: "application/atom+xml; charset=utf-8",
+              })
             )
           )
         ),
@@ -1230,6 +1246,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         Layer.provideMerge(options.feedback?.requests ?? feedbackRequests()),
         Layer.provideMerge(contentRequests(store, learner)),
         Layer.provideMerge(promptLibraryLayer),
+        Layer.provideMerge(cafeDirectoryLayer),
         Layer.provideMerge(
           Layer.merge(
             Layer.succeed(ContentStore, store),

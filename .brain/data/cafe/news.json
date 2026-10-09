@@ -1,0 +1,969 @@
+[
+  {
+    "kind": "release",
+    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.81",
+    "title": "Alchemy 2.0.0-beta.81",
+    "summary": "Syncs Cloudflare OAuth scopes with the registered client.",
+    "date": "2026-10-05",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": "alchemy-run",
+      "x": null
+    },
+    "source": "https://www.npmjs.com/package/alchemy/v/2.0.0-beta.81",
+    "engagement": {
+      "stars": 1598
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://effect.website/blog/releases/effect/40",
+    "title": "Effect 4.0",
+    "summary": "Rebuilt from the ground up, with a dependency-free core and long-term support.",
+    "date": "2026-09-30",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": "Effect-TS",
+      "x": null
+    },
+    "source": "https://effect.website/blog/releases/effect/40"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/just_be_dev/status/2108012090938319192",
+    "title": "Very bullish on the CAFE stack (cloudflare, alchemy, foldkit, effect). Got my own template for it here: github.com/just-be-dev/ef…",
+    "summary": "Justin Bennett names the CAFE stack and shares his template; replies ask about Foldkit and point to Effect-TS/cafe.",
+    "date": "2026-10-08",
+    "repo": "just-be-dev/effect-cloudflare-foldkit-template",
+    "author": {
+      "github": null,
+      "x": "just_be_dev"
+    },
+    "engagement": {
+      "likes": 155,
+      "replies": 8,
+      "participants": 8
+    },
+    "topReplies": [
+      {
+        "x": "cnakazawa",
+        "likes": 5,
+        "text": "it should be CAFFE",
+        "url": "https://x.com/cnakazawa/status/2108020558826996141"
+      },
+      {
+        "x": "abbesm0hamed",
+        "likes": 5,
+        "text": "@maxwellbrown has also been working on one https://github.com/Effect-TS/cafe",
+        "url": "https://x.com/abbesm0hamed/status/2108101903716618367"
+      },
+      {
+        "x": "just_be_dev",
+        "likes": 3,
+        "text": "More analogous to react and it’s still early. I was a big fan of elm though and I’m a big effect fan so it’s like pb&j.",
+        "url": "https://x.com/just_be_dev/status/2108027696244752885"
+      }
+    ],
+    "source": "https://x.com/just_be_dev/status/2108012090938319192"
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-08",
+    "kind": "post",
+    "repo": null,
+    "source": "https://alchemy.run/blog/2026-09-08-beta-77/",
+    "summary": "Alchemy beta.77 adds profiles and sends Effect spans from Workers to Cloudflare Workers Observability.",
+    "title": "2.0.0-beta.77 - Profiles, CLI & Workers Tracing",
+    "url": "https://alchemy.run/blog/2026-09-08-beta-77/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-17",
+    "kind": "post",
+    "repo": null,
+    "source": "https://alchemy.run/blog/2026-09-17-beta-78/",
+    "summary": "Alchemy beta.78 adds git hosting, Stripe and Worker Previews support.",
+    "title": "2.0.0-beta.78 - Git Hosting, Stripe & Worker Previews",
+    "url": "https://alchemy.run/blog/2026-09-17-beta-78/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-29",
+    "kind": "post",
+    "repo": null,
+    "source": "https://alchemy.run/blog/2026-09-29-beta-80/",
+    "summary": "Alchemy beta.80 adds GCP, Neon and secret providers.",
+    "title": "2.0.0-beta.80 - GCP, Neon & Secret Providers",
+    "url": "https://alchemy.run/blog/2026-09-29-beta-80/",
+    "engagement": {
+      "seen": 2
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-30",
+    "kind": "post",
+    "repo": null,
+    "source": "https://blog.cloudflare.com/faster-agent-sandboxes/",
+    "summary": "Containers can now pick their image and instance size from a Durable Object at runtime, with Sandbox SDK 1.0 on top, which matters to a CAFE builder running Worker-controlled sandboxes (beta).",
+    "title": "Cloudflare Containers, rebuilt to scale agent sandboxes",
+    "url": "https://blog.cloudflare.com/faster-agent-sandboxes/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-22",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Each PR gets its own Worker URL with isolated Durable Objects and Containers, which a CAFE builder can use for per-PR tests against real infrastructure.",
+    "title": "Test every pull request in an isolated environment with Worker Previews",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-09-22-worker-previews/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-01",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Durable Objects with a 2026-10-01 compatibility date keep running for pending service-binding and RPC calls for up to 15 minutes, which a CAFE builder running long jobs on Workers needs to know about.",
+    "title": "Pending I/O operations allow Durable Objects to continue long-running work without a connected client",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-10-01-pending-io-keep-alive/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-02",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Custom Dashboards can chart Workers logs and traces next to analytics, which helps a CAFE builder check a Worker's health in one place.",
+    "title": "Workers Observability in custom dashboards",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-08-12",
+    "kind": "post",
+    "repo": null,
+    "source": "https://effect.website/blog",
+    "summary": "Effect 4.0 release candidate, with a call for users to test and veto before stable.",
+    "title": "We think this is it ...",
+    "url": "https://effect.website/blog/releases/effect/40-rc",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-02",
+    "kind": "post",
+    "repo": null,
+    "source": "https://effect.website/blog",
+    "summary": "Weekly Effect roundup; the index lists Effect v4 as stable this week.",
+    "title": "This Week in Effect - 138",
+    "url": "https://effect.website/blog/this-week-in-effect/138",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "date": "2026-09-12",
+    "kind": "post",
+    "repo": null,
+    "source": "https://foldkit.dev/blog",
+    "summary": "Adds a portable fetch handler for server-rendered apps, so the same entry runs on Node or a custom Worker.",
+    "title": "Foldkit 0.159.0",
+    "url": "https://foldkit.dev/blog/foldkit-0-159-0",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "date": "2026-09-19",
+    "kind": "post",
+    "repo": null,
+    "source": "https://foldkit.dev/blog",
+    "summary": "Adds swipe-to-dismiss on Toast, makes canonical URLs an application decision, and stops SSR builds publishing an unrendered HTML template.",
+    "title": "Foldkit 0.162.0 and 0.163.0",
+    "url": "https://foldkit.dev/blog/foldkit-0-163-0",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "date": "2026-09-30",
+    "kind": "post",
+    "repo": null,
+    "source": "https://foldkit.dev/blog",
+    "summary": "Foldkit 0.164.0 adds Meter and Progress UI primitives and simplifies DevTools MCP and server rendering setup.",
+    "title": "Foldkit 0.164.0",
+    "url": "https://foldkit.dev/blog/foldkit-0-164-0",
+    "engagement": {
+      "seen": 2
+    }
+  },
+  {
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "date": "2026-10-04",
+    "kind": "post",
+    "repo": null,
+    "source": "https://foldkit.dev/blog",
+    "summary": "Foldkit 0.165 and 0.166 bring Effect 4 stable and an experimental Query module for remote data.",
+    "title": "Foldkit 0.165.0 and 0.166.0",
+    "url": "https://foldkit.dev/blog/foldkit-0-166-0",
+    "engagement": {
+      "seen": 2
+    }
+  },
+  {
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "date": "2026-10-07",
+    "kind": "post",
+    "repo": null,
+    "source": "https://foldkit.dev/blog",
+    "summary": "Foldkit 0.167.0 lets the server entry render the whole HTML page and adds a Node host adapter.",
+    "title": "Foldkit 0.167.0",
+    "url": "https://foldkit.dev/blog/foldkit-0-167-0",
+    "engagement": {
+      "seen": 2
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-01",
+    "kind": "release",
+    "repo": "Effect-TS/effect",
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases/tags/effect@4.0.0",
+    "summary": "Effect 4 is now the stable, long-term-support line, so a CAFE builder can start new code on it and plan the v3 migration with MIGRATION.md.",
+    "title": "effect@4.0.0 released (Effect 4 stable)",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.0",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-07",
+    "kind": "release",
+    "repo": "Effect-TS/effect",
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases",
+    "summary": "A patch on the Effect 4 line, so a CAFE app pinned to 4.0.0 should move to 4.0.2 once its lockfile is checked.",
+    "title": "effect@4.0.2 released",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.2",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-01",
+    "kind": "post",
+    "repo": null,
+    "source": "https://neon.com/blog/announcing-neon-effect",
+    "summary": "Neon ships @neon/effect, Effect 4 bindings for the Neon SDK with typed errors and Streams.",
+    "title": "Announcing @neon/effect",
+    "url": "https://neon.com/blog/announcing-neon-effect",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-24",
+    "kind": "post",
+    "repo": null,
+    "source": "https://robotostudio.com/blog/effect-for-dummies",
+    "summary": "Plain-English intro to Effect covering typed errors, retries, timeouts and dependency injection.",
+    "title": "Effect TypeScript explained for beginners (2026)",
+    "url": "https://robotostudio.com/blog/effect-for-dummies",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "maxedapps"
+    },
+    "date": "2026-10-01",
+    "kind": "video",
+    "repo": null,
+    "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+    "summary": "Academind video pitching Alchemy as the infrastructure companion to Effect.",
+    "title": "Using Effect? Use Alchemy, too!",
+    "url": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-06",
+    "kind": "video",
+    "repo": null,
+    "source": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
+    "summary": "Better Stack video on Effect 4.0's rewritten runtime, smaller bundles and faster task throughput.",
+    "title": "Effect 4.0 Just Got a Lot Harder to Ignore",
+    "url": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "maxedapps"
+    },
+    "date": "2026-09-24",
+    "kind": "video",
+    "repo": null,
+    "source": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+    "summary": "Academind video arguing developers should adopt Effect, including for work with AI agents.",
+    "title": "You MUST learn and use Effect now!",
+    "url": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "peterpme"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/peterpme/status/2107852602356687187",
+    "summary": null,
+    "title": "All of Effect v4 clicked with this example https://t.co/Kbu2ZIranW",
+    "url": "https://x.com/peterpme/status/2107852602356687187",
+    "engagement": {
+      "likes": 196,
+      "replies": 10,
+      "participants": 11
+    },
+    "topReplies": [
+      {
+        "likes": 7,
+        "text": "@peterpme I’m just joking! https://t.co/DU2xTncDQM",
+        "url": "https://x.com/rvcas/status/2107896797675040896",
+        "x": "rvcas"
+      },
+      {
+        "likes": 1,
+        "text": "@peterpme This code will give me nightmares for weeks.",
+        "url": "https://x.com/count_slopula/status/2108071844519518575",
+        "x": "count_slopula"
+      },
+      {
+        "likes": 1,
+        "text": "@peterpme const data = getMarketData().then().error()",
+        "url": "https://x.com/kevin_moechel/status/2108066405643870231",
+        "x": "kevin_moechel"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "JuliaScript"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/JuliaScript/status/2108019487064936678",
+    "summary": null,
+    "title": "Now that I'm codex-resets rich, I kinda ported pi-durable to @EffectTS_, but built on workflows and their AI module https://t.co/M8nWw6OyUT",
+    "url": "https://x.com/JuliaScript/status/2108019487064936678",
+    "engagement": {
+      "likes": 155,
+      "replies": 5,
+      "participants": 6
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@JuliaScript @EffectTS_ Porting pi-durable onto Effect workflows makes durable agent flows easier to express; the harder constraint becomes modeling retries and state transitions cleanly.",
+        "url": "https://x.com/catmanyau/status/2108093722348892490",
+        "x": "catmanyau"
+      },
+      {
+        "likes": 2,
+        "text": "@sheherenow_ @EffectTS_ ngl I was a bit embarrassed to share that after this https://t.co/oX5ffmOjrP",
+        "url": "https://x.com/JuliaScript/status/2108045325105791012",
+        "x": "JuliaScript"
+      },
+      {
+        "likes": 1,
+        "text": "@JuliaScript @EffectTS_ thanks!",
+        "url": "https://x.com/MrBye32/status/2108245346463764746",
+        "x": "MrBye32"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "devinjameson"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/devinjameson/status/2108246421946159361",
+    "summary": null,
+    "title": "Streaming today at 2:30 PM ET with @maxwellbrown of @EffectTS_ and @samgoodwin89 of @alchemy_run. We’ll be having some fun building with th",
+    "url": "https://x.com/devinjameson/status/2108246421946159361",
+    "engagement": {
+      "likes": 48,
+      "replies": 4,
+      "participants": 11
+    },
+    "topReplies": [
+      {
+        "likes": 13,
+        "text": "@devinjameson @maxwellbrown @EffectTS_ @samgoodwin89 @alchemy_run C# + Angular + Firebase + Ember.js",
+        "url": "https://x.com/thefubhy/status/2108247120675545280",
+        "x": "thefubhy"
+      },
+      {
+        "likes": 5,
+        "text": "@thefubhy @devinjameson @maxwellbrown @EffectTS_ @samgoodwin89 @alchemy_run They did it not to have us in chat you know",
+        "url": "https://x.com/MichaelArnaldi/status/2108415739988451366",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 5,
+        "text": "@devinjameson @maxwellbrown @EffectTS_ @samgoodwin89 @alchemy_run Hey better not do it any earlier than that or someone from Europe might join to watch.",
+        "url": "https://x.com/thefubhy/status/2108259762722746504",
+        "x": "thefubhy"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "esthor"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/esthor/status/2107716096451326184",
+    "summary": null,
+    "title": "@alchemy_run v2 + @EffectTS_ v4 is an incredible combo for infra-as-code biggest shocker: new frameworks and tools can be sooo much better",
+    "url": "https://x.com/esthor/status/2107716096451326184",
+    "engagement": {
+      "likes": 123,
+      "replies": 3,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 16,
+        "text": "@esthor @alchemy_run @EffectTS_ Agents work well with high level declarative languages and symbolic reasoning with guardrails, they don’t work well with imperative logic filled with implementation det",
+        "url": "https://x.com/MichaelArnaldi/status/2107717758079340801",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 3,
+        "text": "@MichaelArnaldi @esthor @alchemy_run @EffectTS_ I’ve been working on this https://t.co/ayCbVvzvSE",
+        "url": "https://x.com/bjacobso/status/2107854094216134738",
+        "x": "bjacobso"
+      },
+      {
+        "likes": 3,
+        "text": "@esthor @EffectTS_ @alchemy_run It’s GOATED. Porting a frankenstein stack over to this on AWS and it’s such a more tightly integrated experience.",
+        "url": "https://x.com/itsmattchan/status/2107827263538663682",
+        "x": "itsmattchan"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "SandroMaglione"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/SandroMaglione/status/2108006825581060371",
+    "summary": null,
+    "title": "Turns out @EffectTS_ + XState is the best tech stack for agents The matter is settled 🤝 https://t.co/Gi7ZaGeJLd",
+    "url": "https://x.com/SandroMaglione/status/2108006825581060371",
+    "engagement": {
+      "likes": 144,
+      "replies": 3,
+      "participants": 3
+    },
+    "topReplies": [
+      {
+        "likes": 4,
+        "text": "@SandroMaglione @EffectTS_ XState is perfect for state management. I used to avoid it because it was too verbose and took too long to write, while Jotai and Zustand were much simpler. Now there is no",
+        "url": "https://x.com/the_madcoder/status/2108029441029095773",
+        "x": "the_madcoder"
+      },
+      {
+        "likes": 3,
+        "text": "@SandroMaglione @EffectTS_ XState actors map really well onto multi-agent handoffs: each agent its own machine, explicit transitions, and you can replay the whole run.",
+        "url": "https://x.com/buswe_com/status/2108058308342927397",
+        "x": "buswe_com"
+      },
+      {
+        "likes": 3,
+        "text": "Add in also some @alchemy_run and you stop worrying also about deployment",
+        "url": "https://x.com/SandroMaglione/status/2108006827569135672",
+        "x": "SandroMaglione"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "acoyfellow"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/acoyfellow/status/2107929744029470841",
+    "summary": null,
+    "title": "Tardigrades survive space, boiling, and freezing. This one survives `ctx.abort()` Kill it N times while it works, and it comes back and sh",
+    "url": "https://x.com/acoyfellow/status/2107929744029470841",
+    "engagement": {
+      "likes": 55,
+      "replies": 3,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 6,
+        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare great name... but @arjunkmrm has you beat - you should also check his out https://t.co/rYPQmSwtE3",
+        "url": "https://x.com/gingerhendrixai/status/2107931296508899603",
+        "x": "gingerhendrixai"
+      },
+      {
+        "likes": 3,
+        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare shout out to @arjunkmrm",
+        "url": "https://x.com/trydotworks/status/2107945257136447767",
+        "x": "trydotworks"
+      },
+      {
+        "likes": 1,
+        "text": "@acoyfellow @trydotworks @pidotdev @EffectTS_ @foldkit @Cloudflare It’s all cool! :D",
+        "url": "https://x.com/arjunkmrm/status/2107991850665828825",
+        "x": "arjunkmrm"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "devinjameson"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/devinjameson/status/2107807827691528646",
+    "summary": null,
+    "title": "@EffectTS_ Boston meetup?!!?! Would love to make it happen. If you’re in Greater Boston and would come (or know of companies in Boston usi",
+    "url": "https://x.com/devinjameson/status/2107807827691528646",
+    "engagement": {
+      "likes": 24,
+      "replies": 8,
+      "participants": 9
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@devinjameson @EffectTS_ I'd go!!",
+        "url": "https://x.com/MKassabov/status/2107898275361915232",
+        "x": "MKassabov"
+      },
+      {
+        "likes": 2,
+        "text": "@texoport__ @EffectTS_ 😭",
+        "url": "https://x.com/devinjameson/status/2107828811559760142",
+        "x": "devinjameson"
+      },
+      {
+        "likes": 2,
+        "text": "@devinjameson @EffectTS_ Decent chance I'd turn it into a family weekend in Boston depending on the timing",
+        "url": "https://x.com/michaelvessia/status/2107826378968109280",
+        "x": "michaelvessia"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "just_be_dev"
+    },
+    "date": "2026-10-05",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/just_be_dev/status/2107168256494649828",
+    "summary": null,
+    "title": "Looking for folks' best resources on recommendations for structuring effect codebases. @kitlangton, @samgoodwin89, @devinjameson, @arjunkmrm",
+    "url": "https://x.com/just_be_dev/status/2107168256494649828",
+    "engagement": {
+      "likes": 89,
+      "replies": 7,
+      "participants": 19
+    },
+    "topReplies": [
+      {
+        "likes": 170,
+        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ 🫡 https://t.co/9UNS28PZec",
+        "url": "https://x.com/kitlangton/status/2107197199482581101",
+        "x": "kitlangton"
+      },
+      {
+        "likes": 73,
+        "text": "@just_be_dev @kitlangton @devinjameson @arjunkmrm @EffectTS_ One file, one Context.Service+Layer. One file, one entrypoint+Effect.provide One file, one API route (may be controversial opinion) src/{do",
+        "url": "https://x.com/samgoodwin89/status/2107204053151428850",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 16,
+        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ (I'll have a real reply later!)",
+        "url": "https://x.com/kitlangton/status/2107197276057895338",
+        "x": "kitlangton"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "JacobWolf"
+    },
+    "date": "2026-10-06",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/JacobWolf/status/2107521784996397505",
+    "summary": null,
+    "title": "Last night I was thinking it'd make a lot of sense for @EffectTS_ to take over KafkaJS project and integrate Kafka directly into Effect. T",
+    "url": "https://x.com/JacobWolf/status/2107521784996397505",
+    "engagement": {
+      "likes": 13,
+      "replies": 1,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 23,
+        "text": "@JacobWolf @EffectTS_ If the current maintainers and authors are happy with it we would gladly take over and integrate into effect core",
+        "url": "https://x.com/MichaelArnaldi/status/2107537915450450335",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 2,
+        "text": "@MichaelArnaldi @EffectTS_ I don’t know them, but here’s the post looking for maintainers: https://t.co/qMt8a0WRWS  I’m also happy to be involved as a user of both in a pretty large scale production s",
+        "url": "https://x.com/JacobWolf/status/2107575087733883311",
+        "x": "JacobWolf"
+      },
+      {
+        "likes": 1,
+        "text": "@MichaelArnaldi @JacobWolf @EffectTS_ https://t.co/Nte8Cm4bRZ",
+        "url": "https://x.com/thefubhy/status/2107576717665853585",
+        "x": "thefubhy"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "sheherenow_"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/sheherenow_/status/2107972404643598380",
+    "summary": null,
+    "title": "seeing Effect and Foldkit pick up mindshare / heartshare is so vindicating for those of us who were repeatedly told we were insane, idealist",
+    "url": "https://x.com/sheherenow_/status/2107972404643598380",
+    "engagement": {
+      "likes": 61,
+      "replies": 7,
+      "participants": 9
+    },
+    "topReplies": [
+      {
+        "likes": 3,
+        "text": "@arjunkmrm LITERALLY. it’s not just a nerdsnipe or a white whale or idealism, it’s actually A Better Choice",
+        "url": "https://x.com/sheherenow_/status/2108099900399620445",
+        "x": "sheherenow_"
+      },
+      {
+        "likes": 2,
+        "text": "@joelhooks @willking damn we really such oldheads",
+        "url": "https://x.com/sheherenow_/status/2108395347345326591",
+        "x": "sheherenow_"
+      },
+      {
+        "likes": 2,
+        "text": "@joelhooks @sheherenow_ The series that brought me to egghead.",
+        "url": "https://x.com/willking/status/2108391137375363442",
+        "x": "willking"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "samgoodwin89"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/samgoodwin89/status/2107738774327435760",
+    "summary": null,
+    "title": "How about SolidYield in @alchemy_run ? https://t.co/KsmM3zi0Qs https://t.co/cSepsYwwXX",
+    "url": "https://x.com/samgoodwin89/status/2107738774327435760",
+    "engagement": {
+      "likes": 58,
+      "replies": 2,
+      "participants": 2
+    },
+    "topReplies": [
+      {
+        "likes": 4,
+        "text": "PR: https://t.co/5OdF48loX4",
+        "url": "https://x.com/samgoodwin89/status/2107738775900311950",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 2,
+        "text": "@samgoodwin89 @alchemy_run Holy shit that was quick This is awesome!",
+        "url": "https://x.com/devagrawal09/status/2107739246882853339",
+        "x": "devagrawal09"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "c9antoine"
+    },
+    "date": "2026-10-09",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/c9antoine/status/2108458718660825198",
+    "summary": null,
+    "title": "Back to @EffectTS_ community work in Paris next Tuesday with the 7th edition! The edition will probably be the first one ever recorded in Pa",
+    "url": "https://x.com/c9antoine/status/2108458718660825198",
+    "engagement": {
+      "likes": 16,
+      "replies": 3,
+      "participants": 4
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@c9antoine @EffectTS_ @EvrygDotCom Ooo @mixeddev talk!",
+        "url": "https://x.com/devinjameson/status/2108546020061962573",
+        "x": "devinjameson"
+      },
+      {
+        "likes": 1,
+        "text": "@rodygosset @c9antoine @EffectTS_ @EvrygDotCom Looking forward to the recording!",
+        "url": "https://x.com/devinjameson/status/2108557586463400115",
+        "x": "devinjameson"
+      },
+      {
+        "likes": 1,
+        "text": "@devinjameson @c9antoine @EffectTS_ @EvrygDotCom Yeah ! Super excited to share my thoughts on the case for defaulting to Effect in most projects",
+        "url": "https://x.com/rodygosset/status/2108552255754666020",
+        "x": "rodygosset"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "maxwellbrown"
+    },
+    "date": "2026-10-06",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/maxwellbrown/status/2107436870724636797",
+    "summary": null,
+    "title": "This - every single contribution, regardless of how sloppy, is a signal we can use to continuously improve the @EffectTS_ ecosystem. Everyt",
+    "url": "https://x.com/maxwellbrown/status/2107436870724636797",
+    "engagement": {
+      "likes": 30,
+      "replies": 2,
+      "participants": 3
+    },
+    "topReplies": [
+      {
+        "likes": 3,
+        "text": "@maxwellbrown @EffectTS_ We think there's a middle-ground between fully closed and fully open. The best of both worlds for AI-friendly projects is to allow contributions written by AI, but on the owne",
+        "url": "https://x.com/tokatedev/status/2107494612705173828",
+        "x": "tokatedev"
+      },
+      {
+        "likes": 1,
+        "text": "@bohdanbirdie @EffectTS_ And we appreciate it!",
+        "url": "https://x.com/maxwellbrown/status/2107618141639692733",
+        "x": "maxwellbrown"
+      },
+      {
+        "likes": 1,
+        "text": "@maxwellbrown @EffectTS_ I did contribute a little to effect and to my surprise - thing got merged 🤑",
+        "url": "https://x.com/bohdanbirdie/status/2107597145994100741",
+        "x": "bohdanbirdie"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "devinjameson"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/devinjameson/status/2107991752388780137",
+    "summary": null,
+    "title": "Foldkit 0.167.0 is now available on everyone’s favorite JavaScript package registry! - SSR without HTML templates - New @​foldkit/node adap",
+    "url": "https://x.com/devinjameson/status/2107991752388780137",
+    "engagement": {
+      "likes": 44,
+      "replies": 2,
+      "participants": 4
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@devinjameson @sheherenow_ https://t.co/nXUA3hIskG",
+        "url": "https://x.com/thefubhy/status/2108238126221312022",
+        "x": "thefubhy"
+      },
+      {
+        "likes": 2,
+        "text": "@filipfalcon @devinjameson I just remember reading that it wasn't a priority, but I guess that was a while ago",
+        "url": "https://x.com/enspiration_eth/status/2108099497330921527",
+        "x": "enspiration_eth"
+      },
+      {
+        "likes": 2,
+        "text": "@enspiration_eth @devinjameson SSR is available for a while now. It's still experimental and matures every week. Give it a try and share feedback.",
+        "url": "https://x.com/filipfalcon/status/2108096962717221041",
+        "x": "filipfalcon"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "sheherenow_"
+    },
+    "date": "2026-10-09",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/sheherenow_/status/2108407994136576215",
+    "summary": null,
+    "title": "btw i made a wrapper for Foldkit (🪨: sick Elm Architecture frontend framework built on Effect) that renders natively with gpui v early but",
+    "url": "https://x.com/sheherenow_/status/2108407994136576215",
+    "engagement": {
+      "likes": 34,
+      "replies": 4,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@JuliaScript maybe you can build a foldkit-native app to check your DMs and reply to me 👿😇",
+        "url": "https://x.com/sheherenow_/status/2108443679740596397",
+        "x": "sheherenow_"
+      },
+      {
+        "likes": 1,
+        "text": "@sheherenow_ Dark magic.",
+        "url": "https://x.com/devinjameson/status/2108545518775284163",
+        "x": "devinjameson"
+      },
+      {
+        "likes": 1,
+        "text": "@sheherenow_ Long-term perhaps peat can compile to platform-specific styles? :O",
+        "url": "https://x.com/codecology/status/2108533419718410395",
+        "x": "codecology"
+      }
+    ]
+  }
+]

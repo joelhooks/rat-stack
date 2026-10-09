@@ -5,6 +5,7 @@ import { Approval } from "@rat-stack/capability";
 import { FileInspector } from "@rat-stack/core";
 import { Console, Effect, Layer } from "effect";
 
+import { localCafeDirectoryLayer } from "./cafe.js";
 import { runCommand } from "./command.js";
 import { remoteJoinInterestLayer } from "./join-interest.js";
 import { localLearnLayer } from "./learn-layer.js";
@@ -20,6 +21,7 @@ const program = runCommand(process.argv.slice(2)).pipe(
       Layer.provideMerge(FileInspector.layer, NodeServices.layer),
       remoteJoinInterestLayer,
       localPromptLibraryLayer.pipe(Layer.provide(NodeServices.layer)),
+      localCafeDirectoryLayer.pipe(Layer.provide(NodeServices.layer)),
       localLearnLayer,
       Approval.denyAll
     )

@@ -1,9 +1,15 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode";
-import { getPrompt, listPrompts } from "@rat-stack/core";
+import {
+  getPrompt,
+  listCafeNews,
+  listCafeProjects,
+  listPrompts,
+} from "@rat-stack/core";
 import { joinInterest } from "@rat-stack/core/join-interest";
 import { feedbackCapabilities } from "@rat-stack/learn/feedback";
 import { Layer } from "effect";
 
+import { cafeDirectoryLayer } from "../cafe-directory.js";
 import { ContentStore } from "../content-store.js";
 import { promptLibraryLayer } from "../prompt-library.js";
 import { learnCapabilities, learnLayer } from "./learn.js";
@@ -12,6 +18,8 @@ import { read } from "./read.js";
 import { search } from "./search.js";
 
 export { read } from "./read.js";
+
+export { listCafeNews, listCafeProjects } from "@rat-stack/core";
 
 export { backlinks, mentions, neighbors, path } from "./lore.js";
 
@@ -44,6 +52,8 @@ export const readerCapabilities = [
   neighbors,
   mentions,
   path,
+  listCafeNews,
+  listCafeProjects,
 ] as const;
 
 export const contentCapabilities = [
@@ -51,9 +61,11 @@ export const contentCapabilities = [
   ...learnCapabilities,
 ] as const;
 
-export const contentLayer = Layer.merge(learnLayer, promptLibraryLayer).pipe(
-  Layer.provideMerge(ContentStore.layer)
-);
+export const contentLayer = Layer.mergeAll(
+  learnLayer,
+  promptLibraryLayer,
+  cafeDirectoryLayer
+).pipe(Layer.provideMerge(ContentStore.layer));
 
 const generatedExecuteProjection = toExecuteCapability(contentCapabilities);
 

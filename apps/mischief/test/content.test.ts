@@ -975,6 +975,8 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/skills",
         "/lore",
         "/prompts",
+        "/news",
+        "/directory",
         "/systems",
         "/glossary",
         "/--no-verify",

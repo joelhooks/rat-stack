@@ -1,4 +1,4 @@
-import { Prompt } from "@rat-stack/core/contracts";
+import { CafeData, Prompt } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Path, Schema } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
@@ -20,6 +20,7 @@ const envelope = Schema.Struct({
 });
 
 const readerSource = Schema.Struct({
+  cafe: CafeData,
   generation: Schema.String,
   home: Schema.String,
   loreTermTargets: Schema.Array(
@@ -225,6 +226,7 @@ export const prepareReaderSiteInputs = Effect.gen(
     });
 
     return {
+      cafe: source.cafe,
       directory,
       generation: manifest.generation,
       homeSource: source.home,

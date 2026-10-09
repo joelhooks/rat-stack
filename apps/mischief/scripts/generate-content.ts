@@ -5,6 +5,12 @@ import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Drift, prepareCode } from "@rat-stack/code-snippets";
 import type { Diagnostics } from "@rat-stack/code-snippets";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
+import {
+  cafeNewsFile,
+  cafeProjectsFile,
+  decodeCafeData,
+} from "@rat-stack/core";
+import { CafeData } from "@rat-stack/core/contracts";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
 import { Resvg } from "@resvg/resvg-js";
@@ -21,6 +27,7 @@ import {
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import satori from "satori";
 
+import { directoryCopy, newsCopy } from "../../web/src/features/cafe/copy.ts";
 import { agentNextActions } from "../src/agent-guide.ts";
 import {
   ContentResourceSchema,
@@ -34,6 +41,7 @@ import {
   backlinksFor,
   buildBacklinkIndex,
 } from "./backlink-lib.ts";
+import { cafeDirectoryMarkdown, cafeNewsMarkdown } from "./cafe-pages.ts";
 import { collectBuildFences } from "./code-inputs.ts";
 import { codeComponent } from "./code-pipeline.ts";
 import type { ComponentRegistry } from "./component-registry.ts";
@@ -949,6 +957,19 @@ const program = Effect.gen(function* generateContent() {
       ),
   });
 
+  const cafeData = yield* Effect.all({
+    news: readText(cafeNewsFile),
+    projects: readText(cafeProjectsFile),
+  }).pipe(Effect.flatMap(decodeCafeData));
+
+  const encodedCafeData = yield* Schema.encodeEffect(CafeData)(cafeData).pipe(
+    Effect.mapError((cause) => buildError("cafe encode", cafeNewsFile, cause))
+  );
+
+  const cafeNewsText = cafeNewsMarkdown(cafeData);
+
+  const cafeDirectoryText = cafeDirectoryMarkdown(cafeData);
+
   const lawTexts: readonly PublicSpec[] = yield* Effect.forEach(
     lawSpecs,
     (spec) =>
@@ -1739,6 +1760,7 @@ Supports MCP protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, a
 - [Public rules, lore, systems, and skills](${originToken}/llms-full.txt)
 - [Lore wiki](${originToken}/lore)
 - [Systems](${originToken}/systems)
+- [CAFE news](${originToken}/news) and the [CAFE directory](${originToken}/directory): reviewed Cloudflare, Alchemy, Foldkit and Effect news and projects
 
 ## Four ideas
 
@@ -2063,6 +2085,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [Public content corpus](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
     "- [HTTP API](__RATSTACK_ORIGIN__/openapi.json): routes, inputs, outputs, and errors",
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
+    "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
+    "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     "",
     agentNextActions(originToken),
     "## Source files",
@@ -2095,6 +2119,9 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     dillonPosterRoutePath,
     "/glossary",
     "/og/glossary.png",
+    "/news",
+    "/news.xml",
+    "/directory",
     "/",
     "/skills",
     "/lore",
@@ -2738,6 +2765,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const contentVersion = digest(
     [
       learnCoverageText,
+      cafeNewsText,
+      cafeDirectoryText,
       homeMarkdownTemplate,
       homeBodyHtml,
       noVerifyAgentMarkdown,
@@ -2794,6 +2823,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   } as const;
 
   const ogPages: readonly OgPage[] = [
+    {
+      description: newsCopy.description,
+      routePath: "/news",
+      title: newsCopy.heading,
+    },
+    {
+      description: directoryCopy.description,
+      routePath: "/directory",
+      title: directoryCopy.heading,
+    },
     {
       description: "Copyable agent prompts for rat-stack apps.",
       routePath: "/prompts",
@@ -3202,6 +3241,46 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const cafeNewsBody = yield* compileMarkdownBody(
+    cafeNewsText,
+    "cafe-news.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/news"
+  );
+
+  const cafeNewsDocument = yield* makeDocument(
+    cafeNewsBody.bodyHtml,
+    {
+      description: newsCopy.description,
+      path: "/news",
+      title: pageTitle(newsCopy.heading),
+    },
+    cafeNewsFile,
+    contentVersion
+  );
+
+  const cafeDirectoryBody = yield* compileMarkdownBody(
+    cafeDirectoryText,
+    "cafe-directory.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/directory"
+  );
+
+  const cafeDirectoryDocument = yield* makeDocument(
+    cafeDirectoryBody.bodyHtml,
+    {
+      description: directoryCopy.description,
+      path: "/directory",
+      title: pageTitle(directoryCopy.heading),
+    },
+    cafeProjectsFile,
+    contentVersion
+  );
+
   const resources = yield* Schema.decodeUnknownEffect(
     Schema.Array(ContentResourceSchema)
   )(
@@ -3262,6 +3341,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/skills",
           "/glossary",
           "/prompts",
+          "/news",
+          "/directory",
         ],
         resources: resources.map(
           ({ bodyMarkdown: _bodyMarkdown, text: _text, ...metadata }) =>
@@ -3279,6 +3360,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     },
     { path: "/_content/graph.json", value: loreGraphSnapshotJson },
     { path: "/_content/prompts.json", value: promptTexts },
+    { path: "/_content/cafe.json", value: encodedCafeData },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),
       value: resource,
@@ -3329,6 +3411,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: promptsIndexMarkdown,
       },
       {
+        documentHtml: cafeNewsDocument,
+        routePath: "/news",
+        text: cafeNewsText,
+      },
+      {
+        documentHtml: cafeDirectoryDocument,
+        routePath: "/directory",
+        text: cafeDirectoryText,
+      },
+      {
         documentHtml: homeDocumentHtml,
         routePath: "/",
         text: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
@@ -3365,6 +3457,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     .writeFileString(
       readerSourcePath,
       JSON.stringify({
+        cafe: encodedCafeData,
         generation: assetManifest.generation,
         home: homeMarkdownSource,
         loreTermTargets: loreTermIndex,

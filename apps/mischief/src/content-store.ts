@@ -1,4 +1,4 @@
-import { ResourceNotFound } from "@rat-stack/core/contracts";
+import { CafeData, ResourceNotFound } from "@rat-stack/core/contracts";
 import { CardSchema } from "@rat-stack/core/learn";
 import type { Card } from "@rat-stack/core/learn";
 import { LoreGraph } from "@rat-stack/lore";
@@ -18,6 +18,7 @@ import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
 
 interface ContentStoreService {
+  readonly cafe: Effect.Effect<typeof CafeData.Type, AssetReadError>;
   readonly learnDeck: Effect.Effect<readonly Card[], AssetReadError>;
   readonly catalog: Effect.Effect<typeof ContentCatalog.Type, AssetReadError>;
   readonly graph: Effect.Effect<LoreGraphService, AssetReadError>;
@@ -107,6 +108,10 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
     readData(assets, "/_content/catalog.json", ContentCatalog, generation)
   );
 
+  const cafe = yield* cacheCompletedData(
+    readData(assets, "/_content/cafe.json", CafeData, generation)
+  );
+
   const index = yield* cacheCompletedData(
     readData(
       assets,
@@ -125,6 +130,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
   );
 
   return {
+    cafe,
     catalog,
     graph,
     learnDeck,

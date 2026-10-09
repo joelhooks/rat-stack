@@ -1,6 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { ExecuteResult } from "@rat-stack/capability/code-mode";
 import {
+  CafeNewsList,
   LorePathOutput,
   NeighborsOutput,
   ReadOutput,
@@ -1325,6 +1326,8 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
         "/api/learnDeck",
         "/api/learnNext",
         "/api/learnRecord",
+        "/api/listCafeNews",
+        "/api/listCafeProjects",
         "/api/listPrompts",
         "/api/mentions",
         "/api/neighbors",
@@ -1820,6 +1823,8 @@ it.effect(
           "learnDeck",
           "learnNext",
           "learnRecord",
+          "listCafeNews",
+          "listCafeProjects",
           "listPrompts",
           "mentions",
           "neighbors",
@@ -1995,6 +2000,55 @@ it.effect(
         expect(resource.result.contents).toEqual([
           { text: law.text, uri: law.id },
         ]);
+      })
+    )
+);
+
+it.effect(
+  "derives the CAFE Atom feed and pages from the same reviewed data the capabilities serve",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* testCafeSurfaces() {
+        const listed = yield* Schema.decodeUnknownEffect(CafeNewsList)(
+          yield* readJson(
+            yield* postJson(handler, "/api/listCafeNews", {
+              limit: 50,
+              sort: "newest",
+            })
+          )
+        );
+
+        const feed = yield* Effect.promise(
+          handler.bind(undefined, new Request("http://localhost/news.xml"))
+        );
+
+        const feedText = yield* Effect.promise(feed.text.bind(feed));
+
+        const feedIds = [
+          ...feedText.matchAll(
+            /<entry>\s*<title>[^<]*<\/title>\s*<link href="[^"]*"\/>\s*<id>(?<id>[^<]*)<\/id>/gu
+          ),
+        ].map((match) => match.groups?.id?.replaceAll("&amp;", "&"));
+
+        const news = yield* responseText(
+          handler,
+          new Request("http://localhost/news")
+        );
+
+        const directory = yield* responseText(
+          handler,
+          new Request("http://localhost/directory")
+        );
+
+        expect(feed.headers.get("content-type")).toBe(
+          "application/atom+xml; charset=utf-8"
+        );
+        expect(listed.items.length).toBeGreaterThan(0);
+        expect(feedIds).toStrictEqual(
+          listed.items.map((entry) => entry.item.url)
+        );
+        expect(news).toContain("## How this list is sorted");
+        expect(directory).toContain("# CAFE directory");
       })
     )
 );

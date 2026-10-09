@@ -41,6 +41,8 @@ it.effect(
           "/",
           "/lore",
           "/prompts",
+          "/news",
+          "/directory",
           "/systems",
           "/skills",
           "/glossary",
