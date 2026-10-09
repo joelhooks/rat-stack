@@ -13,6 +13,7 @@ export const SiteRoute = Route.defineRouteUnion({
   Prompts: {},
   Skills: {},
   Systems: {},
+  Tokenmaxx: {},
 });
 
 export type SiteRouteState = typeof SiteRoute.Type;
@@ -49,6 +50,11 @@ export const systemsRouter = pipe(
   Route.mapTo(SiteRoute.Systems)
 );
 
+export const tokenmaxxRouter = pipe(
+  Route.literal("tokenmaxx"),
+  Route.mapTo(SiteRoute.Tokenmaxx)
+);
+
 export const changeLogRouter = pipe(
   Route.literal("log"),
   Route.mapTo(SiteRoute.ChangeLog)
@@ -69,3 +75,6 @@ export const apiDocsRouter = pipe(
   Route.literal("openapi.json"),
   Route.mapTo(SiteRoute.ApiDocs)
 );
+
+export const isWithinSection = (section: string, path: string) =>
+  path === section || path.startsWith(`${section}/`);

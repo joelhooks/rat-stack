@@ -7,8 +7,10 @@ import {
   given,
   role,
   scene,
+  text,
 } from "foldkit/scene";
 
+import { ReaderBlock } from "../src/client/reader-document.js";
 import {
   CopyReaderText,
   WaitBeforeCopyReset,
@@ -19,7 +21,7 @@ import { update } from "../src/client/reader/update.js";
 import { view } from "../src/features/reader.js";
 import { promptFixture, readerModelFixture } from "./reader-fixture.js";
 
-const { id, label, text } = promptFixture;
+const { id, label, text: promptText } = promptFixture;
 
 const clipboardReady = {
   ...readerModelFixture,
@@ -51,7 +53,7 @@ it("a copy confirms with text the reader can see and hear, then resets after the
     { update, view },
     given(clipboardReady),
     click(copyButton),
-    Command.expectExact(CopyReaderText({ id, text })),
+    Command.expectExact(CopyReaderText({ id, text: promptText })),
     Command.resolve(CopyReaderText, Message.SucceededCopyReaderText({ id })),
     expect(role("status")).toHaveText("Copied ✓"),
     expect(copyButton).toContainText("Copied ✓"),
@@ -77,12 +79,39 @@ it("a failed copy tells the reader to copy by hand and allows a retry", () => {
     ),
     Command.expectNone(),
     click(copyButton),
-    Command.expectExact(CopyReaderText({ id, text })),
+    Command.expectExact(CopyReaderText({ id, text: promptText })),
     expect(role("status")).toHaveText(""),
     Command.resolve(CopyReaderText, Message.SucceededCopyReaderText({ id })),
     Command.resolve(
       WaitBeforeCopyReset,
       Message.CompletedWaitBeforeCopyReset({ id })
     )
+  );
+});
+
+it("a page whose built references are missing still renders and names each gap", () => {
+  scene(
+    { update, view },
+    given({
+      ...clipboardReady,
+      blocks: [
+        ReaderBlock.CopyPrompt({ id: "retired-prompt" }),
+        ReaderBlock.CodeFence({ language: "ts", meta: "", value: "gone" }),
+        ReaderBlock.Snippet({
+          at: "0".repeat(40),
+          lines: "1-3",
+          path: "apps/web/src/gone.ts",
+          repo: "rat-stack",
+        }),
+      ],
+    }),
+    expect(role("heading", { name: "Rat Stack" })).toExist(),
+    expect(text("The retired-prompt prompt is not in this page.")).toExist(),
+    expect(text("This code block is not in the built page.")).toExist(),
+    expect(
+      text(
+        "The excerpt apps/web/src/gone.ts lines 1-3 is not in the built page."
+      )
+    ).toExist()
   );
 });
