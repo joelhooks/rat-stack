@@ -4,15 +4,26 @@
 import {
   Sandbox,
   SandboxError,
+  SandboxDiagnostic,
+  sandboxRunner,
   invokeFailure,
 } from "@rat-stack/capability/sandbox";
 import type {
   Invoke,
   InvokeOutcome,
   SandboxRun,
+  SandboxLimits,
 } from "@rat-stack/capability/sandbox";
 import type { RpcTarget as RpcTargetType } from "cloudflare:workers";
-import { Duration, Effect, Layer, Option, Schema } from "effect";
+import {
+  Duration,
+  Effect,
+  Fiber,
+  Layer,
+  Option,
+  Schema,
+  Semaphore,
+} from "effect";
 
 interface ReleasableStub {
   readonly [Symbol.dispose]?: () => void;
@@ -39,7 +50,7 @@ export interface WorkerLoaderBinding {
   }) => DynamicWorker;
 }
 
-export interface WorkerLoaderSandboxOptions {
+export interface WorkerLoaderSandboxOptions extends SandboxLimits {
   readonly compatibilityDate?: string | undefined;
   readonly cpuMs?: number | undefined;
   readonly subRequests?: number | undefined;
@@ -55,6 +66,7 @@ const GuestOutcome = Schema.Union([
     result: Schema.Unknown,
   }),
   Schema.Struct({
+    diagnostic: Schema.optional(SandboxDiagnostic),
     logs: Schema.Array(Schema.String),
     message: Schema.String,
     ok: Schema.Literal(false),
@@ -72,8 +84,15 @@ const messageOf = (cause: unknown): string =>
 const sandboxError = (
   reason: SandboxError["reason"],
   message: string,
-  logs: readonly string[] = []
-) => new SandboxError({ logs, message, reason });
+  logs: readonly string[] = [],
+  diagnostic?: typeof SandboxDiagnostic.Type
+) =>
+  new SandboxError({
+    diagnostic,
+    logs,
+    message,
+    reason,
+  });
 
 const disposeQuietly = (stub: ReleasableStub): Effect.Effect<void> =>
   Effect.try(() => stub[Symbol.dispose]?.()).pipe(Effect.ignore);
@@ -81,42 +100,56 @@ const disposeQuietly = (stub: ReleasableStub): Effect.Effect<void> =>
 const decodeCallInput = Schema.decodeUnknownOption(Schema.Json);
 
 const makeRpcDispatcher = (invoke: Invoke) =>
-  Effect.tryPromise({
-    catch: (error) =>
-      sandboxError(
-        "protocol",
-        `Unable to load the Cloudflare RPC runtime: ${messageOf(error)}`
-      ),
-    // oxlint-disable-next-line typescript/promise-function-async -- The built-in exists only inside workerd; keeping it lazy lets Alchemy import the Stack under Node without resolving the special URL.
-    try: () => import("cloudflare:workers"),
-  }).pipe(
-    Effect.map(({ RpcTarget }) => {
-      class InvokeDispatcher extends RpcTarget {
-        readonly #invoke = invoke;
+  Effect.gen(function* makeBoundedDispatcher() {
+    const scope = yield* Effect.scope;
+    const context = yield* Effect.context();
+    const runPromise = Effect.runPromiseWith(context);
+    const semaphore = yield* Semaphore.make(8);
 
-        // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare RPC requires a Promise-returning method at this boundary. This is the sandbox's way out, so `input` arrives untrusted and is parsed as JSON before any capability sees it.
-        async call(
-          name: string,
-          // oxlint-disable-next-line anti-slop/no-unknown-parameters
-          input: unknown
-        ): Promise<InvokeOutcome> {
-          const json = decodeCallInput(input);
+    return yield* Effect.tryPromise({
+      catch: (error) =>
+        sandboxError(
+          "protocol",
+          `Unable to load the Cloudflare RPC runtime: ${messageOf(error)}`
+        ),
+      // oxlint-disable-next-line typescript/promise-function-async -- The built-in exists only inside workerd; keeping it lazy lets Alchemy import the Stack under Node without resolving the special URL.
+      try: () => import("cloudflare:workers"),
+    }).pipe(
+      Effect.map(({ RpcTarget }) => {
+        class InvokeDispatcher extends RpcTarget {
+          readonly #invoke = invoke;
 
-          if (Option.isNone(json)) {
-            return invokeFailure("InvalidInput", "Tool input must be JSON");
-          }
+          // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare RPC requires a Promise-returning method at this boundary. This is the sandbox's way out, so `input` arrives untrusted and is parsed as JSON before any capability sees it.
+          async call(
+            name: string,
+            // oxlint-disable-next-line anti-slop/no-unknown-parameters
+            input: unknown
+          ): Promise<InvokeOutcome> {
+            const json = decodeCallInput(input);
 
-          try {
-            return await Effect.runPromise(this.#invoke(name, json.value));
-          } catch (error) {
-            return invokeFailure("HostDefect", messageOf(error));
+            if (Option.isNone(json)) {
+              return invokeFailure("InvalidInput", "Tool input must be JSON");
+            }
+
+            try {
+              const fiber = await runPromise(
+                Effect.forkIn(
+                  semaphore.withPermit(this.#invoke(name, json.value)),
+                  scope
+                )
+              );
+
+              return await runPromise(Fiber.join(fiber));
+            } catch {
+              return invokeFailure("HostDefect", "Capability execution failed");
+            }
           }
         }
-      }
 
-      return new InvokeDispatcher();
-    })
-  );
+        return new InvokeDispatcher();
+      })
+    );
+  });
 
 const moduleSource = (
   code: string,
@@ -143,11 +176,14 @@ export default class CodeExecutor extends WorkerEntrypoint {
       ownKeys: () => names,
       getOwnPropertyDescriptor: (_target, name) =>
         names.includes(name) ? { configurable: true, enumerable: true } : undefined,
-      get: (_target, name) => async (input = {}) => {
+      get: (_target, name) => name === "$codemode"
+        ? Object.freeze({ search: (input) => tools["$codemode.search"](input) })
+        : async (input = {}) => {
         const outcome = await dispatcher.call(String(name), input);
         if (outcome.ok) return outcome.value;
         const error = new Error(outcome.error?.message ?? "capability failed");
         Object.assign(error, outcome.error);
+        Object.assign(error, { __ratDiagnostic: outcome.diagnostic });
         throw error;
       }
     });
@@ -165,6 +201,7 @@ export default class CodeExecutor extends WorkerEntrypoint {
       const message = cause instanceof Error ? cause.message : String(cause);
       return {
         ok: false,
+        diagnostic: cause?.__ratDiagnostic,
         message,
         logs,
         timeout: message === "${timeoutMessage}"
@@ -230,7 +267,17 @@ export const layerWorkerLoader = (
                       /CPU time limit|timed out/iu.test(message)
                         ? "timeout"
                         : "exited",
-                      message
+                      message,
+                      [],
+                      /SyntaxError|Unexpected token|Unexpected end/iu.test(
+                        message
+                      )
+                        ? {
+                            kind: "ParseError",
+                            message:
+                              "The program has invalid JavaScript syntax",
+                          }
+                        : undefined
                     );
                   },
                   // oxlint-disable-next-line typescript/promise-function-async -- Effect.tryPromise accepts the platform Promise directly.
@@ -262,7 +309,8 @@ export const layerWorkerLoader = (
                     outcome.timeout
                       ? `The program did not finish within ${Duration.format(timeout)}`
                       : outcome.message,
-                    outcome.logs
+                    outcome.logs,
+                    outcome.diagnostic
                   )
                 );
               })
@@ -282,9 +330,10 @@ export const layerWorkerLoader = (
               `The program did not finish within ${Duration.format(timeout)}`
             )
           ),
-      })
+      }),
+      Effect.scoped
     );
   };
 
-  return Layer.succeed(Sandbox, { run });
+  return Layer.succeed(Sandbox, { run: sandboxRunner(run, options) });
 };

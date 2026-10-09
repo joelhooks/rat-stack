@@ -85,13 +85,12 @@ describe("sandbox lifetime", () => {
     Effect.gen(function* boundsContinuation() {
       const sandbox = yield* Sandbox;
 
-      const error = yield* sandbox
-        .run("await tools.ready({}); for (;;) {}", () =>
-          Effect.succeed({ ok: true, value: null })
-        )
-        .pipe(Effect.flip);
+      const error = yield* sandbox.run(
+        "await tools.ready({}); for (;;) {}",
+        () => Effect.succeed({ ok: true, value: null })
+      );
 
-      expect(error.reason).toBe("timeout");
+      expect(error.diagnostic?.kind).toBe("TimeoutExceeded");
     }).pipe(
       Effect.provide(
         layerSubprocess({ timeout: "300 millis" }).pipe(

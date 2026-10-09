@@ -53,9 +53,11 @@ export {
 export {
   Sandbox,
   SandboxError,
+  SandboxDiagnostic,
   type Invoke,
   type InvokeOutcome,
   type SandboxRun,
+  type SandboxLimits,
 } from "./sandbox-service.js";
 
 export {

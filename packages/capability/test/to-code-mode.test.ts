@@ -106,6 +106,30 @@ describe("toCodeMode", () => {
     expect(declarations).toContain("readonly greet:");
   });
 
+  it.effect("search remains callable inside a fully inlined program", () =>
+    Effect.gen(function* searchesInsideProgram() {
+      const client = yield* makeMcpClient(appLayer);
+
+      const response = yield* client["tools/call"]({
+        arguments: {
+          code: 'return await tools.$codemode.search({ query: "echo" });',
+        },
+        name: "execute",
+      });
+
+      expect(response.isError).toBeFalsy();
+      expect(response.structuredContent).toMatchObject({
+        result: { matches: [{ name: "echo" }] },
+      });
+      expect(projection.toolkit.tools.execute.description).toContain(
+        "COMPLETE"
+      );
+      expect(projection.toolkit.tools.execute.description).not.toContain(
+        "$codemode.search"
+      );
+    })
+  );
+
   it.effect("enumerates callable tools and invokes a discovered name", () =>
     Effect.gen(function* discoversTools() {
       const client = yield* makeMcpClient(appLayer);
@@ -122,6 +146,47 @@ describe("toCodeMode", () => {
         result: { names: ["echo", "greet"], value: { text: "ratrat" } },
       });
     })
+  );
+
+  it.effect(
+    "search paginates externally and inside the program with the same cursor",
+    () =>
+      Effect.gen(function* paginates() {
+        const client = yield* makeMcpClient(appLayer);
+
+        const first = yield* client["tools/call"]({
+          arguments: { limit: 1, query: "" },
+          name: "search",
+        });
+
+        const last = yield* client["tools/call"]({
+          arguments: { limit: 1, offset: 1, query: "" },
+          name: "search",
+        });
+
+        const internal = yield* client["tools/call"]({
+          arguments: {
+            code: 'return await tools.$codemode.search({ query: "", limit: 1, offset: 1 });',
+          },
+          name: "execute",
+        });
+
+        expect(first.structuredContent).toMatchObject({
+          matches: [{ name: "echo" }],
+          next: { offset: 1 },
+          offset: 0,
+          remaining: 1,
+        });
+        expect(last.structuredContent).toMatchObject({
+          matches: [{ name: "greet" }],
+          next: null,
+          offset: 1,
+          remaining: 0,
+        });
+        expect(internal.structuredContent).toMatchObject({
+          result: last.structuredContent,
+        });
+      })
   );
 
   it.effect("search returns ranked signatures", () =>
@@ -165,17 +230,20 @@ describe("toCodeMode", () => {
 
         expect(result.isError).toBeFalsy();
         expect(result.structuredContent).toEqual({
+          diagnostic: null,
           logs: ["log: done"],
           result: {
             caught: "NotFound",
             invalid: "InvalidInput",
             twice: "hello rathello rat",
           },
+          toolCalls: ["greet", "echo", "greet", "echo"],
+          truncated: false,
         });
       })
   );
 
-  it.effect("execute surfaces a thrown program error as a tool error", () =>
+  it.effect("execute returns a thrown program error as diagnostic data", () =>
     Effect.gen(function* surfacesThrow() {
       const client = yield* makeMcpClient(appLayer);
 
@@ -184,9 +252,12 @@ describe("toCodeMode", () => {
         name: "execute",
       });
 
-      expect(result.isError).toBe(true);
-      const [content] = result.content;
-      expect(content?.type === "text" ? content.text : "").toContain("nope");
+      expect(result.isError).toBeFalsy();
+      expect(result.structuredContent).toMatchObject({
+        diagnostic: { kind: "ExecutionFailure", message: "nope" },
+        result: null,
+        toolCalls: [],
+      });
     })
   );
 
@@ -213,8 +284,11 @@ describe("toCodeMode", () => {
       });
 
       expect(allowed.structuredContent).toEqual({
+        diagnostic: null,
         logs: [],
         result: { ok: true },
+        toolCalls: ["approved"],
+        truncated: false,
       });
     })
   );

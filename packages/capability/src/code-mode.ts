@@ -8,6 +8,8 @@ export {
   type SearchMatch,
 } from "./catalog.js";
 
+export { SandboxDiagnostic } from "./sandbox-service.js";
+
 export {
   ExecuteInput,
   ExecuteResult,

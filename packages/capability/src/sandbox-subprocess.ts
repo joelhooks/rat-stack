@@ -3,8 +3,17 @@ import type { Cause } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { SandboxError } from "./sandbox-error.js";
-import { Sandbox } from "./sandbox-service.js";
-import type { Invoke, InvokeOutcome, SandboxRun } from "./sandbox-service.js";
+import {
+  Sandbox,
+  SandboxDiagnostic,
+  sandboxRunner,
+} from "./sandbox-service.js";
+import type {
+  Invoke,
+  InvokeOutcome,
+  SandboxRun,
+  SandboxLimits,
+} from "./sandbox-service.js";
 
 export const RUNNER_SOURCE = String.raw`
 import { createInterface } from "node:readline";
@@ -66,6 +75,7 @@ const bridge = new Script([
   "    getOwnPropertyDescriptor: (_target, name) => names.includes(name) ? { configurable: true, enumerable: true } : undefined,",
   "    get: (_target, name) => {",
   '      if (typeof name !== "string") return undefined;',
+  '      if (name === "$codemode") return Object.freeze({ search: (input) => tools["$codemode.search"](input) });',
   "      return (input) => new Promise((resolve, reject) => {",
   "        const id = nextId++;",
   "        pending.set(id, { resolve, reject });",
@@ -84,6 +94,7 @@ const bridge = new Script([
   "    else {",
   '      const error = new ContextError((message.error && message.error.message) || "capability failed");',
   "      assign(error, message.error);",
+  "      assign(error, { __ratDiagnostic: message.diagnostic });",
   "      waiter.reject(error);",
   "    }",
   "  };",
@@ -92,7 +103,7 @@ const bridge = new Script([
   "      const result = await program(tools, console);",
   '      hostDone(stringify({ type: "done", result: result === undefined ? null : result }));',
   "    } catch (error) {",
-  '      hostDone(stringify({ type: "error", message: error instanceof Error ? error.message : String(error) }));',
+  '      hostDone(stringify({ type: "error", diagnostic: error?.__ratDiagnostic, message: error instanceof Error ? error.message : String(error) }));',
   "    }",
   "  };",
   "  return { tools, console, deliver, execute, configure };",
@@ -129,6 +140,7 @@ rl.on("line", (line) => {
     const outcome = {
       type: "error",
       reason: error.code === "ERR_SCRIPT_EXECUTION_TIMEOUT" ? "timeout" : "threw",
+      diagnostic: error.name === "SyntaxError" ? { kind: "ParseError", message: "The program has invalid JavaScript syntax" } : error.__ratDiagnostic,
       message: error instanceof Error ? error.message : String(error),
     };
     send({ ...outcome, logs }).then(
@@ -152,6 +164,7 @@ const ChildMessage = Schema.Union([
     type: Schema.Literal("done"),
   }),
   Schema.Struct({
+    diagnostic: Schema.optionalKey(SandboxDiagnostic),
     logs: Schema.Array(Schema.String),
     message: Schema.String,
     reason: Schema.optional(Schema.Literals(["threw", "timeout"])),
@@ -176,7 +189,7 @@ const encoder = new TextEncoder();
 
 const isSandboxError = Schema.is(SandboxError);
 
-export interface SubprocessOptions {
+export interface SubprocessOptions extends SandboxLimits {
   readonly timeout?: Duration.Input | undefined;
   readonly nodePath?: string | undefined;
 }
@@ -241,37 +254,40 @@ const makeSubprocess = (options?: SubprocessOptions) =>
       const outcome = yield* Stream.decodeText(handle.stdout).pipe(
         Stream.splitLines,
         Stream.filter((line) => line.trim() !== ""),
-        Stream.mapEffect((line) =>
-          decodeChildMessage(line).pipe(
-            Effect.mapError(
-              (error) =>
-                new SandboxError({
-                  logs: [],
-                  message: `Unreadable sandbox message: ${error.message}`,
-                  reason: "protocol",
-                })
-            ),
-            Effect.flatMap((message) => {
-              if (message.type === "call") {
-                return invoke(message.name, message.input).pipe(
-                  Effect.flatMap((result: InvokeOutcome) =>
-                    send({ id: message.id, type: "result", ...result })
-                  ),
-                  Effect.andThen(Effect.succeedNone)
-                );
-              }
+        Stream.mapEffect(
+          (line) =>
+            decodeChildMessage(line).pipe(
+              Effect.mapError(
+                (error) =>
+                  new SandboxError({
+                    logs: [],
+                    message: `Unreadable sandbox message: ${error.message}`,
+                    reason: "protocol",
+                  })
+              ),
+              Effect.flatMap((message) => {
+                if (message.type === "call") {
+                  return invoke(message.name, message.input).pipe(
+                    Effect.flatMap((result: InvokeOutcome) =>
+                      send({ id: message.id, type: "result", ...result })
+                    ),
+                    Effect.andThen(Effect.succeedNone)
+                  );
+                }
 
-              return Effect.succeedSome<SandboxRun | SandboxError>(
-                message.type === "done"
-                  ? { logs: message.logs, result: message.result }
-                  : new SandboxError({
-                      logs: message.logs,
-                      message: message.message,
-                      reason: message.reason ?? "threw",
-                    })
-              );
-            })
-          )
+                return Effect.succeedSome<SandboxRun | SandboxError>(
+                  message.type === "done"
+                    ? { logs: message.logs, result: message.result }
+                    : new SandboxError({
+                        diagnostic: message.diagnostic,
+                        logs: message.logs,
+                        message: message.message,
+                        reason: message.reason ?? "threw",
+                      })
+                );
+              })
+            ),
+          { concurrency: 8 }
         ),
         Stream.filter(Option.isSome),
         Stream.map((option) => option.value),
@@ -303,20 +319,23 @@ const makeSubprocess = (options?: SubprocessOptions) =>
     }, Effect.scoped);
 
     return {
-      run: (code: string, invoke: Invoke, names: readonly string[] = []) =>
-        run(code, invoke, names).pipe(
-          Effect.timeoutOrElse({
-            duration: timeout,
-            orElse: () =>
-              Effect.fail(
-                new SandboxError({
-                  logs: [],
-                  message: `The program did not finish within ${Duration.format(timeout)}`,
-                  reason: "timeout",
-                })
-              ),
-          })
-        ),
+      run: sandboxRunner(
+        (code, invoke, names) =>
+          run(code, invoke, names).pipe(
+            Effect.timeoutOrElse({
+              duration: timeout,
+              orElse: () =>
+                Effect.fail(
+                  new SandboxError({
+                    logs: [],
+                    message: `The program did not finish within ${Duration.format(timeout)}`,
+                    reason: "timeout",
+                  })
+                ),
+            })
+          ),
+        options
+      ),
     } as const;
   });
 

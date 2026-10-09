@@ -69,12 +69,10 @@ describe("subprocess Sandbox", () => {
       Effect.gen(function* reportsThrow() {
         const sandbox = yield* Sandbox;
 
-        const error = yield* sandbox
-          .run(`throw new Error("boom")`, invoke)
-          .pipe(Effect.flip);
+        const error = yield* sandbox.run(`throw new Error("boom")`, invoke);
 
-        expect(error.reason).toBe("threw");
-        expect(error.message).toBe("boom");
+        expect(error.diagnostic?.kind).toBe("ExecutionFailure");
+        expect(error.diagnostic?.message).toBe("boom");
       })
     );
 
@@ -166,14 +164,12 @@ describe("subprocess Sandbox", () => {
 
         const sandbox = yield* Sandbox;
 
-        const error = yield* sandbox
-          .run(
-            `await fetch(${JSON.stringify(url)}); return "reachable";`,
-            invoke
-          )
-          .pipe(Effect.flip);
+        const error = yield* sandbox.run(
+          `await fetch(${JSON.stringify(url)}); return "reachable";`,
+          invoke
+        );
 
-        expect(error.reason).toBe("threw");
+        expect(error.diagnostic?.kind).toBe("ExecutionFailure");
         expect(requests).toBe(0);
       }).pipe(Effect.provide(layer));
     });
@@ -213,10 +209,10 @@ describe("subprocess Sandbox", () => {
       Effect.gen(function* boundsEvaluation() {
         const sandbox = yield* Sandbox;
 
-        const error = yield* sandbox.run(code, invoke).pipe(Effect.flip);
+        const error = yield* sandbox.run(code, invoke);
 
-        expect(error.reason).toBe("timeout");
-        expect(error.message).toContain("Script execution timed out");
+        expect(error.diagnostic?.kind).toBe("TimeoutExceeded");
+        expect(error.diagnostic?.message).toContain("timeout");
       }).pipe(Effect.provide(TestLayer))
     );
   }
@@ -224,9 +220,9 @@ describe("subprocess Sandbox", () => {
   it.live("kills a runaway program with reason timeout", () =>
     Effect.gen(function* timesOut() {
       const sandbox = yield* Sandbox;
-      const error = yield* sandbox.run(`for (;;) {}`, invoke).pipe(Effect.flip);
+      const error = yield* sandbox.run(`for (;;) {}`, invoke);
 
-      expect(error.reason).toBe("timeout");
+      expect(error.diagnostic?.kind).toBe("TimeoutExceeded");
     }).pipe(
       Effect.provide(
         Layer.provide(

@@ -1,9 +1,14 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- See to-toolkit.ts: a projection over a heterogeneous list erases error and requirement types at the boundary and recovers them for callers.
 import type { Layer } from "effect";
-import { Effect, Schema } from "effect";
+import { Effect, Match, Schema } from "effect";
 import { Tool, Toolkit } from "effect/ai";
 
-import { searchCatalog, toCatalog, toTypeScript } from "./catalog.js";
+import {
+  discoverCatalog,
+  searchCatalog,
+  toCatalog,
+  toTypeScript,
+} from "./catalog.js";
 import type { Catalog } from "./catalog.js";
 import { defineContract, failureSchemaOf } from "./contract.js";
 import type {
@@ -13,8 +18,20 @@ import type {
   FailureSchemaOf,
 } from "./contract.js";
 import { implement } from "./implement.js";
-import { Sandbox, SandboxError, invokeFailure } from "./sandbox-service.js";
-import type { Invoke, InvokeOutcome } from "./sandbox-service.js";
+import { toolDiagnostic } from "./sandbox-diagnostic.js";
+import { resolveLimits } from "./sandbox-limits.js";
+import {
+  Sandbox,
+  SandboxError,
+  SandboxDiagnostic,
+  invokeFailure,
+  sandboxRunner,
+} from "./sandbox-service.js";
+import type {
+  Invoke,
+  InvokeOutcome,
+  SandboxLimits,
+} from "./sandbox-service.js";
 import type { RequirementsOf } from "./to-toolkit.js";
 
 export const SearchMatch = Schema.Struct({
@@ -26,6 +43,11 @@ export const SearchMatch = Schema.Struct({
 
 export const SearchResult = Schema.Struct({
   matches: Schema.Array(SearchMatch),
+  next: Schema.optionalKey(
+    Schema.NullOr(Schema.Struct({ offset: Schema.Int }))
+  ),
+  offset: Schema.optionalKey(Schema.Int),
+  remaining: Schema.optionalKey(Schema.Int),
   total: Schema.Int,
 });
 
@@ -34,49 +56,79 @@ export const ExecuteInput = Schema.Struct({
 });
 
 export const ExecuteResult = Schema.Struct({
+  diagnostic: Schema.optionalKey(Schema.NullOr(SandboxDiagnostic)),
   logs: Schema.Array(Schema.String),
   result: Schema.Json,
+  toolCalls: Schema.optionalKey(Schema.Array(Schema.String)),
+  truncated: Schema.optionalKey(Schema.Boolean),
+});
+
+const SearchInput = Schema.Struct({
+  limit: Schema.optional(Schema.Int.check(Schema.isGreaterThan(0))),
+  offset: Schema.optional(Schema.Natural),
+  query: Schema.String,
 });
 
 const search = Tool.make("search", {
   description:
     "Find capabilities by intent. Returns each match's TypeScript signature for the `tools` object available to `execute`. Call this before `execute` when unsure what exists.",
-  parameters: Schema.Struct({
-    limit: Schema.optional(Schema.Int),
-    query: Schema.String,
-  }),
+  parameters: SearchInput,
   success: SearchResult,
 })
   .annotate(Tool.Readonly, true)
   .annotate(Tool.Idempotent, true);
 
+const searchPage = (
+  catalog: Catalog,
+  query: string,
+  limit: number,
+  offset: number
+) => {
+  const all = searchCatalog(catalog, query, Number.MAX_SAFE_INTEGER);
+  const matches = all.slice(offset, offset + limit);
+  const remaining = Math.max(0, all.length - offset - matches.length);
+
+  return {
+    matches,
+    next: remaining > 0 ? { offset: offset + matches.length } : null,
+    offset,
+    remaining,
+    total: catalog.capabilities.length,
+  };
+};
+
 const executeIntro =
-  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure.";
+  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure. Execution problems return a typed `diagnostic`; inspect it before using `result`. `toolCalls` lists admitted calls in order. `truncated` marks output cuts. At most 8 tool calls run concurrently. Only host cancellation interrupts execution.";
 
 const executeDescription = (
-  declarations: string,
-  placement: DeclarationPlacement
+  discovery: ReturnType<typeof discoverCatalog>
 ): string =>
-  placement === "search"
-    ? [
-        executeIntro,
-        "",
-        "Call `search` first to get the TypeScript signature of each capability on the `tools` object, or read the host's declarations resource if it serves one.",
-      ].join("\n")
-    : [
-        executeIntro,
-        "",
-        "The `tools` object:",
-        "",
-        "```ts",
-        declarations.trimEnd(),
-        "```",
-      ].join("\n");
+  [
+    executeIntro,
+    "",
+    discovery.summary,
+    ...(discovery.complete
+      ? []
+      : [
+          "Call `search` first, or call `tools.$codemode.search({ query })` inside the program, to get full signatures for missing capabilities. Repeat the same query with `offset: next.offset` until `next` is null.",
+        ]),
+    ...(discovery.declarations === ""
+      ? []
+      : [
+          "",
+          "The `tools` object:",
+          "",
+          "```ts",
+          discovery.declarations.trimEnd(),
+          "```",
+        ]),
+  ].join("\n");
 
 export type DeclarationPlacement = "inline" | "search";
 
-export interface ExecuteOptions {
+export interface ExecuteOptions extends SandboxLimits {
   readonly declarations?: DeclarationPlacement | undefined;
+  readonly catalogBudget?: number | undefined;
 }
 
 export interface CodeModeOptions extends ExecuteOptions {
@@ -147,8 +199,13 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
 
       return Schema.decodeUnknownEffect(item.contract.input)(input).pipe(
         Effect.matchEffect({
-          onFailure: (error) =>
-            Effect.succeed(invokeFailure("InvalidInput", error.message)),
+          onFailure: () =>
+            Effect.succeed(
+              invokeFailure(
+                "InvalidInput",
+                "Capability input does not match its schema"
+              )
+            ),
           onSuccess: (decoded) =>
             run(decoded).pipe(
               Effect.provideContext(context),
@@ -156,11 +213,15 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
                 onFailure: (error) =>
                   encodeFailure(error).pipe(
                     Effect.map((encoded): InvokeOutcome => ({
+                      diagnostic: toolDiagnostic(encoded),
                       error: encoded,
                       ok: false,
                     })),
                     Effect.orElseSucceed(() =>
-                      invokeFailure("UnencodableFailure", String(error))
+                      invokeFailure(
+                        "UnencodableFailure",
+                        "Capability failure does not match its declared schema"
+                      )
                     )
                   ),
                 onSuccess: (output) =>
@@ -170,7 +231,10 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
                       value,
                     })),
                     Effect.orElseSucceed(() =>
-                      invokeFailure("UnencodableOutput", String(output))
+                      invokeFailure(
+                        "UnencodableOutput",
+                        "Capability output does not match its declared schema"
+                      )
                     )
                   ),
               })
@@ -188,8 +252,31 @@ export const toExecuteCapability = <
   capabilities: Caps,
   options?: ExecuteOptions
 ) => {
+  const limits = resolveLimits(options ?? {});
+
   const catalog = toCatalog(capabilities);
   const declarations = toTypeScript(catalog);
+
+  const discovery = discoverCatalog(
+    catalog,
+    options?.catalogBudget ??
+      Match.value(options?.declarations).pipe(
+        Match.when("inline", () => Number.MAX_SAFE_INTEGER),
+        Match.when("search", () => 0),
+        Match.orElse(() => 2000)
+      )
+  );
+
+  const discoverySearch = implement(
+    defineContract("$codemode.search", {
+      description: "Search available code-mode capability signatures",
+      failure: Schema.Never,
+      input: SearchInput,
+      output: SearchResult,
+    }),
+    ({ limit, offset, query }) =>
+      Effect.succeed(searchPage(catalog, query, limit ?? 5, offset ?? 0))
+  );
 
   const hasApproval = capabilities.some((item) => item.contract.needsApproval);
   // SAFETY: Caps preserves the literal approval flag for the generated capability, and `some` over the same array computes exactly that flag.
@@ -208,10 +295,7 @@ export const toExecuteCapability = <
         (item) => item.contract.annotations.readOnly
       ),
     },
-    description: executeDescription(
-      declarations,
-      options?.declarations ?? "inline"
-    ),
+    description: executeDescription(discovery),
     failure: SandboxError,
     input: ExecuteInput,
     needsApproval,
@@ -221,21 +305,24 @@ export const toExecuteCapability = <
   const capability = implement(
     executeContract,
     Effect.fn("CodeMode.execute")(function* execute({ code }) {
-      const invoke = yield* invokerFor(capabilities);
+      const invoke = yield* invokerFor([...capabilities, discoverySearch]);
 
       const sandbox = yield* Sandbox;
 
-      const run = yield* sandbox.run(
+      const run = yield* sandboxRunner(sandbox.run, limits)(
         code,
         invoke,
         catalog.capabilities.map((entry) => entry.name)
       );
 
       return {
+        diagnostic: run.diagnostic ?? null,
         logs: run.logs,
         // SAFETY: every Sandbox implementation must JSON-round-trip a successful result before crossing this boundary.
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         result: run.result as typeof ExecuteResult.Type.result,
+        toolCalls: run.toolCalls ?? [],
+        truncated: run.truncated ?? false,
       };
     })
   );
@@ -297,14 +384,10 @@ export const toCodeMode = <
               Effect.provideService(Sandbox, sandbox),
               Effect.provideContext(context)
             ),
-        search: ({ limit, query }) => {
-          const matches = searchCatalog(catalog, query, limit ?? searchLimit);
-
-          return Effect.succeed({
-            matches,
-            total: catalog.capabilities.length,
-          });
-        },
+        search: ({ limit, offset, query }) =>
+          Effect.succeed(
+            searchPage(catalog, query, limit ?? searchLimit, offset ?? 0)
+          ),
       });
     })
   );
