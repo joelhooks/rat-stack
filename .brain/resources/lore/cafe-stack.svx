@@ -175,7 +175,7 @@ The largest difference is the API [surface](/lore/one-schema-three-surfaces). Se
 ## Sources
 
 - [Effect-TS/cafe](https://github.com/Effect-TS/cafe)
-- [foldhub/awesome-foldkit](https://github.com/foldhub/awesome-foldkit), Foldhub's community list for Foldkit, announced by [Taras Kornichuk](https://github.com/artile)
+- [foldhub/awesome-foldkit](https://github.com/foldhub/awesome-foldkit), Foldhub's community list for Foldkit, announced by Taras Kornichuk
 - [Foldkit](https://foldkit.dev)
 - [Alchemy](https://alchemy.run)
 - [Effect](https://effect.website)
