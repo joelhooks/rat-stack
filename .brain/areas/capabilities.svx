@@ -81,11 +81,56 @@ ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`
 - Browser code imports contracts only, never handlers (`rat-stack-boundaries/no-browser-server-imports`).
 - Code mode reaches only capabilities, through their schemas.
 
+## Code-mode discovery and execution
+
+Code mode derives tool declarations from capability schemas.
+The default discovery budget is 2,000 estimated tokens.
+The estimate uses four characters per token.
+
+Discovery selects the shortest declarations and gives each namespace a turn.
+Namespace summaries mark the selected tools as `COMPLETE` or `PARTIAL`.
+
+`catalogBudget` sets the budget.
+`declarations: "inline"` includes all declarations; `"search"` includes none.
+An explicit `catalogBudget` takes precedence over either setting.
+The declarations resource always contains the full catalog.
+
+Programs can call `tools.$codemode.search` to find declarations.
+An exact tool path returns only that tool.
+Other queries rank path segments, path substrings, descriptions, then input fields.
+
+`limit` and `offset` bound each page.
+`next` holds the next offset; `remaining` counts matching tools after this page.
+`total` keeps its meaning as the full catalog size.
+
+Execution returns `result`, `logs`, `diagnostic`, `toolCalls`, and `truncated`.
+Check `diagnostic` before using `result`.
+A declared tool failure retains its tag and a safe message.
+Parse errors, invalid data, timeouts, and program failures also return diagnostics.
+
+Host cancellation still interrupts execution.
+
+`toolCalls` lists admitted calls in dispatch order, including failed calls.
+`maxToolCalls` rejects extra calls before their handlers run.
+Both sandbox adapters run at most eight tool calls at once.
+`maxOutputBytes` bounds returned JSON and log content by UTF-8 bytes.
+
+Output cuts set `truncated` and keep the diagnostic and call history.
+The budget excludes diagnostic, call-history, and transport-envelope bytes.
+Both limits are optional; zero is a valid limit.
+
+Handlers keep the services captured when the program starts.
+Devtools records each handler's duration and outcome through the existing `CallWatch`.
+A downstream storage adapter owns its statement and row limits.
+
 ## How to check
 
 - `curl -sS https://ratstack.sh/openapi.json | jq -r '.paths | keys[]'` lists one route per capability. The MCP `tools/list` request in the [agent guide](/llms.txt) returns the same seven names.
 - `pnpm --filter @rat-stack/capability test` covers input rejection before the handler and typed failures as tool errors. It checks approval denial as a 403 and a typed tool error, denial by default, and code-mode calls through capability schemas.
 - `pnpm lint` fails on any callable interface built outside `packages/capability`.
+- `pnpm --filter @rat-stack/capability exec vitest run test/catalog.test.ts test/sandbox-limits.test.ts test/sandbox-conformance.test.ts test/code-mode-context.test.ts` checks discovery, search pages, limits, and captured services.
+- `pnpm --filter @rat-stack/mischief exec vitest run test/code-mode-runtime.test.ts` checks the same diagnostics, limits, and concurrency in local workerd.
+- `pnpm --filter @rat-stack/devtools test` checks handler duration and failure recording during code-mode execution.
 
 ## Removing an interface
 
