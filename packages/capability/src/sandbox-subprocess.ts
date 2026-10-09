@@ -66,6 +66,7 @@ const bridge = new Script([
   "    getOwnPropertyDescriptor: (_target, name) => names.includes(name) ? { configurable: true, enumerable: true } : undefined,",
   "    get: (_target, name) => {",
   '      if (typeof name !== "string") return undefined;',
+  '      if (name === "$codemode") return Object.freeze({ search: (input) => tools["$codemode.search"](input) });',
   "      return (input) => new Promise((resolve, reject) => {",
   "        const id = nextId++;",
   "        pending.set(id, { resolve, reject });",

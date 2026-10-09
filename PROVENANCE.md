@@ -17,6 +17,12 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## OpenCode code-mode ideas (MIT)
+
+`packages/capability/src/catalog.ts`, `to-code-mode.ts`, the sandbox adapters, and their tests adapt discovery and execution ideas from [anomalyco/opencode](https://github.com/anomalyco/opencode/tree/dev/packages/codemode), inspected 2026-10-09. Sources: `README.md`, `src/codemode.ts`, and `src/tool-runtime.ts` (blob `f4ccc61d4c49a4f7572906559e5a4e2a11acdec9`).
+
+Budgeted round-robin discovery, weighted paginated search, diagnostics as data, admitted-call accounting, and execution limits are rewritten for our capability contracts. No interpreter, runtime dependency, or OpenAPI adapter is copied. Invocation, approval, and observation remain on rat-stack's existing path.
+
 ## effect-cloudflare-foldkit-template
 
 Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template), commit `04851db8649501bfaf8d2712429074ba0290a10f` (`04851db`). License: MIT, per the author via Joel, 2026-10-08. The repository has no LICENSE file or manifest license field at that revision.

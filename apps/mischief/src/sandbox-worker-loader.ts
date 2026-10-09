@@ -143,7 +143,9 @@ export default class CodeExecutor extends WorkerEntrypoint {
       ownKeys: () => names,
       getOwnPropertyDescriptor: (_target, name) =>
         names.includes(name) ? { configurable: true, enumerable: true } : undefined,
-      get: (_target, name) => async (input = {}) => {
+      get: (_target, name) => name === "$codemode"
+        ? Object.freeze({ search: (input) => tools["$codemode.search"](input) })
+        : async (input = {}) => {
         const outcome = await dispatcher.call(String(name), input);
         if (outcome.ok) return outcome.value;
         const error = new Error(outcome.error?.message ?? "capability failed");

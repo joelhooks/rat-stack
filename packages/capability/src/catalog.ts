@@ -260,6 +260,84 @@ export const toTypeScript = (catalog: Catalog): string => {
   );
 };
 
+export const namespaceOf = (name: string): string =>
+  name.includes(".") ? (name.split(".")[0] ?? "tools") : "tools";
+
+export const discoverCatalog = (catalog: Catalog, budget = 2000) => {
+  const checkedBudget = Schema.decodeSync(
+    Schema.Int.check(Schema.isGreaterThanOrEqualTo(0))
+  )(budget);
+
+  const groups = new Map<string, CatalogEntry[]>();
+
+  for (const entry of catalog.capabilities) {
+    const namespace = namespaceOf(entry.name);
+    const group = groups.get(namespace) ?? [];
+    group.push(entry);
+    groups.set(namespace, group);
+  }
+
+  const namespaces = [...groups].toSorted(([a], [b]) => a.localeCompare(b));
+
+  const selections = namespaces.map(([namespace, entries]) => ({
+    entries,
+    namespace,
+    queue: entries
+      .map((entry) => ({
+        cost: toTypeScript({ capabilities: [entry], version: "1" }).length / 4,
+        entry,
+      }))
+      .toSorted(
+        (a, b) => a.cost - b.cost || a.entry.name.localeCompare(b.entry.name)
+      ),
+    shown: new Array<CatalogEntry>(),
+  }));
+
+  let used = 0;
+  let active = selections;
+
+  while (active.length > 0) {
+    const nextRound: typeof active = [];
+
+    for (const selection of active) {
+      const next = selection.queue.shift();
+
+      if (next === undefined || used + next.cost > checkedBudget) {
+        continue;
+      }
+
+      used += next.cost;
+      selection.shown.push(next.entry);
+      nextRound.push(selection);
+    }
+
+    active = nextRound;
+  }
+
+  const selected = selections.flatMap((selection) => selection.shown);
+  const complete = selected.length === catalog.capabilities.length;
+
+  const status = complete
+    ? `COMPLETE list (${selected.length} tools)`
+    : `PARTIAL (${selected.length} of ${catalog.capabilities.length} shown)`;
+
+  const summaries = selections.map(
+    ({ entries, namespace, shown }) =>
+      `${namespace}: ${shown.length === entries.length ? "COMPLETE" : "PARTIAL"} (${shown.length} of ${entries.length} shown)`
+  );
+
+  return {
+    complete,
+    declarations:
+      selected.length === 0
+        ? ""
+        : toTypeScript({ capabilities: selected, version: "1" }),
+    selected,
+    summary: [status, ...summaries].join("\n"),
+    used,
+  };
+};
+
 const tokens = (text: string): readonly string[] =>
   text
     .replaceAll(/(?<lower>[a-z])(?<upper>[A-Z])/gu, "$<lower> $<upper>")

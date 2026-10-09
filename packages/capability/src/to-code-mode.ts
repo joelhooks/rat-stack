@@ -1,9 +1,14 @@
 // @effect-diagnostics anyUnknownInErrorContext:off unsafeEffectTypeAssertion:off missingEffectContext:off -- See to-toolkit.ts: a projection over a heterogeneous list erases error and requirement types at the boundary and recovers them for callers.
 import type { Layer } from "effect";
-import { Effect, Schema } from "effect";
+import { Effect, Match, Schema } from "effect";
 import { Tool, Toolkit } from "effect/ai";
 
-import { searchCatalog, toCatalog, toTypeScript } from "./catalog.js";
+import {
+  discoverCatalog,
+  searchCatalog,
+  toCatalog,
+  toTypeScript,
+} from "./catalog.js";
 import type { Catalog } from "./catalog.js";
 import { defineContract, failureSchemaOf } from "./contract.js";
 import type {
@@ -38,13 +43,15 @@ export const ExecuteResult = Schema.Struct({
   result: Schema.Json,
 });
 
+const SearchInput = Schema.Struct({
+  limit: Schema.optional(Schema.Int.check(Schema.isGreaterThan(0))),
+  query: Schema.String,
+});
+
 const search = Tool.make("search", {
   description:
     "Find capabilities by intent. Returns each match's TypeScript signature for the `tools` object available to `execute`. Call this before `execute` when unsure what exists.",
-  parameters: Schema.Struct({
-    limit: Schema.optional(Schema.Int),
-    query: Schema.String,
-  }),
+  parameters: SearchInput,
   success: SearchResult,
 })
   .annotate(Tool.Readonly, true)
@@ -54,29 +61,34 @@ const executeIntro =
   "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure.";
 
 const executeDescription = (
-  declarations: string,
-  placement: DeclarationPlacement
+  discovery: ReturnType<typeof discoverCatalog>
 ): string =>
-  placement === "search"
-    ? [
-        executeIntro,
-        "",
-        "Call `search` first to get the TypeScript signature of each capability on the `tools` object, or read the host's declarations resource if it serves one.",
-      ].join("\n")
-    : [
-        executeIntro,
-        "",
-        "The `tools` object:",
-        "",
-        "```ts",
-        declarations.trimEnd(),
-        "```",
-      ].join("\n");
+  [
+    executeIntro,
+    "",
+    discovery.summary,
+    ...(discovery.complete
+      ? []
+      : [
+          "Call `search` first, or call `tools.$codemode.search({ query })` inside the program, to get full signatures for missing capabilities.",
+        ]),
+    ...(discovery.declarations === ""
+      ? []
+      : [
+          "",
+          "The `tools` object:",
+          "",
+          "```ts",
+          discovery.declarations.trimEnd(),
+          "```",
+        ]),
+  ].join("\n");
 
 export type DeclarationPlacement = "inline" | "search";
 
 export interface ExecuteOptions {
   readonly declarations?: DeclarationPlacement | undefined;
+  readonly catalogBudget?: number | undefined;
 }
 
 export interface CodeModeOptions extends ExecuteOptions {
@@ -191,6 +203,30 @@ export const toExecuteCapability = <
   const catalog = toCatalog(capabilities);
   const declarations = toTypeScript(catalog);
 
+  const discovery = discoverCatalog(
+    catalog,
+    options?.catalogBudget ??
+      Match.value(options?.declarations).pipe(
+        Match.when("inline", () => Number.MAX_SAFE_INTEGER),
+        Match.when("search", () => 0),
+        Match.orElse(() => 2000)
+      )
+  );
+
+  const discoverySearch = implement(
+    defineContract("$codemode.search", {
+      description: "Search available code-mode capability signatures",
+      failure: Schema.Never,
+      input: SearchInput,
+      output: SearchResult,
+    }),
+    ({ limit, query }) =>
+      Effect.succeed({
+        matches: searchCatalog(catalog, query, limit ?? 5),
+        total: catalog.capabilities.length,
+      })
+  );
+
   const hasApproval = capabilities.some((item) => item.contract.needsApproval);
   // SAFETY: Caps preserves the literal approval flag for the generated capability, and `some` over the same array computes exactly that flag.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -208,10 +244,7 @@ export const toExecuteCapability = <
         (item) => item.contract.annotations.readOnly
       ),
     },
-    description: executeDescription(
-      declarations,
-      options?.declarations ?? "inline"
-    ),
+    description: executeDescription(discovery),
     failure: SandboxError,
     input: ExecuteInput,
     needsApproval,
@@ -221,7 +254,7 @@ export const toExecuteCapability = <
   const capability = implement(
     executeContract,
     Effect.fn("CodeMode.execute")(function* execute({ code }) {
-      const invoke = yield* invokerFor(capabilities);
+      const invoke = yield* invokerFor([...capabilities, discoverySearch]);
 
       const sandbox = yield* Sandbox;
 

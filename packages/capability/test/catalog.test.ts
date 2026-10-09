@@ -1,6 +1,10 @@
 import { describe, expect, it } from "@effect/vitest";
+import { Schema } from "effect";
+import * as Arbitrary from "effect/Arbitrary";
 
 import {
+  discoverCatalog,
+  namespaceOf,
   searchCatalog,
   toCatalog,
   toTypeScript,
@@ -9,6 +13,95 @@ import {
 import { echo, greet, mixed } from "./fixtures.js";
 
 const catalog = toCatalog([echo, greet, mixed]);
+
+const counts = Arbitrary.schema(
+  Schema.Array(
+    Schema.Int.check(Schema.isBetween({ maximum: 4, minimum: 1 }))
+  ).check(Schema.isMinLength(1), Schema.isMaxLength(4))
+);
+
+const groupedCatalog = (sizes: readonly number[]) => {
+  const [entry] = toCatalog([echo]).capabilities;
+
+  if (entry === undefined) {
+    throw new Error("Echo fixture must have a catalog entry");
+  }
+
+  return {
+    capabilities: sizes.flatMap((size, namespace) =>
+      Array.from({ length: size }, (_, index) => ({
+        ...entry,
+        name: `namespace${namespace}.tool${index}`,
+      }))
+    ),
+    version: "1" as const,
+  };
+};
+
+describe("budgeted discovery", () => {
+  it.prop(
+    "a full budget lists all signatures and zero lists only namespaces",
+    { sizes: counts },
+    ({ sizes }) => {
+      const generated = groupedCatalog(sizes);
+      const full = discoverCatalog(generated, Number.MAX_SAFE_INTEGER);
+      const empty = discoverCatalog(generated, 0);
+      expect(full.selected).toHaveLength(generated.capabilities.length);
+      expect(full.complete).toBe(true);
+      expect(empty.selected).toHaveLength(0);
+      expect(empty.declarations).toBe("");
+
+      for (const entry of generated.capabilities) {
+        expect(full.declarations).toContain(`readonly "${entry.name}":`);
+        expect(empty.summary).toContain(namespaceOf(entry.name));
+      }
+    }
+  );
+
+  it.prop(
+    "round robin represents every affordable namespace before repeating one",
+    { sizes: counts },
+    ({ sizes }) => {
+      const generated = groupedCatalog(sizes);
+
+      const oneCost =
+        toTypeScript({
+          capabilities: generated.capabilities.slice(0, 1),
+          version: "1",
+        }).length / 4;
+
+      const firstRound = discoverCatalog(generated, oneCost * sizes.length);
+      expect(firstRound.selected).toHaveLength(sizes.length);
+      expect(
+        new Set(firstRound.selected.map((entry) => namespaceOf(entry.name)))
+          .size
+      ).toBe(sizes.length);
+    }
+  );
+
+  it.prop(
+    "selected signatures never exceed their estimated token budget",
+    {
+      budget: Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 3000, minimum: 0 }))
+      ),
+      sizes: counts,
+    },
+    ({ budget, sizes }) => {
+      const selection = discoverCatalog(groupedCatalog(sizes), budget);
+
+      const actual = selection.selected.reduce(
+        (sum, entry) =>
+          sum +
+          toTypeScript({ capabilities: [entry], version: "1" }).length / 4,
+        0
+      );
+
+      expect(actual).toBeLessThanOrEqual(budget);
+      expect(selection.used).toBe(actual);
+    }
+  );
+});
 
 describe("toCatalog", () => {
   it("records every capability with JSON Schema for each channel", () => {

@@ -106,6 +106,30 @@ describe("toCodeMode", () => {
     expect(declarations).toContain("readonly greet:");
   });
 
+  it.effect("search remains callable inside a fully inlined program", () =>
+    Effect.gen(function* searchesInsideProgram() {
+      const client = yield* makeMcpClient(appLayer);
+
+      const response = yield* client["tools/call"]({
+        arguments: {
+          code: 'return await tools.$codemode.search({ query: "echo" });',
+        },
+        name: "execute",
+      });
+
+      expect(response.isError).toBeFalsy();
+      expect(response.structuredContent).toMatchObject({
+        result: { matches: [{ name: "echo" }] },
+      });
+      expect(projection.toolkit.tools.execute.description).toContain(
+        "COMPLETE"
+      );
+      expect(projection.toolkit.tools.execute.description).not.toContain(
+        "$codemode.search"
+      );
+    })
+  );
+
   it.effect("enumerates callable tools and invokes a discovered name", () =>
     Effect.gen(function* discoversTools() {
       const client = yield* makeMcpClient(appLayer);
