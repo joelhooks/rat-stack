@@ -6,6 +6,7 @@ import {
   discoverCatalog,
   namespaceOf,
   searchCatalog,
+  signatureOf,
   toCatalog,
   toTypeScript,
   typeOf,
@@ -137,6 +138,65 @@ describe("typeOf", () => {
     expect(typeOf({ not: {} })).toBe("never");
     expect(typeOf({ $ref: "#/$defs/NotFoundEncoded" })).toBe("NotFoundEncoded");
     expect(typeOf({ type: 7 })).toBe("unknown");
+  });
+});
+
+describe("union members", () => {
+  it("print once each, in first-seen order", () => {
+    expect(
+      typeOf({
+        anyOf: [
+          { $ref: "#/$defs/ProblemDetail" },
+          { $ref: "#/$defs/ProblemDetail" },
+        ],
+      })
+    ).toBe("ProblemDetail");
+    expect(
+      typeOf({
+        oneOf: [
+          { $ref: "#/$defs/ProblemDetail" },
+          { type: "null" },
+          { $ref: "#/$defs/ProblemDetail" },
+        ],
+      })
+    ).toBe("ProblemDetail | null");
+    expect(
+      typeOf({
+        oneOf: [
+          { type: "null" },
+          { $ref: "#/$defs/ProblemDetail" },
+          { type: "null" },
+        ],
+      })
+    ).toBe("null | ProblemDetail");
+    expect(typeOf({ type: ["string", "null", "string"] })).toBe(
+      "string | null"
+    );
+  });
+
+  it("render a failure union of one schema as a single @throws", () => {
+    const signature = signatureOf({
+      annotations: {
+        destructive: false,
+        idempotent: true,
+        openWorld: false,
+        readOnly: true,
+      },
+      description: "List stranded intents.",
+      failure: {
+        anyOf: [
+          { $ref: "#/$defs/ProblemDetail" },
+          { $ref: "#/$defs/ProblemDetail" },
+        ],
+      },
+      input: { properties: {}, type: "object" },
+      name: "list_stranded_intents",
+      needsApproval: false,
+      output: { properties: {}, type: "object" },
+    });
+
+    expect(signature).toContain("@throws ProblemDetail\n");
+    expect(signature).not.toContain("ProblemDetail | ProblemDetail");
   });
 });
 
