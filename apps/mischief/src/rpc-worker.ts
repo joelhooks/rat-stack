@@ -6,7 +6,11 @@ import { RpcSerialization, RpcServer } from "effect/rpc";
 
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { contentLayer, readerCapabilities } from "./capabilities/index.js";
-import { privateObservability } from "./observability.js";
+import {
+  privateTelemetry,
+  traceObservability,
+  traceSettings,
+} from "./observability.js";
 import { workerAssetsLayer } from "./worker-content.js";
 
 export const rpcProjection = toRpc(readerCapabilities);
@@ -25,8 +29,17 @@ export default class RpcBackend extends Cloudflare.Workers.RpcWorker<RpcBackend>
       htmlHandling: "none",
       runWorkerFirst: true,
     },
+    compatibility: traceSettings.pipe(
+      Effect.map((settings) =>
+        settings.enabled ? { date: "2026-07-28" } : undefined
+      ),
+      Effect.orDie
+    ),
     main: import.meta.url,
-    observability: privateObservability,
+    observability: traceSettings.pipe(
+      Effect.map(traceObservability),
+      Effect.orDie
+    ),
     schema: rpcProjection.group,
     workersDev: false,
   },
@@ -38,5 +51,5 @@ export default class RpcBackend extends Cloudflare.Workers.RpcWorker<RpcBackend>
         )
       )
     )
-  )
+  ).pipe(Effect.provide(privateTelemetry))
 ) {}

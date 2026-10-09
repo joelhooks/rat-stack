@@ -51,7 +51,7 @@ const workerDeclarations = (source: string) => [
 
 const policyAssignments = (source: string) => [
   ...source.matchAll(
-    /\bobservability:\s*(?:privateObservability|silentObservability)\b/gu
+    /\bobservability:\s*(?:(?:privateObservability|silentObservability)(?=\s*[,}])|traceObservability\(\s*[\w$]+\s*\)(?=\s*[,}])|traceSettings\.pipe\(\s*Effect\.map\(\s*traceObservability\s*\),\s*Effect\.orDie\s*,?\s*\)(?=\s*[,}]))/gu
   ),
 ];
 
@@ -73,8 +73,10 @@ it.effect(
         const declarations = workerDeclarations(source);
 
         if (declarations.length > 0) {
+          const assignments = [...source.matchAll(/\bobservability:\s*/gu)];
+          expect(assignments.length, file).toBe(declarations.length);
           expect(policyAssignments(source).length, file).toBe(
-            declarations.length
+            assignments.length
           );
           workers += declarations.length;
         }
