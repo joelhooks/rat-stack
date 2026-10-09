@@ -30,3 +30,5 @@ Its infrastructure context is the cloud environment and dependencies in which it
 Its flow is the sequence of work. [Happy Path 116, 24:55](https://youtu.be/YEn4A7XxgF4?t=1495).
 
 He explains that runtime clients, business logic, and infrastructure policies stay related even when they live in separate files. [Happy Path 116, 30:31](https://youtu.be/YEn4A7XxgF4?t=1831).
+
+He built [cafe](https://github.com/Effect-TS/cafe), the reference app for the [CAFE stack](/lore/cafe-stack).

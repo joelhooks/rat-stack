@@ -1,0 +1,179 @@
+---
+title: "CAFE names the Cloudflare, Alchemy, Foldkit and Effect stack"
+description: "CAFE is a named stack: Cloudflare runs the app, Alchemy declares it, Foldkit draws the UI, and Effect does the typed work."
+plain: "CAFE is Cloudflare, Alchemy, Foldkit and Effect. Cloudflare runs it, Alchemy declares it, Foldkit is the UI, and Effect types the work."
+diagram: |-
+  Alchemy Stack
+  ┌──────────────────────────┐
+  │ Foldkit app (browser)    │
+  │   │ HTTP or RPC          │
+  │   ▼                      │
+  │ Worker (Effect)          │
+  │   │                      │
+  │   ▼                      │
+  │ Durable Object, storage  │
+  └──────────────────────────┘
+group: concept
+prerequisites: ["lore.infrastructure-as-effects"]
+terms:
+  - CAFE
+  - "CAFE stack"
+  - Foldkit
+sources:
+  - url: https://github.com/Effect-TS/cafe
+    title: "Effect-TS/cafe · GitHub"
+    publisher: "GitHub Effect-TS"
+    note: "README, AGENTS.md, package layout, CI workflows, and commit history; used for the canonical example."
+    accessed: "2026-10-09"
+  - url: https://github.com/Effect-TS/cafe/pull/2
+    title: "refactor: stream socket frames with Subscription.fromEvent · Effect-TS/cafe#2"
+    publisher: "GitHub Effect-TS"
+    note: "Used for the Subscription.fromEvent step."
+    accessed: "2026-10-09"
+  - url: https://github.com/Effect-TS/cafe/pull/6
+    title: "refactor: stream chat events over Effect RPC · Effect-TS/cafe#6"
+    publisher: "GitHub Effect-TS"
+    note: "Used for the move to Effect RPC over a Durable Object."
+    accessed: "2026-10-09"
+  - url: https://github.com/Manzanita-Research/foldkit-dials
+    title: "Manzanita-Research/foldkit-dials · GitHub"
+    publisher: "GitHub Manzanita-Research"
+    note: "README and package manifest; used for the foldkit-dials section."
+    accessed: "2026-10-09"
+  - url: https://github.com/Manzanita-Research/pleat
+    title: "Manzanita-Research/pleat · GitHub"
+    publisher: "GitHub Manzanita-Research"
+    note: "README; used for the Pleat row."
+    accessed: "2026-10-09"
+  - url: https://github.com/Manzanita-Research/foldkit-native
+    title: "Manzanita-Research/foldkit-native · GitHub"
+    publisher: "GitHub Manzanita-Research"
+    note: "Repository description; used for the Manzanita Research credit."
+    accessed: "2026-10-09"
+  - url: https://github.com/just-be-dev/effect-cloudflare-foldkit-template
+    title: "just-be-dev/effect-cloudflare-foldkit-template · GitHub"
+    publisher: "GitHub just-be-dev"
+    note: "Repository description; used for the other CAFE apps table."
+    accessed: "2026-10-09"
+  - url: https://github.com/NigelThorne/foldkit-demo
+    title: "NigelThorne/foldkit-demo · GitHub"
+    publisher: "GitHub NigelThorne"
+    note: "Repository description; used for the other CAFE apps table."
+    accessed: "2026-10-09"
+  - url: https://github.com/mwarger/corefour
+    title: "mwarger/corefour · GitHub"
+    publisher: "GitHub mwarger"
+    note: "README; used for the other CAFE apps table."
+    accessed: "2026-10-09"
+  - url: https://github.com/Effect-TS/slopcop
+    title: "Effect-TS/slopcop · GitHub"
+    publisher: "GitHub Effect-TS"
+    note: "alchemy.run.ts; used for the other CAFE apps table."
+    accessed: "2026-10-09"
+  - url: https://github.com/foldhub/awesome-foldkit
+    title: "foldhub/awesome-foldkit · GitHub"
+    publisher: "GitHub foldhub"
+    note: "Community list for Foldkit libraries and apps."
+    accessed: "2026-10-09"
+---
+
+CAFE is a named stack. Each letter has one job.
+
+| Letter | Part | Job |
+| --- | --- | --- |
+| C | Cloudflare | Runs the app: Workers, Durable Objects, storage, static assets. |
+| A | Alchemy | Declares the cloud resources as an Effect program. |
+| F | Foldkit | Draws the UI with the Elm Architecture on Effect. |
+| E | Effect | Does the typed work between the UI and the cloud. |
+
+A request follows one path. The [Alchemy](/skills/learn-alchemy) Stack declares every box on it.
+
+```text
+┌─ Alchemy Stack ──────────────────────────────────┐
+│                                                  │
+│  Foldkit app (browser)                           │
+│      │  HTTP or RPC, typed by a shared schema    │
+│      ▼                                           │
+│  Worker (Effect)                                 │
+│      │                                           │
+│      ▼                                           │
+│  Durable Object or storage                       │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+The browser and the Worker import the same schemas. Alchemy reads the same program to deploy and to test.
+
+## The canonical example
+
+[Effect-TS/cafe](https://github.com/Effect-TS/cafe) is a chat app from the Effect organization. Its README defines CAFE. [Sam Goodwin](/lore/sam-goodwin), who wrote Alchemy, built it. Maxwell Brown also commits to it.
+
+It shows these patterns:
+
+- `@cafe/api` holds the HTTP and [RPC](/skills/learn-rat-stack) schemas. It may import only `effect`, so the browser can import it safely. A lint rule enforces this.
+- The Worker serves an Effect `HttpApi`. [PR #6](https://github.com/Effect-TS/cafe/pull/6) moves chat events to Effect RPC over a `Cloudflare.RpcDurableObject`, one per chat.
+- The frontend is a Foldkit single-page app. Side effects are `Command.define` definitions. [PR #2](https://github.com/Effect-TS/cafe/pull/2) streamed socket frames with `Subscription.fromEvent`; PR #6 later replaced the socket with RPC.
+- Story tests check update, Messages, and Commands. Scene tests drive the rendered view. Both are pure.
+- Live tests deploy the Stack with `Test.make` from `alchemy/Test/Vitest`. The end-to-end test drives Chromium through Playwright.
+- CI deploys one stage per pull request and destroys it when the pull request closes.
+- `stacks/github.ts` is an Alchemy Stack that writes the CI Cloudflare credentials as repository secrets.
+- Configuration comes from `effect/Config`. Its `AGENTS.md` forbids `process.env`.
+- The repository carries the Foldkit agent skills.
+
+## Other CAFE apps
+
+| App | What it shows |
+| --- | --- |
+| [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template) | A template with tooling and guardrails for Effect 4, Foldkit, and Alchemy 2 on Cloudflare. |
+| [NigelThorne/foldkit-demo](https://github.com/NigelThorne/foldkit-demo) | Live shared sessions on Durable Objects with SQLite and hibernatable WebSockets. |
+| [mwarger/corefour](https://github.com/mwarger/corefour) | A poster app with an Effect `HttpApi` Worker, Foldkit server rendering, and KV and R2 storage. |
+| [Manzanita-Research/foldkit-dials](https://github.com/Manzanita-Research/foldkit-dials) | Live tuning controls for Foldkit apps. See the next section. |
+| [Manzanita-Research/pleat](https://github.com/Manzanita-Research/pleat) | Typed styles for Foldkit and Effect 4. MIT. |
+| [Effect-TS/slopcop](https://github.com/Effect-TS/slopcop) | Several Effect Workers with D1 and Queues, declared in one Alchemy Stack. |
+
+Pleat treats a style as a value:
+
+- Styles merge by fixed laws.
+- Every rule compiles to atomic CSS when its module loads.
+- Recipe variants are typed by Effect [Schema](/lore/schemas-define-the-boundary).
+- A model that generates UI can choose styles, but it can never write CSS.
+
+Jem at Manzanita Research builds actively in the CAFE space: Pleat, foldkit-dials, and [foldkit-native](https://github.com/Manzanita-Research/foldkit-native).
+
+## foldkit-dials
+
+[Manzanita-Research/foldkit-dials](https://github.com/Manzanita-Research/foldkit-dials) gives a Foldkit app live tuning controls, after DialKit. It is MIT licensed, at version 0.1.0.
+
+- The dials are an Effect Schema.
+- Every dial edit is a Message.
+- Foldkit DevTools records each edit.
+- Time travel replays it.
+- Story and Scene tests can drive it.
+
+Its demo deploys with Alchemy. A `stacks/github.ts` Stack bootstraps its CI credentials, as in cafe.
+
+foldkit-dials is a clear example of the Foldkit rule that every change is a Message. A tool that follows the rule gets recording, replay, and tests from the runtime.
+
+## Where rat-stack sits
+
+rat-stack is a CAFE stack with [the fence](/lore/the-fence) around it. The table compares it with cafe at rat-stack commit `3fb103b`.
+
+| Area | rat-stack | cafe |
+| --- | --- | --- |
+| Alchemy Worker shape | Class form: `Cloudflare.Worker<Mischief>()`, `Cloudflare.Workers.RpcWorker`, `Cloudflare.Website.Foldkit` | `Cloudflare.Worker`, `Cloudflare.RpcDurableObject`, `Cloudflare.Website.Foldkit` |
+| Runtime tests | `alchemy/Test/Vitest` with fixture Workers in `apps/mischief/test/*-runtime.test.ts` | `Test.make` deploys the whole Stack; Playwright drives Chromium |
+| API surface | One contract projected to RPC, HTTP, MCP, and CLI by `packages/capability` | Hand-written `HttpApi` and `RpcGroup` |
+| Foldkit | `Runtime.makeApplication`, `Command.define`, `@foldkit/oxlint-plugin`, Story and Scene tests | The same, plus the Foldkit agent skills |
+| Config | varlock `.env.schema` into Effect `Config`; no `process.env` in source | `effect/Config`; no `process.env` |
+| Pull request stages | `scripts/deploy-preview.sh` deploys a Website and RpcBackend preview by hand; no live end-to-end test | CI deploys one stage per pull request, runs live tests, and destroys it on close |
+| Tracing | `Cloudflare.Telemetry`, opt-in, off by default | Not enabled |
+
+The largest difference is the API [surface](/lore/one-schema-three-surfaces). See [one capability, every surface](/lore/one-capability-every-surface) and [infrastructure as effects](/lore/infrastructure-as-effects).
+
+## Sources
+
+- [Effect-TS/cafe](https://github.com/Effect-TS/cafe)
+- [foldhub/awesome-foldkit](https://github.com/foldhub/awesome-foldkit), the community list for Foldkit
+- [Foldkit](https://foldkit.dev)
+- [Alchemy](https://alchemy.run)
+- [Effect](https://effect.website)
