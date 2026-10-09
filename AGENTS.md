@@ -33,7 +33,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | `@rat-stack/learn` | `packages/learn` | Source-derived public concept deck and the learning lifecycle. Stateless capabilities return compact progress; `@rat-stack/learn/local` owns the local JSONL adapter and capabilities. The CLI provides the filesystem platform for core's `LearnerProgress` port. |
 | `@rat-stack/lore` | `packages/lore` | Public content graph and traversal service |
 | `@rat-stack/devtools` | `packages/devtools` | 🐀 devtools cartridge: `CallLog`, `record`, and the `rat_*` capabilities that list, read, dispatch, replay, and diff capability calls |
-| `@rat-stack/web` | `apps/web` | Default UI bin: Foldkit on Vite, deployed through Alchemy's `Cloudflare.Website.Foldkit` as `Website` (`apps/web/src/website.ts`). Browser `client/` builds AtomRpc from contracts; `/rpc` uses the `#backend` import: production forwards to the private `RpcBackend` in `apps/mischief/src/rpc-worker.ts`, and `pnpm --filter @rat-stack/web dev` serves the content capabilities in process from `src/dev/backend.ts` (the `development` condition in `apps/web/package.json`). In dev, `src/dev/backend.ts` runs the content capabilities under devtools: `/rpc` calls are recorded, `/__rat/rpc` serves the 🐀 overlay (`#devtools-overlay`, `src/dev/features/overlay`, ⌘K), and `/__rat/mcp` serves every `rat_*` tool to agents, with memory-Auth test people. `src/dev/client` and `src/dev/features` follow the browser rules. `test/production-bundle.test.ts` proves no `src/dev` module, no devtools code, and no test people reach a production build. Include it in the Stack with `const website = yield* Website;` |
+| `@rat-stack/web` | `apps/web` | Default UI bin: Foldkit on Vite, deployed through Alchemy's `Cloudflare.Website.Foldkit` as `Website` (`apps/web/src/website.ts`). Browser `client/` Commands call an Effect `RpcClient` built from the contracts' `toRpcGroup`; `/rpc` uses the `#backend` import: production forwards to the private `RpcBackend` in `apps/mischief/src/rpc-worker.ts`, and `pnpm --filter @rat-stack/web dev` serves the content capabilities in process from `src/dev/backend.ts` (the `development` condition in `apps/web/package.json`). In dev, `src/dev/backend.ts` runs the content capabilities under devtools: `/rpc` calls are recorded, `/__rat/rpc` serves the 🐀 overlay (`#devtools-overlay`, `src/dev/features/overlay`, ⌘K), and `/__rat/mcp` serves every `rat_*` tool to agents, with memory-Auth test people. `src/dev/client` and `src/dev/features` follow the browser rules. `test/production-bundle.test.ts` proves no `src/dev` module, no devtools code, and no test people reach a production build. Include it in the Stack with `const website = yield* Website;` |
 | `@rat-stack/cli` | `apps/cli` | Composition root: `stats`, `catalog`, `openapi`, `serve [--devtools]`, `mcp [--code-mode] [--devtools]` commands. Also builds the published `ratstack` npm package: `src/ratstack.ts` bundles the local learn commands and a learn-only `mcp` into `dist/npm` with Vite. `test/ratstack.e2e.test.ts` proves the package holds no devtools and serves only the learn tools |
 | `@rat-stack/infra` | `apps/infra` | Alchemy Stack: the project's cloud footprint as one Effect program |
 | `@rat-stack/mischief` | `apps/mischief` | Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface |
@@ -47,9 +47,9 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 | Projection | `packages/capability/src/to-<surface>.ts` | Expose implemented capabilities on one runtime surface. |
 | Cartridge | `packages/<name>/src/` | One Layer with its own infrastructure; it must pass the cartridge test in `VISION.md`. |
 | Machine | `packages/core/src/<name>-machine.ts` | Own one finite domain lifecycle. |
-| Feature | `apps/web/src/features/<name>/` | Thin route and view that read client atoms. |
+| Feature | `apps/web/src/features/<name>/` | Thin route and view that read the Model and send Messages. |
 | System page | `.brain/areas/<name>.svx` | Public page at `/systems/<name>` for one system rat-stack ships: what it does, the standard it keeps, and how to check it. The content build rejects a system page without those three sections or outside `.brain/areas/`. |
-| Client | `apps/web/src/client/<name>.ts` | Own AtomRpc queries, named commands, and the local replica. |
+| Client | `apps/web/src/client/<name>/` | Own the Foldkit program's Model, Messages, update, and named Commands; Commands call an `RpcClient` over the contract group. |
 
 ## Commands
 
@@ -199,9 +199,9 @@ The content generator warns on sentences above 25 words and paragraphs above fou
 
 ## Web feature blueprint
 
-`apps/web/src/features/<name>/` holds a thin route and view. It reads atoms and calls named commands from `apps/web/src/client/<name>.ts`; components never handle transport, retries, or process startup. The client owns AtomRpc queries and the local replica. The capability in `packages/core` is the shared typed edge, imported by both sides. A cartridge owns durable behavior.
+`apps/web/src/features/<name>/` holds a thin route and view. It reads the Model and sends Messages; components never handle transport, retries, or process startup. `apps/web/src/client/<name>/` owns the Foldkit program: Model, Messages, `update`, and named `Command.define` definitions. Remote state lives in the Model, as Foldkit `AsyncData` or a `foldkit/experimental` `Query`. The capability in `packages/core` is the shared typed edge, imported by both sides. A cartridge owns durable behavior.
 
-One send follows one path: feature → named client command → AtomRpc → shared capability → server-side Durable Object or database cartridge. The server stays authoritative. Mutations carry `reactivityKeys` so the client reconciles its replica.
+One send follows one path: feature → Message → `update` → named Command → `RpcClient` over the contract's `toRpcGroup` → shared capability → server-side Durable Object or database cartridge. The server stays authoritative. The Command returns a result Message, and `update` folds it into the Model.
 
 ## Boundaries and sign-off
 
