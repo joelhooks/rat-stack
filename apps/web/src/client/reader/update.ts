@@ -1,7 +1,8 @@
 import { Option, Record } from "effect";
-import type { Update } from "foldkit";
+import { Update } from "foldkit";
 import { modifyFields } from "foldkit/struct";
 
+import * as Cafe from "../cafe/index.js";
 import { CopyReaderText, WaitBeforeCopyReset } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
@@ -26,6 +27,15 @@ const copyablePrompt = (model: ReaderModel, id: string) =>
   !isCopyInFlight(copyStatusOf(model, id))
     ? findCopyPrompt(model, id)
     : Option.none();
+
+const foldCafe = Update.foldChild({
+  read: (model: ReaderModel) => model.cafe,
+  toParentMessage: (message: Cafe.CafeMessage) =>
+    Message.GotCafeMessage({ message }),
+  update: Cafe.update,
+  write: (model: ReaderModel, cafe: Cafe.CafeModel) =>
+    modifyFields(model, { cafe: () => Option.some(cafe) }),
+});
 
 export const update = (
   model: ReaderModel,
@@ -53,6 +63,7 @@ export const update = (
         ? withCopyStatus(model, id, CopyStatus.Failed())
         : model,
     }),
+    GotCafeMessage: ({ message: cafeMessage }) => foldCafe(model, cafeMessage),
     SucceededCopyReaderText: ({ id }) =>
       CopyStatus.guards.Copying(copyStatusOf(model, id))
         ? {

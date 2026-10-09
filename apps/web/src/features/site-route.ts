@@ -82,7 +82,10 @@ export const apiDocsRouter = pipe(
 export const isWithinSection = (section: string, path: string) =>
   path === section || path.startsWith(`${section}/`);
 
-export const newsRouter = pipe(Route.literal("news"), Route.mapTo(SiteRoute.News));
+export const newsRouter = pipe(
+  Route.literal("news"),
+  Route.mapTo(SiteRoute.News)
+);
 
 export const newsFeedRouter = pipe(
   Route.literal("news.xml"),

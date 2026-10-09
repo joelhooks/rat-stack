@@ -2,6 +2,7 @@ import { NodeServices } from "@effect/platform-node";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
 import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
+import { readerCafeFlags } from "../../mischief/scripts/reader-cafe-flags.ts";
 import { readerErrorTemplate } from "../../mischief/scripts/reader-error-flags.ts";
 import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
 import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
@@ -76,7 +77,18 @@ const readerPages = Effect.gen(function* readerPages() {
   const bodies = yield* Effect.flatMap(readerBodyFlags(origin), encodeFlags);
   const systemsSkills = yield* readerSystemsSkillsFlags(origin);
 
-  const pages = [home, ...lore, learn, ...prompts, ...systemsSkills, ...bodies];
+  const cafe = yield* readerCafeFlags(origin);
+
+  const pages = [
+    home,
+    ...lore,
+    learn,
+    ...prompts,
+    ...cafe,
+    ...systemsSkills,
+    ...bodies,
+  ];
+
   const error = yield* readerErrorTemplate(origin);
 
   const decoded = yield* Effect.forEach((page: (typeof pages)[number]) =>

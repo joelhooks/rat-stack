@@ -6,6 +6,7 @@ import {
   ReaderPageDescriptor,
   ReaderReferences,
 } from "../../page-descriptor.js";
+import { Model as CafeModel } from "../cafe/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
 
@@ -24,6 +25,7 @@ export const ReaderFlags = Schema.Struct({
   blocks: Schema.Array(ReaderBlock),
   bodyNodes: Schema.OptionFromOptional(Schema.Array(ReaderNodeSchema)),
   breadcrumb: Schema.OptionFromOptional(ReaderBreadcrumb),
+  cafe: Schema.OptionFromOptional(CafeModel),
   codeFences: Schema.Array(
     Schema.Struct({ html: Schema.String, value: Schema.String })
   ),
