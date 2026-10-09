@@ -62,5 +62,3 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
     };
   })
 ) {}
-
-export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;

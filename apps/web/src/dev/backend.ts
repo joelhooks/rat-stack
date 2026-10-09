@@ -14,5 +14,3 @@ const { handler } = HttpRouter.toWebHandler(
 );
 
 export const backend: BackendFetch = handler;
-
-export const devtoolsBackend: BackendFetch = handler;

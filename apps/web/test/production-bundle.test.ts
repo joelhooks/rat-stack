@@ -67,27 +67,6 @@ const build = (nodeEnv: "development" | "production") => {
     );
 
     expect(result.status, result.stderr).toBe(0);
-
-    const worker = spawnSync(
-      vite,
-      [
-        "build",
-        "--ssr",
-        "src/worker.ts",
-        "--sourcemap",
-        "--outDir",
-        path.join(outDir, "worker"),
-        "--logLevel",
-        "error",
-      ],
-      {
-        cwd: webRoot,
-        encoding: "utf-8",
-        env: { ...process.env, NODE_ENV: nodeEnv },
-      }
-    );
-
-    expect(worker.status, worker.stderr).toBe(0);
     expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toMatch(
       /<h1(?: [^>]*)?>Rat Stack<\/h1>/u
     );
@@ -169,7 +148,7 @@ describe("production bundle", () => {
     () => {
       const { sources, strings } = build("production");
 
-      expect(sources.has("src/server/backend.ts")).toBe(true);
+      expect(sources.has("src/entry.server.ts")).toBe(true);
       expect(devtoolsModules(sources)).toEqual([]);
       expect(strings).toEqual([]);
     },
@@ -181,14 +160,14 @@ describe("production bundle", () => {
     () => {
       const { sources, strings } = build("development");
 
-      expect(sources.has("src/dev/backend.ts")).toBe(true);
+      expect(sources.has("src/entry.server.ts")).toBe(true);
       expect(sources.has("src/dev/features/overlay/overlay.ts")).toBe(true);
       expect(
         [...sources].some((source) =>
           source.startsWith("../../packages/devtools/")
         )
       ).toBe(true);
-      expect(strings).toEqual(forbiddenStrings);
+      expect(strings).toEqual(["rat_call", "rat_test_person"]);
     },
     BUILD
   );

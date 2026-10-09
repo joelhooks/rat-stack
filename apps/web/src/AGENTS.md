@@ -30,7 +30,7 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 | `client/reader/update.ts` | Pure reader transitions |
 | `client/reader/init.ts` and `client/reader/command.ts` | Server and browser initialization and named clipboard Commands |
 | `server/` and `entry.server.ts` | Server rendering and RPC forwarding; never import them into browser features |
-| `website.ts` and `worker.ts` | Cloudflare composition; never import them into browser features |
+| `website.ts` | Cloudflare composition through Alchemy's `Cloudflare.Website.Foldkit`; the deployed Worker is the entry `@foldkit/vite-plugin` generates from `entry.server.ts`. Never import it into browser features |
 
 The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader/update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser has its own Model and Messages; test it through `features/app.ts` update and view.
 
