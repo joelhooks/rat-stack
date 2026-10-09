@@ -14,7 +14,11 @@ import { Effect, Layer, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 
-import { probe } from "../../../../packages/capability/test/fixtures/sandbox-probe.js";
+import {
+  ProbeActivity,
+  probe,
+  probeMetrics,
+} from "../../../../packages/capability/test/fixtures/sandbox-probe.js";
 import { staticAssetGeneration } from "../../src/bundled-content.generated.js";
 import {
   contentLayer,
@@ -44,7 +48,12 @@ const assetProbe = implement(assetProbeContract, () =>
   )
 );
 
-const probeExecute = toExecuteCapability([probe]);
+const probeExecute = toExecuteCapability([probe, probeMetrics]);
+
+const limitedExecute = toExecuteCapability([probe, probeMetrics], {
+  maxOutputBytes: 128,
+  maxToolCalls: 2,
+});
 
 const sandboxProbeContract = defineContract("sandboxProbe", {
   description: "Run the shared sandbox conformance programs",
@@ -58,9 +67,21 @@ const sandboxProbe = implement(
   probeExecute.capability.handler
 );
 
+const sandboxLimitedContract = defineContract("sandboxLimited", {
+  description: "Run the shared sandbox limit conformance programs",
+  failure: SandboxError,
+  input: ExecuteInput,
+  output: ExecuteResult,
+});
+
+const sandboxLimited = implement(
+  sandboxLimitedContract,
+  limitedExecute.capability.handler
+);
+
 const projection = toHttpApi(
   "CodeModeTest",
-  [execute, search, read, assetProbe, sandboxProbe],
+  [execute, search, read, assetProbe, sandboxProbe, sandboxLimited],
   {
     prefix: "/api",
   }
@@ -99,6 +120,7 @@ export default class CodeModeWorker extends Cloudflare.Worker<CodeModeWorker>()(
       fetch: yield* HttpRouter.toHttpEffect(
         HttpApiBuilder.layer(projection.api).pipe(
           Layer.provide(projection.layer),
+          Layer.provide(ProbeActivity.layer),
           Layer.provide(
             Layer.merge(
               workerAssetsLayer,

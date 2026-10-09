@@ -3,6 +3,9 @@ import { Cause, Effect, Option, Schema } from "effect";
 import { modelSafeMessage } from "./sandbox-diagnostic.js";
 import type { SandboxDiagnosticData } from "./sandbox-diagnostic.js";
 import { SandboxError } from "./sandbox-error.js";
+import { invokeFailure } from "./sandbox-invoke.js";
+import { boundOutput, resolveLimits } from "./sandbox-limits.js";
+import type { SandboxLimits } from "./sandbox-limits.js";
 import type { Invoke, SandboxRun } from "./sandbox-service.js";
 
 const diagnosticOf = (error: SandboxError): SandboxDiagnosticData => {
@@ -33,23 +36,49 @@ const diagnosticOf = (error: SandboxError): SandboxDiagnosticData => {
   };
 };
 
-export const sandboxRunner =
-  (
-    run: (
-      code: string,
-      invoke: Invoke,
-      names: readonly string[]
-    ) => Effect.Effect<SandboxRun, SandboxError>
-  ) =>
-  (
+export const sandboxRunner = (
+  run: (
     code: string,
     invoke: Invoke,
-    names: readonly string[] = []
-  ): Effect.Effect<SandboxRun, SandboxError> =>
-    Effect.gen(function* normalizedSandboxRun() {
+    names: readonly string[]
+  ) => Effect.Effect<SandboxRun, SandboxError>,
+  defaults: SandboxLimits = {}
+) => {
+  const configured = resolveLimits(defaults);
+
+  return (
+    code: string,
+    invoke: Invoke,
+    names: readonly string[] = [],
+    overrides: SandboxLimits = {}
+  ): Effect.Effect<SandboxRun, SandboxError> => {
+    const limits = resolveLimits({
+      maxOutputBytes: overrides.maxOutputBytes ?? configured.maxOutputBytes,
+      maxToolCalls: overrides.maxToolCalls ?? configured.maxToolCalls,
+    });
+
+    return Effect.gen(function* normalizedSandboxRun() {
       const toolCalls: string[] = [];
 
       const admitted: Invoke = (name, input) => {
+        if (
+          limits.maxToolCalls !== undefined &&
+          toolCalls.length >= limits.maxToolCalls
+        ) {
+          const failure = invokeFailure(
+            "ToolCallLimitExceeded",
+            "The program exceeded its tool-call limit"
+          );
+
+          return Effect.succeed({
+            ...failure,
+            diagnostic: {
+              kind: "ToolCallLimitExceeded",
+              message: "The program exceeded its tool-call limit",
+            },
+          });
+        }
+
         toolCalls.push(name);
 
         return invoke(name, input);
@@ -62,7 +91,9 @@ export const sandboxRunner =
               ...value,
               diagnostic: value.diagnostic ?? null,
               result,
-              toolCalls: [...toolCalls],
+              toolCalls: value.toolCalls?.slice(0, limits.maxToolCalls) ?? [
+                ...toolCalls,
+              ],
             })),
             Effect.orElseSucceed((): SandboxRun => ({
               diagnostic: {
@@ -71,7 +102,9 @@ export const sandboxRunner =
               },
               logs: value.logs,
               result: null,
-              toolCalls: [...toolCalls],
+              toolCalls: value.toolCalls?.slice(0, limits.maxToolCalls) ?? [
+                ...toolCalls,
+              ],
             }))
           )
         ),
@@ -109,5 +142,7 @@ export const sandboxRunner =
         )
       );
 
-      return outcome;
+      return boundOutput(outcome, limits.maxOutputBytes);
     });
+  };
+};

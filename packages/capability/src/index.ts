@@ -57,6 +57,7 @@ export {
   type Invoke,
   type InvokeOutcome,
   type SandboxRun,
+  type SandboxLimits,
 } from "./sandbox-service.js";
 
 export {

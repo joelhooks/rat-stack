@@ -5,7 +5,11 @@ import * as Test from "alchemy/Test/Vitest";
 import { Clock, Effect, FileSystem, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
-import { checkSandboxConformance } from "../../../packages/capability/test/fixtures/sandbox-conformance.js";
+import {
+  checkSandboxConformance,
+  checkSandboxLimits,
+  checkSandboxConcurrency,
+} from "../../../packages/capability/test/fixtures/sandbox-conformance.js";
 import { backlinks } from "../src/capabilities/index.js";
 import { nodeContentLayer } from "../src/node-content.js";
 import CodeModeWorker from "./fixtures/code-mode-worker.js";
@@ -52,26 +56,33 @@ test.provider(
       const worker = yield* stack.deploy(CodeModeWorker).pipe(Effect.orDie);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
 
-      yield* checkSandboxConformance(
-        Effect.fn("executeConformanceProgram")(
-          function* executeConformanceProgram(code: string) {
-            const response = yield* HttpClientRequest.post(
-              new URL("/api/sandboxProbe", url)
-            ).pipe(
-              HttpClientRequest.bodyJson({ code }),
-              Effect.flatMap(HttpClient.execute),
-              Effect.orDie
-            );
+      const executeProgram = Effect.fn("executeConformanceProgram")(
+        function* executeConformanceProgram(
+          code: string,
+          path = "sandboxProbe"
+        ) {
+          const response = yield* HttpClientRequest.post(
+            new URL(`/api/${path}`, url)
+          ).pipe(
+            HttpClientRequest.bodyJson({ code }),
+            Effect.flatMap(HttpClient.execute),
+            Effect.orDie
+          );
 
-            expect(response.status).toBe(200);
+          expect(response.status).toBe(200);
 
-            return yield* response.json.pipe(
-              Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult)),
-              Effect.orDie
-            );
-          }
-        )
+          return yield* response.json.pipe(
+            Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult)),
+            Effect.orDie
+          );
+        }
       );
+
+      yield* checkSandboxConformance((code) => executeProgram(code));
+      yield* checkSandboxLimits((code) =>
+        executeProgram(code, "sandboxLimited")
+      );
+      yield* checkSandboxConcurrency((code) => executeProgram(code));
 
       const readinessStarted = yield* Clock.currentTimeMillis;
 

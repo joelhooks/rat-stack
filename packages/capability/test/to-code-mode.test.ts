@@ -238,6 +238,7 @@ describe("toCodeMode", () => {
             twice: "hello rathello rat",
           },
           toolCalls: ["greet", "echo", "greet", "echo"],
+          truncated: false,
         });
       })
   );
@@ -287,6 +288,7 @@ describe("toCodeMode", () => {
         logs: [],
         result: { ok: true },
         toolCalls: ["approved"],
+        truncated: false,
       });
     })
   );

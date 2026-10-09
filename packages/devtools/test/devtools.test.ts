@@ -4,6 +4,9 @@ import {
   aroundHandlers,
   defineContract,
   implement,
+  Sandbox,
+  SandboxError,
+  toExecuteCapability,
   toRpc,
   toToolkit,
 } from "@rat-stack/capability";
@@ -255,6 +258,69 @@ describe("devtools", () => {
 
       expect(failure).toEqual(new NotFound({ id: "missing" }));
     }).pipe(Effect.provide(withLog()))
+  );
+
+  it.effect(
+    "code mode records tool duration and declared failure through the existing CallWatch",
+    () => {
+      const timed = implement(
+        defineContract("timed", {
+          description: "Perform measured work",
+          failure: Schema.Never,
+          input: Schema.Struct({}),
+          output: Schema.String,
+        }),
+        () => TestClock.adjust("25 millis").pipe(Effect.as("done"))
+      );
+
+      const projection = toExecuteCapability([timed, lookup], {
+        maxOutputBytes: 64,
+        maxToolCalls: 2,
+      });
+
+      const sandbox = Layer.succeed(Sandbox, {
+        run: (_code, invoke) =>
+          Effect.gen(function* dispatchObservedProgram() {
+            yield* invoke("timed", {});
+            const failed = yield* invoke("lookup", { id: "missing" });
+
+            if (failed.ok) {
+              return { logs: [], result: failed.value };
+            }
+
+            return yield* new SandboxError({
+              diagnostic: failed.diagnostic,
+              logs: [],
+              message: "tool failed",
+              reason: "threw",
+            });
+          }),
+      });
+
+      return Effect.gen(function* recordsCodeModeDuration() {
+        const result = yield* projection.capability.handler({
+          code: "observed program",
+        });
+
+        const { entries } = yield* (yield* CallLog).snapshot;
+
+        expect(result).toMatchObject({
+          diagnostic: { kind: "ToolFailure", tag: "NotFound" },
+          toolCalls: ["timed", "lookup"],
+        });
+        expect(
+          entries.map((entry) => [
+            entry.capability,
+            entry.durationMs,
+            entry.outcome._tag,
+          ])
+        ).toEqual([
+          ["timed", 25, "Succeeded"],
+          ["lookup", 0, "Failed"],
+          ["execute", 25, "Succeeded"],
+        ]);
+      }).pipe(Effect.provide(Layer.merge(withLog(), sandbox)));
+    }
   );
 
   it.effect("evicts the oldest calls past its capacity", () =>

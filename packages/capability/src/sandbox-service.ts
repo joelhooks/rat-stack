@@ -4,10 +4,13 @@ import type * as Schema from "effect/Schema";
 
 import type { SandboxDiagnosticData } from "./sandbox-diagnostic.js";
 import type { SandboxError } from "./sandbox-error.js";
+import type { SandboxLimits } from "./sandbox-limits.js";
 
 export { SandboxDiagnostic } from "./sandbox-diagnostic.js";
 
 export { sandboxRunner } from "./sandbox-result.js";
+
+export type { SandboxLimits } from "./sandbox-limits.js";
 
 export { SandboxError } from "./sandbox-error.js";
 
@@ -31,6 +34,7 @@ export interface SandboxRun {
   readonly logs: readonly string[];
   readonly diagnostic?: SandboxDiagnosticData | null;
   readonly toolCalls?: readonly string[];
+  readonly truncated?: boolean;
 }
 
 export class Sandbox extends Context.Service<
@@ -39,7 +43,8 @@ export class Sandbox extends Context.Service<
     readonly run: (
       code: string,
       invoke: Invoke,
-      names?: readonly string[]
+      names?: readonly string[],
+      limits?: SandboxLimits
     ) => Effect.Effect<SandboxRun, SandboxError>;
   }
 >()("@rat-stack/capability/Sandbox") {}

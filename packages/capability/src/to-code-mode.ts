@@ -19,6 +19,7 @@ import type {
 } from "./contract.js";
 import { implement } from "./implement.js";
 import { toolDiagnostic } from "./sandbox-diagnostic.js";
+import { resolveLimits } from "./sandbox-limits.js";
 import {
   Sandbox,
   SandboxError,
@@ -26,7 +27,11 @@ import {
   invokeFailure,
   sandboxRunner,
 } from "./sandbox-service.js";
-import type { Invoke, InvokeOutcome } from "./sandbox-service.js";
+import type {
+  Invoke,
+  InvokeOutcome,
+  SandboxLimits,
+} from "./sandbox-service.js";
 import type { RequirementsOf } from "./to-toolkit.js";
 
 export const SearchMatch = Schema.Struct({
@@ -55,6 +60,7 @@ export const ExecuteResult = Schema.Struct({
   logs: Schema.Array(Schema.String),
   result: Schema.Json,
   toolCalls: Schema.optionalKey(Schema.Array(Schema.String)),
+  truncated: Schema.optionalKey(Schema.Boolean),
 });
 
 const SearchInput = Schema.Struct({
@@ -92,7 +98,7 @@ const searchPage = (
 };
 
 const executeIntro =
-  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure.";
+  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure. Execution problems return a typed `diagnostic`; inspect it before using `result`. `toolCalls` lists admitted calls in order. `truncated` marks output cuts. At most 8 tool calls run concurrently. Only host cancellation interrupts execution.";
 
 const executeDescription = (
   discovery: ReturnType<typeof discoverCatalog>
@@ -120,7 +126,7 @@ const executeDescription = (
 
 export type DeclarationPlacement = "inline" | "search";
 
-export interface ExecuteOptions {
+export interface ExecuteOptions extends SandboxLimits {
   readonly declarations?: DeclarationPlacement | undefined;
   readonly catalogBudget?: number | undefined;
 }
@@ -246,6 +252,8 @@ export const toExecuteCapability = <
   capabilities: Caps,
   options?: ExecuteOptions
 ) => {
+  const limits = resolveLimits(options ?? {});
+
   const catalog = toCatalog(capabilities);
   const declarations = toTypeScript(catalog);
 
@@ -301,7 +309,7 @@ export const toExecuteCapability = <
 
       const sandbox = yield* Sandbox;
 
-      const run = yield* sandboxRunner(sandbox.run)(
+      const run = yield* sandboxRunner(sandbox.run, limits)(
         code,
         invoke,
         catalog.capabilities.map((entry) => entry.name)
@@ -314,6 +322,7 @@ export const toExecuteCapability = <
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         result: run.result as typeof ExecuteResult.Type.result,
         toolCalls: run.toolCalls ?? [],
+        truncated: run.truncated ?? false,
       };
     })
   );

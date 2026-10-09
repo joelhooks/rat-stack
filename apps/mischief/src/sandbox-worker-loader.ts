@@ -12,9 +12,18 @@ import type {
   Invoke,
   InvokeOutcome,
   SandboxRun,
+  SandboxLimits,
 } from "@rat-stack/capability/sandbox";
 import type { RpcTarget as RpcTargetType } from "cloudflare:workers";
-import { Duration, Effect, Layer, Option, Schema } from "effect";
+import {
+  Duration,
+  Effect,
+  Fiber,
+  Layer,
+  Option,
+  Schema,
+  Semaphore,
+} from "effect";
 
 interface ReleasableStub {
   readonly [Symbol.dispose]?: () => void;
@@ -41,7 +50,7 @@ export interface WorkerLoaderBinding {
   }) => DynamicWorker;
 }
 
-export interface WorkerLoaderSandboxOptions {
+export interface WorkerLoaderSandboxOptions extends SandboxLimits {
   readonly compatibilityDate?: string | undefined;
   readonly cpuMs?: number | undefined;
   readonly subRequests?: number | undefined;
@@ -91,42 +100,56 @@ const disposeQuietly = (stub: ReleasableStub): Effect.Effect<void> =>
 const decodeCallInput = Schema.decodeUnknownOption(Schema.Json);
 
 const makeRpcDispatcher = (invoke: Invoke) =>
-  Effect.tryPromise({
-    catch: (error) =>
-      sandboxError(
-        "protocol",
-        `Unable to load the Cloudflare RPC runtime: ${messageOf(error)}`
-      ),
-    // oxlint-disable-next-line typescript/promise-function-async -- The built-in exists only inside workerd; keeping it lazy lets Alchemy import the Stack under Node without resolving the special URL.
-    try: () => import("cloudflare:workers"),
-  }).pipe(
-    Effect.map(({ RpcTarget }) => {
-      class InvokeDispatcher extends RpcTarget {
-        readonly #invoke = invoke;
+  Effect.gen(function* makeBoundedDispatcher() {
+    const scope = yield* Effect.scope;
+    const context = yield* Effect.context();
+    const runPromise = Effect.runPromiseWith(context);
+    const semaphore = yield* Semaphore.make(8);
 
-        // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare RPC requires a Promise-returning method at this boundary. This is the sandbox's way out, so `input` arrives untrusted and is parsed as JSON before any capability sees it.
-        async call(
-          name: string,
-          // oxlint-disable-next-line anti-slop/no-unknown-parameters
-          input: unknown
-        ): Promise<InvokeOutcome> {
-          const json = decodeCallInput(input);
+    return yield* Effect.tryPromise({
+      catch: (error) =>
+        sandboxError(
+          "protocol",
+          `Unable to load the Cloudflare RPC runtime: ${messageOf(error)}`
+        ),
+      // oxlint-disable-next-line typescript/promise-function-async -- The built-in exists only inside workerd; keeping it lazy lets Alchemy import the Stack under Node without resolving the special URL.
+      try: () => import("cloudflare:workers"),
+    }).pipe(
+      Effect.map(({ RpcTarget }) => {
+        class InvokeDispatcher extends RpcTarget {
+          readonly #invoke = invoke;
 
-          if (Option.isNone(json)) {
-            return invokeFailure("InvalidInput", "Tool input must be JSON");
-          }
+          // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare RPC requires a Promise-returning method at this boundary. This is the sandbox's way out, so `input` arrives untrusted and is parsed as JSON before any capability sees it.
+          async call(
+            name: string,
+            // oxlint-disable-next-line anti-slop/no-unknown-parameters
+            input: unknown
+          ): Promise<InvokeOutcome> {
+            const json = decodeCallInput(input);
 
-          try {
-            return await Effect.runPromise(this.#invoke(name, json.value));
-          } catch {
-            return invokeFailure("HostDefect", "Capability execution failed");
+            if (Option.isNone(json)) {
+              return invokeFailure("InvalidInput", "Tool input must be JSON");
+            }
+
+            try {
+              const fiber = await runPromise(
+                Effect.forkIn(
+                  semaphore.withPermit(this.#invoke(name, json.value)),
+                  scope
+                )
+              );
+
+              return await runPromise(Fiber.join(fiber));
+            } catch {
+              return invokeFailure("HostDefect", "Capability execution failed");
+            }
           }
         }
-      }
 
-      return new InvokeDispatcher();
-    })
-  );
+        return new InvokeDispatcher();
+      })
+    );
+  });
 
 const moduleSource = (
   code: string,
@@ -307,9 +330,10 @@ export const layerWorkerLoader = (
               `The program did not finish within ${Duration.format(timeout)}`
             )
           ),
-      })
+      }),
+      Effect.scoped
     );
   };
 
-  return Layer.succeed(Sandbox, { run: sandboxRunner(run) });
+  return Layer.succeed(Sandbox, { run: sandboxRunner(run, options) });
 };
