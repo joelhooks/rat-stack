@@ -72,6 +72,5 @@ export const readerInit: ApplicationInit<
   typeof ReaderMessage.Type,
   ReaderPageFlags
 > = (flags) => ({
-  commands: [],
   model: { ...flags, clipboardReady: false, copyStates: {} },
 });

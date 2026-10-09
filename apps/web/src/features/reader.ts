@@ -9,6 +9,15 @@ import { renderReaderBlock } from "./reader-document.js";
 import { renderReaderNode } from "./reader-node.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
+import {
+  agentGuideRouter,
+  glossaryRouter,
+  homeRouter,
+  loreRouter,
+  promptsRouter,
+  skillsRouter,
+  systemsRouter,
+} from "./site-route.js";
 
 const copyStatusText = {
   copied: "Copied ✓",
@@ -17,19 +26,26 @@ const copyStatusText = {
   idle: "",
 };
 
+const siteSections = [
+  [skillsRouter(), "skills"],
+  [loreRouter(), "lore"],
+  [systemsRouter(), "systems"],
+  [glossaryRouter(), "glossary"],
+] as const;
+
 const readerBreadcrumb = (
   path: string,
   h: HtmlBuilder<typeof ReaderMessage.Type>
 ) => {
   if (path.startsWith("/prompts")) {
-    return h.a([h.Href("/prompts")], ["prompts"]);
+    return h.a([h.Href(promptsRouter())], ["prompts"]);
   }
 
   if (path.startsWith("/lore/")) {
-    return h.a([h.Href("/lore")], ["lore"]);
+    return h.a([h.Href(loreRouter())], ["lore"]);
   }
 
-  return h.a([h.Href("/")], ["source files"]);
+  return h.a([h.Href(homeRouter())], ["source files"]);
 };
 
 const footerLinksPrompts = (page: ReaderModel["page"]) =>
@@ -127,7 +143,7 @@ export const readerView = (
               [h.AriaLabel("Primary navigation"), h.Class("site-nav")],
               [
                 h.a(
-                  [h.Class("brand"), h.Href("/")],
+                  [h.Class("brand"), h.Href(homeRouter())],
                   [h.strong([], ["🐀 Rat Stack"])]
                 ),
                 h.div(
@@ -135,13 +151,18 @@ export const readerView = (
                   [
                     h.ul(
                       [],
-                      ["skills", "lore", "systems", "glossary"].map((name) =>
-                        h.li([], [h.a([h.Href(`/${name}`)], [name])])
+                      siteSections.map(([href, name]) =>
+                        h.li([], [h.a([h.Href(href)], [name])])
                       )
                     ),
                     h.ul(
                       [],
-                      [h.li([], [h.a([h.Href("/llms.txt")], ["agent guide"])])]
+                      [
+                        h.li(
+                          [],
+                          [h.a([h.Href(agentGuideRouter())], ["agent guide"])]
+                        ),
+                      ]
                     ),
                   ]
                 ),
@@ -157,7 +178,10 @@ export const readerView = (
               [
                 "For agents: start with the ",
                 h.a(
-                  [h.Href(`${model.origin}/llms.txt`), h.Tabindex(-1)],
+                  [
+                    h.Href(`${model.origin}${agentGuideRouter()}`),
+                    h.Tabindex(-1),
+                  ],
                   ["agent guide"]
                 ),
                 ". Every page is Markdown by default; add Accept: text/html for HTML.",

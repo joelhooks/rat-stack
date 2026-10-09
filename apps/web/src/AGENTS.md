@@ -18,9 +18,9 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 
 | Home | Responsibility |
 | --- | --- |
-| `client/model.ts` | Schema Model, Messages, read state, and search state |
-| `client/docs.ts` | Named Commands and their result Messages |
-| `client/queries.ts` | AtomRpc query service and capability transport |
+| `client/docs/model.ts` and `client/docs/message.ts` | Document browser Model, read and search state, and Messages |
+| `client/docs/command.ts` | Named Commands and their result Messages |
+| `client/docs/queries.ts` | AtomRpc query service and capability transport |
 | `client/entry.ts` | Browser runtime boot |
 | `features/app.ts` | Pure route transitions, update, and document-browser view |
 | `features/route.ts` | Schema route union and URL parsing |

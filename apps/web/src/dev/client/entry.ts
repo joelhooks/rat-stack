@@ -1,8 +1,10 @@
 import { Runtime, Subscription } from "foldkit";
 
 import { init, update, view } from "../features/overlay/overlay.js";
-import { Message, Model } from "./model.js";
-import type { InspectorMessage, InspectorModel } from "./model.js";
+import { Message } from "./message.js";
+import type { InspectorMessage } from "./message.js";
+import { Model } from "./model.js";
+import type { InspectorModel } from "./model.js";
 
 import "../features/overlay/overlay.css";
 

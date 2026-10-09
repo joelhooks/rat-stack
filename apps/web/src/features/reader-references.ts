@@ -1,6 +1,7 @@
 import type { HtmlBuilder } from "foldkit/html";
 
 import type { ReaderModel } from "../client/reader-model.js";
+import { changeLogRouter } from "./site-route.js";
 
 export const readerReferences = <Message>(
   model: ReaderModel,
@@ -41,7 +42,7 @@ export const readerReferences = <Message>(
                 ["Source on GitHub"]
               ),
               ". ",
-              h.a([h.Href("/log")], ["Change log"]),
+              h.a([h.Href(changeLogRouter())], ["Change log"]),
               ".",
             ]
           ),

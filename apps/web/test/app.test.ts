@@ -6,8 +6,9 @@ import * as Scene from "foldkit/scene";
 import * as Story from "foldkit/story";
 import { fromString } from "foldkit/url";
 
-import { ReadDoc, SearchDocs } from "../src/client/docs.js";
-import { Message, Model, ReadState, SearchState } from "../src/client/model.js";
+import { ReadDoc, SearchDocs } from "../src/client/docs/command.js";
+import { Message } from "../src/client/docs/message.js";
+import { Model, ReadState, SearchState } from "../src/client/docs/model.js";
 import { init, update, view } from "../src/features/app.js";
 import { AppRoute } from "../src/features/route.js";
 
