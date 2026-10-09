@@ -42,7 +42,11 @@ import { agentSignupLayer } from "./interest/join-layer.js";
 import type { AgentSignupOptions } from "./interest/join-layer.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
-import { privateObservability } from "./observability.js";
+import {
+  privateTelemetry,
+  traceObservability,
+  traceSettings,
+} from "./observability.js";
 import { outerHttpPrivacyRegistration } from "./outer-http-privacy.js";
 import { rateLimitsFrom, rateLimitDeclarations } from "./rate-limits.js";
 import type { RateLimitBindings } from "./rate-limits.js";
@@ -399,7 +403,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     Layer.mergeAll(
       Cloudflare.Workers.RateLimitBinding,
       Cloudflare.Workers.FetchBinding,
-      outerHttpPrivacyRegistration
+      outerHttpPrivacyRegistration,
+      privateTelemetry
     )
   ),
   Effect.tapCause((cause) =>
@@ -410,6 +415,8 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
 export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
   Effect.gen(function* mischiefProps() {
+    const traces = yield* traceSettings.pipe(Effect.orDie);
+
     const assets = yield* contentAssetsForBuild(
       new URL("../dist/content", import.meta.url).pathname,
       staticAssetGeneration
@@ -418,12 +425,12 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
     return {
       assets,
       build: feedbackGatewayBuild,
-      compatibility: { date: "2026-05-28" },
+      compatibility: { date: traces.enabled ? "2026-07-28" : "2026-05-28" },
       dev: { port: 1337 },
       domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
       env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
       main: import.meta.url,
-      observability: privateObservability,
+      observability: traceObservability(traces),
       tailConsumers: [yield* CrashTail],
     };
   }),

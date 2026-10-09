@@ -17,6 +17,16 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/mischief/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/mischief/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## effect-cloudflare-foldkit-template
+
+Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template), commit `04851db8649501bfaf8d2712429074ba0290a10f` (`04851db`). License: MIT, per the author via Joel, 2026-10-08. The repository has no LICENSE file or manifest license field at that revision.
+
+- `.brain/resources/lore/cache-completed-values.svx` and `scripts/oxlint-plugin-patterns.ts` adapt the lifetime guidance from `docs/architecture.md` (Be explicit about lifetimes) and `docs/guardrails.md` (Request lifetime).
+- The rule implementation and its fixtures are ours. The ContentStore example comes from rat-stack PR #64.
+- `apps/web/src/AGENTS.md` adapts `src/ui/AGENTS.md` and `docs/guardrails.md`. The checked conventions come from Foldkit's `packages/create-foldkit-app/templates/base/FOLDKIT.md` at `foldkit@0.166.0` (MIT).
+- `apps/web/test/docs.story.test.ts` and `docs.scene.test.ts` adapt the testing approach from `src/ui/story.test.ts` and `src/ui/scene.test.ts`. They exercise rat-stack's document browser rather than the upstream counter.
+- The opt-in tracing composition adapts `src/platform/cloudflare/api.ts` and `src/platform/cloudflare/stack.ts` to Alchemy `2.0.0-beta.80`. The Website resource lacks an initialization Effect in this pin, so its adapter builds a tracer per request. Its event-context design also follows Alchemy's `src/Cloudflare/Workers/CloudflareTracer.ts` (Apache-2.0, https://github.com/alchemy-run/alchemy). The local adapter and metadata-dropping policy are rewritten implementations. They use the installed dependency's API and add no exporter or dependency.
+
 ## Wiki prose style warnings (MIT)
 
 `apps/mischief/scripts/wiki-prose-style.ts` adapts the history-word and contrast-framing patterns and quoted-span exclusion from [Tardigrade's documentation lint](https://github.com/clavia-labs/tardigrade/blob/3289804a949a476620dd8c3b55a74ea41415ce01/tools/docs-lint.ts), commit `3289804a949a476620dd8c3b55a74ea41415ce01`.

@@ -457,6 +457,127 @@ const isEffectCall = (
   );
 };
 
+const cacheConstructors = [
+  "cached",
+  "cachedWithTTL",
+  "cachedInvalidateWithTTL",
+];
+
+const isInitializationCall = (
+  node: ESTree.CallExpression,
+  context: RuleContext
+) => {
+  const scope = context.sourceCode.getScope(node);
+  const identity = importIdentity(node.callee, scope, context);
+
+  if (identity?.module.startsWith("alchemy") === true) {
+    return true;
+  }
+
+  if (node.callee.type !== "MemberExpression") {
+    return false;
+  }
+
+  const object = importIdentity(node.callee.object, scope, context);
+
+  return (
+    object !== null &&
+    ((object.module === "effect" && object.name === "Layer") ||
+      object.module === "effect/Layer" ||
+      object.module.startsWith("alchemy"))
+  );
+};
+
+const isFetchFunction = (node: FunctionThunk) => {
+  const { parent } = node;
+
+  return (
+    (node.type === "FunctionDeclaration" && node.id?.name === "fetch") ||
+    (parent?.type === "VariableDeclarator" &&
+      parent.id.type === "Identifier" &&
+      parent.id.name === "fetch") ||
+    (parent?.type === "Property" &&
+      parent.key.type === "Identifier" &&
+      parent.key.name === "fetch")
+  );
+};
+
+const isEffectThunk = (node: FunctionThunk, context: RuleContext) => {
+  const { parent } = node;
+
+  return (
+    parent?.type === "CallExpression" &&
+    (isEffectCall(parent, "gen", context) ||
+      (parent.callee.type === "CallExpression" &&
+        isEffectCall(parent.callee, "fn", context)) ||
+      isEffectCall(parent, "fnUntraced", context))
+  );
+};
+
+const isSharedConstruction = (node: ESTree.Node, context: RuleContext) => {
+  let current: ESTree.Node | null = node.parent;
+
+  while (current !== null) {
+    if (
+      current.type === "CallExpression" &&
+      isInitializationCall(current, context)
+    ) {
+      return true;
+    }
+
+    if (
+      (current.type === "FunctionDeclaration" ||
+        current.type === "FunctionExpression" ||
+        current.type === "ArrowFunctionExpression") &&
+      !isEffectThunk(current, context)
+    ) {
+      if (isFetchFunction(current)) {
+        return false;
+      }
+
+      const scope = context.sourceCode.getScope(current);
+
+      if (scope.upper?.type !== "module" && scope.upper?.type !== "global") {
+        return false;
+      }
+    }
+
+    current = current.parent;
+  }
+
+  return true;
+};
+
+const noSharedPendingCache = defineRule({
+  create(context) {
+    if (!isRuntimeSource(workspacePath(context.filename))) {
+      return {};
+    }
+
+    return {
+      CallExpression(node) {
+        if (
+          cacheConstructors.some((name) => isEffectCall(node, name, context)) &&
+          isSharedConstruction(node, context)
+        ) {
+          context.report({ messageId: "pendingCache", node });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep pending request work out of shared initialization caches.",
+    },
+    messages: {
+      pendingCache:
+        "Cache completed values only at module, service, or Worker initialization scope. Effect.cached* shares pending work across requests. Move the cache into the request or store completed values; a scoped exception must name its lifetime with a -- reason.",
+    },
+    type: "problem",
+  },
+});
+
 const isNodeWithin = (node: ESTree.Node, ancestor: ESTree.Node) => {
   let current: ESTree.Node | null = node;
 
@@ -1273,6 +1394,7 @@ export default definePlugin({
     "contract-binding-matches-name": contractBindingMatchesName,
     "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
+    "no-shared-pending-cache": noSharedPendingCache,
     "watch-effect-actors": watchEffectActors,
   },
 });

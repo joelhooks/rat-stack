@@ -1,0 +1,69 @@
+---
+title: "Shared caches hold completed values"
+description: "Keep pending request I/O out of isolate-scoped caches."
+plain: "A value cached beyond one request must be complete. Each request owns its unfinished I/O."
+diagram: |-
+  request A → own read ─┐
+  request B → own read ─┤
+                       ▼
+                completed value
+                       │
+                       ▼
+                  shared cache
+group: idea
+terms:
+  - "request lifetime"
+  - "completed cache"
+  - "pending promise"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/commit/18d4921
+    title: "Cache completed content without shared request I/O"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "ContentStore replaces shared pending asset reads with completed-value caches."
+    accessed: "2026-10-08"
+  - url: https://github.com/just-be-dev/effect-cloudflare-foldkit-template/blob/04851db8649501bfaf8d2712429074ba0290a10f/docs/architecture.md
+    title: "Be explicit about lifetimes"
+    publisher: "GitHub just-be-dev"
+    note: "Assign each resource and mutable value to an explicit lifetime."
+    accessed: "2026-10-08"
+  - url: https://github.com/just-be-dev/effect-cloudflare-foldkit-template/blob/04851db8649501bfaf8d2712429074ba0290a10f/docs/guardrails.md
+    title: "Request lifetime guardrail"
+    publisher: "GitHub just-be-dev"
+    note: "Keep request identity and instance locks within their owning lifetimes."
+    accessed: "2026-10-08"
+---
+
+A Worker isolate can serve several requests. A request owns its unfinished I/O. Shared caches must contain completed values.
+
+The cold-isolate 1101 failure in [PR #64](https://github.com/joelhooks/rat-stack/pull/64) crossed that boundary. `ContentStore` held pending asset reads in a shared cache. Another request could await work owned by the first request.
+
+`Effect.cached`, `Effect.cachedWithTTL`, and `Effect.cachedInvalidateWithTTL` can share pending work. A successful result cache and a pending-work cache have different lifetimes.
+
+## Store the result after the read
+
+`ContentStore` keeps an `Option` in a `Ref`. Each request reads that completed-value cache first.
+
+- A hit returns the completed value.
+- A miss reads assets within the current request.
+- A successful read stores its completed value.
+- A failed read leaves the cache empty.
+
+Concurrent misses can repeat a read. They do not wait for another request's unfinished read.
+
+```text
+request A ── cache miss ── asset read ── completed value ── cache
+request B ── cache miss ── asset read ── completed value ── cache
+request C ── cache hit  ──────────────────────────────── value
+```
+
+The cache is a derived copy of generated content assets. The content build writes those assets; requests store only successfully decoded values.
+
+## Check the lifetime at construction
+
+`rat-stack-patterns/no-shared-pending-cache` rejects these cache constructors in module, service, and Worker initialization effects. Keep request-local work inside its request handler.
+
+A targeted exception must explain the cached value and its lifetime with a `--` reason. CryptoKey derivation from a fixed secret needs separate review from request-bound asset reads.
+
+The fixture tests plant the old `ContentStore.make` cache shape. The rule rejects it before it can reach a Worker.
+
+See [Worker init runs twice](/lore/init-runs-twice) for the initialization boundary and [the fence](/lore/the-fence) for validation.

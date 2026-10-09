@@ -1,4 +1,4 @@
-import { Effect, Option, Schema } from "effect";
+import { Effect, Layer, Option, Schema } from "effect";
 import {
   injectIntoTemplate,
   Rendered,
@@ -23,7 +23,10 @@ import {
   readerErrorShell as errorShellFor,
 } from "./server/reader-error.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
-import { WebsiteBindings } from "./server/website-bindings.js";
+import {
+  WebsiteBindings,
+  websiteTelemetry,
+} from "./server/website-bindings.js";
 
 export const prerenderPaths = pages.map((page) => page.page.path);
 
@@ -224,5 +227,14 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
 // @effect-diagnostics-next-line asyncFunction:off -- Foldkit awaits the Web request boundary.
 export const renderPage = async (request: Request) =>
   await Effect.runPromise(
-    renderReaderPage(request).pipe(Effect.provide(WebsiteBindings.layer))
+    renderReaderPage(request).pipe(
+      Effect.provide(
+        Layer.mergeAll(
+          WebsiteBindings.layer,
+          new URL(request.url).origin === readerPrerenderOrigin
+            ? Layer.empty
+            : websiteTelemetry
+        )
+      )
+    )
   );

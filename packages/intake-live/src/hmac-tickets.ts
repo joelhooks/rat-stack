@@ -93,6 +93,7 @@ export const hmacIntakeTicketLayer = (secret: Redacted.Redacted) =>
     IntakeTicket,
     Effect.gen(function* makeHmacTickets() {
       const bindings = yield* TicketBindings;
+      // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- This service caches CryptoKey derivation from a fixed secret with no request-bound I/O.
       const loadKey = yield* Effect.cached(deriveTicketKey(secret));
 
       const mint = Effect.fn("IntakeTicket.mint")(function* mint(

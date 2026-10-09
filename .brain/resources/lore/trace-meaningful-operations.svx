@@ -13,11 +13,16 @@ diagram: |-
   collector receipt
 group: idea
 created_at: "2026-10-06"
-updated_at: "2026-10-06"
+updated_at: "2026-10-09"
 terms:
   - "Tracing span"
   - "Trace export"
 sources:
+  - url: https://developers.cloudflare.com/workers/observability/traces/spans-and-attributes/
+    title: "Cloudflare. 2026. Spans and attributes. Updated September 17, 2026."
+    publisher: "Cloudflare"
+    note: "Automatic spans include URLs, query strings, selected headers, SQL text, storage keys and metadata. These spans are separate from Effect attribute handling."
+    accessed: "2026-10-09"
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
     title: "Effect contributors. 2026. Effect tracing operators. Effect 4.0.0."
     publisher: "Effect-TS"
@@ -122,6 +127,45 @@ The fixture observes a serialized export request. It does not prove backend acce
 | A queried stored trace | The backend retained a trace you can retrieve |
 
 None of these observations substitutes for the next delivery boundary.
+
+## Native tracing includes platform data
+
+`TRACES_ENABLED` defaults to `false`. `TRACES_HEAD_SAMPLING_RATE` defaults to `0.01` and accepts finite values from zero through one.
+
+The Effect tracer drops arbitrary attributes, events and links. Its native completion attribute records only a fixed outcome.
+Its tests cover this boundary. They do not prove privacy for Cloudflare's automatic spans.
+
+[Cloudflare documents these automatic fields](https://developers.cloudflare.com/workers/observability/traces/spans-and-attributes/):
+
+| Span | Documented data |
+| --- | --- |
+| Fetch handler | Full URL, path, accept headers, language, user agent, geographic data and ASN |
+| Outbound fetch | Full URL and query, selected headers, method, status and body sizes |
+| Cache operation | Request URL, selected cache and conditional headers, and payload sizes |
+| D1 and Durable Object SQL | SQL text; Durable Object SQL also records query bindings |
+| KV and R2 | Keys, prefixes, metadata and operation details; R2 also lists encryption-key-related fields |
+| RPC | Method or property path, target kind and correlation IDs |
+| Email handler | Sender, recipient and message size |
+| Root and child spans | Worker identity, invocation/version IDs and region; root spans add outcome and timing |
+
+Full URLs and query strings can contain tokens or email addresses.
+SQL bindings, storage keys and custom metadata can contain private values.
+The Effect attribute policy does not redact these platform fields.
+
+For outbound fetch, the listed headers include content-type, content-length, accept and accept-encoding.
+Fetch handlers also list accept-language.
+
+The documentation lists body sizes. Body contents, Authorization values and Cookie values are absent from that list.
+That list does not prove that all runtime versions omit other fields.
+The representation of R2 encryption-key-related fields remains unverified here.
+
+Owner approval is required before enabling native traces. Review this list and the authenticated plan before changing the flag.
+A low sampling rate reduces collection volume. It does not make captured private values safe.
+
+Mischief and RpcBackend register a per-event telemetry Layer.
+The Website builds its native tracer inside each request.
+Its development and prerender paths work without the Cloudflare runtime.
+These Layers retain no request tracer or async-context map across requests.
 
 ## Keep other observers distinct
 
