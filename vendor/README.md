@@ -2,6 +2,8 @@
 
 Keep pinned dependencies here until npm publishes them. Each entry records its build source and removal condition. Nothing is vendored right now.
 
+The current `xstate@6.0.0-alpha.65` and `@xstate/effect@0.1.0-alpha.7` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0` and XState `^6.0.0-alpha.65`.
+
 | Tarball | Built from | Why | Remove when |
 | ------- | ---------- | --- | ----------- |
 | (none)  |            |     |             |

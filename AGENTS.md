@@ -10,9 +10,9 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
-- Effect `4.0.0` and `@effect/platform-node` `4.0.0`
-- XState `6.0.0-alpha.63` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `0.1.0-alpha.6` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `fromEffect` actors. This pin was published to npm 2026-10-01; `vendor/README.md` keeps the rules for the next unpublished pin
+- Effect `4.0.0` and `@effect/platform-node` `4.0.0`. Hold the runtime family here until Foldkit publishes against a newer Effect; its exact peer and platform dependency must share one runtime.
+- XState `6.0.0-alpha.65` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `0.1.0-alpha.7` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `fromEffect` actors. This pin was published to npm 2026-10-08; `vendor/README.md` keeps the rules for the next unpublished pin
 - Alchemy `2.0.0-beta.81` (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.45.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
 - `@effect/vitest` `4.0.0` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error

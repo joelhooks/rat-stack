@@ -29,8 +29,8 @@ minimumReleaseAgeExclude:
   - "@effect/sql-d1@4.0.0"
   - "@effect/sql-sqlite-do@4.0.0"
   - "@effect/vitest@4.0.0"
-  - xstate@6.0.0-alpha.63
-  - "@xstate/effect@0.1.0-alpha.6"
+  - xstate@6.0.0-alpha.65
+  - "@xstate/effect@0.1.0-alpha.7"
   - "@distilled.cloud/aws@1.0.0-rc.13"
   - "@distilled.cloud/axiom@1.0.0-rc.13"
   - "@distilled.cloud/cloudflare@1.0.0-rc.13"
