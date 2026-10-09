@@ -18,7 +18,14 @@ import type {
   FailureSchemaOf,
 } from "./contract.js";
 import { implement } from "./implement.js";
-import { Sandbox, SandboxError, invokeFailure } from "./sandbox-service.js";
+import { toolDiagnostic } from "./sandbox-diagnostic.js";
+import {
+  Sandbox,
+  SandboxError,
+  SandboxDiagnostic,
+  invokeFailure,
+  sandboxRunner,
+} from "./sandbox-service.js";
 import type { Invoke, InvokeOutcome } from "./sandbox-service.js";
 import type { RequirementsOf } from "./to-toolkit.js";
 
@@ -44,8 +51,10 @@ export const ExecuteInput = Schema.Struct({
 });
 
 export const ExecuteResult = Schema.Struct({
+  diagnostic: Schema.optionalKey(Schema.NullOr(SandboxDiagnostic)),
   logs: Schema.Array(Schema.String),
   result: Schema.Json,
+  toolCalls: Schema.optionalKey(Schema.Array(Schema.String)),
 });
 
 const SearchInput = Schema.Struct({
@@ -184,8 +193,13 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
 
       return Schema.decodeUnknownEffect(item.contract.input)(input).pipe(
         Effect.matchEffect({
-          onFailure: (error) =>
-            Effect.succeed(invokeFailure("InvalidInput", error.message)),
+          onFailure: () =>
+            Effect.succeed(
+              invokeFailure(
+                "InvalidInput",
+                "Capability input does not match its schema"
+              )
+            ),
           onSuccess: (decoded) =>
             run(decoded).pipe(
               Effect.provideContext(context),
@@ -193,11 +207,15 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
                 onFailure: (error) =>
                   encodeFailure(error).pipe(
                     Effect.map((encoded): InvokeOutcome => ({
+                      diagnostic: toolDiagnostic(encoded),
                       error: encoded,
                       ok: false,
                     })),
                     Effect.orElseSucceed(() =>
-                      invokeFailure("UnencodableFailure", String(error))
+                      invokeFailure(
+                        "UnencodableFailure",
+                        "Capability failure does not match its declared schema"
+                      )
                     )
                   ),
                 onSuccess: (output) =>
@@ -207,7 +225,10 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
                       value,
                     })),
                     Effect.orElseSucceed(() =>
-                      invokeFailure("UnencodableOutput", String(output))
+                      invokeFailure(
+                        "UnencodableOutput",
+                        "Capability output does not match its declared schema"
+                      )
                     )
                   ),
               })
@@ -280,17 +301,19 @@ export const toExecuteCapability = <
 
       const sandbox = yield* Sandbox;
 
-      const run = yield* sandbox.run(
+      const run = yield* sandboxRunner(sandbox.run)(
         code,
         invoke,
         catalog.capabilities.map((entry) => entry.name)
       );
 
       return {
+        diagnostic: run.diagnostic ?? null,
         logs: run.logs,
         // SAFETY: every Sandbox implementation must JSON-round-trip a successful result before crossing this boundary.
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         result: run.result as typeof ExecuteResult.Type.result,
+        toolCalls: run.toolCalls ?? [],
       };
     })
   );

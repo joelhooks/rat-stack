@@ -4,6 +4,8 @@
 import {
   Sandbox,
   SandboxError,
+  SandboxDiagnostic,
+  sandboxRunner,
   invokeFailure,
 } from "@rat-stack/capability/sandbox";
 import type {
@@ -55,6 +57,7 @@ const GuestOutcome = Schema.Union([
     result: Schema.Unknown,
   }),
   Schema.Struct({
+    diagnostic: Schema.optional(SandboxDiagnostic),
     logs: Schema.Array(Schema.String),
     message: Schema.String,
     ok: Schema.Literal(false),
@@ -72,8 +75,15 @@ const messageOf = (cause: unknown): string =>
 const sandboxError = (
   reason: SandboxError["reason"],
   message: string,
-  logs: readonly string[] = []
-) => new SandboxError({ logs, message, reason });
+  logs: readonly string[] = [],
+  diagnostic?: typeof SandboxDiagnostic.Type
+) =>
+  new SandboxError({
+    diagnostic,
+    logs,
+    message,
+    reason,
+  });
 
 const disposeQuietly = (stub: ReleasableStub): Effect.Effect<void> =>
   Effect.try(() => stub[Symbol.dispose]?.()).pipe(Effect.ignore);
@@ -108,8 +118,8 @@ const makeRpcDispatcher = (invoke: Invoke) =>
 
           try {
             return await Effect.runPromise(this.#invoke(name, json.value));
-          } catch (error) {
-            return invokeFailure("HostDefect", messageOf(error));
+          } catch {
+            return invokeFailure("HostDefect", "Capability execution failed");
           }
         }
       }
@@ -150,6 +160,7 @@ export default class CodeExecutor extends WorkerEntrypoint {
         if (outcome.ok) return outcome.value;
         const error = new Error(outcome.error?.message ?? "capability failed");
         Object.assign(error, outcome.error);
+        Object.assign(error, { __ratDiagnostic: outcome.diagnostic });
         throw error;
       }
     });
@@ -167,6 +178,7 @@ export default class CodeExecutor extends WorkerEntrypoint {
       const message = cause instanceof Error ? cause.message : String(cause);
       return {
         ok: false,
+        diagnostic: cause?.__ratDiagnostic,
         message,
         logs,
         timeout: message === "${timeoutMessage}"
@@ -232,7 +244,17 @@ export const layerWorkerLoader = (
                       /CPU time limit|timed out/iu.test(message)
                         ? "timeout"
                         : "exited",
-                      message
+                      message,
+                      [],
+                      /SyntaxError|Unexpected token|Unexpected end/iu.test(
+                        message
+                      )
+                        ? {
+                            kind: "ParseError",
+                            message:
+                              "The program has invalid JavaScript syntax",
+                          }
+                        : undefined
                     );
                   },
                   // oxlint-disable-next-line typescript/promise-function-async -- Effect.tryPromise accepts the platform Promise directly.
@@ -264,7 +286,8 @@ export const layerWorkerLoader = (
                     outcome.timeout
                       ? `The program did not finish within ${Duration.format(timeout)}`
                       : outcome.message,
-                    outcome.logs
+                    outcome.logs,
+                    outcome.diagnostic
                   )
                 );
               })
@@ -288,5 +311,5 @@ export const layerWorkerLoader = (
     );
   };
 
-  return Layer.succeed(Sandbox, { run });
+  return Layer.succeed(Sandbox, { run: sandboxRunner(run) });
 };

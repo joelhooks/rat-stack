@@ -1,6 +1,12 @@
+import {
+  ExecuteInput,
+  ExecuteResult,
+  toExecuteCapability,
+} from "@rat-stack/capability/code-mode";
 import { defineContract } from "@rat-stack/capability/contract";
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { implement } from "@rat-stack/capability/implement";
+import { SandboxError } from "@rat-stack/capability/sandbox";
 import { AssetReadError } from "@rat-stack/core/contracts";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as AlchemyHttp from "alchemy/Http";
@@ -8,6 +14,7 @@ import { Effect, Layer, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 
+import { probe } from "../../../../packages/capability/test/fixtures/sandbox-probe.js";
 import { staticAssetGeneration } from "../../src/bundled-content.generated.js";
 import {
   contentLayer,
@@ -37,9 +44,23 @@ const assetProbe = implement(assetProbeContract, () =>
   )
 );
 
+const probeExecute = toExecuteCapability([probe]);
+
+const sandboxProbeContract = defineContract("sandboxProbe", {
+  description: "Run the shared sandbox conformance programs",
+  failure: SandboxError,
+  input: ExecuteInput,
+  output: ExecuteResult,
+});
+
+const sandboxProbe = implement(
+  sandboxProbeContract,
+  probeExecute.capability.handler
+);
+
 const projection = toHttpApi(
   "CodeModeTest",
-  [execute, search, read, assetProbe],
+  [execute, search, read, assetProbe, sandboxProbe],
   {
     prefix: "/api",
   }

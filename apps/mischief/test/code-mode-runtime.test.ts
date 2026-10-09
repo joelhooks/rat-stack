@@ -1,9 +1,11 @@
 import { expect } from "@effect/vitest";
+import { ExecuteResult } from "@rat-stack/capability/code-mode";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Test from "alchemy/Test/Vitest";
-import { Clock, Effect, FileSystem } from "effect";
+import { Clock, Effect, FileSystem, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
+import { checkSandboxConformance } from "../../../packages/capability/test/fixtures/sandbox-conformance.js";
 import { backlinks } from "../src/capabilities/index.js";
 import { nodeContentLayer } from "../src/node-content.js";
 import CodeModeWorker from "./fixtures/code-mode-worker.js";
@@ -49,6 +51,27 @@ test.provider(
       // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this local runtime boundary.
       const worker = yield* stack.deploy(CodeModeWorker).pipe(Effect.orDie);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
+
+      yield* checkSandboxConformance(
+        Effect.fn("executeConformanceProgram")(
+          function* executeConformanceProgram(code: string) {
+            const response = yield* HttpClientRequest.post(
+              new URL("/api/sandboxProbe", url)
+            ).pipe(
+              HttpClientRequest.bodyJson({ code }),
+              Effect.flatMap(HttpClient.execute),
+              Effect.orDie
+            );
+
+            expect(response.status).toBe(200);
+
+            return yield* response.json.pipe(
+              Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult)),
+              Effect.orDie
+            );
+          }
+        )
+      );
 
       const readinessStarted = yield* Clock.currentTimeMillis;
 
@@ -136,7 +159,8 @@ test.provider(
       const body = yield* response.json;
 
       expect({ body, status: response.status }).toMatchObject({ status: 200 });
-      expect(body).toEqual({
+      expect(body).toMatchObject({
+        diagnostic: null,
         logs: [],
         result: {
           links: expectedLinks,
@@ -159,6 +183,7 @@ test.provider(
           refused: "UnknownCapability",
           title: "Cartridges",
         },
+        toolCalls: ["search", "read", "backlinks", "joinInterest"],
       });
     }),
   { timeout: 120_000 }

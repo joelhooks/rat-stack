@@ -53,6 +53,7 @@ export {
 export {
   Sandbox,
   SandboxError,
+  SandboxDiagnostic,
   type Invoke,
   type InvokeOutcome,
   type SandboxRun,
