@@ -37,4 +37,4 @@ Effect tracks required services in its type. [Happy Path 116, 28:00](https://you
 
 He says this structure can keep provider implementations out of the runtime bundle. [Effect Office Hours 27, 70:55](https://youtu.be/fPSxB7ZgSJw?t=4255).
 
-See [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin).
+See [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin). See [CAFE](/lore/cafe-stack) for the stack that pairs Alchemy with Foldkit and Effect on Cloudflare.
