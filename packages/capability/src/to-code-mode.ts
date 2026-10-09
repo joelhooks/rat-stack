@@ -31,6 +31,11 @@ export const SearchMatch = Schema.Struct({
 
 export const SearchResult = Schema.Struct({
   matches: Schema.Array(SearchMatch),
+  next: Schema.optionalKey(
+    Schema.NullOr(Schema.Struct({ offset: Schema.Int }))
+  ),
+  offset: Schema.optionalKey(Schema.Int),
+  remaining: Schema.optionalKey(Schema.Int),
   total: Schema.Int,
 });
 
@@ -45,6 +50,7 @@ export const ExecuteResult = Schema.Struct({
 
 const SearchInput = Schema.Struct({
   limit: Schema.optional(Schema.Int.check(Schema.isGreaterThan(0))),
+  offset: Schema.optional(Schema.Natural),
   query: Schema.String,
 });
 
@@ -56,6 +62,25 @@ const search = Tool.make("search", {
 })
   .annotate(Tool.Readonly, true)
   .annotate(Tool.Idempotent, true);
+
+const searchPage = (
+  catalog: Catalog,
+  query: string,
+  limit: number,
+  offset: number
+) => {
+  const all = searchCatalog(catalog, query, Number.MAX_SAFE_INTEGER);
+  const matches = all.slice(offset, offset + limit);
+  const remaining = Math.max(0, all.length - offset - matches.length);
+
+  return {
+    matches,
+    next: remaining > 0 ? { offset: offset + matches.length } : null,
+    offset,
+    remaining,
+    total: catalog.capabilities.length,
+  };
+};
 
 const executeIntro =
   "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure.";
@@ -70,7 +95,7 @@ const executeDescription = (
     ...(discovery.complete
       ? []
       : [
-          "Call `search` first, or call `tools.$codemode.search({ query })` inside the program, to get full signatures for missing capabilities.",
+          "Call `search` first, or call `tools.$codemode.search({ query })` inside the program, to get full signatures for missing capabilities. Repeat the same query with `offset: next.offset` until `next` is null.",
         ]),
     ...(discovery.declarations === ""
       ? []
@@ -220,11 +245,8 @@ export const toExecuteCapability = <
       input: SearchInput,
       output: SearchResult,
     }),
-    ({ limit, query }) =>
-      Effect.succeed({
-        matches: searchCatalog(catalog, query, limit ?? 5),
-        total: catalog.capabilities.length,
-      })
+    ({ limit, offset, query }) =>
+      Effect.succeed(searchPage(catalog, query, limit ?? 5, offset ?? 0))
   );
 
   const hasApproval = capabilities.some((item) => item.contract.needsApproval);
@@ -330,14 +352,10 @@ export const toCodeMode = <
               Effect.provideService(Sandbox, sandbox),
               Effect.provideContext(context)
             ),
-        search: ({ limit, query }) => {
-          const matches = searchCatalog(catalog, query, limit ?? searchLimit);
-
-          return Effect.succeed({
-            matches,
-            total: catalog.capabilities.length,
-          });
-        },
+        search: ({ limit, offset, query }) =>
+          Effect.succeed(
+            searchPage(catalog, query, limit ?? searchLimit, offset ?? 0)
+          ),
       });
     })
   );

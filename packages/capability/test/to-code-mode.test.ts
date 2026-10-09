@@ -148,6 +148,47 @@ describe("toCodeMode", () => {
     })
   );
 
+  it.effect(
+    "search paginates externally and inside the program with the same cursor",
+    () =>
+      Effect.gen(function* paginates() {
+        const client = yield* makeMcpClient(appLayer);
+
+        const first = yield* client["tools/call"]({
+          arguments: { limit: 1, query: "" },
+          name: "search",
+        });
+
+        const last = yield* client["tools/call"]({
+          arguments: { limit: 1, offset: 1, query: "" },
+          name: "search",
+        });
+
+        const internal = yield* client["tools/call"]({
+          arguments: {
+            code: 'return await tools.$codemode.search({ query: "", limit: 1, offset: 1 });',
+          },
+          name: "execute",
+        });
+
+        expect(first.structuredContent).toMatchObject({
+          matches: [{ name: "echo" }],
+          next: { offset: 1 },
+          offset: 0,
+          remaining: 1,
+        });
+        expect(last.structuredContent).toMatchObject({
+          matches: [{ name: "greet" }],
+          next: null,
+          offset: 1,
+          remaining: 0,
+        });
+        expect(internal.structuredContent).toMatchObject({
+          result: last.structuredContent,
+        });
+      })
+  );
+
   it.effect("search returns ranked signatures", () =>
     Effect.gen(function* searches() {
       const client = yield* makeMcpClient(appLayer);

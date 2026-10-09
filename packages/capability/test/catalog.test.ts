@@ -160,7 +160,99 @@ describe("toTypeScript", () => {
 });
 
 describe("searchCatalog", () => {
-  it("ranks by name, field, then description overlap", () => {
+  it.prop(
+    "ranking is stable under catalog permutations and pages cover every match once",
+    {
+      pageSize: Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 5, minimum: 1 }))
+      ),
+      sizes: counts,
+    },
+    ({ pageSize, sizes }) => {
+      const generated = groupedCatalog(sizes);
+      const all = searchCatalog(generated, "tool", Number.MAX_SAFE_INTEGER);
+
+      const reversed = searchCatalog(
+        { ...generated, capabilities: generated.capabilities.toReversed() },
+        "tool",
+        Number.MAX_SAFE_INTEGER
+      );
+
+      const pages = Array.from(
+        { length: Math.ceil(all.length / pageSize) },
+        (_, index) =>
+          searchCatalog(generated, "tool", pageSize, index * pageSize)
+      ).flat();
+
+      expect(reversed).toEqual(all);
+      expect(pages).toEqual(all);
+      expect(new Set(pages.map((match) => match.name)).size).toBe(
+        generated.capabilities.length
+      );
+    }
+  );
+
+  it.prop(
+    "an exact path query isolates its tool regardless of competing descriptions",
+    { sizes: counts },
+    ({ sizes }) => {
+      const generated = groupedCatalog(sizes);
+
+      for (const entry of generated.capabilities) {
+        for (const query of [
+          entry.name,
+          `tools.${entry.name}`,
+          `tools[${JSON.stringify(entry.name)}]`,
+        ]) {
+          expect(
+            searchCatalog(generated, query).map((match) => match.name)
+          ).toEqual([entry.name]);
+        }
+      }
+    }
+  );
+
+  it.prop(
+    "path segment, path substring, description and input description have decreasing weights",
+    {
+      id: Arbitrary.schema(
+        Schema.Natural.check(Schema.isLessThanOrEqualTo(100))
+      ),
+    },
+    ({ id }) => {
+      const [seed] = catalog.capabilities;
+
+      if (seed === undefined) {
+        throw new Error("Catalog fixture must have an entry");
+      }
+
+      const word = `ticket${id}`;
+
+      const generated = {
+        capabilities: [
+          { ...seed, description: "", input: {}, name: `root.${word}` },
+          { ...seed, description: "", input: {}, name: `root.${word}ing` },
+          { ...seed, description: word, input: {}, name: "root.summary" },
+          {
+            ...seed,
+            description: "",
+            input: {
+              properties: { value: { description: word, type: "string" } },
+              type: "object",
+            },
+            name: "root.last",
+          },
+        ],
+        version: "1" as const,
+      };
+
+      expect(searchCatalog(generated, word).map((match) => match.name)).toEqual(
+        generated.capabilities.map((entry) => entry.name)
+      );
+    }
+  );
+
+  it("ranks by name, then description and input overlap", () => {
     const matches = searchCatalog(catalog, "greet someone by name");
 
     expect(matches[0]?.name).toBe("greet");
