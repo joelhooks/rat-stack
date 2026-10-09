@@ -1,6 +1,6 @@
 import type { SearchOutput } from "@rat-stack/core/contracts";
 
-import { Model, ReadState, SearchState } from "../src/client/model.js";
+import { Model, ReadState, SearchState } from "../src/client/docs/model.js";
 import { AppRoute } from "../src/features/route.js";
 
 export const docsHome = Model.make({

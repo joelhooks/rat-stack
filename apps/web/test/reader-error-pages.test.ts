@@ -11,8 +11,9 @@ import { compileReaderBody } from "../../mischief/scripts/reader-body-document.t
 import { documentMetadata } from "../../mischief/scripts/reader-site-inputs.ts";
 import { renderErrorPage } from "../../mischief/src/error-page.ts";
 import { ReaderErrorPage } from "../../mischief/src/reader-error-page.ts";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
-import { readerView } from "../src/features/reader.js";
+import { init } from "../src/client/reader/init.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
+import { view } from "../src/features/reader.js";
 import { ReaderErrorTemplate } from "../src/server/reader-error-template.js";
 import {
   readerErrorFlags,
@@ -89,7 +90,7 @@ it.effect.prop(
       const mischief = renderErrorPage(page, origin, true);
 
       const rendered = yield* renderToString(
-        { Flags: ReaderFlags, init: readerInit, view: readerView },
+        { Flags: ReaderFlags, init, view },
         { flags, isHydratable: false }
       );
 

@@ -2,7 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { Arbitrary, Schema } from "effect";
 
 import { ReaderBlock, ReaderInline } from "../src/client/reader-document.js";
-import { ReaderFlags } from "../src/client/reader-model.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
 it.prop(
@@ -51,6 +51,14 @@ it.prop(
     ).toThrow();
     expect(runtime).toBe(
       'var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))([]); const rat_call = "rat_test_person";'
+    );
+    expect(
+      readerCodeWithoutPageData(
+        `var readerPages = ${payload}; var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(readerPages);`,
+        prepared
+      )
+    ).toBe(
+      "var readerPages = []; var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(readerPages);"
     );
     expect(() => readerCodeWithoutPageData(code, [])).toThrow(
       "ReaderFlags payload differs"

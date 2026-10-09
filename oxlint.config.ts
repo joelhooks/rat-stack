@@ -1,5 +1,33 @@
+import foldkitRecommended from "@foldkit/oxlint-plugin/recommended.json" with { type: "json" };
 import { defineConfig } from "oxlint";
 import core from "ultracite/oxlint/core";
+
+const foldkitScope = (pattern: string) => `apps/web/src/${pattern}`;
+
+const foldkitSeverity = ([rule, severity]: readonly [string, string]) => {
+  if (severity === "error" || severity === "off") {
+    return [rule, severity] as const;
+  }
+
+  throw new Error(
+    `@foldkit/oxlint-plugin/recommended.json sets ${rule} to ${severity}. Map that severity in oxlint.config.ts before bumping the plugin.`
+  );
+};
+
+const foldkitRules = (rules: Readonly<Record<string, string>>) =>
+  Object.fromEntries(Object.entries(rules).map(foldkitSeverity));
+
+const foldkitOverrides = [
+  {
+    files: [foldkitScope("**/*.ts")],
+    rules: foldkitRules(foldkitRecommended.rules),
+  },
+  ...foldkitRecommended.overrides.map(({ excludeFiles, files, rules }) => ({
+    excludeFiles: excludeFiles?.map(foldkitScope),
+    files: files.map(foldkitScope),
+    rules: foldkitRules(rules),
+  })),
+];
 
 export default defineConfig({
   extends: [core],
@@ -38,23 +66,7 @@ export default defineConfig({
     typeAware: true,
   },
   overrides: [
-    {
-      files: ["apps/web/src/**/*.ts"],
-      rules: {
-        "foldkit/command-binding-matches-name": "error",
-        "foldkit/command-define-pascal-const": "error",
-        "foldkit/lazy-view-stable-references": "error",
-        "foldkit/mount-factory-must-use-element": "error",
-        "foldkit/no-array-index-view-keys": "error",
-        "foldkit/no-direct-submodel-state-update": "error",
-        "foldkit/no-disabling-dev-guardrails": "error",
-        "foldkit/no-duplicate-onmount-per-element": "error",
-        "foldkit/no-hand-rolled-command-struct": "error",
-        "foldkit/no-prevent-default-in-stream-operator": "error",
-        "foldkit/no-raw-dom-event-attributes": "error",
-        "foldkit/no-switch-on-message-tag": "error",
-      },
-    },
+    ...foldkitOverrides,
     {
       files: [
         "apps/*/src/features/**",

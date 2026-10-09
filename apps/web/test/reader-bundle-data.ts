@@ -1,8 +1,8 @@
 import { Schema } from "effect";
 import { parseSync } from "vite";
 
-import { ReaderFlags } from "../src/client/reader-model.js";
-import type { ReaderPageFlags } from "../src/client/reader-model.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
+import type { ReaderPageFlags } from "../src/client/reader/model.js";
 
 const pagesSchema = Schema.Array(ReaderFlags);
 
@@ -22,40 +22,62 @@ export const readerCodeWithoutPageData = (
     throw new Error("Cannot parse emitted reader bundle for the runtime scan");
   }
 
-  const spans = parsed.program.body.flatMap((statement) => {
-    if (statement.type !== "VariableDeclaration") {
+  const declarations = parsed.program.body.flatMap((statement) =>
+    statement.type === "VariableDeclaration" ? statement.declarations : []
+  );
+
+  const boundArray = (name: string) => {
+    const bound = declarations.filter(
+      (declaration) =>
+        declaration.id.type === "Identifier" && declaration.id.name === name
+    );
+
+    return bound.length === 1 && bound[0]?.init?.type === "ArrayExpression"
+      ? bound[0].init
+      : undefined;
+  };
+
+  const staticArray = (
+    argument: (typeof declarations)[number]["init"] | undefined
+  ) => {
+    if (argument?.type === "Identifier") {
+      return boundArray(argument.name);
+    }
+
+    return argument?.type === "ArrayExpression" ? argument : undefined;
+  };
+
+  const spans = declarations.flatMap((declaration) => {
+    const call = declaration.init;
+
+    if (
+      declaration.id.type !== "Identifier" ||
+      declaration.id.name !== "pages" ||
+      call?.type !== "CallExpression" ||
+      code.slice(call.callee.start, call.callee.end) !==
+        "Schema.decodeUnknownSync(Schema.Array(ReaderFlags))"
+    ) {
       return [];
     }
 
-    return statement.declarations.flatMap((declaration) => {
-      const call = declaration.init;
+    const [argument] = call.arguments;
 
-      if (
-        declaration.id.type !== "Identifier" ||
-        declaration.id.name !== "pages" ||
-        call?.type !== "CallExpression" ||
-        code.slice(call.callee.start, call.callee.end) !==
-          "Schema.decodeUnknownSync(Schema.Array(ReaderFlags))"
-      ) {
-        return [];
-      }
+    const payload =
+      call.arguments.length === 1 && argument?.type !== "SpreadElement"
+        ? staticArray(argument)
+        : undefined;
 
-      const payload = call.arguments.at(0);
+    if (payload === undefined) {
+      throw new Error("ReaderFlags payload is not one static array");
+    }
 
-      if (payload?.type !== "ArrayExpression" || call.arguments.length !== 1) {
-        throw new Error("ReaderFlags payload is not one static array");
-      }
+    const pages = decodePages(code.slice(payload.start, payload.end));
 
-      const pages = decodePages(code.slice(payload.start, payload.end));
+    if (!samePages(pages, expected)) {
+      throw new Error("ReaderFlags payload differs from the prepared artifact");
+    }
 
-      if (!samePages(pages, expected)) {
-        throw new Error(
-          "ReaderFlags payload differs from the prepared artifact"
-        );
-      }
-
-      return [{ end: payload.end, start: payload.start }];
-    });
+    return [{ end: payload.end, start: payload.start }];
   });
 
   let remaining = code;

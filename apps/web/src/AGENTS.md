@@ -13,27 +13,28 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 - Pass the typed HTML builder as the last view argument. Thread it through view helpers.
 - Keep runtime boot separate from definitions so tests can import them without starting the app.
 - Keep credentials and private data out of the Model, Messages, and Command arguments.
+- Keep browser lifecycles in Foldkit `update`. When one grows past a few states, use the `foldkit/experimental` `Machine`. Never import XState into browser code; XState machines own server, deploy, and capability lifecycles.
 
 ## Map the existing folders
 
 | Home | Responsibility |
 | --- | --- |
-| `client/model.ts` | Schema Model, Messages, read state, and search state |
-| `client/docs.ts` | Named Commands and their result Messages |
-| `client/queries.ts` | AtomRpc query service and capability transport |
+| `client/docs/model.ts` and `client/docs/message.ts` | Document browser Model, read and search state, and Messages |
+| `client/docs/command.ts` | Named Commands and their result Messages |
+| `client/docs/queries.ts` | `RpcClient` over the contract group, used by the document browser Commands |
 | `client/entry.ts` | Browser runtime boot |
 | `features/app.ts` | Pure route transitions, update, and document-browser view |
 | `features/route.ts` | Schema route union and URL parsing |
 | `features/reader*.ts` | Pure document rendering and reader controls |
-| `client/reader-model.ts` and `client/reader-message.ts` | Reader flags, clipboard Model, and Messages |
-| `client/reader-update.ts` | Pure reader transitions |
-| `client/reader-init.ts` and `client/reader-clipboard.ts` | Browser initialization and named clipboard Commands |
+| `client/reader/model.ts` and `client/reader/message.ts` | Reader flags, clipboard Model, and Messages |
+| `client/reader/update.ts` | Pure reader transitions |
+| `client/reader/init.ts` and `client/reader/command.ts` | Server and browser initialization and named clipboard Commands |
 | `server/` and `entry.server.ts` | Server rendering and RPC forwarding; never import them into browser features |
-| `website.ts` and `worker.ts` | Cloudflare composition; never import them into browser features |
+| `website.ts` | Cloudflare composition through Alchemy's `Cloudflare.Website.Foldkit`; the deployed Worker is the entry `@foldkit/vite-plugin` generates from `entry.server.ts`. Never import it into browser features |
 
-The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader-update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser has its own Model and Messages; test it through `features/app.ts` update and view.
+The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader/update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser has its own Model and Messages; test it through `features/app.ts` update and view.
 
-A feature never performs transport. It reads client state and returns named client Commands. The client owns AtomRpc and the local replica.
+A feature never performs transport. It reads the Model and sends Messages; `update` returns named Commands. A Command calls an Effect `RpcClient` built from the contracts' `toRpcGroup` and returns a result Message. Remote state lives in the Model, as Foldkit `AsyncData` or a `foldkit/experimental` `Query`. Foldkit has no Atom layer.
 
 ## Conventions checked against Foldkit 0.166.0
 

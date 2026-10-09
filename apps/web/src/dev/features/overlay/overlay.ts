@@ -4,14 +4,16 @@ import {
   ratListContracts,
 } from "@rat-stack/devtools/contracts";
 import * as stylex from "@stylexjs/stylex";
-import { Match, Schema } from "effect";
+import { Match, Option, Schema } from "effect";
 import type { Update } from "foldkit";
 import type { Html, HtmlBuilder } from "foldkit/html";
 
 import { styles } from "../../../features/chrome.stylex.js";
 import { Inspect } from "../../client/devtools.js";
-import { Message, Model } from "../../client/model.js";
-import type { InspectorMessage, InspectorModel } from "../../client/model.js";
+import { Message } from "../../client/message.js";
+import type { InspectorMessage } from "../../client/message.js";
+import { Model } from "../../client/model.js";
+import type { InspectorModel } from "../../client/model.js";
 
 export const init = () => ({
   model: Model.make({
@@ -22,7 +24,7 @@ export const init = () => ({
     input: "{}",
     open: false,
     pending: false,
-    person: null,
+    person: Option.none(),
     personName: "ada",
     tab: "calls",
     to: "1",
@@ -68,7 +70,7 @@ export const update = (
     CreatedPerson: ({ generation, personId }) => ({
       model:
         generation === model.generation
-          ? { ...model, pending: false, person: personId }
+          ? { ...model, pending: false, person: Option.some(personId) }
           : model,
     }),
     Described: () => request(model, "describe"),
@@ -96,7 +98,7 @@ export const update = (
       model.open
         ? { model: { ...model, open: false } }
         : refresh({ ...model, open: true }),
-    UsedDefaultPerson: () => ({ model: { ...model, person: null } }),
+    UsedDefaultPerson: () => ({ model: { ...model, person: Option.none() } }),
   });
 
 const CallRow = Schema.Struct({
@@ -274,9 +276,10 @@ export const view = (
       h.p(
         [],
         [
-          model.person === null
-            ? "Contracts run as the dev server's default person."
-            : `Contracts run as ${model.person}.`,
+          Option.match(model.person, {
+            onNone: () => "Contracts run as the dev server's default person.",
+            onSome: (person) => `Contracts run as ${person}.`,
+          }),
         ]
       ),
       button("Use the default person", Message.UsedDefaultPerson()),

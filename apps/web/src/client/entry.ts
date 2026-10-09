@@ -2,23 +2,23 @@ import { Runtime } from "foldkit";
 
 import { installOverlay } from "#devtools-overlay";
 
-import { readerView } from "../features/reader.js";
-import { readerBrowserInit } from "./reader-init.js";
-import { ReaderMessage } from "./reader-message.js";
-import { ReaderFlags, ReaderState } from "./reader-model.js";
-import { readerUpdate } from "./reader-update.js";
+import { view } from "../features/reader.js";
+import { browserInit } from "./reader/init.js";
+import { Message } from "./reader/message.js";
+import { Model, ReaderFlags } from "./reader/model.js";
+import { update } from "./reader/update.js";
 
 import "../../../mischief/src/rat.css";
 import "./reader.css";
 
 const application = Runtime.makeApplication({
   Flags: ReaderFlags,
-  Model: ReaderState,
+  Model,
   container: document.querySelector("#root"),
-  devTools: import.meta.env.DEV ? { Message: ReaderMessage } : false,
-  init: readerBrowserInit,
-  update: readerUpdate,
-  view: readerView,
+  devTools: import.meta.env.DEV ? { Message } : false,
+  init: browserInit,
+  update,
+  view,
 });
 
 installOverlay();

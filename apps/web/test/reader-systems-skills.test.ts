@@ -1,6 +1,6 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Schema } from "effect";
+import { Effect, FileSystem, Option, Schema } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { renderToString } from "foldkit/experimental/server";
@@ -16,8 +16,9 @@ import {
   footerSemantics,
   mainSemantics,
 } from "../../mischief/test/reader-semantics.ts";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
-import { readerView } from "../src/features/reader.js";
+import { init } from "../src/client/reader/init.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
+import { view } from "../src/features/reader.js";
 
 it.effect(
   "ReaderSiteParity preserves every systems and skills main, table and deep link",
@@ -39,7 +40,7 @@ it.effect(
         const page = yield* Schema.decodeUnknownEffect(ReaderFlags)(input);
 
         const rendered = yield* renderToString(
-          { Flags: ReaderFlags, init: readerInit, view: readerView },
+          { Flags: ReaderFlags, init, view },
           { flags: page, isHydratable: false }
         );
 
@@ -61,12 +62,12 @@ it.effect(
 
         if (page.page.path.startsWith("/skills/")) {
           expect(page.page.sourcePath).toMatch(/^skills\/[^/]+\/SKILL\.md$/u);
-          expect(page.breadcrumb?.href).toBe("/skills");
+          expect(Option.getOrUndefined(page.breadcrumb)?.href).toBe("/skills");
         }
 
         if (page.page.path.startsWith("/systems/")) {
           expect(page.page.sourcePath).toMatch(/^\.brain\/areas\/[^/]+\.svx$/u);
-          expect(page.breadcrumb?.href).toBe("/systems");
+          expect(Option.getOrUndefined(page.breadcrumb)?.href).toBe("/systems");
 
           const headings = mainSemantics(rendered.html).headings.map(
             (heading) => heading.text

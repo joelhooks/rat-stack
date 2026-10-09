@@ -11,8 +11,8 @@ import {
   type,
 } from "foldkit/scene";
 
-import { SearchDocs } from "../src/client/docs.js";
-import { Message } from "../src/client/model.js";
+import { SearchDocs } from "../src/client/docs/command.js";
+import { Message } from "../src/client/docs/message.js";
 import { update, view } from "../src/features/app.js";
 import { docsHome, docsResult } from "./docs-fixture.js";
 

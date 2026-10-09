@@ -1,6 +1,6 @@
 import { Effect, Schema } from "effect";
 
-import { ReaderFlags } from "../../web/src/client/reader-model.js";
+import { ReaderFlags } from "../../web/src/client/reader/model.js";
 import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
   compileReaderBody,

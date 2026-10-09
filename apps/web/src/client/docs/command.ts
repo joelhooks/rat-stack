@@ -3,7 +3,7 @@ import { Effect, Schema } from "effect";
 import { Command } from "foldkit";
 import { load, pushUrl } from "foldkit/navigation";
 
-import { Message } from "./model.js";
+import { Message } from "./message.js";
 import { DocumentQueries } from "./queries.js";
 
 export const SearchDocs = Command.define("SearchDocs", {

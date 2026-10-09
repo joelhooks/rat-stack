@@ -9,10 +9,11 @@ import {
 } from "../../mischief/scripts/reader-body-document.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
-import { ReaderFlags, readerInit } from "../src/client/reader-model.js";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
-import { readerView } from "../src/features/reader.js";
+import { init } from "../src/client/reader/init.js";
+import { ReaderFlags } from "../src/client/reader/model.js";
+import { view } from "../src/features/reader.js";
 
 const normalizedNodes = (
   nodes: readonly ReaderNodeValue[]
@@ -81,7 +82,7 @@ it.effect(
           );
 
           const rendered = yield* renderToString(
-            { Flags: ReaderFlags, init: readerInit, view: readerView },
+            { Flags: ReaderFlags, init, view },
             { flags: page, isHydratable: false }
           );
 

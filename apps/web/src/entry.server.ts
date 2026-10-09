@@ -12,9 +12,10 @@ import {
   ReaderErrorPage,
   readerErrorPath,
 } from "../../mischief/src/reader-error-page.js";
-import { ReaderFlags, readerInit } from "./client/reader-model.js";
 import { pages } from "./client/reader-pages.js";
-import { readerView } from "./features/reader.js";
+import { init } from "./client/reader/init.js";
+import { ReaderFlags } from "./client/reader/model.js";
+import { view } from "./features/reader.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
@@ -110,7 +111,7 @@ const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
     }
 
     const application = yield* renderToString(
-      { Flags: ReaderFlags, init: readerInit, view: readerView },
+      { Flags: ReaderFlags, init, view },
       { flags: readerErrorFlags(errorTemplate, errorPage.value) }
     );
 
@@ -182,18 +183,23 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
     ) {
       return yield* responded(
         request,
-        new Response(request.method === "HEAD" ? null : page.agentMarkdown, {
-          headers: {
-            "Content-Type": "text/markdown; charset=utf-8",
-            Vary: "Accept",
-          },
-          status: page.page.status,
-        })
+        new Response(
+          request.method === "HEAD"
+            ? null
+            : Option.getOrNull(page.agentMarkdown),
+          {
+            headers: {
+              "Content-Type": "text/markdown; charset=utf-8",
+              Vary: "Accept",
+            },
+            status: page.page.status,
+          }
+        )
       );
     }
 
     const application = yield* renderToString(
-      { Flags: ReaderFlags, init: readerInit, view: readerView },
+      { Flags: ReaderFlags, init, view },
       { flags: page }
     );
 
