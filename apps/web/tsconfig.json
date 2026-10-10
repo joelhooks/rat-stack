@@ -13,6 +13,8 @@
           "effect/http/HttpRouter",
           "effect/http/HttpServerRequest",
           "effect/http/HttpServerResponse",
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner",
           "effect/rpc/RpcClient",
           "effect/rpc/RpcSerialization",
           "effect/rpc/RpcServer"

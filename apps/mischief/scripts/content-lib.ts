@@ -228,7 +228,7 @@ export interface LorePageMetadata {
   readonly url?: string;
 }
 
-const loreFrontmatterSchema = Schema.Struct({
+export const loreFrontmatterSchema = Schema.Struct({
   card: Schema.optional(Schema.String),
   date: Schema.optional(Schema.String),
   description: Schema.String,

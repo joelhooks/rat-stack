@@ -39,6 +39,8 @@ const forbiddenModules = [
   "src/dev/",
   "../../packages/devtools/",
   "../../packages/auth/src/devtools",
+  "@foldkit/markdown",
+  "@foldkit+markdown@",
   "htmlparser2",
   "code-snippets",
   "shiki",

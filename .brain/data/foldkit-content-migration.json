@@ -1,0 +1,248 @@
+{
+  "compiled": 162,
+  "componentPages": [
+    {
+      "components": ["CopyPrompt"],
+      "sourcePath": ".brain/resources/learn-mode.svx"
+    },
+    {
+      "components": ["HumanOnly"],
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "components": ["Diagram"],
+      "sourcePath": ".brain/resources/lore/code-snippets.svx"
+    },
+    {
+      "components": ["HumanOnly", "AgentOnly"],
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "components": ["PeerPins", "PeerRoster", "PeersAlsoSeen", "PeerSources"],
+      "sourcePath": ".brain/resources/peers.svx"
+    }
+  ],
+  "diffs": [],
+  "dryRun": true,
+  "failedPages": 4,
+  "failures": [
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "task list",
+      "line": 68,
+      "repair": "Hand-map task state to an approved island; Foldkit has no task-list node.",
+      "sourcePath": ".brain/projects/layer-startups.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "task list",
+      "line": 72,
+      "repair": "Hand-map task state to an approved island; Foldkit has no task-list node.",
+      "sourcePath": ".brain/projects/layer-startups.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "task list",
+      "line": 73,
+      "repair": "Hand-map task state to an approved island; Foldkit has no task-list node.",
+      "sourcePath": ".brain/projects/layer-startups.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "task list",
+      "line": 74,
+      "repair": "Hand-map task state to an approved island; Foldkit has no task-list node.",
+      "sourcePath": ".brain/projects/layer-startups.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "task list",
+      "line": 75,
+      "repair": "Hand-map task state to an approved island; Foldkit has no task-list node.",
+      "sourcePath": ".brain/projects/layer-startups.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figure>",
+      "line": 59,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <img>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figcaption>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figcaption>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figure>",
+      "line": 62,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/cartridges.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figure>",
+      "line": 59,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <img>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 60,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figcaption>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <a>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figcaption>",
+      "line": 61,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "raw HTML or unknown component <figure>",
+      "line": 62,
+      "repair": "Hand-map the complete construct to an approved typed island; scripts and arbitrary HTML are not migrated.",
+      "sourcePath": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx"
+    },
+    {
+      "_tag": "ContentMigrationIssue",
+      "construct": "Svelte expression",
+      "line": 91,
+      "repair": "Replace the expression with sourced Markdown or an approved typed island.",
+      "sourcePath": ".brain/resources/lore/structure-effect-by-domain.svx"
+    }
+  ],
+  "frontmatter": "Pre-split nested YAML and decode with Effect Schema; retain raw YAML separately from the Foldkit MarkdownDocument.",
+  "representation": "Compare the old component renderer with agent Markdown folded from the new Document, not copied from the old output. This is source-body parity; public route enrichment needs a separate cutover proof.",
+  "roundTripDiffCount": 0,
+  "total": 166,
+  "version": 1,
+  "handPage": {
+    "path": "/lore/services-capture-dependencies",
+    "fixture": "apps/web/test/fixtures/content-migration/services-capture-dependencies.md",
+    "bytes": 16427,
+    "matchesGenerated": true,
+    "matchesLive": true,
+    "sources": 6,
+    "terms": 2,
+    "formatterFenceBlankLines": 2
+  },
+  "mutation": {
+    "change": "Drop first island attribute character",
+    "result": "Property failed on first run",
+    "restored": true
+  },
+  "writtenCandidates": 0,
+  "handMapped": 1
+}

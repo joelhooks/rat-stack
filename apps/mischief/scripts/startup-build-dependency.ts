@@ -8,6 +8,8 @@ export class StartupBuildDependency extends Schema.TaggedError<StartupBuildDepen
 export const assertBuildOnlyModules = (modules: readonly string[]) => {
   const forbidden = modules.filter(
     (module) =>
+      module.includes("/@foldkit/markdown/") ||
+      module.includes("/@foldkit+markdown@") ||
       module.includes("/code-snippets/") ||
       module.includes("/shiki/") ||
       module.includes("/shiki@") ||

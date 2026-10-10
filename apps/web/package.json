@@ -37,6 +37,7 @@
     "@effect/platform-node": "4.0.0",
     "@effect/vitest": "4.0.0",
     "@foldkit/devtools": "0.167.0",
+    "@foldkit/markdown": "0.14.2",
     "@foldkit/vite-plugin": "0.27.0",
     "@stylexjs/unplugin": "0.19.1",
     "@types/node": "24.13.6",
