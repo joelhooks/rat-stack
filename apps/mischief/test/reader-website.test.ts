@@ -31,6 +31,11 @@ const pathSchema = Schema.Union([
     "//unconverted",
     "//assets/x.js",
     "/assets/main-abc123.js",
+    "/rpc",
+    "/rpc/",
+    "/rpc/search",
+    "/rpcx",
+    "/rpc.json",
   ]),
   Schema.String,
 ]);
@@ -46,6 +51,24 @@ const acceptSchema = Schema.Literals([
   "application/json",
   "",
 ]);
+
+const bodyMethodSchema = Schema.Literals([
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "OPTIONS",
+]);
+
+const methodSchema = Schema.Union([
+  Schema.Literals(["GET", "HEAD"]),
+  bodyMethodSchema,
+]);
+
+const carriesBody = Schema.is(bodyMethodSchema);
+
+const isRpcPath = (pathname: string) =>
+  pathname === "/rpc" || pathname.startsWith("/rpc/");
 
 const userAgentSchema = Schema.Literals([
   "",
@@ -66,14 +89,17 @@ const serverRequest = (path: string, accept: string, userAgent = "") =>
 const website = {
   // oxlint-disable-next-line typescript/promise-function-async -- The service binding stub returns Cloudflare's native Promise.
   fetch: (request: Request) =>
-    Promise.resolve(
-      new Response("Foldkit", {
-        headers: {
-          "x-forwarded-accept": request.headers.get("accept") ?? "",
-          "x-forwarded-url": request.url,
-        },
-        status: 201,
-      })
+    request.text().then(
+      (body) =>
+        new Response("Foldkit", {
+          headers: {
+            "x-forwarded-accept": request.headers.get("accept") ?? "",
+            "x-forwarded-body": body,
+            "x-forwarded-method": request.method,
+            "x-forwarded-url": request.url,
+          },
+          status: 201,
+        })
     ),
 };
 
@@ -94,16 +120,28 @@ const route = withReaderWebsite(
 );
 
 it.effect.prop(
-  "forwards allow-listed pages exactly when Mischief would answer HTML, plus Website assets",
-  { accept: acceptSchema, path: pathSchema, userAgent: userAgentSchema },
-  ({ accept, path, userAgent }) =>
+  "forwards allow-listed pages exactly when Mischief would answer HTML, plus Website assets and every RPC call intact",
+  {
+    accept: acceptSchema,
+    method: methodSchema,
+    path: pathSchema,
+    userAgent: userAgentSchema,
+  },
+  ({ accept, method, path, userAgent }) =>
     Effect.gen(function* checkRouting() {
       const url = new URL("https://ratstack.sh");
       url.pathname = path.startsWith("/") ? path : `/${path}`;
 
-      const request = new Request(url, {
-        headers: { accept, "user-agent": userAgent },
-      });
+      const headers = { accept, "user-agent": userAgent };
+
+      const body = `[${method.toLowerCase()}]`;
+
+      const init = { headers, method };
+
+      const request = new Request(
+        url,
+        carriesBody(method) ? { ...init, body } : init
+      );
 
       const actualPath = new URL(request.url).pathname;
 
@@ -119,8 +157,11 @@ it.effect.prop(
 
       const asset = actualPath.startsWith("/assets/");
 
+      const rpc = isRpcPath(actualPath);
+
       const expected =
         asset ||
+        rpc ||
         (readerPath && acceptsHtml(HttpServerRequest.fromWeb(request)));
 
       const response = yield* route.pipe(
@@ -137,10 +178,17 @@ it.effect.prop(
 
       if (expected) {
         expect(response.headers["x-forwarded-url"]).toBe(request.url);
-        expect(response.headers.vary).toContain("Accept");
-        expect(response.headers["x-forwarded-accept"]).toBe(
-          asset ? accept : "text/html"
+        expect(response.headers["x-forwarded-method"]).toBe(method);
+        expect(response.headers["x-forwarded-body"]).toBe(
+          carriesBody(method) ? body : ""
         );
+        expect(response.headers["x-forwarded-accept"]).toBe(
+          asset || rpc ? accept : "text/html"
+        );
+      }
+
+      if (expected && !rpc) {
+        expect(response.headers.vary).toContain("Accept");
       }
     })
 );
@@ -169,6 +217,37 @@ it.effect("keeps the reader, asset, and agent seams separate", () =>
       expect(response.status).toBe(expected);
     }
   })
+);
+
+it.effect(
+  "a browser search POST /rpc reaches the Website with its JSON body",
+  () =>
+    Effect.gen(function* checkRpcSeam() {
+      const body = JSON.stringify({ query: "cartridge" });
+
+      const response = yield* route.pipe(
+        Effect.provideService(
+          HttpServerRequest.HttpServerRequest,
+          HttpServerRequest.fromWeb(
+            new Request("https://ratstack.sh/rpc", {
+              body,
+              headers: {
+                accept: "application/json",
+                "content-type": "application/json",
+              },
+              method: "POST",
+            })
+          )
+        )
+      );
+
+      expect(response.status).toBe(201);
+      expect(response.headers["x-mischief"]).toBeUndefined();
+      expect(response.headers["x-forwarded-method"]).toBe("POST");
+      expect(response.headers["x-forwarded-accept"]).toBe("application/json");
+      expect(response.headers["x-forwarded-body"]).toBe(body);
+      expect(response.headers["x-content-type-options"]).toBe("nosniff");
+    })
 );
 
 it.prop(
@@ -200,6 +279,7 @@ it.effect(
         ["/mcp", "text/html", ["/", "/assets/*"]],
         ["/", "text/html", []],
         ["/assets/x.js", "*/*", []],
+        ["/rpc", "application/json", []],
       ] as const) {
         const request = new Request(`https://ratstack.sh${path}`, {
           headers: { accept },

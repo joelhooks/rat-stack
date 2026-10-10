@@ -3,6 +3,7 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { acceptsHtml } from "./negotiation.js";
+import { readerContentSecurityPolicy, secureResponse } from "./security.js";
 import type { AssetBinding } from "./static-assets.js";
 
 export const readerWebsiteRoutes: readonly string[] = [
@@ -35,6 +36,8 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/systems/*",
   "/skills",
   "/skills/*",
+  "/rpc",
+  "/rpc/*",
 ];
 
 export const isReaderWebsiteRoute = (
@@ -47,13 +50,34 @@ export const isReaderWebsiteRoute = (
       : pathname === route
   );
 
+export type ReaderWebsiteTarget = "asset" | "mischief" | "page" | "rpc";
+
+export const readerWebsiteTarget = (
+  pathname: string,
+  wantsHtml: boolean,
+  routes: readonly string[] = readerWebsiteRoutes
+): ReaderWebsiteTarget => {
+  if (!isReaderWebsiteRoute(pathname, routes)) {
+    return "mischief";
+  }
+
+  if (pathname === "/rpc" || pathname.startsWith("/rpc/")) {
+    return "rpc";
+  }
+
+  if (pathname.startsWith("/assets/")) {
+    return "asset";
+  }
+
+  return wantsHtml ? "page" : "mischief";
+};
+
 export const forwardsToReaderWebsite = (
   request: HttpServerRequest.HttpServerRequest,
   pathname: string,
   routes: readonly string[] = readerWebsiteRoutes
 ): boolean =>
-  isReaderWebsiteRoute(pathname, routes) &&
-  (pathname.startsWith("/assets/") || acceptsHtml(request));
+  readerWebsiteTarget(pathname, acceptsHtml(request), routes) !== "mischief";
 
 export type ReaderResponseHeaders = (
   pagePath: string,
@@ -73,7 +97,13 @@ export const withReaderWebsite =
       const request = yield* HttpServerRequest.HttpServerRequest;
       const { pathname } = new URL(request.originalUrl, "https://ratstack.sh");
 
-      if (!forwardsToReaderWebsite(request, pathname, routes)) {
+      const target = readerWebsiteTarget(
+        pathname,
+        acceptsHtml(request),
+        routes
+      );
+
+      if (target === "mischief") {
         return yield* fallback;
       }
 
@@ -83,9 +113,20 @@ export const withReaderWebsite =
         Effect.orDie
       );
 
+      if (target === "rpc") {
+        const rpcResponse = yield* Effect.promise(
+          binding.fetch.bind(binding, original)
+        );
+
+        return secureResponse(
+          HttpServerResponse.fromWeb(rpcResponse),
+          readerContentSecurityPolicy
+        );
+      }
+
       const forwardedHeaders = new Headers(original.headers);
 
-      if (!pathname.startsWith("/assets/")) {
+      if (target === "page") {
         forwardedHeaders.set("accept", "text/html");
       }
 
