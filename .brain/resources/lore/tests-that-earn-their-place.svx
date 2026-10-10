@@ -91,6 +91,7 @@ Use `it.live` for an integration test that needs live runtime services.
 | One interface between components | An integration example with supplied services |
 | A rule over many inputs | `it.prop` or `it.effect.prop` |
 | State that depends on earlier actions | A model checked after generated commands |
+| UI behaviour, timers, and races | A [Foldkit Scene](/lore/ui-behaviour-is-a-scene) |
 
 Generated inputs do not create the assertion. The test still needs an independent statement of correct behavior.
 
@@ -136,6 +137,6 @@ Keep the counterexample or missing assertion that explains the behavior gap.
 - In rat-stack, no manual Effect runtime in tests. Prefer properties and models; prove new properties with planted violations.
 - Live-provider behavior needs separate proof for each cartridge.
 
-See also: [properties](/lore/property-based-testing), [models](/lore/model-based-testing), [exploration](/lore/agents-explore-tests-remember), and [the fence](/lore/the-fence).
+See also: [properties](/lore/property-based-testing), [models](/lore/model-based-testing), [scenes](/lore/ui-behaviour-is-a-scene), [exploration](/lore/agents-explore-tests-remember), and [the fence](/lore/the-fence).
 
 Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

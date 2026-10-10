@@ -1086,5 +1086,23 @@
       "participants": 1
     },
     "topReplies": []
+  },
+  {
+    "kind": "post",
+    "url": "https://x.com/devinjameson/status/2108710271417999544",
+    "title": "A Foldkit Scene test for the Foldkit UI Toast",
+    "summary": "Devin Jameson walks through a Scene that swipes a toast a short way and checks it settles back instead of dismissing.",
+    "date": "2026-10-10",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "source": "https://x.com/devinjameson/status/2108710271417999544",
+    "engagement": {
+      "likes": 27,
+      "replies": 4,
+      "views": 628
+    }
   }
 ]
