@@ -1,5 +1,5 @@
 import { ReadOutput, SearchOutput } from "@rat-stack/core/contracts";
-import { Schema } from "effect";
+import { Option, Schema } from "effect";
 import { defineTaggedUnion } from "foldkit/schema";
 
 import { AppRoute } from "../../features/route.js";
@@ -27,3 +27,11 @@ export const Model = Schema.Struct({
 });
 
 export type AppModel = typeof Model.Type;
+
+export const initialModel: AppModel = {
+  generation: 0,
+  query: "",
+  read: ReadState.Idle(),
+  route: AppRoute.Search({ q: Option.none() }),
+  search: SearchState.Idle(),
+};

@@ -9,6 +9,7 @@ import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
+import { readerSearchFlags } from "../../mischief/scripts/reader-search-flags.ts";
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
@@ -76,6 +77,7 @@ const readerPages = Effect.gen(function* readerPages() {
   const systemsSkills = yield* readerSystemsSkillsFlags(origin);
 
   const cafe = yield* readerCafeFlags(origin);
+  const search = yield* readerSearchFlags(origin);
 
   const pages = [
     home,
@@ -83,6 +85,7 @@ const readerPages = Effect.gen(function* readerPages() {
     learn,
     ...prompts,
     ...cafe,
+    search,
     ...systemsSkills,
     ...bodies,
   ];

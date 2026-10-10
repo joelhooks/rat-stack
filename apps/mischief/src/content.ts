@@ -91,6 +91,7 @@ The fence is the compiler checks, lint rules, and hooks that reject prohibited c
 - [Code mode](${origin}/api/execute): run a program instead of several calls; POST JSON with a \`code\` string, or call the MCP \`execute\` tool
 - [CAFE news](${origin}/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
 - [CAFE directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool
+- [Docs search](${origin}/search): search the rules, lore, skills, and prompts in a browser; \`?q=\` opens a query; agents call the \`search\` and \`read\` tools
 
 ## Connect with MCP
 

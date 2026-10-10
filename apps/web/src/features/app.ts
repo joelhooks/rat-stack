@@ -1,35 +1,50 @@
 import { Button, Input } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
 import { Option, Schema } from "effect";
-import type { Runtime, Update } from "foldkit";
-import type { Document, Html, HtmlBuilder } from "foldkit/html";
+import { Submodel } from "foldkit";
+import type { Update } from "foldkit";
+import type { Html, HtmlBuilder } from "foldkit/html";
 import { UrlRequest } from "foldkit/navigation";
 import { toString as urlToString } from "foldkit/url";
+import type { Url } from "foldkit/url";
 
 import {
   LoadExternal,
   Navigate,
   ReadDoc,
+  ReadLocation,
+  ReplaceUrl,
   SearchDocs,
 } from "../client/docs/command.js";
 import { Message } from "../client/docs/message.js";
 import type { AppMessage } from "../client/docs/message.js";
-import { ReadState, SearchState } from "../client/docs/model.js";
+import { initialModel, ReadState, SearchState } from "../client/docs/model.js";
 import type { AppModel } from "../client/docs/model.js";
 import type { DocumentQueries } from "../client/docs/queries.js";
-import { styles } from "./chrome.stylex.js";
-import { AppRoute, homeRouter, parseRoute, readRouter } from "./route.js";
+import { resultCount, searchCopy } from "./docs-copy.js";
+import { docsStyles } from "./docs.stylex.js";
+import { AppRoute, docsSearchRouter, parseRoute } from "./route.js";
 import type { AppRouteState } from "./route.js";
+import { agentGuideRouter } from "./site-route.js";
 
-const enterRoute = (
-  model: AppModel,
-  route: AppRouteState
-): Update.Return<AppModel, AppMessage, DocumentQueries> => {
+type DocsReturn = Update.Return<AppModel, AppMessage, DocumentQueries>;
+
+const className = (style: stylex.StyleXStyles) =>
+  stylex.props(style).className ?? "";
+
+const searchFor = (model: AppModel, query: string): DocsReturn => {
   const generation = model.generation + 1;
 
+  return {
+    commands: [SearchDocs({ generation, query })],
+    model: { ...model, generation, query, search: SearchState.Loading() },
+  };
+};
+
+const enterRoute = (model: AppModel, route: AppRouteState): DocsReturn => {
   const next = {
     ...model,
-    generation,
+    generation: model.generation + 1,
     read: ReadState.Idle(),
     route,
     search: Schema.is(SearchState.Loading)(model.search)
@@ -37,67 +52,55 @@ const enterRoute = (
       : model.search,
   };
 
-  if (!Schema.is(AppRoute.Read)(route)) {
-    return { model: next };
-  }
+  return AppRoute.match<DocsReturn>(route, {
+    NotFound: () => ({ model: next }),
+    Read: ({ id }) =>
+      id.trim().length === 0
+        ? {
+            model: {
+              ...next,
+              read: ReadState.Failed({
+                message: "No document was selected.",
+                notFound: false,
+              }),
+            },
+          }
+        : {
+            commands: [ReadDoc({ generation: next.generation, id })],
+            model: { ...next, read: ReadState.Loading() },
+          },
+    Search: ({ q }) => {
+      const query = Option.getOrElse(q, () => "").trim();
 
-  const id = Option.getOrElse(route.id, () => "");
-
-  if (id.length === 0) {
-    return {
-      model: {
-        ...next,
-        read: ReadState.Failed({
-          message: "No document was selected.",
-          notFound: false,
-        }),
-      },
-    };
-  }
-
-  return {
-    commands: [ReadDoc({ generation, id })],
-    model: { ...next, read: ReadState.Loading() },
-  };
+      return query.length === 0
+        ? { model: next }
+        : searchFor({ ...next, generation: model.generation }, query);
+    },
+  });
 };
 
-export const init: Runtime.RoutingApplicationInit<
-  AppModel,
-  AppMessage,
-  void,
-  DocumentQueries
-> = (url) =>
-  enterRoute(
-    {
-      generation: 0,
-      query: "capability",
-      read: ReadState.Idle(),
-      route: AppRoute.Home(),
-      search: SearchState.Idle(),
-    },
-    parseRoute(url)
-  );
+export const init = (url: Url): DocsReturn =>
+  enterRoute(initialModel, parseRoute(url));
 
-export const update = (
-  model: AppModel,
-  message: AppMessage
-): Update.Return<AppModel, AppMessage, DocumentQueries> =>
-  Message.match<Update.Return<AppModel, AppMessage, DocumentQueries>>(message, {
+export const boot: DocsReturn = {
+  commands: [ReadLocation()],
+  model: initialModel,
+};
+
+export const update = (model: AppModel, message: AppMessage): DocsReturn =>
+  Message.match<DocsReturn>(message, {
     ChangedUrl: ({ url }) => enterRoute(model, parseRoute(url)),
     ClickedLink: ({ request }) =>
-      UrlRequest.match<Update.Return<AppModel, AppMessage, DocumentQueries>>(
-        request,
-        {
-          External: ({ href }) => ({
-            commands: [LoadExternal({ href })],
-            model,
-          }),
-          Internal: ({ url }) => ({
-            commands: [Navigate({ url: urlToString(url) })],
-            model,
-          }),
-        }
-      ),
+      UrlRequest.match<DocsReturn>(request, {
+        External: ({ href }) => ({
+          commands: [LoadExternal({ href })],
+          model,
+        }),
+        Internal: ({ url }) => ({
+          commands: [Navigate({ url: urlToString(url) })],
+          model,
+        }),
+      }),
     CompletedLoadExternal: () => ({ model }),
     CompletedNavigate: () => ({ model }),
     FailedRead: ({ generation, message: error, notFound }) => ({
@@ -119,11 +122,14 @@ export const update = (
         return { model };
       }
 
-      const generation = model.generation + 1;
+      const searched = searchFor(model, query);
 
       return {
-        commands: [SearchDocs({ generation, query })],
-        model: { ...model, generation, query, search: SearchState.Loading() },
+        commands: [
+          ...(searched.commands ?? []),
+          ReplaceUrl({ url: docsSearchRouter({ q: Option.some(query) }) }),
+        ],
+        model: searched.model,
       };
     },
     SucceededRead: ({ generation, document }) => ({
@@ -145,37 +151,22 @@ const searchResults = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
   SearchState.match<Html>(model.search, {
     Failed: () =>
       h.p([h.Role("alert")], ["Search failed. Try again in a moment."]),
-    Idle: () =>
-      h.p([h.Class("status")], ["Search the docs to see matching resources."]),
+    Idle: () => h.p([], ["Matches appear here."]),
     Loaded: ({ result }) =>
       h.div(
         [],
         [
-          h.p(
-            [],
-            [`${result.total} ${result.total === 1 ? "result" : "results"}`]
-          ),
+          h.p([], [resultCount(result.total)]),
           h.ul(
-            [h.Class("result-list")],
+            [h.Class(className(docsStyles.results))],
             result.matches.map((match) =>
               h.li(
-                [h.Class("result-card"), h.Key(match.id)],
+                [h.Key(match.id), h.Class(className(docsStyles.match))],
                 [
+                  h.h2([], [h.a([h.Href(match.routePath)], [match.title])]),
                   h.p(
-                    [h.Class("result-meta")],
+                    [h.Class(className(docsStyles.meta))],
                     [`${match.kind} · ${match.routePath}`]
-                  ),
-                  h.h2(
-                    [],
-                    [
-                      h.a(
-                        [
-                          h.Class(stylex.props(styles.focus).className ?? ""),
-                          h.Href(readRouter({ id: Option.some(match.id) })),
-                        ],
-                        [match.title]
-                      ),
-                    ]
                   ),
                   h.p([], [match.description]),
                   h.p([], [match.excerpt]),
@@ -185,55 +176,56 @@ const searchResults = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
           ),
         ]
       ),
-    Loading: () => h.p([h.Class("status")], ["Searching the docs…"]),
+    Loading: () => h.p([], ["Searching the docs…"]),
   });
 
 const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
-  h.main(
-    [h.Class("page")],
+  h.section(
+    [h.AriaLabel(searchCopy.heading)],
     [
-      h.p([h.Class("eyebrow")], ["Reference docs"]),
-      h.h1([], ["Find the rule or skill you need."]),
       h.p(
         [],
         [
-          "Search rat-stack's law and skills. Open a result to read the exact source.",
+          `${searchCopy.intro} `,
+          h.a([h.Href(agentGuideRouter())], ["The agent guide"]),
+          ` ${searchCopy.agents}`,
         ]
       ),
-      h.form(
-        [h.Class("search-form"), h.OnSubmit(Message.SubmittedSearch())],
+      h.noscript([], [searchCopy.noscript]),
+      h.div(
+        [h.Class(className(docsStyles.form)), h.Role("search")],
         [
           h.label(
             [h.For("docs-query"), h.Class("visually-hidden")],
-            ["Search the docs"]
+            [searchCopy.heading]
           ),
           Input.view(
             {
               id: "docs-query",
-              name: "query",
+              name: "q",
               onInput: (value) => Message.UpdatedQuery({ value }),
               placeholder: "Try ‘capability’ or ‘Effect’",
               toView: ({ input }) =>
                 h.input([
                   ...input,
-                  h.Class(stylex.props(styles.focus).className ?? ""),
+                  h.Class(className(docsStyles.input)),
                   h.Autocomplete("off"),
+                  h.OnKeyDownPreventDefault((key) =>
+                    key === "Enter"
+                      ? Option.some(Message.SubmittedSearch())
+                      : Option.none()
+                  ),
                 ]),
+              type: "text",
               value: model.query,
             },
             h
           ),
           Button.view(
             {
-              toView: ({ button }) =>
-                h.button(
-                  [
-                    ...button,
-                    h.Class(stylex.props(styles.focus).className ?? ""),
-                  ],
-                  ["Search"]
-                ),
-              type: "submit",
+              onClick: Message.SubmittedSearch(),
+              toView: ({ button }) => h.button(button, ["Search"]),
+              type: "button",
             },
             h
           ),
@@ -241,6 +233,7 @@ const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
       ),
       h.section(
         [
+          h.AriaLabel("Matches"),
           h.AriaLive("polite"),
           h.AriaBusy(Schema.is(SearchState.Loading)(model.search)),
         ],
@@ -249,24 +242,21 @@ const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
     ]
   );
 
+const backToSearch = (h: HtmlBuilder<AppMessage>, label: string) =>
+  h.p([], [h.a([h.Href(docsSearchRouter({ q: Option.none() }))], [label])]);
+
 const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
-  h.main(
-    [h.Class("page")],
+  h.section(
+    [h.AriaLabel("Document")],
     [
-      h.a(
-        [
-          h.Class(stylex.props(styles.focus).className ?? ""),
-          h.Href(homeRouter()),
-        ],
-        ["← Back to search"]
-      ),
+      backToSearch(h, "← Back to search"),
       ReadState.match<Html>(model.read, {
         Failed: ({ message, notFound }) =>
           h.div(
             [],
             [
-              h.p(
-                [h.Class("eyebrow")],
+              h.h2(
+                [],
                 [notFound ? "Document not found" : "Document unavailable"]
               ),
               h.p([h.Role("alert")], [message]),
@@ -277,13 +267,20 @@ const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
           h.article(
             [],
             [
+              h.h2([], [document.title]),
               h.p(
-                [h.Class("eyebrow")],
+                [h.Class(className(docsStyles.meta))],
                 [`${document.kind} · ${document.routePath}`]
               ),
-              h.h1([], [document.title]),
               h.p([], [document.description]),
-              h.pre([h.Class("document-text")], [document.text]),
+              h.p(
+                [],
+                [h.a([h.Href(document.routePath)], ["Open the full page"])]
+              ),
+              h.pre(
+                [h.Class(className(docsStyles.documentText))],
+                [document.text]
+              ),
             ]
           ),
         Loading: () => h.p([h.Role("status")], ["Loading the document…"]),
@@ -291,49 +288,14 @@ const readView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
     ]
   );
 
-export const view = (
-  model: AppModel,
-  h: HtmlBuilder<AppMessage>
-): Document => ({
-  body: h.div(
-    [h.Class(stylex.props(styles.shell).className ?? "")],
-    [
-      h.header(
-        [h.Class(stylex.props(styles.header).className ?? "")],
-        [
-          h.a(
-            [
-              h.Class(stylex.props(styles.brand, styles.focus).className ?? ""),
-              h.Href(homeRouter()),
-            ],
-            ["🐀 Rat Stack"]
-          ),
-          h.span([], ["· Law and skills"]),
-        ]
+export const view = Submodel.defineView<AppModel, AppMessage>((model, h) =>
+  AppRoute.match<Html>(model.route, {
+    NotFound: () =>
+      h.section(
+        [h.AriaLabel("Page not found")],
+        [h.h2([], ["Page not found"]), backToSearch(h, "Back to search")]
       ),
-      AppRoute.match<Html>(model.route, {
-        Home: () => searchView(model, h),
-        NotFound: () =>
-          h.main(
-            [h.Class("page")],
-            [
-              h.h1([], ["Page not found"]),
-              h.a(
-                [
-                  h.Class(stylex.props(styles.focus).className ?? ""),
-                  h.Href(homeRouter()),
-                ],
-                ["Back to search"]
-              ),
-            ]
-          ),
-        Read: () => readView(model, h),
-      }),
-    ]
-  ),
-  title:
-    Schema.is(ReadState.Loaded)(model.read) &&
-    Schema.is(AppRoute.Read)(model.route)
-      ? `${model.read.document.title} | rat-stack`
-      : "rat-stack docs",
-});
+    Read: () => readView(model, h),
+    Search: () => searchView(model, h),
+  })
+);

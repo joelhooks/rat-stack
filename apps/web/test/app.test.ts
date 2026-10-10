@@ -6,7 +6,7 @@ import * as Scene from "foldkit/scene";
 import * as Story from "foldkit/story";
 import { fromString } from "foldkit/url";
 
-import { ReadDoc, SearchDocs } from "../src/client/docs/command.js";
+import { ReadDoc, ReplaceUrl, SearchDocs } from "../src/client/docs/command.js";
 import { Message } from "../src/client/docs/message.js";
 import { Model, ReadState, SearchState } from "../src/client/docs/model.js";
 import { init, update, view } from "../src/features/app.js";
@@ -16,7 +16,7 @@ const home = Model.make({
   generation: 0,
   query: "capability",
   read: ReadState.Idle(),
-  route: AppRoute.Home(),
+  route: AppRoute.Search({ q: Option.none() }),
   search: SearchState.Idle(),
 });
 
@@ -39,7 +39,7 @@ const result = {
 const url = (path: string) =>
   Option.getOrThrow(fromString(`https://example.test${path}`));
 
-const readUrl = url(`/read?id=${encodeURIComponent(document.id)}`);
+const readUrl = url(`/search?id=${encodeURIComponent(document.id)}`);
 
 const search = (
   ...steps: readonly Scene.SceneStep<
@@ -60,7 +60,7 @@ describe("document browser", () => {
       Scene.expect(Scene.role("heading", { name: "Page not found" })).toExist(),
       Scene.expect(Scene.role("link", { name: "Back to search" })).toHaveAttr(
         "href",
-        "/"
+        "/search"
       )
     );
   });
@@ -68,7 +68,7 @@ describe("document browser", () => {
   it("a read route without an id explains the missing selection", () => {
     Scene.scene(
       { update, view },
-      Scene.given(init(url("/read")).model),
+      Scene.given(init(url("/search?id=")).model),
       Scene.expect(Scene.role("alert")).toHaveText("No document was selected."),
       Scene.Command.expectNone()
     );
@@ -82,8 +82,10 @@ describe("document browser", () => {
       ),
       Scene.click(Scene.role("button", { name: "Search" })),
       Scene.Command.expectExact(
-        SearchDocs({ generation: 1, query: "capability" })
+        SearchDocs({ generation: 1, query: "capability" }),
+        ReplaceUrl({ url: "/search?q=capability" })
       ),
+      Scene.Command.resolve(ReplaceUrl, Message.CompletedNavigate()),
       Scene.Command.resolve(
         SearchDocs,
         Message.SucceededSearch({ generation: 1, result })
@@ -91,7 +93,7 @@ describe("document browser", () => {
       Scene.expect(Scene.text("1 result")).toExist(),
       Scene.expect(Scene.role("link", { name: document.title })).toHaveAttr(
         "href",
-        `/read?id=${encodeURIComponent(document.id)}`
+        document.routePath
       ),
       Scene.expect(Scene.text(document.text)).toExist()
     );
@@ -109,9 +111,12 @@ describe("document browser", () => {
       ),
       Scene.expect(Scene.role("heading", { name: document.title })).toExist(),
       Scene.expect(Scene.text(document.text)).toExist(),
+      Scene.expect(
+        Scene.role("link", { name: "Open the full page" })
+      ).toHaveAttr("href", document.routePath),
       Scene.expect(Scene.role("link", { name: "← Back to search" })).toHaveAttr(
         "href",
-        "/"
+        "/search"
       )
     );
   });
@@ -119,6 +124,7 @@ describe("document browser", () => {
   it("failed search renders an alert instead of results", () => {
     search(
       Scene.click(Scene.role("button", { name: "Search" })),
+      Scene.Command.resolve(ReplaceUrl, Message.CompletedNavigate()),
       Scene.Command.resolve(
         SearchDocs,
         Message.FailedSearch({ generation: 1 })
@@ -151,7 +157,7 @@ describe("document browser", () => {
     const initial = init(readUrl);
 
     expect(initial.model.route).toStrictEqual(
-      AppRoute.Read({ id: Option.some(document.id) })
+      AppRoute.Read({ id: document.id })
     );
     expect(initial.commands).toHaveLength(1);
     expect(initial.commands?.[0]).toMatchObject({
@@ -196,7 +202,7 @@ describe("document browser", () => {
       const current = {
         ...home,
         generation,
-        route: AppRoute.Read({ id: Option.some(id) }),
+        route: AppRoute.Read({ id }),
       };
 
       const next = update(

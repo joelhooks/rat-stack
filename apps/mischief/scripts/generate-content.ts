@@ -28,6 +28,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import satori from "satori";
 
 import { directoryCopy, newsCopy } from "../../web/src/features/cafe/copy.ts";
+import { searchCopy } from "../../web/src/features/docs-copy.ts";
 import { agentNextActions } from "../src/agent-guide.ts";
 import {
   ContentResourceSchema,
@@ -972,6 +973,19 @@ const program = Effect.gen(function* generateContent() {
   const cafeNewsText = cafeNewsMarkdown(cafeData);
 
   const cafeDirectoryText = cafeDirectoryMarkdown(cafeData);
+
+  const searchPageText = [
+    `# ${searchCopy.heading}`,
+    "",
+    `${searchCopy.intro} Add a query to the URL to open its matches, for example \`/search?q=cartridge\`.`,
+    "",
+    "Search runs in the browser. Agents and scripts call the same capabilities directly:",
+    "",
+    "- the `search` and `read` tools on the [MCP server](/mcp)",
+    "- `/api/search` and `/api/read` in the [HTTP API](/openapi.json)",
+    "- the [agent guide](/llms.txt) for everything else",
+    "",
+  ].join("\n");
 
   const lawTexts: readonly PublicSpec[] = yield* Effect.forEach(
     lawSpecs,
@@ -2090,6 +2104,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
     "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
+    "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken),
     "## Source files",
@@ -2125,6 +2140,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/news",
     "/news.xml",
     "/directory",
+    "/search",
     "/",
     "/skills",
     "/lore",
@@ -2770,6 +2786,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       learnCoverageText,
       cafeNewsText,
       cafeDirectoryText,
+      searchPageText,
       homeMarkdownTemplate,
       homeBodyHtml,
       noVerifyAgentMarkdown,
@@ -2835,6 +2852,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       description: directoryCopy.description,
       routePath: "/directory",
       title: directoryCopy.heading,
+    },
+    {
+      description: searchCopy.description,
+      routePath: "/search",
+      title: searchCopy.heading,
     },
     {
       description: "Copyable agent prompts for rat-stack apps.",
@@ -3284,6 +3306,26 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const searchPageBody = yield* compileMarkdownBody(
+    searchPageText,
+    "search.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/search"
+  );
+
+  const searchPageDocument = yield* makeDocument(
+    searchPageBody.bodyHtml,
+    {
+      description: searchCopy.description,
+      path: "/search",
+      title: pageTitle(searchCopy.heading),
+    },
+    "apps/web/src/features/app.ts",
+    contentVersion
+  );
+
   const resources = yield* Schema.decodeUnknownEffect(
     Schema.Array(ContentResourceSchema)
   )(
@@ -3346,6 +3388,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/prompts",
           "/news",
           "/directory",
+          "/search",
         ],
         resources: resources.map(
           ({ bodyMarkdown: _bodyMarkdown, text: _text, ...metadata }) =>
@@ -3422,6 +3465,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         documentHtml: cafeDirectoryDocument,
         routePath: "/directory",
         text: cafeDirectoryText,
+      },
+      {
+        documentHtml: searchPageDocument,
+        routePath: "/search",
+        text: searchPageText,
       },
       {
         documentHtml: homeDocumentHtml,

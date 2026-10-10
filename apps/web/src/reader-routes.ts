@@ -4,6 +4,7 @@ export const readerRoutePaths: readonly string[] = [
   "/learn",
   "/news",
   "/directory",
+  "/search",
 ];
 
 export const readerBodyRoutePaths: readonly string[] = [

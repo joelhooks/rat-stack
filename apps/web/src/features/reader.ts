@@ -12,6 +12,7 @@ import {
   findCopyPrompt,
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
+import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
 import { readerFooter, readerWorkshop } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
@@ -28,6 +29,7 @@ import {
   learnRouter,
   loreRouter,
   promptsRouter,
+  searchRouter,
   skillsRouter,
   systemsRouter,
   tokenmaxxRouter,
@@ -45,6 +47,7 @@ const siteSections = [
   [loreRouter(), "lore"],
   [systemsRouter(), "systems"],
   [glossaryRouter(), "glossary"],
+  [searchRouter(), "search"],
 ] as const;
 
 const sectionIndexes: ReadonlySet<string> = new Set([
@@ -53,6 +56,7 @@ const sectionIndexes: ReadonlySet<string> = new Set([
   glossaryRouter(),
   systemsRouter(),
   skillsRouter(),
+  searchRouter(),
   tokenmaxxRouter(),
 ]);
 
@@ -287,6 +291,17 @@ const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
         slotId: "cafe",
         toParentMessage: (message) => Message.GotCafeMessage({ message }),
         view: CafeView.view,
+      }),
+    ],
+  }),
+  ...Option.match(model.docs, {
+    onNone: () => [],
+    onSome: (docs) => [
+      h.submodel({
+        model: docs,
+        slotId: "docs",
+        toParentMessage: (message) => Message.GotDocsMessage({ message }),
+        view: docsView,
       }),
     ],
   }),

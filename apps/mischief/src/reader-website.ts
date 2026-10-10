@@ -11,6 +11,7 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/AGENTS.md",
   "/directory",
   "/news",
+  "/search",
   "/README.md",
   "/VISION.md",
   "/debt.md",

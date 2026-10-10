@@ -14,6 +14,7 @@ export const SiteRoute = Route.defineRouteUnion({
   NewsFeed: {},
   Peers: {},
   Prompts: {},
+  Search: {},
   Skills: {},
   Systems: {},
   Tokenmaxx: {},
@@ -95,4 +96,9 @@ export const newsFeedRouter = pipe(
 export const directoryRouter = pipe(
   Route.literal("directory"),
   Route.mapTo(SiteRoute.Directory)
+);
+
+export const searchRouter = pipe(
+  Route.literal("search"),
+  Route.mapTo(SiteRoute.Search)
 );
