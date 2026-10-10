@@ -66,6 +66,7 @@ Leaves live in the repo; read them from a checkout.
 - `skills/rat-stack-mode/principles/prove-the-recipient-path.md`: changing runtime wiring or deployed interfaces.
 - `skills/rat-stack-mode/principles/tests-detect-broken-behavior.md`: adding tests or judging their coverage.
 - `skills/rat-stack-mode/principles/find-the-cause-first.md`: fixing failures or slow runs.
+- `skills/rat-stack-mode/principles/rebuild-what-you-run.md`: running or debugging an artifact someone else built.
 - `skills/rat-stack-mode/principles/measure-real-limits.md`: setting budgets or diagnosing contention.
 
 **Agents**
@@ -99,8 +100,9 @@ Match every applicable playbook; a capability with new persistence matches capab
 - Peer research or shared dependency updates: [find-peers](/skills/find-peers).
 - Cloud resources or unfamiliar deployment wiring: [learn-alchemy](/skills/learn-alchemy).
 - Unfamiliar stack integration: [learn-rat-stack](/skills/learn-rat-stack).
+- Crashes, flaky tests, wrong output, or slow runs: [investigate-a-failure](/skills/investigate-a-failure).
 
-`write-a-query`, `add-a-read-model`, `explore-limits`, and `investigate-a-failure` are planned. Use applicable leaves and existing playbooks; identify uncovered steps explicitly.
+`write-a-query`, `add-a-read-model`, and `explore-limits` are planned. Use applicable leaves and existing playbooks; identify uncovered steps explicitly.
 
 ## Autonomy and child-project slots
 
