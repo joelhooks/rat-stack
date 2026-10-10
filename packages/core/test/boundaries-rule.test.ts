@@ -81,10 +81,10 @@ describe("architecture boundary rules", () => {
       'export * from "@rat-stack/code-snippets/shiki";',
     ]) {
       expectRuleSoft(
-        lintFixture("apps/mischief/src", source),
+        lintFixture("apps/site/src", source),
         "Code snippets and Shiki are build-only"
       );
-      expect(lintFixture("apps/mischief/scripts", source).status).toBe(0);
+      expect(lintFixture("apps/site/scripts", source).status).toBe(0);
     }
 
     expectRule(
@@ -319,7 +319,7 @@ describe("architecture boundary rules", () => {
     ],
     [
       "an application capability handler",
-      "../../../../mischief/src/capabilities/search.ts",
+      "../../../../site/src/capabilities/search.ts",
     ],
   ])("blocks %s from browser modules", (_name, specifier) => {
     const result = lintFixture(
@@ -665,7 +665,7 @@ describe("architecture boundary rules", () => {
     );
 
     const testPeople = lintFixture(
-      "apps/mischief/src",
+      "apps/site/src",
       'import { ratTestPerson } from "@rat-stack/auth/devtools";\n\nexport const person = ratTestPerson;\n'
     );
 

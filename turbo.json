@@ -14,7 +14,7 @@
       "outputs": []
     },
     "//#lint": {
-      "dependsOn": ["@rat-stack/mischief#generate"],
+      "dependsOn": ["@rat-stack/site#generate"],
       "outputs": []
     },
     "//#typecheck-scripts": {
@@ -33,7 +33,7 @@
       ],
       "outputs": []
     },
-    "@rat-stack/mischief#generate": {
+    "@rat-stack/site#generate": {
       "dependsOn": ["^build"],
       "cache": false,
       "outputs": ["src/bundled-content.generated.ts"],
@@ -63,8 +63,8 @@
         "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
       ]
     },
-    "@rat-stack/mischief#typecheck": {
-      "dependsOn": ["@rat-stack/mischief#generate", "^typecheck"],
+    "@rat-stack/site#typecheck": {
+      "dependsOn": ["@rat-stack/site#generate", "^typecheck"],
       "outputs": [],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -92,8 +92,8 @@
         "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
       ]
     },
-    "@rat-stack/mischief#build": {
-      "dependsOn": ["@rat-stack/mischief#generate", "^build"],
+    "@rat-stack/site#build": {
+      "dependsOn": ["@rat-stack/site#generate", "^build"],
       "outputs": ["dist/**"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -130,7 +130,7 @@
       "dependsOn": ["^build", "^typecheck"],
       "outputs": []
     },
-    "@rat-stack/mischief#test": {
+    "@rat-stack/site#test": {
       "dependsOn": ["build"],
       "outputs": [],
       "inputs": [
@@ -159,7 +159,7 @@
         "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
       ]
     },
-    "@rat-stack/mischief#check": {
+    "@rat-stack/site#check": {
       "dependsOn": [
         "//#lockfile:check",
         "typecheck",

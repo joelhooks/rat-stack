@@ -1,4 +1,4 @@
-import RpcBackend from "@rat-stack/mischief/rpc-worker";
+import RpcBackend from "@rat-stack/site/rpc-worker";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Stage } from "alchemy/Stage";
 import * as Config from "effect/Config";
@@ -8,7 +8,7 @@ import * as Schema from "effect/Schema";
 import {
   traceObservability,
   traceSettings,
-} from "../../mischief/src/observability.js";
+} from "../../site/src/observability.js";
 
 export class Website extends Cloudflare.Website.Foldkit<Website>()(
   "Website",

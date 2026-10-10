@@ -13,7 +13,7 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { ContentAssetManifest } from "../../mischief/src/asset-manifest.js";
+import { ContentAssetManifest } from "../../site/src/asset-manifest.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
@@ -44,8 +44,8 @@ const forbiddenModules = [
   "htmlparser2",
   "code-snippets",
   "shiki",
-  "../mischief/scripts/reader-body-document",
-  "../mischief/scripts/reader-site-inputs",
+  "../site/scripts/reader-body-document",
+  "../site/scripts/reader-site-inputs",
 ];
 
 const build = (nodeEnv: "development" | "production") => {
@@ -73,7 +73,7 @@ const build = (nodeEnv: "development" | "production") => {
       /<h1(?: [^>]*)?>Rat Stack<\/h1>/u
     );
 
-    const contentRoot = path.resolve(webRoot, "../mischief/dist/content");
+    const contentRoot = path.resolve(webRoot, "../site/dist/content");
 
     const manifest = Schema.decodeUnknownSync(
       Schema.fromJsonString(ContentAssetManifest)

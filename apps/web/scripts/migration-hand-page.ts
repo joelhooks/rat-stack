@@ -5,20 +5,20 @@ import {
   parseLorePage,
   renderBibliography,
   loreLinkTargets,
-} from "../../mischief/scripts/content-lib.ts";
+} from "../../site/scripts/content-lib.ts";
 import {
   migrateContentSource,
   mapMigrationSource,
-} from "../../mischief/scripts/content-migration.ts";
-import { documentMarkdown } from "../../mischief/scripts/migration-document.ts";
-import { migrationRegistry } from "../../mischief/scripts/migration-inputs.ts";
-import { migrationIslands } from "../../mischief/scripts/migration-islands.ts";
-import { readerAssetInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+} from "../../site/scripts/content-migration.ts";
+import { documentMarkdown } from "../../site/scripts/migration-document.ts";
+import { migrationRegistry } from "../../site/scripts/migration-inputs.ts";
+import { migrationIslands } from "../../site/scripts/migration-islands.ts";
+import { readerAssetInputs } from "../../site/scripts/reader-site-inputs.ts";
 import {
   scanLeadingFrontmatterFence,
   parseContentMarkdown,
   stringifyContentMarkdown,
-} from "../../mischief/scripts/svx-ast.ts";
+} from "../../site/scripts/svx-ast.ts";
 
 export const migrationHandPage = Effect.gen(function* migrationHandPage() {
   const fs = yield* FileSystem.FileSystem;

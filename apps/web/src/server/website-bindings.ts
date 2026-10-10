@@ -1,6 +1,6 @@
 import { Context, Effect, Layer, Option, Predicate, Schema } from "effect";
 
-import { privateNativeTracerLayer } from "../../../mischief/src/observability.js";
+import { privateNativeTracerLayer } from "../../../site/src/observability.js";
 import type { BackendFetch } from "./rpc.js";
 import { WebsiteBindingError } from "./website-binding-error.js";
 

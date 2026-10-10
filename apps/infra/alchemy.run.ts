@@ -9,8 +9,8 @@ import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
 
-import privateAuth from "../mischief/src/auth/private-worker.js";
-import Mischief from "../mischief/src/worker.js";
+import privateAuth from "../site/src/auth/private-worker.js";
+import Mischief from "../site/src/worker.js";
 import { Website } from "../web/src/website.js";
 
 export default Alchemy.Stack(

@@ -9,7 +9,7 @@ import {
   privateTracer,
   traceObservability,
   traceSettings,
-} from "../../mischief/src/observability.js";
+} from "../../site/src/observability.js";
 import { websiteTelemetryFor } from "../src/server/website-bindings.js";
 
 it.effect.prop(

@@ -160,7 +160,7 @@ export const prepareReaderSiteInputs = Effect.gen(
               sourcePath:
                 resourceFor(entry.route)?.sourcePath ??
                 indexSources.get(entry.route) ??
-                "apps/mischief/scripts/generate-content.ts",
+                "apps/site/scripts/generate-content.ts",
               status: 200,
             }),
           })
@@ -173,7 +173,7 @@ export const prepareReaderSiteInputs = Effect.gen(
       return yield* new ReaderInputError({
         message:
           "The bundled tokenmaxx document and the content manifest have different generations; regenerate content before building the reader",
-        sourcePath: "apps/mischief/src/bundled-content.generated.ts",
+        sourcePath: "apps/site/src/bundled-content.generated.ts",
       });
     }
 
@@ -185,7 +185,7 @@ export const prepareReaderSiteInputs = Effect.gen(
         html: tokenmaxxHtml,
         metadata: documentMetadata("/tokenmaxx", tokenmaxxHtml),
         path: "/tokenmaxx",
-        sourcePath: "apps/mischief/content/tokenmaxx.md",
+        sourcePath: "apps/site/content/tokenmaxx.md",
         status: 200,
       },
     ];

@@ -403,7 +403,7 @@ export const localLayer = (
           );
 
           const manifest = yield* fs
-            .readFileString("../../apps/mischief/dist/content/manifest.json")
+            .readFileString("../../apps/site/dist/content/manifest.json")
             .pipe(
               Effect.flatMap(
                 Schema.decodeEffect(

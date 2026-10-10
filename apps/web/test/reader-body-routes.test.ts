@@ -6,12 +6,12 @@ import { renderToString } from "foldkit/experimental/server";
 import {
   compileReaderBody,
   readerWorkshopCount,
-} from "../../mischief/scripts/reader-body-document.ts";
+} from "../../site/scripts/reader-body-document.ts";
 import {
   readerBodyFlags,
   readerCopyPrompts,
-} from "../../mischief/scripts/reader-body-flags.ts";
-import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+} from "../../site/scripts/reader-body-flags.ts";
+import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";

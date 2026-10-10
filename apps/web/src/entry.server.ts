@@ -9,7 +9,7 @@ import { readerErrorTemplate } from "virtual:reader-error";
 import {
   ReaderErrorPage,
   readerErrorPath,
-} from "../../mischief/src/reader-error-page.js";
+} from "../../site/src/reader-error-page.js";
 import { pages } from "./client/reader-pages.js";
 import { init } from "./client/reader/init.js";
 import { ReaderFlags } from "./client/reader/model.js";

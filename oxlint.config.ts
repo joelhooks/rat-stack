@@ -86,9 +86,9 @@ export default defineConfig({
     },
     {
       files: [
-        "apps/mischief/scripts/content-lib.ts",
-        "apps/mischief/scripts/generate-content.ts",
-        "apps/mischief/scripts/wiki-prose.ts",
+        "apps/site/scripts/content-lib.ts",
+        "apps/site/scripts/generate-content.ts",
+        "apps/site/scripts/wiki-prose.ts",
       ],
       rules: {
         "rat-stack-patterns/audited-content-regex": "error",

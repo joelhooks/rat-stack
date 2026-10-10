@@ -1,7 +1,7 @@
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
-import { rpcContentDirectory } from "../../mischief/src/rpc-worker.js";
+import { rpcContentDirectory } from "../../site/src/rpc-worker.js";
 import type { BundleOutput } from "../node_modules/alchemy/lib/Bundle/Bundle.js";
 import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
 
@@ -71,7 +71,7 @@ export const proveWebsiteWorkerd = Effect.fn("proveWebsiteWorkerd")(
       entry: { exports: {}, kind: "effect" },
       extraOptions: undefined,
       id: "RpcBackend",
-      main: new URL("../../mischief/src/rpc-worker.ts", import.meta.url).href,
+      main: new URL("../../site/src/rpc-worker.ts", import.meta.url).href,
       stack,
     });
 

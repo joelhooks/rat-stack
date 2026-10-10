@@ -57,7 +57,7 @@ describe("audited content regular expressions", () => {
   it("keeps svx syntax out of the content pipeline's regular expressions", () => {
     const result = lint(
       ["content-lib.ts", "generate-content.ts", "wiki-prose.ts"].map((name) =>
-        path.join(repoRoot, "apps/mischief/scripts", name)
+        path.join(repoRoot, "apps/site/scripts", name)
       )
     );
 

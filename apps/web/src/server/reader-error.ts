@@ -1,6 +1,6 @@
 import { Match, Option } from "effect";
 
-import type { ReaderErrorPage } from "../../../mischief/src/reader-error-page.js";
+import type { ReaderErrorPage } from "../../../site/src/reader-error-page.js";
 import { ReaderNode } from "../client/reader-node.js";
 import type { ReaderNodeValue } from "../client/reader-node.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";

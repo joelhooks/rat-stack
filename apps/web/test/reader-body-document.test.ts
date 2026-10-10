@@ -8,9 +8,9 @@ import type { HtmlBuilder } from "foldkit/html";
 import {
   compileReaderBodies,
   compileReaderBody,
-} from "../../mischief/scripts/reader-body-document.ts";
-import { readerCopyPrompts } from "../../mischief/scripts/reader-body-flags.ts";
-import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+} from "../../site/scripts/reader-body-document.ts";
+import { readerCopyPrompts } from "../../site/scripts/reader-body-flags.ts";
+import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import type { ReaderMessage } from "../src/client/reader/message.js";

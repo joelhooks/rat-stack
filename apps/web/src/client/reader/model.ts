@@ -1,7 +1,7 @@
 import { Array, Option, Record, Schema } from "effect";
 import { defineTaggedUnion } from "foldkit/schema";
 
-import { bibliographySourceSchema } from "../../../../mischief/scripts/component-data.js";
+import { bibliographySourceSchema } from "../../../../site/scripts/component-data.js";
 import {
   ReaderPageDescriptor,
   ReaderReferences,

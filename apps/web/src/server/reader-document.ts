@@ -5,7 +5,7 @@ import {
   appleTouchIconPngBase64,
   faviconIcoBase64,
   ratSvg,
-} from "../../../mischief/src/rat-icons.generated.js";
+} from "../../../site/src/rat-icons.generated.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerMetadataHead } from "../reader-metadata.js";
 

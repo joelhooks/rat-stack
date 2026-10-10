@@ -1,17 +1,17 @@
 import { NodeServices } from "@effect/platform-node";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
-import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
-import { readerCafeFlags } from "../../mischief/scripts/reader-cafe-flags.ts";
-import { readerErrorTemplate } from "../../mischief/scripts/reader-error-flags.ts";
-import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
-import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
-import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
-import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
-import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
-import { readerSearchFlags } from "../../mischief/scripts/reader-search-flags.ts";
-import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
-import { writeFileAtomically } from "../../mischief/scripts/write-file-atomically.ts";
+import { readerBodyFlags } from "../../site/scripts/reader-body-flags.ts";
+import { readerCafeFlags } from "../../site/scripts/reader-cafe-flags.ts";
+import { readerErrorTemplate } from "../../site/scripts/reader-error-flags.ts";
+import { readerHomeFlags } from "../../site/scripts/reader-home-flags.ts";
+import { ReaderInputError } from "../../site/scripts/reader-input-error.ts";
+import { readerLearnFlags } from "../../site/scripts/reader-learn-flags.ts";
+import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
+import { readerPromptFlags } from "../../site/scripts/reader-prompt-flags.ts";
+import { readerSearchFlags } from "../../site/scripts/reader-search-flags.ts";
+import { readerSystemsSkillsFlags } from "../../site/scripts/reader-systems-skills-flags.ts";
+import { writeFileAtomically } from "../../site/scripts/write-file-atomically.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
 import {

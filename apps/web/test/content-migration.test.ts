@@ -5,8 +5,8 @@ import { Effect, Option, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 import type { Document, HtmlBuilder } from "foldkit/html";
 
-import { codeIdentity } from "../../mischief/scripts/migration-document.ts";
-import { htmlPlainText, htmlTokens } from "../../mischief/scripts/svx-ast.ts";
+import { codeIdentity } from "../../site/scripts/migration-document.ts";
+import { htmlPlainText, htmlTokens } from "../../site/scripts/svx-ast.ts";
 import { migrationHandPage } from "../scripts/migration-hand-page.ts";
 
 const HAND_PAGE_PIPELINE = 60_000;

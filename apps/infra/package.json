@@ -10,13 +10,13 @@
     "plan": "alchemy plan",
     "deploy": "alchemy deploy",
     "destroy": "alchemy destroy",
-    "predev": "pnpm --filter @rat-stack/mischief generate",
+    "predev": "pnpm --filter @rat-stack/site generate",
     "dev": "alchemy dev",
     "logs": "alchemy logs"
   },
   "dependencies": {
     "@effect/platform-node": "4.0.0",
-    "@rat-stack/mischief": "workspace:*",
+    "@rat-stack/site": "workspace:*",
     "alchemy": "2.0.0-beta.81",
     "effect": "4.0.0"
   },

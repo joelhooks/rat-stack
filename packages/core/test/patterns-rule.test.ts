@@ -166,7 +166,7 @@ describe("rat-stack pattern rules", () => {
       const message = "Cache completed values only";
 
       const module = lintFixture(
-        "apps/mischief/src",
+        "apps/site/src",
         `import { Effect as E } from "effect"; export const shared = E.${name}(E.succeed(1), "Infinity");`
       );
 
@@ -176,12 +176,12 @@ describe("rat-stack pattern rules", () => {
       );
 
       const contentStorePlant = lintFixture(
-        "apps/mischief/src",
+        "apps/site/src",
         `import { Effect, Exit } from "effect"; const cacheData = (effect) => Effect.${name}(effect, (exit) => Exit.isSuccess(exit) ? "Infinity" : 0); const makeStore = Effect.fn("ContentStore.make")(function* () { const catalog = yield* cacheData(readData(assets)); return { catalog }; });`
       );
 
       const request = lintFixture(
-        "apps/mischief/src",
+        "apps/site/src",
         `import { Effect } from "effect"; export const fetch = (request) => Effect.gen(function* () { return yield* Effect.${name}(read(request), "Infinity"); });`
       );
 

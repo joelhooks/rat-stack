@@ -9,7 +9,7 @@ import {
   Schema,
 } from "effect";
 
-import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { ReaderMetadata, ReaderRouteLedger } from "../src/page-descriptor.ts";
 import { isReaderRoutePath } from "../src/reader-routes.ts";
 

@@ -26,12 +26,12 @@ BRAIN.md
 .env.local
 .env.*.local
 env.d.ts
-apps/mischief/src/bundled-content.generated.ts
-apps/mischief/src/rat-icons.generated.ts
+apps/site/src/bundled-content.generated.ts
+apps/site/src/rat-icons.generated.ts
 .brain/data/unlinked-mentions.generated.json
 
 # build temp directories left by an interrupted generate
-apps/mischief/src/.bundled-content.*/
+apps/site/src/.bundled-content.*/
 
 # Muster packet reports and notes in worker clones
 .pi/muster/
