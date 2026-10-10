@@ -1,23 +1,10 @@
 import { Option, Schema } from "effect";
 
-export const SandboxDiagnostic = Schema.Struct({
-  kind: Schema.Literals([
-    "ParseError",
-    "ExecutionFailure",
-    "UnknownTool",
-    "InvalidToolInput",
-    "InvalidToolOutput",
-    "InvalidDataValue",
-    "ToolFailure",
-    "TimeoutExceeded",
-    "ToolCallLimitExceeded",
-    "HostFailure",
-  ]),
-  message: Schema.String,
-  tag: Schema.optional(Schema.String),
-});
+import type { SandboxDiagnosticData } from "./sandbox-diagnostic-schema.js";
 
-export type SandboxDiagnosticData = typeof SandboxDiagnostic.Type;
+export { SandboxDiagnostic } from "./sandbox-diagnostic-schema.js";
+
+export type { SandboxDiagnosticData } from "./sandbox-diagnostic-schema.js";
 
 export const modelSafeMessage = (message: string): string =>
   message

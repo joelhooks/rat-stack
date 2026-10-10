@@ -4,7 +4,7 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Layer from "effect/Layer";
 
-import { layerWorkerLoader, sandboxLimits } from "../sandbox-worker-loader.js";
+import { layerWorkerLoader, sandboxLimits } from "../sandbox-loader.js";
 import type { WorkerLoaderBinding } from "../sandbox-worker-loader.js";
 import { workerAssetsLayer } from "../worker-content.js";
 import { legacyMcpRuntime } from "./runtime.js";

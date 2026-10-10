@@ -18,7 +18,11 @@ The original study base, `1c2a738`, pinned Effect `4.0.0-rc.117`, Alchemy `2.0.0
 
 At that study date, only `alchemy-run/alchemy` at `9802260db8f8b5a083c4b85eb7ea31ae1ff8f176` matched both Effect and Alchemy lines: its package is beta.79 and its workspace requires Effect rc.117. Maple is one Effect RC behind at rc.116 / Alchemy beta.79; T3Code is rc.115 / beta.79. OpenSEO is Effect beta.93 / Alchemy beta.61, SolStatus beta.107 / beta.72, Smithers rc.115 / beta.76, Pivot beta.103 / beta.65, and Elianiva beta.101 / beta.64. The roster includes repos on shared stack lines with different exact pins. Use older source to study shapes; check APIs before copying code.
 
-The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. Alchemy also moved to beta.80. See the [roster](./peers) for checked commits and manifests. Patterns below remain tied to their original source snapshots.
+The Oct 2 refresh found stable Effect 4 in Alchemy, effect-cf, and vitesakuga. Alchemy also moved to beta.80.
+
+The Oct 9 refresh checks all 29 existing peers and adds 21 verified public projects. The [roster](./peers) records their commits, manifests, and tiers.
+Alchemy moves to beta.81. Several peers use stable Effect 4.0.1 or 4.0.2. rat-stack keeps Effect 4.0.0 to satisfy Foldkit's exact peers.
+Patterns below keep their original source snapshots and study dates.
 
 ## Patterns
 
@@ -122,13 +126,41 @@ The inspector has a disabled production Layer. Its enabled Layer owns the inspec
 Adapt the lifetime checks. Keep `watchActor` and `ActorWatch` in [devtools](/systems/devtools) as our single inspection path. A second Stately service would bypass that fence. The helper runs tests through `ManagedRuntime`, which our test fence forbids. Use `it.effect.prop` and generated command sequences instead of copying its runtime bridge. No production code was adopted.
 
 
+### Verify Foldkit's exact Effect peers: adopt
+
+**Source:** Hazel at `2504baa1ab85d7966152a615a08dc0d4af4c1f69`: [catalogs](https://github.com/MapleTechLabs/hazel/blob/2504baa1ab85d7966152a615a08dc0d4af4c1f69/package.json), [Foldkit client](https://github.com/MapleTechLabs/hazel/blob/2504baa1ab85d7966152a615a08dc0d4af4c1f69/apps/web-foldkit/package.json), [lockfile](https://github.com/MapleTechLabs/hazel/blob/2504baa1ab85d7966152a615a08dc0d4af4c1f69/bun.lock).
+
+The upstream manifests at `49dc36ef672d1caee23f153f88c09d98c8241670` confirm the boundary: [Foldkit](https://github.com/foldkit/foldkit/blob/49dc36ef672d1caee23f153f88c09d98c8241670/packages/foldkit/package.json) and [Vite plugin](https://github.com/foldkit/foldkit/blob/49dc36ef672d1caee23f153f88c09d98c8241670/packages/vite-plugin-foldkit/package.json).
+
+Checked Oct 9. Does the shared catalog satisfy Foldkit's exact Effect peers?
+
+- The catalog selects Effect 4.0.1 and Alchemy beta.80.
+- The client selects Foldkit 0.167.0 and uses that Effect catalog.
+- The lockfile records Foldkit's exact Effect 4.0.0 peer.
+- The Vite plugin also requires Effect 4.0.0 and depends on platform-node 4.0.0.
+
+Adopt the manifest and lockfile check. Keep Effect 4.0.0 until Foldkit publishes compatible peers and platform dependencies.
+Do not copy the newer Effect catalog. This study changes no runtime adapter or UI code.
+
+### Template lifetime boundaries: adopt
+
+**Source:** [architecture](https://github.com/just-be-dev/effect-cloudflare-foldkit-template/blob/04851db8649501bfaf8d2712429074ba0290a10f/docs/architecture.md) and [manifest](https://github.com/just-be-dev/effect-cloudflare-foldkit-template/blob/04851db8649501bfaf8d2712429074ba0290a10f/package.json) at `04851db8649501bfaf8d2712429074ba0290a10f`.
+
+The source assigns each resource to an application, request, tenant, session, or execution. It acquires request capabilities at the request boundary.
+rat-stack already adapts this guidance in [cache completed values](/lore/cache-completed-values), UI tests, and opt-in tracing. `PROVENANCE.md` records the source and license confirmation.
+
+Keep those lifetime boundaries. The template uses Effect 4.0.0 and Alchemy beta.81, with Foldkit 0.165.0. Its package-manager defaults do not replace pnpm here.
+This refresh records the existing adoption. It copies no new implementation.
+
 ## Other screened projects
 
 `jonbeckman/solstatus` at `83b3e2f4400aa7a2f2f4b738334e0cf91dbf15f5` has Alchemy `Cloudflare.Website.Vite`, D1, and direct Better Auth, but pins Effect beta.107 / Alchemy beta.72; its runtime is too old to copy. `elianiva/elianiva.com` at `5799fcb6b5ddc48e1df0223f23a9a15da8d097ae` also has a Website.Vite Stack, but uses Effect beta.101 / Alchemy beta.64 and adds no stronger pattern than the current Alchemy example. `13kparkin/Pivot` at `1887824d1f96ea6b601fffbc283b836967d32a5c` shows PlanetScale/Hyperdrive but uses Effect beta.103 / Alchemy beta.65; T3Code's newer PlanetScale graph supersedes it for this decision.
 
 Symbol-screened without a relevant client/resource pattern: `Dhravya/radish`, `zonko-ai/harbor-sdk`, `dmmulroy/overseer`, `instructa/planr`, and `statelyai/agent`. `cameronapak/dotflowy` has Better Auth but no Alchemy integration and uses Effect rc.115 / XState alpha.12, so it is not a useful match for this lane. The earlier Effect reference note already covers the XState bridge; this note does not repeat it.
 
-## Recommendations by lane
+## Recommendations from the September study
+
+These recommendations record the original study. The current web bin uses Foldkit; [current pins](/pins.md) come from manifests.
 
 1. TanStack web bin: generate the browser client from capability Schemas as one `RpcGroup`, create module-scope `AtomRpc` atoms, and forward same-origin `/rpc` to a private `RpcWorker` binding.
 2. Better Auth: use `@alchemy.run/better-auth@2.0.0-beta.79`; provide the database cartridge's Layer and keep auth API/migration failures typed.

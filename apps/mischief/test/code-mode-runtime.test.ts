@@ -78,6 +78,9 @@ test.provider(
         }
       );
 
+      const arithmeticProbe = yield* executeProgram("return 1+1", "execute");
+      expect(arithmeticProbe).toMatchObject({ diagnostic: null, result: 2 });
+
       yield* checkSandboxConformance((code) => executeProgram(code));
       yield* checkSandboxLimits((code) =>
         executeProgram(code, "sandboxLimited")
@@ -133,6 +136,14 @@ test.provider(
 
       const fs = yield* FileSystem.FileSystem;
       yield* fs.makeDirectory("dist/startup", { recursive: true });
+      yield* fs.writeFileString(
+        "dist/startup/execute-split-proof.json",
+        JSON.stringify({
+          adapter: "worker-loader",
+          arithmetic: { code: "return 1+1", response: arithmeticProbe },
+          path: "/api/execute",
+        })
+      );
       yield* fs.writeFileString(
         "dist/startup/content-request-latency.json",
         JSON.stringify({

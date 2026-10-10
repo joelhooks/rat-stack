@@ -1,6 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner"
+        ]
+      }
+    ],
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true
   },

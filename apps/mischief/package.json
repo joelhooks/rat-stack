@@ -47,7 +47,7 @@
     "@rat-stack/learn": "workspace:*",
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
-    "alchemy": "2.0.0-beta.80",
+    "alchemy": "2.0.0-beta.81",
     "effect": "4.0.0"
   },
   "devDependencies": {

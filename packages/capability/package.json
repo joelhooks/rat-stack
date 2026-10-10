@@ -64,10 +64,20 @@
       "import": "./dist/rpc-group.js",
       "default": "./dist/rpc-group.js"
     },
+    "./sandbox-port": {
+      "types": "./src/sandbox-port.ts",
+      "import": "./dist/sandbox-port.js",
+      "default": "./dist/sandbox-port.js"
+    },
     "./sandbox": {
       "types": "./src/sandbox-service.ts",
       "import": "./dist/sandbox-service.js",
       "default": "./dist/sandbox-service.js"
+    },
+    "./code-mode/execute": {
+      "types": "./src/to-code-mode.ts",
+      "import": "./dist/to-code-mode.js",
+      "default": "./dist/to-code-mode.js"
     },
     "./code-mode": {
       "types": "./src/code-mode.ts",

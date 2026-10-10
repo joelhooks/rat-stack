@@ -82,6 +82,19 @@ The vendor script's xstate pin still pointed at `apps/cli/package.json` after th
 6. `node_modules/effect/AGENTS.md` is not referenced. It ships in the package (409 lines), is always version-matched, and is what other Effect 4 migrations point agents at first.
 7. Vendor script pins by hand. t3code derives the ref from the catalog. Ours can derive it from `packages/core/package.json`.
 
+## Current compatibility check (2026-10-09)
+
+- Runtime packages stay on Effect 4.0.0. Foldkit's exact Effect peers and platform dependencies must share one runtime.
+- Alchemy and its Better Auth adapter use beta.81. XState uses alpha.65 and the Effect bridge uses alpha.7.
+- Bridge alpha.7 supports persisted snapshots through `createEffectActor`. Restored machines keep their state and context without repeating entry actions.
+- Pending delayed transitions keep their original deadlines on Effect's Clock. Running Effect tasks and streams restart; handlers must tolerate that restart.
+- This upgrade changes no application machine to snapshot-based hydration. The September restore limitation above records the earlier source version.
+- The compiler patcher moves to tsgo 0.51.1 and still patches TypeScript 7.0.2. The obsolete `importFromBarrel:off` setting is removed.
+- The base diagnostics remain shared. Fifteen child configs allow only unstable modules actually warned about in their scope.
+- Warning-only compiler output still fails. Probes against the core config confirm that inherited errors and an unlisted unstable API remain failures.
+
+The [peer roster](./peers) records current default-branch evidence. The September study and contribution links above keep their original versions.
+
 ## Sources
 
 - t3code: `tsconfig.base.json`, `oxlint-plugin-t3code/rules/*.ts`, `apps/server/src/persistence/{Services,Layers}/ProjectionState.ts`, `scripts/sync-reference-repos.ts`, `AGENTS.md`

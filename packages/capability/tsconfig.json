@@ -1,4 +1,49 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/ai/McpProtocol",
+          "effect/ai/McpSchema",
+          "effect/ai/McpServer",
+          "effect/ai/Tool",
+          "effect/ai/Toolkit",
+          "effect/cli/Argument",
+          "effect/cli/CliOutput",
+          "effect/cli/Command",
+          "effect/cli/Flag",
+          "effect/http-api/HttpApi",
+          "effect/http-api/HttpApiBuilder",
+          "effect/http-api/HttpApiEndpoint",
+          "effect/http-api/HttpApiError",
+          "effect/http-api/HttpApiGroup",
+          "effect/http-api/HttpApiMiddleware",
+          "effect/http-api/HttpApiSchema",
+          "effect/http-api/HttpApiTest",
+          "effect/http-api/OpenApi",
+          "effect/http/Etag",
+          "effect/http/FetchHttpClient",
+          "effect/http/HttpClient",
+          "effect/http/HttpClientRequest",
+          "effect/http/HttpPlatform",
+          "effect/http/HttpRouter",
+          "effect/http/HttpServer",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/process/ChildProcess",
+          "effect/process/ChildProcessSpawner",
+          "effect/rpc/Rpc",
+          "effect/rpc/RpcClient",
+          "effect/rpc/RpcGroup",
+          "effect/rpc/RpcSerialization",
+          "effect/rpc/RpcServer",
+          "effect/rpc/RpcTest"
+        ]
+      }
+    ]
+  },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

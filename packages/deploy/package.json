@@ -21,10 +21,10 @@
     "@effect/platform-node": "4.0.0",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/check-harness": "workspace:*",
-    "@xstate/effect": "0.1.0-alpha.6",
-    "alchemy": "2.0.0-beta.80",
+    "@xstate/effect": "0.1.0-alpha.7",
+    "alchemy": "2.0.0-beta.81",
     "effect": "4.0.0",
-    "xstate": "6.0.0-alpha.63"
+    "xstate": "6.0.0-alpha.65"
   },
   "devDependencies": {
     "@effect/vitest": "4.0.0",

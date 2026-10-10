@@ -1,4 +1,4 @@
-import { toExecuteCapability } from "@rat-stack/capability/code-mode";
+import { toExecuteCapability } from "@rat-stack/capability/code-mode/execute";
 import {
   getPrompt,
   listCafeNews,

@@ -2,6 +2,23 @@
   "extends": "../../tsconfig.base.json",
   "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts", "stylex.ts"],
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "effect/Arbitrary",
+          "effect/ai/McpProtocol",
+          "effect/ai/McpServer",
+          "effect/http/FetchHttpClient",
+          "effect/http/HttpRouter",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/rpc/RpcClient",
+          "effect/rpc/RpcSerialization",
+          "effect/rpc/RpcServer"
+        ]
+      }
+    ],
     "allowImportingTsExtensions": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",

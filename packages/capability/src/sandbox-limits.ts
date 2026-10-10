@@ -1,18 +1,8 @@
-import { Schema } from "effect";
+import type { SandboxRun } from "./sandbox-port.js";
 
-import type { SandboxRun } from "./sandbox-service.js";
+export { resolveLimits } from "./sandbox-limits-schema.js";
 
-export interface SandboxLimits {
-  readonly maxToolCalls?: number | undefined;
-  readonly maxOutputBytes?: number | undefined;
-}
-
-const Limits = Schema.Struct({
-  maxOutputBytes: Schema.optional(Schema.Natural),
-  maxToolCalls: Schema.optional(Schema.Natural),
-});
-
-export const resolveLimits = Schema.decodeSync(Limits);
+export type { SandboxLimits } from "./sandbox-limits-schema.js";
 
 const encoder = new TextEncoder();
 

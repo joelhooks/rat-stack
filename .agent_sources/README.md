@@ -15,10 +15,10 @@ Refs below are derived from the workspace `package.json` pins by `scripts/vendor
 
 | Path | Upstream | Ref | Why |
 | --- | --- | --- | --- |
-| `github.com/Effect-TS/effect` | https://github.com/Effect-TS/effect.git | `effect@4.0.0-rc.117` | Effect v4 Schema, Context.Service, Config, platform-node, CLI, `@effect/vitest` |
+| `github.com/Effect-TS/effect` | https://github.com/Effect-TS/effect.git | `effect@4.0.0` | Effect v4 Schema, Context.Service, Config, platform-node, CLI, `@effect/vitest` |
 | `github.com/kitlangton/effect-solutions` | https://github.com/kitlangton/effect-solutions.git | `main` | Idiomatic Effect patterns (Kit) |
-| `github.com/statelyai/xstate` | https://github.com/statelyai/xstate.git | `xstate@6.0.0-alpha.59` | XState v6 core plus `packages/xstate-effect` (the `@xstate/effect` bridge and its docs) |
-| `github.com/alchemy-run/alchemy` | https://github.com/alchemy-run/alchemy.git | `v2.0.0-beta.79` | Alchemy resources, Cloudflare and AWS providers, Effect-native Stack API |
+| `github.com/statelyai/xstate` | https://github.com/statelyai/xstate.git | `@xstate/effect@0.1.0-alpha.7` | XState `6.0.0-alpha.65` core plus `packages/xstate-effect` (the `@xstate/effect` bridge and its docs) |
+| `github.com/alchemy-run/alchemy` | https://github.com/alchemy-run/alchemy.git | `v2.0.0-beta.81` | Alchemy resources, Cloudflare and AWS providers, Effect-native Stack API |
 | `github.com/better-auth/better-auth` | https://github.com/better-auth/better-auth.git | `better-auth@1.6.2` | Better Auth core, adapters, and plugins behind `packages/auth` |
 | `github.com/foldkit/foldkit` | https://github.com/foldkit/foldkit.git | `foldkit@0.166.0` | Foldkit UI behind `apps/web` |
 

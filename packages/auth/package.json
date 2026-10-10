@@ -44,10 +44,10 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/better-auth": "2.0.0-beta.80",
+    "@alchemy.run/better-auth": "2.0.0-beta.81",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/database": "workspace:*",
-    "alchemy": "2.0.0-beta.80",
+    "alchemy": "2.0.0-beta.81",
     "better-auth": "1.6.2",
     "drizzle-orm": "1.0.0-rc.5-ab785fc",
     "effect": "4.0.0",

@@ -16,8 +16,8 @@ allowBuilds:
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
   # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
-  - "@alchemy.run/better-auth@2.0.0-beta.80"
-  - alchemy@2.0.0-beta.80
+  - "@alchemy.run/better-auth@2.0.0-beta.81"
+  - alchemy@2.0.0-beta.81
   - effect@4.0.0
   - "@foldkit/oxlint-plugin@0.15.2"
   - "@foldkit/devtools@0.166.0"
@@ -29,8 +29,8 @@ minimumReleaseAgeExclude:
   - "@effect/sql-d1@4.0.0"
   - "@effect/sql-sqlite-do@4.0.0"
   - "@effect/vitest@4.0.0"
-  - xstate@6.0.0-alpha.63
-  - "@xstate/effect@0.1.0-alpha.6"
+  - xstate@6.0.0-alpha.65
+  - "@xstate/effect@0.1.0-alpha.7"
   - "@distilled.cloud/aws@1.0.0-rc.13"
   - "@distilled.cloud/axiom@1.0.0-rc.13"
   - "@distilled.cloud/cloudflare@1.0.0-rc.13"
@@ -51,9 +51,9 @@ minimumReleaseAgeExclude:
   - better-auth@1.6.2
   - satori@0.33.5
   - shiki@3.23.0
-  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.80"
-  - "@alchemy.run/floci@2.0.0-beta.80"
-  - "@alchemy.run/node-utils@2.0.0-beta.80"
+  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.81"
+  - "@alchemy.run/floci@2.0.0-beta.81"
+  - "@alchemy.run/node-utils@2.0.0-beta.81"
   - "@distilled.cloud/acme@1.0.0-rc.13"
   - "@distilled.cloud/doppler@1.0.0-rc.13"
   - "@distilled.cloud/gcp@1.0.0-rc.13"

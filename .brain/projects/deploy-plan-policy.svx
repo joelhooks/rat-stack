@@ -53,7 +53,7 @@ A failed apply stops before health checks. Completed resources still produce a p
 
 ## Installed API boundary
 
-Checked against Alchemy 2.0.0-beta.80 and installed Effect 4.0.0 source.
+Checked against Alchemy 2.0.0-beta.81 and installed Effect 4.0.0 source on Oct 9.
 
 `Deploy.ts` runs `evalStack`, `Plan.make` and `Apply.apply`. The exported Alchemist stack route preserves the native plan and session between calls. The adapter uses that route because it also loads the entrypoint, selects the profile and refuses state-store bootstrap.
 
@@ -72,7 +72,7 @@ Other imported Alchemy modules expose their services through exported subpaths. 
 
 ## Recovery provider client
 
-The installed beta.80 source exports the Cloudflare credential service but does not re-export Worker API operations. Recovery therefore declares `@distilled.cloud/cloudflare` at exactly `1.0.0-rc.13`, the same version Alchemy depends on. Owner approval covers this importer-only dependency addition.
+The installed beta.81 source exports the Cloudflare credential service but does not re-export Worker API operations. Recovery therefore declares `@distilled.cloud/cloudflare` at exactly `1.0.0-rc.13`, the same version Alchemy depends on. Owner approval covers this importer-only dependency addition.
 
 `packages/deploy/test/provider-pin.test.ts` compares both declared pins. Remove the direct dependency when Alchemy exposes these operations through a public client. An Alchemy bump must keep both pins equal or replace the adapter; it cannot silently split clients.
 
