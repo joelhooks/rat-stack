@@ -161,17 +161,20 @@ The credential permits `learnFeedback` only. It is not a sign-in session or a cr
 
 Keep the credential out of local learning JSONL, feedback text, examples, and shared messages. Do not include private code, prompts, paths, credentials, or names in feedback. A failed call does not prove storage. Automatic retry can store a second feedback row; ask before repeating an uncertain write.
 
+## Offer a skill in the session
+
+Learn mode suggests skills. It never installs them.
+
+1. When a card's route is `/skills/<name>`, or the work matches a skill, name the skill in one line and link `https://ratstack.sh/skills/<name>`.
+2. Ask before loading it. Load only what the operator wants.
+3. To load it, fetch `https://ratstack.sh/.well-known/agent-skills/<name>/SKILL.md` and follow it for the rest of this session.
+4. Never run a skills installer. Never write a skill into a global, user or project skills folder.
+5. If the operator wants a skill kept for good, they choose where it goes.
+
 ## Privacy
 
 Keep progress local. Preferences stay local too.
 
-The skills installer sends anonymous usage data unless telemetry is off. Turn it off for install and removal:
-
-```sh
-DO_NOT_TRACK=1 npx skills add joelhooks/rat-stack
-DO_NOT_TRACK=1 npx skills remove joelhooks/rat-stack
-```
-
-The remove command takes out every skill installed from that source. Use the public endpoints for deck and card reads. Do not send progress to public selection or recording endpoints by default.
+Use the public endpoints for deck and card reads. Do not send progress to public selection or recording endpoints by default.
 
 Requests contain concept ids, timestamps, depth, familiarity, and dismissal state only. Never include code, file paths, names, repository names, or prompts. The event log is authoritative. The CLI rebuilds `cards.jsonl` and `tasks.jsonl` from it.

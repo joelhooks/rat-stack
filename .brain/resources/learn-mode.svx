@@ -44,10 +44,13 @@ The records hold concept ids, timestamps, depth, familiarity, and dismissal stat
 - Your code, file paths, names, repository names, and prompts.
 - Your progress or preferences. The public deck and card tools need neither, and they store nothing.
 
-The skills installer sends anonymous usage data by default. `DO_NOT_TRACK=1` turns it off:
+## Skills stay in the session
 
-- Install with `DO_NOT_TRACK=1 npx skills add joelhooks/rat-stack`.
-- Remove with `DO_NOT_TRACK=1 npx skills remove joelhooks/rat-stack`.
+Learn mode installs nothing. When a concept has a matching skill, the agent names it and links its `SKILL.md`. If you want it, the agent reads that skill into the current session only.
+
+- Nothing is written to a global or project skills folder.
+- The skill is gone when the session ends.
+- You decide what to keep for good.
 
 ## Turn it off
 

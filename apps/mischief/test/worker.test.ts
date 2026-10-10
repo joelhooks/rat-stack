@@ -442,7 +442,7 @@ it.effect(
           "claude mcp add --transport http rat-stack https://ratstack.sh/mcp"
         );
         expect(markdown).toContain("│  defineContract");
-        expect(markdown).toContain("npx skills add joelhooks/rat-stack");
+        expect(markdown).toContain("/.well-known/agent-skills/index.json");
         expect(markdown).toContain("## Source files");
         expect(markdown).toContain(
           "[Agent rules for rat-stack (AGENTS.md)](/AGENTS.md)"
