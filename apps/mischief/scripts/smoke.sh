@@ -97,6 +97,26 @@ mcp_status="$(curl --silent --show-error --max-time 20 --output "$tmp_dir/mcp-ca
 if ! mcp_summary="$(assert_json "$tmp_dir/mcp-call.json" mcp)"; then printf 'MCP tools/call response: '; cat "$tmp_dir/mcp-call.json"; printf '\n'; fail "MCP tools/call search assertion failed"; fi
 printf '%s\n' "$mcp_summary"
 
+rpc_search() {
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && node --input-type=module - "$base_url" <<'NODE'
+import { toRpcGroup } from "@rat-stack/capability/rpc-group";
+import { searchContract } from "@rat-stack/core/contracts";
+import { Effect, Layer } from "effect";
+import { FetchHttpClient, HttpClient } from "effect/http";
+import { RpcClient, RpcSerialization } from "effect/rpc";
+const [base] = process.argv.slice(2);
+const { group } = toRpcGroup([searchContract]);
+const okStatus = Layer.effect(HttpClient.HttpClient, Effect.gen(function* () { return HttpClient.filterStatusOk(yield* HttpClient.HttpClient); })).pipe(Layer.provide(FetchHttpClient.layer));
+const protocol = RpcClient.layerProtocolHttp({ url: `${base}/rpc` }).pipe(Layer.provide([RpcSerialization.layerJson, okStatus]));
+const found = await Effect.runPromise(Effect.gen(function* () { const rpc = yield* RpcClient.make(group); return yield* rpc.search({ limit: 1, query: "cartridge" }); }).pipe(Effect.provide(protocol), Effect.scoped, Effect.timeout("20 seconds")));
+if (found.matches.length === 0) throw new Error("POST /rpc search for cartridge returned no matches");
+console.log(`RPC search: ${found.matches[0].id}`);
+NODE
+  )
+}
+rpc_summary="$(rpc_search 2>"$tmp_dir/rpc.err")" || { cat "$tmp_dir/rpc.err"; fail "POST /rpc search did not return 200 with a match"; }
+printf '%s\n' "$rpc_summary"
+
 curl --fail --silent --show-error --max-time 20 "${base_url}/openapi.json" >"$tmp_dir/openapi.json" || fail "GET /openapi.json did not complete"
 if ! rate_summary="$(assert_json "$tmp_dir/openapi.json" rate)"; then fail "rate-limit check failed; see documented responses above"; fi
 printf '%s\n' "$rate_summary"

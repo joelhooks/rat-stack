@@ -1,10 +1,14 @@
 import { SandboxDiagnostic } from "@rat-stack/capability";
+import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { gateOutcome, runCheck } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
-import { Clock, Config, DateTime, Effect, Option, Schema } from "effect";
+import { searchContract } from "@rat-stack/core/contracts";
+import { Clock, Config, DateTime, Effect, Layer, Option, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
+import * as RpcClient from "effect/rpc/RpcClient";
+import * as RpcSerialization from "effect/rpc/RpcSerialization";
 
 import { DeployStepError } from "./contracts.js";
 
@@ -55,6 +59,15 @@ const RateDocument = Schema.Struct({
   }),
 });
 
+const { group: readerSearchGroup } = toRpcGroup([searchContract]);
+
+const okStatusClient = Layer.effect(
+  HttpClient.HttpClient,
+  Effect.gen(function* requireOkStatus() {
+    return HttpClient.filterStatusOk(yield* HttpClient.HttpClient);
+  })
+);
+
 export const measuredCheck = <E, R>(
   check: string,
   work: Effect.Effect<boolean, E, R>
@@ -75,6 +88,24 @@ export const measuredCheck = <E, R>(
           : { exitCode: 2, outcome: "failed", status: "red" }),
       } satisfies Verdict;
     })
+  );
+
+export const rpcSearchCheck = (url: string) =>
+  measuredCheck(
+    "rpc-search",
+    Effect.gen(function* browserSearch() {
+      const rpc = yield* RpcClient.make(readerSearchGroup);
+      const found = yield* rpc.search({ limit: 1, query: "cartridge" });
+
+      return found.matches.length > 0;
+    }).pipe(
+      Effect.provide(
+        RpcClient.layerProtocolHttp({ url: `${url}/rpc` }).pipe(
+          Layer.provide([RpcSerialization.layerJson, okStatusClient])
+        )
+      ),
+      Effect.scoped
+    )
   );
 
 export const settledReadinessCheck = Effect.fn("settledReadinessCheck")(
@@ -504,6 +535,7 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
           );
         })
       ),
+      yield* rpcSearchCheck(url),
       yield* measuredCheck(
         "execute-429-document",
         Effect.gen(function* rateDocument() {

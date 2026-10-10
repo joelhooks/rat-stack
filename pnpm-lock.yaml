@@ -682,6 +682,9 @@ importers:
       '@rat-stack/check-harness':
         specifier: workspace:*
         version: link:../check-harness
+      '@rat-stack/core':
+        specifier: workspace:*
+        version: link:../core
       '@xstate/effect':
         specifier: 0.1.0-alpha.7
         version: 0.1.0-alpha.7(effect@4.0.0)(xstate@6.0.0-alpha.65)
