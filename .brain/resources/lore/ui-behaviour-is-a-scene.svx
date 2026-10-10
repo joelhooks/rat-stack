@@ -1,0 +1,117 @@
+---
+title: "UI behaviour is a scene"
+description: "A Foldkit Scene drives update, view, and subscriptions with input and time as plain data, then asserts on what the view shows."
+plain: "Give the program clicks, messages, and finished timers as data, then check what a person would see."
+diagram: |-
+  given(model)
+    │
+  pointerDown, click
+  Subscription.emit
+    │ input is data
+    ▼
+  Command.resolve(Wait, Done)
+    │ time is data
+    ▼
+  expect(role, text, attr)
+    what the view shows
+group: idea
+terms:
+  - "scene test"
+  - "Foldkit Scene"
+prerequisites: ["lore.tests-that-earn-their-place","lore.model-based-testing"]
+sources:
+  - url: https://x.com/devinjameson/status/2108710271417999544
+    title: "Jameson, Devin. 2026. A Scene test for the Foldkit UI Toast."
+    publisher: "Devin Jameson · X"
+    note: "Post; used for the short-swipe Toast scene and the case for synchronous behaviour tests."
+    accessed: "2026-10-10"
+  - url: https://github.com/foldkit/foldkit/blob/49dc36ef672d1caee23f153f88c09d98c8241670/packages/ui/src/toast/scene.test.ts#L329-L366
+    title: "Foldkit contributors. 2026. Toast scene tests. Foldkit UI."
+    publisher: "GitHub foldkit/foldkit"
+    note: "Scene test; used for the short swipe that settles and the stale dismissal timer."
+    accessed: "2026-10-10"
+  - url: https://github.com/joelhooks/rat-stack/blob/1d4d3252326a216909ccec05e93312d1ab0eaf84/apps/web/test/reader.scene.test.ts
+    title: "rat-stack contributors. 2026. Reader scene tests."
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Scene test; used for a copy confirmation whose reset wait the test resolves."
+    accessed: "2026-10-10"
+---
+
+A Foldkit program has a Model, Messages, an `update` function, and a view.
+A Command is a named side effect. Its result comes back as a Message.
+A Scene runs `update`, the view, and subscriptions together, without a browser.
+
+## Input and time are data
+
+A Scene starts from a Model with `given`.
+Input is a step such as `pointerDown`, `click`, or `Subscription.emit`.
+A timer is a Command, so the test finishes it with `Command.resolve`.
+
+The test does not use fake timers, a clock, or a DOM.
+Each step runs in order, and the result is the same on every run.
+
+## The Toast example
+
+[Devin Jameson](https://x.com/devinjameson/status/2108710271417999544) shared a Scene test for the Foldkit UI Toast.
+The test name is "returns a short swipe to zero while settling".
+
+1. A pointer goes down on the toast.
+2. The pointer moves 30 pixels and releases.
+3. The swipe is too short, so the toast settles back. It does not dismiss.
+4. The test resolves the settle wait.
+5. The test resolves an old dismissal timer with a stale version.
+6. The toast still exists.
+
+This paraphrase keeps the steps and drops the setup:
+
+```ts title="toast short swipe (paraphrase)"
+scene(
+  { update: Toast.update, view },
+  given(withEntry()),
+  pointerDown(toast, { clientX: 100 }),
+  Subscription.emit(MovedSwipePointer({ pointerId, clientX: 130 })),
+  Subscription.emit(ReleasedSwipePointer({ pointerId, clientX: 130 })),
+  expect(toast).toHaveAttr("data-swipe", "settling"),
+  expect(toast).not.toHaveAttr("data-leave"),
+  Command.resolve(
+    WaitForSwipeSettled,
+    CompletedWaitForSwipeSettled({ entryId, version: settlingVersion })
+  ),
+  expect(toast).not.toHaveAttr("data-swipe"),
+  Command.resolve(
+    WaitBeforeDismissal,
+    CompletedWaitBeforeDismissal({ entryId, version: staleVersion })
+  ),
+  expect(toast).toExist()
+);
+```
+
+Read the full test in [the Foldkit source](https://github.com/foldkit/foldkit/blob/49dc36ef672d1caee23f153f88c09d98c8241670/packages/ui/src/toast/scene.test.ts#L329-L366).
+
+## A race is a plain assertion
+
+A race happens when an old result arrives after the state has moved on.
+In a Scene, the test resolves the old Command late.
+Then it asserts that nothing broke.
+The stale dismissal step above is that race.
+
+## Assert on what the view shows
+
+Find elements by role, text, or data attribute.
+Do not assert on Model fields.
+A Model field can change name while the behaviour stays the same.
+A person and an agent can read the steps without the implementation.
+
+The rat-stack reader uses the same shape for its copy button.
+The test clicks copy, resolves the copy, and checks the status text.
+Then it resolves the reset wait and checks that the label returns:
+
+```ts repo=rat-stack path=apps/web/test/reader.scene.test.ts at=1d4d3252326a216909ccec05e93312d1ab0eaf84 lines=51-69
+```
+
+## Plant a bug first
+
+Break the rule the Scene protects. For the Toast, let a stale timer dismiss the entry.
+The Scene must fail. Restore the code and watch it pass.
+
+See also: [tests that earn their place](/lore/tests-that-earn-their-place), [model-based testing](/lore/model-based-testing), and [the test-behaviour skill](/skills/test-behaviour).

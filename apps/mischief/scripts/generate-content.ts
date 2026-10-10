@@ -709,7 +709,10 @@ const skillGroups = [
   },
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
   { names: ["gardener"], title: "Keep the fence sharp" },
-  { names: ["ship", "profile-a-worker"], title: "Ship with evidence" },
+  {
+    names: ["ship", "profile-a-worker", "test-behaviour"],
+    title: "Ship with evidence",
+  },
 ] as const;
 
 const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
