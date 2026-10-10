@@ -14,6 +14,7 @@
           "effect/ai/Toolkit",
           "effect/cli/CliOutput",
           "effect/cli/Command",
+          "effect/cli/Flag",
           "effect/http-api/HttpApiBuilder",
           "effect/http-api/HttpApiClient",
           "effect/http-api/HttpApiSchema",

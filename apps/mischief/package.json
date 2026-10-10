@@ -54,6 +54,7 @@
   "devDependencies": {
     "@effect/platform-node": "4.0.0",
     "@effect/vitest": "4.0.0",
+    "@foldkit/markdown": "0.14.2",
     "@rat-stack/code-snippets": "workspace:*",
     "@resvg/resvg-js": "2.6.2",
     "@types/mdast": "4.0.4",

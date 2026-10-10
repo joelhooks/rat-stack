@@ -3,6 +3,7 @@ dist/
 .turbo/
 coverage/
 .rat/deploy/
+.rat/content-migration/
 **/.alchemy/bundles/
 **/.alchemy/local/
 **/.alchemy/log/

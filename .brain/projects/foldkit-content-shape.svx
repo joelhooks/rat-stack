@@ -1,7 +1,7 @@
 ---
 title: "The reader Document must preserve both audiences"
 type: design
-status: proposed
+status: evaluated
 created_at: "2026-10-06"
 privacy: public
 ---
@@ -44,5 +44,73 @@ The current preparation helper decodes the generated manifest/catalog, validates
 The initial route ledger covers 124 generated page paths and both HTML and Markdown representations. It is incomplete until special routes, aliases, redirects, and outcome/error statuses are added. Source paths for derived pages need explicit provenance.
 
 No `@foldkit/markdown` pin is added for slice A. The content lane can use the verified shape when its dependency receives approval.
+
+## Migration proof
+
+The migration packet keeps all 166 `.svx` sources. It makes no route change.
+The source AST has five component pages and 50 pinned snippet references.
+
+`pnpm content:migrate --dry-run` compares agent Markdown from two independent trees.
+The old component renderer reads `.svx`. The new renderer folds the Foldkit Document.
+Both use the existing component definitions and snippet resolver.
+
+- 162 pages compile with zero source-body diffs.
+- Two pages contain raw HTML figures inside `HumanOnly`.
+- `layer-startups` contains five task-list items.
+- `structure-effect-by-domain` contains a literal brace placeholder. The conservative expression guard rejects it for hand review.
+- The source AST has no reference links, footnotes, or inline components.
+- The tool reports every rejected construct with its source path and line.
+- A blocked run writes no candidates. A successful run writes outside the Brain.
+- Candidate publication preflights all existing files. Repeated runs preserve identical files and refuse different files.
+
+The hand page is `services-capture-dependencies`. Its fixture lives under `apps/web/test/fixtures/content-migration/`.
+The hand page has six bibliography entries, two terms, internal links, and two pinned excerpts.
+
+The test builds its body from the fixture and resolves excerpts before rendering.
+It retains the existing generator's route decorations as a separate comparison seam.
+The complete Document renders to the old response: 16,427 bytes, also verified against live Markdown.
+The HTML test renders the same Document with a `CodeBlock` override and resolved snippet tokens.
+No production route imports this proof.
+
+## Frontmatter decision
+
+Pre-split YAML before the Foldkit parser. Keep the YAML object beside the Document.
+`MigrationFrontmatter` derives nested fields from `loreFrontmatterSchema`. The existing bibliography Schema decodes each source.
+The hand page also uses `parseLorePage` for its public metadata rules.
+
+One island table supplies both attribute validation and the mapper vocabulary.
+Literal colons in text need escaping because the directive parser also recognizes timestamps.
+Fenced code stays unchanged. Attribute escaping uses entities, not JSON backslash escapes.
+List spread hints remain beside the Document because Foldkit does not retain them.
+These hints preserve tight and loose lists in agent Markdown.
+
+`oxfmt.config.ts` preserves prose wrapping only for the hand-fixture Markdown files.
+Oxfmt adds one blank line to each empty reference fence. Neither addition changes the resolved Document or agent response.
+
+A property generates plain-Markdown trees and compares complete agent output.
+Another property checks decoded island attributes.
+Dropping the first attribute character makes that property fail on its first run.
+The mutation is restored. The mapper and filesystem publication checks pass.
+
+## Cutover conditions
+
+Do not cut over while any page fails or any round-trip diff remains.
+Hand-map the figures and task state. Review the literal brace placeholder without changing the quoted source claim.
+Extend full-route parity from the hand page to every public response, including graph decorations and metadata.
+Keep the current route ledger and public URLs.
+
+The current packet keeps the Markdown package build-only in both apps.
+Worker graph checks reject it alongside code-snippets and Shiki.
+A future renderer can admit the AST and view runtime separately from the Vite parser.
+That change needs its own bundle proof.
+
+Structured YAML support upstream would remove the pre-split adapter.
+An upstream parser option without directive recognition would also simplify plain-text colons.
+Preserving list spread would remove the list hints.
+No upstream pull request is published by this packet.
+
+Brain tooling still reads `.svx`. Its filename checks and pi-notes readers remain unchanged.
+Before deletion, update their accepted extensions, link resolution, document discovery, and graph checks together.
+Keep one authoritative source during that cutover. Do not make `.svx` and `.md` separate editable copies.
 
 Related: [reader-site plan](./foldkit-site.svx).

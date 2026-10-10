@@ -36,6 +36,7 @@
     "typecheck-scripts": "tsc --noEmit -p tsconfig.json",
     "vendor:agent-sources": "./scripts/vendor-agent-sources.sh",
     "cafe:import": "node scripts/cafe-import.ts",
+    "content:migrate": "node apps/mischief/scripts/migrate-content.ts",
     "find-peers": "node scripts/find-peers.ts"
   },
   "devDependencies": {
