@@ -19,10 +19,11 @@ minimumReleaseAgeExclude:
   - "@alchemy.run/better-auth@2.0.0-beta.81"
   - alchemy@2.0.0-beta.81
   - effect@4.0.0
-  - "@foldkit/oxlint-plugin@0.15.2"
-  - "@foldkit/devtools@0.166.0"
-  - "@foldkit/vite-plugin@0.26.1"
-  - foldkit@0.166.0
+  - "@foldkit/oxlint-plugin@0.15.3"
+  - "@foldkit/devtools@0.167.0"
+  - "@foldkit/ui@0.167.0"
+  - "@foldkit/vite-plugin@0.27.0"
+  - foldkit@0.167.0
   - "@effect/platform-node@4.0.0"
   - "@effect/platform-node-shared@4.0.0"
   - "@effect/sql-pg@4.0.0"

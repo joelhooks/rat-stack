@@ -45,13 +45,11 @@ export const readerMetadataHead = (
     `<meta property="${escapeAttribute(name)}" content="${escapeAttribute(content)}">`;
 
   return [
-    `<title>${escapeAttribute(metadata.title)}</title>`,
     nameMeta("description", metadata.description),
     ...(metadata.robots === "noindex" ? [nameMeta("robots", "noindex")] : []),
     propertyMeta("og:type", "website"),
     propertyMeta("og:title", metadata.title),
     propertyMeta("og:description", metadata.description),
-    propertyMeta("og:url", canonical),
     propertyMeta("og:site_name", "ratstack.sh"),
     propertyMeta("og:image", image),
     propertyMeta("og:image:width", "1200"),
@@ -62,7 +60,6 @@ export const readerMetadataHead = (
     nameMeta("twitter:title", metadata.title),
     nameMeta("twitter:description", metadata.description),
     nameMeta("twitter:image", image),
-    `<link rel="canonical" href="${escapeAttribute(canonical)}">`,
     ...metadata.discoveryLinks.map(
       (link) =>
         `<link rel="${escapeAttribute(link.rel)}" type="${escapeAttribute(link.type)}" href="${escapeAttribute(link.href)}">`

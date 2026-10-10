@@ -1,12 +1,10 @@
 import { Effect, Layer, Option, Schema } from "effect";
 import {
-  injectIntoTemplate,
   Rendered,
   Responded,
   renderToString,
 } from "foldkit/experimental/server";
-import { readerErrorShell, readerErrorTemplate } from "virtual:reader-error";
-import { readerPageShells } from "virtual:reader-shells";
+import { readerErrorTemplate } from "virtual:reader-error";
 
 import {
   ReaderErrorPage,
@@ -18,16 +16,16 @@ import { ReaderFlags } from "./client/reader/model.js";
 import { view } from "./features/reader.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
+import { withReaderHead } from "./server/reader-document.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
-import {
-  readerErrorFlags,
-  readerErrorShell as errorShellFor,
-} from "./server/reader-error.js";
+import { readerErrorFlags } from "./server/reader-error.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
 import {
   WebsiteBindings,
   websiteTelemetry,
 } from "./server/website-bindings.js";
+
+export { renderDocument } from "./server/reader-document.js";
 
 export const prerenderPaths = pages.map((page) => page.page.path);
 
@@ -110,23 +108,19 @@ const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
       );
     }
 
+    const flags = readerErrorFlags(errorTemplate, errorPage.value);
+
     const application = yield* renderToString(
       { Flags: ReaderFlags, init, view },
-      { flags: readerErrorFlags(errorTemplate, errorPage.value) }
+      { flags }
     );
 
     const headers = yield* previewHeaders(request);
-    headers.set("Content-Type", "text/html; charset=utf-8");
 
-    return Responded(
-      new Response(
-        injectIntoTemplate(
-          errorShellFor(readerErrorShell, errorPage.value),
-          application
-        ),
-        { headers, status: errorPage.value.code }
-      )
-    );
+    return Rendered(withReaderHead(application, flags), {
+      headers,
+      status: errorPage.value.code,
+    });
   }
 );
 
@@ -205,28 +199,16 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
 
     const headers = yield* previewHeaders(request);
 
-    const shell = readerPageShells[route];
-
     if (promptRoute && !prerender) {
       headers.set("Vary", "Accept");
     }
 
-    if (shell !== undefined && !prerender) {
-      headers.set("Content-Type", "text/html; charset=utf-8");
-
-      return Responded(
-        new Response(injectIntoTemplate(shell, application), {
-          headers,
-          status: page.page.status,
-        })
-      );
-    }
-
-    if ([...headers].length > 0) {
-      return Rendered(application, { headers, status: page.page.status });
-    }
-
-    return Rendered(application, { status: page.page.status });
+    return Rendered(
+      withReaderHead(application, page),
+      prerender
+        ? { status: page.page.status }
+        : { headers, status: page.page.status }
+    );
   }
 );
 

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@effect/platform-browser": "4.0.0",
+    "@foldkit/ui": "0.167.0",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
@@ -30,13 +31,13 @@
     "@stylexjs/stylex": "0.19.1",
     "alchemy": "2.0.0-beta.81",
     "effect": "4.0.0",
-    "foldkit": "0.166.0"
+    "foldkit": "0.167.0"
   },
   "devDependencies": {
     "@effect/platform-node": "4.0.0",
     "@effect/vitest": "4.0.0",
-    "@foldkit/devtools": "0.166.0",
-    "@foldkit/vite-plugin": "0.26.1",
+    "@foldkit/devtools": "0.167.0",
+    "@foldkit/vite-plugin": "0.27.0",
     "@stylexjs/unplugin": "0.19.1",
     "@types/node": "24.13.6",
     "jsdom": "30.1.2",

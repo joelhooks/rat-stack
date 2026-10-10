@@ -2,10 +2,7 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
-import {
-  injectIntoTemplate,
-  renderToString,
-} from "foldkit/experimental/server";
+import { renderToString } from "foldkit/experimental/server";
 
 import { compileReaderBody } from "../../mischief/scripts/reader-body-document.ts";
 import { documentMetadata } from "../../mischief/scripts/reader-site-inputs.ts";
@@ -14,11 +11,12 @@ import { ReaderErrorPage } from "../../mischief/src/reader-error-page.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";
-import { ReaderErrorTemplate } from "../src/server/reader-error-template.js";
 import {
-  readerErrorFlags,
-  readerErrorShell,
-} from "../src/server/reader-error.js";
+  renderDocument,
+  withReaderHead,
+} from "../src/server/reader-document.js";
+import { ReaderErrorTemplate } from "../src/server/reader-error-template.js";
+import { readerErrorFlags } from "../src/server/reader-error.js";
 import { normalizedNodes } from "./reader-node-normalize.js";
 
 const origin = "https://ratstack.sh";
@@ -37,16 +35,9 @@ const template = Effect.gen(function* builtTemplate() {
     new URL("../dist/reader-error.json", import.meta.url).pathname
   );
 
-  const shell = yield* fs.readFileString(
-    new URL("../dist/reader-error-shell.html", import.meta.url).pathname
-  );
-
-  return {
-    shell,
-    template: yield* Schema.decodeUnknownEffect(
-      Schema.fromJsonString(ReaderErrorTemplate)
-    )(source),
-  };
+  return yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(ReaderErrorTemplate)
+  )(source);
 }).pipe(Effect.provide(NodeServices.layer));
 
 const tokenText = Arbitrary.array(
@@ -86,7 +77,7 @@ it.effect.prop(
       };
 
       const built = yield* template;
-      const flags = readerErrorFlags(built.template, page);
+      const flags = readerErrorFlags(built, page);
       const mischief = renderErrorPage(page, origin, true);
 
       const rendered = yield* renderToString(
@@ -98,10 +89,11 @@ it.effect.prop(
       const after = yield* compileReaderBody(rendered.html, "error-page.md");
       const metadata = documentMetadata("/", mischief);
 
-      const document = injectIntoTemplate(
-        readerErrorShell(built.shell, page),
-        rendered
-      );
+      const document = renderDocument(withReaderHead(rendered, flags), {
+        entryScript: "/assets/reader.js",
+        modulePreloads: [],
+        stylesheets: [],
+      });
 
       expect(after.heading).toBe(before.heading);
       expect(normalizedNodes(after.nodes)).toEqual(

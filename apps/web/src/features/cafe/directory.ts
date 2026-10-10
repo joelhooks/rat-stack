@@ -1,3 +1,4 @@
+import { Button } from "@foldkit/ui";
 import {
   cafeDomain,
   cafeLetterInitial,
@@ -83,20 +84,26 @@ const letterToggle = (
   selected: readonly CafeLetterValue[],
   letter: CafeLetterValue
 ): Html =>
-  h.button(
-    [
-      h.Key(letter),
-      h.Type("button"),
-      h.AriaPressed(String(selected.includes(letter))),
-      h.Class(
-        stylex.props(
-          cafeStyles.badge,
-          selected.includes(letter) && cafeStyles.pressed
-        ).className ?? ""
-      ),
-      h.OnClick(Message.ToggledStackLetter({ letter })),
-    ],
-    [letterNames[letter]]
+  Button.view(
+    {
+      onClick: Message.ToggledStackLetter({ letter }),
+      toView: ({ button }) =>
+        h.button(
+          [
+            ...button,
+            h.Key(letter),
+            h.AriaPressed(String(selected.includes(letter))),
+            h.Class(
+              stylex.props(
+                cafeStyles.badge,
+                selected.includes(letter) && cafeStyles.pressed
+              ).className ?? ""
+            ),
+          ],
+          [letterNames[letter]]
+        ),
+    },
+    h
   );
 
 export const view = (
@@ -119,9 +126,13 @@ export const view = (
           ...Array.match(model.selected, {
             onEmpty: () => [],
             onNonEmpty: () => [
-              h.button(
-                [h.Type("button"), h.OnClick(Message.ClearedStackLetters())],
-                [directoryCopy.clearLabel]
+              Button.view(
+                {
+                  onClick: Message.ClearedStackLetters(),
+                  toView: ({ button }) =>
+                    h.button(button, [directoryCopy.clearLabel]),
+                },
+                h
               ),
             ],
           }),

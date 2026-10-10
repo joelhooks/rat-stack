@@ -4,7 +4,6 @@ import type { ReaderErrorPage } from "../../../mischief/src/reader-error-page.js
 import { ReaderNode } from "../client/reader-node.js";
 import type { ReaderNodeValue } from "../client/reader-node.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
-import { escapeAttribute } from "../reader-metadata.js";
 import type { ReaderErrorTemplate } from "./reader-error-template.js";
 
 type Tokens = Readonly<Record<string, string>>;
@@ -101,23 +100,6 @@ const pageTokens = (page: typeof ReaderErrorPage.Type) =>
     ERROR_PATH: page.path,
     ERROR_TITLE: page.title,
   }) satisfies Tokens;
-
-export const readerErrorShell = (
-  shell: string,
-  page: typeof ReaderErrorPage.Type
-) => {
-  const tokens = pageTokens(page);
-
-  return fill(
-    shell,
-    Object.fromEntries(
-      Object.entries(tokens).map(([token, value]) => [
-        token,
-        escapeAttribute(value),
-      ])
-    )
-  );
-};
 
 export const readerErrorFlags = (
   template: typeof ReaderErrorTemplate.Type,

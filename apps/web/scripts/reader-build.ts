@@ -5,7 +5,6 @@ import { readerBodyFlags } from "../../mischief/scripts/reader-body-flags.ts";
 import { readerCafeFlags } from "../../mischief/scripts/reader-cafe-flags.ts";
 import { readerErrorTemplate } from "../../mischief/scripts/reader-error-flags.ts";
 import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
-import { finalizeReaderHtml } from "../../mischief/scripts/reader-html-head.ts";
 import { ReaderInputError } from "../../mischief/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../mischief/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
@@ -13,7 +12,6 @@ import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
-import { readerMetadataHead } from "../src/reader-metadata.ts";
 import {
   isReaderRoutePath,
   readerNoStoreRoutePaths,
@@ -170,13 +168,11 @@ export const finalizeReader = Effect.fn("reader.finalize")(
         const route = page.page.path;
 
         if (!isReaderRoutePath(route)) {
-          return yield* Effect.fail(
-            new ReaderInputError({
-              message:
-                "Reader finalization refuses an out-of-slice page; update the route ledger before adding it",
-              sourcePath: route,
-            })
-          );
+          return yield* new ReaderInputError({
+            message:
+              "Reader finalization refuses an out-of-slice page; update the route ledger before adding it",
+            sourcePath: route,
+          });
         }
 
         const path =
@@ -184,25 +180,15 @@ export const finalizeReader = Effect.fn("reader.finalize")(
             ? `${clientDirectory}/index.html`
             : `${clientDirectory}${route}/index.html`;
 
-        const html = yield* fs.readFileString(path);
+        if (!(yield* fs.exists(path))) {
+          return yield* new ReaderInputError({
+            message:
+              "Foldkit did not generate this reader page; inspect the prerender output",
+            sourcePath: path,
+          });
+        }
 
-        const finalized = yield* Effect.try({
-          catch: (cause) =>
-            new ReaderInputError({
-              cause,
-              message:
-                "Cannot finalize the reader head; inspect the Foldkit prerender output",
-              sourcePath: path,
-            }),
-          try: () =>
-            finalizeReaderHtml(
-              html,
-              readerMetadataHead(page.page.metadata, page.origin),
-              path
-            ),
-        });
-
-        return yield* fs.writeFileString(path, finalized);
+        return yield* Effect.void;
       })
     )(pages);
 

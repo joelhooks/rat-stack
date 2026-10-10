@@ -29,7 +29,9 @@ Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just
 
 - `.brain/resources/lore/cache-completed-values.svx` and `scripts/oxlint-plugin-patterns.ts` adapt the lifetime guidance from `docs/architecture.md` (Be explicit about lifetimes) and `docs/guardrails.md` (Request lifetime).
 - The rule implementation and its fixtures are ours. The ContentStore example comes from rat-stack PR #64.
-- `apps/web/src/AGENTS.md` adapts `src/ui/AGENTS.md` and `docs/guardrails.md`. The checked conventions come from Foldkit's `packages/create-foldkit-app/templates/base/FOLDKIT.md` at `foldkit@0.166.0` (MIT).
+- `apps/web/src/AGENTS.md` adapts `src/ui/AGENTS.md` and `docs/guardrails.md`. The checked conventions come from Foldkit's `packages/create-foldkit-app/templates/base/FOLDKIT.md` at `foldkit@0.167.0` (MIT).
+- `apps/web/src/entry.server.ts`, `src/server/reader-document.ts`, and `vite.config.ts` follow Foldkit's `examples/ssg` document-rendering shape at `foldkit@0.167.0` (MIT). The reader metadata and preview response logic remain ours.
+- Reader, directory, document-browser, and dev-overlay widgets use `@foldkit/ui` render helpers, following `examples/ui-showcase` at `foldkit@0.167.0` (MIT). The views retain this project's StyleX classes and hot-pink rule.
 - `apps/web/test/docs.story.test.ts` and `docs.scene.test.ts` adapt the testing approach from `src/ui/story.test.ts` and `src/ui/scene.test.ts`. They exercise rat-stack's document browser rather than the upstream counter.
 - The opt-in tracing composition adapts `src/platform/cloudflare/api.ts` and `src/platform/cloudflare/stack.ts`. It first targeted Alchemy `2.0.0-beta.80` and is now validated against `2.0.0-beta.81`. Its Website adapter builds a tracer per request. Its event-context design also follows Alchemy's `src/Cloudflare/Workers/CloudflareTracer.ts` (Apache-2.0, https://github.com/alchemy-run/alchemy). The local adapter and metadata-dropping policy are rewritten implementations. They use the installed dependency's API and add no exporter or dependency.
 
