@@ -3,6 +3,7 @@
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Approval } from "@rat-stack/capability";
 import { FileInspector } from "@rat-stack/core";
+import { eventFlags, Flags } from "@rat-stack/core/flags";
 import { Console, Effect, Layer } from "effect";
 
 import { localCafeDirectoryLayer } from "./cafe.js";
@@ -23,6 +24,7 @@ const program = runCommand(process.argv.slice(2)).pipe(
       localPromptLibraryLayer.pipe(Layer.provide(NodeServices.layer)),
       localCafeDirectoryLayer.pipe(Layer.provide(NodeServices.layer)),
       localLearnLayer,
+      Flags.defaults(eventFlags),
       Approval.denyAll
     )
   )

@@ -2,6 +2,7 @@ import { NodeHttpServer, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { CafeDirectory, FileInspector, PromptLibrary } from "@rat-stack/core";
 import { CafeData } from "@rat-stack/core/contracts";
+import { Flags, eventFlags } from "@rat-stack/core/flags";
 import {
   ActorLog,
   CallLog,
@@ -37,6 +38,7 @@ const AppLayer = HttpRouter.serve(routes, {
   disableListenLog: true,
   disableLogger: true,
 }).pipe(
+  Layer.provide(Flags.defaults(eventFlags)),
   Layer.provide(Learner.layer(Effect.succeed([]))),
   Layer.provideMerge(NodeHttpServer.layerTest),
   Layer.provide(FileInspector.layer.pipe(Layer.provide(NodeServices.layer))),
@@ -44,6 +46,28 @@ const AppLayer = HttpRouter.serve(routes, {
 );
 
 describe("serve routes", () => {
+  it.effect(
+    "evaluates declared flag defaults through the generated REST client",
+    () =>
+      Effect.gen(function* readsFlagOverHttp() {
+        const client = yield* HttpApiClient.make(http.api);
+        const flags = yield* client.capabilities.listFlags({ payload: {} });
+        expect(flags.map((flag) => flag.name)).toStrictEqual(
+          eventFlags.map((flag) => flag.name)
+        );
+        expect(
+          yield* client.capabilities.getFlag({
+            payload: { context: {}, name: "EVENTS_ENABLED" },
+          })
+        ).toBe(false);
+        expect(
+          yield* client.capabilities.getFlag({
+            payload: { context: {}, name: "EVENTS_IDENTITY_MODE" },
+          })
+        ).toBe("daily");
+      }).pipe(Effect.provide(AppLayer))
+  );
+
   it.effect("binds serve to the loopback interface only", () =>
     Effect.gen(function* bindsLoopback() {
       const server = yield* HttpServer.HttpServer;
@@ -143,6 +167,7 @@ describe("serve routes", () => {
           disableListenLog: true,
           disableLogger: true,
         }).pipe(
+          Layer.provide(Flags.defaults(eventFlags)),
           Layer.provide(Learner.layer(Effect.succeed([]))),
           Layer.provideMerge(NodeHttpServer.layerTest),
           Layer.provideMerge(devtoolsLayer()),

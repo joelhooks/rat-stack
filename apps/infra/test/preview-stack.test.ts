@@ -91,6 +91,8 @@ it.effect.prop(
           expect(
             [...rpcProjection.group.requests.keys()].every((name) =>
               [
+                "listFlags",
+                "getFlag",
                 "listPrompts",
                 "getPrompt",
                 "search",

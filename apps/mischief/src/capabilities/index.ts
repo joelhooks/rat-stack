@@ -5,12 +5,14 @@ import {
   listCafeProjects,
   listPrompts,
 } from "@rat-stack/core";
+import { flagCapabilities } from "@rat-stack/core/flag-capabilities";
 import { joinInterest } from "@rat-stack/core/join-interest";
 import { feedbackCapabilities } from "@rat-stack/learn/feedback";
 import { Layer } from "effect";
 
 import { cafeDirectoryLayer } from "../cafe-directory.js";
 import { ContentStore } from "../content-store.js";
+import { flagsLayer } from "../flags.js";
 import { promptLibraryLayer } from "../prompt-library.js";
 import { learnCapabilities, learnLayer } from "./learn.js";
 import { backlinks, mentions, neighbors, path } from "./lore.js";
@@ -44,6 +46,7 @@ export {
 export { search } from "./search.js";
 
 export const readerCapabilities = [
+  ...flagCapabilities,
   listPrompts,
   getPrompt,
   search,
@@ -64,7 +67,8 @@ export const contentCapabilities = [
 export const contentLayer = Layer.mergeAll(
   learnLayer,
   promptLibraryLayer,
-  cafeDirectoryLayer
+  cafeDirectoryLayer,
+  flagsLayer.pipe(Layer.orDie)
 ).pipe(Layer.provideMerge(ContentStore.layer));
 
 const generatedExecuteProjection = toExecuteCapability(contentCapabilities);

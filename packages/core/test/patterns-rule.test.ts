@@ -22,6 +22,7 @@ const plugin = path.join(repoRoot, "scripts/oxlint-plugin-patterns.ts");
 const rules = [
   "rat-stack-patterns/acquire-release-constructs-in-acquire-body",
   "rat-stack-patterns/contract-binding-matches-name",
+  "rat-stack-patterns/flag-removal-date",
   "rat-stack-patterns/learn-snippet-idiom",
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/no-shared-pending-cache",
@@ -79,6 +80,24 @@ const eagerAcquire = "Build the resource inside acquire";
 const moduleState = "Module-level let and var are shared by every request";
 
 describe("rat-stack pattern rules", () => {
+  it("rejects missing removal dates through direct, aliased, and namespace declarations", () => {
+    const message = "Declare removeBy as a YYYY-MM-DD literal";
+
+    for (const source of [
+      'defineFlag("test", Schema.Boolean, { default: false, owner: "test" });',
+      'import { defineFlag as flag } from "@rat-stack/core/flags"; flag("test", Schema.Boolean, { default: false, owner: "test" });',
+      'import * as flags from "@rat-stack/flags"; flags.defineFlag("test", Schema.Boolean, { default: false, owner: "test", removeBy: "soon" });',
+    ]) {
+      expectRule(lintFixture("packages/core/src", source), message);
+    }
+
+    expect(
+      lintFixture(
+        "packages/core/src",
+        'defineFlag("test", Schema.Boolean, { default: false, owner: "test", removeBy: "2027-01-01" });'
+      ).status
+    ).toBe(0);
+  });
   it("turns every pattern rule on in the repo config", () => {
     const configSource = readFileSync(
       path.join(repoRoot, "oxlint.config.ts"),

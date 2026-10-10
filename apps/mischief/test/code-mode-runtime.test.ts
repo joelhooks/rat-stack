@@ -187,6 +187,8 @@ test.provider(
         result: {
           links: expectedLinks,
           names: [
+            "listFlags",
+            "getFlag",
             "listPrompts",
             "getPrompt",
             "search",

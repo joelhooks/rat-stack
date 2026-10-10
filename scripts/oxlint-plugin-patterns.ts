@@ -1385,6 +1385,63 @@ const auditedContentRegex = defineRule({
   },
 });
 
+const flagRemovalDate = defineRule({
+  create(context) {
+    return {
+      CallExpression(node) {
+        const identity = importIdentity(
+          node.callee,
+          context.sourceCode.getScope(node),
+          context
+        );
+
+        const direct =
+          node.callee.type === "Identifier" &&
+          node.callee.name === "defineFlag";
+
+        if (
+          !direct &&
+          !(
+            identity?.name === "defineFlag" &&
+            /^@rat-stack\/(?:core\/flags|flags)$/u.test(identity.module)
+          )
+        ) {
+          return;
+        }
+
+        const options = node.arguments.at(2);
+
+        const removal =
+          options?.type === "ObjectExpression"
+            ? options.properties.find(
+                (property) =>
+                  property.type === "Property" &&
+                  staticPropertyKeyName(property) === "removeBy"
+              )
+            : undefined;
+
+        const date =
+          removal?.type === "Property" ? stringValue(removal.value) : null;
+
+        if (date === null || !/^\d{4}-\d{2}-\d{2}$/u.test(date)) {
+          context.report({ messageId: "removeBy", node });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Every feature flag declares its removal date at the call site.",
+    },
+    messages: {
+      removeBy:
+        "Declare removeBy as a YYYY-MM-DD literal in every defineFlag options object.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-patterns" },
   rules: {
@@ -1392,6 +1449,7 @@ export default definePlugin({
       acquireReleaseConstructsInAcquireBody,
     "audited-content-regex": auditedContentRegex,
     "contract-binding-matches-name": contractBindingMatchesName,
+    "flag-removal-date": flagRemovalDate,
     "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "no-shared-pending-cache": noSharedPendingCache,

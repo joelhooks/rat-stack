@@ -1320,6 +1320,7 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
       expect(Object.keys(document.paths).toSorted()).toEqual([
         "/api/backlinks",
         "/api/execute",
+        "/api/getFlag",
         "/api/getPrompt",
         "/api/joinInterest",
         "/api/learnCard",
@@ -1328,6 +1329,7 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
         "/api/learnRecord",
         "/api/listCafeNews",
         "/api/listCafeProjects",
+        "/api/listFlags",
         "/api/listPrompts",
         "/api/mentions",
         "/api/neighbors",
@@ -1817,6 +1819,7 @@ it.effect(
         expect(toolNames?.toSorted()).toEqual([
           "backlinks",
           "execute",
+          "getFlag",
           "getPrompt",
           "joinInterest",
           "learnCard",
@@ -1825,6 +1828,7 @@ it.effect(
           "learnRecord",
           "listCafeNews",
           "listCafeProjects",
+          "listFlags",
           "listPrompts",
           "mentions",
           "neighbors",

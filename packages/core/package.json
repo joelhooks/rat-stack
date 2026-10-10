@@ -14,6 +14,16 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./flags": {
+      "types": "./src/flags.ts",
+      "import": "./dist/flags.js",
+      "default": "./dist/flags.js"
+    },
+    "./flag-capabilities": {
+      "types": "./src/flag-capabilities.ts",
+      "import": "./dist/flag-capabilities.js",
+      "default": "./dist/flag-capabilities.js"
+    },
     "./learn": {
       "types": "./src/learn.ts",
       "import": "./dist/learn.js",
