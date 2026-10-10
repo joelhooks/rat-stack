@@ -233,6 +233,19 @@ Run `pnpm --filter @rat-stack/mischief exec vitest run test/crash-tail.test.ts` 
 After deployment, verify the tail consumer attachment and read an actual failed trace from R2.
 Local tests prove projection and archive writes; they do not prove Cloudflare delivery.
 
+## Deleting stored events
+
+A delete from `events_raw` writes a new Iceberg snapshot. Older snapshots keep their Parquet files, and those files still hold the deleted rows.
+
+Snapshot expiry and compaction remove the old files. Cloudflare runs this maintenance on its own schedule. In one test run, no snapshot expired within 38 minutes.
+
+The cartridge does not prove that a delete physically erases a row by a known time. Consider this before you enable capture for visitors who can request erasure, for example under GDPR in the EU or UK:
+
+- `persistent` mode sets a cookie that lasts 400 days. Some jurisdictions require consent for it.
+- `daily` mode sets no cookie, and its visitor ids do not repeat on a later day.
+- The IP hash salt does not rotate. The same IP gives the same hash in both modes.
+- `EVENTS_ENABLED=false` records nothing.
+
 ## Switches
 
 | Setting | Default | What it does |
