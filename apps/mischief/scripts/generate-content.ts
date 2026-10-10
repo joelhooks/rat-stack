@@ -1766,11 +1766,7 @@ Cursor reads \`~/.cursor/mcp.json\`:
 
 <CopyPrompt id="cursor" />
 
-Install the skills into any agent that reads a skills folder:
-
-\`\`\`sh
-npx skills add joelhooks/rat-stack
-\`\`\`
+Load a skill into one session when the task needs it. Skills stay out of global and project skill folders. The [skills index](${originToken}/.well-known/agent-skills/index.json) lists every skill and its \`SKILL.md\` URL.
 
 <CopyPrompt id="skills" />
 

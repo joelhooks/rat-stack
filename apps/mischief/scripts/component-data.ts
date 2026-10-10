@@ -70,7 +70,7 @@ export const copyPrompts = {
     text: [
       "Turn on rat-stack learn mode for me.",
       `1. Connect to the rat-stack MCP server at https://ratstack.sh/mcp. Use ${learnDeckContract.name} and ${learnCardContract.name} to read the public concept deck.`,
-      "2. Install the rat-stack skills with DO_NOT_TRACK=1 npx skills add joelhooks/rat-stack, then follow https://ratstack.sh/skills/learn.",
+      "2. Read https://ratstack.sh/skills/learn and follow it in this session only. Do not install skills or write them to any skills folder.",
       `3. Keep my progress and display preferences local in ~/.rat-learn/. Use the local ${learnNextContract.name}, ${learnRecordContract.name}, ${learnPreferencesContract.name} and ${learnSetPreferencesContract.name} tools from a fresh rat-stack clone, as the skill says. Never pull over my uncommitted changes.`,
       "4. Never send my code, file paths, names, repository names, or prompts.",
       "5. Then show me the first concept right away. When I later say learn mode on or next concept, show the next one. Keep questions off unless I turn them on. Stop when I say learn mode off.",
@@ -110,6 +110,6 @@ export const copyPrompts = {
     label: "Copy",
     showLabel: true,
     showText: false,
-    text: "npx skills add joelhooks/rat-stack",
+    text: "Read https://ratstack.sh/.well-known/agent-skills/index.json. Pick the skill that fits my task, fetch its SKILL.md, and follow it in this session only. Do not install it or write it to any skills folder.",
   },
 } satisfies Record<string, CopyPromptSpec>;
