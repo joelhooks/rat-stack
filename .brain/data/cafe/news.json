@@ -40,7 +40,7 @@
       "x": "just_be_dev"
     },
     "engagement": {
-      "likes": 155,
+      "likes": 156,
       "replies": 8,
       "participants": 8
     },
@@ -415,8 +415,8 @@
     "title": "All of Effect v4 clicked with this example https://t.co/Kbu2ZIranW",
     "url": "https://x.com/peterpme/status/2107852602356687187",
     "engagement": {
-      "likes": 196,
-      "replies": 10,
+      "likes": 197,
+      "replies": 11,
       "participants": 11
     },
     "topReplies": [
@@ -941,7 +941,7 @@
     "title": "btw i made a wrapper for Foldkit (🪨: sick Elm Architecture frontend framework built on Effect) that renders natively with gpui v early but",
     "url": "https://x.com/sheherenow_/status/2108407994136576215",
     "engagement": {
-      "likes": 34,
+      "likes": 53,
       "replies": 4,
       "participants": 5
     },
@@ -978,5 +978,113 @@
       "x": null
     },
     "source": "https://github.com/alchemy-run/alchemy/pull/2176"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/samgoodwin89/status/2108624604352979379",
+    "title": "I built \"foldkit for the backend\" on top of Alchemy. I absolutely love this style of testing.",
+    "summary": "Sam Goodwin shows alchemy/Fold tests: backend aggregates and stories tested in the same scene style as Foldkit.",
+    "date": "2026-10-09",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": "sam-goodwin",
+      "x": "samgoodwin89"
+    },
+    "source": "https://x.com/samgoodwin89/status/2108624604352979379",
+    "engagement": {
+      "likes": 173,
+      "replies": 11,
+      "participants": 13
+    },
+    "topReplies": [
+      {
+        "likes": 8,
+        "text": "Playing with it over here\"https://t.co/3ii6ERXjew",
+        "url": "https://x.com/samgoodwin89/status/2108624605779021881",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 4,
+        "text": "@samgoodwin89 This is the most readable test I've seen that actually tests a complex user flow of extreme importance. The testing in Alchemy/Foldkit more than anything is what is absolutely blowing me away.",
+        "url": "https://x.com/Plague_FPS/status/2108630376235012333",
+        "x": "Plague_FPS"
+      },
+      {
+        "likes": 3,
+        "text": "@samgoodwin89 Wait I need that",
+        "url": "https://x.com/just_be_dev/status/2108626260561965428",
+        "x": "just_be_dev"
+      }
+    ]
+  },
+  {
+    "kind": "post",
+    "url": "https://github.com/foldkit/foldkit/pull/1634",
+    "title": "Foldkit proposes Layer-backed effects and typed application assembly",
+    "summary": "Open PR: Commands, Subscriptions and Queries get implementations from Layers, and the app graph is built once per runtime start.",
+    "date": "2026-10-09",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": "devinjameson",
+      "x": null
+    },
+    "source": "https://github.com/foldkit/foldkit/pull/1634"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/sheherenow_/status/2108435992957026499",
+    "title": "Foldkit Dials: a lil port of Dialkit to align with Foldkit/TEA",
+    "summary": "Live tuning controls for Foldkit apps. Each dial is an Effect Schema and every edit is a Message.",
+    "date": "2026-10-09",
+    "repo": "Manzanita-Research/foldkit-dials",
+    "author": {
+      "github": "jem-computer",
+      "x": "sheherenow_"
+    },
+    "source": "https://x.com/sheherenow_/status/2108435992957026499",
+    "engagement": {
+      "likes": 27,
+      "replies": 3,
+      "participants": 4
+    },
+    "topReplies": [
+      {
+        "likes": 6,
+        "text": "🎨 Pleat is a library for algebraic style composition https://t.co/eBwUIJIVbc",
+        "url": "https://x.com/sheherenow_/status/2108436241406652427",
+        "x": "sheherenow_"
+      },
+      {
+        "likes": 2,
+        "text": "@_aierie @joshpuckett because functional programming is sick \\m/",
+        "url": "https://x.com/sheherenow_/status/2108569686648762581",
+        "x": "sheherenow_"
+      },
+      {
+        "likes": 2,
+        "text": "@sheherenow_ @joshpuckett damn that’s nice! and a music technology lab with effect! foldkit!",
+        "url": "https://x.com/mattespapier/status/2108436782828388716",
+        "x": "mattespapier"
+      }
+    ]
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/sheherenow_/status/2108430801268506670",
+    "title": "Pleat: algebraic, typed styles for Foldkit and Effect v4",
+    "summary": "A new style composition library for Foldkit frontends. Early and in flux, with a Foldkit UI page of live components.",
+    "date": "2026-10-09",
+    "repo": "Manzanita-Research/pleat",
+    "author": {
+      "github": "jem-computer",
+      "x": "sheherenow_"
+    },
+    "source": "https://x.com/sheherenow_/status/2108430801268506670",
+    "engagement": {
+      "likes": 1,
+      "replies": 0,
+      "participants": 1
+    },
+    "topReplies": []
   }
 ]
