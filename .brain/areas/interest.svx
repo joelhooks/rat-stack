@@ -42,12 +42,12 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "External delivery implementations outside core."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/routes.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/interest/routes.ts
     title: "Interest HTTP routes"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Retired submission endpoints, email confirmation, and result routing."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/interest/handlers.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/interest/handlers.ts
     title: "Interest handlers"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Neutral answers, mode choices, and delivery composition."
@@ -100,7 +100,7 @@ Skipped fields and historical applications omit both keys.
 
 ## How to check
 
-- Read `apps/mischief/src/interest/routes.ts` for email confirmation, `retired-routes.ts` for 410 responses, and `packages/core/src/join-intake.ts` for agent applications. The only published signup capability is `joinInterest`.
-- Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/mischief test` for submission and confirmation integration tests. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
+- Read `apps/site/src/interest/routes.ts` for email confirmation, `retired-routes.ts` for 410 responses, and `packages/core/src/join-intake.ts` for agent applications. The only published signup capability is `joinInterest`.
+- Run `pnpm --filter @rat-stack/core test` for lifecycle behavior and `pnpm --filter @rat-stack/site test` for submission and confirmation integration tests. `pnpm --filter @rat-stack/subscriber-delivery test` checks the adapter contract.
 - With an authorized test address, approve an agent application, receive the confirmation email, follow its link, and confirm. Source and local tests alone do not prove inbox delivery or the external list state.
 - Check [OpenAPI](/openapi.json) for `joinInterest` and read the agent view of [/tokenmaxx](/tokenmaxx) for the application steps. Do not bypass confirmation.

@@ -23,12 +23,12 @@ sources:
     publisher: "rat-stack"
     note: "The shipped grammar, pipeline, adapters, and exact-message tests."
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/component-registry.ts
     title: "Component registry"
     publisher: "rat-stack"
     note: "Human and agent renderers consume the shipped snippet model."
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/generate-content.ts
     title: "Content generator"
     publisher: "rat-stack"
     note: "Existing build-time highlighting and content generation."

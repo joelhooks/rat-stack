@@ -116,7 +116,7 @@ Each event holds:
 
 ## Worker logs
 
-The three HTTP Worker declarations share `privateObservability` in `apps/mischief/src/observability.ts`:
+The three HTTP Worker declarations share `privateObservability` in `apps/site/src/observability.ts`:
 
 - Mischief.
 - RpcBackend.
@@ -229,7 +229,7 @@ A Cloudflare ray id is not stored, so this comparison is a correlation rather th
 Fix the observed cause in a separate change.
 
 Before deployment, run `pnpm --filter @rat-stack/events exec vitest run test/crash.test.ts`.
-Run `pnpm --filter @rat-stack/mischief exec vitest run test/crash-tail.test.ts` to exercise Alchemy's exported tail dispatcher.
+Run `pnpm --filter @rat-stack/site exec vitest run test/crash-tail.test.ts` to exercise Alchemy's exported tail dispatcher.
 After deployment, verify the tail consumer attachment and read an actual failed trace from R2.
 Local tests prove projection and archive writes; they do not prove Cloudflare delivery.
 
@@ -265,7 +265,7 @@ See [Basin Catalog sink](https://developers.cloudflare.com/basin-pipelines/sinks
 3. Check `pipelinesSinkAdaptiveGroups` for records and files written. See [Metrics and analytics](https://developers.cloudflare.com/basin-pipelines/observability/metrics/).
 4. Find the queryable catalog with `wrangler basin catalog get <bucket>`.
 5. Query it with `wrangler basin sql query <warehouse> "<sql>"`. The command calls the catalog a warehouse. Wrangler reads `WRANGLER_BASIN_SQL_AUTH_TOKEN`. See [Query data](https://developers.cloudflare.com/basin-sql/query-data/).
-6. Run `pnpm --filter @rat-stack/mischief exec vitest run test/worker-observability.test.ts`.
+6. Run `pnpm --filter @rat-stack/site exec vitest run test/worker-observability.test.ts`.
 7. Review the deployed Worker settings before claiming the invocation-log policy is active.
 
 A cookie proves that the persistent capture wrapper is enabled. It does not prove that an event is stored in the table.

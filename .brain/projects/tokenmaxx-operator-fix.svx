@@ -18,7 +18,7 @@ Alchemy `2.0.0-beta.79`'s `makeRpcStub` in `Cloudflare/Workers/Rpc.ts` returns a
 
 `InterestIndex.records` is now a zero-argument method. `InterestIndexStub` declares that method, and the directory calls `records()` before yielding its Effect. No storage keys, schemas, authentication, or infrastructure declarations changed.
 
-`apps/mischief/test/interest-runtime.test.ts` uses the real routes, directory adapter, per-address object, index object, and Alchemy bridges under local workerd. It checks an empty authorized read, wrong-token rejection, a form submission appearing as one pending address, confirmation, a repeated normalized JSON registration that cannot turn a confirmed address back into pending, and a new JSON submission appearing as pending. The fixture explicitly disables the production mailer and fails closed if local testing is overridden.
+`apps/site/test/interest-runtime.test.ts` uses the real routes, directory adapter, per-address object, index object, and Alchemy bridges under local workerd. It checks an empty authorized read, wrong-token rejection, a form submission appearing as one pending address, confirmation, a repeated normalized JSON registration that cannot turn a confirmed address back into pending, and a new JSON submission appearing as pending. The fixture explicitly disables the production mailer and fails closed if local testing is overridden.
 
 ## Retention copy
 
@@ -39,4 +39,4 @@ The HTML and JSON route tests check the same wording. Pending storage is no long
 
 This packet does not deploy, change secrets, send mail, or change DNS. A read-only `pnpm infra:plan --stage prod --no-input` found three updates: `Mischief`, `RpcBackend`, and `Website`. All bindings, Durable Objects, DNS records, and zone resources were unchanged. No additions, replacements, or deletions were planned. The first deployment already installed the resources; the earlier additions-only requirement does not describe this follow-up plan.
 
-The confirmation email remains in `apps/mischief/content/tokenmaxx-confirmation-email.txt`; its text is unchanged. Existing bindings remain `INTEREST_TOKEN_SECRET`, `INTEREST_OPERATOR_TOKEN`, `INTEREST_SEND_ENABLED`, `POSTSHIBA_API_KEY`, `POSTSHIBA_TEAM`, and `POSTSHIBA_CLUSTER`. This fix requires no new bindings. Keep sending disabled until the operator deploys and re-checks the authorized summary.
+The confirmation email remains in `apps/site/content/tokenmaxx-confirmation-email.txt`; its text is unchanged. Existing bindings remain `INTEREST_TOKEN_SECRET`, `INTEREST_OPERATOR_TOKEN`, `INTEREST_SEND_ENABLED`, `POSTSHIBA_API_KEY`, `POSTSHIBA_TEAM`, and `POSTSHIBA_CLUSTER`. This fix requires no new bindings. Keep sending disabled until the operator deploys and re-checks the authorized summary.

@@ -19,10 +19,10 @@ sources:
     publisher: "Primary source"
     note: "OpenAPI 3.1.0 specification"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
-    title: "apps/mischief/src/app.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts
+    title: "apps/site/src/app.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/app.ts"
+    note: "apps/site/src/app.ts"
     accessed: "2026-10-02"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-http-api.ts
     title: "packages/capability/src/to-http-api.ts"
@@ -48,7 +48,7 @@ sources:
 
 [OpenAPI](https://spec.openapis.org/oas/v3.1.0.html) describes HTTP paths, operations, request bodies, and responses. An agent can read our generated [/openapi.json](/openapi.json) before choosing an HTTP call.
 
-[`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) builds the `/api` projection. It passes the API to `HttpApiBuilder.layer`, with `openapiPath: "/openapi.json"`.
+[`apps/site/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts) builds the `/api` projection. It passes the API to `HttpApiBuilder.layer`, with `openapiPath: "/openapi.json"`.
 
 Effect's [`OpenApi.fromApi`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/http-api/OpenApi.ts) derives the document from that HttpApi.
 

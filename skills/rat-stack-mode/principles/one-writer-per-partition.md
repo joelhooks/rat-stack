@@ -6,6 +6,6 @@ Name the key that owns mutable state and route updates through its owner. If wri
 
 **Why:** Uncontrolled writers turn request order into accidental policy.
 
-**Example:** `apps/mischief/src/interest/interest-index-durable-object.ts` owns the interest directory's persisted index through its Durable Object methods.
+**Example:** `apps/site/src/interest/interest-index-durable-object.ts` owns the interest directory's persisted index through its Durable Object methods.
 
 **Held by:** `rat-stack-patterns/no-module-level-mutable-state` blocks process-global state; review for partition ordering and atomic updates.

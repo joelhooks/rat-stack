@@ -29,8 +29,8 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Handler binding; used for schema validation and declared failures."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
-    title: "rat-stack/apps/mischief/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts
+    title: "rat-stack/apps/site/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Hosted registry; used to identify the capabilities served by ratstack.sh."
     accessed: "2026-10-01"
@@ -69,7 +69,7 @@ The projections in `packages/capability` provide:
 - Code mode, which combines capability calls in one program inside a restricted environment.
 See [one capability, every surface](/lore/one-capability-every-surface) for why.
 
-ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`. The registry lives in `apps/mischief/src/capabilities/index.ts`. The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
+ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`. The registry lives in `apps/site/src/capabilities/index.ts`. The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
 
 ## The standard
 
@@ -134,7 +134,7 @@ A downstream storage adapter owns its statement and row limits.
 - `pnpm --filter @rat-stack/capability test` covers input rejection before the handler and typed failures as tool errors. It checks approval denial as a 403 and a typed tool error, denial by default, and code-mode calls through capability schemas.
 - `pnpm lint` fails on any callable interface built outside `packages/capability`.
 - `pnpm --filter @rat-stack/capability exec vitest run test/catalog.test.ts test/sandbox-limits.test.ts test/sandbox-conformance.test.ts test/code-mode-context.test.ts` checks discovery, search pages, limits, and captured services.
-- `pnpm --filter @rat-stack/mischief exec vitest run test/code-mode-runtime.test.ts` checks the same diagnostics, limits, and concurrency in local workerd.
+- `pnpm --filter @rat-stack/site exec vitest run test/code-mode-runtime.test.ts` checks the same diagnostics, limits, and concurrency in local workerd.
 - `pnpm --filter @rat-stack/devtools test` checks handler duration and failure recording during code-mode execution.
 
 ## Removing an interface

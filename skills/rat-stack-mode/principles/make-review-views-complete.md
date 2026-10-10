@@ -6,6 +6,6 @@ Give each view enough source context to verify its claims. Render shared facts r
 
 **Why:** A review view without provenance makes readers reconstruct the evidence by hand.
 
-**Example:** `apps/mischief/scripts/component-registry.ts` renders code snippets for HTML and Markdown from one snippet model.
+**Example:** `apps/site/scripts/component-registry.ts` renders code snippets for HTML and Markdown from one snippet model.
 
-**Held by:** `apps/mischief/test/code-pipeline.test.ts`; `packages/code-snippets/test/pipeline.test.ts`; review for review completeness.
+**Held by:** `apps/site/test/code-pipeline.test.ts`; `packages/code-snippets/test/pipeline.test.ts`; review for review completeness.

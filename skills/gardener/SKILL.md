@@ -59,7 +59,7 @@ Check the dataset's oldest peer checked date on every gardener pass. If it is fo
 
 ## 4. Remove prohibited patterns
 
-Run `pnpm --filter @rat-stack/mischief generate`, read `.brain/data/unlinked-mentions.generated.json`, and turn useful unlinked mentions into explicit source links after checking their context; leave incidental matches alone.
+Run `pnpm --filter @rat-stack/site generate`, read `.brain/data/unlinked-mentions.generated.json`, and turn useful unlinked mentions into explicit source links after checking their context; leave incidental matches alone.
 
 Look for technical debt and patterns that should not spread:
 

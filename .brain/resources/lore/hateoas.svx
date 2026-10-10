@@ -24,18 +24,18 @@ sources:
     publisher: "Roy Fielding · UC Irvine"
     note: "Application-state transitions; used for hypermedia guidance to automated agents."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
-    title: "rat-stack/apps/mischief/src/app.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts
+    title: "rat-stack/apps/site/src/app.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Content negotiation; used for markdown and HTML agent surfaces."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts
-    title: "rat-stack/apps/mischief/scripts/generate-content.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/generate-content.ts
+    title: "rat-stack/apps/site/scripts/generate-content.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Content generation; used for llms.txt navigation and lore backlinks."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts
-    title: "rat-stack/apps/mischief/scripts/content-lib.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/content-lib.ts
+    title: "rat-stack/apps/site/scripts/content-lib.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Audience variants; used for retaining AgentOnly guidance in markdown."
     accessed: "2026-10-01"
@@ -58,9 +58,9 @@ Joel applies the idea to links and pointers on agent-facing pages and responses:
 
 ## What exists, and what is direction
 
-[Content negotiation](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) serves markdown by default and HTML when requested. It also recognizes browser and crawler user agents; a browser can receive HTML without an explicit Accept header. `/llms.txt` is the starting point for an agent. The [content generator](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/generate-content.ts) gives that guide links to rules, lore, skills, and the full docs, and builds HTML "Linked from" backlinks from the lore graph.
+[Content negotiation](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts) serves markdown by default and HTML when requested. It also recognizes browser and crawler user agents; a browser can receive HTML without an explicit Accept header. `/llms.txt` is the starting point for an agent. The [content generator](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/generate-content.ts) gives that guide links to rules, lore, skills, and the full docs, and builds HTML "Linked from" backlinks from the lore graph.
 
-[Audience variants](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/content-lib.ts) retain `AgentOnly` blocks in agent markdown and remove them from HTML. `/tokenmaxx` has inline next-action guidance. Its [AgentOnly blocks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/content/tokenmaxx.md) link to the agent guide and related lore, explain the harness pieces, and guide preparation.
+[Audience variants](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/content-lib.ts) retain `AgentOnly` blocks in agent markdown and remove them from HTML. `/tokenmaxx` has inline next-action guidance. Its [AgentOnly blocks](https://github.com/joelhooks/rat-stack/blob/main/apps/site/content/tokenmaxx.md) link to the agent guide and related lore, explain the harness pieces, and guide preparation.
 
 Agents submit a person-approved editable card through `joinInterest` over MCP, HTTP, or CLI. They use a single-use page ticket from the [/tokenmaxx agent view](/tokenmaxx). [Intake verifies the ticket](https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts). Email confirmation is still required; it does not reserve a seat.
 

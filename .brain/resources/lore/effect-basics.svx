@@ -126,20 +126,7 @@ The CLI builds and transforms a program with `pipe`, then provides its services 
 
 The Worker returns a fetch Effect to its Alchemy Worker adapter:
 
-```ts
-    const app = yield* HttpRouter.toHttpEffect(workerRoutes).pipe(Effect.orDie);
-
-    return {
-      fetch:
-        events === undefined
-          ? app
-          : withEventCapture({
-              captureCity: true,
-              identityMode,
-              runInBackground: inBackground,
-            })(app).pipe(Effect.provideContext(events)),
-    };
-  });
+```ts repo=rat-stack path=apps/site/src/worker.ts at=246600bd53978883a6a4c1f5a6ff45e3f1ff2f0c lines=322-332
 ```
 
 The Worker adapter owns request execution. The domain does not scatter `runPromise` calls through handlers.

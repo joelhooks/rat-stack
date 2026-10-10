@@ -221,7 +221,7 @@ Run the implementation checks:
 ```sh
 pnpm --filter @rat-stack/learn test
 pnpm --filter @rat-stack/auth test
-pnpm --filter @rat-stack/mischief generate
+pnpm --filter @rat-stack/site generate
 pnpm turbo run check test build --concurrency=1
 ```
 

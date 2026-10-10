@@ -39,7 +39,7 @@ Node `24.18.0` and pnpm `11.3.0` are required. The requirement is declared in `.
 | `packages/lore` | `@rat-stack/lore` | Public content graph and traversal service |
 | `packages/subscriber-delivery` | `@rat-stack/subscriber-delivery` | External subscriber intake and confirmation adapter behind core's job-shaped ports |
 | `apps/infra` | `@rat-stack/infra` | Alchemy Stack (Cloudflare by default) |
-| `apps/mischief` | `@rat-stack/mischief` | Cloudflare Worker for the public site, agent discovery, and sandboxed execute |
+| `apps/site` | `@rat-stack/site` | Cloudflare Worker for the public site, agent discovery, and sandboxed execute |
 | `.agent_sources/` | — | Shallow upstream mirrors (gitignored clones; see README there) |
 
 ## Try the example CLI
@@ -69,7 +69,7 @@ pnpm cli catalog --types         # the `tools` declarations a code-mode program 
 
 Code mode is the fourth projection. The model gets `search` for ranked matches with TypeScript signatures and `execute` for JavaScript with `tools` in scope. The program runs in a fresh Node subprocess under `--permission`. It cannot touch the file system or spawn processes. To call the host, it uses `tools.<name>(input)`. The host validates the input schema and runs the same handler used by every other surface. Node's permission model allows network egress. Put a Worker or Deno runtime behind the same `Sandbox` service to isolate the network too.
 
-`packages/capability/src` is where a capability becomes a `Command`, an `HttpApiEndpoint`, a `Tool`, and a catalog entry. `packages/core/src/inspect-file.ts` supplies the CLI's example capability. Hosted content has its own registry in `apps/mischief/src/capabilities/index.ts`. Provider adapters stay outside core (`rat-stack-boundaries/no-core-adapters`); apps provide them to core's job-shaped ports at composition. Add another to `capabilities`, then verify every projection you keep; CLI command registration lives in `apps/cli/src/command.ts`.
+`packages/capability/src` is where a capability becomes a `Command`, an `HttpApiEndpoint`, a `Tool`, and a catalog entry. `packages/core/src/inspect-file.ts` supplies the CLI's example capability. Hosted content has its own registry in `apps/site/src/capabilities/index.ts`. Provider adapters stay outside core (`rat-stack-boundaries/no-core-adapters`); apps provide them to core's job-shaped ports at composition. Add another to `capabilities`, then verify every projection you keep; CLI command registration lives in `apps/cli/src/command.ts`.
 
 ## What is in the stack?
 
@@ -128,11 +128,11 @@ Rename the workspace package names before you build on the example. The current 
 - `package.json`: `rat-stack`
 - `apps/cli/package.json`: `@rat-stack/cli`
 - `apps/infra/package.json`: `@rat-stack/infra`
-- `apps/mischief/package.json`: `@rat-stack/mischief`
+- `apps/site/package.json`: `@rat-stack/site`
 - `packages/capability/package.json`: `@rat-stack/capability`
 - `packages/core/package.json`: `@rat-stack/core`
 
-Rename the `bin` entry in `apps/cli/package.json`, the root command in `apps/cli/src/command.ts`, and the version in `apps/cli/src/version.ts`. Then change every matching import. The current workspace imports are `@rat-stack/capability`, `@rat-stack/cli`, `@rat-stack/core`, `@rat-stack/infra`, and `@rat-stack/mischief`. Find them with:
+Rename the `bin` entry in `apps/cli/package.json`, the root command in `apps/cli/src/command.ts`, and the version in `apps/cli/src/version.ts`. Then change every matching import. The current workspace imports are `@rat-stack/capability`, `@rat-stack/cli`, `@rat-stack/core`, `@rat-stack/infra`, and `@rat-stack/site`. Find them with:
 
 ```sh
 rg -n '@rat-stack/' --glob '*.json' --glob '*.ts' -l
@@ -146,7 +146,7 @@ pnpm fix
 
 Replace `inspectFile` in `packages/core` with one useful capability. Add it to `capabilities`, then verify each surface you keep. Rewrite the Project law, Architecture, and Boundaries sections of `AGENTS.md` and the top of `.pi/APPEND_SYSTEM.md`; they describe rat-stack until you do. Keep expected failures typed and map them to deliberate exit codes.
 
-`apps/mischief` is the public site and Worker. `apps/infra` is its Alchemy Stack. Delete both if you do not want a public site. If you keep them, change the Cloudflare Zone name and the DNS names and targets derived from it in `apps/infra/alchemy.run.ts`. Change the Worker domain and redirects in `apps/mischief/src/worker.ts`. Choose an Alchemy stage for each plan or deploy. The stage is a command-line choice, for example `--stage <stage>`. Configure credentials with:
+`apps/site` is the public site and Worker. `apps/infra` is its Alchemy Stack. Delete both if you do not want a public site. If you keep them, change the Cloudflare Zone name and the DNS names and targets derived from it in `apps/infra/alchemy.run.ts`. Change the Worker domain and redirects in `apps/site/src/worker.ts`. Choose an Alchemy stage for each plan or deploy. The stage is a command-line choice, for example `--stage <stage>`. Configure credentials with:
 
 ```sh
 pnpm alchemy profile edit --add Cloudflare
@@ -163,8 +163,8 @@ pnpm turbo run check test build
 - One capability reaches every kept surface. Proof: `packages/capability/test/to-command.test.ts`, `packages/capability/test/to-http-api.test.ts`, `packages/capability/test/to-toolkit.test.ts`, `packages/capability/test/to-code-mode.test.ts`, and `apps/cli/test/cli.e2e.test.ts`.
 - Schemas are the contract. Proof: `packages/capability/test/catalog.test.ts`, `packages/capability/test/to-http-api.test.ts`, and `packages/capability/test/to-toolkit.test.ts` check derived JSON Schema and typed failures.
 - A fresh sandbox isolates model code. The Node sandbox has a 10-second wall-clock limit and a 1-second limit per synchronous evaluation. Both run inside the child. Scope close and interruption send SIGTERM, then SIGKILL after 250 milliseconds. Stdin EOF, a lost parent, or a failed protocol write ends the child. Child-process imports remain blocked. Proof: `packages/capability/test/sandbox.test.ts` checks isolation and VM budgets; `sandbox-lifetime.test.ts` and `sandbox-orphan.test.ts` check deadlines, parent death, and process-group cleanup.
-- Rate limits fail closed. Proof: `apps/mischief/test/worker.test.ts` checks 429 responses before another execute worker starts and when the global limit denies.
-- Markdown is the default machine representation. Proof: `apps/mischief/test/worker.test.ts` checks Markdown without `Accept: text/html` and HTML only when requested.
+- Rate limits fail closed. Proof: `apps/site/test/worker.test.ts` checks 429 responses before another execute worker starts and when the global limit denies.
+- Markdown is the default machine representation. Proof: `apps/site/test/worker.test.ts` checks Markdown without `Accept: text/html` and HTML only when requested.
 
 ## Keep or cut
 
@@ -176,8 +176,8 @@ The template is a working project. Delete what you will not use on day one; the 
 | No code mode |  | `packages/capability/src/catalog.ts`, `packages/capability/src/code-mode.ts`, `packages/capability/src/sandbox-error.ts`, `packages/capability/src/sandbox-service.ts`, `packages/capability/src/sandbox-subprocess.ts`, and `packages/capability/src/to-code-mode.ts`; `packages/capability/test/catalog.test.ts`, `packages/capability/test/sandbox.test.ts`, `packages/capability/test/sandbox-lifetime.test.ts`, `packages/capability/test/sandbox-orphan.test.ts`, `packages/capability/scripts/sandbox-lifetime-proof.mjs`, and `packages/capability/test/to-code-mode.test.ts`; the `./sandbox` and `./code-mode` exports in `packages/capability/package.json`; `codeMode` and `mcpServer.codeMode` in `apps/cli/src/surfaces.ts`; the `catalog` command and the `--code-mode` flag in `apps/cli/src/command.ts`; the code-mode and catalog cases in `apps/cli/test/cli.e2e.test.ts` |
 | No HTTP |  | `packages/capability/src/to-http-api.ts`, `packages/capability/src/http-api.ts`, and their tests; the `./http-api` export in `packages/capability/package.json`; `http`, `routes`, and `webServer` in `apps/cli/src/surfaces.ts`; the `openapi` and `serve` commands; `apps/cli/test/serve.test.ts`; the OpenAPI case in `apps/cli/test/cli.e2e.test.ts` |
 | No MCP |  | `packages/capability/src/to-toolkit.ts`, `packages/capability/src/toolkit.ts`, their test, and `packages/capability/test/mcp-harness.ts`; the `./toolkit` export in `packages/capability/package.json`; `tools` and `mcpServer` in `apps/cli/src/surfaces.ts`; the `mcp` command; the MCP cases in `apps/cli/test/cli.e2e.test.ts`. Code mode imports from `packages/capability/src/to-toolkit.ts`, so cutting MCP cuts code mode too |
-| Default flags only | Core's `Flags` port and declarations | Replace `flagsLayer` in `apps/mischief/src/flags.ts` with `Flags.defaults(eventFlags)` from `@rat-stack/core/flags`; remove `packages/flags` and its dependency in `apps/mischief/package.json` |
-| No analytics |  | `packages/events`; `@rat-stack/events` in `apps/mischief/package.json`; the `Basin` and `basinFoundation` calls, `EVENTS_ENABLED`, `withEventCapture`, `inBackground`, `EVENTS_IDENTITY_MODE`, and the `events` parameter in `apps/mischief/src/worker.ts`; `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/mischief/.env.schema` and `apps/mischief/src/config-fingerprint.ts`; `apps/mischief/test/worker-events.test.ts` |
+| Default flags only | Core's `Flags` port and declarations | Replace `flagsLayer` in `apps/site/src/flags.ts` with `Flags.defaults(eventFlags)` from `@rat-stack/core/flags`; remove `packages/flags` and its dependency in `apps/site/package.json` |
+| No analytics |  | `packages/events`; `@rat-stack/events` in `apps/site/package.json`; the `Basin` and `basinFoundation` calls, `EVENTS_ENABLED`, `withEventCapture`, `inBackground`, `EVENTS_IDENTITY_MODE`, and the `events` parameter in `apps/site/src/worker.ts`; `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`; `apps/site/test/worker-events.test.ts` |
 | No XState (only after removing interest and every other lifecycle except file inspection) | Keep XState and its bridge while any retained lifecycle imports them | `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; `scripts/oxlint-plugin-xstate-effect.ts` and its entry in `oxlint.config.ts` |
 
 `defineContract`, `implement`, and `toCommand` are the minimum that keep `stats` working. The contract module has no dependency on the other projections.

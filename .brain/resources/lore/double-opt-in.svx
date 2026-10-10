@@ -22,8 +22,8 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Source of the confirmation-link definition and the mail-scanner rationale."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/test/interest.test.ts
-    title: "rat-stack/apps/mischief/test/interest.test.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/test/interest.test.ts
+    title: "rat-stack/apps/site/test/interest.test.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Interest tests, including the approved confirmation response."
     accessed: "2026-10-01"

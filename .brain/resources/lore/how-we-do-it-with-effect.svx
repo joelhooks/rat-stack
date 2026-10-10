@@ -35,10 +35,10 @@ sources:
     publisher: "GitHub"
     note: "apps/cli/src/surfaces.ts"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
-    title: "apps/mischief/src/app.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts
+    title: "apps/site/src/app.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/app.ts"
+    note: "apps/site/src/app.ts"
     accessed: "2026-10-02"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts
     title: "packages/core/src/join-intake.ts"
@@ -64,7 +64,7 @@ Effect Schema owns inputs, outputs, and failures in our shared [`contract`](http
 A projection builds an interface from a capability, a named action with a contract and handler.
 The HTTP projection creates an Effect HttpApi. Other projections create CLI commands and an AI toolkit from the same contracts.
 
-[`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) and [`apps/mischief/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) supply implementations with Layers.
+[`apps/cli/src/surfaces.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/cli/src/surfaces.ts) and [`apps/site/src/app.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts) supply implementations with Layers.
 
 ## Follow one interface at a time
 

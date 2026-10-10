@@ -13,7 +13,7 @@ terms:
   - "snippet model"
   - "renderer parity"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/component-registry.ts
     title: "Component registry"
     publisher: "Primary source"
     note: "Agent and human renderers"
@@ -25,7 +25,7 @@ sources:
     accessed: "2026-10-02"
 ---
 
-The [component registry](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/component-registry.ts) defines agent and human renderers.
+The [component registry](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/component-registry.ts) defines agent and human renderers.
 The [code-snippets design brief](/lore/code-snippets) gives both renderers one snippet model.
 
 The proposed `CodeSnippet` carries:

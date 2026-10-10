@@ -78,7 +78,7 @@ The web app's dev server also uses auth, where devtools calls can run as test pe
 ## How to check
 
 - `pnpm --filter @rat-stack/auth test` signs up, signs in, reads a session, protects an RPC call, and runs devtools calls as a test person.
-- `pnpm --filter @rat-stack/mischief exec vitest run test/feedback-auth.test.ts` checks phone approval and feedback storage through a separate private server.
+- `pnpm --filter @rat-stack/site exec vitest run test/feedback-auth.test.ts` checks phone approval and feedback storage through a separate private server.
 - The same tests check flag-off routes and tool discovery.
-- `pnpm --filter @rat-stack/mischief startup:check` measures both uploads and rejects auth implementation modules in Mischief.
+- `pnpm --filter @rat-stack/site startup:check` measures both uploads and rejects auth implementation modules in Mischief.
 - `pnpm --filter @rat-stack/web exec vitest run test/production-bundle.test.ts` builds the web app for production and checks the bundle.

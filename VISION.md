@@ -98,7 +98,7 @@ Everything built here is real.
 4. Prove behavior against real infrastructure where local fakes differ. The database suite currently uses local SQLite and PGlite; per-PR deployed-resource tests remain a goal, not existing coverage.
 5. Keep the teaching surface aligned with the running application. `/systems` records what each shipped system does, the standard it keeps, and how to check it. Request analytics runs with a server-set persistent `rat_vid` cookie; event bodies exclude request bodies and sensitive query keys.
 6. Prove the signup lifecycle through an external list provider behind job-shaped ports. Submission starts double opt-in; a person confirms their email before joining. Agents apply through `joinInterest` over MCP, HTTP, or the CLI with a single-use page ticket and the person's approval of the exact card; confirmation is still required.
-7. Coming: extract the existing agent front door in `apps/mischief` (REST, MCP, A2A, code-mode sandbox, rate limits) into a cartridge that a project provides instead of inherits.
+7. Coming: extract the existing agent front door in `apps/site` (REST, MCP, A2A, code-mode sandbox, rate limits) into a cartridge that a project provides instead of inherits.
 
 ## Questions this repo answers in code
 

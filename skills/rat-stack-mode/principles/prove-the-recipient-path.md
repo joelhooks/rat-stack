@@ -6,6 +6,6 @@ Exercise the actual surface and execution context. Include missing credentials, 
 
 **Why:** A successful development path can hide a broken deployed path.
 
-**Example:** `apps/mischief/test/worker-runtime-init.test.ts` checks runtime startup without deploy-only services; PR history records the earlier failure.
+**Example:** `apps/site/test/worker-runtime-init.test.ts` checks runtime startup without deploy-only services; PR history records the earlier failure.
 
-**Held by:** `apps/mischief/test/worker-runtime-init.test.ts`; `apps/web/test/production-bundle.test.ts`.
+**Held by:** `apps/site/test/worker-runtime-init.test.ts`; `apps/web/test/production-bundle.test.ts`.

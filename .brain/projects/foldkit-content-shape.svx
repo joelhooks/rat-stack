@@ -10,7 +10,7 @@ privacy: public
 
 Slice A uses `/lore/services-capture-dependencies`. Its source has six bibliography entries, two glossary terms, internal links, and two pinned excerpts.
 
-Decode the source through `parseLorePage` in `apps/mischief/scripts/content-lib.ts`. Do not replace structured `sources` and `terms` with strings.
+Decode the source through `parseLorePage` in `apps/site/scripts/content-lib.ts`. Do not replace structured `sources` and `terms` with strings.
 
 ## Inputs and authority
 

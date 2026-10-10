@@ -36,10 +36,10 @@ sources:
     publisher: "Primary source"
     note: "Workers Cache documentation"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts
-    title: "apps/mischief/src/static-assets.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/static-assets.ts
+    title: "apps/site/src/static-assets.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/static-assets.ts"
+    note: "apps/site/src/static-assets.ts"
     accessed: "2026-10-02"
   - url: https://github.com/joelhooks/rat-stack/commit/a337a96
     title: "Serve static assets through Effect HTTP composition"
@@ -90,6 +90,6 @@ The accepted configuration leaves cache behavior unproven.
 
 ## What we choose
 
-We choose [static assets](https://github.com/joelhooks/rat-stack/commit/a337a96). [`apps/mischief/src/static-assets.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts) serves separate HTML and Markdown assets. The dynamic signup page stays outside that path.
+We choose [static assets](https://github.com/joelhooks/rat-stack/commit/a337a96). [`apps/site/src/static-assets.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/static-assets.ts) serves separate HTML and Markdown assets. The dynamic signup page stays outside that path.
 
 See [Worker init runs twice](/lore/init-runs-twice) for another boundary a local check can miss.

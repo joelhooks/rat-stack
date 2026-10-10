@@ -58,6 +58,6 @@ The lifecycle journal is scoped memory, with no durable state between processes.
 3. Run `pnpm turbo run check test build --concurrency=1` for the full gate.
 4. Inspect the deployment plan. Resource actions must remain unchanged for the same configuration.
 
-To remove the cartridge, replace `flagsLayer` in `apps/mischief/src/flags.ts` with `Flags.defaults(eventFlags)` from core.
+To remove the cartridge, replace `flagsLayer` in `apps/site/src/flags.ts` with `Flags.defaults(eventFlags)` from core.
 Remove the package dependency and its directory.
 Callers and capabilities keep their typed defaults.
