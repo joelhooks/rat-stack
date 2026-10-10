@@ -1,6 +1,6 @@
 // @effect-diagnostics nodeBuiltinImport:off -- These tests run the real oxlint binary against fixture files, so they use Node's file system and child process modules directly.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -17,28 +17,32 @@ const lintFixed = (name: string, source: string) => {
   const file = path.join(directory, name);
   const config = path.join(directory, ".oxlintrc.json");
 
-  writeFileSync(file, source);
-  writeFileSync(
-    config,
-    JSON.stringify({
-      jsPlugins: [plugin],
-      rules: { "no-comments/no-comments": "error" },
-    })
-  );
+  try {
+    writeFileSync(file, source);
+    writeFileSync(
+      config,
+      JSON.stringify({
+        jsPlugins: [plugin],
+        rules: { "no-comments/no-comments": "error" },
+      })
+    );
 
-  const fix = spawnSync(oxlint, ["-c", config, "--fix", file], {
-    encoding: "utf-8",
-  });
+    const fix = spawnSync(oxlint, ["-c", config, "--fix", file], {
+      encoding: "utf-8",
+    });
 
-  const recheck = spawnSync(oxlint, ["-c", config, file], {
-    encoding: "utf-8",
-  });
+    const recheck = spawnSync(oxlint, ["-c", config, file], {
+      encoding: "utf-8",
+    });
 
-  return {
-    fixed: readFileSync(file, "utf-8"),
-    remaining: recheck.status,
-    status: fix.status,
-  };
+    return {
+      fixed: readFileSync(file, "utf-8"),
+      remaining: recheck.status,
+      status: fix.status,
+    };
+  } finally {
+    rmSync(directory, { force: true, recursive: true });
+  }
 };
 
 describe("no-comments rule", () => {
