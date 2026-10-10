@@ -11,6 +11,7 @@ import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
 import { readerPromptFlags } from "../../mischief/scripts/reader-prompt-flags.ts";
 import { readerSearchFlags } from "../../mischief/scripts/reader-search-flags.ts";
 import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
+import { writeFileAtomically } from "../../mischief/scripts/write-file-atomically.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
 import {
@@ -124,8 +125,8 @@ export const prepareReader = Effect.fn("reader.prepare")(
     )(error);
 
     yield* fs.makeDirectory(`${root}/dist`, { recursive: true });
-    yield* fs.writeFileString(`${root}/dist/reader-pages.json`, encoded);
-    yield* fs.writeFileString(`${root}/dist/reader-error.json`, encodedError);
+    yield* writeFileAtomically(`${root}/dist/reader-pages.json`, encoded);
+    yield* writeFileAtomically(`${root}/dist/reader-error.json`, encodedError);
   },
   Effect.provide(NodeServices.layer)
 );
