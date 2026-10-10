@@ -4,11 +4,6 @@ import { foldkit } from "@foldkit/vite-plugin";
 import { Predicate, Schema } from "effect";
 import { defineConfig } from "vite";
 
-import {
-  appleTouchIconPngBase64,
-  faviconIcoBase64,
-  ratSvg,
-} from "../mischief/src/rat-icons.generated.js";
 import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
 import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
@@ -24,37 +19,6 @@ export default defineConfig(({ isSsrBuild }) => ({
     exclude: ["@foldkit/devtools", "@foldkit/ui", "foldkit/devtools-host"],
   },
   plugins: [
-    {
-      name: "rat-icons",
-      transformIndexHtml: () => [
-        {
-          attrs: {
-            href: `data:image/x-icon;base64,${faviconIcoBase64}`,
-            rel: "icon",
-            sizes: "48x48",
-          },
-          injectTo: "head",
-          tag: "link",
-        },
-        {
-          attrs: {
-            href: `data:image/svg+xml,${encodeURIComponent(ratSvg)}`,
-            rel: "icon",
-            type: "image/svg+xml",
-          },
-          injectTo: "head",
-          tag: "link",
-        },
-        {
-          attrs: {
-            href: `data:image/png;base64,${appleTouchIconPngBase64}`,
-            rel: "apple-touch-icon",
-          },
-          injectTo: "head",
-          tag: "link",
-        },
-      ],
-    },
     stylexPlugin(),
     readerPagesPlugin(),
     foldkit(
@@ -67,6 +31,7 @@ export default defineConfig(({ isSsrBuild }) => ({
                 prerender: { origin: readerPrerenderOrigin },
                 serverOutDir: "dist/server",
               },
+              clientEntry: "/src/client/entry.ts",
               serverEntry: "/src/entry.server.ts",
             },
           }

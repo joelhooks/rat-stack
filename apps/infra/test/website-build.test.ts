@@ -126,6 +126,18 @@ it.layer(NodeServices.layer)((test) => {
         const documents: readonly (readonly [string, string])[] = [
           ["/", home],
           ["/lore/services-capture-dependencies", lore],
+          [
+            "/news",
+            yield* fs.readFileString(
+              path.join(result.clientDirectory, "news/index.html")
+            ),
+          ],
+          [
+            "/directory",
+            yield* fs.readFileString(
+              path.join(result.clientDirectory, "directory/index.html")
+            ),
+          ],
         ];
 
         for (const [route, html] of documents) {
@@ -217,6 +229,8 @@ it.layer(NodeServices.layer)((test) => {
                     paths: [
                       "/",
                       "/lore/services-capture-dependencies",
+                      "/news",
+                      "/directory",
                       "/rpc",
                       "/__rat",
                       "/outside-the-slice",

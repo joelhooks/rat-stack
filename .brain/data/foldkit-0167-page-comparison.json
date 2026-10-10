@@ -1,0 +1,70 @@
+{
+  "totalPages": 140,
+  "metadataMismatches": [],
+  "bodyMismatches": ["/AGENTS.md", "/pins.md", "/debt.md"],
+  "flagsMismatches": ["/AGENTS.md", "/pins.md", "/debt.md"],
+  "headersEqual": true,
+  "representativePages": [
+    {
+      "path": "/",
+      "beforeBytes": 79834,
+      "afterBytes": 80029,
+      "byteEqual": false,
+      "rawMetadataEqual": false,
+      "metadataEqual": true,
+      "beforeImage": "https://ratstack.sh/og/home.png?v=ebcb30fdd063ce97",
+      "afterImage": "https://ratstack.sh/og/home.png?v=2b8667f4a914d0ad",
+      "normalizedBodyEqual": true,
+      "flagsEqual": true,
+      "buttonTabindexAdded": 4,
+      "beforeCsp": null,
+      "afterCsp": null
+    },
+    {
+      "path": "/lore/cafe-stack",
+      "beforeBytes": 108897,
+      "afterBytes": 108876,
+      "byteEqual": false,
+      "rawMetadataEqual": false,
+      "metadataEqual": true,
+      "beforeImage": "https://ratstack.sh/og/lore/cafe-stack.png?v=ebcb30fdd063ce97",
+      "afterImage": "https://ratstack.sh/og/lore/cafe-stack.png?v=2b8667f4a914d0ad",
+      "normalizedBodyEqual": true,
+      "flagsEqual": true,
+      "buttonTabindexAdded": 0,
+      "beforeCsp": null,
+      "afterCsp": null
+    },
+    {
+      "path": "/news",
+      "beforeBytes": 95427,
+      "afterBytes": 95406,
+      "byteEqual": false,
+      "rawMetadataEqual": false,
+      "metadataEqual": true,
+      "beforeImage": "https://ratstack.sh/og/news.png?v=ebcb30fdd063ce97",
+      "afterImage": "https://ratstack.sh/og/news.png?v=2b8667f4a914d0ad",
+      "normalizedBodyEqual": true,
+      "flagsEqual": true,
+      "buttonTabindexAdded": 0,
+      "beforeCsp": null,
+      "afterCsp": null
+    },
+    {
+      "path": "/directory",
+      "beforeBytes": 253729,
+      "afterBytes": 253760,
+      "byteEqual": false,
+      "rawMetadataEqual": false,
+      "metadataEqual": true,
+      "beforeImage": "https://ratstack.sh/og/directory.png?v=ebcb30fdd063ce97",
+      "afterImage": "https://ratstack.sh/og/directory.png?v=2b8667f4a914d0ad",
+      "normalizedBodyEqual": true,
+      "flagsEqual": true,
+      "buttonTabindexAdded": 4,
+      "beforeCsp": null,
+      "afterCsp": null
+    }
+  ],
+  "normalization": "DOM attribute order, data-foldkit deployment identity, and Button's added tabindex=0. Metadata comparison ignores only og:image/twitter:image cache-version queries; rawMetadataEqual and exact image values remain reported. Flags comparison ignores only page.generation and the social image cache version."
+}

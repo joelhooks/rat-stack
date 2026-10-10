@@ -5,7 +5,7 @@ import { DomUtils, parseDocument } from "htmlparser2";
 
 import type { ReaderPageMetadata } from "../../web/src/page-descriptor.js";
 import { readerMetadataHead } from "../../web/src/reader-metadata.js";
-import { finalizeReaderHtml } from "../scripts/reader-html-head.ts";
+import { renderDocument } from "../../web/src/server/reader-document.js";
 
 const text = Schema.String.check(
   Schema.isPattern(/^[a-zA-Z0-9 <>&"'-]{1,80}$/u)
@@ -17,7 +17,7 @@ const previewNumber = Schema.Int.check(
 );
 
 it.prop(
-  "projects preview metadata without losing escaped text or duplicating template metadata",
+  "renders preview metadata without losing escaped text or duplicating document metadata",
   {
     description: Arbitrary.schema(text),
     number: Arbitrary.schema(previewNumber),
@@ -36,11 +36,19 @@ it.prop(
       title,
     } satisfies ReaderPageMetadata;
 
-    const html = finalizeReaderHtml(
-      '<html><head><title>obsolete</title><meta name="description" content="obsolete"><link rel="canonical" href="https://ratstack.sh/"></head><body>reader</body></html>',
-      readerMetadataHead(metadata, origin),
-      "/fixture"
-    );
+    const application = {
+      canonical: `${origin}${metadata.canonicalPath}`,
+      html: "<main>reader</main>",
+      ogUrl: `${origin}${metadata.canonicalPath}`,
+      readerHead: readerMetadataHead(metadata, origin),
+      title,
+    };
+
+    const html = renderDocument(application, {
+      entryScript: "/assets/reader.js",
+      modulePreloads: [],
+      stylesheets: [],
+    });
 
     const document = parseDocument(html);
     const titles = DomUtils.getElementsByTagName("title", document.children);
@@ -92,24 +100,49 @@ it.prop(
 );
 
 it.prop(
-  "preserves the full prerender body, hydration payload and built assets while finalizing idempotently",
+  "preserves document content and escaped payload text while linking the built browser assets",
   { fragment: Arbitrary.schema(Schema.String) },
   ({ fragment }) => {
-    const body = `<body><div id="root"><h1>Reader</h1></div><script type="application/json">${JSON.stringify({ fragment }).replaceAll("<", "\\u003c")}</script></body></html>`;
-    const source = `<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><script type="module" src="/assets/index.js"></script><link rel="stylesheet" href="/assets/index.css"><title>old</title></head>${body}`;
+    const body = `<main><h1>Reader</h1><script type="application/json">${JSON.stringify({ fragment }).replaceAll("<", "\\u003c")}</script></main>`;
 
-    const metadata =
-      '<title>Reader</title><meta name="description" content="Typed reader">';
+    const application = {
+      html: body,
+      readerHead: '<meta name="description" content="Typed reader">',
+      title: "Reader",
+    };
 
-    const finalized = finalizeReaderHtml(source, metadata, "/fixture");
+    const html = renderDocument(application, {
+      entryScript: "/assets/reader.js",
+      modulePreloads: ["/assets/shared.js"],
+      stylesheets: ["/assets/reader.css"],
+    });
 
-    expect(finalized.slice(finalized.indexOf("<body>"))).toBe(body);
-    expect(finalized).toContain(
-      '<script type="module" src="/assets/index.js"></script>'
+    const document = parseDocument(html);
+    const scripts = DomUtils.getElementsByTagName("script", document.children);
+
+    const payload = scripts.find(
+      (element) => element.attribs.type === "application/json"
     );
-    expect(finalized).toContain(
-      '<link rel="stylesheet" href="/assets/index.css">'
+
+    expect(DomUtils.textContent(payload === undefined ? [] : [payload])).toBe(
+      JSON.stringify({ fragment }).replaceAll("<", "\\u003c")
     );
-    expect(finalizeReaderHtml(finalized, metadata, "/fixture")).toBe(finalized);
+    expect(
+      DomUtils.textContent(
+        DomUtils.getElementsByTagName("h1", document.children)
+      )
+    ).toBe("Reader");
+    expect(
+      scripts.find((element) => element.attribs.type === "module")?.attribs.src
+    ).toBe("/assets/reader.js");
+    const links = DomUtils.getElementsByTagName("link", document.children);
+    expect(
+      links.find((element) => element.attribs.rel === "stylesheet")?.attribs
+        .href
+    ).toBe("/assets/reader.css");
+    expect(
+      links.find((element) => element.attribs.rel === "modulepreload")?.attribs
+        .href
+    ).toBe("/assets/shared.js");
   }
 );

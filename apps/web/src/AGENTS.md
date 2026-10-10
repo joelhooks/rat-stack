@@ -36,7 +36,7 @@ The reader receives generated content as flags. Its local Model tracks clipboard
 
 A feature never performs transport. It reads the Model and sends Messages; `update` returns named Commands. A Command calls an Effect `RpcClient` built from the contracts' `toRpcGroup` and returns a result Message. Remote state lives in the Model, as Foldkit `AsyncData` or a `foldkit/experimental` `Query`. Foldkit has no Atom layer.
 
-## Conventions checked against Foldkit 0.166.0
+## Conventions checked against Foldkit 0.167.0
 
 - Use full names such as `Message` and constructors such as `Message.SubmittedSearch()`.
 - Use `defineTaggedUnion` for domain state and `defineRouteUnion` for routes.
@@ -47,6 +47,10 @@ A feature never performs transport. It reads the Model and sends Messages; `upda
 - Use stable Model identifiers for list keys. Never key rows by position or displayed text.
 - Use `h.empty` for an empty branch. Use exhaustive union matches for state-dependent views.
 - Use Foldkit `Dom` for DOM effects and Effect APIs for time and randomness.
+- Use `Subscription.persistentEntry` with `Dom.streamFromKeyBindings` for keyboard subscriptions.
+- Use `@foldkit/ui` render helpers for buttons, inputs, and textareas. Pass the feature's builder last. Render their attribute groups through `toView`; keep our classes and accessible names.
+- SSR and SSG use `ssr.clientEntry`, with CSS imports in that browser entry. Export `renderDocument` from `entry.server.ts`; use `Server.renderDocument` with trusted metadata and favicon `head` markup. Keep one title, canonical link, and Open Graph URL. There is no source `index.html` or browser shell transform.
+- Bind each update result to its operation name and read its fields through dot access. Use `Update.combine` for dependent steps and `Update.withOutMessage` for an existing result.
 - The root no-comments rule wins over upstream section comments and `NOTE` comments.
 - StyleX and the root hot-pink rule remain the styling contract. Do not add Tailwind or foldcn.
 
@@ -73,4 +77,4 @@ Refresh these conventions in the same change as a Foldkit bump. Dependency chang
 6. Omit scaffolder ownership, subtree installation, and upstream dependency instructions.
 7. Update the checked version and `PROVENANCE.md`. Run `pnpm turbo run check test build`.
 
-Reference: [FOLDKIT.md at foldkit@0.166.0](https://github.com/foldkit/foldkit/blob/foldkit%400.166.0/packages/create-foldkit-app/templates/base/FOLDKIT.md). API source and examples live in `packages/foldkit/src/` and `examples/` at that tag.
+Reference: [FOLDKIT.md at foldkit@0.167.0](https://github.com/foldkit/foldkit/blob/foldkit%400.167.0/packages/create-foldkit-app/templates/base/FOLDKIT.md). API source and examples live in `packages/foldkit/src/` and `examples/` at that tag.

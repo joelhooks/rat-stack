@@ -1,3 +1,4 @@
+import { Button, Input, Textarea } from "@foldkit/ui";
 import {
   ratListActors,
   ratListCalls,
@@ -142,16 +143,24 @@ const panelValue = (
                 h.td(
                   [],
                   [
-                    h.button(
-                      [
-                        h.Type("button"),
-                        h.Class(stylex.props(styles.focus).className ?? ""),
-                        h.AriaLabel(`Select call ${row.index}`),
-                        h.OnClick(
-                          Message.ChangedFrom({ value: String(row.index) })
-                        ),
-                      ],
-                      [String(row.index)]
+                    Button.view(
+                      {
+                        onClick: Message.ChangedFrom({
+                          value: String(row.index),
+                        }),
+                        toView: ({ button }) =>
+                          h.button(
+                            [
+                              ...button,
+                              h.Class(
+                                stylex.props(styles.focus).className ?? ""
+                              ),
+                              h.AriaLabel(`Select call ${row.index}`),
+                            ],
+                            [String(row.index)]
+                          ),
+                      },
+                      h
                     ),
                   ]
                 ),
@@ -171,15 +180,21 @@ const panelValue = (
     return h.div(
       [],
       model.value.contracts.map((contract) =>
-        h.button(
-          [
-            h.Key(contract.name),
-            h.Type("button"),
-            h.Class(stylex.props(styles.focus).className ?? ""),
-            h.Title(contract.description),
-            h.OnClick(Message.SelectedContract({ name: contract.name })),
-          ],
-          [contract.name]
+        Button.view(
+          {
+            onClick: Message.SelectedContract({ name: contract.name }),
+            toView: ({ button }) =>
+              h.button(
+                [
+                  ...button,
+                  h.Key(contract.name),
+                  h.Class(stylex.props(styles.focus).className ?? ""),
+                  h.Title(contract.description),
+                ],
+                [contract.name]
+              ),
+          },
+          h
         )
       )
     );
@@ -226,53 +241,81 @@ export const view = (
   model: InspectorModel,
   h: HtmlBuilder<InspectorMessage>
 ): Html => {
-  const button = (name: string, message: InspectorMessage) =>
-    h.button(
-      [
-        h.Class(stylex.props(styles.focus).className ?? ""),
-        h.Type("button"),
-        h.OnClick(message),
-      ],
-      [name]
+  const actionButton = (name: string, message: InspectorMessage) =>
+    Button.view(
+      {
+        onClick: message,
+        toView: ({ button }) =>
+          h.button(
+            [...button, h.Class(stylex.props(styles.focus).className ?? "")],
+            [name]
+          ),
+      },
+      h
     );
 
   const fields = Match.value(model.tab).pipe(
     Match.when("contracts", () => [
-      h.input([
-        h.AriaLabel("Capability name"),
-        h.Value(model.capability),
-        h.OnInput((value) => Message.ChangedCapability({ value })),
-      ]),
-      button("Describe", Message.Described()),
-      h.textarea([
-        h.AriaLabel("Input as JSON"),
-        h.Value(model.input),
-        h.OnInput((value) => Message.ChangedInput({ value })),
-      ]),
-      button(`Run ${model.capability}`, Message.Submitted()),
+      Input.view(
+        {
+          id: "rat-capability",
+          onInput: (value) => Message.ChangedCapability({ value }),
+          toView: ({ input }) =>
+            h.input([...input, h.AriaLabel("Capability name")]),
+          value: model.capability,
+        },
+        h
+      ),
+      actionButton("Describe", Message.Described()),
+      Textarea.view(
+        {
+          id: "rat-input",
+          onInput: (value) => Message.ChangedInput({ value }),
+          toView: ({ textarea }) =>
+            h.textarea([...textarea, h.AriaLabel("Input as JSON")]),
+          value: model.input,
+        },
+        h
+      ),
+      actionButton(`Run ${model.capability}`, Message.Submitted()),
     ]),
     Match.when("calls", () => [
-      h.input([
-        h.AriaLabel("Recorded call index"),
-        h.Value(model.from),
-        h.OnInput((value) => Message.ChangedFrom({ value })),
-      ]),
-      button("Read call", Message.ReadRecorded()),
-      button("Replay and diff", Message.Replayed()),
-      h.input([
-        h.AriaLabel("Comparison call index"),
-        h.Value(model.to),
-        h.OnInput((value) => Message.ChangedTo({ value })),
-      ]),
-      button("Diff calls", Message.Compared()),
+      Input.view(
+        {
+          id: "rat-recorded-call",
+          onInput: (value) => Message.ChangedFrom({ value }),
+          toView: ({ input }) =>
+            h.input([...input, h.AriaLabel("Recorded call index")]),
+          value: model.from,
+        },
+        h
+      ),
+      actionButton("Read call", Message.ReadRecorded()),
+      actionButton("Replay and diff", Message.Replayed()),
+      Input.view(
+        {
+          id: "rat-comparison-call",
+          onInput: (value) => Message.ChangedTo({ value }),
+          toView: ({ input }) =>
+            h.input([...input, h.AriaLabel("Comparison call index")]),
+          value: model.to,
+        },
+        h
+      ),
+      actionButton("Diff calls", Message.Compared()),
     ]),
     Match.when("session", () => [
-      h.input([
-        h.AriaLabel("Test person name"),
-        h.Value(model.personName),
-        h.OnInput((value) => Message.ChangedPersonName({ value })),
-      ]),
-      button(`Sign in ${model.personName}@rat.test`, Message.SignedIn()),
+      Input.view(
+        {
+          id: "rat-person-name",
+          onInput: (value) => Message.ChangedPersonName({ value }),
+          toView: ({ input }) =>
+            h.input([...input, h.AriaLabel("Test person name")]),
+          value: model.personName,
+        },
+        h
+      ),
+      actionButton(`Sign in ${model.personName}@rat.test`, Message.SignedIn()),
       h.p(
         [],
         [
@@ -282,7 +325,7 @@ export const view = (
           }),
         ]
       ),
-      button("Use the default person", Message.UsedDefaultPerson()),
+      actionButton("Use the default person", Message.UsedDefaultPerson()),
     ]),
     Match.when("machines", () => []),
     Match.exhaustive
@@ -291,15 +334,23 @@ export const view = (
   return h.div(
     [],
     [
-      h.button(
-        [
-          h.Type("button"),
-          h.AriaLabel("Rat devtools (⌘K)"),
-          h.AriaExpanded(model.open),
-          h.Class(`rat-trigger ${stylex.props(styles.focus).className ?? ""}`),
-          h.OnClick(Message.Toggled()),
-        ],
-        ["🐀"]
+      Button.view(
+        {
+          onClick: Message.Toggled(),
+          toView: ({ button }) =>
+            h.button(
+              [
+                ...button,
+                h.AriaLabel("Rat devtools (⌘K)"),
+                h.AriaExpanded(model.open),
+                h.Class(
+                  `rat-trigger ${stylex.props(styles.focus).className ?? ""}`
+                ),
+              ],
+              ["🐀"]
+            ),
+        },
+        h
       ),
       ...(model.open
         ? [
@@ -315,29 +366,35 @@ export const view = (
                         (name) =>
                           Schema.is(Model.fields.tab)(name)
                             ? [
-                                h.button(
-                                  [
-                                    h.Type("button"),
-                                    h.AriaPressed(
-                                      model.tab === name ? "true" : "false"
-                                    ),
-                                    h.OnClick(
-                                      Message.SelectedTab({ tab: name })
-                                    ),
-                                  ],
-                                  [name]
+                                Button.view(
+                                  {
+                                    onClick: Message.SelectedTab({ tab: name }),
+                                    toView: ({ button }) =>
+                                      h.button(
+                                        [
+                                          ...button,
+                                          h.AriaPressed(
+                                            model.tab === name
+                                              ? "true"
+                                              : "false"
+                                          ),
+                                        ],
+                                        [name]
+                                      ),
+                                  },
+                                  h
                                 ),
                               ]
                             : []
                       )
                     ),
-                    button("Close", Message.Closed()),
+                    actionButton("Close", Message.Closed()),
                   ]
                 ),
                 h.div(
                   [h.Class("rat-body")],
                   [
-                    button("Refresh", Message.Refreshed()),
+                    actionButton("Refresh", Message.Refreshed()),
                     ...fields,
                     ...(model.pending
                       ? [h.p([h.Role("status")], ["Loading…"])]

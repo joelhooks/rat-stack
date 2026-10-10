@@ -1,3 +1,4 @@
+import { Button, Input } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
 import { Option, Schema } from "effect";
 import type { Runtime, Update } from "foldkit";
@@ -206,21 +207,35 @@ const searchView = (model: AppModel, h: HtmlBuilder<AppMessage>): Html =>
             [h.For("docs-query"), h.Class("visually-hidden")],
             ["Search the docs"]
           ),
-          h.input([
-            h.Class(stylex.props(styles.focus).className ?? ""),
-            h.Id("docs-query"),
-            h.Name("query"),
-            h.Value(model.query),
-            h.Autocomplete("off"),
-            h.Placeholder("Try ‘capability’ or ‘Effect’"),
-            h.OnInput((value) => Message.UpdatedQuery({ value })),
-          ]),
-          h.button(
-            [
-              h.Class(stylex.props(styles.focus).className ?? ""),
-              h.Type("submit"),
-            ],
-            ["Search"]
+          Input.view(
+            {
+              id: "docs-query",
+              name: "query",
+              onInput: (value) => Message.UpdatedQuery({ value }),
+              placeholder: "Try ‘capability’ or ‘Effect’",
+              toView: ({ input }) =>
+                h.input([
+                  ...input,
+                  h.Class(stylex.props(styles.focus).className ?? ""),
+                  h.Autocomplete("off"),
+                ]),
+              value: model.query,
+            },
+            h
+          ),
+          Button.view(
+            {
+              toView: ({ button }) =>
+                h.button(
+                  [
+                    ...button,
+                    h.Class(stylex.props(styles.focus).className ?? ""),
+                  ],
+                  ["Search"]
+                ),
+              type: "submit",
+            },
+            h
           ),
         ]
       ),

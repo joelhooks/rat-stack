@@ -1,4 +1,4 @@
-import { Runtime, Subscription } from "foldkit";
+import { Dom, Runtime, Subscription } from "foldkit";
 
 import { init, update, view } from "../features/overlay/overlay.js";
 import { Message } from "./message.js";
@@ -10,8 +10,8 @@ import "../features/overlay/overlay.css";
 
 const subscriptions = Subscription.make<InspectorModel, InspectorMessage>()(
   () => ({
-    keyboard: Subscription.persistent(
-      Subscription.keyBindings<InspectorMessage>({
+    keyboard: Subscription.persistentEntry(
+      Dom.streamFromKeyBindings<InspectorMessage>({
         bindings: [
           {
             keys: "Mod+K",

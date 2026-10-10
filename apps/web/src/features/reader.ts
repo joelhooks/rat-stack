@@ -1,3 +1,4 @@
+import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
 import { Array, Option } from "effect";
 import type { Document, Html, HtmlBuilder } from "foldkit/html";
@@ -92,25 +93,31 @@ export const readerCopyControl = (
       h.span(
         [h.Class("copy-actions")],
         [
-          h.button(
-            [
-              h.Type("button"),
-              h.Class(primary ? "copy copy-primary" : "copy"),
-              h.DataAttribute("text", prompt.text),
-              h.AriaLabel(prompt.label),
-              h.Hidden(
-                !ClipboardAccess.guards.Available(model.clipboardAccess)
-              ),
-              h.OnClick(Message.ClickedCopy({ id })),
-              h.DataAttribute("copied", String(copied)),
-            ],
-            [
-              readerCopyIcon(h, copied),
-              h.span(
-                [h.Class("copy-label")],
-                [copied ? "Copied ✓" : prompt.label]
-              ),
-            ]
+          Button.view(
+            {
+              onClick: Message.ClickedCopy({ id }),
+              toView: ({ button }) =>
+                h.button(
+                  [
+                    ...button,
+                    h.Class(primary ? "copy copy-primary" : "copy"),
+                    h.DataAttribute("text", prompt.text),
+                    h.AriaLabel(prompt.label),
+                    h.Hidden(
+                      !ClipboardAccess.guards.Available(model.clipboardAccess)
+                    ),
+                    h.DataAttribute("copied", String(copied)),
+                  ],
+                  [
+                    readerCopyIcon(h, copied),
+                    h.span(
+                      [h.Class("copy-label")],
+                      [copied ? "Copied ✓" : prompt.label]
+                    ),
+                  ]
+                ),
+            },
+            h
           ),
           h.span(
             [h.Class("copy-status"), h.Role("status"), h.AriaLive("polite")],

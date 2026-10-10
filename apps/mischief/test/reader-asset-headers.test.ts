@@ -19,6 +19,10 @@ import {
 import { ReaderFlags } from "../../web/src/client/reader/model.js";
 import type { ReaderPageFlags } from "../../web/src/client/reader/model.js";
 import { readerNoStoreRoutePaths } from "../../web/src/reader-routes.js";
+import {
+  renderDocument,
+  withReaderHead,
+} from "../../web/src/server/reader-document.js";
 
 class PreparedReaderPages extends Context.Service<
   PreparedReaderPages,
@@ -155,41 +159,64 @@ it.layer(PreparedReaderPages.layer)((test) => {
           return lines.length === 0 ? [] : [page.page.path, ...lines];
         });
 
+        const outputPath = (route: string) =>
+          route === "/"
+            ? path.join(client, "index.html")
+            : path.join(client, route, "index.html");
+
         const writeStage = Effect.fn("writeReaderStageFixture")(
-          function* writeStage(origin: string, robots: "index" | "noindex") {
+          function* writeStage(origin: string, robots?: "index" | "noindex") {
             const staged = pages.map((page) => ({
               ...page,
               origin,
               page: {
                 ...page.page,
-                metadata: { ...page.page.metadata, robots },
+                metadata: {
+                  ...page.page.metadata,
+                  robots: robots ?? page.page.metadata.robots,
+                },
               },
             }));
 
+            yield* fs.makeDirectory(path.join(root, "dist"), {
+              recursive: true,
+            });
             yield* fs.writeFileString(
               path.join(root, "dist/reader-pages.json"),
               yield* Schema.encodeEffect(encodedPages)(staged)
             );
+
+            for (const page of staged) {
+              const output = outputPath(page.page.path);
+              yield* fs.makeDirectory(path.dirname(output), {
+                recursive: true,
+              });
+              yield* fs.writeFileString(
+                output,
+                renderDocument(
+                  withReaderHead(
+                    {
+                      canonical: `${origin}${page.page.metadata.canonicalPath}`,
+                      html: "<main>Reader content</main>",
+                      ogUrl: `${origin}${page.page.metadata.canonicalPath}`,
+                      title: page.page.metadata.title,
+                    },
+                    page
+                  ),
+                  {
+                    entryScript: "/assets/site.js",
+                    modulePreloads: [],
+                    stylesheets: ["/assets/site.css"],
+                  }
+                )
+              );
+            }
           }
         );
 
         const commit = preview.seed.toString(16).padStart(40, "0");
         const origin = `https://pr-${preview.number}.ratstack.sh`;
         const headerPath = path.join(client, "_headers");
-
-        const outputPath = (route: string) =>
-          route === "/"
-            ? path.join(client, "index.html")
-            : path.join(client, route, "index.html");
-
-        for (const route of routes) {
-          const output = outputPath(route);
-          yield* fs.makeDirectory(path.dirname(output), { recursive: true });
-          yield* fs.writeFileString(
-            output,
-            '<!doctype html><html><head><title>Template</title><link rel="stylesheet" href="/assets/site.css"></head><body><main>Reader content</main></body></html>'
-          );
-        }
 
         yield* writeStage(origin, "noindex");
         yield* finalizeReader(root, client).pipe(
@@ -222,10 +249,7 @@ it.layer(PreparedReaderPages.layer)((test) => {
           );
         }
 
-        yield* fs.writeFileString(
-          path.join(root, "dist/reader-pages.json"),
-          yield* Schema.encodeEffect(encodedPages)(pages)
-        );
+        yield* writeStage("https://ratstack.sh");
         yield* finalizeReader(root, client).pipe(
           Effect.provideService(
             ConfigProvider.ConfigProvider,
