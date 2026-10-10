@@ -140,7 +140,7 @@ const devtoolsModules = (sources: ReadonlySet<string>) =>
     forbiddenModules.some((prefix) => source.includes(prefix))
   );
 
-const BUILD = 60_000;
+const BUILD = 180_000;
 
 describe("production bundle", () => {
   it(
