@@ -23,8 +23,8 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 | `client/docs/command.ts` | Named Commands and their result Messages |
 | `client/docs/queries.ts` | `RpcClient` over the contract group, used by the document browser Commands |
 | `client/entry.ts` | Browser runtime boot |
-| `features/app.ts` | Pure route transitions, update, and document-browser view |
-| `features/route.ts` | Schema route union and URL parsing |
+| `features/app.ts` | Document-browser Submodel: `/search` route transitions, update, boot, and view |
+| `features/route.ts` | Schema route union and URL parsing for `/search?q=` and `/search?id=` |
 | `features/reader*.ts` | Pure document rendering and reader controls |
 | `client/reader/model.ts` and `client/reader/message.ts` | Reader flags, clipboard Model, and Messages |
 | `client/reader/update.ts` | Pure reader transitions |
@@ -32,7 +32,7 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 | `server/` and `entry.server.ts` | Server rendering and RPC forwarding; never import them into browser features |
 | `website.ts` | Cloudflare composition through Alchemy's `Cloudflare.Website.Foldkit`; the deployed Worker is the entry `@foldkit/vite-plugin` generates from `entry.server.ts`. Never import it into browser features |
 
-The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader/update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser has its own Model and Messages; test it through `features/app.ts` update and view.
+The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader/update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser is a Submodel of the reader program, mounted only on `/search`. The reader build gives that page a `docs` flag; `client/reader/update.ts` folds `GotDocsMessage` into it, `features/reader.ts` renders its slot, and `client/entry.ts` provides `DocumentQueries` as the runtime's `resources`. The browser boot reads `location` with `ReadLocation`, so `/search?q=` preloads matches and a submitted search replaces the URL. A match links to its `routePath` reader page. Test the browser through `features/app.ts` update and view, and the mounted route through the reader update and view (`test/docs.scene.test.ts`).
 
 A feature never performs transport. It reads the Model and sends Messages; `update` returns named Commands. A Command calls an Effect `RpcClient` built from the contracts' `toRpcGroup` and returns a result Message. Remote state lives in the Model, as Foldkit `AsyncData` or a `foldkit/experimental` `Query`. Foldkit has no Atom layer.
 

@@ -20,6 +20,7 @@ export const readerFlagsFixture: ReaderPageFlags = {
   cafe: Option.none(),
   codeFences: [],
   copyPrompts: [promptFixture],
+  docs: Option.none(),
   heading: "Rat Stack",
   origin: "https://ratstack.sh",
   page: {

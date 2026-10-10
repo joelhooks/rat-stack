@@ -3,6 +3,7 @@ import { Runtime } from "foldkit";
 import { installOverlay } from "#devtools-overlay";
 
 import { view } from "../features/reader.js";
+import { DocumentQueries } from "./docs/queries.js";
 import { browserInit } from "./reader/init.js";
 import { Message } from "./reader/message.js";
 import { Model, ReaderFlags } from "./reader/model.js";
@@ -17,6 +18,7 @@ const application = Runtime.makeApplication({
   container: document.querySelector("#root"),
   devTools: import.meta.env.DEV ? { Message } : false,
   init: browserInit,
+  resources: DocumentQueries.layer,
   update,
   view,
 });

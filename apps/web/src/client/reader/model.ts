@@ -7,6 +7,7 @@ import {
   ReaderReferences,
 } from "../../page-descriptor.js";
 import { Model as CafeModel } from "../cafe/model.js";
+import { Model as DocsModel } from "../docs/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
 
@@ -30,6 +31,7 @@ export const ReaderFlags = Schema.Struct({
     Schema.Struct({ html: Schema.String, value: Schema.String })
   ),
   copyPrompts: Schema.Array(CopyPrompt),
+  docs: Schema.OptionFromOptional(DocsModel),
   heading: Schema.String,
   origin: Schema.String,
   page: ReaderPageDescriptor,

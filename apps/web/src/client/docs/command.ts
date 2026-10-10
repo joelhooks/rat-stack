@@ -1,7 +1,8 @@
 import { ResourceNotFound } from "@rat-stack/core/contracts";
-import { Effect, Schema } from "effect";
+import { Effect, Option, Schema } from "effect";
 import { Command } from "foldkit";
-import { load, pushUrl } from "foldkit/navigation";
+import { load, pushUrl, replaceUrl } from "foldkit/navigation";
+import { fromString } from "foldkit/url";
 
 import { Message } from "./message.js";
 import { DocumentQueries } from "./queries.js";
@@ -47,6 +48,23 @@ export const Navigate = Command.define("Navigate", {
       ),
       Effect.as(Message.CompletedNavigate())
     ),
+  messages: [Message.CompletedNavigate],
+});
+
+export const ReadLocation = Command.define("ReadLocation", {
+  execute: Effect.sync(() =>
+    Option.match(fromString(window.location.href), {
+      onNone: () => Message.CompletedNavigate(),
+      onSome: (url) => Message.ChangedUrl({ url }),
+    })
+  ),
+  messages: [Message.ChangedUrl, Message.CompletedNavigate],
+});
+
+export const ReplaceUrl = Command.define("ReplaceUrl", {
+  args: { url: Schema.String },
+  execute: ({ url }) =>
+    replaceUrl(url).pipe(Effect.as(Message.CompletedNavigate())),
   messages: [Message.CompletedNavigate],
 });
 
