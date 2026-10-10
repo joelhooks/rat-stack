@@ -9,6 +9,8 @@ import { codeIdentity } from "../../mischief/scripts/migration-document.ts";
 import { htmlPlainText, htmlTokens } from "../../mischief/scripts/svx-ast.ts";
 import { migrationHandPage } from "../scripts/migration-hand-page.ts";
 
+const HAND_PAGE_PIPELINE = 60_000;
+
 it.effect(
   "the hand page renders its source Document in apps/web and preserves the complete old Markdown response",
   () =>
@@ -101,5 +103,6 @@ it.effect(
       expect(rendered.html).toContain('href="/lore/error-model"');
       expect(text).toContain("Sources");
       expect(text).toContain("Kit Langton");
-    }).pipe(Effect.provide(NodeServices.layer))
+    }).pipe(Effect.provide(NodeServices.layer)),
+  HAND_PAGE_PIPELINE
 );
