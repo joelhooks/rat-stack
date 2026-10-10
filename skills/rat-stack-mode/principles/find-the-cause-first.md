@@ -8,6 +8,6 @@ Reproduce the symptom and distinguish cause from correlation. Test the causal hy
 
 **Example:** PR #6 raises test budgets. PR #8 keeps those budgets and serializes tasks; its Docker run reports 58/58 in 154 seconds.
 
-**Held by:** review; planned: `investigate-a-failure`.
+**Held by:** review; `investigate-a-failure`, steps 2 to 5.
 
 **Prior art:** Adapted from pstack's `principle-fix-root-causes` by Lauren Tan (MIT, `skills/rat-stack-mode/LICENSE-pstack`).

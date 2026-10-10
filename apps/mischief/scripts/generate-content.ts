@@ -711,7 +711,12 @@ const skillGroups = [
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
   { names: ["gardener"], title: "Keep the fence sharp" },
   {
-    names: ["ship", "profile-a-worker", "test-behaviour"],
+    names: [
+      "ship",
+      "profile-a-worker",
+      "test-behaviour",
+      "investigate-a-failure",
+    ],
     title: "Ship with evidence",
   },
 ] as const;
