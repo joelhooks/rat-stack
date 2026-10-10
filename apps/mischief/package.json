@@ -65,7 +65,7 @@
     "satori": "0.33.5",
     "typescript": "7.0.2",
     "unified": "11.0.5",
-    "vitest": "5.0.1",
+    "vitest": "5.0.3",
     "yaml": "2.9.0"
   }
 }

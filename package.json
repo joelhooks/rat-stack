@@ -54,7 +54,7 @@
     "typescript": "7.0.2",
     "ultracite": "7.12.0",
     "varlock": "1.20.0",
-    "vitest": "5.0.1"
+    "vitest": "5.0.3"
   },
   "devEngines": {
     "packageManager": {

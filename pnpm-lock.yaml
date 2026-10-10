@@ -253,8 +253,8 @@ importers:
         specifier: 1.20.0
         version: 1.20.0
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   apps/cli:
     dependencies:
@@ -279,7 +279,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -290,8 +290,8 @@ importers:
         specifier: 8.0.7
         version: 8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   apps/infra:
     dependencies:
@@ -303,14 +303,14 @@ importers:
         version: link:../mischief
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -318,8 +318,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   apps/mischief:
     dependencies:
@@ -352,7 +352,7 @@ importers:
         version: link:../../packages/subscriber-delivery
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -362,7 +362,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@rat-stack/code-snippets':
         specifier: workspace:*
         version: link:../../packages/code-snippets
@@ -400,8 +400,8 @@ importers:
         specifier: 11.0.5
         version: 11.0.5
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       yaml:
         specifier: 2.9.0
         version: 2.9.0
@@ -434,7 +434,7 @@ importers:
         version: 0.19.1
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -447,7 +447,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@foldkit/devtools':
         specifier: 0.167.0
         version: 0.167.0(@effect/platform-browser@4.0.0(effect@4.0.0))(@foldkit/ui@0.167.0(effect@4.0.0)(foldkit@0.167.0(@effect/platform-browser@4.0.0(effect@4.0.0))(effect@4.0.0)))(effect@4.0.0)(foldkit@0.167.0(@effect/platform-browser@4.0.0(effect@4.0.0))(effect@4.0.0))
@@ -470,14 +470,14 @@ importers:
         specifier: 8.0.7
         version: 8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/auth:
     dependencies:
       '@alchemy.run/better-auth':
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(0112ce8288f47394b8b64e2f72c2ed34)
+        version: 2.0.0-beta.81(3127469d411347236474e00d6bd04f85)
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../capability
@@ -486,10 +486,10 @@ importers:
         version: link:../database
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       better-auth:
         specifier: 1.6.2
-        version: 1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       drizzle-orm:
         specifier: 1.0.0-rc.5-ab785fc
         version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
@@ -505,7 +505,7 @@ importers:
         version: 5.20260901.1
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@rat-stack/devtools':
         specifier: workspace:*
         version: link:../devtools
@@ -519,8 +519,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/capability:
     dependencies:
@@ -533,7 +533,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -541,8 +541,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/check-harness:
     dependencies:
@@ -552,7 +552,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -560,8 +560,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/code-snippets:
     dependencies:
@@ -577,13 +577,13 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/core:
     dependencies:
@@ -605,7 +605,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -613,8 +613,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/database:
     dependencies:
@@ -623,7 +623,7 @@ importers:
         version: 4.0.0(effect@4.0.0)
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       drizzle-orm:
         specifier: 1.0.0-rc.5-ab785fc
         version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
@@ -642,7 +642,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@electric-sql/pglite':
         specifier: 0.3.15
         version: 0.3.15
@@ -665,8 +665,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/deploy:
     dependencies:
@@ -690,7 +690,7 @@ importers:
         version: 0.1.0-alpha.7(effect@4.0.0)(xstate@6.0.0-alpha.65)
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -700,7 +700,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -708,8 +708,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/devtools:
     dependencies:
@@ -722,7 +722,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -730,8 +730,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/events:
     dependencies:
@@ -740,7 +740,7 @@ importers:
         version: link:../core
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -750,7 +750,7 @@ importers:
         version: 5.20260917.1
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -758,8 +758,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/intake-live:
     dependencies:
@@ -771,14 +771,14 @@ importers:
         version: link:../events
       alchemy:
         specifier: 2.0.0-beta.81
-        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+        version: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
       effect:
         specifier: 4.0.0
         version: 4.0.0
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -786,8 +786,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/learn:
     dependencies:
@@ -812,13 +812,13 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/lore:
     dependencies:
@@ -831,13 +831,13 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/subscriber-delivery:
     dependencies:
@@ -850,7 +850,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: 4.0.0
-        version: 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+        version: 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -858,8 +858,8 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: 5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
 packages:
 
@@ -3308,8 +3308,8 @@ packages:
     resolution: {integrity: sha512-mDH00lx2h+dWmbARTnfmRu321SuZigKslUdX7dAn0/7+psShiFCx6QEWLjjyZgDPSCGVNbIM3JArC40vCTXJjw==}
     os: [win32, linux]
 
-  '@vitest/mocker@5.0.1':
-    resolution: {integrity: sha512-6K1DoBNAPGvuOcSsGA4D6x+5zEEff/KmOOP3uetT2TrGpVfI+HRHRnJJfKi5ib/g1vx8IYHQD8s0pbJz8WQI7Q==}
+  '@vitest/mocker@5.0.3':
+    resolution: {integrity: sha512-T8sWAIbkSyAjkwTcaEc3Iu0o9A27X1/kdXrizhZkGuSKScRQtRzclfAMpOTcGdXCsqxeWlpGy3XjqaW8CpLORg==}
     peerDependencies:
       msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -3319,8 +3319,8 @@ packages:
       vite:
         optional: true
 
-  '@vitest/spy@5.0.1':
-    resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
+  '@vitest/spy@5.0.3':
+    resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
   '@xstate/effect@0.1.0-alpha.7':
     resolution: {integrity: sha512-EYHVGzFxFVfQfp14Evqx+qOQKMh7khHVFriolVqUgGXdQEv0hJm/x+O7jSyzWItaT+DA74XsPd2OTvgSbhC+kw==}
@@ -4399,9 +4399,6 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
-  magic-string@1.4.1:
-    resolution: {integrity: sha512-8lyCu36ErXR0J9uaGKlKQoiLZKmtI63YGLE8G2o9jyRPdr4X47LusSOwgOJOzcVtp81fTAAjxR7BwKz682Jhow==}
-
   magic-string@1.4.2:
     resolution: {integrity: sha512-vG+rjFRj1PqdIBozIxAGMjPlOhaVe+GXpbttY/iSK7rGcJRMlwNJO7dcUwmUqkymsFLJiNGI06t4D7Fr7yRC9g==}
 
@@ -4923,9 +4920,6 @@ packages:
   shiki@3.23.0:
     resolution: {integrity: sha512-55Dj73uq9ZXL5zyeRPzHQsK7Nbyt6Y10k5s7OjuFZGMhpp4r/rsLBH0o/0fstIzX1Lep9VxefWljK/SKCzygIA==}
 
-  siginfo@2.0.0:
-    resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
-
   signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
@@ -4953,9 +4947,6 @@ packages:
 
   sql.js@1.14.2:
     resolution: {integrity: sha512-3ZGPovObMFrdw79zrUHbfdE/DLIsy8jdNdssmMSQuRAymedU6q84asPt0kgiqrdMYlPegDItiIMfmIXzZnYFcw==}
-
-  stackback@0.0.2:
-    resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
   standardwebhooks@1.1.1:
     resolution: {integrity: sha512-bCbX9ZEyFkWPsRz7Bl3NuQUJohmwGSev/yhr7vhaGPlc4AfIrspIRa6cPTBuI1ItmrTDJ4d/S2hCsfe4+vQGnQ==}
@@ -5245,20 +5236,20 @@ packages:
       vite:
         optional: true
 
-  vitest@5.0.1:
-    resolution: {integrity: sha512-iA95lQbKEkvrtTkdAgnWbXfbipWiiWe/hDl2P5tMi6WFwD76G0NxXAGp/M9EOcYupeGJRr6wppMc7CoA41TQjg==}
+  vitest@5.0.3:
+    resolution: {integrity: sha512-xMw97S3rjdtj5dkVat7jCsqWBpvchs3RlpQctUqwJD0KkERk40vz2fJ77lDwW/Vzh/pk18eItYAzkodhSes3jQ==}
     engines: {node: ^22.12.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^22.0.0 || >=24.0.0
-      '@vitest/browser-playwright': 5.0.1
-      '@vitest/browser-preview': 5.0.1
+      '@vitest/browser-playwright': 5.0.3
+      '@vitest/browser-preview': 5.0.3
       '@vitest/browser-webdriverio': ^5.0.0-beta.5 || >=5.0.0
-      '@vitest/coverage-istanbul': 5.0.1
-      '@vitest/coverage-v8': 5.0.1
-      '@vitest/ui': 5.0.1
+      '@vitest/coverage-istanbul': 5.0.3
+      '@vitest/coverage-v8': 5.0.3
+      '@vitest/ui': 5.0.3
       happy-dom: '*'
       jsdom: '*'
       vite: ^6.4.0 || ^7.0.0 || ^8.0.0
@@ -5319,9 +5310,9 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
-  why-is-node-running@2.3.0:
-    resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
-    engines: {node: '>=8'}
+  why-is-node-running@3.2.1:
+    resolution: {integrity: sha512-Tb2FUhB4vUsGQlfSquQLYkApkuPAFQXGFzxWKHHumVz2dK+X1RUm/HnID4+TfIGYJ1kTcwOaCk/buYCEJr6YjQ==}
+    engines: {node: '>=20.11'}
     hasBin: true
 
   workerd@1.20260918.1:
@@ -5406,10 +5397,10 @@ packages:
 
 snapshots:
 
-  '@alchemy.run/better-auth@2.0.0-beta.81(0112ce8288f47394b8b64e2f72c2ed34)':
+  '@alchemy.run/better-auth@2.0.0-beta.81(3127469d411347236474e00d6bd04f85)':
     dependencies:
-      alchemy: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
-      better-auth: 1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      alchemy: 2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0)
+      better-auth: 1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       effect: 4.0.0
     optionalDependencies:
       '@cloudflare/workers-types': 5.20260901.1
@@ -6168,15 +6159,15 @@ snapshots:
       '@effect/tsgo-win32-arm64': 0.51.1
       '@effect/tsgo-win32-x64': 0.51.1
 
-  '@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))':
+  '@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))':
     dependencies:
       effect: 4.0.0
-      vitest: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
-  '@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))':
+  '@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))':
     dependencies:
       effect: 4.0.0
-      vitest: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
 
   '@electric-sql/pglite-socket@0.0.20(@electric-sql/pglite@0.3.15)':
     dependencies:
@@ -7411,25 +7402,25 @@ snapshots:
   '@varlock/native-helper-win32-x64@1.20.0':
     optional: true
 
-  '@vitest/mocker@5.0.1(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))':
+  '@vitest/mocker@5.0.3(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.1
+      '@vitest/spy': 5.0.3
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
       vite: 8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
 
-  '@vitest/mocker@5.0.1(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))':
+  '@vitest/mocker@5.0.3(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.1
+      '@vitest/spy': 5.0.3
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
       vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
 
-  '@vitest/spy@5.0.1': {}
+  '@vitest/spy@5.0.3': {}
 
   '@xstate/effect@0.1.0-alpha.7(effect@4.0.0)(xstate@6.0.0-alpha.65)':
     dependencies:
@@ -7442,7 +7433,7 @@ snapshots:
 
   agent-base@9.0.0: {}
 
-  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
+  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
     dependencies:
       '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@types/node@24.13.6)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       '@alchemy.run/floci': 2.0.0-beta.81(effect@4.0.0)
@@ -7484,7 +7475,7 @@ snapshots:
     optionalDependencies:
       '@effect/platform-node': 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/sql-pg': 4.0.0(effect@4.0.0)
-      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       drizzle-kit: 1.0.0-rc.5-ab785fc
       drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
       pg: 8.23.0
@@ -7500,7 +7491,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
+  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
     dependencies:
       '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@types/node@24.13.6)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       '@alchemy.run/floci': 2.0.0-beta.81(effect@4.0.0)
@@ -7542,7 +7533,7 @@ snapshots:
     optionalDependencies:
       '@effect/platform-node': 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/sql-pg': 4.0.0(effect@4.0.0)
-      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       drizzle-kit: 1.0.0-rc.5-ab785fc
       drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260917.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
       pg: 8.23.0
@@ -7558,7 +7549,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
+  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
     dependencies:
       '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@types/node@24.13.6)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       '@alchemy.run/floci': 2.0.0-beta.81(effect@4.0.0)
@@ -7600,7 +7591,7 @@ snapshots:
     optionalDependencies:
       '@effect/platform-node': 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/sql-pg': 4.0.0(effect@4.0.0)
-      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       drizzle-kit: 1.0.0-rc.5-ab785fc
       drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261001.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
       pg: 8.23.0
@@ -7616,7 +7607,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
+  alchemy@2.0.0-beta.81(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))))(@types/node@24.13.6)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(effect@4.0.0)(hono@4.11.4)(pg@8.23.0)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(ws@8.22.0):
     dependencies:
       '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1)))(@types/node@24.13.6)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       '@alchemy.run/floci': 2.0.0-beta.81(effect@4.0.0)
@@ -7658,7 +7649,7 @@ snapshots:
     optionalDependencies:
       '@effect/platform-node': 4.0.0(effect@4.0.0)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@effect/sql-pg': 4.0.0(effect@4.0.0)
-      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
+      '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)))
       drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
       pg: 8.23.0
       vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
@@ -7695,7 +7686,7 @@ snapshots:
 
   before-after-hook@4.0.0: {}
 
-  better-auth@1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))):
+  better-auth@1.6.2(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))(pg@8.23.0)(vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))):
     dependencies:
       '@better-auth/core': 1.6.2(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.6.5))(jose@6.2.12)(kysely@0.28.17)(nanostores@1.5.3)
       '@better-auth/drizzle-adapter': 1.6.2(@better-auth/core@1.6.2(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@cloudflare/workers-types@5.20260901.1)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.6.5))(jose@6.2.12)(kysely@0.28.17)(nanostores@1.5.3))(@better-auth/utils@0.4.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5))
@@ -7717,7 +7708,7 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20260901.1)(@effect/sql-d1@4.0.0(effect@4.0.0))(@effect/sql-pg@4.0.0(effect@4.0.0))(@effect/sql-sqlite-do@4.0.0(effect@4.0.0))(@electric-sql/pglite@0.3.15)(@libsql/client@0.17.4)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/sql.js@1.4.11)(effect@4.0.0)(pg@8.23.0)(sql.js@1.14.2)(typebox@1.3.27)(valibot@1.2.0(typescript@7.0.2))(zod@4.6.5)
       pg: 8.23.0
-      vitest: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@opentelemetry/api'
@@ -8531,10 +8522,6 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  magic-string@1.4.1:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.6.0
-
   magic-string@1.4.2:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
@@ -9328,8 +9315,6 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
 
-  siginfo@2.0.0: {}
-
   signal-exit@3.0.7: {}
 
   signal-exit@4.1.0: {}
@@ -9348,8 +9333,6 @@ snapshots:
   split2@4.2.0: {}
 
   sql.js@1.14.2: {}
-
-  stackback@0.0.2: {}
 
   standardwebhooks@1.1.1:
     dependencies:
@@ -9602,14 +9585,14 @@ snapshots:
     optionalDependencies:
       vite: 8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
 
-  vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)):
+  vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+      '@vitest/mocker': 5.0.3(vite@8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
-      magic-string: 1.4.1
+      magic-string: 1.4.2
       obug: 2.1.4
       picomatch: 4.0.7
       std-env: 4.2.0
@@ -9617,7 +9600,7 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       vite: 8.0.7(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
-      why-is-node-running: 2.3.0
+      why-is-node-running: 3.2.1
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.13.6
@@ -9625,14 +9608,14 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)):
+  vitest@5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.13.6)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+      '@vitest/mocker': 5.0.3(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
-      magic-string: 1.4.1
+      magic-string: 1.4.2
       obug: 2.1.4
       picomatch: 4.0.7
       std-env: 4.2.0
@@ -9640,7 +9623,7 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0)
-      why-is-node-running: 2.3.0
+      why-is-node-running: 3.2.1
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.13.6
@@ -9674,10 +9657,7 @@ snapshots:
     dependencies:
       isexe: 2.0.0
 
-  why-is-node-running@2.3.0:
-    dependencies:
-      siginfo: 2.0.0
-      stackback: 0.0.2
+  why-is-node-running@3.2.1: {}
 
   workerd@1.20260918.1:
     optionalDependencies:
