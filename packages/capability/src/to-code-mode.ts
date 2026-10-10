@@ -3,13 +3,8 @@ import type { Layer } from "effect";
 import { Effect, Match, Schema } from "effect";
 import { Tool, Toolkit } from "effect/ai";
 
-import {
-  discoverCatalog,
-  searchCatalog,
-  toCatalog,
-  toTypeScript,
-} from "./catalog.js";
-import type { Catalog } from "./catalog.js";
+import { discoverCatalog, toCatalog, toTypeScript } from "./catalog-model.js";
+import type { Catalog } from "./catalog-model.js";
 import { defineContract, failureSchemaOf } from "./contract.js";
 import type {
   AnyCapability,
@@ -18,15 +13,10 @@ import type {
   FailureSchemaOf,
 } from "./contract.js";
 import { implement } from "./implement.js";
-import { toolDiagnostic } from "./sandbox-diagnostic.js";
-import { resolveLimits } from "./sandbox-limits.js";
-import {
-  Sandbox,
-  SandboxError,
-  SandboxDiagnostic,
-  invokeFailure,
-  sandboxRunner,
-} from "./sandbox-service.js";
+import { SandboxDiagnostic } from "./sandbox-diagnostic-schema.js";
+import { SandboxError } from "./sandbox-error.js";
+import { resolveLimits } from "./sandbox-limits-schema.js";
+import { Sandbox } from "./sandbox-port.js";
 import type {
   Invoke,
   InvokeOutcome,
@@ -78,12 +68,18 @@ const search = Tool.make("search", {
   .annotate(Tool.Readonly, true)
   .annotate(Tool.Idempotent, true);
 
-const searchPage = (
+const searchPage = Effect.fnUntraced(function* searchCatalogPage(
   catalog: Catalog,
   query: string,
   limit: number,
   offset: number
-) => {
+) {
+  const loaded = import("./catalog-search.js");
+
+  const { searchCatalog } = yield* Effect.promise(
+    loaded.finally.bind(loaded, undefined)
+  );
+
   const all = searchCatalog(catalog, query, Number.MAX_SAFE_INTEGER);
   const matches = all.slice(offset, offset + limit);
   const remaining = Math.max(0, all.length - offset - matches.length);
@@ -95,7 +91,7 @@ const searchPage = (
     remaining,
     total: catalog.capabilities.length,
   };
-};
+});
 
 const executeIntro =
   "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure. Execution problems return a typed `diagnostic`; inspect it before using `result`. `toolCalls` lists admitted calls in order. `truncated` marks output cuts. At most 8 tool calls run concurrently. Only host cancellation interrupts execution.";
@@ -167,6 +163,18 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
   capabilities: Caps
 ): Effect.Effect<Invoke, never, RequirementsOf<Caps>> =>
   Effect.gen(function* buildInvoker() {
+    const diagnostics = import("./sandbox-diagnostic.js");
+
+    const { toolDiagnostic } = yield* Effect.promise(
+      diagnostics.finally.bind(diagnostics, undefined)
+    );
+
+    const invocation = import("./sandbox-invoke.js");
+
+    const { invokeFailure } = yield* Effect.promise(
+      invocation.finally.bind(invocation, undefined)
+    );
+
     const context = yield* Effect.context<RequirementsOf<Caps>>();
 
     const byName = new Map(
@@ -275,7 +283,7 @@ export const toExecuteCapability = <
       output: SearchResult,
     }),
     ({ limit, offset, query }) =>
-      Effect.succeed(searchPage(catalog, query, limit ?? 5, offset ?? 0))
+      searchPage(catalog, query, limit ?? 5, offset ?? 0)
   );
 
   const hasApproval = capabilities.some((item) => item.contract.needsApproval);
@@ -305,6 +313,12 @@ export const toExecuteCapability = <
   const capability = implement(
     executeContract,
     Effect.fn("CodeMode.execute")(function* execute({ code }) {
+      const runtime = import("./sandbox-result.js");
+
+      const { sandboxRunner } = yield* Effect.promise(
+        runtime.finally.bind(runtime, undefined)
+      );
+
       const invoke = yield* invokerFor([...capabilities, discoverySearch]);
 
       const sandbox = yield* Sandbox;
@@ -385,9 +399,7 @@ export const toCodeMode = <
               Effect.provideContext(context)
             ),
         search: ({ limit, offset, query }) =>
-          Effect.succeed(
-            searchPage(catalog, query, limit ?? searchLimit, offset ?? 0)
-          ),
+          searchPage(catalog, query, limit ?? searchLimit, offset ?? 0),
       });
     })
   );

@@ -10,6 +10,8 @@
           "effect/ai/McpProtocol",
           "effect/ai/McpSchema",
           "effect/ai/McpServer",
+          "effect/ai/Tool",
+          "effect/ai/Toolkit",
           "effect/cli/CliOutput",
           "effect/cli/Command",
           "effect/http-api/HttpApiBuilder",

@@ -55,7 +55,7 @@ import {
   logRequestIncident,
   observeRequestIncidents,
 } from "./request-incidents.js";
-import { layerWorkerLoader, sandboxLimits } from "./sandbox-worker-loader.js";
+import { layerWorkerLoader, sandboxLimits } from "./sandbox-loader.js";
 import type { WorkerLoaderBinding } from "./sandbox-worker-loader.js";
 import { AssetBindingSchema, StaticAssets } from "./static-assets.js";
 

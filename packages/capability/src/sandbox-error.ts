@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import { SandboxDiagnostic } from "./sandbox-diagnostic.js";
+import { SandboxDiagnostic } from "./sandbox-diagnostic-schema.js";
 
 export class SandboxError extends Schema.TaggedError<SandboxError>()(
   "SandboxError",

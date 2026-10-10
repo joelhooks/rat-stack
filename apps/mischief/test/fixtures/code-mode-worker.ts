@@ -27,10 +27,7 @@ import {
   read,
 } from "../../src/capabilities/index.js";
 import { privateObservability } from "../../src/observability.js";
-import {
-  layerWorkerLoader,
-  sandboxLimits,
-} from "../../src/sandbox-worker-loader.js";
+import { layerWorkerLoader, sandboxLimits } from "../../src/sandbox-loader.js";
 import type { WorkerLoaderBinding } from "../../src/sandbox-worker-loader.js";
 import { StaticAssets } from "../../src/static-assets.js";
 import { workerAssetsLayer } from "../../src/worker-content.js";

@@ -8,10 +8,7 @@ import { staticAssetGeneration } from "../../src/bundled-content.generated.js";
 import { ContentStore } from "../../src/content-store.js";
 import { privateObservability } from "../../src/observability.js";
 import { withReaderWebsite } from "../../src/reader-website.js";
-import {
-  layerWorkerLoader,
-  sandboxLimits,
-} from "../../src/sandbox-worker-loader.js";
+import { layerWorkerLoader, sandboxLimits } from "../../src/sandbox-loader.js";
 import { StaticAssets } from "../../src/static-assets.js";
 import { workerAssetsLayer } from "../../src/worker-content.js";
 
