@@ -56,6 +56,7 @@ import {
 import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
+import { flagsLayer } from "./flags.js";
 import {
   privateHttpTracingLayer,
   privateMcpTracingLayer,
@@ -1246,6 +1247,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         Layer.provideMerge(options.feedback?.requests ?? feedbackRequests()),
         Layer.provideMerge(contentRequests(store, learner)),
         Layer.provideMerge(promptLibraryLayer),
+        Layer.provideMerge(flagsLayer.pipe(Layer.orDie)),
         Layer.provideMerge(cafeDirectoryLayer),
         Layer.provideMerge(
           Layer.merge(

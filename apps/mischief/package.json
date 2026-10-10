@@ -43,6 +43,7 @@
     "@rat-stack/core": "workspace:*",
     "@rat-stack/database": "workspace:*",
     "@rat-stack/events": "workspace:*",
+    "@rat-stack/flags": "workspace:*",
     "@rat-stack/intake-live": "workspace:*",
     "@rat-stack/learn": "workspace:*",
     "@rat-stack/lore": "workspace:*",

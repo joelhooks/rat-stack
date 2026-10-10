@@ -1,0 +1,63 @@
+---
+title: "Feature flags"
+description: "Typed feature flags with owners, removal dates, and stable subject rollouts."
+plain: "Flags select behavior through a typed service. Each declaration names an owner and a removal date."
+group: system
+terms:
+  - "feature flag"
+  - "percentage rollout"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/flags
+    title: "Flags cartridge"
+    publisher: "rat-stack"
+    note: "Evaluation, Config and memory adapters, lifecycle, and behavior tests."
+    accessed: "2026-10-08"
+---
+
+## What it does
+
+The `packages/flags` [cartridge](/lore/cartridges) evaluates typed flags.
+A flag declares its name, [schema](/lore/schemas-define-the-boundary), default, owner, and removal date.
+
+Handlers request the `Flags` [service](/lore/services-capture-dependencies) from core.
+The Config [adapter](/lore/hexagonal-architecture) reads deployment configuration.
+The memory adapter supplies rules for tests.
+
+- `listFlags` lists names, owners, and removal dates.
+- `getFlag` evaluates one flag for an optional subject.
+- Allow-lists select a value for named subjects.
+- Percentage rules use a stable hash of the flag name and subject.
+- The first matching rule wins. Missing subjects use the default.
+
+`EVENTS_ENABLED` defaults to `false`.
+`EVENTS_IDENTITY_MODE` defaults to `daily`.
+Config keeps the existing environment keys and boolean spellings.
+
+[Alchemy](/skills/learn-alchemy) still selects analytics resources during deployment.
+See [Analytics](/systems/analytics) for capture and identity behavior.
+
+## The standard
+
+- Flag values pass their declared schemas.
+- Every declaration names an owner and a `removeBy` date.
+- Lint rejects declarations without a literal removal date.
+- The flags build rejects expired registered events flags with a typed repair message.
+- Each subject keeps its rollout bucket when the rollout percentage changes.
+- The lifecycle permits `declared` → `rollingOut` → `on` → `removed`.
+- Declared [Effect](/lore/effect-basics) actors record lifecycle transitions. Removed flags stay removed.
+- Each [capability](/systems/capabilities) shares its contract across surfaces. JSON encoding is required for `getFlag`.
+
+This cartridge has no live storage or write capability.
+Config remains the authority for deployment values.
+The lifecycle journal is scoped memory, with no durable state between processes.
+
+## How to check
+
+1. Run `pnpm --filter @rat-stack/flags test` for rollout properties, adapters, and generated lifecycle histories.
+2. Run `pnpm --filter @rat-stack/core exec vitest run test/patterns-rule.test.ts` for the removal-date [fence](/lore/the-fence).
+3. Run `pnpm turbo run check test build --concurrency=1` for the full gate.
+4. Inspect the deployment plan. Resource actions must remain unchanged for the same configuration.
+
+To remove the cartridge, replace `flagsLayer` in `apps/mischief/src/flags.ts` with `Flags.defaults(eventFlags)` from core.
+Remove the package dependency and its directory.
+Callers and capabilities keep their typed defaults.

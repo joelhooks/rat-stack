@@ -1,10 +1,15 @@
+import {
+  Flags,
+  eventsEnabled,
+  eventsIdentityMode,
+} from "@rat-stack/core/flags";
 import { InterestMode, InterestTokens } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
   IntakeErasure,
 } from "@rat-stack/core/join-interest";
-import { IdentityModeSchema, withEventCapture } from "@rat-stack/events";
+import { withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
 import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
@@ -34,6 +39,7 @@ import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { ContentStore } from "./content-store.js";
 import CrashTail from "./crash-tail.js";
 import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
+import { flagsLayer } from "./flags.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import Interest from "./interest/interest-durable-object.js";
@@ -148,10 +154,9 @@ export const makeMischief = (
       Config.String("POSTSHIBA_CLUSTER")
     );
 
-    const identityMode = yield* Config.schema(
-      IdentityModeSchema,
-      "EVENTS_IDENTITY_MODE"
-    ).pipe(Config.withDefault("daily" as const));
+    const identityMode = yield* Flags.use((flags) =>
+      flags.get(eventsIdentityMode, {}).pipe(Effect.orDie)
+    ).pipe(Effect.provide(flagsLayer));
 
     const environment = yield* Cloudflare.WorkerEnvironment;
 
@@ -364,11 +369,11 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
           interestIndex.getByName("index").noteApplication(submissionId),
       } satisfies AgentSignupOptions | undefined);
 
-  const eventsEnabled = yield* Config.Boolean("EVENTS_ENABLED").pipe(
-    Config.withDefault(false)
-  );
+  const enabled = yield* Flags.use((flags) =>
+    flags.get(eventsEnabled, {}).pipe(Effect.orDie)
+  ).pipe(Effect.provide(flagsLayer));
 
-  const events = eventsEnabled
+  const events = enabled
     ? yield* Layer.build(Basin({ id: "Mischief" }))
     : yield* basinFoundation({ id: "Mischief" }).pipe(
         Effect.andThen(Effect.succeedNone),

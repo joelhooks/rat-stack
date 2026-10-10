@@ -13,6 +13,8 @@ import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
 import { UnknownPrompt } from "./unknown-prompt.js";
 
+export { getFlagContract, listFlagsContract } from "./flag-contracts.js";
+
 export { UnknownPrompt } from "./unknown-prompt.js";
 
 export { AssetReadError } from "./asset-read-error.js";

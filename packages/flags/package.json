@@ -1,0 +1,54 @@
+{
+  "name": "@rat-stack/flags",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./src/config.ts",
+      "import": "./dist/config.js",
+      "default": "./dist/config.js"
+    },
+    "./memory": {
+      "types": "./src/memory.ts",
+      "import": "./dist/memory.js",
+      "default": "./dist/memory.js"
+    },
+    "./lifecycle": {
+      "types": "./src/lifecycle.ts",
+      "import": "./dist/lifecycle.js",
+      "default": "./dist/lifecycle.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json && node dist/check-expiry.js",
+    "check": "pnpm run typecheck",
+    "pretest": "pnpm run --silent build"
+  },
+  "dependencies": {
+    "@rat-stack/capability": "workspace:*",
+    "@rat-stack/core": "workspace:*",
+    "@xstate/effect": "0.1.0-alpha.7",
+    "effect": "4.0.0",
+    "xstate": "6.0.0-alpha.65"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "4.0.0",
+    "@effect/vitest": "4.0.0",
+    "@types/node": "24.13.6",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}
