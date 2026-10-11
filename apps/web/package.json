@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "predev": "pnpm --filter @rat-stack/mischief generate",
+    "predev": "pnpm --filter @rat-stack/site generate",
     "dev": "portless rat-stack vite dev",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
@@ -27,7 +27,7 @@
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "@rat-stack/devtools": "workspace:*",
-    "@rat-stack/mischief": "workspace:*",
+    "@rat-stack/site": "workspace:*",
     "@stylexjs/stylex": "0.19.1",
     "alchemy": "2.0.0-beta.81",
     "effect": "4.0.0",

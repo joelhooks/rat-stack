@@ -12,10 +12,10 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `packages/capability/test/mcp-harness.ts` | Effect's own `McpServer` tests | The server layer becomes a web handler; a fetch shim keeps the session headers. |
 | `packages/capability/src/sandbox-subprocess.ts`, `packages/capability/test/sandbox-orphan.test.ts`, VM-timeout cases in `packages/capability/test/sandbox.test.ts` | ported from a downstream fix to the vendored capability package |  |
 | `tools/oxlint/anti-slop/` | [dmmulroy/anti-slop](https://github.com/dmmulroy/anti-slop) at `c44ef22`, MIT | Vendored and owned; see `UPSTREAM.md` there. Its files keep upstream's comments. |
-| `apps/mischief/scripts/smartypants.ts` | [parse-latin](https://github.com/wooorm/parse-latin) and [retext-smartypants](https://github.com/retextjs/retext-smartypants), MIT, Copyright (c) Titus Wormer, as bundled in `mdsvex@0.12.8` | Ported to TypeScript over a reduced node model, without the backtick rule, so doubled backticks and apostrophes stay literal as in GFM. |
-| `apps/mischief/scripts/markdown-html.ts` | [mdast-util-to-hast](https://github.com/syntax-tree/mdast-util-to-hast) and [mdurl](https://github.com/markdown-it/mdurl) `encode`, MIT, as bundled in `mdsvex@0.12.8`; [Svelte](https://github.com/sveltejs/svelte) `clean_nodes` whitespace rules at `svelte@5.57.1`, MIT | Ported to keep the generated HTML unchanged after Svelte and mdsvex left the workspace. |
-| `apps/mischief/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
-| `apps/mischief/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
+| `apps/site/scripts/smartypants.ts` | [parse-latin](https://github.com/wooorm/parse-latin) and [retext-smartypants](https://github.com/retextjs/retext-smartypants), MIT, Copyright (c) Titus Wormer, as bundled in `mdsvex@0.12.8` | Ported to TypeScript over a reduced node model, without the backtick rule, so doubled backticks and apostrophes stay literal as in GFM. |
+| `apps/site/scripts/markdown-html.ts` | [mdast-util-to-hast](https://github.com/syntax-tree/mdast-util-to-hast) and [mdurl](https://github.com/markdown-it/mdurl) `encode`, MIT, as bundled in `mdsvex@0.12.8`; [Svelte](https://github.com/sveltejs/svelte) `clean_nodes` whitespace rules at `svelte@5.57.1`, MIT | Ported to keep the generated HTML unchanged after Svelte and mdsvex left the workspace. |
+| `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
+| `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
 ## OpenCode code-mode ideas (MIT)
 
@@ -37,7 +37,7 @@ Source: [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just
 
 ## Wiki prose style warnings (MIT)
 
-`apps/mischief/scripts/wiki-prose-style.ts` adapts the history-word and contrast-framing patterns and quoted-span exclusion from [Tardigrade's documentation lint](https://github.com/clavia-labs/tardigrade/blob/3289804a949a476620dd8c3b55a74ea41415ce01/tools/docs-lint.ts), commit `3289804a949a476620dd8c3b55a74ea41415ce01`.
+`apps/site/scripts/wiki-prose-style.ts` adapts the history-word and contrast-framing patterns and quoted-span exclusion from [Tardigrade's documentation lint](https://github.com/clavia-labs/tardigrade/blob/3289804a949a476620dd8c3b55a74ea41415ce01/tools/docs-lint.ts), commit `3289804a949a476620dd8c3b55a74ea41415ce01`.
 
 The Markdown AST masking, warning-only integration, em-dash exclusions, and property tests are ours. No Bun runtime or dependency is imported.
 
@@ -59,7 +59,7 @@ The port removes project-specific orchestration. Deployment policy, the local Al
 
 ## Lucide bot icon (ISC)
 
-The inline bot SVG in the copy prompt in `apps/mischief/scripts/document-html.ts` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).
+The inline bot SVG in the copy prompt in `apps/site/scripts/document-html.ts` comes from [Lucide's bot icon](https://github.com/lucide-icons/lucide/blob/main/icons/bot.svg).
 
 Copyright (c) 2026 Lucide Icons and Contributors
 
@@ -71,7 +71,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 
 | File | Origin | Notes |
 | --- | --- | --- |
-| `apps/mischief/content/tokenmaxx/snes-sfam-cartridges.jpg` | [Evan-Amos, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:SNES-SFAM-Cartridges.jpg), [public domain (PD-self)](https://commons.wikimedia.org/wiki/Template:PD-self) | Photograph of a Super NES cartridge above a Super Famicom cartridge, 13 October 2011. Author's worldwide public-domain release verified on the Commons file page. Resized from 3720 × 1980 to 1400 × 745, JPEG quality 85; metadata stripped. Served at `/lore/cartridges/snes-sfam-cartridges.jpg`. |
+| `apps/site/content/tokenmaxx/snes-sfam-cartridges.jpg` | [Evan-Amos, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:SNES-SFAM-Cartridges.jpg), [public domain (PD-self)](https://commons.wikimedia.org/wiki/Template:PD-self) | Photograph of a Super NES cartridge above a Super Famicom cartridge, 13 October 2011. Author's worldwide public-domain release verified on the Commons file page. Resized from 3720 × 1980 to 1400 × 745, JPEG quality 85; metadata stripped. Served at `/lore/cartridges/snes-sfam-cartridges.jpg`. |
 
 ## Rule limits worth knowing
 

@@ -24,13 +24,13 @@ Write one useful page from checked sources. Keep claim titles and quoted voice. 
 | System | `.brain/areas/<slug>.svx` | Use `group: system`. Include What it does, The standard, and How to check. |
 | Skill | `skills/<name>/SKILL.md` | Match directory and frontmatter `name`. Give the skill a distinct triggering description. |
 | Resource | `.brain/resources/` | Keep reference material here. Check publication wiring. Use clean `/resources/<slug>` links, not `.svx` URLs. |
-| Glossary | `glossaryDefinitions` in `apps/mischief/scripts/content-lib.ts` | Declare a term, its own definition, and a teaching page. The generator builds `/glossary`. |
+| Glossary | `glossaryDefinitions` in `apps/site/scripts/content-lib.ts` | Declare a term, its own definition, and a teaching page. The generator builds `/glossary`. |
 
 Use `title`, `description`, `group`, `terms`, and `sources` for lore and systems. Copy a nearby page's field shape.
 
 Use one H1 per rendered view. Lore and system titles come from frontmatter; do not repeat them as body H1s. Skills include their own H1.
 
-Lore and system directories are discovered without per-page registration. Skills are discovered too, but need a group in `skillGroups` in `apps/mischief/scripts/generate-content.ts`.
+Lore and system directories are discovered without per-page registration. Skills are discovered too, but need a group in `skillGroups` in `apps/site/scripts/generate-content.ts`.
 
 ## 2. Write short prose
 
@@ -181,7 +181,7 @@ Cite exact revisions for code. Keep sourced content within its evidence. Mark mi
 
 ## 6. Check components and disclosure
 
-Use `apps/mischief/scripts/component-registry.ts`. Every component needs human and agent renderers. Read the agent view; do not assume a visual carries its meaning there.
+Use `apps/site/scripts/component-registry.ts`. Every component needs human and agent renderers. Read the agent view; do not assume a visual carries its meaning there.
 
 Code renderers share a CodeSnippet model. Git and Shiki stay build-only. Ship page content as static assets. Keep it out of new Worker route handlers.
 
@@ -194,7 +194,7 @@ Never name the email delivery partner or list vendor in public prose. Describe t
 ## 7. Finish
 
 1. Run `pnpm install --frozen-lockfile` before gates after any dependency change.
-2. Run `pnpm --filter @rat-stack/mischief generate`.
+2. Run `pnpm --filter @rat-stack/site generate`.
 3. Read all prose and source-drift warnings.
 4. Run `pnpm turbo run check test build`.
 5. Read the generated HTML view.

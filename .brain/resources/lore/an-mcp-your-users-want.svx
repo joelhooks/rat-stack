@@ -19,8 +19,8 @@ sources:
     publisher: "Rhys Sullivan"
     note: "Practical MCP guide; used to compare dashboard actions, docs search, deep links, and OAuth."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
-    title: "rat-stack/apps/mischief/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts
+    title: "rat-stack/apps/site/src/capabilities/index.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Capability registry; used to check the hosted tool coverage."
     accessed: "2026-10-01"
@@ -50,4 +50,4 @@ The table compares his advice with rat-stack today. The gaps remain open; this p
 | Offer toolsets and permissions tied to the auth token. | Contracts can require approval, and `Approval` gates execution. The hosted MCP has no user-token toolsets; `auth.md` says it accepts no credentials. | Gap |
 | Let clients use OAuth; an API spec and Client ID Metadata Document (CIMD) OAuth cover most agents. | The auth cartridge supports Better Auth sessions for an app, but ratstack.sh says it has no OAuth or access tokens. | Gap |
 
-The comparison uses `apps/mischief/src/capabilities/index.ts`, `apps/cli/src/command.ts`, `packages/capability/src/approval.ts`, `packages/auth/src/auth.ts`, and the hosted site's `auth.md`. See [one capability, every surface](/lore/one-capability-every-surface) and the [cartridges](/lore/cartridges) page for the contracts and auth boundary.
+The comparison uses `apps/site/src/capabilities/index.ts`, `apps/cli/src/command.ts`, `packages/capability/src/approval.ts`, `packages/auth/src/auth.ts`, and the hosted site's `auth.md`. See [one capability, every surface](/lore/one-capability-every-surface) and the [cartridges](/lore/cartridges) page for the contracts and auth boundary.

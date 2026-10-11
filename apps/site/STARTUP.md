@@ -3,7 +3,7 @@
 Run the portable size gate from the repository root:
 
 ```sh
-pnpm --filter @rat-stack/mischief typecheck
+pnpm --filter @rat-stack/site typecheck
 ```
 
 It generates content, typechecks, and builds the production Worker with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials. The limits are **900,000 uncompressed entry bytes** and **2,500,000 total JavaScript bytes**. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
@@ -30,10 +30,10 @@ The graph methods share one cache. A known page with a missing, corrupt, or mism
 With Wrangler on PATH:
 
 ```sh
-WRANGLER_SEND_METRICS=false pnpm --filter @rat-stack/mischief startup:profile
+WRANGLER_SEND_METRICS=false pnpm --filter @rat-stack/site startup:profile
 ```
 
-Validated with Wrangler 4.94.0. This runs `wrangler check startup --worker` against a multipart bundle assembled from Alchemy's output, not an esbuild substitute. Wrangler imports the bundle in local workerd under the V8 CPU profiler. Open `apps/mischief/dist/startup/worker.cpuprofile` in Chrome DevTools. The directory also contains JavaScript chunks, source maps, and Rolldown's `analysis.json`.
+Validated with Wrangler 4.94.0. This runs `wrangler check startup --worker` against a multipart bundle assembled from Alchemy's output, not an esbuild substitute. Wrangler imports the bundle in local workerd under the V8 CPU profiler. Open `apps/site/dist/startup/worker.cpuprofile` in Chrome DevTools. The directory also contains JavaScript chunks, source maps, and Rolldown's `analysis.json`.
 
 The harness uses Alchemy's defaults: ESM, minification, preserved names, pure annotations, runtime defines, Cloudflare plugins, and strict execution order. Its production virtual entry exports the `Interest`, `InterestIndex`, and `LegacyMcp` bridges. Placeholder constructor values tell the virtual-entry generator which names are Durable Objects; application constructors remain in `worker.ts`. The stack metadata is `RatStack` / `prod`, with compatibility date `2026-05-28` and `nodejs_compat`.
 

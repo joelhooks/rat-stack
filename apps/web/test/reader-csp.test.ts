@@ -2,7 +2,7 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
 
-import { readerContentSecurityPolicy } from "../../mischief/src/security.js";
+import { readerContentSecurityPolicy } from "../../site/src/security.js";
 
 const directives = new Map(
   readerContentSecurityPolicy.split(";").map((directive) => {

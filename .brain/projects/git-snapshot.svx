@@ -64,4 +64,4 @@ The previous worker count used half the available cores: eight workers in the me
 
 The single-worker probe passed all 51 files and 444 tests in 51.04 seconds. It kept every property run and timeout unchanged. The slower suite reduces contention instead of weakening assertions.
 
-Source: `apps/mischief/scripts/git-snapshot.ts`, `apps/mischief/test/git-snapshot.test.ts`, `apps/mischief/vitest.config.ts`.
+Source: `apps/site/scripts/git-snapshot.ts`, `apps/site/test/git-snapshot.test.ts`, `apps/site/vitest.config.ts`.

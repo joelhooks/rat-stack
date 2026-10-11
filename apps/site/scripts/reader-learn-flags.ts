@@ -21,7 +21,7 @@ export const readerLearnFlags = Effect.fn("readerLearnFlags")(
       return yield* new ReaderInputError({
         message:
           "The learn page is missing from the content specs or manifest; register /learn in content-specs.ts and regenerate content",
-        sourcePath: "apps/mischief/scripts/content-specs.ts",
+        sourcePath: "apps/site/scripts/content-specs.ts",
       });
     }
 

@@ -89,8 +89,8 @@ fi
 # A longer or shorter scope changes line lengths, so the formatter rewraps.
 # README's Make it yours path tells a clone to run the same command.
 step="generate worker content"
-if ! pnpm --filter "${acceptance_scope}/mischief" generate; then
-  fail "mischief content generation failed after the workspace rename"
+if ! pnpm --filter "${acceptance_scope}/site" generate; then
+  fail "site content generation failed after the workspace rename"
 fi
 
 step="post-rename format"

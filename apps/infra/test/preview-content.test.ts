@@ -23,9 +23,9 @@ import {
 } from "effect/http";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/rpc";
 
-import { contentLayer } from "../../mischief/src/capabilities/index.js";
-import { rpcProjection } from "../../mischief/src/rpc-worker.js";
-import { workerAssetsLayer } from "../../mischief/src/worker-content.js";
+import { contentLayer } from "../../site/src/capabilities/index.js";
+import { rpcProjection } from "../../site/src/rpc-worker.js";
+import { workerAssetsLayer } from "../../site/src/worker-content.js";
 import { previewProgram } from "../alchemy.preview.js";
 
 it.effect(

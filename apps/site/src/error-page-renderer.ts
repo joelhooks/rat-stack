@@ -30,7 +30,7 @@ export const mischiefErrorPage = (page: ErrorPage, origin: string) =>
   htmlPage(renderErrorPage(page, origin, true), page.code);
 
 export const ErrorPageRenderer = Context.Reference<ErrorPageRendererService>(
-  "@rat-stack/mischief/ErrorPageRenderer",
+  "@rat-stack/site/ErrorPageRenderer",
   {
     defaultValue: () => ({
       html: (page, origin) => Effect.succeed(mischiefErrorPage(page, origin)),

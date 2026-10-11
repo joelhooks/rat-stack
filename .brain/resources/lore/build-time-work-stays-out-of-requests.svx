@@ -16,32 +16,32 @@ terms:
   - "build-time work"
   - "request-time work"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/emit-assets.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/emit-assets.ts
     title: "Asset emission"
     publisher: "Primary source"
     note: "Build output"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/static-assets.ts
     title: "Static assets"
     publisher: "Primary source"
     note: "Request-time asset access"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/startup-budget.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-budget.ts
     title: "Startup budget"
     publisher: "Primary source"
     note: "Worker bundle limits"
     accessed: "2026-10-02"
 ---
 
-The existing [asset writer](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/emit-assets.ts) emits output identified by a hash of its content.
-The Worker reads that output through [static assets](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/static-assets.ts).
+The existing [asset writer](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/emit-assets.ts) emits output identified by a hash of its content.
+The Worker reads that output through [static assets](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/static-assets.ts).
 
 The [code-snippets design brief](/lore/code-snippets) keeps Git reads and highlighting in build-time work.
 Request-time work receives static output.
 It does not resolve Git objects or start Shiki.
 
 The proposed check verifies that neither the snippet package nor Shiki enters the startup bundle.
-The existing [startup budget](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/scripts/startup-budget.ts) limits:
+The existing [startup budget](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-budget.ts) limits:
 - Entry JavaScript to 3,300,000 bytes.
 - Complete JavaScript upload to 5,000,000 bytes.
 

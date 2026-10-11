@@ -30,9 +30,9 @@ Joel's #14 rulings remain:
 
 The authority is Mischief's route code plus the generated content manifest, not `apps/web`'s router.
 
-At the inspected PR checkout, `apps/mischief/dist/content/manifest.json` contains 124 page entries. This is a branch inventory, not a fresh production count. Regenerate and compare it with current main before implementation. Special request-time routes sit outside that manifest.
+At the inspected PR checkout, `apps/site/dist/content/manifest.json` contains 124 page entries. This is a branch inventory, not a fresh production count. Regenerate and compare it with current main before implementation. Special request-time routes sit outside that manifest.
 
-At plan time, every normal HTML page used `apps/mischief/src/document.svelte` for the head, primary navigation, breadcrumb, agent pointer, workshop placement, main, and footer. Svelte and mdsvex are now gone. `generate-content.ts` renders Markdown bodies with `scripts/markdown-html.ts` and the shell with `scripts/document-html.ts` at build time. Foldkit, the error fallback, and the interest and unsubscribe pages read those generated documents.
+At plan time, every normal HTML page used `apps/site/src/document.svelte` for the head, primary navigation, breadcrumb, agent pointer, workshop placement, main, and footer. Svelte and mdsvex are now gone. `generate-content.ts` renders Markdown bodies with `scripts/markdown-html.ts` and the shell with `scripts/document-html.ts` at build time. Foldkit, the error fallback, and the interest and unsubscribe pages read those generated documents.
 
 | Reader route | Current body and renderer | Foldkit delivery |
 | --- | --- | --- |
@@ -232,8 +232,8 @@ Do not discard the working preview/RPC fixes because the UI target was wrong. Do
 
 Checked source:
 
-- `apps/mischief/src/app.ts`, `document.svelte`, `error-page.ts`, `interest/routes.ts`, `interest/pages.ts`, `interest/unsubscribe.ts`, and `rat.css`.
-- `apps/mischief/scripts/generate-content.ts`, `component-registry.ts`, `content-references.ts`, `peers.ts`, `house-ad.ts`, and the generated manifest.
+- `apps/site/src/app.ts`, `document.svelte`, `error-page.ts`, `interest/routes.ts`, `interest/pages.ts`, `interest/unsubscribe.ts`, and `rat.css`.
+- `apps/site/scripts/generate-content.ts`, `component-registry.ts`, `content-references.ts`, `peers.ts`, `house-ad.ts`, and the generated manifest.
 - `apps/web/vite.config.ts`, `entry.server.ts`, and `website.ts`.
 - Installed Foldkit server declarations and Vite plugin build/SSR declarations at the pins listed above.
 - Pinned Alchemy `Cloudflare/Website/Foldkit.ts`: default SPA fallback and explicit Worker entry seam.

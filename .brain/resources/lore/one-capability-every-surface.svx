@@ -44,7 +44,7 @@ Each interface derives its input and failure definitions from the same schemas.
 
 The split replaced `defineCapability`, which bundled contract data and its handler in one definition. The RPC client needed the contract without importing server implementation. `toRpcGroup` now projects contracts alone; `toRpc` connects those same contracts to implemented capabilities. The browser docs client imports only the shared contracts and RPC group. [Commit 9a7bea5](https://github.com/joelhooks/rat-stack/commit/9a7bea5) records the split.
 
-To add a capability, define its contract and implement it beside the data or infrastructure it owns. Register it in `capabilities`, then check each interface you keep. `packages/capability/test/` exercises projections; `apps/mischief/src/capabilities/index.ts` shows the hosted registry.
+To add a capability, define its contract and implement it beside the data or infrastructure it owns. Register it in `capabilities`, then check each interface you keep. `packages/capability/test/` exercises projections; `apps/site/src/capabilities/index.ts` shows the hosted registry.
 
 Michael Arnaldi demonstrates Schema decoding request input and encoding a frontend-safe result while preserving its output type. [Effect Meetup SF, 27:17](https://youtu.be/BqUnsDnMnMo?t=1637). In another conversation, the speakers discuss generated schemas and migrations as work agents can maintain, and a rule that rejects ad hoc JSON parsing. [Cause & Effect 10, 63:49](https://youtu.be/irmz5X3c7Do?t=3829) [67:53](https://youtu.be/irmz5X3c7Do?t=4073).
 

@@ -13,7 +13,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import {
   rpcContentDirectory,
   rpcProjection,
-} from "../../mischief/src/rpc-worker.js";
+} from "../../site/src/rpc-worker.js";
 import previewDefinition, { previewProgram } from "../alchemy.preview.js";
 import { PreviewStage, previewResourcesAllowed } from "../src/preview.js";
 

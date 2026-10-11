@@ -4,10 +4,10 @@ import { Effect, FileSystem, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { renderToString } from "foldkit/experimental/server";
 
-import { compileReaderBody } from "../../mischief/scripts/reader-body-document.ts";
-import { documentMetadata } from "../../mischief/scripts/reader-site-inputs.ts";
-import { renderErrorPage } from "../../mischief/src/error-page.ts";
-import { ReaderErrorPage } from "../../mischief/src/reader-error-page.ts";
+import { compileReaderBody } from "../../site/scripts/reader-body-document.ts";
+import { documentMetadata } from "../../site/scripts/reader-site-inputs.ts";
+import { renderErrorPage } from "../../site/src/error-page.ts";
+import { ReaderErrorPage } from "../../site/src/reader-error-page.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";

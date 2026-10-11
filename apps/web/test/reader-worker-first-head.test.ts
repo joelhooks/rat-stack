@@ -2,7 +2,7 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Schema } from "effect";
 
-import { AssetBindingSchema } from "../../mischief/src/static-assets.js";
+import { AssetBindingSchema } from "../../site/src/static-assets.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { isWorkerFirstReaderRoute } from "../src/reader-routes.js";
 

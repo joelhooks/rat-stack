@@ -17,7 +17,7 @@ import {
   prepareReaderSiteInputs,
 } from "./reader-site-inputs.ts";
 
-const sourcePath = "apps/mischief/content/error-page.md";
+const sourcePath = "apps/site/content/error-page.md";
 
 const fragmentNodes = (html: string, fragmentPath: string) =>
   Effect.try({
@@ -39,7 +39,7 @@ export const readerErrorTemplate = Effect.fn("readerErrorTemplate")(
       return yield* new ReaderInputError({
         message:
           "The bundled error page templates and the content manifest have different generations; regenerate content before building the reader",
-        sourcePath: "apps/mischief/src/bundled-content.generated.ts",
+        sourcePath: "apps/site/src/bundled-content.generated.ts",
       });
     }
 
@@ -60,7 +60,7 @@ export const readerErrorTemplate = Effect.fn("readerErrorTemplate")(
       ),
       noVerifyDetails: yield* fragmentNodes(
         errorPageTemplates.noVerifyDetails.html,
-        "apps/mischief/scripts/generate-content.ts"
+        "apps/site/scripts/generate-content.ts"
       ),
       page: {
         bibliography: [],

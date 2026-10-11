@@ -5,7 +5,7 @@ import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
-import { readerHtmlProof } from "../../mischief/test/reader-html-proof.js";
+import { readerHtmlProof } from "../../site/test/reader-html-proof.js";
 import { runViteBuildChild } from "../node_modules/alchemy/lib/Cloudflare/Workers/ViteChild.js";
 import { proveWebsiteWorkerd } from "./website-workerd.js";
 

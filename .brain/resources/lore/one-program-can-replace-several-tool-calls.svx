@@ -21,32 +21,32 @@ sources:
     publisher: "Primary source"
     note: "Joel Hooks on code mode"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
-    title: "apps/mischief/src/capabilities/index.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts
+    title: "apps/site/src/capabilities/index.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/capabilities/index.ts"
+    note: "apps/site/src/capabilities/index.ts"
     accessed: "2026-10-02"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts
     title: "packages/capability/src/to-code-mode.ts"
     publisher: "GitHub"
     note: "packages/capability/src/to-code-mode.ts"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts
-    title: "apps/mischief/src/sandbox-worker-loader.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/sandbox-worker-loader.ts
+    title: "apps/site/src/sandbox-worker-loader.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/sandbox-worker-loader.ts"
+    note: "apps/site/src/sandbox-worker-loader.ts"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
-    title: "apps/mischief/src/app.ts"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts
+    title: "apps/site/src/app.ts"
     publisher: "GitHub"
-    note: "apps/mischief/src/app.ts"
+    note: "apps/site/src/app.ts"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/worker.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/worker.ts
     title: "Worker sandbox composition"
     publisher: "GitHub"
     note: "Provides the Worker Loader with sandboxLimits."
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/rate-limits.ts
     title: "Native execute rate limits"
     publisher: "GitHub"
     note: "Six per IP and 300 global per minute."
@@ -94,14 +94,14 @@ Three typed calls use one outer request. This run measures neither latency nor t
 
 ## The sandbox preserves the boundary
 
-[`apps/mischief/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts) builds `toExecuteCapability(contentCapabilities)`. That list contains search, read, backlinks, neighbors, mentions, and path.
+[`apps/site/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts) builds `toExecuteCapability(contentCapabilities)`. That list contains search, read, backlinks, neighbors, mentions, and path.
 
 `joinInterest` belongs to the outer API/MCP registry. It does not belong to the sandbox's callable list.
 
 [`packages/capability/src/to-code-mode.ts`](https://github.com/joelhooks/rat-stack/blob/main/packages/capability/src/to-code-mode.ts) builds the catalog and TypeScript declarations. Every call from sandbox code returns to application code that validates input and runs the handler.
 That code encodes the output or declared failure.
 
-[`sandbox-worker-loader.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts) runs a fresh Dynamic Worker, a Worker loaded to execute sandbox code, with:
+[`sandbox-worker-loader.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/sandbox-worker-loader.ts) runs a fresh Dynamic Worker, a Worker loaded to execute sandbox code, with:
 
 - No outbound network.
 - A 100 ms CPU limit.
@@ -110,7 +110,7 @@ That code encodes the output or declared failure.
 
 Imports, exports, and fetch are unavailable.
 
-The [HTTP and MCP rate-limit checks](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts) use [native rate limits](https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts):
+The [HTTP and MCP rate-limit checks](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts) use [native rate limits](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/rate-limits.ts):
 
 - Six execute calls per IP per minute.
 - 300 execute calls total per minute.

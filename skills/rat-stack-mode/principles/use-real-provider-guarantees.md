@@ -8,4 +8,4 @@ Keep provider details behind a job-shaped port. Verify guarantees on the runtime
 
 **Example:** `.brain/resources/lore/init-runs-twice.svx` records initialization contexts that differed; the runtime-side test catches the missing service.
 
-**Held by:** `rat-stack-boundaries/no-core-adapters`; `apps/mischief/test/worker-runtime-init.test.ts`; review for deployed guarantees.
+**Held by:** `rat-stack-boundaries/no-core-adapters`; `apps/site/test/worker-runtime-init.test.ts`; review for deployed guarantees.

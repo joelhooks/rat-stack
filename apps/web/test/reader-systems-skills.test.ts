@@ -8,14 +8,14 @@ import { renderToString } from "foldkit/experimental/server";
 import {
   prepareReaderSiteInputs,
   readerAssetInputs,
-} from "../../mischief/scripts/reader-site-inputs.ts";
-import { readerSystemsSkillsFlags } from "../../mischief/scripts/reader-systems-skills-flags.ts";
-import { isSystemsSkillsRoute } from "../../mischief/scripts/reader-systems-skills-routes.ts";
-import { withReaderWebsite } from "../../mischief/src/reader-website.js";
+} from "../../site/scripts/reader-site-inputs.ts";
+import { readerSystemsSkillsFlags } from "../../site/scripts/reader-systems-skills-flags.ts";
+import { isSystemsSkillsRoute } from "../../site/scripts/reader-systems-skills-routes.ts";
+import { withReaderWebsite } from "../../site/src/reader-website.js";
 import {
   footerSemantics,
   mainSemantics,
-} from "../../mischief/test/reader-semantics.ts";
+} from "../../site/test/reader-semantics.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";

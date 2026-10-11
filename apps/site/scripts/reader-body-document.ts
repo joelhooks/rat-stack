@@ -52,7 +52,7 @@ export const compileReaderNodes = (
 
     if (button === null || prompt === undefined) {
       failures.push(
-        "Copy control text matches no known copy prompt; add the prompt to copyPrompts in apps/mischief/scripts/component-data.ts"
+        "Copy control text matches no known copy prompt; add the prompt to copyPrompts in apps/site/scripts/component-data.ts"
       );
 
       return ReaderNode.Text({ value: "" });

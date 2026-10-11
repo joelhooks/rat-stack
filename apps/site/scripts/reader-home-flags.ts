@@ -24,7 +24,7 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
           cause,
           message:
             "Cannot compile the human home source; add a reader renderer for the failing node",
-          sourcePath: "apps/mischief/scripts/generate-content.ts",
+          sourcePath: "apps/site/scripts/generate-content.ts",
         }),
       try: () =>
         compileReaderDocument(

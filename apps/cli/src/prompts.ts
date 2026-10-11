@@ -11,7 +11,7 @@ export const localPromptLibraryLayer = Layer.effect(
   Effect.gen(function* makeLocalPromptLibrary() {
     const fs = yield* FileSystem.FileSystem;
     const paths = yield* Path.Path;
-    const directory = paths.join(process.cwd(), "apps/mischief/dist/content");
+    const directory = paths.join(process.cwd(), "apps/site/dist/content");
     const manifestPath = paths.join(directory, "manifest.json");
 
     const manifest = fs.readFileString(manifestPath).pipe(

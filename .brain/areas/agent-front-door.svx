@@ -16,27 +16,27 @@ group: system
 terms:
   - "hosted agent interfaces"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/app.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/app.ts
     title: "Hosted application routes"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Discovery, content negotiation, and protocol routing."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/content.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/content.ts
     title: "Agent discovery content"
     publisher: "GitHub joelhooks/rat-stack"
     note: "MCP versions, connection examples, and discovery cards."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/capabilities/index.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts
     title: "Hosted capability registry"
     publisher: "GitHub joelhooks/rat-stack"
     note: "The hosted content and execute capability list."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/sandbox-worker-loader.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/sandbox-worker-loader.ts
     title: "Code-mode Worker loader"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Isolated execution and outbound network limits."
     accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/mischief/src/rate-limits.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/rate-limits.ts
     title: "Native rate limits"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Request counters and per-stage namespaces."
@@ -45,7 +45,7 @@ sources:
 
 ## What it does
 
-`apps/mischief` hosts the public documentation and agent interfaces.
+`apps/site` hosts the public documentation and agent interfaces.
 A capability is one named action with shared input, output, and failure definitions and a server-side implementation.
 
 - MCP means Model Context Protocol. It lets an agent discover and call tools.
@@ -113,12 +113,12 @@ The test uses workerd, production content routes, and the reader wrapper.
 1. Read the [MCP connection card](/.well-known/mcp.json).
 2. Read the [A2A card](/.well-known/agent-card.json).
 3. Read [OpenAPI](/openapi.json).
-4. Compare the descriptions with `apps/mischief/src/capabilities/index.ts`.
+4. Compare the descriptions with `apps/site/src/capabilities/index.ts`.
 5. Use the `tools/list` request in [llms.txt](/llms.txt).
 6. Search for a public document.
 7. Read the document.
-8. Run `pnpm --filter @rat-stack/mischief test` for protocol routing, rate limiting, and sandbox behavior.
+8. Run `pnpm --filter @rat-stack/site test` for protocol routing, rate limiting, and sandbox behavior.
 9. Confirm the live cards and capability list before advertising a new agent path.
-10. Run `pnpm --filter @rat-stack/mischief exec vitest run test/cold-content-runtime.test.ts` to check cold-request isolation.
+10. Run `pnpm --filter @rat-stack/site exec vitest run test/cold-content-runtime.test.ts` to check cold-request isolation.
 
 Check a new deploy live as well as running local tests.

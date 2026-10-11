@@ -42,6 +42,6 @@ pnpm --filter @rat-stack/infra exec -- alchemy "$operation" \
   --env-file ../../packages/deploy/empty.env "${flags[@]}"
 
 if [[ "$operation" == deploy && "$mode" == --yes ]]; then
-  pnpm --filter @rat-stack/mischief exec -- node scripts/preview-smoke.ts \
+  pnpm --filter @rat-stack/site exec -- node scripts/preview-smoke.ts \
     "https://pr-$pr.ratstack.sh" "$PREVIEW_COMMIT"
 fi

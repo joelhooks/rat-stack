@@ -8,4 +8,4 @@ Use active verbs, consistent terms, and short sentences. Link evidence and prese
 
 **Example:** `skills/write-a-wiki-page/SKILL.md` replaces passive decoding prose with a direct handler action.
 
-**Held by:** `write-a-wiki-page`, steps 2 and 5; `apps/mischief/test/wiki-prose.test.ts` tests warning behavior, not style compliance.
+**Held by:** `write-a-wiki-page`, steps 2 and 5; `apps/site/test/wiki-prose.test.ts` tests warning behavior, not style compliance.

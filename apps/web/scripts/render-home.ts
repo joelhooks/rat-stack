@@ -2,7 +2,7 @@ import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect, FileSystem, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
-import { readerHomeFlags } from "../../mischief/scripts/reader-home-flags.ts";
+import { readerHomeFlags } from "../../site/scripts/reader-home-flags.ts";
 import { init } from "../src/client/reader/init.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import { view } from "../src/features/reader.ts";

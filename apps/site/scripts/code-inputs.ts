@@ -67,7 +67,7 @@ export const collectBuildFences = Effect.fn("collectBuildFences")(
             ".brain/resources/lore",
             ".brain/areas",
             "skills",
-            "apps/mischief/content",
+            "apps/site/content",
           ],
           (directory) => fenceSourcesIn(root, directory)
         )).flat(),

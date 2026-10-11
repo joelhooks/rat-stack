@@ -9,7 +9,7 @@ import { Message } from "./reader/message.js";
 import { Model, ReaderFlags } from "./reader/model.js";
 import { update } from "./reader/update.js";
 
-import "../../../mischief/src/rat.css";
+import "../../../site/src/rat.css";
 import "./reader.css";
 
 const application = Runtime.makeApplication({

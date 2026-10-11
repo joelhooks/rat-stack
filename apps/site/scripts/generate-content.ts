@@ -339,8 +339,7 @@ const trapRoutePath = "/--no-verify" as const;
 
 const tokenmaxxRoutePath = "/tokenmaxx" as const;
 
-const dillonPosterSourcePath =
-  "apps/mischief/content/video/dillon-mulroy-di.jpg";
+const dillonPosterSourcePath = "apps/site/content/video/dillon-mulroy-di.jpg";
 
 const dillonPosterRoutePath =
   "/lore/dependency-injection-is-the-reason-to-choose-effect/dillon-mulroy-di.jpg";
@@ -820,10 +819,7 @@ const program = Effect.gen(function* generateContent() {
   const path = yield* Path.Path;
   const root = path.resolve(import.meta.dirname, "../../..");
 
-  const output = path.join(
-    root,
-    "apps/mischief/src/bundled-content.generated.ts"
-  );
+  const output = path.join(root, "apps/site/src/bundled-content.generated.ts");
 
   const highlighter = yield* FenceHighlighter;
 
@@ -915,7 +911,7 @@ const program = Effect.gen(function* generateContent() {
       return [...files, ...children.flat()];
     });
 
-  const stylesheet = yield* readText("apps/mischief/src/rat.css");
+  const stylesheet = yield* readText("apps/site/src/rat.css");
 
   const emojiSvg = stripHtmlComments(
     yield* readText("assets/emoji/1f400.svg")
@@ -1711,7 +1707,7 @@ const program = Effect.gen(function* generateContent() {
       .join("\n\n");
 
   const searchCapabilitySource = yield* readText(
-    "apps/mischief/src/capabilities/search.ts"
+    "apps/site/src/capabilities/search.ts"
   );
 
   const searchCapabilityExcerpt = searchCapabilitySource
@@ -1922,7 +1918,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "No verify"
   );
 
-  const tokenmaxxSource = yield* readText("apps/mischief/content/tokenmaxx.md");
+  const tokenmaxxSource = yield* readText("apps/site/content/tokenmaxx.md");
 
   const tokenmaxxBody = yield* compileMarkdownBody(
     tokenmaxxSource,
@@ -1940,7 +1936,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   );
 
   const authMarkdown = renderAgentPage(
-    yield* readText("apps/mischief/content/auth.md"),
+    yield* readText("apps/site/content/auth.md"),
     "/auth.md",
     "ratstack.sh auth.md"
   );
@@ -1948,13 +1944,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const tokenmaxxImageJpegBase64 = Buffer.from(
     yield* fileSystem
       .readFile(
-        path.join(root, "apps/mischief/content/tokenmaxx/four-comma-club.jpg")
+        path.join(root, "apps/site/content/tokenmaxx/four-comma-club.jpg")
       )
       .pipe(
         Effect.mapError((cause) =>
           buildError(
             "read",
-            "apps/mischief/content/tokenmaxx/four-comma-club.jpg",
+            "apps/site/content/tokenmaxx/four-comma-club.jpg",
             cause
           )
         )
@@ -1974,16 +1970,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const cartridgesImageJpegBase64 = Buffer.from(
     yield* fileSystem
       .readFile(
-        path.join(
-          root,
-          "apps/mischief/content/tokenmaxx/snes-sfam-cartridges.jpg"
-        )
+        path.join(root, "apps/site/content/tokenmaxx/snes-sfam-cartridges.jpg")
       )
       .pipe(
         Effect.mapError((cause) =>
           buildError(
             "read",
-            "apps/mischief/content/tokenmaxx/snes-sfam-cartridges.jpg",
+            "apps/site/content/tokenmaxx/snes-sfam-cartridges.jpg",
             cause
           )
         )
@@ -1991,7 +1984,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   ).toString("base64");
 
   const interestConfirmationEmail = yield* readText(
-    "apps/mischief/content/tokenmaxx-confirmation-email.txt"
+    "apps/site/content/tokenmaxx-confirmation-email.txt"
   );
 
   const skillIndexBody = yield* compileMarkdownBody(
@@ -2196,7 +2189,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     },
     {
       pageRoute: "/",
-      sourcePath: "apps/mischief/scripts/document-html.ts",
+      sourcePath: "apps/site/scripts/document-html.ts",
       text: Object.values(
         renderDocumentShell({
           agentPointerHtml: agentPointerHumanHtml,
@@ -2755,7 +2748,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const homeBodyHtml = homeBody.bodyHtml;
 
   const staticSourcePathGroups = yield* Effect.forEach(
-    ["apps/mischief/src", "packages/capability/src"],
+    ["apps/site/src", "packages/capability/src"],
     (directory) =>
       fileSystem
         .readDirectory(path.join(root, directory), { recursive: true })
@@ -3082,9 +3075,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { concurrency: "unbounded" }
   );
 
-  const errorPageMarkdown = yield* readText(
-    "apps/mischief/content/error-page.md"
-  );
+  const errorPageMarkdown = yield* readText("apps/site/content/error-page.md");
 
   const errorActionsMarkdown =
     "- [Home](/)\n- [Glossary](/glossary)\n- [Lore](/lore)\n- [Systems](/systems)\n- [Change log](/log)\n- [Agent guide](/llms.txt)\n";
@@ -3338,11 +3329,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     })
   ).pipe(
     Effect.mapError((cause) =>
-      buildError(
-        "content resources",
-        "apps/mischief/src/content-data.ts",
-        cause
-      )
+      buildError("content resources", "apps/site/src/content-data.ts", cause)
     )
   );
 
@@ -3425,7 +3412,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const assetManifest = yield* emitAssets({
     data,
-    directory: path.join(root, "apps/mischief/dist/content"),
+    directory: path.join(root, "apps/site/dist/content"),
     images: [
       { base64: faviconIcoBase64, path: "/favicon.ico" },
       { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
@@ -3500,10 +3487,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     ],
   });
 
-  const readerSourcePath = path.join(
-    root,
-    "apps/mischief/dist/reader-source.json"
-  );
+  const readerSourcePath = path.join(root, "apps/site/dist/reader-source.json");
 
   yield* fileSystem
     .writeFileString(

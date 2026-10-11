@@ -6,9 +6,9 @@ import { renderToString } from "foldkit/experimental/server";
 import {
   compileReaderBody,
   readerWorkshopCount,
-} from "../../mischief/scripts/reader-body-document.ts";
-import { readerLoreFlags } from "../../mischief/scripts/reader-lore-flags.ts";
-import { prepareReaderSiteInputs } from "../../mischief/scripts/reader-site-inputs.ts";
+} from "../../site/scripts/reader-body-document.ts";
+import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
+import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import { init } from "../src/client/reader/init.js";

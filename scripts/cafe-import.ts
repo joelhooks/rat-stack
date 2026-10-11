@@ -1,1 +1,1 @@
-import "../apps/mischief/scripts/cafe-import.ts";
+import "../apps/site/scripts/cafe-import.ts";

@@ -165,7 +165,7 @@ rat-stack is a CAFE stack with [the fence](/lore/the-fence) around it. The table
 | Area | rat-stack | cafe |
 | --- | --- | --- |
 | Alchemy Worker shape | Class form: `Cloudflare.Worker<Mischief>()`, `Cloudflare.Workers.RpcWorker`, `Cloudflare.Website.Foldkit` | `Cloudflare.Worker`, `Cloudflare.RpcDurableObject`, `Cloudflare.Website.Foldkit` |
-| Runtime tests | `alchemy/Test/Vitest` with fixture Workers in `apps/mischief/test/*-runtime.test.ts` | `Test.make` deploys the whole Stack; Playwright drives Chromium |
+| Runtime tests | `alchemy/Test/Vitest` with fixture Workers in `apps/site/test/*-runtime.test.ts` | `Test.make` deploys the whole Stack; Playwright drives Chromium |
 | API surface | One contract projected to RPC, HTTP, MCP, and CLI by `packages/capability` | Hand-written `HttpApi` and `RpcGroup` |
 | Foldkit | `Runtime.makeApplication`, `Command.define`, `@foldkit/oxlint-plugin`, Story and Scene tests | The same, plus the Foldkit agent skills |
 | Config | varlock `.env.schema` into Effect `Config`; no `process.env` in source | `effect/Config`; no `process.env` |
