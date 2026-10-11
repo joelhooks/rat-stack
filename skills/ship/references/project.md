@@ -12,7 +12,7 @@ Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
 - `--ownerApproved` records obtained owner sign-off for deletion, replacement, orphaning or unbinding. It does not obtain permission. The exact allow entry is still required.
 - `--expectSha <full sha>` names the commit you mean to ship. The driver refuses to plan or apply unless `HEAD` is that commit and the tree has no changes or untracked files. The verdict records the head it saw and the changed paths.
 - Run `pnpm turbo run check test build --concurrency=1` first.
-- Keep `pnpm mischief:smoke` until typed checks pass in production.
+- Keep `pnpm site:smoke` until typed checks pass in production.
 - Sandbox checks decode the execute diagnostic from the capability schema. HTTP 200 alone does not establish success. Timeout requires `TimeoutExceeded` and a null result. Network refusal requires `ExecutionFailure`, a refused-fetch message, and a null result. Consumers that parsed `SandboxError` response bodies must migrate to `diagnostic`.
 
 ## Authority

@@ -94,7 +94,7 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 - Classification reads Alchemy Plan values, including binding and task changes. Retention is a physical-resource backstop, not a delete guard: it removes state rows and leaves cloud objects. Apply receipts list confirmed retained orphans. Alchemy confirmations use the capability approval service; unattended input prompts fail typed.
 - Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
 - The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
-- Keep `pnpm mischief:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback.
+- Keep `pnpm site:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback. `pnpm mischief:smoke` is an alias for one release.
 - Procedure: [ship](/skills/ship), with project commands in `skills/ship/references/project.md`.
 
 ## Release the ratstack package
@@ -210,6 +210,6 @@ One send follows one path: feature → Message → `update` → named Command �
 
 A child project replaces this section on day one with its own boundaries. This section names changes agents may make directly and changes that need owner approval.
 
-- Safe by default: adding a capability in `packages/core` and wiring it into `capabilities`; new or tightened tests; a targeted diagnostic override with a written reason; README, AGENTS.md, and `.brain/` edits; tightening a lint rule; removing a surface by following Keep or cut; any change under `apps/infra`, and `pnpm infra:deploy` once `pnpm infra:plan` shows only the intended diff and the gate passes, followed by `pnpm mischief:smoke`.
+- Safe by default: adding a capability in `packages/core` and wiring it into `capabilities`; new or tightened tests; a targeted diagnostic override with a written reason; README, AGENTS.md, and `.brain/` edits; tightening a lint rule; removing a surface by following Keep or cut; any change under `apps/infra`, and `pnpm infra:deploy` once `pnpm infra:plan` shows only the intended diff and the gate passes, followed by `pnpm site:smoke`.
 - When a call is unclear, get a second opinion from a Pi session on `openai-codex/gpt-6-astra:xhigh` before asking the owner.
 - Needs owner sign-off: adding or changing a dependency version (pins are exact and CI installs cold); any edit to `oxlint.config.ts`, the diagnostics map in `tsconfig.base.json`, `lefthook.yml`, or `scripts/vcs-command-policy.js` that loosens the fence; `pnpm infra:destroy`, and a deploy whose plan replaces or deletes a resource; widening sandbox permissions or adding a runtime that reaches the network; exposing `serve` or `mcp` beyond localhost; vendoring a package as a `file:` tarball; deleting `.agent_sources/` or `vendor/`.
