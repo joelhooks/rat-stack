@@ -45,13 +45,10 @@ const previewHeaders = Effect.fn("reader.previewHeaders")(
       const commit = yield* bindings.previewCommit;
 
       if (commit === undefined) {
-        return yield* Effect.fail(
-          new WebsiteBindingError({
-            cause: "Missing PREVIEW_COMMIT",
-            message:
-              "Preview responses require the full deployed commit binding",
-          })
-        );
+        return yield* new WebsiteBindingError({
+          cause: "Missing PREVIEW_COMMIT",
+          message: "Preview responses require the full deployed commit binding",
+        });
       }
 
       headers.set("X-Robots-Tag", "noindex");
