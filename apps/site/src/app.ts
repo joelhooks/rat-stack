@@ -1050,24 +1050,24 @@ export const errorPages = HttpRouter.middleware(
       const machine = machinePath(pathname) || acceptsJson(request);
 
       const response = yield* httpEffect.pipe(
-        Effect.catchCause((cause) =>
-          machine || Cause.hasInterrupts(cause)
-            ? Effect.failCause(cause)
-            : logRequestIncident(cause, "content").pipe(
-                Effect.flatMap((incidentId) =>
-                  errorResponse(request, {
-                    code: 500,
-                    details: IncidentDetails.make({ id: incidentId }),
-                    message: "Something went wrong. Please try again.",
-                    path: pathname,
-                    title: "Internal server error",
-                  }).pipe(
-                    Effect.map(
-                      HttpServerResponse.setHeader("X-Incident-Id", incidentId)
-                    )
+        Effect.catchCauseIf(
+          (cause) => !machine && !Cause.hasInterrupts(cause),
+          (cause) =>
+            logRequestIncident(cause, "content").pipe(
+              Effect.flatMap((incidentId) =>
+                errorResponse(request, {
+                  code: 500,
+                  details: IncidentDetails.make({ id: incidentId }),
+                  message: "Something went wrong. Please try again.",
+                  path: pathname,
+                  title: "Internal server error",
+                }).pipe(
+                  Effect.map(
+                    HttpServerResponse.setHeader("X-Incident-Id", incidentId)
                   )
                 )
               )
+            )
         )
       );
 
