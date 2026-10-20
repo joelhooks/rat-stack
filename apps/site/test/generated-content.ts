@@ -192,16 +192,14 @@ export const FileAssets = Layer.effect(
           Effect.mapError(
             (cause) => new AssetReadError({ cause, path, reason: "provider" })
           ),
-          Effect.flatMap((body) =>
-            body.byteLength > 0
-              ? Effect.succeed(body)
-              : Effect.fail(
-                  new AssetReadError({
-                    cause: "Asset body is empty",
-                    path,
-                    reason: "empty",
-                  })
-                )
+          Effect.filterOrFail(
+            (body) => body.byteLength > 0,
+            () =>
+              new AssetReadError({
+                cause: "Asset body is empty",
+                path,
+                reason: "empty",
+              })
           )
         ),
     });
