@@ -586,9 +586,9 @@ const contentRoutes = () =>
         HttpRouter.add("GET", "/llms-full.txt", (request) =>
           store.catalog.pipe(
             Effect.flatMap((catalog) =>
-              Effect.all(
-                catalog.resources.map((resource) => store.read(resource.id))
-              ).pipe(
+              Effect.forEach((resource: (typeof catalog.resources)[number]) =>
+                store.read(resource.id)
+              )(catalog.resources).pipe(
                 Effect.map((resources) =>
                   markdown(llmsFullText(originOf(request), catalog, resources))
                 )
