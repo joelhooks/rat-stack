@@ -1,6 +1,9 @@
 import { Schema } from "effect";
 
-export class AssetReadError extends Schema.TaggedError<AssetReadError>()(
+export class AssetReadError extends Schema.TaggedError<
+  AssetReadError,
+  { readonly brand: unique symbol }
+>()(
   "AssetReadError",
   {
     cause: Schema.Defect(),

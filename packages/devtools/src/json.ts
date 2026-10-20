@@ -24,14 +24,14 @@ export const ChangeSchema = Schema.Struct({
 
 export type Change = typeof ChangeSchema.Type;
 
-export class PathNotFound extends Schema.TaggedError<PathNotFound>()(
-  "PathNotFound",
-  {
-    available: Schema.Array(Schema.String),
-    path: Schema.String,
-    resolved: Schema.String,
-  }
-) {}
+export class PathNotFound extends Schema.TaggedError<
+  PathNotFound,
+  { readonly brand: unique symbol }
+>()("PathNotFound", {
+  available: Schema.Array(Schema.String),
+  path: Schema.String,
+  resolved: Schema.String,
+}) {}
 
 const isJsonArray = (value: Schema.Json): value is readonly Schema.Json[] =>
   Array.isArray(value);

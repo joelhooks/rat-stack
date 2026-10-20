@@ -16,10 +16,10 @@ import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
 
-class PostgresMigrationConnectionError extends Schema.TaggedError<PostgresMigrationConnectionError>()(
-  "PostgresMigrationConnectionError",
-  { cause: Schema.Defect() }
-) {}
+class PostgresMigrationConnectionError extends Schema.TaggedError<
+  PostgresMigrationConnectionError,
+  { readonly brand: unique symbol }
+>()("PostgresMigrationConnectionError", { cause: Schema.Defect() }) {}
 
 interface MigrationInput {
   readonly databaseId: string;

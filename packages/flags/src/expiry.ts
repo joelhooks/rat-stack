@@ -1,19 +1,19 @@
 import type { Flag } from "@rat-stack/core/flags";
 import { DateTime, Effect, Schema } from "effect";
 
-export class ExpiredFlags extends Schema.TaggedError<ExpiredFlags>()(
-  "ExpiredFlags",
-  {
-    flags: Schema.Array(
-      Schema.Struct({
-        name: Schema.String,
-        owner: Schema.String,
-        removeBy: Schema.String,
-      })
-    ),
-    repair: Schema.String,
-  }
-) {}
+export class ExpiredFlags extends Schema.TaggedError<
+  ExpiredFlags,
+  { readonly brand: unique symbol }
+>()("ExpiredFlags", {
+  flags: Schema.Array(
+    Schema.Struct({
+      name: Schema.String,
+      owner: Schema.String,
+      removeBy: Schema.String,
+    })
+  ),
+  repair: Schema.String,
+}) {}
 
 export const checkFlagExpiry = Effect.fn("checkFlagExpiry")(
   function* checkFlagExpiry(registry: readonly Flag<unknown>[]) {

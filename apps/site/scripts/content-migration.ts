@@ -18,15 +18,15 @@ import {
   visitContentNodes,
 } from "./svx-ast.ts";
 
-export class ContentMigrationIssue extends Schema.TaggedError<ContentMigrationIssue>()(
-  "ContentMigrationIssue",
-  {
-    construct: Schema.String,
-    line: Schema.Finite,
-    repair: Schema.String,
-    sourcePath: Schema.String,
-  }
-) {}
+export class ContentMigrationIssue extends Schema.TaggedError<
+  ContentMigrationIssue,
+  { readonly brand: unique symbol }
+>()("ContentMigrationIssue", {
+  construct: Schema.String,
+  line: Schema.Finite,
+  repair: Schema.String,
+  sourcePath: Schema.String,
+}) {}
 
 export const MigrationFrontmatter = Schema.Struct({
   prerequisites: loreFrontmatterSchema.fields.prerequisites,

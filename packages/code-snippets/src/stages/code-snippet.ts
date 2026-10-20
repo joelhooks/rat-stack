@@ -3,7 +3,10 @@ import { Schema } from "effect";
 import { CodeRequest } from "../model.ts";
 import { SnippetLine } from "../tokens.ts";
 
-export class CodeSnippet extends Schema.Class<CodeSnippet>("CodeSnippet")({
+export class CodeSnippet extends Schema.Class<
+  CodeSnippet,
+  { readonly brand: unique symbol }
+>("CodeSnippet")({
   lines: Schema.Array(SnippetLine),
   request: CodeRequest,
   url: Schema.String,

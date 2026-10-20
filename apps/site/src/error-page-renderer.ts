@@ -7,10 +7,13 @@ import { ReaderErrorPage, readerErrorPath } from "./reader-error-page.js";
 import { readerContentSecurityPolicy } from "./security.js";
 import type { AssetBinding } from "./static-assets.js";
 
-export class WebsiteErrorPageError extends Schema.TaggedError<WebsiteErrorPageError>()(
-  "WebsiteErrorPageError",
-  { cause: Schema.Defect(), message: Schema.String }
-) {}
+export class WebsiteErrorPageError extends Schema.TaggedError<
+  WebsiteErrorPageError,
+  { readonly brand: unique symbol }
+>()("WebsiteErrorPageError", {
+  cause: Schema.Defect(),
+  message: Schema.String,
+}) {}
 
 export interface ErrorPageRendererService {
   readonly html: (

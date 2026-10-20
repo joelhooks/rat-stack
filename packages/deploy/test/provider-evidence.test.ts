@@ -7,7 +7,10 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 
 import { applyWithProviderEvidence } from "../src/provider-errors.js";
 
-class BadRequest extends Schema.TaggedError<BadRequest>()("BadRequest", {
+class BadRequest extends Schema.TaggedError<
+  BadRequest,
+  { readonly brand: unique symbol }
+>()("BadRequest", {
   message: Schema.String,
 }) {}
 

@@ -95,10 +95,10 @@ const errorDiagnostic = (
   return nested === undefined ? diagnostic : { ...diagnostic, cause: nested };
 };
 
-class ReturnedServerError extends Schema.TaggedError<ReturnedServerError>()(
-  "ReturnedServerError",
-  {}
-) {}
+class ReturnedServerError extends Schema.TaggedError<
+  ReturnedServerError,
+  { readonly brand: unique symbol }
+>()("ReturnedServerError", {}) {}
 
 const privateError = (cause: unknown, includeMessage = true) => {
   const diagnostic = includeMessage ? errorDiagnostic(cause) : undefined;

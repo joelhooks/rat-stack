@@ -10,13 +10,13 @@ export const FileStatsSchema = Schema.Struct({
 
 export type FileStats = typeof FileStatsSchema.Type;
 
-export class FileStatsError extends Schema.TaggedError<FileStatsError>()(
-  "FileStatsError",
-  {
-    path: Schema.String,
-    reason: Schema.String,
-  }
-) {
+export class FileStatsError extends Schema.TaggedError<
+  FileStatsError,
+  { readonly brand: unique symbol }
+>()("FileStatsError", {
+  path: Schema.String,
+  reason: Schema.String,
+}) {
   override readonly [Runtime.errorExitCode] = 1;
   override readonly [Runtime.errorReported] = false;
 

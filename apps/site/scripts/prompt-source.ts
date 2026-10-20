@@ -3,14 +3,14 @@ import { Effect, Result, Schema } from "effect";
 
 import { frontmatterData, scanLeadingFrontmatterFence } from "./svx-ast.ts";
 
-export class PromptBuildError extends Schema.TaggedError<PromptBuildError>()(
-  "PromptBuildError",
-  {
-    issues: Schema.Array(
-      Schema.Struct({ message: Schema.String, sourcePath: Schema.String })
-    ),
-  }
-) {}
+export class PromptBuildError extends Schema.TaggedError<
+  PromptBuildError,
+  { readonly brand: unique symbol }
+>()("PromptBuildError", {
+  issues: Schema.Array(
+    Schema.Struct({ message: Schema.String, sourcePath: Schema.String })
+  ),
+}) {}
 
 export const validatePromptSources = Effect.fn("validatePromptSources")(
   function* validatePromptSources(
