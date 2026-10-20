@@ -959,6 +959,35 @@ interface CollapseContext {
 const isBlankText = (node: TemplateNode | undefined) =>
   node?.type === "text" && !hasContent.test(node.data);
 
+const inlineParents = new Set([
+  "a",
+  "abbr",
+  "b",
+  "bdi",
+  "bdo",
+  "cite",
+  "code",
+  "data",
+  "del",
+  "dfn",
+  "em",
+  "i",
+  "ins",
+  "kbd",
+  "mark",
+  "q",
+  "s",
+  "samp",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "time",
+  "u",
+  "var",
+]);
+
 const trimFragment = (nodes: readonly TemplateNode[]) => {
   const start = nodes.findIndex((node) => !isBlankText(node));
   const end = nodes.findLastIndex((node) => !isBlankText(node));
@@ -1015,7 +1044,12 @@ const collapseNodes = (
   context: CollapseContext
 ): TemplateNode[] => {
   const collapsed = dropPreNewline(
-    context.preserve ? nodes : collapseText(trimFragment(nodes), context),
+    context.preserve
+      ? nodes
+      : collapseText(
+          inlineParents.has(context.parent) ? [...nodes] : trimFragment(nodes),
+          context
+        ),
     context.parent
   );
 
