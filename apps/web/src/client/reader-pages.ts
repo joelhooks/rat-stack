@@ -19,13 +19,25 @@ const decodePage = Schema.decodeUnknownEffect(
 // @effect-diagnostics-next-line asyncFunction:off -- the lazy chunk boundary is a dynamic import
 const importSources = async () => await import("virtual:reader-page-sources");
 
+const sourceJson = new Map<string, string>();
+
 const loadSources = Effect.fn("reader.loadPageSources")(
   function* loadSources() {
+    if (sourceJson.size > 0) {
+      return sourceJson;
+    }
+
     const loaded = yield* Effect.promise(importSources);
 
-    return yield* decodeSources(loaded.readerPageSources);
+    for (const [path, json] of yield* decodeSources(loaded.readerPageSources)) {
+      sourceJson.set(path, json);
+    }
+
+    return sourceJson;
   }
 );
+
+const knownPaths = new Set(pagePaths);
 
 const decoded = new Map<string, ReaderPageFlags>();
 
@@ -38,15 +50,17 @@ export const findPage = Effect.fn("reader.findPage")(function* findPage(
     return Option.some(cached);
   }
 
-  const found = (yield* loadSources()).find(
-    ([candidate]) => candidate === path
-  );
-
-  if (found === undefined) {
+  if (!knownPaths.has(path)) {
     return Option.none();
   }
 
-  const page = yield* decodePage(found[1]);
+  const json = (yield* loadSources()).get(path);
+
+  if (json === undefined) {
+    return Option.none();
+  }
+
+  const page = yield* decodePage(json);
   decoded.set(path, page);
 
   return Option.some(page);
