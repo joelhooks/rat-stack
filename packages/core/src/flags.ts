@@ -56,7 +56,7 @@ export const defineFlag = <A>(
     readonly removeBy: string;
   }
 ): Flag<A> => ({
-  ...Schema.decodeUnknownSync(FlagMetadataSchema)({ name, ...options }),
+  ...Schema.decodeSync(FlagMetadataSchema)({ name, ...options }),
   default: Schema.decodeUnknownSync(Schema.toType(schema))(options.default),
   schema,
 });

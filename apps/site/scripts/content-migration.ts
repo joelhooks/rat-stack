@@ -312,7 +312,7 @@ export const mapMigrationSource = (source: string, sourcePath: string) => {
     }
 
     try {
-      Schema.decodeUnknownSync(definition, { onExcessProperty: "error" })(
+      Schema.decodeSync(definition, { onExcessProperty: "error" })(
         token.attributes
       );
     } catch {

@@ -58,9 +58,7 @@ const Manifest = Schema.Struct({
 });
 
 const manifestPin = (text: string, name: string) => {
-  const manifest = Schema.decodeUnknownSync(Schema.fromJsonString(Manifest))(
-    text
-  );
+  const manifest = Schema.decodeSync(Schema.fromJsonString(Manifest))(text);
 
   return Schema.decodeUnknownSync(Schema.String)(
     manifest.dependencies?.[name] ?? manifest.devDependencies?.[name]

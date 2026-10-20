@@ -28,9 +28,7 @@ const importRuntime = Effect.tryPromise({
 });
 
 const runtimeEnvironment = importRuntime.pipe(
-  Effect.flatMap(({ env }) =>
-    Schema.decodeUnknownEffect(WebsiteEnvironment)(env)
-  ),
+  Effect.flatMap(({ env }) => Schema.decodeEffect(WebsiteEnvironment)(env)),
   Effect.mapError(
     (cause) =>
       new WebsiteBindingError({

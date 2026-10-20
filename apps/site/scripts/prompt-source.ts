@@ -37,9 +37,7 @@ export const validatePromptSources = Effect.fn("validatePromptSources")(
         const validations = [
           {
             field: "body",
-            result: Schema.decodeUnknownResult(Prompt.fields.body)(
-              candidate.body
-            ),
+            result: Schema.decodeResult(Prompt.fields.body)(candidate.body),
           },
           {
             field: "credit",
@@ -55,9 +53,7 @@ export const validatePromptSources = Effect.fn("validatePromptSources")(
           },
           {
             field: "slug",
-            result: Schema.decodeUnknownResult(Prompt.fields.slug)(
-              candidate.slug
-            ),
+            result: Schema.decodeResult(Prompt.fields.slug)(candidate.slug),
           },
           {
             field: "title",
