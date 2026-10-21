@@ -2,22 +2,22 @@ import { Effect, FileSystem, Path, Schema } from "effect";
 
 import { ContentAssetManifest } from "./asset-manifest.js";
 
-export class AssetDeploymentError extends Schema.TaggedError<AssetDeploymentError>()(
-  "AssetDeploymentError",
-  {
-    cause: Schema.Defect(),
-    generation: Schema.String,
-    path: Schema.String,
-    reason: Schema.Literals([
-      "manifest",
-      "generation",
-      "routes",
-      "images",
-      "directory",
-      "file",
-    ]),
-  }
-) {}
+export class AssetDeploymentError extends Schema.TaggedError<
+  AssetDeploymentError,
+  { readonly brand: unique symbol }
+>()("AssetDeploymentError", {
+  cause: Schema.Defect(),
+  generation: Schema.String,
+  path: Schema.String,
+  reason: Schema.Literals([
+    "manifest",
+    "generation",
+    "routes",
+    "images",
+    "directory",
+    "file",
+  ]),
+}) {}
 
 export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
   function* assetDirectoryForBuild(

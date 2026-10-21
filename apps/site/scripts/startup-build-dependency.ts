@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect";
 
-export class StartupBuildDependency extends Schema.TaggedError<StartupBuildDependency>()(
-  "StartupBuildDependency",
-  { modules: Schema.Array(Schema.String) }
-) {}
+export class StartupBuildDependency extends Schema.TaggedError<
+  StartupBuildDependency,
+  { readonly brand: unique symbol }
+>()("StartupBuildDependency", { modules: Schema.Array(Schema.String) }) {}
 
 export const assertBuildOnlyModules = (modules: readonly string[]) => {
   const forbidden = modules.filter(

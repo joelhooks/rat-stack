@@ -1,10 +1,10 @@
 import { Schema } from "effect";
 
-export class ReaderInputError extends Schema.TaggedError<ReaderInputError>()(
-  "ReaderInputError",
-  {
-    cause: Schema.optional(Schema.Unknown),
-    message: Schema.String,
-    sourcePath: Schema.String,
-  }
-) {}
+export class ReaderInputError extends Schema.TaggedError<
+  ReaderInputError,
+  { readonly brand: unique symbol }
+>()("ReaderInputError", {
+  cause: Schema.optional(Schema.Unknown),
+  message: Schema.String,
+  sourcePath: Schema.String,
+}) {}

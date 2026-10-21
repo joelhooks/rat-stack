@@ -169,7 +169,7 @@ for (const { line, matches } of results) {
 
 const roster = new Set(
   existsSync(values.roster)
-    ? Schema.decodeUnknownSync(
+    ? Schema.decodeSync(
         Schema.fromJsonString(
           Schema.Array(Schema.Struct({ repo: Schema.String }))
         )

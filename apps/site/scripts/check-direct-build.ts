@@ -4,10 +4,10 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { ContentAssetManifest } from "../src/asset-manifest.ts";
 
-class DirectBuildFailed extends Schema.TaggedError<DirectBuildFailed>()(
-  "DirectBuildFailed",
-  { reason: Schema.String }
-) {}
+class DirectBuildFailed extends Schema.TaggedError<
+  DirectBuildFailed,
+  { readonly brand: unique symbol }
+>()("DirectBuildFailed", { reason: Schema.String }) {}
 
 const outputs = [
   "src/bundled-content.generated.ts",

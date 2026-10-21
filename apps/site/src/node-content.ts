@@ -36,16 +36,14 @@ export const nodeAssetsForGeneration = (
             Effect.mapError(
               (cause) => new AssetReadError({ cause, path, reason: "provider" })
             ),
-            Effect.flatMap((bytes) =>
-              bytes.byteLength === 0
-                ? Effect.fail(
-                    new AssetReadError({
-                      cause: "Asset body is empty",
-                      path,
-                      reason: "empty",
-                    })
-                  )
-                : Effect.succeed(bytes)
+            Effect.filterOrFail(
+              (bytes) => bytes.byteLength !== 0,
+              () =>
+                new AssetReadError({
+                  cause: "Asset body is empty",
+                  path,
+                  reason: "empty",
+                })
             )
           ),
       });

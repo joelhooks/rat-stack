@@ -226,7 +226,7 @@ it.prop(
       title,
     });
 
-    const data = Schema.decodeUnknownSync(Schema.fromJsonString(Article))(
+    const data = Schema.decodeSync(Schema.fromJsonString(Article))(
       jsonLd(html)
     );
 

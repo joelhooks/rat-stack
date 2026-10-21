@@ -4,10 +4,10 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { generateForCommand } from "./content-generation.ts";
 
-class ContentGenerationFailed extends Schema.TaggedError<ContentGenerationFailed>()(
-  "ContentGenerationFailed",
-  { exitCode: Schema.Int }
-) {}
+class ContentGenerationFailed extends Schema.TaggedError<
+  ContentGenerationFailed,
+  { readonly brand: unique symbol }
+>()("ContentGenerationFailed", { exitCode: Schema.Int }) {}
 
 const generate = Effect.gen(function* runContentGenerator() {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
