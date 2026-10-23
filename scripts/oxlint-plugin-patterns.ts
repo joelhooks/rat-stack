@@ -798,6 +798,174 @@ const noModuleLevelMutableState = defineRule({
   },
 });
 
+const waitingConstructors = new Map([
+  ["Deferred", new Set(["make", "makeUnsafe"])],
+  ["Cache", new Set(["make", "makeWith"])],
+  ["Ref", new Set(["make", "makeUnsafe"])],
+  ["Semaphore", new Set(["make", "makeUnsafe"])],
+  ["Queue", new Set(["make", "bounded", "unbounded", "dropping", "sliding"])],
+]);
+
+const isWaitingConstructor = (
+  node: ESTree.CallExpression,
+  context: RuleContext
+) => {
+  const scope = context.sourceCode.getScope(node);
+  const callee = unwrapExpression(node.callee);
+  const identity = importIdentity(callee, scope, context);
+
+  if (identity?.module.startsWith("effect/") === true) {
+    const primitive = identity.module.slice("effect/".length);
+
+    return (
+      waitingConstructors.get(primitive)?.has(identity.name ?? "") === true
+    );
+  }
+
+  if (callee.type !== "MemberExpression") {
+    return false;
+  }
+
+  const object = importIdentity(callee.object, scope, context);
+
+  return (
+    object?.module === "effect" &&
+    waitingConstructors
+      .get(object.name ?? "")
+      ?.has(staticPropertyName(callee) ?? "") === true
+  );
+};
+
+const isLayerOwnedConstruction = (
+  node: ESTree.CallExpression,
+  context: RuleContext
+) => {
+  const callee = unwrapExpression(node.callee);
+
+  const constructorName =
+    callee.type === "MemberExpression"
+      ? staticPropertyName(callee)
+      : importIdentity(callee, context.sourceCode.getScope(node), context)
+          ?.name;
+
+  if (constructorName === "makeUnsafe") {
+    return false;
+  }
+
+  if (node.parent?.type !== "CallExpression") {
+    return false;
+  }
+
+  const target = unwrapExpression(node.parent.callee);
+  const scope = context.sourceCode.getScope(node.parent);
+  const identity = importIdentity(target, scope, context);
+
+  if (identity?.module === "effect/Layer") {
+    return identity.name === "effect" || identity.name === "effectDiscard";
+  }
+
+  if (target.type !== "MemberExpression") {
+    return false;
+  }
+
+  const owner = importIdentity(target.object, scope, context);
+
+  return (
+    (staticPropertyName(target) === "effect" ||
+      staticPropertyName(target) === "effectDiscard") &&
+    owner?.module === "effect" &&
+    owner.name === "Layer"
+  );
+};
+
+const isDurableObjectInstanceField = (
+  field: ESTree.PropertyDefinition,
+  context: RuleContext
+) => {
+  const owner = field.parent?.parent;
+
+  const superclass =
+    owner?.type === "ClassDeclaration" || owner?.type === "ClassExpression"
+      ? owner.superClass
+      : null;
+
+  const identity =
+    superclass === null
+      ? null
+      : importIdentity(superclass, context.sourceCode.getScope(field), context);
+
+  return (
+    !field.static &&
+    identity?.module === "cloudflare:workers" &&
+    identity.name === "DurableObject"
+  );
+};
+
+const sharedWaiterOwner = (
+  node: ESTree.Node,
+  context: RuleContext
+): ESTree.Node | null => {
+  let current = node.parent;
+
+  while (current !== null) {
+    if (
+      current.type === "ArrowFunctionExpression" ||
+      current.type === "FunctionExpression" ||
+      current.type === "FunctionDeclaration"
+    ) {
+      return null;
+    }
+
+    if (current.type === "PropertyDefinition") {
+      return isDurableObjectInstanceField(current, context) ? null : current;
+    }
+
+    if (
+      current.type === "VariableDeclarator" &&
+      current.parent?.type === "VariableDeclaration" &&
+      current.parent.kind === "const" &&
+      isModuleScopedVar(current)
+    ) {
+      return current;
+    }
+
+    current = current.parent;
+  }
+
+  return null;
+};
+
+const sharedWaiters = defineRule({
+  create(context) {
+    if (!isRuntimeSource(workspacePath(context.filename))) {
+      return {};
+    }
+
+    return {
+      CallExpression(node) {
+        if (
+          sharedWaiterOwner(node, context) !== null &&
+          isWaitingConstructor(node, context) &&
+          !isLayerOwnedConstruction(node, context)
+        ) {
+          context.report({ messageId: "sharedWaiter", node });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Keep Deferred, Cache, Ref, Semaphore, and Queue construction out of module const bindings and class fields outside Durable Object instances. In drovr #2344 and #2348, cross-request waiters in a Worker isolate made another caller hang or receive a 503.",
+    },
+    messages: {
+      sharedWaiter:
+        "Module-level waiting primitives and fields outside Durable Object instances can share pending work across Worker request contexts, making another caller hang or receive a 503. Construct the primitive inside a request-owned Effect or a Durable Object instance. For Layers, use Layer.effect(Tag, Ref.make(...)), not Layer.succeed(Tag, Ref.makeUnsafe(...)); do not store the primitive or its Effect-run result in a module const.",
+    },
+    type: "problem",
+  },
+});
+
 const camelCase = (name: string) =>
   name
     .split(/[^A-Za-z0-9]+/u)
@@ -1453,6 +1621,7 @@ export default definePlugin({
     "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "no-shared-pending-cache": noSharedPendingCache,
+    "shared-waiters": sharedWaiters,
     "watch-effect-actors": watchEffectActors,
   },
 });

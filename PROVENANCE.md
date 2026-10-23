@@ -49,6 +49,12 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Shared waiters
+
+`rat-stack-patterns/shared-waiters` adapts drovr's `tools/oxlint/drovr-layers/shared-waiters.ts` at commit `13f075b3` (drovr #2348). The original rule catches unsafe Deferred and Semaphore construction outside class instances. This implementation uses rat-stack's import resolution, checks module const construction and class fields, and adds Cache, Ref, and Queue. Only instance fields whose class directly extends the imported Cloudflare DurableObject receive the class-field exemption; static fields and unrelated subclasses do not. There are no inherited path exceptions. Drovr #2344 and #2348 record the cross-request waiter incident: another caller could hang or receive a 503.
+
+The `answer-at-commit` and `bound-in-flight-work-with-keys` principles apply drovr's 2026-10-23 dispatch incident to the shared reference. Their examples describe required ordering; they do not claim rat-stack ships that dispatcher.
+
 ## Local deployment driver
 
 `packages/check-harness`, the service-port shape in `packages/deploy/src/deploy-runner.ts`, and `skills/ship` are ported from drovr (badass-courses), commit `6bfe63508539ee289564c4ef6a5768e26dca60b7`.

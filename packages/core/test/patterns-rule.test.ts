@@ -26,6 +26,7 @@ const rules = [
   "rat-stack-patterns/learn-snippet-idiom",
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/no-shared-pending-cache",
+  "rat-stack-patterns/shared-waiters",
   "rat-stack-patterns/watch-effect-actors",
 ];
 
@@ -80,6 +81,113 @@ const eagerAcquire = "Build the resource inside acquire";
 const moduleState = "Module-level let and var are shared by every request";
 
 describe("rat-stack pattern rules", () => {
+  it("rejects a module-owned waiter even through an Effect runner", () => {
+    expectRule(
+      lintFixture(
+        "apps/site/src",
+        'import { Deferred, Effect } from "effect"; export const pending = Effect.runSync(Deferred.make());'
+      ),
+      "Module-level waiting primitives"
+    );
+  });
+  it("defers Layer construction instead of sharing an eager or already-run value", () => {
+    for (const initializer of [
+      "Layer.succeed(Tag, Ref.makeUnsafe(0))",
+      "Layer.effect(Tag, Effect.runSync(Ref.make(0)))",
+    ]) {
+      expectRule(
+        lintFixture(
+          "apps/site/src",
+          `import { Effect, Layer, Ref } from "effect"; export const layer = ${initializer};`
+        ),
+        "Module-level waiting primitives"
+      );
+    }
+
+    expect(
+      lintFixture(
+        "apps/site/src",
+        'import { Layer, Ref } from "effect"; export const layer = Layer.effect(Tag, Ref.make(0));'
+      ).status
+    ).toBe(0);
+  });
+
+  it("allows only DurableObject instance fields, not static fields or unrelated subclasses", () => {
+    for (const declaration of [
+      "class Other extends Base { pending = Deferred.makeUnsafe(); }",
+      "class Owner extends DurableObject { static pending = Deferred.makeUnsafe(); }",
+      "class Other { pending = Deferred.makeUnsafe(); }",
+    ]) {
+      expectRule(
+        lintFixture(
+          "apps/site/src",
+          `import { Deferred } from "effect"; import { DurableObject } from "cloudflare:workers"; ${declaration}`
+        ),
+        "Module-level waiting primitives"
+      );
+    }
+
+    expect(
+      lintFixture(
+        "apps/site/src",
+        'import { Deferred } from "effect"; import { DurableObject as Owner } from "cloudflare:workers"; class State extends Owner { pending = Deferred.makeUnsafe(); }'
+      ).status
+    ).toBe(0);
+  });
+
+  it.each([
+    ["Deferred", "make"],
+    ["Deferred", "makeUnsafe"],
+    ["Cache", "make"],
+    ["Cache", "makeWith"],
+    ["Ref", "make"],
+    ["Ref", "makeUnsafe"],
+    ["Semaphore", "make"],
+    ["Semaphore", "makeUnsafe"],
+    ["Queue", "make"],
+    ["Queue", "bounded"],
+    ["Queue", "unbounded"],
+    ["Queue", "dropping"],
+    ["Queue", "sliding"],
+  ])(
+    "keeps %s.%s construction with its invocation owner",
+    (primitive, make) => {
+      for (const area of ["apps/site/src", "packages/core/src"]) {
+        for (const source of [
+          `import { ${primitive} as P } from "effect"; export const shared = P.${make}(1);`,
+          `import * as P from "effect/${primitive}"; export const shared = P["${make}"](1);`,
+          `import { ${make} as construct } from "effect/${primitive}"; export const shared = construct(1);`,
+          `import { ${primitive}, Effect } from "effect"; export const shared = await Effect.runPromise(${primitive}.${make}(1));`,
+        ]) {
+          expectRule(
+            lintFixture(area, source),
+            "Module-level waiting primitives"
+          );
+        }
+
+        for (const source of [
+          `import { ${primitive} as P, Effect, Layer } from "effect"; export const layer = Layer.effect(Tag, Effect.gen(function* () { const local = yield* P.${make}(1); return local; }));`,
+          `import { ${primitive} as P } from "effect"; export const fetch = () => { const local = P.${make}(1); return local; };`,
+          `import { ${primitive} as P } from "effect"; import { DurableObject } from "cloudflare:workers"; export class Owner extends DurableObject { pending = P.${make}(1); }`,
+          `const ${primitive} = { ${make}: () => 1 }; export const ordinary = ${primitive}.${make}(1);`,
+          `import { ${primitive} as P } from "other-library"; export const ordinary = P.${make}(1);`,
+        ]) {
+          const result = lintFixture(area, source);
+
+          expect(result.output).not.toContain("shared-waiters");
+          expect(result.status).toBe(0);
+        }
+      }
+
+      expect(
+        lintFixture(
+          "packages/core/test",
+          `import { ${primitive} as P } from "effect"; const testState = P.${make}(1);`
+        ).status
+      ).toBe(0);
+    }
+  );
+
   it("rejects missing removal dates through direct, aliased, and namespace declarations", () => {
     const message = "Declare removeBy as a YYYY-MM-DD literal";
 
