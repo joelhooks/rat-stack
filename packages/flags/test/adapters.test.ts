@@ -1,6 +1,15 @@
+import { NodeCrypto } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import { Approval } from "@rat-stack/capability/approval";
 import { getFlag, listFlags } from "@rat-stack/core/flag-capabilities";
+import { FlagTarget } from "@rat-stack/core/flag-control";
 import {
+  flipFeatureFlag,
+  recordFlagEvidence,
+  readFlagLedger,
+} from "@rat-stack/core/flag-write-capabilities";
+import {
+  FlagScopeMismatch,
   Flags,
   eventFlags,
   eventsEnabled,
@@ -19,6 +28,71 @@ import {
 import { configFlagsLayer } from "../src/config.js";
 import { checkFlagExpiry } from "../src/expiry.js";
 import { memoryFlagsLayer } from "../src/memory.js";
+import { binaryLadder } from "./flag-fixture.js";
+
+const scopedFlag = defineFlag("SCOPED_SWITCH", Schema.Boolean, {
+  default: false,
+  owner: "tests",
+  purpose: "Exercise scope failures.",
+  readScope: Schema.Struct({ cohort: Schema.NonEmptyString }),
+  removeBy: "2099-01-01",
+  rungs: binaryLadder(false, true),
+});
+
+it.effect.prop(
+  "all flag operations preserve typed scope repairs, including their error message",
+  { scope: Schema.String },
+  ({ scope }) =>
+    Effect.gen(function* checkScopeRepairs() {
+      const failures = [
+        getFlag
+          .handler({ context: { scope }, name: scopedFlag.name })
+          .pipe(Effect.flip),
+        recordFlagEvidence
+          .handler({
+            event: "check",
+            name: scopedFlag.name,
+            observed: 1,
+            read: "acceptance report",
+            ref: "report",
+            rung: "off",
+            scope,
+          })
+          .pipe(Effect.flip),
+        flipFeatureFlag
+          .handler({
+            authority: "agent",
+            name: scopedFlag.name,
+            reason: "stop",
+            scope,
+            target: FlagTarget.cases.off.make({}),
+          })
+          .pipe(Effect.flip),
+        readFlagLedger
+          .handler({ limit: 1, name: scopedFlag.name, scope })
+          .pipe(Effect.flip),
+      ];
+
+      for (const failure of failures) {
+        const error = yield* failure;
+        expect(Schema.is(FlagScopeMismatch)(error)).toBe(true);
+
+        if (Schema.is(FlagScopeMismatch)(error)) {
+          const encoded = yield* Schema.encodeEffect(FlagScopeMismatch)(error);
+          expect(encoded.repair).toContain("readScope");
+          expect(error.message).toBe(encoded.repair);
+        }
+      }
+    }).pipe(
+      Effect.provide(
+        Layer.mergeAll(
+          memoryFlagsLayer([scopedFlag]),
+          NodeCrypto.layer,
+          Approval.denyAll
+        )
+      )
+    )
+);
 
 it.effect.prop(
   "Config preserves the existing events boolean and identity semantics",
@@ -136,13 +210,17 @@ it.effect("expired declarations fail with owner context and a repair", () =>
     const expired = defineFlag("old", Schema.Boolean, {
       default: false,
       owner: "tests",
+      purpose: "Exercise expiry.",
       removeBy: "1969-01-01",
+      rungs: binaryLadder(false, true),
     });
 
     const current = defineFlag("current", Schema.Boolean, {
       default: false,
       owner: "tests",
+      purpose: "Exercise expiry.",
       removeBy: "2099-01-01",
+      rungs: binaryLadder(false, true),
     });
 
     const error = yield* checkFlagExpiry([expired, current]).pipe(Effect.flip);

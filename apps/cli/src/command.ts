@@ -1,6 +1,6 @@
 import { toCommand } from "@rat-stack/capability";
 import { formatFileStats, inspectFile } from "@rat-stack/core";
-import { setFlag } from "@rat-stack/core/flag-write-capabilities";
+import { flipFeatureFlag } from "@rat-stack/core/flag-write-capabilities";
 import { Console, Effect, Layer } from "effect";
 import { Command, Flag } from "effect/cli";
 
@@ -28,7 +28,9 @@ const capabilityCommands = commandCapabilities.map((capability) => {
         }).pipe(Command.withAlias("stats"))
       : toCommand(
           capability,
-          capability === setFlag ? { promptForApproval: true } : undefined
+          capability === flipFeatureFlag
+            ? { promptForApproval: true }
+            : undefined
         );
 
   return command;

@@ -3,19 +3,99 @@ import {
   PendingFlagChangeSchema,
   CompletedFlagChangeSchema,
   FlagJournal,
-  FlagWriter,
+  FlagPosition,
+  flagPartition,
+  validateFlagScope,
   validateFlagChangeQuery,
 } from "@rat-stack/core/flag-control";
 import type { ListFlagChangesInput } from "@rat-stack/core/flag-control";
 import {
+  FlagStateStore,
+  flagLedgerEngine,
+} from "@rat-stack/core/flag-ledger-engine";
+import {
   FlagStorageError,
   Flags,
+  decodeFlag,
   InvalidFlagValue,
 } from "@rat-stack/core/flags";
 import type { Flag } from "@rat-stack/core/flags";
-import { Clock, Effect, Layer, Schema } from "effect";
+import { Clock, Effect, Layer, Option, Schema } from "effect";
 
 import { InvalidFlagJournal } from "./invalid-flag-journal.js";
+
+export const flagValueKey = (name: string, scope: Schema.Json = "global") =>
+  scope === "global"
+    ? `values/${name}`
+    : `values/${flagPartition(name, scope)}`;
+
+const storageFailure =
+  (name: string, operation: FlagStorageError["operation"]) =>
+  (cause: unknown) =>
+    new FlagStorageError({
+      cause,
+      fallback: null,
+      name,
+      operation,
+      repair:
+        "Restore ledger storage. Inspect the pending attempt and authoritative position before retrying.",
+    });
+
+const kvLedgerLayer = <E>(
+  registry: readonly Flag<unknown>[],
+  kv: FlagKV<E>,
+  deployOnly: readonly string[]
+) => {
+  const state = Layer.succeed(FlagStateStore, {
+    load: (key) =>
+      kv.get(`state/${key}`).pipe(
+        Effect.flatMap((text) =>
+          text === null
+            ? Effect.succeed(Option.none())
+            : Schema.decodeEffect(Schema.fromJsonString(FlagPosition))(
+                text
+              ).pipe(Effect.map(Option.some))
+        ),
+        Effect.mapError(storageFailure(key, "read"))
+      ),
+    save: (key, position) =>
+      Effect.gen(function* save() {
+        const name = decodeURIComponent(key.split("/")[0] ?? "");
+
+        if (deployOnly.includes(name)) {
+          return yield* storageFailure(
+            name,
+            "write"
+          )(
+            "This flag selects deployment resources; change Config and review the infrastructure plan."
+          );
+        }
+
+        const text = yield* Schema.encodeEffect(
+          Schema.fromJsonString(FlagPosition)
+        )(position).pipe(Effect.mapError(storageFailure(name, "write")));
+
+        yield* kv
+          .put(`state/${key}`, text)
+          .pipe(Effect.mapError(storageFailure(name, "write")));
+
+        if (position.receipt !== undefined) {
+          yield* kv
+            .put(
+              flagValueKey(name, position.receipt.scope),
+              JSON.stringify(position.value)
+            )
+            .pipe(Effect.mapError(storageFailure(name, "write")));
+        }
+
+        return yield* Effect.void;
+      }),
+  });
+
+  return flagLedgerEngine.pipe(
+    Layer.provide(Layer.merge(Flags.defaults(registry), state))
+  );
+};
 
 export interface FlagKV<E> {
   readonly get: (key: string) => Effect.Effect<string | null, E>;
@@ -63,6 +143,7 @@ export const kvFlagsLayer = <E>(
       return Flags.of({
         get: (flag, context) =>
           Effect.gen(function* readKVFlag() {
+            const scope = yield* validateFlagScope(flag, context.scope);
             const defaultValue = yield* fallback.get(flag, context);
 
             if (deployOnly.includes(flag.name)) {
@@ -82,7 +163,7 @@ export const kvFlagsLayer = <E>(
               )
             );
 
-            const stored = yield* kv.get(`values/${flag.name}`).pipe(
+            const stored = yield* kv.get(flagValueKey(flag.name, scope)).pipe(
               Effect.mapError(
                 (cause) =>
                   new FlagStorageError({
@@ -97,6 +178,18 @@ export const kvFlagsLayer = <E>(
             );
 
             if (stored === null) {
+              if (flag.failurePolicy === "refuse") {
+                return yield* new FlagStorageError({
+                  cause:
+                    "The required flag value is absent from the read replica.",
+                  fallback: encoded,
+                  name: flag.name,
+                  operation: "read",
+                  repair:
+                    "Commit this scoped flag through its ledger and redrive the KV projection before reading it.",
+                });
+              }
+
               return defaultValue;
             }
 
@@ -112,161 +205,132 @@ export const kvFlagsLayer = <E>(
                   })
               )
             );
-          }),
+          }).pipe(
+            Effect.catchTags({
+              FlagStorageError: (error) =>
+                flag.failurePolicy === "use-catalog-default"
+                  ? decodeFlag(flag)(flag.default)
+                  : Effect.fail(error),
+              InvalidFlagValue: (error) =>
+                flag.failurePolicy === "use-catalog-default"
+                  ? decodeFlag(flag)(flag.default)
+                  : Effect.fail(error),
+            })
+          ),
         registry,
       });
     })
   );
 
-export const kvFlagControlLayer = <E>(
-  kv: FlagKV<E>,
-  deployOnly: readonly string[] = []
-) =>
-  Layer.merge(
-    Layer.succeed(FlagWriter, {
-      set: (flag, value) =>
-        Effect.gen(function* writeKVFlag() {
-          if (deployOnly.includes(flag.name)) {
-            return yield* new FlagStorageError({
-              cause: "This flag selects deployment resources.",
+export const kvFlagJournalLayer = <E>(kv: FlagKV<E>) =>
+  Layer.succeed(FlagJournal, {
+    list: Effect.fn("KVFlagJournal.list")(function* list(
+      input: typeof ListFlagChangesInput.Type
+    ) {
+      const { cursor, limit } = yield* validateFlagChangeQuery(input);
+      const now = yield* Clock.currentTimeMillis;
+
+      const query =
+        cursor === undefined ? { limit, prefix } : { cursor, limit, prefix };
+
+      const result = yield* kv.list(query).pipe(
+        Effect.mapError(
+          (cause) =>
+            new FlagStorageError({
+              cause,
               fallback: null,
-              name: flag.name,
-              operation: "write",
+              name: "",
+              operation: "listChanges",
+              repair: "Restore KV access and retry this cursor.",
+            })
+        )
+      );
+
+      const sameChange = Schema.toEquivalence(FlagChangeSchema);
+
+      const changes = yield* Effect.forEach((key: { readonly name: string }) =>
+        Effect.gen(function* readAttempt() {
+          const pending = yield* kv.get(key.name);
+
+          if (pending === null) {
+            return yield* new InvalidFlagJournal({
+              key: key.name,
               repair:
-                "Change deployment Config and review the infrastructure plan instead of writing this flag live.",
+                "A listed flag attempt is not yet visible. Retry this cursor.",
             });
           }
 
-          const encoded = yield* Schema.encodeEffect(
-            Schema.fromJsonString(flag.schema)
-          )(value).pipe(
-            Effect.mapError(
-              () =>
-                new InvalidFlagValue({
-                  name: flag.name,
-                  repair: "Supply a value accepted by the declared schema.",
-                })
-            )
-          );
+          const attempt = yield* decodePending(pending);
+          const finished = yield* kv.get(completionKey(attempt.attemptId));
 
-          return yield* kv.put(`values/${flag.name}`, encoded).pipe(
-            Effect.mapError(
-              (cause) =>
-                new FlagStorageError({
-                  cause,
-                  fallback: null,
-                  name: flag.name,
-                  operation: "write",
-                  repair:
-                    "Check the attempt journal and KV before retrying. A failed write does not prove that the value is unchanged.",
-                })
-            )
-          );
-        }),
-    }),
-    Layer.succeed(FlagJournal, {
-      list: Effect.fn("KVFlagJournal.list")(function* list(
-        input: typeof ListFlagChangesInput.Type
-      ) {
-        const { cursor, limit } = yield* validateFlagChangeQuery(input);
-        const now = yield* Clock.currentTimeMillis;
+          const change =
+            finished === null ? attempt : yield* decodeCompleted(finished);
 
-        const query =
-          cursor === undefined ? { limit, prefix } : { cursor, limit, prefix };
+          if (
+            key.name !== `${prefix}${attempt.attemptId}` ||
+            !sameChange(attempt, {
+              ...change,
+              outcome: "Pending",
+              recordedAt: attempt.recordedAt,
+            })
+          ) {
+            return yield* new InvalidFlagJournal({
+              key: key.name,
+              repair:
+                "The flag outcome does not match its attempt. Repair the journal entry.",
+            });
+          }
 
-        const result = yield* kv.list(query).pipe(
+          return {
+            ...change,
+            ageMillis: Math.max(0, now - change.recordedAt),
+          };
+        }).pipe(
           Effect.mapError(
             (cause) =>
               new FlagStorageError({
                 cause,
                 fallback: null,
-                name: "",
+                name: key.name,
                 operation: "listChanges",
-                repair: "Restore KV access and retry this cursor.",
+                repair:
+                  "Restore or repair this journal entry, then retry the same cursor.",
               })
           )
-        );
+        )
+      )(result.keys);
 
-        const sameChange = Schema.toEquivalence(FlagChangeSchema);
-
-        const changes = yield* Effect.forEach(
-          (key: { readonly name: string }) =>
-            Effect.gen(function* readAttempt() {
-              const pending = yield* kv.get(key.name);
-
-              if (pending === null) {
-                return yield* new InvalidFlagJournal({
-                  key: key.name,
-                  repair:
-                    "A listed flag attempt is not yet visible. Retry this cursor.",
-                });
-              }
-
-              const attempt = yield* decodePending(pending);
-              const finished = yield* kv.get(completionKey(attempt.attemptId));
-
-              const change =
-                finished === null ? attempt : yield* decodeCompleted(finished);
-
-              if (
-                key.name !== `${prefix}${attempt.attemptId}` ||
-                !sameChange(attempt, {
-                  ...change,
-                  outcome: "Pending",
-                  recordedAt: attempt.recordedAt,
-                })
-              ) {
-                return yield* new InvalidFlagJournal({
-                  key: key.name,
-                  repair:
-                    "The flag outcome does not match its attempt. Repair the journal entry.",
-                });
-              }
-
-              return {
-                ...change,
-                ageMillis: Math.max(0, now - change.recordedAt),
-              };
-            }).pipe(
-              Effect.mapError(
-                (cause) =>
-                  new FlagStorageError({
-                    cause,
-                    fallback: null,
-                    name: key.name,
-                    operation: "listChanges",
-                    repair:
-                      "Restore or repair this journal entry, then retry the same cursor.",
-                  })
-              )
-            )
-        )(result.keys);
-
-        return {
-          changes,
-          cursor: result.list_complete ? undefined : result.cursor,
-        };
-      }),
-      record: (change) =>
-        encodeChange(change).pipe(
-          Effect.flatMap((value) =>
-            kv.put(
-              change.outcome === "Pending"
-                ? `${prefix}${change.attemptId}`
-                : completionKey(change.attemptId),
-              value
-            )
-          ),
-          Effect.mapError(
-            (cause) =>
-              new FlagStorageError({
-                cause,
-                fallback: null,
-                name: change.name,
-                operation: "audit",
-                repair: `Inspect attempt ${change.attemptId}. Missing completion means Pending; the flag may have changed. Restore audit storage before retrying.`,
-              })
+      return {
+        changes,
+        cursor: result.list_complete ? undefined : result.cursor,
+      };
+    }),
+    record: (change) =>
+      encodeChange(change).pipe(
+        Effect.flatMap((value) =>
+          kv.put(
+            change.outcome === "Pending"
+              ? `${prefix}${change.attemptId}`
+              : completionKey(change.attemptId),
+            value
           )
         ),
-    })
-  );
+        Effect.mapError(
+          (cause) =>
+            new FlagStorageError({
+              cause,
+              fallback: null,
+              name: change.name,
+              operation: "audit",
+              repair: `Inspect attempt ${change.attemptId}. Missing completion means Pending; the flag may have changed. Restore audit storage before retrying.`,
+            })
+        )
+      ),
+  });
+
+export const kvFlagControlLayer = <E>(
+  registry: readonly Flag<unknown>[],
+  kv: FlagKV<E>,
+  deployOnly: readonly string[] = []
+) =>
+  Layer.merge(kvLedgerLayer(registry, kv, deployOnly), kvFlagJournalLayer(kv));

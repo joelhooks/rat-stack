@@ -1,0 +1,60 @@
+{
+  "suite": "packages/flags/test/writes.model.test.ts",
+  "projectionSuite": "packages/flags/test/projection.model.test.ts",
+  "mutationProcedure": "Change one rule, rebuild core, run the named model, restore the source, then run the full gate.",
+  "mutations": [
+    {
+      "rule": "A climb needs current-rung evidence.",
+      "mutation": "Replace the evidence refusal with Effect.void.",
+      "result": "failed",
+      "shrunkInput": { "backend": "memory", "commands": [] },
+      "replay": "[0,\"-8576205490408565\",0,0,[],\"PropertyError\"]"
+    },
+    {
+      "rule": "Evidence counts only at its own scope.",
+      "mutation": "Alias every ledger partition to global.",
+      "result": "failed",
+      "shrunkInput": { "backend": "kv", "commands": [] },
+      "replay": "[0,\"-7882297236728583\",0,0,[],\"PropertyError\"]"
+    },
+    {
+      "rule": "A climb above agent needs an approval quote.",
+      "mutation": "Replace the authority and approvalRef refusal with Effect.void.",
+      "result": "failed",
+      "shrunkInput": { "backend": "kv", "commands": [] },
+      "replay": "[0,\"-5621020959834191\",0,0,[],\"PropertyError\"]"
+    },
+    {
+      "rule": "The capability approval service authorizes climbs.",
+      "mutation": "Provide Approval.allowAll around every climb.",
+      "result": "failed",
+      "shrunkInput": { "backend": "kv", "commands": [] },
+      "replay": "[0,\"5741214948910825\",0,0,[],\"PropertyError\"]"
+    },
+    {
+      "rule": "Down only through off.",
+      "mutation": "Allow target rung indexes below the current rung.",
+      "result": "failed",
+      "shrunkInput": { "backend": "memory", "commands": [] },
+      "replay": "[0,\"1632156704090235\",0,0,[],\"PropertyError\"]"
+    },
+    {
+      "rule": "Write Pending before the approval gate.",
+      "mutation": "Skip the pending journal record.",
+      "result": "failed",
+      "shrunkInput": { "backend": "kv", "commands": [] },
+      "replay": "[0,\"-8474690497527481\",0,0,[],\"PropertyError\"]",
+      "additionalFailures": "Three KV audit seam tests also failed."
+    },
+    {
+      "rule": "Failed projections retain a durable redrive marker.",
+      "mutation": "Delete the marker before writing the replica.",
+      "result": "failed",
+      "shrunkInput": { "commands": [] },
+      "replay": "[0,\"-856023131330781\",0,0,[],\"PropertyError\"]"
+    }
+  ],
+  "restoredSuite": { "files": 7, "tests": 21, "result": "pass" },
+  "codecProof": "The scoped sequence model uses NumberFromString to exercise non-identity JSON encodings. It failed against the initial memory reader, replay [0,\"5667198049340441\",0,0,[],\"PropertyError\"], then passed after decoding persisted values through the declared codec.",
+  "providerProof": "The projection model uses a persisted service double, not deployed workerd. Native transaction atomicity and alarm scheduling follow the pinned Alchemy adapter and Cloudflare contracts; no live deployment is claimed."
+}

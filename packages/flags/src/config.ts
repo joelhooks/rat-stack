@@ -1,5 +1,5 @@
 import { flagControlDefaults } from "@rat-stack/core/flag-control";
-import { Flags, decodeFlag } from "@rat-stack/core/flags";
+import { Flags, decodeFlag, validateFlagScope } from "@rat-stack/core/flags";
 import type { Flag } from "@rat-stack/core/flags";
 import { Config, Effect, Layer, Schema } from "effect";
 
@@ -22,9 +22,13 @@ export const configFlagsLayer = (registry: readonly Flag<unknown>[]) =>
         const values = new Map(entries);
 
         return Flags.of({
-          get: (flag) =>
-            decodeFlag(flag)(
-              values.has(flag.name) ? values.get(flag.name) : flag.default
+          get: (flag, context) =>
+            validateFlagScope(flag, context.scope).pipe(
+              Effect.andThen(
+                decodeFlag(flag)(
+                  values.has(flag.name) ? values.get(flag.name) : flag.default
+                )
+              )
             ),
           registry,
         });

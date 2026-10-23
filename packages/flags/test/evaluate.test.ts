@@ -4,11 +4,14 @@ import { Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
 import { evaluateFlag } from "../src/evaluate.js";
+import { binaryLadder } from "./flag-fixture.js";
 
 const flag = defineFlag("test-rollout", Schema.Boolean, {
   default: false,
   owner: "tests",
+  purpose: "Exercise rollout evaluation.",
   removeBy: "2099-01-01",
+  rungs: binaryLadder(false, true),
 });
 
 const subject = Arbitrary.schema(Schema.NonEmptyString);
@@ -81,7 +84,9 @@ it.prop(
     const declared = defineFlag("default", Schema.Boolean, {
       default: value,
       owner: "tests",
+      purpose: "Exercise defaults.",
       removeBy: "2099-01-01",
+      rungs: binaryLadder(value, !value),
     });
 
     expect(evaluateFlag(declared, { subject: id }, [])).toBe(value);
@@ -95,7 +100,13 @@ it.prop(
     const variant = defineFlag(
       "variant",
       Schema.Literals(["daily", "persistent"]),
-      { default: "daily", owner: "tests", removeBy: "2099-01-01" }
+      {
+        default: "daily",
+        owner: "tests",
+        purpose: "Exercise variants.",
+        removeBy: "2099-01-01",
+        rungs: binaryLadder("daily", "persistent"),
+      }
     );
 
     const rules = [{ subjects: [id], value: "persistent" as const }];

@@ -19,6 +19,7 @@ export const FlagChangeSchema = Schema.Struct({
     "Interrupted",
   ]),
   recordedAt: Schema.Int,
+  scope: Schema.optionalKey(Schema.Json),
 });
 
 export const PendingFlagChangeSchema = Schema.Struct({
@@ -40,6 +41,8 @@ export type FlagChange = PendingFlagChange | CompletedFlagChange;
 export const ListFlagChangesInput = Schema.Struct({
   cursor: Schema.optional(Schema.String),
   limit: Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 })),
+  name: Schema.optionalKey(Schema.String),
+  scope: Schema.optionalKey(Schema.Json),
 });
 
 export const FlagChangesPage = Schema.Struct({

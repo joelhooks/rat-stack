@@ -9,9 +9,10 @@ export { getFlagContract, listFlagsContract } from "./flag-contracts.js";
 export const listFlags = implement(listFlagsContract, () =>
   Flags.use((flags) =>
     Effect.succeed(
-      flags.registry.map(({ name, owner, removeBy }) => ({
+      flags.registry.map(({ name, owner, purpose, removeBy }) => ({
         name,
         owner,
+        purpose,
         removeBy,
       }))
     )

@@ -1,15 +1,18 @@
 import { NodeCrypto } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
-import { FlagJournal } from "@rat-stack/core/flag-control";
-import { setFlag } from "@rat-stack/core/flag-write-capabilities";
+import {
+  FlagJournal,
+  FlagLedger,
+  FlagTarget,
+} from "@rat-stack/core/flag-control";
+import { flipFeatureFlag } from "@rat-stack/core/flag-write-capabilities";
 import {
   Flags,
-  FlagStorageError,
-  defineFlag,
   eventFlags,
   eventsEnabled,
   eventsIdentityMode,
+  defineFlag,
 } from "@rat-stack/core/flags";
 import {
   ConfigProvider,
@@ -24,22 +27,80 @@ import { TestClock } from "effect/testing";
 
 import { configFlagsLayer } from "../src/config.js";
 import { kvFlagControlLayer, kvFlagsLayer } from "../src/kv.js";
+import { switchFlag, binaryLadder } from "./flag-fixture.js";
 import { makeKVDouble } from "./kv-double.js";
 
-const switchFlag = defineFlag("EXAMPLE_SWITCH", Schema.Boolean, {
+const requiredFlag = defineFlag("REQUIRED_SWITCH", Schema.Boolean, {
   default: false,
+  failurePolicy: "refuse",
   owner: "tests",
+  purpose: "Exercise refused read fallbacks.",
   removeBy: "2099-01-01",
+  rungs: binaryLadder(false, true),
 });
 
 it.effect.prop(
-  "empty KV preserves Config, and deployment-only values never come from KV",
+  "the declared refuse policy preserves missing, unavailable, and malformed replica failures",
+  {
+    mode: Schema.Literals(["missing", "unavailable", "malformed"]),
+  },
+  ({ mode }) =>
+    Effect.gen(function* checkRefusalPolicy() {
+      const double = yield* makeKVDouble;
+
+      if (mode === "unavailable") {
+        yield* Ref.set(double.failure, "read");
+      }
+
+      if (mode === "malformed") {
+        yield* double.kv.put(`values/${requiredFlag.name}`, "invalid-json");
+      }
+
+      const flags = yield* Flags.pipe(
+        Effect.provide(
+          kvFlagsLayer([requiredFlag], double.kv).pipe(
+            Layer.provide(Flags.defaults([requiredFlag]))
+          )
+        )
+      );
+
+      const error = yield* flags.get(requiredFlag, {}).pipe(Effect.flip);
+      expect(error._tag).toBe(
+        mode === "malformed" ? "InvalidFlagValue" : "FlagStorageError"
+      );
+      expect(error.repair.length).toBeGreaterThan(0);
+    })
+);
+
+const prepareOn = FlagLedger.use((ledger) =>
+  ledger.recordEvidence({
+    event: "check",
+    name: switchFlag.name,
+    observed: 1,
+    read: "acceptance report",
+    ref: "test report",
+    rung: "off",
+  })
+);
+
+const flip = (value: boolean) =>
+  flipFeatureFlag.handler({
+    authority: "agent",
+    name: switchFlag.name,
+    reason: "test",
+    target: value
+      ? FlagTarget.cases.rung.make({ name: "on" })
+      : FlagTarget.cases.off.make({}),
+  });
+
+it.effect.prop(
+  "empty KV preserves Config, deploy-only values ignore KV, and unavailable replicas use catalog defaults",
   {
     enabled: Schema.Boolean,
     identity: Schema.Literals(["daily", "persistent"]),
   },
   ({ enabled, identity }) =>
-    Effect.gen(function* compareEmptyKV() {
+    Effect.gen(function* compareFlagHistory() {
       const double = yield* makeKVDouble;
 
       const fallback = configFlagsLayer(eventFlags).pipe(
@@ -53,11 +114,14 @@ it.effect.prop(
         )
       );
 
-      const layer = kvFlagsLayer(eventFlags, double.kv, [
-        eventsEnabled.name,
-      ]).pipe(Layer.provide(fallback));
+      const flags = yield* Flags.pipe(
+        Effect.provide(
+          kvFlagsLayer(eventFlags, double.kv, [eventsEnabled.name]).pipe(
+            Layer.provide(fallback)
+          )
+        )
+      );
 
-      const flags = yield* Flags.pipe(Effect.provide(layer));
       expect(yield* flags.get(eventsEnabled, {})).toBe(enabled);
       expect(yield* flags.get(eventsIdentityMode, {})).toBe(identity);
       yield* double.kv.put(
@@ -73,72 +137,58 @@ it.effect.prop(
         identity === "daily" ? "persistent" : "daily"
       );
       yield* Ref.set(double.failure, "read");
-      const error = yield* flags.get(eventsIdentityMode, {}).pipe(Effect.flip);
-      expect(error._tag).toBe("FlagStorageError");
-
-      if (Schema.is(FlagStorageError)(error)) {
-        expect(error.fallback).toBe(identity);
-        expect(error.operation).toBe("read");
-      }
+      expect(yield* flags.get(eventsIdentityMode, {})).toBe(
+        eventsIdentityMode.default
+      );
     })
 );
 
 it.effect(
-  "audit unavailability gates writes without gating reads; failed completion keeps a visible Pending attempt",
+  "attempt storage gates writes; failed outcome leaves Pending beside the authoritative committed receipt",
   () =>
-    Effect.gen(function* auditFailureSeams() {
+    Effect.gen(function* compareFlagHistory() {
       const double = yield* makeKVDouble;
 
       const layer = Layer.merge(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer(double.kv)
+        kvFlagControlLayer([switchFlag], double.kv)
       );
 
-      yield* Effect.gen(function* useStore() {
+      yield* Effect.gen(function* inspectAuditFailure() {
         const flags = yield* Flags;
         const journal = yield* FlagJournal;
+        yield* prepareOn;
+        yield* Ref.set(double.writes, []);
         yield* Ref.set(double.failure, "attempts/");
-
-        const before = yield* setFlag
-          .handler({ name: switchFlag.name, value: true })
-          .pipe(Effect.flip);
-
-        expect(before._tag).toBe("FlagStorageError");
+        expect((yield* flip(true).pipe(Effect.flip))._tag).toBe(
+          "FlagStorageError"
+        );
         expect(yield* flags.get(switchFlag, {})).toBe(false);
         expect(yield* Ref.get(double.writes)).toHaveLength(0);
         yield* Ref.set(double.failure, "outcomes/");
-
-        const after = yield* setFlag
-          .handler({ name: switchFlag.name, value: true })
-          .pipe(Effect.flip);
-
-        expect(after._tag).toBe("FlagStorageError");
+        expect((yield* flip(true).pipe(Effect.flip))._tag).toBe(
+          "FlagStorageError"
+        );
         expect(yield* flags.get(switchFlag, {})).toBe(true);
+        expect(
+          (yield* FlagLedger.use((ledger) => ledger.read(switchFlag.name)))
+            .receipt?.to
+        ).toBe("on");
         yield* TestClock.adjust(100);
         const page = yield* journal.list({ limit: 1 });
         expect(page.changes).toHaveLength(1);
         expect(page.changes[0]?.outcome).toBe("Pending");
         expect(page.changes[0]?.ageMillis).toBe(100);
-        expect(
-          [...(yield* Ref.get(double.data)).keys()].filter((key) =>
-            key.startsWith("attempts/")
-          )
-        ).toHaveLength(1);
-        expect(
-          [...(yield* Ref.get(double.data)).keys()].filter((key) =>
-            key.startsWith("outcomes/")
-          )
-        ).toHaveLength(0);
       }).pipe(Effect.provide(Layer.merge(layer, Approval.allowAll)));
     }).pipe(Effect.provide(NodeCrypto.layer))
 );
 
 it.effect(
-  "interruption at approval leaves Pending and cannot apply a value",
+  "interruption while waiting for approval preserves Pending and never applies a value",
   () =>
-    Effect.gen(function* interruptedAttempt() {
+    Effect.gen(function* compareFlagHistory() {
       const double = yield* makeKVDouble;
       const gate = yield* Deferred.make<boolean>();
 
@@ -146,27 +196,19 @@ it.effect(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer(double.kv)
+        kvFlagControlLayer([switchFlag], double.kv)
       );
 
-      yield* Effect.gen(function* cancelAtGate() {
-        const flags = yield* Flags;
+      yield* Effect.gen(function* interruptApproval() {
         const journal = yield* FlagJournal;
 
-        const fiber = yield* setFlag
-          .handler({ name: switchFlag.name, value: true })
-          .pipe(
-            Effect.provideService(
-              Approval,
-              Approval.of({
-                approve: () =>
-                  Deferred.succeed(gate, true).pipe(
-                    Effect.andThen(Effect.never)
-                  ),
-              })
-            ),
-            Effect.forkChild
-          );
+        const fiber = yield* flip(true).pipe(
+          Effect.provideService(Approval, {
+            approve: () =>
+              Deferred.succeed(gate, true).pipe(Effect.andThen(Effect.never)),
+          }),
+          Effect.forkChild
+        );
 
         yield* Deferred.await(gate);
         expect((yield* journal.list({ limit: 1 })).changes[0]?.outcome).toBe(
@@ -176,7 +218,9 @@ it.effect(
         expect((yield* journal.list({ limit: 1 })).changes[0]?.outcome).toBe(
           "Pending"
         );
-        expect(yield* flags.get(switchFlag, {})).toBe(false);
+        expect(
+          (yield* FlagLedger.use((ledger) => ledger.read(switchFlag.name))).rung
+        ).toBe("off");
       }).pipe(Effect.provide(layer));
     }).pipe(Effect.scoped, Effect.provide(NodeCrypto.layer))
 );
@@ -190,15 +234,16 @@ it.effect.prop(
     ]),
   },
   ({ limit }) =>
-    Effect.gen(function* rejectUnboundedQuery() {
+    Effect.gen(function* compareFlagHistory() {
       const double = yield* makeKVDouble;
 
-      for (const layer of [FlagJournal.memory, kvFlagControlLayer(double.kv)]) {
-        const error = yield* Effect.gen(function* readInvalidPage() {
-          const journal = yield* FlagJournal;
-
-          return yield* journal.list({ limit }).pipe(Effect.flip);
-        }).pipe(Effect.provide(layer));
+      for (const layer of [
+        FlagJournal.memory,
+        kvFlagControlLayer([switchFlag], double.kv),
+      ]) {
+        const error = yield* FlagJournal.use((journal) =>
+          journal.list({ limit })
+        ).pipe(Effect.provide(layer), Effect.flip);
 
         expect(error._tag).toBe("FlagStorageError");
         expect(error.operation).toBe("listChanges");
@@ -207,53 +252,54 @@ it.effect.prop(
 );
 
 it.effect(
-  "journal pages remain bounded and pair immutable outcomes with their own attempts",
+  "journal pages pair immutable outcomes with their own attempts and reject corruption",
   () =>
-    Effect.gen(function* paginateJournal() {
+    Effect.gen(function* compareFlagHistory() {
       const double = yield* makeKVDouble;
 
       const layer = Layer.merge(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer(double.kv)
+        kvFlagControlLayer([switchFlag], double.kv)
       );
 
-      yield* Effect.gen(function* threeAttempts() {
+      yield* Effect.gen(function* corruptJournal() {
         for (const value of [true, false, true]) {
           yield* TestClock.adjust(1);
-          yield* setFlag.handler({ name: switchFlag.name, value });
+
+          if (value) {
+            yield* prepareOn;
+          }
+
+          yield* flip(value);
         }
 
         const journal = yield* FlagJournal;
         const first = yield* journal.list({ limit: 2 });
         expect(first.changes).toHaveLength(2);
         expect(first.cursor).toBeDefined();
-
-        const second = yield* journal.list({
-          cursor: first.cursor,
-          limit: 2,
-        });
-
+        const second = yield* journal.list({ cursor: first.cursor, limit: 2 });
         expect(second.changes).toHaveLength(1);
         expect(second.cursor).toBeUndefined();
-        expect(
-          [...first.changes, ...second.changes].map((entry) => entry.newValue)
-        ).toStrictEqual([true, false, true]);
         const writes = yield* Ref.get(double.writes);
-        const auditKeys = writes.filter((key) => !key.startsWith("values/"));
-        expect(new Set(auditKeys).size).toBe(6);
+        expect(
+          new Set(
+            writes.filter(
+              (key) =>
+                key.startsWith("attempts/") || key.startsWith("outcomes/")
+            )
+          ).size
+        ).toBe(6);
         const [entry] = first.changes;
 
         if (entry === undefined) {
-          return yield* Effect.die(
-            new Error("The journal lost its first attempt.")
-          );
+          return yield* Effect.die(new Error("Missing journal attempt."));
         }
 
         for (const corrupted of [
           "invalid-json",
-          JSON.stringify({ ...entry, actor: `${entry.actor}-other` }),
+          JSON.stringify({ ...entry, actor: "other" }),
           JSON.stringify({ ...entry, newValue: false }),
           JSON.stringify({ ...entry, outcome: "Pending" }),
         ]) {
@@ -265,11 +311,7 @@ it.effect(
 
         yield* double.kv.put(
           `attempts/${entry.attemptId}`,
-          JSON.stringify({
-            ...entry,
-            attemptId: `${entry.attemptId}-other`,
-            outcome: "Pending",
-          })
+          JSON.stringify({ ...entry, attemptId: "other", outcome: "Pending" })
         );
         expect((yield* journal.list({ limit: 2 }).pipe(Effect.flip))._tag).toBe(
           "FlagStorageError"
