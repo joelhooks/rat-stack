@@ -61,6 +61,7 @@ const modelDelivery = (
     !scenario.contactPresent ||
     scenario.contact.state === "held" ||
     scenario.contact.hold ||
+    scenario.contact.pending === "erase" ||
     !scenario.agentPresent
   ) {
     return { outcome: { kind: "settled", output } as const, reads: 1, times };

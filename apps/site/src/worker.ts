@@ -43,6 +43,11 @@ import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { flagsLayer, liveFlagsLayer } from "./flags.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
+import {
+  SWEEP_PENDING_INTAKE_CRON,
+  deliveryDeadlineLayer,
+  scheduleIntakeSweep,
+} from "./interest/intake-sweep.js";
 import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
 import { agentSignupLayer } from "./interest/join-layer.js";
@@ -144,6 +149,13 @@ export const makeMischief = (
       )
     );
 
+    const joinDeliveryDeadlineSeconds = yield* Config.option(
+      Config.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 28, minimum: 5 })),
+        "JOIN_DELIVERY_DEADLINE_SECONDS"
+      )
+    );
+
     const drovrApiBase = yield* Config.option(Config.String("DROVR_API_BASE"));
 
     const drovrAgentIntakeCredential = yield* Config.option(
@@ -238,8 +250,14 @@ export const makeMischief = (
 
     const joinServices =
       agentSignup !== undefined && interestServices !== undefined
-        ? yield* Layer.build(agentSignupLayer(agentSignup, interestServices))
+        ? yield* Layer.build(
+            agentSignupLayer(agentSignup, interestServices).pipe(
+              Layer.provide(deliveryDeadlineLayer(joinDeliveryDeadlineSeconds))
+            )
+          )
         : undefined;
+
+    yield* scheduleIntakeSweep(agentSignup, joinServices);
 
     const applications =
       agentSignup?.applications === undefined || joinServices === undefined
@@ -387,6 +405,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
   const legacyMcp = yield* LegacyMcp;
   const interests = yield* Interest;
   const interestIndex = yield* InterestIndex;
+  const sweepCron = yield* Cloudflare.Workers.CronEventSource;
 
   const tokenSecret = yield* Config.option(
     Config.Redacted("INTEREST_TOKEN_SECRET")
@@ -410,8 +429,14 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
           tokenSecret: tokenSecret.value,
           typesafeApiKey,
         }).pipe(Layer.provide(FetchHttpClient.layer)),
+        markPending: (submissionId, pending) =>
+          interestIndex.getByName("index").markPending(submissionId, pending),
         noteApplication: (submissionId) =>
           interestIndex.getByName("index").noteApplication(submissionId),
+        sweep: {
+          ids: () => interestIndex.getByName("index").pendingIds(),
+          schedule: (run) => sweepCron(SWEEP_PENDING_INTAKE_CRON, () => run),
+        },
       } satisfies AgentSignupOptions | undefined);
 
   const enabled = yield* Flags.use((flags) =>
@@ -454,6 +479,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     Layer.mergeAll(
       Cloudflare.Workers.RateLimitBinding,
       Cloudflare.Workers.FetchBinding,
+      Cloudflare.Workers.CronEventSourceLive,
       outerHttpPrivacyRegistration,
       privateTelemetry
     )

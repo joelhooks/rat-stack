@@ -21,8 +21,16 @@ import { normalizeAddress } from "./interest-address.js";
 import { SubscriberIntake } from "./interest-intake.js";
 import { normalizeClientIp } from "./interest-ip.js";
 import { InterestTokens } from "./interest-token.js";
-import { JoinContactStore } from "./join-contact-store.js";
-import { runJoinDelivery } from "./join-delivery-machine.js";
+import {
+  JoinContactStore,
+  withPending,
+  withState,
+} from "./join-contact-store.js";
+import {
+  JoinDeliveryDeadline,
+  deliveryStateFor,
+  runJoinDelivery,
+} from "./join-delivery-machine.js";
 import {
   JOIN_ANSWER,
   JOIN_BUSY,
@@ -54,12 +62,6 @@ export const JoinRequest = Context.Reference<{
   }),
 });
 
-const deliveryStateFor = {
-  accepted: "accepted",
-  refused: "refused",
-  retry: "ready",
-} as const;
-
 export const joinIntakeLayer = Layer.effect(
   JoinInterest,
   Effect.gen(function* makeJoinIntake() {
@@ -70,6 +72,7 @@ export const joinIntakeLayer = Layer.effect(
     const intake = yield* SubscriberIntake;
     const tokens = yield* InterestTokens;
     const crypto = yield* Crypto.Crypto;
+    const deliveryDeadline = yield* JoinDeliveryDeadline;
 
     const submit = Effect.fn("JoinInterest.submit")(function* submit(
       input: JoinInput
@@ -221,7 +224,15 @@ export const joinIntakeLayer = Layer.effect(
           return answer;
         }
 
-        yield* contacts.setState(statusRef, "ready");
+        const committed = yield* contacts.read(statusRef);
+
+        if (committed === undefined) {
+          return answer;
+        }
+
+        yield* contacts.save(
+          withPending(withState(committed, "ready"), "delivery")
+        );
 
         yield* request.afterResponse(
           runJoinDelivery({ submissionId: statusRef }).pipe(
@@ -230,9 +241,10 @@ export const joinIntakeLayer = Layer.effect(
             ),
             Effect.provideService(SubscriberIntake, intake),
             Effect.provideService(JoinContactStore, contacts),
+            Effect.provideService(JoinDeliveryDeadline, deliveryDeadline),
             Effect.catchCause(() =>
               Effect.logWarning(
-                "joinInterest delivery stopped; the contact stays ready for intakeRedeliver"
+                "joinInterest delivery stopped; the contact stays pending for the intake sweep"
               )
             )
           )

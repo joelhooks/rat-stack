@@ -58,6 +58,11 @@ const card = {
   x: "https://x.com/fake_applicant",
 } as const;
 
+const pendingAfterAnswer = (
+  deferred: boolean,
+  delivered: "accepted" | "refused" | "retry"
+) => (deferred || delivered !== "retry" ? undefined : "delivery");
+
 it.effect.prop(
   "only authorized clean recorded submissions leave the mapping; every response hides disposition",
   {
@@ -170,7 +175,7 @@ it.effect.prop(
       expect(result.message).toBe(
         scenario.enabled ? messageForGate[scenario.gate] : JOIN_NOT_OPEN
       );
-      expect(saved).toHaveLength(eligible ? 1 : 0);
+      expect(new Set(saved).size).toBe(eligible ? 1 : 0);
 
       if (result.message === JOIN_BUSY) {
         expect(result.statusRef).toBe("unavailable");
@@ -407,7 +412,10 @@ it.effect.prop(
       expect(states).toEqual(
         realHold || scorerOnly
           ? deferredStates
-          : ["ready", deliveredState[delivery.kind]]
+          : [deliveredState[delivery.kind]]
+      );
+      expect(contact?.pending).toBe(
+        pendingAfterAnswer(realHold || scorerOnly, delivery.kind)
       );
 
       const expectedCalls =

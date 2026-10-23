@@ -6,6 +6,10 @@ import * as Effect from "effect/Effect";
 
 const ENTRIES_KEY = "entries";
 
+const PENDING_PREFIX = "pending:";
+
+export const SWEEP_BATCH = 100;
+
 type Entries = Readonly<Record<string, InterestRecord>>;
 
 const liveEntries = (entries: Entries, now: number): Entries =>
@@ -73,12 +77,29 @@ export default class InterestIndex extends Cloudflare.DurableObject<InterestInde
           ),
         forget: (address: string) =>
           forget(address).pipe(Effect.provideContext(runtime)),
+        markPending: (submissionId: string, pending: boolean) =>
+          (pending
+            ? state.storage.put(
+                `${PENDING_PREFIX}${submissionId}`,
+                submissionId
+              )
+            : state.storage
+                .delete(`${PENDING_PREFIX}${submissionId}`)
+                .pipe(Effect.asVoid)
+          ).pipe(Effect.provideContext(runtime)),
         note: (record: InterestRecord) =>
           note(record).pipe(Effect.provideContext(runtime)),
         noteApplication: (submissionId: string) =>
           state.storage
             .put(`application:${submissionId}`, submissionId)
             .pipe(Effect.provideContext(runtime)),
+        pendingIds: () =>
+          state.storage
+            .list<string>({ limit: SWEEP_BATCH, prefix: PENDING_PREFIX })
+            .pipe(
+              Effect.map((entries) => [...entries.values()]),
+              Effect.provideContext(runtime)
+            ),
         records: () => records.pipe(Effect.provideContext(runtime)),
       };
     });

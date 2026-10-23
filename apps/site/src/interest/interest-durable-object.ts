@@ -13,6 +13,10 @@ const INTAKE_KEY = "intake-key";
 
 const INTAKE_STATEMENT_PREFIX = "intake-statement:";
 
+const JOIN_CONTACT_KEY = "join-contact";
+
+const JOIN_ERASED_KEY = "join-erased";
+
 interface TicketHold {
   readonly expiresAt: number;
   readonly submissionId: string;
@@ -114,10 +118,23 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
           }),
         intakeStore,
         joinErase: () =>
-          storage(state.storage.delete("join-contact")).pipe(Effect.asVoid),
-        joinRead: () => storage(state.storage.get<string>("join-contact")),
+          storage(
+            Effect.andThen(
+              state.storage.put(JOIN_ERASED_KEY, true),
+              state.storage.delete(JOIN_CONTACT_KEY)
+            )
+          ).pipe(Effect.asVoid),
+        joinRead: () => storage(state.storage.get<string>(JOIN_CONTACT_KEY)),
         joinSave: (sealed: string) =>
-          storage(state.storage.put("join-contact", sealed)),
+          storage(
+            Effect.gen(function* saveUnlessErased() {
+              const erased = yield* state.storage.get<boolean>(JOIN_ERASED_KEY);
+
+              if (erased !== true) {
+                yield* state.storage.put(JOIN_CONTACT_KEY, sealed);
+              }
+            })
+          ),
         mailFailed: (address: string) => run(address, "mailFailed"),
         register: (address: string, capture?: CaptureRequest) =>
           run(address, "register", capture),

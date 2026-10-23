@@ -59,23 +59,45 @@ const finalStateFor = {
   retry: "ready",
 } as const satisfies Record<IntakeResult["kind"], JoinContactState>;
 
+const DEADLINE_MILLIS = 25_000;
+
+const latencyMillis = (attempt: Attempt | undefined) =>
+  (attempt?.latencySeconds ?? 0) * 1000 + 1;
+
 const settledBy = (attempts: readonly Attempt[], from: number) => {
   let cursor = from;
+  let elapsed = 0;
 
   for (let retries = 0; ; retries += 1) {
-    const outcome: DrovrOutcome = attempts[cursor]?.outcome ?? {
-      kind: "accepted",
-    };
+    if (elapsed >= DEADLINE_MILLIS) {
+      return { cursor, state: "ready" as const };
+    }
 
+    const attempt = attempts[cursor];
     cursor += 1;
+
+    const timedOut = latencyMillis(attempt) >= DEADLINE_MILLIS - elapsed;
+
+    elapsed = timedOut ? DEADLINE_MILLIS : elapsed + latencyMillis(attempt);
+
+    const outcome: DrovrOutcome = timedOut
+      ? { afterSeconds: 0, kind: "retry" }
+      : (attempt?.outcome ?? { kind: "accepted" });
 
     if (outcome.kind === "defect") {
       return { cursor, state: "ready" as const };
     }
 
-    if (outcome.kind !== "retry" || outcome.afterSeconds > 3 || retries >= 2) {
+    if (
+      outcome.kind !== "retry" ||
+      outcome.afterSeconds > 3 ||
+      retries >= 2 ||
+      outcome.afterSeconds * 1000 >= DEADLINE_MILLIS - elapsed
+    ) {
       return { cursor, state: finalStateFor[outcome.kind] };
     }
+
+    elapsed += outcome.afterSeconds * 1000;
   }
 };
 
@@ -110,7 +132,7 @@ it.effect.prop(
             const attempt = attempts[sent.length];
             sent.push(input);
             yield* Deferred.succeed(drovrCalled, "drovr called first");
-            yield* Effect.sleep(Duration.seconds(attempt?.latencySeconds ?? 0));
+            yield* Effect.sleep(Duration.millis(latencyMillis(attempt)));
 
             const outcome = attempt?.outcome ?? { kind: "accepted" };
 
@@ -180,7 +202,8 @@ it.effect.prop(
 
       if (!backgroundDropped) {
         const work = yield* Effect.forkChild(Effect.all(afterResponse));
-        yield* TestClock.adjust("10 minutes");
+        yield* TestClock.adjust(Duration.millis(DEADLINE_MILLIS));
+        expect(work.pollUnsafe()).toBeDefined();
         yield* Fiber.join(work);
       }
 

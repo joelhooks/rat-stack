@@ -1,21 +1,29 @@
 import { CallWatch } from "@rat-stack/capability/call-watch";
 import { defineContract } from "@rat-stack/capability/contract";
 import { implement } from "@rat-stack/capability/implement";
-import { Context, Effect, Layer, Logger, Schema } from "effect";
+import { Context, Effect, Layer, Logger, Schedule, Schema } from "effect";
 
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
-import { JoinContactStore } from "./join-contact-store.js";
+import { IntakeEvents } from "./intake-events.js";
+import { JoinContactStore, withPending } from "./join-contact-store.js";
 
 export const IntakeEraseCountsSchema = Schema.Struct({
   alreadyGone: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
   erased: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
   failed: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
+  pending: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
 });
 
 export type IntakeEraseCounts = typeof IntakeEraseCountsSchema.Type;
 
-const eraseContact = Effect.fnUntraced(function* eraseContact(
+export const RETRY_ERASE_TOMBSTONE = Schedule.max([
+  Schedule.exponential("200 millis"),
+  Schedule.recurs(3),
+]).pipe(Schedule.jittered);
+
+export const settleErase = Effect.fnUntraced(function* settleErase(
   contacts: JoinContactStore["Service"],
+  events: IntakeEvents["Service"],
   submissionId: string
 ) {
   const contact = yield* contacts.read(submissionId);
@@ -24,25 +32,39 @@ const eraseContact = Effect.fnUntraced(function* eraseContact(
     return "alreadyGone" as const;
   }
 
-  yield* contacts.erase(submissionId);
+  if (contact.pending !== "erase") {
+    yield* contacts.save(withPending(contact, "erase"));
+  }
 
-  return "erased" as const;
+  return yield* events.erase(contact.contactRef).pipe(
+    Effect.retry(RETRY_ERASE_TOMBSTONE),
+    Effect.andThen(contacts.erase(submissionId)),
+    Effect.as("erased" as const),
+    Effect.catchTag("IntakeEventsUnavailable", () =>
+      Effect.succeed("pending" as const)
+    )
+  );
 });
 
 const eraseContacts = Effect.fnUntraced(function* eraseContacts(
   contacts: JoinContactStore["Service"],
+  events: IntakeEvents["Service"],
   submissionIds: readonly string[]
 ) {
   const outcomes = yield* Effect.forEach([...new Set(submissionIds)], (id) =>
-    eraseContact(contacts, id).pipe(
+    settleErase(contacts, events, id).pipe(
       Effect.catchCause(() => Effect.succeed("failed" as const))
     )
   );
 
+  const count = (outcome: (typeof outcomes)[number]) =>
+    outcomes.filter((settled) => settled === outcome).length;
+
   return {
-    alreadyGone: outcomes.filter((outcome) => outcome === "alreadyGone").length,
-    erased: outcomes.filter((outcome) => outcome === "erased").length,
-    failed: outcomes.filter((outcome) => outcome === "failed").length,
+    alreadyGone: count("alreadyGone"),
+    erased: count("erased"),
+    failed: count("failed"),
+    pending: count("pending"),
   };
 });
 
@@ -58,10 +80,11 @@ export class IntakeErasure extends Context.Service<
     this,
     Effect.gen(function* makeIntakeErasure() {
       const contacts = yield* JoinContactStore;
+      const events = yield* IntakeEvents;
 
       return {
         erase: (submissionIds: readonly string[]) =>
-          eraseContacts(contacts, submissionIds),
+          eraseContacts(contacts, events, submissionIds),
       };
     })
   );
@@ -70,7 +93,7 @@ export class IntakeErasure extends Context.Service<
 export const intakeEraseContract = defineContract("intakeErase", {
   annotations: { readOnly: false },
   description:
-    "Erase local application contact and sealed answers on the authenticated operator surface only.",
+    "Erase local application contact and sealed answers on the authenticated operator surface only. A contact whose event tombstone cannot be written yet counts as pending; the intake sweep finishes it.",
   failure: IntakeApplicationsUnavailable,
   input: Schema.Struct({
     submissionIds: Schema.Array(

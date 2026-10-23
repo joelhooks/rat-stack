@@ -1,8 +1,8 @@
-import { IntakeEvents } from "@rat-stack/core/intake";
 import { InterestTokens } from "@rat-stack/core/interest";
 import {
   JoinContactSchema,
   JoinContactStore,
+  withState,
 } from "@rat-stack/core/join-interest";
 import type {
   JoinContact,
@@ -32,13 +32,16 @@ const bytesOf = (value: string) =>
 
 export const joinContactStoreLayer = (
   stub: (submissionId: string) => JoinContactStub,
-  note: (submissionId: string) => Effect.Effect<void> = () => Effect.void
+  note: (submissionId: string) => Effect.Effect<void> = () => Effect.void,
+  markPending: (
+    submissionId: string,
+    pending: boolean
+  ) => Effect.Effect<void> = () => Effect.void
 ) =>
   Layer.effect(
     JoinContactStore,
     Effect.gen(function* makeContactStore() {
       const tokens = yield* InterestTokens;
-      const events = yield* IntakeEvents;
 
       const keyFor = Effect.fn("JoinContactStore.keyFor")(function* keyFor(
         submissionId: string
@@ -87,6 +90,7 @@ export const joinContactStoreLayer = (
         yield* stub(contact.submissionId).joinSave(
           JSON.stringify({ data: base64(new Uint8Array(data)), iv: base64(iv) })
         );
+        yield* markPending(contact.submissionId, contact.pending !== undefined);
       });
 
       const read = Effect.fn("JoinContactStore.read")(function* read(
@@ -124,17 +128,11 @@ export const joinContactStoreLayer = (
       });
 
       return {
-        erase: Effect.fn("JoinContactStore.erase")(function* erase(
-          submissionId: string
-        ) {
-          const contact = yield* read(submissionId);
-
-          if (contact !== undefined) {
-            yield* events.erase(contact.contactRef);
-          }
-
-          yield* stub(submissionId).joinErase();
-        }),
+        erase: (submissionId: string) =>
+          Effect.andThen(
+            stub(submissionId).joinErase(),
+            markPending(submissionId, false)
+          ),
         read,
         save,
         setState: Effect.fn("JoinContactStore.setState")(function* setState(
@@ -144,7 +142,7 @@ export const joinContactStoreLayer = (
           const contact = yield* read(submissionId);
 
           if (contact !== undefined) {
-            yield* save({ ...contact, state });
+            yield* save(withState(contact, state));
           }
         }),
       };
