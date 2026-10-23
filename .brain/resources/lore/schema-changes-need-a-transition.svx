@@ -1,0 +1,51 @@
+---
+title: "Shared schemas need a transition period"
+description: "Keep old and new representations usable while consumers migrate."
+group: concept
+terms:
+  - "transition period"
+  - "expand and contract"
+  - "backsliding prevention"
+sources:
+  - url: https://www.amazon.com/Refactoring-Databases-Evolutionary-paperback-Addison-Wesley/dp/0321774515
+    title: "Ambler, Scott W.; Sadalage, Pramod J. Refactoring Databases: Evolutionary Database Design. Addison-Wesley, 2006."
+    publisher: "Addison-Wesley"
+    note: "§3.11 What You Have Learned (transition period); Chapter 4 Deploying into Production."
+    accessed: "2026-10-23"
+  - url: https://abseil.io/resources/swe-book
+    title: "Winters, Titus; Manshreck, Tom; Wright, Hyrum, editors. Software Engineering at Google: Lessons Learned from Programming Over Time. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 15 Deprecation: Deprecation Tooling and Preventing Backsliding; CI Is Alerting (hermetic and flaky tests)."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schema.ts
+    title: "Effect contributors. Effect 4.0.0. Schema.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A shared [schema](/lore/schemas-define-the-boundary) change needs time for consumers to move. Discover old uses and prevent new uses before removing the obsolete [interface](/lore/one-schema-three-surfaces).
+
+> many refactorings require you to run both the original and new versions of the schema in parallel during a transition period that is long enough to allow any applications accessing that portion of the schema time to be redeployed.
+
+Source: [Q19](/lore/durability-bibliography#q19); [B14](/lore/durability-bibliography#b14-refactoring-databases), [B15](/lore/durability-bibliography#b15-software-engineering-at-google).
+
+## Failure it prevents
+
+An independently deployed consumer breaks, or a migration never converges because new old-style uses keep appearing.
+
+## Our Effect 4.0.0 reading
+
+`Schema` decoding can express supported representations. Database migrations, consumer rollout, usage evidence, and static backsliding checks remain separate responsibilities.
+
+Source: `packages/effect/src/Schema.ts`.
+
+## How to check
+
+Test old and new consumers during the transition. Prove old usage is gone before contraction. This check is our proposal. The books do not prescribe it.
+
+Continue with [Old events must still decode](/lore/old-events-must-still-decode), [Recovery needs model tests](/lore/recovery-needs-model-tests).
+
+Connect this to [the existing rat-stack guidance](/lore/property-based-testing).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

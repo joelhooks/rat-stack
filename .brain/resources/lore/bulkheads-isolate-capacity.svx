@@ -1,0 +1,60 @@
+---
+title: "Bulkheads isolate scarce capacity"
+description: "Reserve independent capacity for workloads that must not starve each other."
+group: concept
+terms:
+  - "bulkhead"
+  - "resource pool"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Semaphore.ts
+    title: "Effect contributors. Effect 4.0.0. Semaphore.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Queue.ts
+    title: "Effect contributors. Effect 4.0.0. Queue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Pool.ts
+    title: "Effect contributors. Effect 4.0.0. Pool.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Critical clients need their own capacity. A single shared limit can still let one failed or noisy workload consume every available slot.
+
+> Protect critical clients by giving them their own pool to call.
+
+Source: [Q07](/lore/durability-bibliography#q07); [B4](/lore/durability-bibliography#b4-release-it), [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp).
+
+## Failure it prevents
+
+Noncritical load exhausts the pool needed by the primary path.
+
+## Our Effect 4.0.0 reading
+
+Separate `Semaphore` or `Queue` instances isolate local work admission. `Pool` manages actual resources. Independent runtime or infrastructure failure domains require more than fibers.
+
+Source: `packages/effect/src/Semaphore.ts`, `packages/effect/src/Queue.ts`, `packages/effect/src/Pool.ts`.
+
+## How to check
+
+Saturate one workload. Confirm that the separately reserved critical path still acquires its resources. This check is our proposal. The books do not prescribe it.
+
+Continue with [Backpressure reaches the producer](/lore/backpressure-reaches-the-producer), [Effect is not BEAM](/lore/effect-is-not-beam).
+
+Connect this to [the existing rat-stack guidance](/lore/scopes-own-resources).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

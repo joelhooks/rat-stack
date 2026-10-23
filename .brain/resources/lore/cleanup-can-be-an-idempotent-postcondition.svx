@@ -1,0 +1,50 @@
+---
+title: "Cleanup can be an idempotent postcondition"
+description: "Already-absent state can be success when absence is the operation’s intended result."
+group: concept
+terms:
+  - "idempotent postcondition"
+  - "define errors out of existence"
+sources:
+  - url: https://web.stanford.edu/~ouster/cgi-bin/book.php
+    title: "Ousterhout, John. A Philosophy of Software Design. 2018."
+    publisher: "John Ousterhout"
+    note: "§4.4 Deep Modules; §10.2 Too Many Exceptions; §10.3 Define Errors Out of Existence; §10.6 Mask Exceptions; §10.7 Exception Aggregation; §10.8 Just Crash?; §10.10 Taking It Too Far."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. Effect 4.0.0. Context.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A useful API can make a routine absent-state condition ordinary. The [service](/lore/services-capture-dependencies) owns the postcondition instead of requiring every caller to catch and ignore it.
+
+> Rather than throwing an error when unset is asked to delete an unknown variable, it should have simply returned without doing anything.
+
+Source: [Q16](/lore/durability-bibliography#q16); [B10](/lore/durability-bibliography#b10-a-philosophy-of-software-design).
+
+## Failure it prevents
+
+Cleanup accumulates special cases and fails on harmless repeated execution.
+
+## Our Effect 4.0.0 reading
+
+Typed failures do not require exporting avoidable errors. Put the domain meaning in the service [contract](/systems/capabilities); [Effect](/lore/effect-basics) supplies execution. The domain defines the postcondition.
+
+Source: `packages/effect/src/Effect.ts`, `packages/effect/src/Context.ts`.
+
+## How to check
+
+Run cleanup twice. Require the same intended result, while preserving meaningful permission or storage failures. This check is our proposal. The books do not prescribe it.
+
+Continue with [Retry needs idempotent effects](/lore/retry-needs-idempotency), [Failures keep their meaning](/lore/failures-keep-their-meaning).
+
+Connect this to [the existing rat-stack guidance](/lore/error-model).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

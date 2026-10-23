@@ -1,0 +1,430 @@
+---
+title: "Durability bibliography"
+description: "Books, checked short quotations, source limits, and Effect mapping provenance."
+group: concept
+terms:
+  - "durability bibliography"
+sources:
+  - url: https://www.manning.com/books/erlang-and-otp-in-action
+    title: "Logan, Martin; Merritt, Eric; Carlsson, Richard. Erlang and OTP in Action."
+    publisher: "Manning"
+    note: "The Erlang/OTP Platform: Let It Crash; process isolation; §4.2.2 supervisor restart strategy."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/elixir-in-action-third-edition
+    title: "Jurić, Saša. Elixir in Action, Third Edition. Manning, 2024."
+    publisher: "Manning"
+    note: "§5.4.3 Shared-Nothing Concurrency; Chapters 8–9, fault tolerance and supervision; Other Use Cases for ETS."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns; §5.1 Timeouts; §5.2 Circuit Breaker; §5.3 Bulkheads; §5.4 Steady State; §5.5 Fail Fast; §5.6 Handshaking; §5.7 Test Harness; §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/
+    title: "Bellemare, Adam. Building Event-Driven Microservices: Leveraging Organizational Data at Scale. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Communication and Data Contracts; Chapter 6 Deterministic Stream Processing; Chapter 7 Stateful Streaming; Chapter 9 Microservices Using Function-as-a-Service; Chapter 14 Supportive Tooling."
+    accessed: "2026-10-23"
+  - url: https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298
+    title: "Reis, Joe; Housley, Matt. Fundamentals of Data Engineering. O’Reilly."
+    publisher: "O’Reilly"
+    note: "Part II, Chapter 5: Message Queues; DataOps considerations; Incident Response."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/swdddf/domain-modeling-made-functional/
+    title: "Wlaschin, Scott. Domain Modeling Made Functional: Tackle Software Complexity with Domain-Driven Design and F#. Pragmatic Bookshelf, 2018."
+    publisher: "Pragmatic Bookshelf"
+    note: "Implementation: Working with Errors; Using the Result Type to Make Errors Explicit; Handling Exceptions; Composing in Parallel with Applicatives."
+    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/monitoring-distributed-systems/
+    title: "Ewaschuk, Rob. Monitoring Distributed Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "The Four Golden Signals; Black-Box Versus White-Box; Symptoms Versus Causes."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/serverless-architectures-on-aws-second-edition
+    title: "Sbarski, Peter; Cui, Yan; Nair, Ajay. Serverless Architectures on AWS, Second Edition."
+    publisher: "Manning"
+    note: "Chapter 6, The New Search Microservice: Everything Fails, All the Time; Pay Attention to Retry Configurations. AWS-specific mechanisms are not universal runtime guarantees."
+    accessed: "2026-10-23"
+  - url: https://web.stanford.edu/~ouster/cgi-bin/book.php
+    title: "Ousterhout, John. A Philosophy of Software Design. 2018."
+    publisher: "John Ousterhout"
+    note: "§4.4 Deep Modules; §10.2 Too Many Exceptions; §10.3 Define Errors Out of Existence; §10.6 Mask Exceptions; §10.7 Exception Aggregation; §10.8 Just Crash?; §10.10 Taking It Too Far."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/fhproper/property-based-testing-with-proper-erlang-and-elixir/
+    title: "Hebert, Fred. Property-Based Testing with PropEr, Erlang, and Elixir. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Chapter 7 Shrinking; Laying Out Stateful Properties; Testing Parallel Executions; Initial State for the State Machine; Adjusting the Model. Use the actual breaker’s threshold semantics."
+    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/table-of-contents/
+    title: "Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. Site Reliability Engineering: How Google Runs Production Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Embracing Risk; Chapter 22 Addressing Cascading Failures (Mike Ulrich); Chapter 26 General Principles of SRE as Applied to Data Integrity; Chapter 27 Reliable Product Launches at Scale. Section-only excerpts limit detailed attribution."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/grokking-simplicity
+    title: "Normand, Eric. Grokking Simplicity: Taming Complex Software with Functional Thinking. Manning, 2021."
+    publisher: "Manning"
+    note: "Chapters 15–17: Isolating Timelines, Sharing Resources Between Timelines, Coordinating Timelines."
+    accessed: "2026-10-23"
+  - url: https://www.amazon.com/Refactoring-Databases-Evolutionary-paperback-Addison-Wesley/dp/0321774515
+    title: "Ambler, Scott W.; Sadalage, Pramod J. Refactoring Databases: Evolutionary Database Design. Addison-Wesley, 2006."
+    publisher: "Addison-Wesley"
+    note: "§3.11 What You Have Learned (transition period); Chapter 4 Deploying into Production."
+    accessed: "2026-10-23"
+  - url: https://abseil.io/resources/swe-book
+    title: "Winters, Titus; Manshreck, Tom; Wright, Hyrum, editors. Software Engineering at Google: Lessons Learned from Programming Over Time. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 15 Deprecation: Deprecation Tooling and Preventing Backsliding; CI Is Alerting (hermetic and flaky tests)."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/DurableQueue.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/DurableQueue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Book principles and our [Effect](/lore/effect-basics) mappings are separate. Each entry names the book and the chapters or sections we read. Unknown edition details stay unknown. Quote numbers match the links on the durability pages.
+
+## Books
+
+### B1 Erlang and OTP in Action
+
+Logan, Martin; Merritt, Eric; Carlsson, Richard. *Erlang and OTP in Action*.
+
+**Read:**
+
+- The Erlang/OTP Platform: Let It Crash
+- process isolation
+- §4.2.2 supervisor restart strategy
+
+**Edition:** Edition, publisher, and year are not confirmed.
+
+[Public book reference](https://www.manning.com/books/erlang-and-otp-in-action).
+
+#### Q01
+
+> The point of letting an entire subsystem terminate and be restarted is that it brings you back to a state known to function properly.
+
+### B2 Elixir in Action
+
+Jurić, Saša. *Elixir in Action*, Third Edition. Manning, 2024.
+
+**Read:**
+
+- §5.4.3 Shared-Nothing Concurrency
+- Chapters 8–9, fault tolerance and supervision
+- Other Use Cases for ETS
+
+[Public book reference](https://www.manning.com/books/elixir-in-action-third-edition).
+
+#### Q02
+
+> Remember from chapters 8 and 9 that processes lose their state on termination.
+
+#### Q03
+
+> Shared-nothing concurrency ensures complete isolation between processes: one process can’t compromise the internal state of another.
+
+### B3 Designing Elixir Systems with OTP
+
+Gray II, James Edward; Tate, Bruce A. *Designing Elixir Systems with OTP*. Pragmatic Bookshelf, 2019.
+
+**Read:**
+
+- Build a Functional Core
+- Isolate Process Machinery in a Boundary
+- Customize Your Lifecycle
+- Big, Loud Worker-Bees
+- Add Persistence as a Boundary [Service](/lore/services-capture-dependencies)
+- Test the Boundary
+
+**Edition:** Not stated.
+
+[Public book reference](https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/).
+
+#### Q04
+
+> Elixir can’t manage what it doesn’t know about.
+
+#### Q14
+
+> Our core doesn’t access external interfaces or use any process machinery your component might use.
+
+### B4 Release It
+
+Nygard, Michael T. *Release It!: Design and Deploy Production-Ready Software*. Pragmatic Bookshelf, 2007.
+
+**Read:**
+
+- §4.4 Unbounded Result Sets
+- Chapter 5 Stability Patterns
+- §5.1 Timeouts
+- §5.2 [Circuit Breaker](/lore/circuit-breakers-have-state)
+- §5.3 Bulkheads
+- §5.4 Steady State
+- §5.5 Fail Fast
+- §5.6 Handshaking
+- §5.7 Test Harness
+- §5.8 Decoupling Middleware
+
+**Edition:** Not stated. Do not substitute second-edition chapter numbering.
+
+[Public book reference](https://archive.org/details/releaseitdesignd0000nyga).
+
+#### Q05
+
+> The timeout is a simple mechanism allowing you to stop waiting for an answer once you think it will not come.
+
+#### Q06
+
+> calls to the circuit breaker fail immediately, without any attempt to execute the real operation.
+
+#### Q07
+
+> Protect critical clients by giving them their own pool to call.
+
+#### Q08
+
+> The Steady State pattern says, for every mechanism that accumulates a resource, some other mechanism must recycle that resource.
+
+#### Q09
+
+> The Test Harness can produce slow responses, no responses, or garbage responses.
+
+### B5 Building Event-Driven Microservices
+
+Bellemare, Adam. *Building Event-Driven Microservices: Leveraging Organizational Data at Scale*. O’Reilly, 2020.
+
+**Read:**
+
+- Chapter 3 Communication and Data Contracts
+- Chapter 6 Deterministic Stream Processing
+- Chapter 7 Stateful Streaming
+- Chapter 9 Microservices Using Function-as-a-Service
+- Chapter 14 Supportive Tooling
+
+**Edition:** Not stated. Quotes come from the 2020 text.
+
+[Public book reference](https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/).
+
+#### Q11
+
+> The overarching goal of deterministic processing is that a microservice should produce the same output whether it is processing in real time or catching up to the present time.
+
+#### Q12
+
+> Schema evolution ensures that the consumer can translate it to a familiar version.
+
+#### Q13
+
+> allowing a single stateful transaction to atomically update both the state and input offsets.
+
+### B6 Fundamentals of Data Engineering
+
+Reis, Joe; Housley, Matt. *Fundamentals of Data Engineering*. O’Reilly.
+
+**Read:**
+
+- Part II, Chapter 5: Message Queues
+- DataOps considerations
+- Incident Response
+
+**Edition:** Edition and year are not confirmed.
+
+[Public book reference](https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298).
+
+#### Q10
+
+> In an idempotent system, the outcome of processing a message once is identical to the outcome of processing it multiple times.
+
+### B7 Domain Modeling Made Functional
+
+Wlaschin, Scott. *Domain Modeling Made Functional: Tackle Software Complexity with Domain-Driven Design and F#*. Pragmatic Bookshelf, 2018.
+
+**Read:**
+
+- Implementation: Working with Errors
+- Using the Result Type to Make Errors Explicit
+- Handling Exceptions
+- Composing in Parallel with Applicatives
+
+**Edition:** Printing P1.0. The numbered edition is not stated.
+
+[Public book reference](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/).
+
+#### Q15
+
+> These different kinds of errors require different implementations.
+
+### B8 Monitoring Distributed Systems
+
+Ewaschuk, Rob. *Monitoring Distributed Systems*. O’Reilly, 2016.
+
+**Read:**
+
+- The Four Golden Signals
+- Black-Box Versus White-Box
+- Symptoms Versus Causes
+
+**Edition:** First edition. It is also a chapter of the Google SRE book.
+
+[Public book reference](https://sre.google/sre-book/monitoring-distributed-systems/).
+
+#### Q18
+
+> The four golden signals of monitoring are latency, traffic, errors, and saturation.
+
+### B9 Serverless Architectures on AWS
+
+Sbarski, Peter; Cui, Yan; Nair, Ajay. *Serverless Architectures on AWS*, Second Edition.
+
+**Read:**
+
+- Chapter 6, The New Search Microservice: Everything Fails, All the Time
+- Pay Attention to Retry Configurations
+
+AWS-specific mechanisms are not universal runtime guarantees.
+
+**Edition:** Publisher and year are not confirmed.
+
+[Public book reference](https://www.manning.com/books/serverless-architectures-on-aws-second-edition).
+
+#### Q20
+
+> Do you put the failed event into a DLQ and process it later?
+
+### B10 A Philosophy of Software Design
+
+Ousterhout, John. *A Philosophy of Software Design*. 2018.
+
+**Read:**
+
+- §4.4 Deep Modules
+- §10.2 Too Many Exceptions
+- §10.3 Define Errors Out of Existence
+- §10.6 Mask Exceptions
+- §10.7 Exception Aggregation
+- §10.8 Just Crash?
+- §10.10 Taking It Too Far
+
+**Edition:** Edition and publisher are not confirmed.
+
+[Public book reference](https://web.stanford.edu/~ouster/cgi-bin/book.php).
+
+#### Q16
+
+> Rather than throwing an error when unset is asked to delete an unknown variable, it should have simply returned without doing anything.
+
+### B11 Property-Based Testing
+
+Hebert, Fred. *Property-Based Testing with PropEr, Erlang, and Elixir*. Pragmatic Bookshelf, 2019.
+
+**Read:**
+
+- Chapter 7 Shrinking
+- Laying Out Stateful Properties
+- Testing Parallel Executions
+- Initial State for the State Machine
+- Adjusting the Model
+
+Use the actual breaker’s threshold semantics.
+
+**Edition:** Not stated.
+
+[Public book reference](https://pragprog.com/titles/fhproper/property-based-testing-with-proper-erlang-and-elixir/).
+
+#### Q17
+
+> Both function calls must be deterministic.
+
+### B12 Site Reliability Engineering
+
+Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. *Site Reliability Engineering: How Google Runs Production Systems*. O’Reilly, 2016.
+
+**Read:**
+
+- Chapter 3 Embracing Risk
+- Chapter 22 Addressing Cascading Failures (Mike Ulrich)
+- Chapter 26 General Principles of SRE as Applied to Data Integrity
+- Chapter 27 Reliable Product Launches at Scale
+
+Section-only excerpts limit detailed attribution.
+
+**Edition:** Not stated.
+
+[Public book reference](https://sre.google/sre-book/table-of-contents/).
+
+### B13 Grokking Simplicity
+
+Normand, Eric. *Grokking Simplicity: Taming Complex Software with Functional Thinking*. Manning, 2021.
+
+**Read:**
+
+- Chapters 15–17: Isolating Timelines, Sharing Resources Between Timelines, Coordinating Timelines
+
+**Edition:** Not stated.
+
+[Public book reference](https://www.manning.com/books/grokking-simplicity).
+
+### B14 Refactoring Databases
+
+Ambler, Scott W.; Sadalage, Pramod J. *Refactoring Databases: Evolutionary Database Design*. Addison-Wesley, 2006.
+
+**Read:**
+
+- §3.11 What You Have Learned (transition period)
+- Chapter 4 Deploying into Production
+
+**Edition:** Not stated.
+
+[Public book reference](https://www.amazon.com/Refactoring-Databases-Evolutionary-paperback-Addison-Wesley/dp/0321774515).
+
+#### Q19
+
+> many refactorings require you to run both the original and new versions of the schema in parallel during a transition period that is long enough to allow any applications accessing that portion of the schema time to be redeployed.
+
+### B15 Software Engineering at Google
+
+Winters, Titus; Manshreck, Tom; Wright, Hyrum, editors. *Software Engineering at Google: Lessons Learned from Programming Over Time*. O’Reilly, 2020.
+
+**Read:**
+
+- Chapter 15 Deprecation: Deprecation Tooling and Preventing Backsliding
+- CI Is Alerting (hermetic and flaky tests)
+
+**Edition:** Not stated.
+
+[Public book reference](https://abseil.io/resources/swe-book).
+
+### B16 Why Programs Fail
+
+Zeller, Andreas. *Why Programs Fail: A Guide to Systematic Debugging*. Morgan Kaufmann, 2009.
+
+**Read:**
+
+- Chapter 4 Reproducing the Problem Environment
+- Chapter 10 Reference Runs
+
+Short section excerpts do not establish a complete debugging method.
+
+**Edition:** Not stated.
+
+## Coverage limits
+
+Some books gave no usable passage for this topic:
+
+- *Designing Data-Intensive Applications* and Newman’s *Building Microservices* gave only fragments for their [scope](/lore/scopes-own-resources).
+- *Adopting Elixir* and *Programming Elixir* gave no usable findings.
+- The Scala text gave no usable passage.
+
+These pages make no book-backed claims about fencing, consensus, compensation, or replication. They add no hot-upgrade or Governor rule.
+
+## Effect source
+
+Effect contributors. *Effect*, `effect@4.0.0`, commit `67ba4e46a11ccda0b6761578bfd22c04ae00167d`. See [the durability skill](/skills/durability) and its [reference copy of this bibliography](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/references/bibliography.md). All mappings and proposed checks are our own reading of the books.
+
+Return to [the durability index](/lore/durability).

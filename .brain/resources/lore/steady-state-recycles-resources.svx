@@ -1,0 +1,55 @@
+---
+title: "Steady state recycles resources"
+description: "Every accumulation needs a deliberate recycling policy."
+group: concept
+terms:
+  - "steady state"
+  - "retention policy"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Cache.ts
+    title: "Effect contributors. Effect 4.0.0. Cache.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Scope.ts
+    title: "Effect contributors. Effect 4.0.0. Scope.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/persistence/PersistedQueue.ts
+    title: "Effect contributors. Effect 4.0.0. persistence/PersistedQueue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Growing logs, retained rows, caches, and objects need a counter-mechanism. Normal operation should not depend on repeated manual cleanup.
+
+> The Steady State pattern says, for every mechanism that accumulates a resource, some other mechanism must recycle that resource.
+
+Source: [Q08](/lore/durability-bibliography#q08); [B4](/lore/durability-bibliography#b4-release-it).
+
+## Failure it prevents
+
+Memory, storage, or latency fails after enough otherwise-successful operations.
+
+## Our Effect 4.0.0 reading
+
+`Cache` and [Scope](/lore/scopes-own-resources) cover runtime lifetime. `PersistedQueue.layerCleanup` handles retained queue records. Durable domain data still needs a storage policy and maintenance owner.
+
+Source: `packages/effect/src/Cache.ts`, `packages/effect/src/Scope.ts`, `packages/effect/src/persistence/PersistedQueue.ts`.
+
+## How to check
+
+Inspect growth over repeated work. Check retention against replay and dedupe requirements before deleting recovery evidence. This check is our proposal. The books do not prescribe it.
+
+Continue with [Queries need result bounds](/lore/queries-need-result-bounds), [Dead letters need a return path](/lore/dead-letters-need-a-return-path).
+
+Connect this to [the existing rat-stack guidance](/lore/scopes-own-resources).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

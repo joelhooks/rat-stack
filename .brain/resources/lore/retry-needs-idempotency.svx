@@ -1,0 +1,61 @@
+---
+title: "Retry needs idempotent effects"
+description: "Repeating an operation must preserve its intended observable result."
+group: concept
+terms:
+  - "idempotency"
+  - "deduplication"
+  - "effectively once"
+sources:
+  - url: https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/
+    title: "Bellemare, Adam. Building Event-Driven Microservices: Leveraging Organizational Data at Scale. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Communication and Data Contracts; Chapter 6 Deterministic Stream Processing; Chapter 7 Stateful Streaming; Chapter 9 Microservices Using Function-as-a-Service; Chapter 14 Supportive Tooling."
+    accessed: "2026-10-23"
+  - url: https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298
+    title: "Reis, Joe; Housley, Matt. Fundamentals of Data Engineering. O’Reilly."
+    publisher: "O’Reilly"
+    note: "Part II, Chapter 5: Message Queues; DataOps considerations; Incident Response."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/Workflow.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/Workflow.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/Activity.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/Activity.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/DurableQueue.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/DurableQueue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A consumer can run an event again after failure. Processing guarantees inside one store do not cover every external side [effect](/lore/effect-basics).
+
+> In an idempotent system, the outcome of processing a message once is identical to the outcome of processing it multiple times.
+
+Source: [Q10](/lore/durability-bibliography#q10); [B5](/lore/durability-bibliography#b5-building-event-driven-microservices), [B6](/lore/durability-bibliography#b6-fundamentals-of-data-engineering).
+
+## Failure it prevents
+
+A response disappears after a remote write succeeds, and retry repeats the write.
+
+## Our Effect 4.0.0 reading
+
+`Workflow` identity and `Activity.idempotencyKey` name work. Receiver-side keys or transactional dedupe must enforce the repeated effect’s semantics.
+
+Source: `packages/effect/src/workflow/Workflow.ts`, `packages/effect/src/workflow/Activity.ts`, `packages/effect/src/workflow/DurableQueue.ts`.
+
+## How to check
+
+Lose the response after remote success. Retry the same identity and inspect the authoritative result. This check is our proposal. The books do not prescribe it.
+
+Continue with [Checkpoints follow the promised commit](/lore/checkpoints-follow-commits), [Cleanup can be an idempotent postcondition](/lore/cleanup-can-be-an-idempotent-postcondition).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

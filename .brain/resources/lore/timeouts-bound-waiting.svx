@@ -1,0 +1,51 @@
+---
+title: "Timeouts bound waiting"
+description: "A local timeout stops waiting; it does not prove the remote action never happened."
+group: concept
+terms:
+  - "timeout"
+  - "deadline propagation"
+  - "cancellation propagation"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/table-of-contents/
+    title: "Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. Site Reliability Engineering: How Google Runs Production Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Embracing Risk; Chapter 22 Addressing Cascading Failures (Mike Ulrich); Chapter 26 General Principles of SRE as Applied to Data Integrity; Chapter 27 Reliable Product Launches at Scale. Section-only excerpts limit detailed attribution."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Fallible waits need finite bounds. Carry the caller’s remaining deadline across [service](/lore/services-capture-dependencies) boundaries rather than granting each hop a fresh full wait.
+
+> The timeout is a simple mechanism allowing you to stop waiting for an answer once you think it will not come.
+
+Source: [Q05](/lore/durability-bibliography#q05); [B4](/lore/durability-bibliography#b4-release-it), [B12](/lore/durability-bibliography#b12-site-reliability-engineering).
+
+## Failure it prevents
+
+Abandoned requests occupy resources while their downstream calls continue.
+
+## Our Effect 4.0.0 reading
+
+`Effect.timeout` and timeoutOption support local timeout policy. Protocols must carry deadline and cancellation. Foreign operations must cooperate with interruption.
+
+Source: `packages/effect/src/Effect.ts`.
+
+## How to check
+
+Delay the dependency past the deadline. Check released capacity and reconcile any uncertain remote write. This check is our proposal. The books do not prescribe it.
+
+Continue with [Retry load needs a budget](/lore/retry-load-needs-a-budget), [Retry needs idempotent effects](/lore/retry-needs-idempotency).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

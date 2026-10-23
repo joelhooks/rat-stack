@@ -115,4 +115,7 @@ Ordinary callers still need declared failures in the typed channel.
 
 Start with [Layer composition](/lore/layers-make-dependencies-explicit) when choosing the resource's owner.
 Then read [concurrent work](/lore/concurrent-work-needs-an-owner) before starting child work.
+
+A Scope ends with its process. [Steady state recycles resources](/lore/steady-state-recycles-resources) covers growth that outlives one Scope.
+
 Return to the [Effect reading order](/lore/effect-basics#read-next).
