@@ -77,6 +77,7 @@ Leaves live in the repo; read them from a checkout.
 
 - `skills/rat-stack-mode/principles/look-it-up-first.md`: entering unfamiliar code or deciding whether to ask.
 - `skills/rat-stack-mode/principles/ask-one-material-question.md`: reaching a decision that needs owner sign-off.
+- `skills/rat-stack-mode/principles/own-your-wait.md`: waiting on CI, another agent, or a long local run.
 - `skills/rat-stack-mode/principles/separate-writers-verify-readers.md`: dividing work or accepting delegated results.
 - `skills/rat-stack-mode/principles/encode-lessons-in-structure.md`: correcting a repeated bad pattern.
 
