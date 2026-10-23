@@ -49,6 +49,12 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Evidence-led feature flags
+
+The flag ladder in core, the Durable Object ledger in `packages/flags`, and `skills/add-a-feature-flag` adapt drovr's flag design at commit `97f3c98efb4af003c3b1de89846560544c62a7ad`.
+
+Source modules: the flags catalog, rung and flip models, ledger port, KV store, and Durable Object ledger. The implementation is rewritten for rat-stack's capability approval service, child-supplied read scope schemas, role names, and pending-before-gate audit lifecycle. No tenant declarations or credential policies are copied.
+
 ## Local deployment driver
 
 `packages/check-harness`, the service-port shape in `packages/deploy/src/deploy-runner.ts`, and `skills/ship` are ported from drovr (badass-courses), commit `6bfe63508539ee289564c4ef6a5768e26dca60b7`.

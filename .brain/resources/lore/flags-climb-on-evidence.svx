@@ -1,0 +1,109 @@
+---
+title: "Flags climb on evidence"
+description: "A flag ladder connects each rollout step to scoped measurements, approval, and a durable receipt."
+plain: "Climb one rung after measuring its exit. Keep the ledger authoritative and use KV only as a read replica."
+group: idea
+terms:
+  - "flag ladder"
+  - "read scope"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/tree/f294f950ebbd3911ac5a8ffea30e1ac87cd26be9/packages/core/src
+    title: "Core flag contracts and ledger engine"
+    publisher: "rat-stack"
+    note: "Declared rungs, scoped evidence, approval-gated flips, and attempt receipts."
+    accessed: "2026-10-23"
+  - url: https://github.com/joelhooks/rat-stack/tree/f294f950ebbd3911ac5a8ffea30e1ac87cd26be9/packages/flags/src
+    title: "Flags cartridge adapters"
+    publisher: "rat-stack"
+    note: "Durable Object authority, durable projection markers, KV readers, and generated history tests."
+    accessed: "2026-10-23"
+  - url: https://developers.cloudflare.com/kv/concepts/how-kv-works/
+    title: "How KV works"
+    publisher: "Cloudflare"
+    note: "KV is eventually consistent. Changes can take 60 seconds or more to reach another location."
+    accessed: "2026-10-23"
+  - url: https://developers.cloudflare.com/durable-objects/api/alarms/
+    title: "Durable Object alarms"
+    publisher: "Cloudflare"
+    note: "Failed alarms retry with exponential backoff. Alarms execute at least once."
+    accessed: "2026-10-23"
+---
+
+A [feature flag](/systems/flags) declares a ladder of values.
+Each rung names its authority and the evidence required to leave it.
+A climb moves exactly one rung. A downward move uses `off`.
+
+## Measure the exit where the flag is read
+
+Every exit names an event, a measurement location, and a threshold.
+Record the observation through `record_flag_evidence`, with its source reference.
+
+A read scope is the partition for a flag value and its evidence.
+The child's `readScope` [schema](/lore/schemas-define-the-boundary) defines the flag's scope. Its default is the literal `global` scope.
+A measurement counts only at its own scope and current rung.
+
+A flip clears current evidence. Returning to a rung needs fresh measurements.
+
+A mismatch returns `FlagScopeMismatch` and a repair instruction.
+The same scope check applies to readers, evidence, and flips.
+
+## Authority comes from approval
+
+The roles are `agent`, `arbiter`, and `owner`.
+The child supplies the [capability approval service](/systems/capabilities).
+That service authorizes the requested climb. Token checks stay in the child's composition.
+
+A climb above agent also needs an `approvalRef` quote.
+A role field alone grants nothing.
+
+`off` still passes through the shared capability implementation and attempt audit.
+It supplies an always-granted approval implementation, so an approval outage cannot block it.
+The flag's declared `kill` policy selects its destination or explains why no stop exists.
+
+## Commit once, then project
+
+A projection is a copy derived from a committed value.
+
+The Durable Object owns the current value and its receipt.
+It commits both with a dirty projection marker in one transaction.
+An alarm writes that committed value to the KV read replica.
+
+```text
+operator → Pending → approval → DO value + receipt + dirty marker
+                                                    │
+                                                    ▼
+                                             alarm → KV → reader
+```
+
+The Pending attempt exists before the approval gate.
+A separate outcome records success, denial, or failure.
+An interrupted call can remain Pending. The authoritative position can still show a committed receipt.
+
+A crash before projection leaves the dirty marker intact.
+Redrive uses the committed value. It clears a marker only if that marker still names the projected version.
+
+Cloudflare retries failed alarms six times, starting with two seconds of backoff.
+After the final failed retry, the [adapter](/lore/hexagonal-architecture) schedules a fresh alarm at the next exponential backoff step.
+An internal redrive method also supports operator recovery.
+
+Readers never call the Durable Object.
+They read KV and apply the declaration's `failurePolicy`.
+The default policy uses the catalog default when the replica fails.
+
+Under the default policy, an empty KV keeps deployment Config or declared defaults.
+The `refuse` policy returns a typed failure on a missing or failed replica read.
+
+The explicit KV ledger fallback retains attempt and outcome keys.
+It cannot serialize writers across isolates or atomically commit the ledger and value.
+
+## Keep urgent stops out of KV
+
+KV changes can take 60 seconds or more to reach another location.
+`off` bypasses approval, but it cannot bypass that propagation delay.
+Use deployment settings or a stronger control path for kill switches and safety stops.
+
+Each declaration also names its purpose, owner, and removal date.
+The removal-date [fence](/lore/the-fence) keeps temporary flags from becoming forgotten behavior.
+
+Use [Add a feature flag](/skills/add-a-feature-flag) to declare the ladder and its checks.
+The generated models exercise scoped flips, denied approval, downward moves, attempt accounting, and projection recovery.
