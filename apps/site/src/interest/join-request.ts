@@ -1,5 +1,7 @@
 import { InterestTokens, normalizeClientIp } from "@rat-stack/core/interest";
 import { JoinRequest } from "@rat-stack/core/join-interest";
+import * as Cloudflare from "alchemy/Cloudflare";
+import * as RuntimeContext from "alchemy/RuntimeContext";
 import { Context, Effect, Option } from "effect";
 import { HttpRouter, HttpServerRequest } from "effect/http";
 
@@ -15,8 +17,18 @@ export const joinRequestMiddleware = (options: {
         const request = yield* HttpServerRequest.HttpServerRequest;
         const ip = normalizeClientIp(request.headers["cf-connecting-ip"]);
 
+        const execution = yield* Effect.serviceOption(
+          Cloudflare.WorkerExecutionContext
+        );
+
         return yield* effect.pipe(
           Effect.provideService(JoinRequest, {
+            afterResponse: (work) =>
+              Option.isSome(execution)
+                ? execution.value
+                    .waitUntil(work)
+                    .pipe(Effect.provide(RuntimeContext.RuntimeContext.phantom))
+                : work,
             allow: Effect.fn("JoinRequest.allow")(function* allow(
               agentRef: string
             ) {

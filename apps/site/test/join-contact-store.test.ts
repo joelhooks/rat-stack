@@ -1,9 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import {
-  ContactRefSchema,
-  IntakeEvents,
-  IntakeEventsTest,
-} from "@rat-stack/core/intake";
+import { ContactRefSchema } from "@rat-stack/core/intake";
 import { InterestTokens } from "@rat-stack/core/interest";
 import { JoinContactStore } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Redacted, Schema } from "effect";
@@ -17,7 +13,7 @@ const Scenario = Schema.Struct({
 });
 
 it.effect.prop(
-  "contact mappings stay sealed, authenticate their submission, and erase with their event key",
+  "contact mappings stay sealed, authenticate their submission, and erase idempotently",
   { scenario: Arbitrary.schema(Scenario) },
   ({ scenario }) =>
     Effect.gen(function* sealedMapping() {
@@ -83,20 +79,10 @@ it.effect.prop(
       yield* contacts.erase(mapping.submissionId);
       expect(yield* contacts.read(mapping.submissionId)).toBeUndefined();
       expect(stored.size).toBe(0);
-      expect(yield* IntakeEventsTest.use((test) => test.erased)).toEqual([
-        actor,
-      ]);
       yield* contacts.erase(mapping.submissionId);
-      expect(yield* IntakeEventsTest.use((test) => test.erased)).toEqual([
-        actor,
-      ]);
+      expect(stored.size).toBe(0);
     }).pipe(
       Effect.scoped,
-      Effect.provide(
-        Layer.mergeAll(
-          InterestTokens.layer(Redacted.make("test-secret")),
-          IntakeEvents.testLayer
-        )
-      )
+      Effect.provide(InterestTokens.layer(Redacted.make("test-secret")))
     )
 );

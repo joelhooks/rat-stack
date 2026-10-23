@@ -1,0 +1,58 @@
+---
+title: "Request lifetime is not durability"
+description: "Worker waitUntil has a shared post-response allowance; required work needs a durable marker and redrive."
+group: concept
+terms:
+  - "waitUntil"
+  - "request execution budget"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298
+    title: "Reis, Joe; Housley, Matt. Fundamentals of Data Engineering. O’Reilly."
+    publisher: "O’Reilly"
+    note: "Part II, Chapter 5: Message Queues; DataOps considerations; Incident Response."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. Effect 4.0.0. Context.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://developers.cloudflare.com/workers/runtime-apis/context/
+    title: "Cloudflare Workers Context: waitUntil"
+    publisher: "Cloudflare"
+    note: "HTTP-triggered waitUntil extends execution for up to 30 seconds after response or disconnect; calls share this allowance. This is a platform reference, not book lore."
+    accessed: "2026-10-23"
+---
+
+A bounded request pass and a durable recovery record solve different problems. On HTTP Workers, waitUntil extends execution for up to 30 seconds after response or disconnect; that allowance is shared.
+
+Book basis: [B4](/lore/durability-bibliography#b4-release-it), [B6](/lore/durability-bibliography#b6-fundamentals-of-data-engineering).
+
+## Failure it prevents
+
+Three 20-second attempts plus delays need more time than the post-response allowance, so background delivery is cut off without recovery.
+
+## Our Effect 4.0.0 reading
+
+Use one deadline for the pass and cap every attempt at remaining time. `Context.Reference` can hold an intentional default budget. Do not cache an absolute deadline in it. Persist an undelivered marker for independent redrive.
+
+Source: `packages/effect/src/Context.ts`, `packages/effect/src/Effect.ts`.
+
+## How to check
+
+Use a 25-second example budget. Cancel post-response work, then redrive the persisted marker with the same operation identity and prove duplicate safety. This check is our proposal. The books do not prescribe it.
+
+Continue with [Timeouts bound waiting](/lore/timeouts-bound-waiting), [Retry needs idempotent effects](/lore/retry-needs-idempotency).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

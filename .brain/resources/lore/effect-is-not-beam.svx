@@ -1,0 +1,65 @@
+---
+title: "Effect is not BEAM"
+description: "Fibers share a runtime; scope ownership does not supply isolated heaps or OTP restart strategies."
+group: concept
+terms:
+  - "fiber isolation"
+  - "process isolation"
+sources:
+  - url: https://www.manning.com/books/erlang-and-otp-in-action
+    title: "Logan, Martin; Merritt, Eric; Carlsson, Richard. Erlang and OTP in Action."
+    publisher: "Manning"
+    note: "The Erlang/OTP Platform: Let It Crash; process isolation; §4.2.2 supervisor restart strategy."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/elixir-in-action-third-edition
+    title: "Jurić, Saša. Elixir in Action, Third Edition. Manning, 2024."
+    publisher: "Manning"
+    note: "§5.4.3 Shared-Nothing Concurrency; Chapters 8–9, fault tolerance and supervision; Other Use Cases for ETS."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Scope.ts
+    title: "Effect contributors. Effect 4.0.0. Scope.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/FiberSet.ts
+    title: "Effect contributors. Effect 4.0.0. FiberSet.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Fiber.ts
+    title: "Effect contributors. Effect 4.0.0. Fiber.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+BEAM processes isolate their state. Supervision observes worker failure and applies restart policy. Restart still loses volatile state.
+
+> Shared-nothing concurrency ensures complete isolation between processes: one process can’t compromise the internal state of another.
+
+Source: [Q03](/lore/durability-bibliography#q03); [B1](/lore/durability-bibliography#b1-erlang-and-otp-in-action), [B2](/lore/durability-bibliography#b2-elixir-in-action), [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp).
+
+## Failure it prevents
+
+A failed computation has already changed shared state, while the caller assumes process isolation.
+
+## Our Effect 4.0.0 reading
+
+[Scope](/lore/scopes-own-resources) and `FiberSet` own local lifetimes. They do not supply separate heaps or OTP restart strategies. Use a host boundary for hard isolation.
+
+Source: `packages/effect/src/Scope.ts`, `packages/effect/src/FiberSet.ts`, `packages/effect/src/Fiber.ts`.
+
+## How to check
+
+State which failure the boundary contains. Test a worker [defect](/lore/effect-basics) and a hard runtime exit separately. This check is our proposal. The books do not prescribe it.
+
+Continue with [Supervision chooses what restarts](/lore/supervision-is-a-recovery-policy), [Durable work needs storage](/lore/durable-work-needs-storage).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

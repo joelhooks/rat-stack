@@ -68,7 +68,9 @@ export const xapiObjectIri = (object: IntakeObject) =>
 export class IntakeEvents extends Context.Service<
   IntakeEvents,
   {
-    readonly erase: (actor: ContactRef) => Effect.Effect<void>;
+    readonly erase: (
+      actor: ContactRef
+    ) => Effect.Effect<void, IntakeEventsUnavailable>;
     readonly record: (
       statements: readonly IntakeStatement[],
       contact?: IntakeContact

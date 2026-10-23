@@ -1,0 +1,64 @@
+---
+title: "Restart must reconstruct known state"
+description: "Execution recovery and state recovery need separate contracts."
+group: concept
+terms:
+  - "crash recovery"
+  - "rehydration"
+  - "error kernel"
+sources:
+  - url: https://www.manning.com/books/erlang-and-otp-in-action
+    title: "Logan, Martin; Merritt, Eric; Carlsson, Richard. Erlang and OTP in Action."
+    publisher: "Manning"
+    note: "The Erlang/OTP Platform: Let It Crash; process isolation; §4.2.2 supervisor restart strategy."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/elixir-in-action-third-edition
+    title: "Jurić, Saša. Elixir in Action, Third Edition. Manning, 2024."
+    publisher: "Manning"
+    note: "§5.4.3 Shared-Nothing Concurrency; Chapters 8–9, fault tolerance and supervision; Other Use Cases for ETS."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/Activity.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/Activity.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/WorkflowEngine.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/WorkflowEngine.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Fiber.ts
+    title: "Effect contributors. Effect 4.0.0. Fiber.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Letting a worker fail is useful when recovery returns it to a known state. Preserve indispensable recovery data; rebuild disposable state.
+
+Book basis: [B1](/lore/durability-bibliography#b1-erlang-and-otp-in-action), [B2](/lore/durability-bibliography#b2-elixir-in-action), [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp).
+
+## Failure it prevents
+
+A fresh worker reuses inconsistent state or forgets critical coordination data.
+
+## Our Effect 4.0.0 reading
+
+`Activity` results and `WorkflowEngine` can support reconstruction with persistent storage. A new [fiber](/lore/concurrent-work-needs-an-owner) does not restore old local variables or [machine](/lore/lifecycles-are-machines) memory.
+
+Source: `packages/effect/src/workflow/Activity.ts`, `packages/effect/src/workflow/WorkflowEngine.ts`, `packages/effect/src/Fiber.ts`.
+
+## How to check
+
+Recover from an incomplete step using durable authority. Check behavior rather than merely checking that the worker is running. This check is our proposal. The books do not prescribe it.
+
+Continue with [Replay needs stable inputs](/lore/replay-needs-stable-inputs), [Durable timers need recovery](/lore/durable-timers-need-recovery).
+
+Connect this to [the existing rat-stack guidance](/lore/lifecycles-are-machines).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

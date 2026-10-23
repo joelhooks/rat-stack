@@ -8,6 +8,7 @@ export const JoinContactSchema = Schema.Struct({
   contactRef: ContactRefSchema,
   email: Schema.String,
   hold: Schema.Boolean,
+  pending: Schema.optionalKey(Schema.Literals(["delivery", "erase"])),
   score: Schema.Finite,
   signals: Schema.Array(Schema.String),
   state: Schema.Literals(["held", "ready", "accepted", "refused"]),
@@ -18,6 +19,25 @@ export const JoinContactSchema = Schema.Struct({
 export type JoinContact = typeof JoinContactSchema.Type;
 
 export type JoinContactState = JoinContact["state"];
+
+export type JoinContactPending = NonNullable<JoinContact["pending"]>;
+
+export const withState = (
+  contact: JoinContact,
+  state: JoinContactState
+): JoinContact => {
+  const { pending, ...settled } = contact;
+
+  return pending === "erase" || (pending === "delivery" && state === "ready")
+    ? { ...settled, pending, state }
+    : { ...settled, state };
+};
+
+export const withPending = (
+  contact: JoinContact,
+  pending: JoinContactPending
+): JoinContact =>
+  contact.pending === "erase" ? contact : { ...contact, pending };
 
 export class JoinContactStore extends Context.Service<
   JoinContactStore,
@@ -40,19 +60,28 @@ export class JoinContactStore extends Context.Service<
         new Map()
       );
 
+      const erased = yield* Ref.make<ReadonlySet<string>>(new Set());
+
       return {
         erase: (submissionId: string) =>
-          Ref.update(contacts, (all) => {
-            const next = new Map(all);
-            next.delete(submissionId);
+          Effect.andThen(
+            Ref.update(erased, (all) => new Set(all).add(submissionId)),
+            Ref.update(contacts, (all) => {
+              const next = new Map(all);
+              next.delete(submissionId);
 
-            return next;
-          }),
+              return next;
+            })
+          ),
         read: (submissionId: string) =>
           Ref.get(contacts).pipe(Effect.map((all) => all.get(submissionId))),
         save: (contact: JoinContact) =>
-          Ref.update(contacts, (all) =>
-            new Map(all).set(contact.submissionId, contact)
+          Effect.flatMap(Ref.get(erased), (gone) =>
+            gone.has(contact.submissionId)
+              ? Effect.void
+              : Ref.update(contacts, (all) =>
+                  new Map(all).set(contact.submissionId, contact)
+                )
           ),
         setState: (submissionId: string, state: JoinContactState) =>
           Ref.update(contacts, (all) => {
@@ -60,7 +89,7 @@ export class JoinContactStore extends Context.Service<
 
             return contact === undefined
               ? all
-              : new Map(all).set(submissionId, { ...contact, state });
+              : new Map(all).set(submissionId, withState(contact, state));
           }),
       };
     })

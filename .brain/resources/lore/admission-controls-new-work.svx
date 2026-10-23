@@ -1,0 +1,54 @@
+---
+title: "Admission control protects recovery"
+description: "Refuse or defer work that cannot be served usefully under current load."
+group: concept
+terms:
+  - "admission control"
+  - "load shedding"
+  - "handshaking"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/table-of-contents/
+    title: "Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. Site Reliability Engineering: How Google Runs Production Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Embracing Risk; Chapter 22 Addressing Cascading Failures (Mike Ulrich); Chapter 26 General Principles of SRE as Applied to Data Integrity; Chapter 27 Reliable Product Launches at Scale. Section-only excerpts limit detailed attribution."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Queue.ts
+    title: "Effect contributors. Effect 4.0.0. Queue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Semaphore.ts
+    title: "Effect contributors. Effect 4.0.0. Semaphore.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A busy [service](/lore/services-capture-dependencies) needs a way to reject incoming work. Callers must respect its signal instead of immediately amplifying the same overload.
+
+Book basis: [B4](/lore/durability-bibliography#b4-release-it), [B12](/lore/durability-bibliography#b12-site-reliability-engineering).
+
+## Failure it prevents
+
+An overloaded service keeps accepting work and extends its own outage.
+
+## Our Effect 4.0.0 reading
+
+`Queue` and `Semaphore` offer local capacity controls. They do not choose the ingress response or implement caller cooperation. Model overload modes explicitly when needed.
+
+Source: `packages/effect/src/Queue.ts`, `packages/effect/src/Semaphore.ts`.
+
+## How to check
+
+Exceed capacity. Observe a truthful refusal or durable deferral, bounded backlog, and recovery after demand falls. This check is our proposal. The books do not prescribe it.
+
+Continue with [Retry load needs a budget](/lore/retry-load-needs-a-budget), [Backpressure reaches the producer](/lore/backpressure-reaches-the-producer).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).
