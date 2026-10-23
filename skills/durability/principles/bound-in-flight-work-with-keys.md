@@ -14,4 +14,10 @@ Give each shard a measured concurrency budget N. Keep each item's idempotency ke
 
 **Incident:** In drovr on 2026-10-23, each shard kept only one ask in flight. Throughput equalled shards divided by provider latency: about 90 per minute against a 150-per-minute setting.
 
-See [give mutable partitions one writer](one-writer-per-partition.md) and [measure real limits](measure-real-limits.md).
+**In rat-stack:** `apps/site/src/interest/applications.ts` reads applications with `{ concurrency: applicationReadConcurrency }` (8) and returns them in id order. `intakeRedeliver` stops at the first outcome other than accepted and returns the rest as `notAttempted`, so a caller resumes past acknowledged items only. `IntakeSweep` settles at most `SWEEP_CONCURRENCY` (4) contacts at once.
+
+**Fenced by:** `apps/site/test/intake-applications-concurrency.test.ts` fails on `concurrency: "unbounded"` ("expected 9 ≤ 8"). `packages/core/test/intake-redeliver.test.ts` covers the stopping cursor.
+
+See [give mutable partitions one writer](../../rat-stack-mode/principles/one-writer-per-partition.md) and [measure real limits](../../rat-stack-mode/principles/measure-real-limits.md).
+
+**Read more:** Switchboard's recs-v0 durability review.

@@ -12,4 +12,8 @@ Give each provider one timeout value. Declare it as a `Context.Reference` with t
 
 **Incident:** drovr, 2026-10-23 (drovr-mode A8 and O7). Joel asked for a 30 s PostShiba timeout, and #2339 changed a constant by deploy. In rat-stack, two drovr intake layers each held their own `"20 seconds"` literal.
 
-**Held by:** `packages/subscriber-delivery/test/intake-timeout.test.ts`. The property generates a configured timeout and a drovr latency and checks that both intake paths give up at the same instant. Put a literal back in either layer and it fails.
+**A deadline across retries:** one timeout per call is not enough when a caller retries. `JoinDeliveryDeadline` in `packages/core/src/join-delivery-machine.ts` gives the whole delivery one 25-second budget, under the 30-second `waitUntil` allowance. Each attempt gets the smaller of the adapter timeout and the time remaining. No retry starts once the budget is spent. `JOIN_DELIVERY_DEADLINE_SECONDS` sets it from Config.
+
+**Held by:** `packages/subscriber-delivery/test/intake-timeout.test.ts` and `packages/core/test/join-answer-at-commit.model.test.ts`. The first property generates a configured timeout and a drovr latency and checks that both intake paths give up at the same instant. Put a literal back in either layer and it fails. The second fails when the delivery deadline is replaced with one day.
+
+**Read more:** Switchboard's recs-v0 durability review (recs 3 and 6).

@@ -13,3 +13,5 @@ Take the connection when a query starts and give it back when the query ends. Sh
 **Incident:** drovr, 2026-10-23 (car #2350, drovr-mode A7). Every PostShiba send path held a request-scoped MySQL connection across the provider call. When PostShiba slowed, `mysql.acquire` p95 rose from 0.06 s to 2.3 s while statement p95 stayed at 40 ms.
 
 **Held by:** `packages/database/test/connection-lease.test.ts`, a model over generated requests of queries, parallel bursts, and provider waits. If you hold the connection for the whole execution, the model fails at the first wait longer than the idle lease.
+
+**Read more:** Switchboard's recs-v0 durability review.

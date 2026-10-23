@@ -80,16 +80,17 @@ The incidents come from drovr on 2026-10-23.
 
 - **Problem:** a request kept open across a provider call times out its caller.
 - **Primitive:** `waitUntil` at the edge, with a backstop that replays the same [idempotency](/lore/http-responses-need-validation) key.
-- **Seam:** `joinIntakeLayer` commits the contact as `ready` and answers. `JoinRequest.afterResponse` runs delivery through `waitUntil`. `intakeRedeliver` replays a `ready` contact with its submission id.
-- **Fence:** `packages/core/test/join-answer-at-commit.model.test.ts`.
+- **Seam:** `joinIntakeLayer` commits the contact as `ready` with a pending-delivery marker, then answers. `JoinRequest.afterResponse` runs delivery through `waitUntil`. A five-minute intake sweep redrives every marked contact with its submission id.
+- **Erase:** the same shape. The erase marks the contact, writes the event tombstone with bounded backoff, and removes the contact after the tombstone lands. The sweep finishes an erase that a Basin outage stopped.
+- **Fence:** `packages/core/test/join-answer-at-commit.model.test.ts` and `packages/core/test/intake-sweep.model.test.ts`.
 - **Incident:** drovr's ingress forward. Five `POST /events` answered 503 after their events committed.
-- **Principle:** [answer-at-commit](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/answer-at-commit.md). drovr writes this page.
+- **Principle:** [answer-at-commit](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/answer-at-commit.md).
 
 ### 3. Set a provider timeout once
 
 - **Problem:** timeout literals in several layers drift apart.
 - **Primitive:** a `Context.Reference` with a default, read at [layer](/lore/layers-make-dependencies-explicit) build, then `Effect.timeoutOption`.
-- **Seam:** `DrovrIntakeTimeout`. Browser and agent intake both read it. The Worker sets it from `DROVR_INTAKE_TIMEOUT_SECONDS`.
+- **Seam:** `DrovrIntakeTimeout`. Browser and agent intake both read it. The Worker sets it from `DROVR_INTAKE_TIMEOUT_SECONDS`. `JoinDeliveryDeadline` gives every delivery one 25-second budget across its retries, under the 30-second `waitUntil` allowance.
 - **Fence:** `packages/subscriber-delivery/test/intake-timeout.test.ts`.
 - **Incident:** drovr #2339 changed a PostShiba timeout by deploy.
 - **Principle:** [one-timeout-at-the-boundary](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/one-timeout-at-the-boundary.md).
@@ -100,15 +101,15 @@ The incidents come from drovr on 2026-10-23.
 - **Primitive:** `Effect.forEach` with `concurrency`, or a `Semaphore`.
 - **Seam:** the application listing in `apps/site/src/interest/applications.ts` reads 8 at a time, in id order. `intakeRedeliver` stops at the first outcome other than accepted and returns the rest.
 - **Fence:** `apps/site/test/intake-applications-concurrency.test.ts`.
-- **Principle:** [bound-in-flight-work](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/bound-in-flight-work.md). drovr writes this page.
+- **Principle:** [bound-in-flight-work-with-keys](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/bound-in-flight-work-with-keys.md).
 
 ### 5. Scope waiters to the request
 
 - **Problem:** a module-level `Deferred` or `Semaphore` in a Worker isolate makes one caller wait on another caller's work.
-- **Primitive:** a `Deferred`, `Cache`, `Ref`, or `Semaphore` created inside one request or runtime [scope](/lore/scopes-own-resources).
-- **Fence:** a `rat-stack-patterns` lint rule with a rule test. drovr ships it.
+- **Primitive:** a `Deferred`, `Cache`, `Ref`, `Semaphore`, `Queue`, `Latch`, `PubSub`, `PartitionedSemaphore`, or `TxSemaphore` created inside one request or runtime [scope](/lore/scopes-own-resources).
+- **Fence:** `rat-stack-patterns/shared-waiters`, with a rejecting and an allowed fixture per constructor in `packages/core/test/patterns-rule.test.ts`.
 - **Incident:** drovr cars #2344 and #2348.
-- **Principle:** [scope-waiters-to-the-request](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/scope-waiters-to-the-request.md). drovr writes this page.
+- **Principle:** [scope-waiters-to-the-request](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/scope-waiters-to-the-request.md).
 
 ### 6. Climb a flag with a ledger
 

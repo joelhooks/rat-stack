@@ -51,9 +51,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Shared waiters
 
-`rat-stack-patterns/shared-waiters` adapts drovr's `tools/oxlint/drovr-layers/shared-waiters.ts` at commit `13f075b3` (drovr #2348). The original rule catches unsafe Deferred and Semaphore construction outside class instances. This implementation uses rat-stack's import resolution, checks module const construction and class fields, and adds Cache, Ref, and Queue. Only instance fields whose class directly extends the imported Cloudflare DurableObject receive the class-field exemption; static fields and unrelated subclasses do not. There are no inherited path exceptions. Drovr #2344 and #2348 record the cross-request waiter incident: another caller could hang or receive a 503.
+`rat-stack-patterns/shared-waiters` adapts drovr's `tools/oxlint/drovr-layers/shared-waiters.ts` at commit `13f075b3` (drovr #2348). The original rule catches unsafe Deferred and Semaphore construction outside class instances. This implementation uses rat-stack's import resolution, checks module const construction and class fields, and adds Cache, Ref, Queue, Latch, PubSub, PartitionedSemaphore, and TxSemaphore. Only instance fields whose class directly extends the imported Cloudflare DurableObject receive the class-field exemption; static fields and unrelated subclasses do not. There are no inherited path exceptions. Drovr #2344 and #2348 record the cross-request waiter incident: another caller could hang or receive a 503.
 
-The `answer-at-commit` and `bound-in-flight-work-with-keys` principles apply drovr's 2026-10-23 dispatch incident to the shared reference. Their examples describe required ordering; they do not claim rat-stack ships that dispatcher.
+The `answer-at-commit` and `bound-in-flight-work-with-keys` principles in `skills/durability/principles/` apply drovr's 2026-10-23 dispatch incident to the shared reference. Their "In rat-stack" sections name the seams rat-stack ships: join delivery, the intake sweep, and the application listing.
+
+## Durability skill references
+
+`skills/durability/SKILL.md` and `skills/durability/references/` merge Switchboard's research drafts of 2026-10-23: the ranked principles, the recovery-owner table, the bibliography, the Effect map, and the request budget. The Effect map was drafted against effect 4.0.5 and rechecked against the pinned 4.0.0 declarations.
 
 ## Local deployment driver
 

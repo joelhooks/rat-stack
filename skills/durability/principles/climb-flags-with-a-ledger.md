@@ -19,3 +19,5 @@ rat-stack has no named rungs beyond this lifecycle. Add them only when a child p
 **Incident:** drovr, 2026-10-23 (drovr-mode O7). A timeout change shipped as a constant by deploy. Joel: "crazy we arent using feature flags 😭". drovr then shipped `postshiba-send-hold` dark, with the rungs off, release, and release-30s.
 
 **Held by:** `packages/flags/test/writes.model.test.ts` audits every available-store attempt in generated histories. `packages/flags/test/lifecycle.model.test.ts` never changes a removed flag. `packages/flags/test/kv.test.ts` keeps a Pending attempt when completion fails. `rat-stack-patterns` rejects a flag without a literal removal date.
+
+**Read more:** Switchboard's recs-v0 durability review.
