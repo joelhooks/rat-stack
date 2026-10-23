@@ -144,6 +144,21 @@ Use the guarantee the [contract](/systems/capabilities) promises, not a generic 
 
 These are proposed checks derived from the cited failure modes. Passing an in-memory test does not prove the backend's crash contract.
 
+## Lore
+
+The [durability index](/lore/durability) gives the reading order. Start with these pages:
+
+- [Effect is not BEAM](/lore/effect-is-not-beam): fibers share one runtime and lose state with it.
+- [Durable work needs storage](/lore/durable-work-needs-storage): accepted intent must live outside memory.
+- [Request lifetime is not durability](/lore/request-lifetime-is-not-durability): `waitUntil` work needs a durable marker and redrive.
+- [Timeouts bound waiting](/lore/timeouts-bound-waiting): a timeout stops the wait. The remote action may still finish.
+- [Retry needs idempotent effects](/lore/retry-needs-idempotency) and [retry load needs a budget](/lore/retry-load-needs-a-budget).
+- [Backpressure reaches the producer](/lore/backpressure-reaches-the-producer) and [bulkheads isolate capacity](/lore/bulkheads-isolate-capacity).
+- [Failures keep their meaning](/lore/failures-keep-their-meaning): retry, refuse, and escalate by failure kind.
+- [Recovery needs model tests](/lore/recovery-needs-model-tests): generate crash and retry sequences.
+
+The [durability bibliography](/lore/durability-bibliography) lists the books and quotes behind these pages.
+
 ## Related skills
 
 - [uncomplect](/skills/uncomplect): a held resource and a provider call in one scope are a braid to separate.
