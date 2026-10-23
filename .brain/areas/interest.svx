@@ -78,6 +78,7 @@ See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separ
 - Agent application refusals receive a neutral answer rather than revealing whether an address is on file. Expired confirmation links have deliberate refusal responses. Retired submission endpoints return 410 without capturing or delivering an application.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
 - An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact application data. A ticket works once.
+- The answer leaves after the contact is saved as ready. Delivery to drovr runs after the response through the Worker's `waitUntil`. A drovr retry or outage leaves the contact ready for redelivery with the same submission ID. See [Durability](/systems/durability).
 
 ### Applicant identity
 

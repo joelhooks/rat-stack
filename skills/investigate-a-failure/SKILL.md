@@ -28,6 +28,8 @@ Read `AGENTS.md` first. Then read these leaves:
 - `skills/rat-stack-mode/principles/measure-real-limits.md`
 - `skills/rat-stack-mode/principles/keep-execution-receipts.md`
 
+When the failure is a timeout, a pool wait, or a reset, join it to the provider calls in flight. Then read [durability](/skills/durability) before you raise a limit.
+
 ## Terms used here
 
 - **Repro:** a script that makes the failure happen on demand, at a known rate.

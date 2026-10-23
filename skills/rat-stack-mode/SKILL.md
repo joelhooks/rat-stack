@@ -62,6 +62,10 @@ Leaves live in the repo; read them from a checkout.
 - `skills/rat-stack-mode/principles/make-operations-idempotent.md`: replaying commands or recovering after crashes.
 - `skills/rat-stack-mode/principles/subtract-before-you-add.md`: sequencing new work or removing unused interfaces.
 
+**Durability**
+
+- [durability](/skills/durability): any I/O boundary, pool, provider call, waiter, fan-out, flag, or gate. The hub lists seven patterns, each with its principle, example, and fence.
+
 **Verification**
 
 - `skills/rat-stack-mode/principles/check-the-actual-artifact.md`: finishing work or reviewing another agent's result.

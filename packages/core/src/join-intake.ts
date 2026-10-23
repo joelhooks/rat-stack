@@ -44,13 +44,21 @@ export const JoinRequest = Context.Reference<{
   ) => Effect.Effect<
     "allowed" | "ip_limited" | "agent_limited" | "unavailable"
   >;
+  readonly afterResponse: (work: Effect.Effect<void>) => Effect.Effect<void>;
 }>("@rat-stack/core/JoinRequest", {
   defaultValue: () => ({
+    afterResponse: (work) => work,
     allow: () => Effect.succeed("unavailable"),
     ip: undefined,
     userAgent: "",
   }),
 });
+
+const deliveryStateFor = {
+  accepted: "accepted",
+  refused: "refused",
+  retry: "ready",
+} as const;
 
 export const joinIntakeLayer = Layer.effect(
   JoinInterest,
@@ -215,22 +223,22 @@ export const joinIntakeLayer = Layer.effect(
 
         yield* contacts.setState(statusRef, "ready");
 
-        const result = yield* runJoinDelivery({ submissionId: statusRef }).pipe(
-          Effect.provideService(SubscriberIntake, intake),
-          Effect.provideService(JoinContactStore, contacts)
+        yield* request.afterResponse(
+          runJoinDelivery({ submissionId: statusRef }).pipe(
+            Effect.flatMap((result) =>
+              contacts.setState(statusRef, deliveryStateFor[result.kind])
+            ),
+            Effect.provideService(SubscriberIntake, intake),
+            Effect.provideService(JoinContactStore, contacts),
+            Effect.catchCause(() =>
+              Effect.logWarning(
+                "joinInterest delivery stopped; the contact stays ready for intakeRedeliver"
+              )
+            )
+          )
         );
 
-        const stateFor = {
-          accepted: "accepted",
-          refused: "refused",
-          retry: "ready",
-        } as const;
-
-        yield* contacts.setState(statusRef, stateFor[result.kind]);
-
-        return result.kind === "retry"
-          ? ({ message: JOIN_DELAYED, statusRef: "unavailable" } as const)
-          : answer;
+        return answer;
       }).pipe(Effect.catchCause(() => Effect.succeed(answer)));
     });
 

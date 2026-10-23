@@ -6,6 +6,7 @@ import type {
 import { Effect, Layer, Option, Redacted, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
+import { DrovrIntakeTimeout } from "./drovr-intake.js";
 import type { IntakeSettings } from "./drovr-intake.js";
 
 const Accepted = Schema.Struct({ accepted: Schema.Literal(true) });
@@ -26,6 +27,7 @@ export const drovrAgentIntakeLayer = (settings: IntakeSettings) =>
     Effect.gen(function* makeAgentIntake() {
       const browser = yield* SubscriberIntake;
       const http = yield* HttpClient.HttpClient;
+      const timeout = yield* DrovrIntakeTimeout;
 
       const enabled =
         Option.isSome(settings.url) &&
@@ -74,7 +76,7 @@ export const drovrAgentIntakeLayer = (settings: IntakeSettings) =>
                 status: response.status,
               }).pipe(Effect.as(refused));
             }),
-            Effect.timeoutOption("20 seconds"),
+            Effect.timeoutOption(timeout),
             Effect.map(Option.getOrElse(() => retry)),
             Effect.catchCause(() =>
               Effect.logWarning("drovr agent intake unreachable").pipe(

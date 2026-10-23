@@ -17,7 +17,7 @@ import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
-import { Schema } from "effect";
+import { Duration, Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -137,6 +137,13 @@ export const makeMischief = (
       Config.String("DROVR_INTAKE_URL")
     );
 
+    const drovrIntakeTimeoutSeconds = yield* Config.option(
+      Config.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 60, minimum: 1 })),
+        "DROVR_INTAKE_TIMEOUT_SECONDS"
+      )
+    );
+
     const drovrApiBase = yield* Config.option(Config.String("DROVR_API_BASE"));
 
     const drovrAgentIntakeCredential = yield* Config.option(
@@ -198,6 +205,10 @@ export const makeMischief = (
                 credential: drovrIntakeCredential,
                 url: drovrIntakeUrl,
               },
+              intakeTimeout: drovrIntakeTimeoutSeconds.pipe(
+                Option.map(Duration.seconds),
+                Option.getOrUndefined
+              ),
               mailer: {
                 apiKey: Option.getOrElse(postShibaApiKey, () =>
                   Redacted.make("")

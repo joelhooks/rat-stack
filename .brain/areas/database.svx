@@ -65,6 +65,7 @@ The database's one caller is [auth](/systems/auth), which today runs only in the
 - Run ids use UUIDv7, a time-ordered identifier format. Times come from the Effect clock, so tests control both.
 - The same tests pass on both implementations.
 - Migrations load when the process starts outside the package.
+- A Hyperdrive Postgres query leases its pool for the query and releases it after 250 ms idle. A request never holds the pool across a provider wait. See [Durability](/systems/durability).
 
 ## How to check
 

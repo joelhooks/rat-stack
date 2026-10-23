@@ -229,3 +229,41 @@ it.effect("overlaps contact and vault reads across applications", () =>
     expect(yield* Ref.get(peak)).toBeGreaterThanOrEqual(2);
   }).pipe(Effect.scoped)
 );
+
+it.effect.prop(
+  "never has more application reads in flight than the bound, at any index size",
+  {
+    size: Arbitrary.schema(
+      Schema.Int.check(Schema.isBetween({ maximum: 40, minimum: 1 }))
+    ),
+  },
+  ({ size }) =>
+    Effect.gen(function* boundedFanOut() {
+      const inflight = yield* Ref.make(0);
+      const peak = yield* Ref.make(0);
+
+      const gate = () =>
+        Ref.modify(inflight, (n) => [n + 1, n + 1] as const).pipe(
+          Effect.flatMap((now) => Ref.update(peak, (p) => Math.max(p, now))),
+          Effect.andThen(Effect.repeat(Effect.yieldNow, { times: 8 })),
+          Effect.ensuring(Ref.update(inflight, (n) => n - 1))
+        );
+
+      const { reader } = yield* build(
+        Array.from({ length: size }, (): Kind => "live"),
+        gate
+      );
+
+      const listed = yield* reader.list();
+
+      expect(listed.map((application) => application.submissionId)).toEqual(
+        Array.from({ length: size }, (_unused, index) => submissionFor(index))
+      );
+      expect(yield* Ref.get(peak)).toBeLessThanOrEqual(
+        applicationReadConcurrency
+      );
+      expect(yield* Ref.get(peak)).toBe(
+        Math.min(size, applicationReadConcurrency)
+      );
+    }).pipe(Effect.scoped)
+);
