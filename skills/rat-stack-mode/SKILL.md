@@ -57,6 +57,8 @@ Leaves live in the repo; read them from a checkout.
 - `skills/rat-stack-mode/principles/validate-before-durable-write.md`: recording rows, events, or snapshots.
 - `skills/rat-stack-mode/principles/bound-every-read.md`: listing, querying, exporting, or rebuilding data.
 - `skills/rat-stack-mode/principles/one-writer-per-partition.md`: updating shared mutable state.
+- `skills/rat-stack-mode/principles/answer-at-commit.md`: accepting durable work before external dispatch.
+- `skills/rat-stack-mode/principles/bound-in-flight-work-with-keys.md`: dispatching concurrent items with acknowledgement cursors.
 - `skills/rat-stack-mode/principles/make-operations-idempotent.md`: replaying commands or recovering after crashes.
 - `skills/rat-stack-mode/principles/subtract-before-you-add.md`: sequencing new work or removing unused interfaces.
 
