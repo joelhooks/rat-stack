@@ -8,10 +8,10 @@ import {
 } from "./reader-body-document.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
-export const readerLoreFlags = Effect.fn("readerLoreFlags")(
-  function* readerLoreFlags(origin: string) {
-    const inputs = yield* prepareReaderSiteInputs;
+type ReaderSiteInputs = Effect.Success<typeof prepareReaderSiteInputs>;
 
+export const readerLoreFlagsFrom = Effect.fn("readerLoreFlagsFrom")(
+  function* readerLoreFlagsFrom(inputs: ReaderSiteInputs, origin: string) {
     const pages = inputs.pages.filter(
       (page) => page.path === "/lore" || page.path.startsWith("/lore/")
     );
@@ -46,5 +46,13 @@ export const readerLoreFlags = Effect.fn("readerLoreFlags")(
         });
       })
     );
+  }
+);
+
+export const readerLoreFlags = Effect.fn("readerLoreFlags")(
+  function* readerLoreFlags(origin: string) {
+    const inputs = yield* prepareReaderSiteInputs;
+
+    return yield* readerLoreFlagsFrom(inputs, origin);
   }
 );
