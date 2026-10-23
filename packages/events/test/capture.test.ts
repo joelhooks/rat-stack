@@ -281,6 +281,8 @@ describe("request capture", () => {
         const later = yield* ipHashOnDay(generated, dayNumber + laterDays, 0);
 
         expect(first).toBeDefined();
+        expect(sameDay).toBeDefined();
+        expect(later).toBeDefined();
         expect(sameDay).toBe(first);
 
         if (generated.scenario.mode === "daily") {
