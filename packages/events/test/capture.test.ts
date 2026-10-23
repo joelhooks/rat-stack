@@ -3,6 +3,7 @@ import { Effect, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import { TestClock } from "effect/testing";
 
 import {
   EventSink,
@@ -238,5 +239,55 @@ describe("request capture", () => {
 
         expect(response.status).toBe(generated.scenario.status);
       }).pipe(Effect.provide(failingSink))
+  );
+
+  const dayMillis = 86_400_000;
+
+  const ipHashOnDay = (generated: Generated, dayNumber: number, hour: number) =>
+    Effect.gen(function* hashOnDay() {
+      yield* TestClock.setTime(dayNumber * dayMillis + hour * 3_600_000);
+      yield* respond(generated);
+
+      const events = yield* (yield* EventSinkMemory).events;
+      const event = events.at(-1);
+
+      return event?.server.ipHash;
+    });
+
+  it.effect.prop(
+    "daily mode rotates the IP hash with the day and persistent mode keeps it",
+    {
+      dayNumber: Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 30_000, minimum: 1 }))
+      ),
+      generated: exchange,
+      laterDays: Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 400, minimum: 1 }))
+      ),
+      sameDayHours: Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 11, minimum: 0 }))
+      ),
+    },
+    ({ dayNumber, generated, laterDays, sameDayHours }) =>
+      Effect.gen(function* rotate() {
+        const first = yield* ipHashOnDay(generated, dayNumber, 0);
+
+        const sameDay = yield* ipHashOnDay(
+          generated,
+          dayNumber,
+          sameDayHours + 12
+        );
+
+        const later = yield* ipHashOnDay(generated, dayNumber + laterDays, 0);
+
+        expect(first).toBeDefined();
+        expect(sameDay).toBe(first);
+
+        if (generated.scenario.mode === "daily") {
+          expect(later).not.toBe(first);
+        } else {
+          expect(later).toBe(first);
+        }
+      }).pipe(Effect.provide(memoryEventsLayer("property-salt")))
   );
 });

@@ -246,7 +246,7 @@ The cartridge does not prove that a delete physically erases a row by a known ti
 
 - `persistent` mode sets a cookie that lasts 400 days. Some jurisdictions require consent for it.
 - `daily` mode sets no cookie, and its visitor ids do not repeat on a later day.
-- The IP hash salt does not rotate. The same IP gives the same hash in both modes.
+- The IP hash salt does not rotate. In persistent mode the same IP gives the same hash. In daily mode the hash includes the request day, so the IP hash rotates daily.
 - `EVENTS_ENABLED=false` records nothing.
 
 ## Switches
