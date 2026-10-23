@@ -804,6 +804,10 @@ const waitingConstructors = new Map([
   ["Ref", new Set(["make", "makeUnsafe"])],
   ["Semaphore", new Set(["make", "makeUnsafe"])],
   ["Queue", new Set(["make", "bounded", "unbounded", "dropping", "sliding"])],
+  ["Latch", new Set(["make", "makeUnsafe"])],
+  ["PubSub", new Set(["make", "bounded", "unbounded", "dropping", "sliding"])],
+  ["PartitionedSemaphore", new Set(["make", "makeUnsafe"])],
+  ["TxSemaphore", new Set(["make"])],
 ]);
 
 const isWaitingConstructor = (
@@ -956,7 +960,7 @@ const sharedWaiters = defineRule({
   meta: {
     docs: {
       description:
-        "Keep Deferred, Cache, Ref, Semaphore, and Queue construction out of module const bindings and class fields outside Durable Object instances. In drovr #2344 and #2348, cross-request waiters in a Worker isolate made another caller hang or receive a 503.",
+        "Keep Deferred, Cache, Ref, Semaphore, Queue, Latch, PubSub, PartitionedSemaphore, and TxSemaphore construction out of module const bindings and class fields outside Durable Object instances. In drovr #2344 and #2348, cross-request waiters in a Worker isolate made another caller hang or receive a 503.",
     },
     messages: {
       sharedWaiter:

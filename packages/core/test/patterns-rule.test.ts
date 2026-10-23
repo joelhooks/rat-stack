@@ -149,6 +149,16 @@ describe("rat-stack pattern rules", () => {
     ["Queue", "unbounded"],
     ["Queue", "dropping"],
     ["Queue", "sliding"],
+    ["Latch", "make"],
+    ["Latch", "makeUnsafe"],
+    ["PubSub", "make"],
+    ["PubSub", "bounded"],
+    ["PubSub", "unbounded"],
+    ["PubSub", "dropping"],
+    ["PubSub", "sliding"],
+    ["PartitionedSemaphore", "make"],
+    ["PartitionedSemaphore", "makeUnsafe"],
+    ["TxSemaphore", "make"],
   ])(
     "keeps %s.%s construction with its invocation owner",
     (primitive, make) => {
