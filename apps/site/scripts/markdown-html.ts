@@ -949,6 +949,25 @@ const removableSpaceParents = new Set([
   "tr",
 ]);
 
+const inlineParents = new Set([
+  "a",
+  "abbr",
+  "b",
+  "del",
+  "em",
+  "i",
+  "kbd",
+  "mark",
+  "q",
+  "s",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "u",
+]);
+
 interface CollapseContext {
   readonly parent: string;
   readonly preserve: boolean;
@@ -1015,7 +1034,12 @@ const collapseNodes = (
   context: CollapseContext
 ): TemplateNode[] => {
   const collapsed = dropPreNewline(
-    context.preserve ? nodes : collapseText(trimFragment(nodes), context),
+    context.preserve
+      ? nodes
+      : collapseText(
+          inlineParents.has(context.parent) ? nodes : trimFragment(nodes),
+          context
+        ),
     context.parent
   );
 
