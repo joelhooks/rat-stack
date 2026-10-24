@@ -1,6 +1,16 @@
 [
   {
     "kind": "release",
+    "url": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
+    "title": "effect-tsrs runs Effect diagnostics on tsrs",
+    "summary": "rat-stack type-checks with effect-tsrs 0.2.0 in strict mode, so Effect warnings fail. Patched tsc remains a separate CI backstop.",
+    "date": "2026-10-24",
+    "repo": "joelhooks/rat-stack",
+    "author": { "github": "joelhooks", "x": "joelhooks" },
+    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0"
+  },
+  {
+    "kind": "release",
     "url": "https://blog.cloudflare.com/typescript-rust-port/",
     "title": "tsrs joins the stack as the fast typecheck",
     "summary": "rat-stack adds tsrs for fast typechecks. It does not run Effect diagnostics, so patched tsc stays in the gate.",

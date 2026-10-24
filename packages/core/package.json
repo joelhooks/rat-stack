@@ -66,7 +66,8 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "effect-tsrs diagnostics --project tsconfig.json --strict",
+    "typecheck:tsc": "tsc --noEmit -p tsconfig.json",
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "typecheck:parity": "vitest run --config vitest.parity.config.ts",
     "test": "vitest run",
