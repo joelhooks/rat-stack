@@ -1,6 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
+import { rawReaderTables } from "../../site/scripts/raw-reader-tables.ts";
 import { readerBodyFlags } from "../../site/scripts/reader-body-flags.ts";
 import { readerCafeFlags } from "../../site/scripts/reader-cafe-flags.ts";
 import { readerErrorTemplate } from "../../site/scripts/reader-error-flags.ts";
@@ -189,6 +190,21 @@ export const finalizeReader = Effect.fn("reader.finalize")(
           return yield* new ReaderInputError({
             message:
               "Foldkit did not generate this reader page; inspect the prerender output",
+            sourcePath: path,
+          });
+        }
+
+        const html = yield* fs.readFileString(path);
+        const findings = rawReaderTables(html);
+
+        if (findings.length > 0) {
+          return yield* new ReaderInputError({
+            message: findings
+              .map(
+                ({ line, text }) =>
+                  `${route}:${line}: raw Markdown table row: ${text}. Replace the source table with a list.`
+              )
+              .join("\n"),
             sourcePath: path,
           });
         }

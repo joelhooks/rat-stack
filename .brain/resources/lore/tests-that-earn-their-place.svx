@@ -86,12 +86,10 @@ Use `it.live` for an integration test that needs live runtime services.
 
 ## Choose the smallest proof that fits the rule
 
-| Behavior | Test shape |
-| --- | --- |
-| One interface between components | An integration example with supplied services |
-| A rule over many inputs | `it.prop` or `it.effect.prop` |
-| State that depends on earlier actions | A model checked after generated commands |
-| UI behaviour, timers, and races | A [Foldkit Scene](/lore/ui-behaviour-is-a-scene) |
+- **One interface between components**: An integration example with supplied services
+- **A rule over many inputs**: `it.prop` or `it.effect.prop`
+- **State that depends on earlier actions**: A model checked after generated commands
+- **UI behaviour, timers, and races**: A [Foldkit Scene](/lore/ui-behaviour-is-a-scene)
 
 Generated inputs do not create the assertion. The test still needs an independent statement of correct behavior.
 

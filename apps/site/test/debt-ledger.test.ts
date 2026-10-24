@@ -2,7 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { Effect, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { DomUtils, parseDocument } from "htmlparser2";
-import type { Nodes, Table, TableCell } from "mdast";
+import type { List, Nodes, Paragraph } from "mdast";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
@@ -73,13 +73,32 @@ const ledgerFor = (directive: string, reason: string) =>
     { directive, file: "apps/sample.ts", kind: "oxlint", line: 3, reason },
   ]);
 
-const ledgerCells = (markdown: string): readonly TableCell[] =>
-  unified()
+const ledgerCells = (markdown: string): readonly Paragraph[] => {
+  const entry = unified()
     .use(remarkParse)
     .use(remarkGfm)
     .parse(markdown)
-    .children.findLast((node): node is Table => node.type === "table")
-    ?.children[1]?.children ?? [];
+    .children.findLast((node): node is List => node.type === "list")
+    ?.children[0];
+
+  return (
+    entry?.children.flatMap((node) => {
+      if (node.type === "paragraph") {
+        return [node];
+      }
+
+      if (node.type === "list") {
+        return node.children.flatMap((item) =>
+          item.children.filter(
+            (child): child is Paragraph => child.type === "paragraph"
+          )
+        );
+      }
+
+      return [];
+    }) ?? []
+  );
+};
 
 const nodeTypes = (node: Nodes): readonly string[] => [
   node.type,
@@ -126,15 +145,15 @@ it.prop(
 
     expect(cells.map((cell) => visibleText(cell))).toEqual([
       "apps/sample.ts:3",
-      collapsed(directive),
-      collapsed(reason),
+      `Directive: ${collapsed(directive)}`.trim(),
+      `Reason: ${collapsed(reason)}`.trim(),
     ]);
   },
   { arbitrary: { runs: 500 } }
 );
 
 it.effect.prop(
-  "the HTML ledger shows the same cell text as the agent Markdown",
+  "the HTML ledger shows the same list fields as the agent Markdown",
   {
     directive: cellText(htmlSafeSyntax),
     reason: cellText(htmlSafeSyntax),
@@ -151,12 +170,25 @@ it.effect.prop(
           }),
       });
 
-      const rows = DomUtils.getElementsByTagName(
-        "tr",
+      const lists = DomUtils.getElementsByTagName(
+        "ul",
         parseDocument(html).children
       );
 
-      const cells = DomUtils.getElementsByTagName("td", rows.at(-1) ?? []);
+      const entry = DomUtils.getElementsByTagName(
+        "li",
+        lists[1]?.children ?? [],
+        false,
+        1
+      ).at(0);
+
+      const cells =
+        entry === undefined
+          ? []
+          : [
+              ...DomUtils.getElementsByTagName("strong", [entry]),
+              ...DomUtils.getElementsByTagName("li", entry.children),
+            ];
 
       const inlineElements = new Set(["a", "code", "del", "em", "strong"]);
 
