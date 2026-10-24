@@ -24,7 +24,7 @@ const manifestAt = (directory: string) =>
     const fs = yield* FileSystem.FileSystem;
     const text = yield* fs.readFileString(`${directory}/manifest.json`);
 
-    return yield* Schema.decodeUnknownEffect(
+    return yield* Schema.decodeEffect(
       Schema.fromJsonString(ContentAssetManifest)
     )(text);
   });

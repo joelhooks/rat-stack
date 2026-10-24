@@ -65,17 +65,16 @@ test.provider(
             new URL(`/api/${path}`, url)
           ).pipe(
             HttpClientRequest.bodyJson({ code }),
-            Effect.flatMap(HttpClient.execute),
-            Effect.orDie
+            Effect.flatMap(HttpClient.execute)
           );
 
           expect(response.status).toBe(200);
 
           return yield* response.json.pipe(
-            Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult)),
-            Effect.orDie
+            Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult))
           );
-        }
+        },
+        Effect.orDie
       );
 
       const arithmeticProbe = yield* executeProgram("return 1+1", "execute");

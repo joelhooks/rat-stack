@@ -73,8 +73,8 @@ export const drovrIntakeLayer = (settings: IntakeSettings) =>
         );
 
         const outcome = yield* http.execute(request).pipe(
-          Effect.map(Option.some),
-          Effect.catchCause(() => Effect.succeed(Option.none())),
+          Effect.asSome,
+          Effect.catchCause(() => Effect.succeedNone),
           Effect.timeoutOption(timeout)
         );
 

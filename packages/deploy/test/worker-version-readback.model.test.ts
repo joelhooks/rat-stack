@@ -112,7 +112,7 @@ it.effect(
   () =>
     Effect.gen(function* seam() {
       const check = yield* settledWorkerVersion(
-        Effect.succeed(Option.some("unchanged")),
+        Effect.succeedSome("unchanged"),
         "fixture-script",
         "unchanged",
         false,

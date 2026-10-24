@@ -172,9 +172,7 @@ const diagnosticName = (name: string) =>
 
 export const projectCrash = Effect.fn("projectCrash")(
   function* projectCrashTrace(input: typeof TraceSchema.Type) {
-    const trace = yield* Schema.decodeEffect(TraceSchema)(input).pipe(
-      Effect.mapError(() => new InvalidCrashTrace())
-    );
+    const trace = yield* Schema.decodeEffect(TraceSchema)(input);
 
     if (trace.outcome === "ok" && trace.exceptions.length === 0) {
       return null;
@@ -257,10 +255,9 @@ export const projectCrash = Effect.fn("projectCrash")(
       scriptVersion: trace.scriptVersion?.id ?? null,
     };
 
-    return yield* Schema.decodeEffect(CrashRecordSchema)(record).pipe(
-      Effect.mapError(() => new InvalidCrashTrace())
-    );
-  }
+    return yield* Schema.decodeEffect(CrashRecordSchema)(record);
+  },
+  Effect.mapError(() => new InvalidCrashTrace())
 );
 
 export const captureCrashes = Effect.fn("captureCrashes")(

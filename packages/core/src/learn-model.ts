@@ -153,7 +153,10 @@ export const LearnPreferencesChangeSchema = Schema.Struct({
   width: Schema.optionalKey(DisplayWidthSchema),
 });
 
-export class LearnError extends Schema.TaggedError<LearnError>()("LearnError", {
+export class LearnError extends Schema.TaggedError<
+  LearnError,
+  { readonly brand: unique symbol }
+>()("LearnError", {
   id: Schema.String,
   reason: Schema.String,
 }) {}

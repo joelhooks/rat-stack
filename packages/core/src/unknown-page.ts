@@ -1,9 +1,9 @@
 import { Schema } from "effect";
 
-export class UnknownPage extends Schema.TaggedError<UnknownPage>()(
-  "UnknownPage",
-  {
-    message: Schema.String,
-    slug: Schema.String,
-  }
-) {}
+export class UnknownPage extends Schema.TaggedError<
+  UnknownPage,
+  { readonly brand: unique symbol }
+>()("UnknownPage", {
+  message: Schema.String,
+  slug: Schema.String,
+}) {}

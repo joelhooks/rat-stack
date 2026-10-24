@@ -106,10 +106,13 @@ export const planRows = (plan: PlanPolicyValue): readonly PlanRow[] => {
   return rows;
 };
 
-export class PlanRejected extends Schema.TaggedError<PlanRejected>()(
-  "PlanRejected",
-  { reason: Schema.String, resources: Schema.Array(Schema.String) }
-) {}
+export class PlanRejected extends Schema.TaggedError<
+  PlanRejected,
+  { readonly brand: unique symbol }
+>()("PlanRejected", {
+  reason: Schema.String,
+  resources: Schema.Array(Schema.String),
+}) {}
 
 export type Classification =
   | { readonly outcome: "pass"; readonly rows: readonly PlanRow[] }

@@ -73,7 +73,7 @@ export const documentMetadata = (path: string, html: string) => {
   const dates =
     structuredData === undefined
       ? {}
-      : Schema.decodeUnknownSync(
+      : Schema.decodeSync(
           Schema.fromJsonString(
             Schema.Struct({
               dateModified: Schema.optional(Schema.String),

@@ -27,7 +27,7 @@ const decodeOpenApi = Schema.decodeUnknownSync(
 
 const JsonRpcResponse = Schema.Struct({
   error: Schema.optional(Schema.Unknown),
-  id: Schema.optional(Schema.Number),
+  id: Schema.optional(Schema.Finite),
   result: Schema.optional(Schema.Unknown),
 });
 

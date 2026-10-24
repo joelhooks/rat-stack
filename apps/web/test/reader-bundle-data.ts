@@ -4,13 +4,13 @@ import { parseSync } from "vite";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import type { ReaderPageFlags } from "../src/client/reader/model.js";
 
-const pagesSchema = Schema.Array(ReaderFlags);
-
-const decodePages = Schema.decodeSync(Schema.fromJsonString(pagesSchema), {
+const decodePage = Schema.decodeSync(Schema.fromJsonString(ReaderFlags), {
   onExcessProperty: "error",
 });
 
-const samePages = Schema.toEquivalence(pagesSchema);
+const samePages = Schema.toEquivalence(Schema.Array(ReaderFlags));
+
+const isString = Schema.is(Schema.String);
 
 export const readerCodeWithoutPageData = (
   code: string,
@@ -22,63 +22,59 @@ export const readerCodeWithoutPageData = (
     throw new Error("Cannot parse emitted reader bundle for the runtime scan");
   }
 
-  const declarations = parsed.program.body.flatMap((statement) =>
-    statement.type === "VariableDeclaration" ? statement.declarations : []
-  );
+  const spans = parsed.program.body
+    .flatMap((statement) =>
+      statement.type === "VariableDeclaration" ? statement.declarations : []
+    )
+    .flatMap((declaration) => {
+      if (
+        declaration.id.type !== "Identifier" ||
+        declaration.id.name !== "readerPageSources"
+      ) {
+        return [];
+      }
 
-  const boundArray = (name: string) => {
-    const bound = declarations.filter(
-      (declaration) =>
-        declaration.id.type === "Identifier" && declaration.id.name === name
-    );
+      const payload = declaration.init;
 
-    return bound.length === 1 && bound[0]?.init?.type === "ArrayExpression"
-      ? bound[0].init
-      : undefined;
-  };
+      if (payload?.type !== "ArrayExpression") {
+        throw new Error("ReaderFlags payload is not one static array");
+      }
 
-  const staticArray = (
-    argument: (typeof declarations)[number]["init"] | undefined
-  ) => {
-    if (argument?.type === "Identifier") {
-      return boundArray(argument.name);
-    }
+      const sources = payload.elements.flatMap((element) => {
+        if (element?.type !== "ArrayExpression") {
+          return [];
+        }
 
-    return argument?.type === "ArrayExpression" ? argument : undefined;
-  };
+        const [path, json, ...rest] = element.elements;
 
-  const spans = declarations.flatMap((declaration) => {
-    const call = declaration.init;
+        return rest.length === 0 &&
+          path?.type === "Literal" &&
+          json?.type === "Literal" &&
+          isString(path.value) &&
+          isString(json.value)
+          ? [{ json: json.value, path: path.value }]
+          : [];
+      });
 
-    if (
-      declaration.id.type !== "Identifier" ||
-      declaration.id.name !== "pages" ||
-      call?.type !== "CallExpression" ||
-      code.slice(call.callee.start, call.callee.end) !==
-        "Schema.decodeUnknownSync(Schema.Array(ReaderFlags))"
-    ) {
-      return [];
-    }
+      if (sources.length !== payload.elements.length) {
+        throw new Error("ReaderFlags payload is not one static array");
+      }
 
-    const [argument] = call.arguments;
+      const pages = sources.map((source) => decodePage(source.json));
 
-    const payload =
-      call.arguments.length === 1 && argument?.type !== "SpreadElement"
-        ? staticArray(argument)
-        : undefined;
+      if (
+        !samePages(pages, expected) ||
+        sources.some(
+          (source, index) => source.path !== expected[index]?.page.path
+        )
+      ) {
+        throw new Error(
+          "ReaderFlags payload differs from the prepared artifact"
+        );
+      }
 
-    if (payload === undefined) {
-      throw new Error("ReaderFlags payload is not one static array");
-    }
-
-    const pages = decodePages(code.slice(payload.start, payload.end));
-
-    if (!samePages(pages, expected)) {
-      throw new Error("ReaderFlags payload differs from the prepared artifact");
-    }
-
-    return [{ end: payload.end, start: payload.start }];
-  });
+      return [{ end: payload.end, start: payload.start }];
+    });
 
   let remaining = code;
 

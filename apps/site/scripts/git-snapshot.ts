@@ -27,10 +27,10 @@ const Snapshot = Schema.Struct({
   version: Schema.Literal(1),
 });
 
-export class GitSnapshotError extends Schema.TaggedError<GitSnapshotError>()(
-  "GitSnapshotError",
-  { entry: Schema.String, reason: Schema.String }
-) {
+export class GitSnapshotError extends Schema.TaggedError<
+  GitSnapshotError,
+  { readonly brand: unique symbol }
+>()("GitSnapshotError", { entry: Schema.String, reason: Schema.String }) {
   override get message() {
     return `${this.reason}: ${this.entry}. Regenerate with pnpm git-snapshot in a full checkout and commit .brain/data/git-snapshot.json.`;
   }

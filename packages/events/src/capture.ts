@@ -13,7 +13,7 @@ import { requestGeoOf } from "./request-geo.js";
 import { RawEventSchema, RequestBodySchema } from "./schemas.js";
 import type { IdentityMode } from "./schemas.js";
 import { VisitorSalt } from "./visitor-salt.js";
-import { VISITOR_COOKIE, resolveVisitor, saltedHash } from "./visitor.js";
+import { VISITOR_COOKIE, ipHashOf, resolveVisitor } from "./visitor.js";
 import { webCryptoLayer } from "./web-crypto.js";
 
 export interface CaptureOptions<RB> {
@@ -57,9 +57,11 @@ const recordRequest = <RB>(
       captureCity: options.captureCity === true,
     });
 
+    const day = receivedAt.slice(0, 10);
+
     const visitor = yield* resolveVisitor({
       cookie: request.cookies[VISITOR_COOKIE],
-      day: receivedAt.slice(0, 10),
+      day,
       ip,
       mode: options.identityMode,
       salt,
@@ -91,7 +93,9 @@ const recordRequest = <RB>(
         country: isGeoLabel(country) ? country : geo.country,
         host: headers.host ?? url.host,
         ipHash:
-          ip === undefined ? undefined : yield* saltedHash(salt, ["ip", ip]),
+          ip === undefined
+            ? undefined
+            : yield* ipHashOf({ day, ip, mode: options.identityMode, salt }),
         receivedAt,
         userAgent,
       }),

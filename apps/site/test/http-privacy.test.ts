@@ -23,7 +23,7 @@ type NativeRequestBridge = (
   handler: Effect.Effect<HttpServerResponse.HttpServerResponse>
 ) => ScopedHandledEffect;
 
-const requestBridge = Schema.decodeUnknownSync(
+const requestBridge = Schema.decodeSync(
   Schema.declare<NativeRequestBridge>((input): input is NativeRequestBridge =>
     Predicate.isFunction(input)
   )
@@ -37,7 +37,7 @@ const makeRequestEffect = (
   request: Request,
   handler: Effect.Effect<HttpServerResponse.HttpServerResponse>
 ) =>
-  Schema.decodeUnknownEffect(HandledResponseEffect)(
+  Schema.decodeEffect(HandledResponseEffect)(
     requestBridge(request, handler)
   ).pipe(
     Effect.flatten,

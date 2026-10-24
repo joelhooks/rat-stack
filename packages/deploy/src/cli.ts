@@ -20,28 +20,27 @@ const shellArgument = (value: string) => `'${value.replaceAll("'", "'\\''")}'`;
 const program = Command.runWith(root, { version: "0.1.0" })(
   process.argv.slice(2)
 ).pipe(
-  Effect.catchTag("DeployNotHealthy", (failure) =>
-    Console.log(JSON.stringify(failure.report)).pipe(
-      Effect.andThen(
-        failure.report.rollbackReceipt === undefined
-          ? Effect.void
-          : Console.log(
-              `Recovery requires approval: pnpm deploy:rollback --profile ${shellArgument(failure.report.profile)} --receipt ${shellArgument(failure.report.rollbackReceipt)} --yes`
-            )
+  Effect.catchTags({
+    DeployNotHealthy: (failure) =>
+      Console.log(JSON.stringify(failure.report)).pipe(
+        Effect.andThen(
+          failure.report.rollbackReceipt === undefined
+            ? Effect.void
+            : Console.log(
+                `Recovery requires approval: pnpm deploy:rollback --profile ${shellArgument(failure.report.profile)} --receipt ${shellArgument(failure.report.rollbackReceipt)} --yes`
+              )
+        ),
+        Effect.andThen(Effect.fail(failure))
       ),
-      Effect.andThen(Effect.fail(failure))
-    )
-  ),
-  Effect.catchTag("RollbackFailed", (failure) =>
-    Console.log(JSON.stringify(failure.receipt)).pipe(
-      Effect.andThen(Effect.fail(failure))
-    )
-  ),
-  Effect.catchTag("RollbackRefused", (failure) =>
-    Console.log(JSON.stringify({ reason: failure.reason })).pipe(
-      Effect.andThen(Effect.fail(failure))
-    )
-  ),
+    RollbackFailed: (failure) =>
+      Console.log(JSON.stringify(failure.receipt)).pipe(
+        Effect.andThen(Effect.fail(failure))
+      ),
+    RollbackRefused: (failure) =>
+      Console.log(JSON.stringify({ reason: failure.reason })).pipe(
+        Effect.andThen(Effect.fail(failure))
+      ),
+  }),
   Effect.provide(
     RollbackRunner.layer("https://ratstack.sh").pipe(
       Layer.provideMerge(

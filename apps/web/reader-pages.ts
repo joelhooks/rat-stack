@@ -15,15 +15,22 @@ const preparedPages = Effect.gen(function* preparedPages() {
     fileURLToPath(new URL("dist/reader-pages.json", import.meta.url))
   );
 
-  const pages = yield* Schema.decodeUnknownEffect(
+  const pages = yield* Schema.decodeEffect(
     Schema.fromJsonString(Schema.Array(ReaderFlags))
   )(source);
 
-  const encoded = yield* Schema.encodeEffect(
-    Schema.fromJsonString(Schema.Array(ReaderFlags))
+  const encodePage = Schema.encodeEffect(Schema.fromJsonString(ReaderFlags));
+
+  const sources = yield* Effect.forEach((page: (typeof pages)[number]) =>
+    encodePage(page).pipe(
+      Effect.map((encoded) => [page.page.path, encoded] as const)
+    )
   )(pages);
 
-  return `export const readerPages = ${encoded};`;
+  return {
+    paths: `export const readerPagePaths = ${JSON.stringify(sources.map(([path]) => path))};`,
+    sources: `export const readerPageSources = ${JSON.stringify(sources)};`,
+  };
 }).pipe(Effect.provide(NodeServices.layer));
 
 const preparedError = Effect.gen(function* preparedError() {
@@ -33,7 +40,7 @@ const preparedError = Effect.gen(function* preparedError() {
     fileURLToPath(new URL("dist/reader-error.json", import.meta.url))
   );
 
-  const template = yield* Schema.decodeUnknownEffect(
+  const template = yield* Schema.decodeEffect(
     Schema.fromJsonString(ReaderErrorTemplate)
   )(source);
 
@@ -51,8 +58,15 @@ export const readerPagesPlugin = (): Plugin => ({
   },
   // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits this build-time virtual module boundary.
   load: async (id) => {
-    if (id === "\0virtual:reader-pages") {
-      return await Effect.runPromise(preparedPages);
+    if (
+      id === "\0virtual:reader-pages" ||
+      id === "\0virtual:reader-page-sources"
+    ) {
+      const prepared = await Effect.runPromise(preparedPages);
+
+      return id === "\0virtual:reader-pages"
+        ? prepared.paths
+        : prepared.sources;
     }
 
     return id === "\0virtual:reader-error"
@@ -61,7 +75,9 @@ export const readerPagesPlugin = (): Plugin => ({
   },
   name: "reader-pages",
   resolveId: (id) =>
-    id === "virtual:reader-pages" || id === "virtual:reader-error"
+    id === "virtual:reader-pages" ||
+    id === "virtual:reader-page-sources" ||
+    id === "virtual:reader-error"
       ? `\0${id}`
       : null,
   sharedDuringBuild: true,

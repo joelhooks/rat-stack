@@ -66,7 +66,7 @@ it.prop(
       })
     );
 
-    const row = Schema.decodeUnknownSync(PeerRow)({
+    const row = Schema.decodeSync(PeerRow)({
       branch: "main",
       checked: "2026-10-01",
       commit: "abc123",

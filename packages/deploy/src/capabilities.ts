@@ -11,10 +11,10 @@ import { ReceiptStore } from "./receipt-store.js";
 import { deployRollback } from "./rollback.js";
 import { CommitShaSchema } from "./source.js";
 
-export class DeployNotHealthy extends Schema.TaggedError<DeployNotHealthy>()(
-  "DeployNotHealthy",
-  { report: DeployReportSchema }
-) {
+export class DeployNotHealthy extends Schema.TaggedError<
+  DeployNotHealthy,
+  { readonly brand: unique symbol }
+>()("DeployNotHealthy", { report: DeployReportSchema }) {
   override get [Runtime.errorExitCode]() {
     if (this.report.outcome === "partial") {
       return 4;

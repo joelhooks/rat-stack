@@ -3,10 +3,13 @@ import { HttpClient, HttpClientResponse } from "effect/http";
 
 const Reply = Schema.Struct({ version: Schema.Int });
 
-export class ResponseFixtureError extends Schema.TaggedError<ResponseFixtureError>()(
-  "ResponseFixtureError",
-  { cause: Schema.Defect(), phase: Schema.Literals(["status", "body"]) }
-) {}
+export class ResponseFixtureError extends Schema.TaggedError<
+  ResponseFixtureError,
+  { readonly brand: unique symbol }
+>()("ResponseFixtureError", {
+  cause: Schema.Defect(),
+  phase: Schema.Literals(["status", "body"]),
+}) {}
 
 export const readValidatedResponse = Effect.fn("readValidatedResponse")(
   function* readValidatedResponse() {

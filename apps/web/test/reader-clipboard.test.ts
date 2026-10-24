@@ -1,16 +1,8 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import {
-  Arbitrary,
-  ConfigProvider,
-  Context,
-  Effect,
-  FileSystem,
-  Layer,
-  Schema,
-} from "effect";
+import { Arbitrary, Context, Effect, Layer, Schema } from "effect";
 
-import { prepareReader } from "../scripts/reader-build.ts";
+import { readerHomeFlags } from "../../site/scripts/reader-home-flags.ts";
 import { init } from "../src/client/reader/init.js";
 import { Message } from "../src/client/reader/message.js";
 import {
@@ -28,23 +20,12 @@ class ClipboardPage extends Context.Service<
   static readonly layer = Layer.effect(
     this,
     Effect.gen(function* prepareClipboardPage() {
-      const fs = yield* FileSystem.FileSystem;
-      const root = yield* fs.makeTempDirectoryScoped();
-
-      yield* prepareReader(root).pipe(
-        Effect.provideService(
-          ConfigProvider.ConfigProvider,
-          ConfigProvider.fromUnknown({})
-        )
+      const flags = yield* Effect.flatMap(
+        readerHomeFlags("https://ratstack.sh"),
+        Schema.decodeUnknownEffect(ReaderFlags)
       );
 
-      const pages = yield* Schema.decodeEffect(
-        Schema.fromJsonString(Schema.Array(ReaderFlags))
-      )(yield* fs.readFileString(`${root}/dist/reader-pages.json`));
-
-      const flags = pages.find((page) => page.page.path === "/");
-
-      if (flags === undefined || flags.copyPrompts.length === 0) {
+      if (flags.copyPrompts.length === 0) {
         return yield* Effect.die(
           new Error("Prepared home has no copy prompts")
         );

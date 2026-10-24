@@ -4,10 +4,10 @@ import { gateOutcome } from "./gate-outcome.js";
 import { VerdictSchema } from "./verdict.js";
 import type { Verdict } from "./verdict.js";
 
-export class CheckExit extends Schema.TaggedError<CheckExit>()(
-  "@rat-stack/check-harness/CheckExit",
-  { exitCode: Schema.Int }
-) {
+export class CheckExit extends Schema.TaggedError<
+  CheckExit,
+  { readonly brand: unique symbol }
+>()("@rat-stack/check-harness/CheckExit", { exitCode: Schema.Int }) {
   override get [Runtime.errorExitCode]() {
     return this.exitCode;
   }

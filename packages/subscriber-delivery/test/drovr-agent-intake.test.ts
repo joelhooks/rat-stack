@@ -156,7 +156,7 @@ it.effect(
           expect(request.body._tag).toBe("Uint8Array");
 
           if (Predicate.isTagged(request.body, "Uint8Array")) {
-            const decoded = Schema.decodeUnknownSync(
+            const decoded = Schema.decodeSync(
               Schema.fromJsonString(
                 Schema.Struct({
                   agentRef: Schema.String,

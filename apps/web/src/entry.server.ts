@@ -10,7 +10,7 @@ import {
   ReaderErrorPage,
   readerErrorPath,
 } from "../../site/src/reader-error-page.js";
-import { pages } from "./client/reader-pages.js";
+import { findPage } from "./client/reader-pages.js";
 import { init } from "./client/reader/init.js";
 import { ReaderFlags } from "./client/reader/model.js";
 import { view } from "./features/reader.js";
@@ -25,9 +25,9 @@ import {
   websiteTelemetry,
 } from "./server/website-bindings.js";
 
-export { renderDocument } from "./server/reader-document.js";
+export { pagePaths as prerenderPaths } from "./client/reader-pages.js";
 
-export const prerenderPaths = pages.map((page) => page.page.path);
+export { renderDocument } from "./server/reader-document.js";
 
 const errorTemplate =
   Schema.decodeUnknownSync(ReaderErrorTemplate)(readerErrorTemplate);
@@ -45,13 +45,10 @@ const previewHeaders = Effect.fn("reader.previewHeaders")(
       const commit = yield* bindings.previewCommit;
 
       if (commit === undefined) {
-        return yield* Effect.fail(
-          new WebsiteBindingError({
-            cause: "Missing PREVIEW_COMMIT",
-            message:
-              "Preview responses require the full deployed commit binding",
-          })
-        );
+        return yield* new WebsiteBindingError({
+          cause: "Missing PREVIEW_COMMIT",
+          message: "Preview responses require the full deployed commit binding",
+        });
       }
 
       headers.set("X-Robots-Tag", "noindex");
@@ -156,9 +153,9 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
     }
 
     const route = pathname === "/" ? pathname : pathname.replace(/\/$/u, "");
-    const page = pages.find((candidate) => candidate.page.path === route);
+    const found = yield* findPage(route);
 
-    if (page === undefined) {
+    if (Option.isNone(found)) {
       return yield* responded(
         request,
         new Response("This route is outside the reader preview slice", {
@@ -167,6 +164,7 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       );
     }
 
+    const page = found.value;
     const promptRoute = isWorkerFirstReaderRoute(route);
     const prerender = new URL(request.url).origin === readerPrerenderOrigin;
 

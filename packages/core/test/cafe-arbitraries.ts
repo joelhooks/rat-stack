@@ -61,7 +61,7 @@ export const engagement = Arbitrary.all({
   views: maybe(int(0, 1_000_000)),
 }).pipe(
   Arbitrary.map((generated): CafeEngagementValue =>
-    Schema.decodeUnknownSync(CafeEngagement)(
+    Schema.decodeSync(CafeEngagement)(
       Object.fromEntries(
         Object.entries(generated).flatMap(([key, value]) => {
           const signal: Option.Option<unknown> = value;
