@@ -5,6 +5,21 @@
       "dependsOn": ["^typecheck"],
       "outputs": []
     },
+    "typecheck:tsc": {
+      "dependsOn": ["^typecheck:tsc"],
+      "outputs": []
+    },
+    "//#typecheck:tsc-scripts": {
+      "outputs": []
+    },
+    "@rat-stack/site#typecheck:tsc": {
+      "dependsOn": ["@rat-stack/site#generate", "^typecheck:tsc"],
+      "outputs": []
+    },
+    "@rat-stack/web#typecheck:tsc": {
+      "dependsOn": ["^build", "^typecheck:tsc"],
+      "outputs": []
+    },
     "typecheck:fast": {
       "dependsOn": ["^typecheck:fast"],
       "outputs": []
