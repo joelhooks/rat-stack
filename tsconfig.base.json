@@ -20,6 +20,7 @@
     "plugins": [
       {
         "name": "@effect/language-service",
+        "ignoreEffectWarningsInTscExitCode": false,
         "namespaceImportPackages": ["effect", "@effect/platform-node"],
         "diagnosticSeverity": {
           "anyUnknownInErrorContext": "error",
