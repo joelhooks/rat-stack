@@ -7,7 +7,7 @@ import {
   compileReaderBody,
   readerWorkshopCount,
 } from "../../site/scripts/reader-body-document.ts";
-import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
+import { readerLoreFlagsFrom } from "../../site/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
@@ -18,7 +18,7 @@ const loreShardCount = 8;
 
 const make = Effect.gen(function* readerLoreFixture() {
   const inputs = yield* prepareReaderSiteInputs;
-  const flags = yield* readerLoreFlags("https://ratstack.sh");
+  const flags = yield* readerLoreFlagsFrom(inputs, "https://ratstack.sh");
 
   const pages = inputs.pages.filter(
     (page) => page.path === "/lore" || page.path.startsWith("/lore/")

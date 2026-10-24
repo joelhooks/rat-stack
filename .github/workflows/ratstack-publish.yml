@@ -48,6 +48,8 @@ jobs:
         run: pnpm sources:fetch
       - name: Check, test, and build
         run: pnpm turbo run check test build --concurrency=1
+      - name: Check tsrs and tsc parity
+        run: pnpm typecheck:parity
       - name: Publish with npm trusted publishing
         working-directory: apps/cli/dist/npm
         run: npm publish --access public

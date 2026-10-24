@@ -16,6 +16,7 @@
     "predev": "pnpm --filter @rat-stack/site generate",
     "dev": "portless rat-stack vite dev",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "test": "vitest run",
     "build": "vite build",
     "check": "pnpm run typecheck"
