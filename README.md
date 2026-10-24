@@ -84,7 +84,7 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 - **Alchemy `2.0.0-beta.83`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
 - **Vitest `5.0.5` + `@effect/vitest` `4.0.0`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
-- **`@effect/tsgo` `0.54.0`**: patches TypeScript 7 in `prepare` for the `typecheck:tsc` backstop. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Keep this separate CI check until a month with zero disagreements, or effect-tsrs 1.0. Stop rollout on any checker disagreement.
+- **`@effect/tsgo` `0.54.0`**: patches TypeScript 7 in `prepare` for `typecheck:tsc`. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Patched `tsc` runs at the switch and on checker bumps through parity, not on every CI run. Report any checker disagreement.
 - **varlock `1.23.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
 - **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [Foldkit](https://github.com/foldkit/foldkit) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
 - **Agent fence**: lefthook pre-commit + Pi/Cursor/Claude hooks that block `git … --no-verify`. Cheating should be uncomfortable and obvious.
@@ -96,7 +96,7 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 | Command | Purpose |
 | --- | --- |
 | `pnpm typecheck` | Check TypeScript and Effect diagnostics with strict effect-tsrs |
-| `pnpm typecheck:tsc` | Run the patched TypeScript `7.0.2` / `@effect/tsgo` `0.54.0` CI backstop |
+| `pnpm typecheck:tsc` | Run patched TypeScript `7.0.2` / `@effect/tsgo` `0.54.0`; runs at checker bumps, not in CI |
 | `pnpm typecheck:fast` | Fast feedback with tsrs; no Effect diagnostics; `pnpm check` stays the gate |
 | `pnpm typecheck:parity` | Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded |
 | `pnpm bump:checkers` | Bump both exact checker pins to npm latest, report bundled revision alignment, and run both parity pairs |

@@ -64,8 +64,8 @@ These checks enforce it today:
 - `@yielded/effect-tsrs` `0.2.0` runs TypeScript and Effect diagnostics in `typecheck` and `check`. Every invocation uses `--strict`, so warnings fail too.
 - effect-tsrs bundles tsrs main `8f135f1`. Plain [tsrs](https://blog.cloudflare.com/typescript-rust-port/) `0.18.0-ts7.1.0-dev.20260929` stays in `typecheck:fast`, without Effect diagnostics.
 - Re-align both checker versions when tsrs releases `8f135f1`.
-- Patched TypeScript `7.0.2` with `@effect/tsgo` `0.54.0` runs separately through `pnpm typecheck:tsc` in CI. `ignoreEffectWarningsInTscExitCode` stays false.
-- Keep that backstop until a month with zero disagreements, or effect-tsrs 1.0. Stop rollout and report any checker disagreement.
+- Patched TypeScript `7.0.2` with `@effect/tsgo` `0.54.0` runs through `pnpm typecheck:tsc` at the switch and on checker bumps. CI does not run it. `ignoreEffectWarningsInTscExitCode` stays false.
+- Report any checker disagreement.
 - Lefthook runs `pnpm check` and `pnpm test` before every commit.
 - `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
 - Continuous integration (CI) runs `pnpm turbo run check test build` after a fresh dependency install.
@@ -76,7 +76,7 @@ These checks enforce it today:
 - A commit runs check and test, and a failure stops it.
 - No agent harness configured in the repo can bypass the hooks with `--no-verify`.
 - Effect diagnostics fail the typecheck.
-- CI compares effect-tsrs and patched `tsc` errors, including Effect `TS377xxx`, for every package and root scripts. It normalizes paths, ignores suggestions and messages, and compares exit verdicts.
+- `pnpm bump:checkers` compares effect-tsrs and patched `tsc` errors, including Effect `TS377xxx`, for every package and root scripts. It normalizes paths, ignores suggestions and messages, and compares exit verdicts.
 - The same command compares plain tsrs with patched `tsc`, excluding Effect-only codes. Plain tsrs cannot emit those diagnostics.
 - Code carries no prose comments. Tool directives need a reason after `--`; type assertions need a one-line `SAFETY:` statement of the condition that makes the assertion safe. Plain JS may keep type-only JSDoc. [No comments](/lore/no-comments) and [repo law](/AGENTS.md) give the full exception policy.
 - Every lint or diagnostic override names its rule and gives a reason.
@@ -88,10 +88,9 @@ These checks enforce it today:
 
 - `pnpm turbo run check test build` runs the main gate.
 - `pnpm typecheck` runs strict effect-tsrs diagnostics.
-- `pnpm typecheck:tsc` runs the patched compiler backstop.
-- `pnpm typecheck:parity` compares checker errors and exit verdicts.
+- `pnpm typecheck:tsc` runs the patched compiler.
+- `pnpm typecheck:parity` compares checker errors and exit verdicts. `pnpm bump:checkers` runs it on every bump.
 - `pnpm typecheck:fast` runs plain tsrs for fast feedback without Effect diagnostics.
-- `pnpm typecheck:parity` runs the separate CI property check against both compilers.
 - `echo '{"tool_name":"Bash","tool_input":{"command":"git commit --no-verify"}}' | node scripts/hooks/block-git-no-verify.mjs` prints a `deny` decision with the reason.
 - `pnpm --filter @rat-stack/core test` runs the fixture tests for the boundary, pattern, no-comment, and unknown-parameter rules, and the command policy test.
 - The boundary fixtures in `packages/core/test/boundaries-rule.test.ts` reject adapter imports from core and accept composition outside it.
