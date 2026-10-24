@@ -225,6 +225,9 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@yielded/effect-tsrs':
+        specifier: 0.2.0
+        version: 0.2.0
       effect:
         specifier: 4.0.0
         version: 4.0.0
@@ -3169,6 +3172,36 @@ packages:
     peerDependencies:
       effect: ^4.0.0
       xstate: ^6.0.0-alpha.70
+
+  '@yielded/effect-tsrs-darwin-arm64@0.2.0':
+    resolution: {integrity: sha512-WxY+nUP25AxGWVB1EgTO2TS5yN9zZA/3orVMh0SuJ4CuIDZ/xXJu5k9iMSrYixuj6QBva+iQsCbrMKxxUo3zgg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@yielded/effect-tsrs-darwin-x64@0.2.0':
+    resolution: {integrity: sha512-DAPPKFCxs1pPcF5hlQeuNOqIgFIxYTMbqzIiv5VmaaLMpBRvq/M68V9IWfhgOP1l0XucgAG33l8CiGCPIwTlaw==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@yielded/effect-tsrs-linux-arm64@0.2.0':
+    resolution: {integrity: sha512-+4Bql/5SXuEz6Nsq4fcttv82Nu7DnhrZI2fYYln7LUBFwQjS6Ul8DaXO7OZhkbT9BWLNvriwT31LXVEJwfmjkg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@yielded/effect-tsrs-linux-x64@0.2.0':
+    resolution: {integrity: sha512-MF3HC+ctlM7xYX/iggq8gBhjdQ8A5Ot5828LeWvVKLeFA9Ei3Gtxumm75qLjTIYrNXHYnv9GjDvvwCFe/mqbgg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@yielded/effect-tsrs-win32-x64@0.2.0':
+    resolution: {integrity: sha512-yxSbAzG2K9z9EsxEb+NGAMWKIeZEAXTIIQuoIz53sYyJFSZvdK27J1Zo3kRAXNQjCbBfmrqcgNbnG16D+zx92w==}
+    cpu: [x64]
+    os: [win32]
+
+  '@yielded/effect-tsrs@0.2.0':
+    resolution: {integrity: sha512-OUk6AVK2z6VGPkMn7vE1axevNZmeoCkLGXF/rYa7d1kJ/Jl06su/FKwgoacABUmL4lyfNUvE8Y0twU21WXtXtg==}
+    engines: {node: '>=22.14'}
+    hasBin: true
 
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
@@ -7162,6 +7195,29 @@ snapshots:
     dependencies:
       effect: 4.0.0
       xstate: 6.0.0-alpha.70
+
+  '@yielded/effect-tsrs-darwin-arm64@0.2.0':
+    optional: true
+
+  '@yielded/effect-tsrs-darwin-x64@0.2.0':
+    optional: true
+
+  '@yielded/effect-tsrs-linux-arm64@0.2.0':
+    optional: true
+
+  '@yielded/effect-tsrs-linux-x64@0.2.0':
+    optional: true
+
+  '@yielded/effect-tsrs-win32-x64@0.2.0':
+    optional: true
+
+  '@yielded/effect-tsrs@0.2.0':
+    optionalDependencies:
+      '@yielded/effect-tsrs-darwin-arm64': 0.2.0
+      '@yielded/effect-tsrs-darwin-x64': 0.2.0
+      '@yielded/effect-tsrs-linux-arm64': 0.2.0
+      '@yielded/effect-tsrs-linux-x64': 0.2.0
+      '@yielded/effect-tsrs-win32-x64': 0.2.0
 
   acorn@8.18.0: {}
 
