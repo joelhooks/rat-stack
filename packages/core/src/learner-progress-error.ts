@@ -1,9 +1,9 @@
 import { Schema } from "effect";
 
-export class LearnerProgressError extends Schema.TaggedError<LearnerProgressError>()(
-  "LearnerProgressError",
-  {
-    cause: Schema.Defect(),
-    operation: Schema.String,
-  }
-) {}
+export class LearnerProgressError extends Schema.TaggedError<
+  LearnerProgressError,
+  { readonly brand: unique symbol }
+>()("LearnerProgressError", {
+  cause: Schema.Defect(),
+  operation: Schema.String,
+}) {}

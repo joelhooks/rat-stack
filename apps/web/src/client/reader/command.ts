@@ -4,10 +4,10 @@ import { Command } from "foldkit";
 import { Message } from "./message.js";
 import { ClipboardAccess } from "./model.js";
 
-class ClipboardFailure extends Schema.TaggedError<ClipboardFailure>()(
-  "ClipboardFailure",
-  { cause: Schema.Unknown }
-) {}
+class ClipboardFailure extends Schema.TaggedError<
+  ClipboardFailure,
+  { readonly brand: unique symbol }
+>()("ClipboardFailure", { cause: Schema.Unknown }) {}
 
 export const DetectClipboard = Command.define("DetectClipboard", {
   execute: Effect.sync(() =>

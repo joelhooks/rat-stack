@@ -331,7 +331,7 @@ export const interestRoutes = (options: InterestOptions) => {
 
           const submissionId = params.get("submissionId");
 
-          const input = yield* Schema.decodeUnknownEffect(
+          const input = yield* Schema.decodeEffect(
             intakeApplicationsContract.input
           )(submissionId === null ? {} : { submissionId }).pipe(Effect.option);
 

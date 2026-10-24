@@ -57,7 +57,7 @@ const callRpc = async (
 
   expect(response.status).toBe(200);
 
-  const [message] = Schema.decodeUnknownSync(RpcExit)(await response.text());
+  const [message] = Schema.decodeSync(RpcExit)(await response.text());
 
   return message.exit;
 };

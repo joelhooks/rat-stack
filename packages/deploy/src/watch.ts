@@ -41,13 +41,13 @@ export const WatchEvidenceSchema = Schema.Struct({
 
 export type WatchEvidence = typeof WatchEvidenceSchema.Type;
 
-export class WatchFailed extends Schema.TaggedError<WatchFailed>()(
-  "WatchFailed",
-  {
-    evidence: WatchEvidenceSchema,
-    reason: Schema.String,
-  }
-) {}
+export class WatchFailed extends Schema.TaggedError<
+  WatchFailed,
+  { readonly brand: unique symbol }
+>()("WatchFailed", {
+  evidence: WatchEvidenceSchema,
+  reason: Schema.String,
+}) {}
 
 export const failureBodyBytes = 4096;
 

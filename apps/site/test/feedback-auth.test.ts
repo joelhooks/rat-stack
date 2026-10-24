@@ -182,14 +182,14 @@ const enabledRoutes = Layer.unwrap(
     const send = Effect.fn("privateBindingFetch")(function* send(
       request: HttpClientRequest.HttpClientRequest
     ) {
-      const web = yield* HttpClientRequest.toWeb(request).pipe(Effect.orDie);
+      const web = yield* HttpClientRequest.toWeb(request);
 
       const response = yield* Effect.promise(
         privateServer.handler.bind(undefined, web, Context.empty())
-      ).pipe(Effect.orDie);
+      );
 
       return HttpClientResponse.fromWeb(request, response);
-    });
+    }, Effect.orDie);
 
     return mischiefRoutes({ feedback: feedbackBindingAccess(send) });
   })

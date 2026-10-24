@@ -42,7 +42,7 @@ const readData = <A>(
 ) =>
   assets.read(path).pipe(
     Effect.flatMap((bytes) =>
-      Schema.decodeUnknownEffect(
+      Schema.decodeEffect(
         Schema.fromJsonString(
           Schema.Struct({
             data: schema,

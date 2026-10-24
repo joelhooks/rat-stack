@@ -15,7 +15,7 @@ const preparedPages = Effect.gen(function* preparedPages() {
     fileURLToPath(new URL("dist/reader-pages.json", import.meta.url))
   );
 
-  const pages = yield* Schema.decodeUnknownEffect(
+  const pages = yield* Schema.decodeEffect(
     Schema.fromJsonString(Schema.Array(ReaderFlags))
   )(source);
 
@@ -40,7 +40,7 @@ const preparedError = Effect.gen(function* preparedError() {
     fileURLToPath(new URL("dist/reader-error.json", import.meta.url))
   );
 
-  const template = yield* Schema.decodeUnknownEffect(
+  const template = yield* Schema.decodeEffect(
     Schema.fromJsonString(ReaderErrorTemplate)
   )(source);
 

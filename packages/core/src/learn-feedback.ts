@@ -3,9 +3,12 @@ import { Schema } from "effect";
 
 import { LearnError } from "./learn-model.js";
 
+// @effect-diagnostics-next-line schemaClassMissingBrand:off -- auth's Unauthenticated shares this wire shape and must stay assignable to it; a brand splits the two types.
 export class LearnUnauthenticated extends Schema.TaggedError<LearnUnauthenticated>()(
   "Unauthenticated",
-  { message: Schema.String }
+  {
+    message: Schema.String,
+  }
 ) {}
 
 const FeedbackAuthFailure = LearnUnauthenticated.annotate({

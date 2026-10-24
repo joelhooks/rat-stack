@@ -68,9 +68,7 @@ export const localLearnerProgressLayer = (defaultDirectory: string) =>
         return yield* Effect.forEach(
           text.split("\n").filter((line) => line !== ""),
           (line) =>
-            Schema.decodeUnknownEffect(Schema.fromJsonString(LearnEventSchema))(
-              line
-            )
+            Schema.decodeEffect(Schema.fromJsonString(LearnEventSchema))(line)
         );
       });
 

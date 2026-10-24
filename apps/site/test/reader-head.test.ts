@@ -88,7 +88,7 @@ it.prop(
 
     expect(script).toBeDefined();
 
-    const data = Schema.decodeUnknownSync(
+    const data = Schema.decodeSync(
       Schema.fromJsonString(
         Schema.Struct({ headline: Schema.String, url: Schema.String })
       )

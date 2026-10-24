@@ -6,10 +6,10 @@ import { FetchHttpClient } from "effect/http";
 import * as Layer from "effect/Layer";
 import { RpcClient, RpcSerialization } from "effect/rpc";
 
-class PreviewSmokeError extends Schema.TaggedError<PreviewSmokeError>()(
-  "PreviewSmokeError",
-  { reason: Schema.String }
-) {}
+class PreviewSmokeError extends Schema.TaggedError<
+  PreviewSmokeError,
+  { readonly brand: unique symbol }
+>()("PreviewSmokeError", { reason: Schema.String }) {}
 
 const argumentsSchema = Schema.Struct({
   commit: Schema.String.check(Schema.isPattern(/^[0-9a-f]{40}$/u)),

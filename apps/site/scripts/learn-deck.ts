@@ -58,7 +58,7 @@ export const buildLearningDeck = Effect.fn("buildLearningDeck")(
               };
             }),
             ...skills.map((page) => {
-              const metadata = Schema.decodeUnknownSync(
+              const metadata = Schema.decodeSync(
                 Schema.Struct({
                   card: Schema.optional(Schema.String),
                   diagram: Schema.optional(Schema.String),

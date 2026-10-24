@@ -19,15 +19,15 @@ const entryBudgetBytes = 900_000;
 
 const javascriptBudgetBytes = 2_500_000;
 
-class StartupBudgetExceeded extends Schema.TaggedError<StartupBudgetExceeded>()(
-  "StartupBudgetExceeded",
-  {
-    budget: Schema.Finite,
-    bytes: Schema.Finite,
-    scope: Schema.Literals(["entry", "javascript-upload"]),
-    worker: Schema.Literals(["Mischief", "LearnFeedbackAuth"]),
-  }
-) {}
+class StartupBudgetExceeded extends Schema.TaggedError<
+  StartupBudgetExceeded,
+  { readonly brand: unique symbol }
+>()("StartupBudgetExceeded", {
+  budget: Schema.Finite,
+  bytes: Schema.Finite,
+  scope: Schema.Literals(["entry", "javascript-upload"]),
+  worker: Schema.Literals(["Mischief", "LearnFeedbackAuth"]),
+}) {}
 
 const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   worker: "Mischief" | "LearnFeedbackAuth"

@@ -31,11 +31,9 @@ it.effect.prop(
       }
 
       for (const form of forms) {
-        const decoded = yield* Schema.decodeUnknownEffect(ApplicantX)(form);
+        const decoded = yield* Schema.decodeEffect(ApplicantX)(form);
         expect(decoded).toBe(canonical);
-        expect(yield* Schema.decodeUnknownEffect(ApplicantX)(decoded)).toBe(
-          decoded
-        );
+        expect(yield* Schema.decodeEffect(ApplicantX)(decoded)).toBe(decoded);
         expect(yield* Schema.encodeEffect(ApplicantX)(decoded)).toBe(canonical);
       }
     })
@@ -46,12 +44,12 @@ it.effect.prop(
   { input: Arbitrary.schema(Schema.String) },
   ({ input }) =>
     Effect.gen(function* totalDecoder() {
-      const exit = yield* Schema.decodeUnknownEffect(ApplicantX)(input).pipe(
+      const exit = yield* Schema.decodeEffect(ApplicantX)(input).pipe(
         Effect.exit
       );
 
       if (Exit.isSuccess(exit)) {
-        expect(yield* Schema.decodeUnknownEffect(ApplicantX)(exit.value)).toBe(
+        expect(yield* Schema.decodeEffect(ApplicantX)(exit.value)).toBe(
           exit.value
         );
       } else {
@@ -84,19 +82,19 @@ it.effect(
         "@fake_ſynthetic",
         "httpſ://x.com/fake_applicant",
       ]) {
-        const error = yield* Schema.decodeUnknownEffect(ApplicantX)(input).pipe(
+        const error = yield* Schema.decodeEffect(ApplicantX)(input).pipe(
           Effect.flip
         );
 
         expect(error.message).toContain("Expected an X profile");
       }
 
-      expect(yield* Schema.decodeUnknownEffect(ApplicantX)("@_")).toBe(
+      expect(yield* Schema.decodeEffect(ApplicantX)("@_")).toBe(
         "https://x.com/_"
       );
-      expect(
-        yield* Schema.decodeUnknownEffect(ApplicantX)(`@${"_".repeat(15)}`)
-      ).toBe(`https://x.com/${"_".repeat(15)}`);
+      expect(yield* Schema.decodeEffect(ApplicantX)(`@${"_".repeat(15)}`)).toBe(
+        `https://x.com/${"_".repeat(15)}`
+      );
     })
 );
 
@@ -107,7 +105,7 @@ it.effect.prop(
     Effect.gen(function* names() {
       const trimmed = input.trim();
 
-      const exit = yield* Schema.decodeUnknownEffect(ApplicantName)(input).pipe(
+      const exit = yield* Schema.decodeEffect(ApplicantName)(input).pipe(
         Effect.exit
       );
 

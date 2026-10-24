@@ -12,10 +12,10 @@ const measured = {
   reason: "synthetic-measurement",
 };
 
-class FixtureFailure extends Schema.TaggedError<FixtureFailure>()(
-  "FixtureFailure",
-  { privateDetail: Schema.String }
-) {}
+class FixtureFailure extends Schema.TaggedError<
+  FixtureFailure,
+  { readonly brand: unique symbol }
+>()("FixtureFailure", { privateDetail: Schema.String }) {}
 
 describe("check harness outcomes", () => {
   it.effect("preserves completed measurements and exact legacy exits", () =>

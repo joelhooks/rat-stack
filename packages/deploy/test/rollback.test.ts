@@ -1,6 +1,6 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Layer, Option, Ref, Schema } from "effect";
+import { Effect, FileSystem, Layer, Ref, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 
 import { ReceiptStore } from "../src/receipt-store.js";
@@ -41,7 +41,7 @@ it.effect.prop(
       const provider = WorkerDeployments.of({
         forProfile: () =>
           Effect.succeed({
-            current: () => Ref.get(current).pipe(Effect.map(Option.some)),
+            current: () => Ref.get(current).pipe(Effect.asSome),
             restore: (_worker, version) =>
               Effect.sync(() => deployments.push(version)).pipe(
                 Effect.andThen(Ref.set(current, version))

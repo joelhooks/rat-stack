@@ -859,10 +859,8 @@ export const localLayer = (
                         }),
                       }),
                     })),
-                    Effect.flatMap((value) =>
-                      receipts
-                        .saveApply(input.profile, value)
-                        .pipe(Effect.as(value))
+                    Effect.tap((value) =>
+                      receipts.saveApply(input.profile, value)
                     )
                   )
                 ),

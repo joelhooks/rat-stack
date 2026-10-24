@@ -19,7 +19,7 @@ const approvedSetFlag = implement(setFlagContract, ({ name, value }) =>
       });
     }
 
-    const decoded = yield* Schema.decodeUnknownEffect(flag.schema)(value).pipe(
+    const decoded = yield* Schema.decodeEffect(flag.schema)(value).pipe(
       Effect.mapError(
         () =>
           new InvalidFlagValue({

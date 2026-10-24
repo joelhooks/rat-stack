@@ -47,7 +47,7 @@ it.effect("serves search over /rpc with no devtools involved", () =>
     );
 
     const body = yield* Effect.promise(response.text.bind(response));
-    const [message] = yield* Schema.decodeUnknownEffect(RpcExit)(body);
+    const [message] = yield* Schema.decodeEffect(RpcExit)(body);
 
     expect(response.headers.get("content-type")).toContain("application/json");
     expect(body).not.toContain("AssetReadError");
