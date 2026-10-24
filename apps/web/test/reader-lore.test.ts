@@ -7,7 +7,7 @@ import {
   compileReaderBody,
   readerWorkshopCount,
 } from "../../site/scripts/reader-body-document.ts";
-import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
+import { readerLoreFlagsFrom } from "../../site/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { ReaderNode } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
@@ -52,6 +52,8 @@ const normalizedNodes = (
   return output;
 };
 
+const renderingEveryLoreRouteGrowsWithThePageCountMs = 10_000;
+
 it.effect(
   "ReaderSiteParity: every published lore route preserves the complete human body and breadcrumb after Foldkit rendering",
   () =>
@@ -62,7 +64,7 @@ it.effect(
         (page) => page.path === "/lore" || page.path.startsWith("/lore/")
       );
 
-      const flags = yield* readerLoreFlags("https://ratstack.sh");
+      const flags = yield* readerLoreFlagsFrom(inputs, "https://ratstack.sh");
 
       expect(flags.map((page) => page.page.path)).toEqual(
         pages.map((page) => page.path)
@@ -103,5 +105,6 @@ it.effect(
           expect(page.page.metadata).toEqual(original?.metadata);
         })
       )(flags);
-    }).pipe(Effect.provide(NodeServices.layer))
+    }).pipe(Effect.provide(NodeServices.layer)),
+  { timeout: renderingEveryLoreRouteGrowsWithThePageCountMs }
 );

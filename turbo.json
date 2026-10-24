@@ -5,6 +5,21 @@
       "dependsOn": ["^typecheck"],
       "outputs": []
     },
+    "typecheck:fast": {
+      "dependsOn": ["^typecheck:fast"],
+      "outputs": []
+    },
+    "//#typecheck:fast-scripts": {
+      "outputs": []
+    },
+    "@rat-stack/site#typecheck:fast": {
+      "dependsOn": ["@rat-stack/site#generate", "^typecheck:fast"],
+      "outputs": []
+    },
+    "@rat-stack/web#typecheck:fast": {
+      "dependsOn": ["^build", "^typecheck:fast"],
+      "outputs": []
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

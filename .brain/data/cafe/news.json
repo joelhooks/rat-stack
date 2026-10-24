@@ -1,6 +1,19 @@
 [
   {
     "kind": "release",
+    "url": "https://blog.cloudflare.com/typescript-rust-port/",
+    "title": "tsrs joins the stack as the fast typecheck",
+    "summary": "rat-stack adds tsrs for fast typechecks. It does not run Effect diagnostics, so patched tsc stays in the gate.",
+    "date": "2026-10-24",
+    "repo": "joelhooks/rat-stack",
+    "author": {
+      "github": "joelhooks",
+      "x": "joelhooks"
+    },
+    "source": "https://blog.cloudflare.com/typescript-rust-port/"
+  },
+  {
+    "kind": "release",
     "url": "https://github.com/Effect-TS/tsgo/releases/tag/%40effect%2Ftsgo%400.56.0",
     "title": "@effect/tsgo 0.56.0 released",
     "summary": "Effect language service for tsgo now builds, tests and ships against the TypeScript beta channel, currently the 7.1.0 beta compiler.",

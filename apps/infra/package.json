@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "check": "pnpm run typecheck",
     "test": "vitest run",
     "plan": "alchemy plan",
