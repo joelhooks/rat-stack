@@ -6,7 +6,10 @@ import { Context, Effect, Layer, Logger, Schema } from "effect";
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 import { SubscriberIntake } from "./interest-intake.js";
 import { JoinContactSchema, JoinContactStore } from "./join-contact-store.js";
-import { runJoinDelivery } from "./join-delivery-machine.js";
+import {
+  JoinDeliveryDeadline,
+  runJoinDelivery,
+} from "./join-delivery-machine.js";
 
 const SubmissionId = Schema.String.check(
   Schema.isMinLength(1),
@@ -62,6 +65,7 @@ export class IntakeRedeliver extends Context.Service<
     Effect.gen(function* makeIntakeRedelivery() {
       const contacts = yield* JoinContactStore;
       const intake = yield* SubscriberIntake;
+      const deliveryDeadline = yield* JoinDeliveryDeadline;
 
       const redeliver = Effect.fnUntraced(
         function* redeliver({
@@ -103,7 +107,8 @@ export class IntakeRedeliver extends Context.Service<
 
             const result = yield* runJoinDelivery({ submissionId }).pipe(
               Effect.provideService(SubscriberIntake, intake),
-              Effect.provideService(JoinContactStore, contacts)
+              Effect.provideService(JoinContactStore, contacts),
+              Effect.provideService(JoinDeliveryDeadline, deliveryDeadline)
             );
 
             const stateFor = {

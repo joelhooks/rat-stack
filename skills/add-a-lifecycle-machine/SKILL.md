@@ -19,6 +19,8 @@ A lifecycle machine defines named states and the events that permit movement bet
 
 Copy `packages/core/src/inspect-machine.ts` when the work has states that matter. Keep a direct Effect when it does not.
 
+A machine that calls a provider also follows [durability](/skills/durability): one timeout, bounded retries with the same key, and nothing held across the call.
+
 Before changing Effect or XState code, read `node_modules/effect/AGENTS.md`. Then read the pinned XState and `@xstate/effect` source listed in `AGENTS.md`.
 
 ## 1. Write the states first

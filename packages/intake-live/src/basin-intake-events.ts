@@ -4,7 +4,7 @@ import type {
   IntakeContact,
   IntakeStatement,
 } from "@rat-stack/core/intake";
-import { Context, DateTime, Effect, Schedule, Schema } from "effect";
+import { Context, DateTime, Effect, Schema } from "effect";
 
 import { IntakeRowSchema, erasedRow, recordRows } from "./intake-rows.js";
 import type { IntakeRow, IntakeRowSource } from "./intake-rows.js";
@@ -30,8 +30,6 @@ export class IntakeBackfill extends Context.Service<
 >()("@rat-stack/intake-live/IntakeBackfill") {}
 
 const encodeRow = Schema.encodeEffect(IntakeRowSchema);
-
-const ERASE_RETRIES = 2;
 
 const stampFor = (source: IntakeRowSource) =>
   DateTime.now.pipe(
@@ -60,9 +58,7 @@ export const basinIntakeEvents = (sink: IntakeRowSink) => {
     events: {
       erase: (actor: ContactRef) =>
         stampFor("live").pipe(
-          Effect.flatMap((stamp) => write([erasedRow(actor, stamp)])),
-          Effect.retry(Schedule.recurs(ERASE_RETRIES)),
-          Effect.orDie
+          Effect.flatMap((stamp) => write([erasedRow(actor, stamp)]))
         ),
       record: recordFrom("live"),
     },

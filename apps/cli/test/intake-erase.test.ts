@@ -23,7 +23,7 @@ it.effect(
       const logs: unknown[] = [];
       const spans: Tracer.NativeSpan[] = [];
       const observed: unknown[] = [];
-      const counts = { alreadyGone: 1, erased: 2, failed: 0 };
+      const counts = { alreadyGone: 1, erased: 2, failed: 0, pending: 0 };
 
       const client = HttpClient.make((request, url) => {
         requests.push({
@@ -120,15 +120,15 @@ it.effect(
         ],
         [
           "https://operator.example.test",
-          Response.json({ alreadyGone: 0, erased: -1, failed: 0 }),
+          Response.json({ alreadyGone: 0, erased: -1, failed: 0, pending: 0 }),
         ],
         [
           "http://operator.example.test",
-          Response.json({ alreadyGone: 0, erased: 1, failed: 0 }),
+          Response.json({ alreadyGone: 0, erased: 1, failed: 0, pending: 0 }),
         ],
         [
           "https://user:password@operator.example.test",
-          Response.json({ alreadyGone: 0, erased: 1, failed: 0 }),
+          Response.json({ alreadyGone: 0, erased: 1, failed: 0, pending: 0 }),
         ],
       ] as const) {
         const eraser = yield* IntakeErasure.pipe(

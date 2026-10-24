@@ -1,0 +1,77 @@
+---
+title: "Durability starts with a recovery record"
+description: "A reading order for storage, replay, worker ownership, overload, and recovery tests."
+group: idea
+terms:
+  - "durability patterns"
+sources:
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/WorkflowEngine.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/WorkflowEngine.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+**Effect is not BEAM.** Fibers do not provide private process heaps or OTP restart strategies. A durable operation needs storage and a recovery owner.
+
+Use [the durability skill](/skills/durability) to review a design. [The durability system page](/systems/durability) shows the patterns rat-stack ships. These pages separate the book principles from our Effect 4.0.0 mappings.
+
+The template pins Effect 4.0.0. Each named API and each absence claim was checked against that release. Check your own Effect [pin](/skills/gardener) before you apply a mapping.
+
+## Reading order
+
+- [Effect is not BEAM](/lore/effect-is-not-beam): Fibers share a runtime; [scope](/lore/scopes-own-resources) ownership does not supply isolated heaps or OTP restart strategies.
+- [Durable work needs storage](/lore/durable-work-needs-storage): A restarted worker cannot recover intent that existed only in memory.
+- [Every task needs an owner](/lore/every-task-needs-an-owner): Give child work a lifetime, a failure observer, and a recovery decision.
+- [Supervision chooses what restarts](/lore/supervision-is-a-recovery-policy): Restart policy follows dependency shape and bounds repeated recovery.
+- [Restart must reconstruct known state](/lore/restart-from-known-state): Execution recovery and state recovery need separate contracts.
+- [Retry needs idempotent effects](/lore/retry-needs-idempotency): Repeating an operation must preserve its intended observable result.
+- [Checkpoints follow the promised commit](/lore/checkpoints-follow-commits): Persist state and progress together when one store can transact both.
+- [Replay needs stable inputs](/lore/replay-needs-stable-inputs): Historical processing must not silently depend on today’s clock or external decisions.
+- [Old events must still decode](/lore/old-events-must-still-decode): Retained data needs compatibility rules before recovery depends on it.
+- [Dead letters need a return path](/lore/dead-letters-need-a-return-path): Exhausted work needs durable evidence, an owner, and deliberate redrive.
+- [Timeouts bound waiting](/lore/timeouts-bound-waiting): A local timeout stops waiting; it does not prove the remote action never happened.
+- [Retry load needs a budget](/lore/retry-load-needs-a-budget): One retry owner must control attempts, delay, and aggregate load.
+- [Circuit breakers have state](/lore/circuit-breakers-have-state): A breaker stops doomed calls and controls probes before restoring traffic.
+- [Bulkheads isolate scarce capacity](/lore/bulkheads-isolate-capacity): Reserve independent capacity for workloads that must not starve each other.
+- [Backpressure reaches the producer](/lore/backpressure-reaches-the-producer): Bounded consumption helps only when upstream respects waiting or refusal.
+- [Admission control protects recovery](/lore/admission-controls-new-work): Refuse or defer work that cannot be served usefully under current load.
+- [Steady state recycles resources](/lore/steady-state-recycles-resources): Every accumulation needs a deliberate recycling policy.
+- [Queries need result bounds](/lore/queries-need-result-bounds): Limit result cardinality before the driver materializes an oversized response.
+- [Failures keep their meaning](/lore/failures-keep-their-meaning): Expected refusals, infrastructure faults, and defects need different policies.
+- [Cleanup can be an idempotent postcondition](/lore/cleanup-can-be-an-idempotent-postcondition): Already-absent state can be success when absence is the operation’s intended result.
+- [Pure cores reduce timeline coupling](/lore/pure-cores-reduce-timelines): Move deterministic rules out of time-dependent actions and shared mutable state.
+- [Recovery needs model tests](/lore/recovery-needs-model-tests): Test sequences of failures and recoveries against explicit invariants.
+- [Golden signals expose overload](/lore/golden-signals-expose-overload): Measure latency, traffic, errors, and saturation, including failed work.
+- [Shared schemas need a transition period](/lore/schema-changes-need-a-transition): Keep old and new representations usable while consumers migrate.
+- [Durable timers need recovery](/lore/durable-timers-need-recovery): Persist scheduled intent when losing a worker must not lose its deadlines.
+- [Request lifetime is not durability](/lore/request-lifetime-is-not-durability): Worker waitUntil has a shared post-response allowance; required work needs a durable marker and redrive.
+
+## Existing rat-stack paths
+
+- [Scopes release resources when work ends](/lore/scopes-own-resources).
+- [Concurrent work needs an owner](/lore/concurrent-work-needs-an-owner).
+- [Lifecycles are machines](/lore/lifecycles-are-machines).
+- [The error model](/lore/error-model).
+- [Schemas define the boundary](/lore/schemas-define-the-boundary).
+- [Accumulate independent errors](/lore/accumulate-independent-errors).
+- [Cache completed values](/lore/cache-completed-values).
+- [Layers make dependencies explicit](/lore/layers-make-dependencies-explicit).
+- [Property-based testing](/lore/property-based-testing).
+- [Uncomplect](/skills/uncomplect).
+- [Add a lifecycle machine](/skills/add-a-lifecycle-machine).
+- [Investigate a failure](/skills/investigate-a-failure).
+
+## Sources
+
+Read [the durability bibliography](/lore/durability-bibliography) for books, sections, and checked short quotations. API names describe the Effect 4.0.0 source.

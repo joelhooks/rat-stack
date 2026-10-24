@@ -1,0 +1,64 @@
+---
+title: "Recovery needs model tests"
+description: "Test sequences of failures and recoveries against explicit invariants."
+group: concept
+terms:
+  - "fault injection"
+sources:
+  - url: https://pragprog.com/titles/fhproper/property-based-testing-with-proper-erlang-and-elixir/
+    title: "Hebert, Fred. Property-Based Testing with PropEr, Erlang, and Elixir. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Chapter 7 Shrinking; Laying Out Stateful Properties; Testing Parallel Executions; Initial State for the State Machine; Adjusting the Model. Use the actual breaker’s threshold semantics."
+    accessed: "2026-10-23"
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://abseil.io/resources/swe-book
+    title: "Winters, Titus; Manshreck, Tom; Wright, Hyrum, editors. Software Engineering at Google: Lessons Learned from Programming Over Time. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 15 Deprecation: Deprecation Tooling and Preventing Backsliding; CI Is Alerting (hermetic and flaky tests)."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts
+    title: "Effect contributors. Effect 4.0.0. Arbitrary.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/testing/TestClock.ts
+    title: "Effect contributors. Effect 4.0.0. testing/TestClock.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Deferred.ts
+    title: "Effect contributors. Effect 4.0.0. Deferred.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A stateful property compares generated commands with real behavior. Deterministic initial state makes failures reproducible and shrinkable. Check the model by injecting a [defect](/lore/effect-basics).
+
+> Both function calls must be deterministic.
+
+Source: [Q17](/lore/durability-bibliography#q17); [B11](/lore/durability-bibliography#b11-property-based-testing), [B4](/lore/durability-bibliography#b4-release-it), [B15](/lore/durability-bibliography#b15-software-engineering-at-google).
+
+## Failure it prevents
+
+A vacuous or happy-path suite misses corruption across retries, cancellation, and restart.
+
+## Our Effect 4.0.0 reading
+
+`Arbitrary.checkEffect` and @[effect](/lore/effect-basics)/vitest run properties. `TestClock` and `Deferred` control `Effect` time and coordination. Author the command model; test persistent backends separately.
+
+Source: `packages/effect/src/Arbitrary.ts`, `packages/effect/src/testing/TestClock.ts`, `packages/effect/src/Deferred.ts`.
+
+## How to check
+
+Plant a known transition bug. Require the property to fail and yield a replayable, valid counterexample. This check is our proposal. The books do not prescribe it.
+
+Continue with [Checkpoints follow the promised commit](/lore/checkpoints-follow-commits), [Circuit breakers have state](/lore/circuit-breakers-have-state).
+
+Connect this to [property-based testing](/lore/property-based-testing) and [model-based testing](/lore/model-based-testing).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

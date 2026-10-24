@@ -263,8 +263,8 @@ const runAgainstModel = (generated: readonly GeneratedStep[]) =>
 
       if (step.kind === "erase") {
         const exit = yield* Effect.exit(events.erase(actorOf(step.submission)));
-        const survives = outage <= 2;
-        outage = survives ? 0 : outage - 3;
+        const survives = outage === 0;
+        outage = survives ? 0 : outage - 1;
 
         expect(Exit.isSuccess(exit)).toBe(survives);
 

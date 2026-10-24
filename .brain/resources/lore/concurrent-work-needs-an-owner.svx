@@ -130,4 +130,7 @@ Measure the service's limits before selecting an operational bound.
 - In rat-stack, [machines own finite domain retries and cancellation](/lore/lifecycles-are-machines). Effect's native fibers and schedules still exist.
 
 Next, [validate HTTP responses](/lore/http-responses-need-validation) before treating concurrent provider work as successful.
+
+For work that must survive a crash, read [every task needs an owner](/lore/every-task-needs-an-owner) and the [durability index](/lore/durability).
+
 Return to the [Effect reading order](/lore/effect-basics#read-next).

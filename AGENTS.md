@@ -248,6 +248,20 @@ The content generator warns on sentences above 25 words and paragraphs above fou
 
 One send follows one path: feature → Message → `update` → named Command → `RpcClient` over the contract's `toRpcGroup` → shared capability → server-side Durable Object or database cartridge. The server stays authoritative. The Command returns a result Message, and `update` folds it into the Model.
 
+## Worker autonomy ladder
+
+A worker acts at the lowest rung that applies. Climb only when the rung below does not cover the step.
+
+- **0 — Do it**: Fix your own red CI, failing hook, or stale git snapshot. Arm a wait watch. Read, edit, and test inside your write scope.
+- **1 — Do it and report**: Commit on your branch. Tighten a test. Edit docs or the Brain. Report what changed and which checks ran.
+- **2 — Ask the desk or owner**: A choice that changes scope, a guarantee, or the design, where the repo does not decide.
+- **3 — Owner sign-off**: Everything in "Needs owner sign-off" below.
+- **Never — Do not do this**: `--no-verify` or any hook bypass. Merging or deploying as a worker. Force-pushing. Secrets or customer data in a PR.
+
+At rung 2 or 3, ask one question with a recommendation. Keep doing independent work while you wait. Red CI is work, not a question: reproduce it, fix it, and push.
+
+Never end a turn "waiting" without a wake. Procedure: `skills/rat-stack-mode/principles/own-your-wait.md`.
+
 ## Boundaries and sign-off
 
 A child project replaces this section on day one with its own boundaries. This section names changes agents may make directly and changes that need owner approval.

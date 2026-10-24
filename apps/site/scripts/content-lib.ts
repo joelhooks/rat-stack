@@ -982,6 +982,36 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "Browser code that owns queries, named commands, and the local copy of server state.",
     term: "client",
   },
+  {
+    routePath: "/lore/circuit-breakers-have-state",
+    summary:
+      "A guard that fails calls to an unhealthy dependency at once, then lets a probe test recovery.",
+    term: "circuit breaker",
+  },
+  {
+    routePath: "/lore/bulkheads-isolate-capacity",
+    summary:
+      "A reserved share of capacity that one workload cannot take from another.",
+    term: "bulkhead",
+  },
+  {
+    routePath: "/lore/dead-letters-need-a-return-path",
+    summary:
+      "A durable holding place for work that exhausted its retries, with an owner who repairs and redrives it.",
+    term: "dead-letter queue",
+  },
+  {
+    routePath: "/lore/admission-controls-new-work",
+    summary:
+      "A decision at the entry point to accept, defer, or refuse new work under current load.",
+    term: "admission control",
+  },
+  {
+    routePath: "/lore/retry-load-needs-a-budget",
+    summary:
+      "A limit on the total retry attempts that one owner allows across a call path.",
+    term: "retry budget",
+  },
 ];
 
 export const glossaryEntries = (

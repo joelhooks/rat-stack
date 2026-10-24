@@ -204,3 +204,40 @@ it.effect.prop(
     }),
   { arbitrary: { runs: 300 } }
 );
+
+it.effect(
+  "the HTML ledger keeps leading whitespace inside a link in a field",
+  () =>
+    Effect.sync(() => {
+      const markdown = ledgerFor("[\t\\[a](b)", "|");
+
+      const html = renderMarkdownHtml(deriveHtmlMarkdown(markdown), {
+        sourcePath: "debt.md",
+      });
+
+      const lists = DomUtils.getElementsByTagName(
+        "ul",
+        parseDocument(html).children
+      );
+
+      const entry = DomUtils.getElementsByTagName(
+        "li",
+        lists[1]?.children ?? [],
+        false,
+        1
+      ).at(0);
+
+      const cells =
+        entry === undefined
+          ? []
+          : [
+              ...DomUtils.getElementsByTagName("strong", [entry]),
+              ...DomUtils.getElementsByTagName("li", entry.children),
+            ];
+
+      expect(cells).toHaveLength(3);
+      expect(cells.map((cell) => DomUtils.textContent(cell))).toEqual(
+        ledgerCells(markdown).map((cell) => visibleText(cell))
+      );
+    })
+);

@@ -1,0 +1,64 @@
+---
+title: "Retry load needs a budget"
+description: "One retry owner must control attempts, delay, and aggregate load."
+group: concept
+terms:
+  - "retry budget"
+  - "randomized exponential backoff"
+  - "retry amplification"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/serverless-architectures-on-aws-second-edition
+    title: "Sbarski, Peter; Cui, Yan; Nair, Ajay. Serverless Architectures on AWS, Second Edition."
+    publisher: "Manning"
+    note: "Chapter 6, The New Search Microservice: Everything Fails, All the Time; Pay Attention to Retry Configurations. AWS-specific mechanisms are not universal runtime guarantees."
+    accessed: "2026-10-23"
+  - url: https://web.stanford.edu/~ouster/cgi-bin/book.php
+    title: "Ousterhout, John. A Philosophy of Software Design. 2018."
+    publisher: "John Ousterhout"
+    note: "§4.4 Deep Modules; §10.2 Too Many Exceptions; §10.3 Define Errors Out of Existence; §10.6 Mask Exceptions; §10.7 Exception Aggregation; §10.8 Just Crash?; §10.10 Taking It Too Far."
+    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/table-of-contents/
+    title: "Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. Site Reliability Engineering: How Google Runs Production Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Embracing Risk; Chapter 22 Addressing Cascading Failures (Mike Ulrich); Chapter 26 General Principles of SRE as Applied to Data Integrity; Chapter 27 Reliable Product Launches at Scale. Section-only excerpts limit detailed attribution."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schedule.ts
+    title: "Effect contributors. Effect 4.0.0. Schedule.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Immediate retries can extend caller waiting and worsen a persistent outage. Randomize backoff and consider shared retry accounting beyond per-call limits.
+
+Book basis: [B4](/lore/durability-bibliography#b4-release-it), [B9](/lore/durability-bibliography#b9-serverless-architectures-on-aws), [B10](/lore/durability-bibliography#b10-a-philosophy-of-software-design), [B12](/lore/durability-bibliography#b12-site-reliability-engineering).
+
+## Failure it prevents
+
+Bounded requests collectively flood a recovering dependency, or nested retries multiply attempts.
+
+## Our Effect 4.0.0 reading
+
+`Effect.retry` and `Schedule.exponential`, `Schedule.jittered`, `Schedule.recurs`, and `Schedule.upTo` provide local policies. Shared budgets require an explicit owner and accounting [scope](/lore/scopes-own-resources).
+
+Source: `packages/effect/src/Effect.ts`, `packages/effect/src/Schedule.ts`.
+
+## How to check
+
+Count attempts across the call path during a common outage. Check the declared total budget and caller deadline. This check is our proposal. The books do not prescribe it.
+
+Continue with [Circuit breakers have state](/lore/circuit-breakers-have-state), [Admission control protects recovery](/lore/admission-controls-new-work).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

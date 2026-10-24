@@ -1,0 +1,51 @@
+---
+title: "Replay needs stable inputs"
+description: "Historical processing must not silently depend on today’s clock or external decisions."
+group: concept
+terms:
+  - "deterministic replay"
+  - "event-time ordering"
+  - "late events"
+sources:
+  - url: https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/
+    title: "Bellemare, Adam. Building Event-Driven Microservices: Leveraging Organizational Data at Scale. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Communication and Data Contracts; Chapter 6 Deterministic Stream Processing; Chapter 7 Stateful Streaming; Chapter 9 Microservices Using Function-as-a-Service; Chapter 14 Supportive Tooling."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/Activity.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/Activity.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Stream.ts
+    title: "Effect contributors. Effect 4.0.0. Stream.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Deterministic processing should agree between live consumption and catch-up. Event ordering and late-arrival rules belong to the domain.
+
+> The overarching goal of deterministic processing is that a microservice should produce the same output whether it is processing in real time or catching up to the present time.
+
+Source: [Q11](/lore/durability-bibliography#q11); [B5](/lore/durability-bibliography#b5-building-event-driven-microservices).
+
+## Failure it prevents
+
+Reprocessing the same history changes decisions because time, ordering, or an external answer changed.
+
+## Our Effect 4.0.0 reading
+
+`Activity` can record an [effect](/lore/effect-basics) result under an engine. `Stream` does not choose event-time ordering, lateness policy, or protect a rebuild from live writes.
+
+Source: `packages/effect/src/workflow/Activity.ts`, `packages/effect/src/Stream.ts`.
+
+## How to check
+
+Replay captured input into a clean target with controlled decisions. Compare output and apply the declared late-event policy. This check is our proposal. The books do not prescribe it.
+
+Continue with [Old events must still decode](/lore/old-events-must-still-decode), [Pure cores reduce timeline coupling](/lore/pure-cores-reduce-timelines).
+
+Connect this to [the existing rat-stack guidance](/lore/schemas-define-the-boundary).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

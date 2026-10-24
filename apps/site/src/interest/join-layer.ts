@@ -37,6 +37,14 @@ export interface AgentSignupOptions {
   readonly intake: Layer.Layer<IntakeTicket | AbuseScore | IntakeEvents>;
   readonly contacts: (submissionId: string) => JoinContactStub;
   readonly noteApplication?: (submissionId: string) => Effect.Effect<void>;
+  readonly markPending?: (
+    submissionId: string,
+    pending: boolean
+  ) => Effect.Effect<void>;
+  readonly sweep?: {
+    readonly ids: () => Effect.Effect<readonly string[]>;
+    readonly schedule: (run: Effect.Effect<void>) => Effect.Effect<void>;
+  };
   readonly applications?: Layer.Layer<
     IntakeApplications,
     never,
@@ -50,7 +58,11 @@ export const agentSignupLayer = (
 ) =>
   joinIntakeLayer.pipe(
     Layer.provideMerge(
-      joinContactStoreLayer(options.contacts, options.noteApplication).pipe(
+      joinContactStoreLayer(
+        options.contacts,
+        options.noteApplication,
+        options.markPending
+      ).pipe(
         Layer.provideMerge(
           Layer.mergeAll(
             options.intake,

@@ -1,0 +1,155 @@
+---
+title: "Durability"
+description: "Seven durable Effect patterns, each with its seam, its fence, and the incident that taught it."
+plain: "Each pattern names a problem, its Effect primitive, a real seam, a fence that fails on the bug, and the incident behind it."
+diagram: |-
+  request
+    │ query ── lease (250 ms)
+    │ commit ── answer
+    │   └ waitUntil ── drovr
+    │       one timeout
+    │       backstop: same id
+    ▼
+  gates
+    open on delay
+    closed on harm
+group: system
+terms:
+  - "durable by default"
+  - "idle lease"
+  - "answer at commit"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/tree/main/skills/durability
+    title: "Durability skill"
+    publisher: "rat-stack"
+    note: "The skill hub and one principle file for each pattern on this page."
+    accessed: "2026-10-23"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/connection-lease.ts
+    title: "Connection lease"
+    publisher: "rat-stack"
+    note: "Per-execution RcRef lease for the Hyperdrive Postgres executor."
+    accessed: "2026-10-23"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/join-intake.ts
+    title: "Join intake"
+    publisher: "rat-stack"
+    note: "Commits the contact, answers, and dispatches delivery after the response."
+    accessed: "2026-10-23"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/subscriber-delivery/src/drovr-intake.ts
+    title: "Drovr intake adapter"
+    publisher: "rat-stack"
+    note: "DrovrIntakeTimeout, the one timeout both intake paths read."
+    accessed: "2026-10-23"
+  - url: https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil
+    title: "Workers context: waitUntil"
+    publisher: "Cloudflare"
+    note: "Work after the response keeps the Worker alive until it settles."
+    accessed: "2026-10-23"
+---
+
+## What it does
+
+Durability here means four things:
+
+- A slow provider never holds a database connection.
+- A request never waits on a provider after its data commits.
+- A tunable changes without a code edit.
+- A gate stops only real harm.
+
+rat-stack uses [Effect](/lore/effect-basics)'s own primitives for each one, in real seams. Agents load the [durability skill](/skills/durability) before they change one of these seams.
+
+Each card below has five fields:
+
+- **Problem:** what goes wrong.
+- **Primitive:** the Effect answer.
+- **Seam:** where rat-stack uses it.
+- **Fence:** the test or lint rule that fails on the bug.
+- **Incident:** where the lesson came from.
+
+The incidents come from drovr on 2026-10-23.
+
+### 1. Lease a connection for the query
+
+- **Problem:** a connection held across a provider call starves the pool.
+- **Primitive:** `RcRef` with `idleTimeToLive`, borrowed inside `Effect.scoped`.
+- **Seam:** `packages/database/src/connection-lease.ts`, used by the Hyperdrive Postgres run log. Each request gets its own `RcRef`, because workerd pins sockets to a request.
+- **Fence:** `packages/database/test/connection-lease.test.ts`, a model over queries, bursts, and provider waits.
+- **Incident:** drovr car #2350. `mysql.acquire` p95 rose from 0.06 s to 2.3 s while PostShiba was slow.
+- **Principle:** [lease-connections-per-query](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/lease-connections-per-query.md).
+
+### 2. Answer at commit; dispatch off the request
+
+- **Problem:** a request kept open across a provider call times out its caller.
+- **Primitive:** `waitUntil` at the edge, with a backstop that replays the same [idempotency](/lore/http-responses-need-validation) key.
+- **Seam:** `joinIntakeLayer` commits the contact as `ready` with a pending-delivery marker, then answers. `JoinRequest.afterResponse` runs delivery through `waitUntil`. A five-minute intake sweep redrives every marked contact with its submission id.
+- **Erase:** the same shape. The erase marks the contact, writes the event tombstone with bounded backoff, and removes the contact after the tombstone lands. The sweep finishes an erase that a Basin outage stopped.
+- **Fence:** `packages/core/test/join-answer-at-commit.model.test.ts` and `packages/core/test/intake-sweep.model.test.ts`.
+- **Incident:** drovr's ingress forward. Five `POST /events` answered 503 after their events committed.
+- **Principle:** [answer-at-commit](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/answer-at-commit.md).
+
+### 3. Set a provider timeout once
+
+- **Problem:** timeout literals in several layers drift apart.
+- **Primitive:** a `Context.Reference` with a default, read at [layer](/lore/layers-make-dependencies-explicit) build, then `Effect.timeoutOption`.
+- **Seam:** `DrovrIntakeTimeout`. Browser and agent intake both read it. The Worker sets it from `DROVR_INTAKE_TIMEOUT_SECONDS`. `JoinDeliveryDeadline` gives every delivery one 25-second budget across its retries, under the 30-second `waitUntil` allowance.
+- **Fence:** `packages/subscriber-delivery/test/intake-timeout.test.ts`.
+- **Incident:** drovr #2339 changed a PostShiba timeout by deploy.
+- **Principle:** [one-timeout-at-the-boundary](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/one-timeout-at-the-boundary.md).
+
+### 4. Bound work in flight
+
+- **Problem:** a serial loop lets provider latency set throughput. An unbounded fan-out floods the provider.
+- **Primitive:** `Effect.forEach` with `concurrency`, or a `Semaphore`.
+- **Seam:** the application listing in `apps/site/src/interest/applications.ts` reads 8 at a time, in id order. `intakeRedeliver` stops at the first outcome other than accepted and returns the rest.
+- **Fence:** `apps/site/test/intake-applications-concurrency.test.ts`.
+- **Principle:** [bound-in-flight-work-with-keys](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/bound-in-flight-work-with-keys.md).
+
+### 5. Scope waiters to the request
+
+- **Problem:** a module-level `Deferred` or `Semaphore` in a Worker isolate makes one caller wait on another caller's work.
+- **Primitive:** a `Deferred`, `Cache`, `Ref`, `Semaphore`, `Queue`, `Latch`, `PubSub`, `PartitionedSemaphore`, or `TxSemaphore` created inside one request or runtime [scope](/lore/scopes-own-resources).
+- **Fence:** `rat-stack-patterns/shared-waiters`, with a rejecting and an allowed fixture per constructor in `packages/core/test/patterns-rule.test.ts`.
+- **Incident:** drovr cars #2344 and #2348.
+- **Principle:** [scope-waiters-to-the-request](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/scope-waiters-to-the-request.md).
+
+### 6. Climb a flag with a ledger
+
+- **Problem:** changing one value by deploy costs a plan, a readback, and another deploy to undo it.
+- **Primitive:** a `Context.Service` flags [port](/lore/hexagonal-architecture) with `Layer` adapters and a declared lifecycle [machine](/lore/lifecycles-are-machines).
+- **Seam:** the [flags](/systems/flags) [cartridge](/lore/cartridges). The lifecycle `declared → rollingOut → on → removed` is the ladder. `setFlag` writes a Pending key and a completion key for each attempt.
+- **Fence:** `packages/flags/test/writes.model.test.ts` and `packages/flags/test/lifecycle.model.test.ts`.
+- **Incident:** drovr shipped `postshiba-send-hold` dark behind three rungs.
+- **Principle:** [climb-flags-with-a-ledger](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/climb-flags-with-a-ledger.md).
+
+### 7. Fail open on liveness, closed on harm
+
+- **Problem:** a gate that refuses on delay stops good work. A fallback in front of real harm lets the harm through.
+- **Primitive:** `Schema.TaggedError` refusals, `Effect.catchTag`, and bounded retries.
+- **Seam:** the deploy driver refuses an unapproved replacement or deletion with `PlanRejected`. It retries content-version mismatches until a deadline. A failed Worker flag read uses the Config value.
+- **Fence:** `packages/deploy/test/plan.test.ts` and `packages/deploy/test/content-propagation.model.test.ts`.
+- **Incident:** PostShiba's p50 rose from 0.3 s to 8 s. 46 of 47 timed-out first asks still arrived, and drovr did not resend.
+- **Principle:** [fail-open-on-liveness](https://github.com/joelhooks/rat-stack/blob/main/skills/durability/principles/fail-open-on-liveness.md).
+
+## The standard
+
+- Every pattern has a seam in shipped code. Toy examples do not count.
+- Every pattern has a fence. The fence fails on a planted copy of its incident's bug.
+- A provider call never runs inside a held database lease.
+- The join answer never waits on drovr. The contact is `ready` before the answer leaves.
+- Each provider has one timeout value. Config sets it at the [composition root](/lore/structure-effect-by-domain).
+- Every fan-out names its bound.
+- Effect stays at the pinned version. These patterns add no dependency.
+
+The idle lease of 250 ms is a guess. drovr lists the same value with an expiry. Measure it before you depend on it.
+
+## How to check
+
+1. Run `pnpm --filter @rat-stack/database exec vitest run test/connection-lease.test.ts`.
+2. Run `pnpm --filter @rat-stack/core exec vitest run test/join-answer-at-commit.model.test.ts`.
+3. Run `pnpm --filter @rat-stack/subscriber-delivery exec vitest run test/intake-timeout.test.ts`.
+4. Run `pnpm --filter @rat-stack/site exec vitest run test/intake-applications-concurrency.test.ts`.
+5. Plant a bug and watch its fence fail:
+   - Hold the lease for the whole request.
+   - Run delivery before the answer.
+   - Put `"20 seconds"` back in the agent intake.
+   - Make the application read unbounded.
+6. Run `pnpm turbo run check test build --concurrency=1` for the full gate.

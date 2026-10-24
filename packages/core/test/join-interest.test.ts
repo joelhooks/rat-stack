@@ -58,6 +58,11 @@ const card = {
   x: "https://x.com/fake_applicant",
 } as const;
 
+const pendingAfterAnswer = (
+  deferred: boolean,
+  delivered: "accepted" | "refused" | "retry"
+) => (deferred || delivered !== "retry" ? undefined : "delivery");
+
 it.effect.prop(
   "only authorized clean recorded submissions leave the mapping; every response hides disposition",
   {
@@ -142,6 +147,7 @@ it.effect.prop(
         .pipe(
           Effect.provide(layer),
           Effect.provideService(JoinRequest, {
+            afterResponse: (work) => work,
             allow: () =>
               Effect.sync(() => {
                 steps.push("gate");
@@ -169,7 +175,7 @@ it.effect.prop(
       expect(result.message).toBe(
         scenario.enabled ? messageForGate[scenario.gate] : JOIN_NOT_OPEN
       );
-      expect(saved).toHaveLength(eligible ? 1 : 0);
+      expect(new Set(saved).size).toBe(eligible ? 1 : 0);
 
       if (result.message === JOIN_BUSY) {
         expect(result.statusRef).toBe("unavailable");
@@ -290,7 +296,7 @@ const scorerVerdict = (
 });
 
 it.effect.prop(
-  "only availability failures and scorer-only holds return delayed; real holds win",
+  "only scorer-only holds return delayed; real holds win; drovr outcomes settle the contact, not the answer",
   {
     delivery: Arbitrary.schema(WaitFreeDeliveryResult),
     highScore: Arbitrary.schema(
@@ -376,13 +382,14 @@ it.effect.prop(
       const result = yield* joinInterest.handler({ ...card, ticket }).pipe(
         Effect.provide(layer),
         Effect.provideService(JoinRequest, {
+          afterResponse: (work) => work,
           allow: () => Effect.succeed("allowed" as const),
           ip: "203.0.113.17",
           userAgent: "property-test",
         })
       );
 
-      const delayed = scorerOnly || (!realHold && delivery.kind === "retry");
+      const delayed = scorerOnly;
       expect(result.message).toBe(delayed ? JOIN_DELAYED : JOIN_ANSWER);
       expect(Schema.is(joinInterestContract.output)(result)).toBe(true);
       const [submissionId] = submissionIds;
@@ -405,7 +412,10 @@ it.effect.prop(
       expect(states).toEqual(
         realHold || scorerOnly
           ? deferredStates
-          : ["ready", deliveredState[delivery.kind]]
+          : [deliveredState[delivery.kind]]
+      );
+      expect(contact?.pending).toBe(
+        pendingAfterAnswer(realHold || scorerOnly, delivery.kind)
       );
 
       const expectedCalls =
@@ -497,6 +507,7 @@ it.effect.prop(
       const fiber = yield* joinInterest.handler({ ...card, ticket }).pipe(
         Effect.provide(layer),
         Effect.provideService(JoinRequest, {
+          afterResponse: (work) => work,
           allow: () => Effect.succeed("allowed" as const),
           ip: "203.0.113.17",
           userAgent: "property-test",
@@ -568,6 +579,7 @@ it.effect.prop(
       const submit = joinInterest.handler({ ...card, ticket }).pipe(
         Effect.provide(layer),
         Effect.provideService(JoinRequest, {
+          afterResponse: (work) => work,
           allow: () => Effect.succeed("allowed" as const),
           ip: "203.0.113.17",
           userAgent: "property-test",
@@ -593,12 +605,7 @@ it.effect.prop(
         )
       ).toBe(true);
       const second = yield* submit;
-      expect(first.message).toBe(
-        generated.slice(0, 3).length === 3 &&
-          generated.slice(0, 3).every((kind) => kind === "retry")
-          ? JOIN_DELAYED
-          : JOIN_ANSWER
-      );
+      expect(first.message).toBe(JOIN_ANSWER);
       expect(second.message).toBe(JOIN_ANSWER);
       expect(second.statusRef).not.toBe(first.statusRef);
       expect(sent.length).toBe(expectedAttempts);
@@ -634,6 +641,7 @@ it.effect(
       yield* joinInterest.handler({ ...card, ticket }).pipe(
         Effect.provideContext(services),
         Effect.provideService(JoinRequest, {
+          afterResponse: (work) => work,
           allow: () => Effect.succeed("allowed" as const),
           ip: "203.0.113.17",
           userAgent: "test",

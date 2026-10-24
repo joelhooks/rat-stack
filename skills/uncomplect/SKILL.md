@@ -28,6 +28,8 @@ Greg Young's _The Art of Destroying Software_ argues for replaceable programs. O
 
 Read `AGENTS.md`, `VISION.md`, and the relevant `.brain/` decisions. Inspect the design's source, tests, and recorded runtime results. Check library APIs against matching pinned sources before changing Effect, XState, or Alchemy code. Every recommendation must name its source file, preserved behavior, deleted complexity, and enforced check.
 
+A held connection, a request, and a provider call in one scope is a braid. Separate them with [durability](/skills/durability).
+
 ## Terms used here
 
 - **Capability**: One named action with a contract and a server-side handler.

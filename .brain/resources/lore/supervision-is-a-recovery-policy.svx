@@ -1,0 +1,66 @@
+---
+title: "Supervision chooses what restarts"
+description: "Restart policy follows dependency shape and bounds repeated recovery."
+group: concept
+terms:
+  - "supervision"
+  - "restart intensity"
+  - "restart domain"
+sources:
+  - url: https://www.manning.com/books/erlang-and-otp-in-action
+    title: "Logan, Martin; Merritt, Eric; Carlsson, Richard. Erlang and OTP in Action."
+    publisher: "Manning"
+    note: "The Erlang/OTP Platform: Let It Crash; process isolation; §4.2.2 supervisor restart strategy."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/elixir-in-action-third-edition
+    title: "Jurić, Saša. Elixir in Action, Third Edition. Manning, 2024."
+    publisher: "Manning"
+    note: "§5.4.3 Shared-Nothing Concurrency; Chapters 8–9, fault tolerance and supervision; Other Use Cases for ETS."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Scope.ts
+    title: "Effect contributors. Effect 4.0.0. Scope.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/FiberSet.ts
+    title: "Effect contributors. Effect 4.0.0. FiberSet.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+OTP restart strategies distinguish independent children from dependent siblings. A persistently broken child also needs a limit on repeated restarts.
+
+> The point of letting an entire subsystem terminate and be restarted is that it brings you back to a state known to function properly.
+
+Source: [Q01](/lore/durability-bibliography#q01); [B1](/lore/durability-bibliography#b1-erlang-and-otp-in-action), [B2](/lore/durability-bibliography#b2-elixir-in-action), [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp).
+
+## Failure it prevents
+
+Healthy siblings restart unnecessarily, or dependent siblings continue with stale state.
+
+## Our Effect 4.0.0 reading
+
+No OTP restart supervisor was found in the checked source. [Scope](/lore/scopes-own-resources) and `FiberSet` handle lifetime. Use XState for explicit restart modes and a host for runtime restart.
+
+Source: `packages/effect/src/Effect.ts`, `packages/effect/src/Scope.ts`, `packages/effect/src/FiberSet.ts`.
+
+## How to check
+
+Generate child failures and repeated restart attempts. Check affected dependents, escalation, and reconstructed state. This check is our proposal. The books do not prescribe it.
+
+Continue with [Restart must reconstruct known state](/lore/restart-from-known-state), [Circuit breakers have state](/lore/circuit-breakers-have-state).
+
+Connect this to [the existing rat-stack guidance](/lore/lifecycles-are-machines).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

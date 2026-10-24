@@ -1,0 +1,60 @@
+---
+title: "Pure cores reduce timeline coupling"
+description: "Move deterministic rules out of time-dependent actions and shared mutable state."
+group: concept
+terms:
+  - "functional core"
+  - "actions and calculations"
+sources:
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/grokking-simplicity
+    title: "Normand, Eric. Grokking Simplicity: Taming Complex Software with Functional Thinking. Manning, 2021."
+    publisher: "Manning"
+    note: "Chapters 15–17: Isolating Timelines, Sharing Resources Between Timelines, Coordinating Timelines."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. Effect 4.0.0. Context.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Layer.ts
+    title: "Effect contributors. Effect 4.0.0. Layer.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A functional core keeps domain rules independent of external interfaces and process machinery. Fewer shared timelines remove ordering problems before coordination is added.
+
+> Our core doesn’t access external interfaces or use any process machinery your component might use.
+
+Source: [Q14](/lore/durability-bibliography#q14); [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp), [B13](/lore/durability-bibliography#b13-grokking-simplicity).
+
+## Failure it prevents
+
+Rules change with hidden time or shared state and can only be tested through live integrations.
+
+## Our Effect 4.0.0 reading
+
+Keep pure rules as ordinary functions. `Context.Service` and `Layer` put [effectful dependencies](/lore/services-capture-dependencies) behind seams. Wrapping a callback in [Effect](/lore/effect-basics) does not make it pure.
+
+Source: `packages/effect/src/Context.ts`, `packages/effect/src/Layer.ts`, `packages/effect/src/Effect.ts`.
+
+## How to check
+
+Run the same decision with the same explicit data. Check that it needs neither network nor process state. This check is our proposal. The books do not prescribe it.
+
+Continue with [Replay needs stable inputs](/lore/replay-needs-stable-inputs), [Recovery needs model tests](/lore/recovery-needs-model-tests).
+
+Connect this to [the existing rat-stack guidance](/lore/layers-make-dependencies-explicit).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

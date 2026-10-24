@@ -53,6 +53,16 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Shared waiters
+
+`rat-stack-patterns/shared-waiters` adapts drovr's `tools/oxlint/drovr-layers/shared-waiters.ts` at commit `13f075b3` (drovr #2348). The original rule catches unsafe Deferred and Semaphore construction outside class instances. This implementation uses rat-stack's import resolution, checks module const construction and class fields, and adds Cache, Ref, Queue, Latch, PubSub, PartitionedSemaphore, and TxSemaphore. Only instance fields whose class directly extends the imported Cloudflare DurableObject receive the class-field exemption; static fields and unrelated subclasses do not. There are no inherited path exceptions. Drovr #2344 and #2348 record the cross-request waiter incident: another caller could hang or receive a 503.
+
+The `answer-at-commit` and `bound-in-flight-work-with-keys` principles in `skills/durability/principles/` apply drovr's 2026-10-23 dispatch incident to the shared reference. Their "In rat-stack" sections name the seams rat-stack ships: join delivery, the intake sweep, and the application listing.
+
+## Durability skill references
+
+`skills/durability/SKILL.md` and `skills/durability/references/` merge Switchboard's research drafts of 2026-10-23: the ranked principles, the recovery-owner table, the bibliography, the Effect map, and the request budget. The Effect map was drafted against effect 4.0.5 and rechecked against the pinned 4.0.0 declarations.
+
 ## Local deployment driver
 
 `packages/check-harness`, the service-port shape in `packages/deploy/src/deploy-runner.ts`, and `skills/ship` are ported from drovr (badass-courses), commit `6bfe63508539ee289564c4ef6a5768e26dca60b7`.
@@ -80,3 +90,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 ## Rule limits worth knowing
 
 `xstate-effect/no-inline-effect` flags an Effect created inside an inline enqueue callback or passed inline to `enq.spawn(...)`. It matches the enqueue parameter by name (`enq` or `enqueue`) and recognizes an Effect only by its root identifier `Effect`. So `enq(() => Effect.log("x"))` is reported, but an Effect from a helper (`enq(() => makeEffect())`), a renamed namespace import, or a `Stream` or `Layer` root is not. Widening it needs type information. | `scripts/oxlint-plugin-patterns.ts`, `no-hand-rolled-surface` and `no-browser-globals-on-server` in `scripts/oxlint-plugin-boundaries.ts` | [foldkit/foldkit](https://github.com/foldkit/foldkit) `packages/oxlint-plugin-foldkit` at `95fed7f`, MIT | Rule ideas translated to rat-stack's nouns and rewritten on `@oxlint/plugins`; no code copied. Mapping in `.brain/projects/rat-devtools.svx`. | | `packages/devtools` | [foldkit/foldkit](https://github.com/foldkit/foldkit) `packages/devtools-mcp` at `95fed7f`, MIT | Tool shapes, path alphabet, and summary format follow Foldkit's devtools MCP; the implementation is ours. |
+
+## Worker autonomy ladder
+
+The "Worker autonomy ladder" section in `AGENTS.md`, its note in `VISION.md`, and `skills/rat-stack-mode/principles/own-your-wait.md` take their shape from [badass-courses/drovr#2362](https://github.com/badass-courses/drovr/pull/2362). The text is rewritten for the rat-stack template; no drovr-specific gates are copied.

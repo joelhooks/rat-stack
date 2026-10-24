@@ -124,4 +124,4 @@ Keep refusal, unexpected failure, and successful completion distinct.
 - In rat-stack, errors name their source and give repair guidance. Finite lifecycles use XState through the pinned Effect bridge.
 - The application chooses which lifecycles need machines and which diagnostic fields each error needs.
 
-See also: [schemas](/lore/schemas-define-the-boundary), [author-facing diagnostics](/lore/errors-are-part-of-the-interface), [independent failures](/lore/accumulate-independent-errors), and [lifecycles](/lore/lifecycles-are-machines).
+See also: [schemas](/lore/schemas-define-the-boundary), [author-facing diagnostics](/lore/errors-are-part-of-the-interface), [independent failures](/lore/accumulate-independent-errors), and [lifecycles](/lore/lifecycles-are-machines). [Failures keep their meaning](/lore/failures-keep-their-meaning) maps failure kinds to retry, refusal, and escalation.

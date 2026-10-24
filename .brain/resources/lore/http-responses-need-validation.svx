@@ -108,7 +108,7 @@ Before retrying a write:
 
 1. Identify the operation's replay or idempotency guarantee: whether repeating it can create a second change.
 2. Decide which failures allow another attempt.
-3. Measure the retry budget, the allowed attempts or time, and select the schedule.
+3. Measure the [retry budget](/lore/retry-load-needs-a-budget), the allowed attempts or time, and select the schedule.
 4. Preserve the final named failure when the budget ends.
 
 Do not copy example delays or retry counts into production as measured limits.
