@@ -6,6 +6,7 @@ import type {
   ReaderInlineValue,
 } from "../client/reader-document.js";
 import { readerParagraph } from "./reader-paragraph.js";
+import { readerTable } from "./reader-table.js";
 
 export type SnippetReference = Extract<
   ReaderBlockValue,
@@ -120,4 +121,16 @@ export const renderReaderBlock = <Message>(
       ),
     PromptText: ({ value }) => h.pre([h.Class("prompt")], [value]),
     Snippet: renderers.snippet,
+    Table: (table) =>
+      readerTable(
+        table,
+        (inline) =>
+          renderReaderInline(
+            inline,
+            h,
+            renderers.inboundCounts,
+            renderers.pagePath
+          ),
+        h
+      ),
   });

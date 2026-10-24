@@ -1,11 +1,10 @@
 import { Data, Predicate } from "effect";
 import type { PhrasingContent, RootContent } from "mdast";
-import remarkParse from "remark-parse";
-import { unified } from "unified";
 
 import { linkLoreTerms } from "./content-lib.ts";
 import type { LoreHastNode, LoreTermTarget } from "./content-lib.ts";
 import { linkStackEntities } from "./content-links.ts";
+import { parseContentMarkdown } from "./svx-ast.ts";
 
 type ParsedInline = Data.TaggedEnum<{
   Code: { readonly value: string };
@@ -32,6 +31,12 @@ type HomeBlock = Data.TaggedEnum<{
   };
   List: { readonly items: readonly (readonly ParsedInline[])[] };
   Paragraph: { readonly content: readonly ParsedInline[] };
+  Table: {
+    readonly align: readonly ("left" | "right" | "center" | null)[];
+    readonly headers: readonly (readonly ParsedInline[])[];
+    readonly label: string;
+    readonly rows: readonly (readonly (readonly ParsedInline[])[])[];
+  };
 }>;
 
 const Block = Data.taggedEnum<HomeBlock>();
@@ -83,7 +88,7 @@ const inlineDocument = (node: PhrasingContent): ParsedInline => {
   );
 };
 
-const blockDocument = (node: RootContent): HomeBlock => {
+const blockDocument = (node: RootContent, heading: string): HomeBlock => {
   if (node.type === "paragraph") {
     return Block.Paragraph({ content: node.children.map(inlineDocument) });
   }
@@ -122,6 +127,23 @@ const blockDocument = (node: RootContent): HomeBlock => {
 
         return paragraph.children.map(inlineDocument);
       }),
+    });
+  }
+
+  if (node.type === "table") {
+    const [head, ...body] = node.children;
+
+    return Block.Table({
+      align: node.align ?? [],
+      headers: (head?.children ?? []).map((cell) =>
+        cell.children.map(inlineDocument)
+      ),
+      label: `${heading} table`,
+      rows: body.map((row) =>
+        (head?.children ?? []).map((_, index) =>
+          (row.children[index]?.children ?? []).map(inlineDocument)
+        )
+      ),
     });
   }
 
@@ -216,6 +238,22 @@ const weaveHomeTerms = (
       };
     }
 
+    if (Predicate.isTagged(block, "Table")) {
+      return {
+        children: block.rows.map((row) => ({
+          children: row.map((cell) => ({
+            children: cell.map(inlineToTermTree),
+            tagName: "td",
+            type: "element",
+          })),
+          tagName: "tr",
+          type: "element",
+        })),
+        tagName: "table",
+        type: "element",
+      };
+    }
+
     return { tagName: "pre", type: "element" };
   });
 
@@ -238,29 +276,42 @@ const weaveHomeTerms = (
       });
     }
 
+    if (Predicate.isTagged(block, "Table")) {
+      return Block.Table({
+        ...block,
+        rows: woven.map((row) =>
+          (row.children ?? []).map((cell) =>
+            (cell.children ?? []).map(inlineFromTermTree)
+          )
+        ),
+      });
+    }
+
     return block;
   });
 };
+
+const isPageHeading = (node: RootContent | undefined, heading: string) =>
+  node?.type === "heading" &&
+  node.depth === 1 &&
+  node.children.map(plainInline).join("") === heading;
 
 export const compileReaderDocument = (
   source: string,
   targets: readonly LoreTermTarget[],
   page: { readonly heading: string; readonly route: string }
 ) => {
-  const root = unified().use(remarkParse).parse(source);
+  const root = parseContentMarkdown(source, page.route);
   const first = root.children.at(0);
 
-  if (
-    first?.type !== "heading" ||
-    first.depth !== 1 ||
-    first.children.map(plainInline).join("") !== page.heading
-  ) {
+  if (!isPageHeading(first, page.heading)) {
     throw new Error(
       `Reader source for ${page.route} must start with its single ${page.heading} heading`
     );
   }
 
   const blocks: HomeBlock[] = [];
+  let { heading } = page;
 
   for (let index = 1; index < root.children.length; index += 1) {
     const node = root.children[index];
@@ -270,7 +321,13 @@ export const compileReaderDocument = (
     }
 
     if (node.type !== "html") {
-      blocks.push(blockDocument(node));
+      const block = blockDocument(node, heading);
+      blocks.push(block);
+
+      if (Predicate.isTagged(block, "Heading")) {
+        heading = block.title;
+      }
+
       continue;
     }
 

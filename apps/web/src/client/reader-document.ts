@@ -51,6 +51,14 @@ export const ReaderBlock = defineTaggedUnion({
     path: Schema.String,
     repo: Schema.String,
   },
+  Table: {
+    align: Schema.Array(
+      Schema.NullOr(Schema.Literals(["left", "right", "center"]))
+    ),
+    headers: Schema.Array(Schema.Array(ReaderInlineSchema)),
+    label: Schema.String,
+    rows: Schema.Array(Schema.Array(Schema.Array(ReaderInlineSchema))),
+  },
 });
 
 export type ReaderBlockValue = typeof ReaderBlock.Type;
