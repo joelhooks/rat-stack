@@ -64,7 +64,7 @@ These checks enforce it today:
 - `@yielded/effect-tsrs` `0.2.0` runs TypeScript and Effect diagnostics in `typecheck` and `check`. Every invocation uses `--strict`, so warnings fail too.
 - effect-tsrs bundles tsrs main `8f135f1`. Plain [tsrs](https://blog.cloudflare.com/typescript-rust-port/) `0.18.0-ts7.1.0-dev.20260929` stays in `typecheck:fast`, without Effect diagnostics.
 - Re-align both checker versions when tsrs releases `8f135f1`.
-- Patched TypeScript `7.0.2` with `@effect/tsgo` `0.54.0` runs separately through `pnpm typecheck:tsc` in CI. `ignoreEffectWarningsInTscExitCode` stays false.
+- Patched TypeScript `7.0.2` with `@effect/tsgo` `0.55.0` runs separately through `pnpm typecheck:tsc` in CI. `ignoreEffectWarningsInTscExitCode` stays false.
 - Keep that backstop until a month with zero disagreements, or effect-tsrs 1.0. Stop rollout and report any checker disagreement.
 - Lefthook runs `pnpm check` and `pnpm test` before every commit.
 - `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
