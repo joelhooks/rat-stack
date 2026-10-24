@@ -22,6 +22,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json",
     "check": "pnpm run typecheck",

@@ -1,6 +1,45 @@
 [
   {
     "kind": "release",
+    "url": "https://blog.cloudflare.com/typescript-rust-port/",
+    "title": "tsrs joins the stack as the fast typecheck",
+    "summary": "rat-stack adds tsrs for fast typechecks. It does not run Effect diagnostics, so patched tsc stays in the gate.",
+    "date": "2026-10-24",
+    "repo": "joelhooks/rat-stack",
+    "author": {
+      "github": "joelhooks",
+      "x": "joelhooks"
+    },
+    "source": "https://blog.cloudflare.com/typescript-rust-port/"
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/tsgo/releases/tag/%40effect%2Ftsgo%400.56.0",
+    "title": "@effect/tsgo 0.56.0 released",
+    "summary": "Effect language service for tsgo now builds, tests and ships against the TypeScript beta channel, currently the 7.1.0 beta compiler.",
+    "date": "2026-10-21",
+    "repo": "Effect-TS/tsgo",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/Effect-TS/tsgo/releases"
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.169.0",
+    "title": "Foldkit 0.169.0",
+    "summary": "Foldkit 0.169.0 adds Transition.match route helpers, lets one DevTools MCP session inspect several running apps, and fixes lost keystrokes and IME input.",
+    "date": "2026-10-21",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/foldkit/foldkit/releases"
+  },
+  {
+    "kind": "release",
     "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.70",
     "title": "xstate 6.0.0-alpha.70 and @xstate/effect 1.0.0-alpha.9",
     "summary": "xstate 6.0.0-alpha.70 removes ActorRefFromLogic and resolves # targets by exact state id; @xstate/effect 1.0.0-alpha.9 tags root parallel states with the machine id.",
@@ -72,19 +111,6 @@
         "x": "ozyman42"
       }
     ]
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/tsgo/releases/tag/%40effect%2Ftsgo%400.53.3",
-    "title": "@effect/tsgo 0.53.3 released",
-    "summary": "Effect language service for tsgo: apiStabilityLeak allocates less, and effect-tsgo diagnostics now reports related locations, including in JSON output.",
-    "date": "2026-10-16",
-    "repo": "Effect-TS/tsgo",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://github.com/Effect-TS/tsgo/releases"
   },
   {
     "kind": "launch",
@@ -321,22 +347,6 @@
     "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
     "engagement": {
       "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": "devinjameson",
-      "x": "devinjameson"
-    },
-    "date": "2026-10-07",
-    "kind": "post",
-    "repo": null,
-    "source": "https://foldkit.dev/blog",
-    "summary": "Foldkit 0.167.0 lets the server entry render the whole HTML page and adds a Node host adapter.",
-    "title": "Foldkit 0.167.0",
-    "url": "https://foldkit.dev/blog/foldkit-0-167-0",
-    "engagement": {
-      "seen": 2
     }
   },
   {
