@@ -15,7 +15,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - `@xstate/effect` `1.0.0-alpha.9` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
 - Alchemy `2.0.0-beta.83` (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.54.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
-- `@yielded/effect-tsrs` `0.2.0` runs `typecheck` and `check` with `diagnostics --project tsconfig.json --strict`. It bundles tsrs main `8f135f1`; `--strict` makes Effect warnings fail. Keep `ignoreEffectWarningsInTscExitCode` false. Patched TypeScript `7.0.2` with `@effect/tsgo` `0.54.0` stays in `typecheck:tsc` as a separate CI backstop. Drop the backstop after a month with zero disagreements, or at effect-tsrs 1.0. Stop rollout and report any checker disagreement.
+- `@yielded/effect-tsrs` `0.2.0` runs `typecheck` and `check` with `diagnostics --project tsconfig.json --strict`. It bundles tsrs main `8f135f1`; `--strict` makes Effect warnings fail. Keep `ignoreEffectWarningsInTscExitCode` false. Patched TypeScript `7.0.2` with `@effect/tsgo` `0.54.0` runs through `typecheck:tsc` and `typecheck:parity` at the switch and on checker bumps (`pnpm bump:checkers`), not on every CI run. Report any checker disagreement.
 - Plain tsrs `0.18.0-ts7.1.0-dev.20260929` stays in `typecheck:fast`. It has no Effect diagnostics. Re-align the checker versions at the first tsrs release containing `8f135f1`.
 - `@effect/vitest` `4.0.0` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
 - `@oxlint/plugins` `1.88.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
@@ -107,7 +107,7 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 - **`pnpm test`**: Build and run the Vitest suite once
 - **`pnpm build`**: Compile package outputs
 - **`pnpm typecheck`**: Strict effect-tsrs checks for workspaces and root scripts
-- **`pnpm typecheck:tsc`**: Patched `tsc` backstop for workspaces and root scripts
+- **`pnpm typecheck:tsc`**: Patched `tsc` for workspaces and root scripts; runs at checker bumps, not in CI
 - **`pnpm typecheck:fast`**: Fast feedback in seconds; no Effect diagnostics; `pnpm check` is still the gate
 - **`pnpm typecheck:parity`**: Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded
 - **`pnpm bump:checkers`**: Bump both checker pins to npm latest, install without scripts, report bundled revision alignment, and run both parity pairs; never commit or push
@@ -153,7 +153,7 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 
 Why lives in `AGENTS.md` / `VISION.md`. The stack and hooks are the enforceable fence. Fence wins over prose.
 
-- Lefthook pre-commit runs `pnpm check` and `pnpm test`. `check` runs strict effect-tsrs; floating Effects and warning-level Effect diagnostics fail. CI also runs `pnpm typecheck:tsc` and `pnpm typecheck:parity`.
+- Lefthook pre-commit runs `pnpm check` and `pnpm test`. `check` runs strict effect-tsrs; floating Effects and warning-level Effect diagnostics fail. CI type-checks through `check` only.
 - Agents must not use `git … --no-verify` (or equivalent hook bypass)
 - Blocked by: Pi `.pi/extensions/git-interceptor`, Cursor `.cursor/hooks.json`, Claude Code `.claude/settings.json`
 - Policy source: `scripts/vcs-command-policy.js`
