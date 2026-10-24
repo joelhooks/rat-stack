@@ -938,6 +938,39 @@ const endsWithWhitespace = /[ \t\r\n]+$/u;
 
 const hasContent = /[^ \t\r\n]/u;
 
+const inlineWhitespaceParents = new Set([
+  "a",
+  "abbr",
+  "b",
+  "bdi",
+  "bdo",
+  "button",
+  "cite",
+  "data",
+  "del",
+  "dfn",
+  "em",
+  "i",
+  "ins",
+  "kbd",
+  "label",
+  "mark",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "time",
+  "u",
+  "var",
+]);
+
 const removableSpaceParents = new Set([
   "colgroup",
   "datalist",
@@ -1015,7 +1048,14 @@ const collapseNodes = (
   context: CollapseContext
 ): TemplateNode[] => {
   const collapsed = dropPreNewline(
-    context.preserve ? nodes : collapseText(trimFragment(nodes), context),
+    context.preserve
+      ? nodes
+      : collapseText(
+          inlineWhitespaceParents.has(context.parent)
+            ? nodes
+            : trimFragment(nodes),
+          context
+        ),
     context.parent
   );
 

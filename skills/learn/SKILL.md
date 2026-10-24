@@ -70,11 +70,15 @@ The default local store is `~/.rat-learn/`. `RAT_LEARN_DIRECTORY` selects anothe
 
 `~/.rat-learn/preferences.json` holds three display choices. It stays on the machine.
 
-| Field     | Values                | Default       |
-| --------- | --------------------- | ------------- |
-| `width`   | `narrow`, `wide`      | `narrow`      |
-| `visual`  | `inline-text`, `rich` | `inline-text` |
-| `snippet` | `full`, `terse`       | `full`        |
+- **`width`**:
+  - Values: `narrow`, `wide`
+  - Default: `narrow`
+- **`visual`**:
+  - Values: `inline-text`, `rich`
+  - Default: `inline-text`
+- **`snippet`**:
+  - Values: `full`, `terse`
+  - Default: `full`
 
 - Read it with `learnPreferences`. A missing file means the defaults.
 - Change it with `learnSetPreferences` only when the operator asks.
@@ -96,12 +100,10 @@ The default local store is `~/.rat-learn/`. `RAT_LEARN_DIRECTORY` selects anothe
 9. Omit `progress`. Omitted progress means none yet, and the local tools read their own log.
 10. Follow the returned depth. Present one relevant concept at a time.
 
-| Depth | Presentation |
-| --- | --- |
-| walkthrough | Show the `plain` line first, then the claim. Show the card's `snippet` as a TypeScript fence and its `diagram` as a text fence. Link the page. |
-| paragraph | Give the source summary as a short paragraph. Link the page for more detail. |
-| line | Give one source-grounded sentence. |
-| none | Say nothing. The tool omits concepts that need no presentation. |
+- **walkthrough**: Show the `plain` line first, then the claim. Show the card's `snippet` as a TypeScript fence and its `diagram` as a text fence. Link the page.
+- **paragraph**: Give the source summary as a short paragraph. Link the page for more detail.
+- **line**: Give one source-grounded sentence.
+- **none**: Say nothing. The tool omits concepts that need no presentation.
 
 Use the card's `snippet` and `diagram` exactly as served. The content build compiles every snippet against the pinned versions. Never write your own snippet or diagram for a card.
 

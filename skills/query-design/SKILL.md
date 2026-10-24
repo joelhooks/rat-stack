@@ -47,16 +47,14 @@ Done means the store implementation matches a written query plan, and checks det
 
 Record these before changing the store:
 
-| Field       | Evidence to record                                        |
-| ----------- | --------------------------------------------------------- |
-| Question    | The fact or change the caller needs                       |
-| Caller      | Capability, scan, export, or background job               |
-| Rate        | Calls per invocation and invocations per second or run    |
-| Authority   | System of record, derived copies, and writer              |
-| Row budget  | Maximum rows read with tables at 100× today's size        |
-| Statements  | Round trips per call, per page, and per run               |
-| Timing      | Measured RTT, predicted wall time, and observed page time |
-| Concurrency | Maximum simultaneous queries or transactions              |
+- **Question**: The fact or change the caller needs
+- **Caller**: Capability, scan, export, or background job
+- **Rate**: Calls per invocation and invocations per second or run
+- **Authority**: System of record, derived copies, and writer
+- **Row budget**: Maximum rows read with tables at 100× today's size
+- **Statements**: Round trips per call, per page, and per run
+- **Timing**: Measured RTT, predicted wall time, and observed page time
+- **Concurrency**: Maximum simultaneous queries or transactions
 
 Measure table sizes and inspect existing indexes. Keep credentials and row contents out of measurements and reports. Route operator, export, and monitor reads to a replica or a copy. Record any consistency tradeoff. Compare repeated joins or aggregates with a keyed [read model](/skills/add-a-store) before adding a hot-path scan.
 
@@ -77,13 +75,21 @@ A result limit bounds returned rows. EXPLAIN evidence must also prove the scanne
 
 These limits apply to PlanetScale Vitess transactional workloads. They do not describe PlanetScale Postgres. The [Vitess system limits page](https://planetscale.com/docs/vitess/troubleshooting/planetscale-system-limits) supplies the published values.
 
-| Limit | Published value | Design consequence |
-| --- | --- | --- |
-| Transaction timeout | 20 s | Treat it as fixed in application configuration. Use short transactions. |
-| Autocommit query timeout | 900 s | Page work well before the timeout. |
-| Rows returned, updated, or deleted per query | 100k | Bound reads and bulk writes. |
-| Result size per query | 64 MiB | Bound bytes as well as rows. |
-| Transaction pool | Capped; capacity varies by instance type | Limit simultaneous transactions and keep them short. |
+- **Transaction timeout**:
+  - Published value: 20 s
+  - Design consequence: Treat it as fixed in application configuration. Use short transactions.
+- **Autocommit query timeout**:
+  - Published value: 900 s
+  - Design consequence: Page work well before the timeout.
+- **Rows returned, updated, or deleted per query**:
+  - Published value: 100k
+  - Design consequence: Bound reads and bulk writes.
+- **Result size per query**:
+  - Published value: 64 MiB
+  - Design consequence: Bound bytes as well as rows.
+- **Transaction pool**:
+  - Published value: Capped; capacity varies by instance type
+  - Design consequence: Limit simultaneous transactions and keep them short.
 
 The limits page says support can sometimes adjust limits per database. It offers no application setting for the transaction timeout. Do not make a design depend on a larger timeout.
 

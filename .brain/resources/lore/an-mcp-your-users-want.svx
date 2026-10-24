@@ -41,13 +41,23 @@ OAuth lets a person authorize a client to access a service.
 
 The table compares his advice with rat-stack today. The gaps remain open; this page authorizes no changes.
 
-| Rhys's point | rat-stack today | Verdict |
-| --- | --- | --- |
-| Do what the dashboard can do. | Each interface uses the same contract and handler. The public site exposes `search` and `read`; the CLI projects registered capabilities too. | Agree |
-| Keep code mode out of the default MCP tool list. | CLI `mcp` uses plain tools; `--code-mode` opts into code mode. The hosted site's MCP includes `execute` because demonstrating the sandbox is the site's job. | Agree in the template; the hosted site differs |
-| Ship search for docs and skills. | The site's `search` and `read` capabilities cover public content. Lore pages are included in the searchable documentation. | Agree |
-| Add a deep link into the product. | No product-action deep-link tool appears in the hosted capability registry. | Gap |
-| Offer toolsets and permissions tied to the auth token. | Contracts can require approval, and `Approval` gates execution. The hosted MCP has no user-token toolsets; `auth.md` says it accepts no credentials. | Gap |
-| Let clients use OAuth; an API spec and Client ID Metadata Document (CIMD) OAuth cover most agents. | The auth cartridge supports Better Auth sessions for an app, but ratstack.sh says it has no OAuth or access tokens. | Gap |
+- **Do what the dashboard can do.**:
+  - rat-stack today: Each interface uses the same contract and handler. The public site exposes `search` and `read`; the CLI projects registered capabilities too.
+  - Verdict: Agree
+- **Keep code mode out of the default MCP tool list.**:
+  - rat-stack today: CLI `mcp` uses plain tools; `--code-mode` opts into code mode. The hosted site's MCP includes `execute` because demonstrating the sandbox is the site's job.
+  - Verdict: Agree in the template; the hosted site differs
+- **Ship search for docs and skills.**:
+  - rat-stack today: The site's `search` and `read` capabilities cover public content. Lore pages are included in the searchable documentation.
+  - Verdict: Agree
+- **Add a deep link into the product.**:
+  - rat-stack today: No product-action deep-link tool appears in the hosted capability registry.
+  - Verdict: Gap
+- **Offer toolsets and permissions tied to the auth token.**:
+  - rat-stack today: Contracts can require approval, and `Approval` gates execution. The hosted MCP has no user-token toolsets; `auth.md` says it accepts no credentials.
+  - Verdict: Gap
+- **Let clients use OAuth; an API spec and Client ID Metadata Document (CIMD) OAuth cover most agents.**:
+  - rat-stack today: The auth cartridge supports Better Auth sessions for an app, but ratstack.sh says it has no OAuth or access tokens.
+  - Verdict: Gap
 
 The comparison uses `apps/site/src/capabilities/index.ts`, `apps/cli/src/command.ts`, `packages/capability/src/approval.ts`, `packages/auth/src/auth.ts`, and the hosted site's `auth.md`. See [one capability, every surface](/lore/one-capability-every-surface) and the [cartridges](/lore/cartridges) page for the contracts and auth boundary.

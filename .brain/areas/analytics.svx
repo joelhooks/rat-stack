@@ -251,11 +251,15 @@ The cartridge does not prove that a delete physically erases a row by a known ti
 
 ## Switches
 
-| Setting | Default | What it does |
-| --- | --- | --- |
-| `EVENTS_ENABLED` | `false` | Off retains the bucket, stream, and salt, and records nothing. On adds the catalog, sink, and pipeline. |
-| `EVENTS_SINK_TOKEN` | unset | Requires R2 Admin Read & Write when capture is on. Export it in the deploy shell. |
-| `EVENTS_IDENTITY_MODE` | `persistent` in the site schema | `persistent` or `daily` visitor ids. The Worker falls back to `daily` when absent. |
+- **`EVENTS_ENABLED`**:
+  - Default: `false`
+  - What it does: Off retains the bucket, stream, and salt, and records nothing. On adds the catalog, sink, and pipeline.
+- **`EVENTS_SINK_TOKEN`**:
+  - Default: unset
+  - What it does: Requires R2 Admin Read & Write when capture is on. Export it in the deploy shell.
+- **`EVENTS_IDENTITY_MODE`**:
+  - Default: `persistent` in the site schema
+  - What it does: `persistent` or `daily` visitor ids. The Worker falls back to `daily` when absent.
 
 The sink token is read from the process environment. A value in `.env` or an `--env-file` is not seen.
 The deploy credential cannot create API tokens, so the sink token is supplied separately.

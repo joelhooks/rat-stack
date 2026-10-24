@@ -96,7 +96,7 @@ const footnoteNumber = (number: number) =>
     (digit) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[Number(digit)] ?? digit
   );
 
-const peerTable = (peers: readonly Peer[], pins: Pins) => {
+const peerList = (peers: readonly Peer[], pins: Pins) => {
   const notes: string[] = [];
 
   const annotatedVersion = (value: string, pin: string) => {
@@ -158,11 +158,12 @@ const peerTable = (peers: readonly Peer[], pins: Pins) => {
   return [
     "Drift: = matches our pin; ≠ differs from our pin. Pairs: XState then @xstate/effect; first seen then checked.",
     "",
-    `| ${columns.map((index) => headers[index]).join(" | ")} |`,
-    `| ${columns.map(() => "---").join(" | ")} |`,
-    ...rows.map(
-      (row) => `| ${columns.map((index) => row[index]).join(" | ")} |`
-    ),
+    ...rows.flatMap((row) => [
+      `- **${row[1]}**: tier ${row[0]}.`,
+      ...columns.flatMap((index) =>
+        index > 1 ? [`  - ${headers[index]}: ${row[index]}`] : []
+      ),
+    ]),
     "",
     ...notes.map(
       (note, index) => `${footnoteNumber(index + 1)} ${cell(note)}  `
@@ -178,10 +179,11 @@ const shared = (markdown: string): ComponentDefinition => ({
 export const peerComponentRegistry = (peers: readonly Peer[], pins: Pins) => {
   const { tailing, alsoSeen } = partitionPeers(peers);
 
-  const pinTable = [
-    "| Effect | Alchemy | XState | @xstate/effect |",
-    "| --- | --- | --- | --- |",
-    `| ${pins.effect} | ${pins.alchemy} | ${pins.xstate} | ${pins.xstateEffect} |`,
+  const pinList = [
+    `- **Effect**: ${pins.effect}`,
+    `- **Alchemy**: ${pins.alchemy}`,
+    `- **XState**: ${pins.xstate}`,
+    `- **@xstate/effect**: ${pins.xstateEffect}`,
   ].join("\n");
 
   const sources = [...tailing, ...alsoSeen]
@@ -197,11 +199,11 @@ export const peerComponentRegistry = (peers: readonly Peer[], pins: Pins) => {
     .join("\n");
 
   return createComponentRegistry({
-    PeerPins: shared(pinTable),
-    PeerRoster: shared(peerTable(tailing, pins)),
+    PeerPins: shared(pinList),
+    PeerRoster: shared(peerList(tailing, pins)),
     PeerSources: shared(sources),
     PeersAlsoSeen: shared(
-      `<details>\n<summary>Also seen: C–F (${alsoSeen.length} peers)</summary>\n\n${peerTable(alsoSeen, pins)}\n\n</details>`
+      `<details>\n<summary>Also seen: C–F (${alsoSeen.length} peers)</summary>\n\n${peerList(alsoSeen, pins)}\n\n</details>`
     ),
   });
 };

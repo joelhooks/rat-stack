@@ -17,6 +17,10 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Raw reader table diagnosis
+
+[AugusDogus, PR #121](https://github.com/joelhooks/rat-stack/pull/121) identified that the Foldkit reader uses plain `remark-parse` without GFM table support. The fix replaces published Markdown tables with lists and checks rendered reader HTML. No renderer code from the pull request is copied.
+
 ## OpenCode code-mode ideas (MIT)
 
 `packages/capability/src/catalog.ts`, `to-code-mode.ts`, the sandbox adapters, and their tests adapt discovery and execution ideas from [anomalyco/opencode](https://github.com/anomalyco/opencode/tree/dev/packages/codemode), inspected 2026-10-09. Sources: `README.md`, `src/codemode.ts`, and `src/tool-runtime.ts` (blob `f4ccc61d4c49a4f7572906559e5a4e2a11acdec9`).

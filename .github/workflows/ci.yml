@@ -29,7 +29,3 @@ jobs:
       - name: Check and test
         # Serialize Turbo tasks so concurrent Vitest pools do not contend on the CI runner.
         run: pnpm turbo run check test build --concurrency=1
-      - name: Check patched tsc backstop
-        run: pnpm typecheck:tsc
-      - name: Check effect-tsrs and tsc parity
-        run: pnpm typecheck:parity

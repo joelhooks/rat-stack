@@ -40,11 +40,9 @@ sources:
 Our first observed agent application uses the [Markdown workshop page](/tokenmaxx) and [llms.txt](/llms.txt). The request reconstruction contains three agent requests: two reads, then one POST.
 GET reads a page. POST sends application data.
 
-| Relative to the first request | Request |
-| --- | --- |
-| Start | GET /tokenmaxx with text/markdown |
-| 0.263 seconds later | GET /llms.txt |
-| 18 minutes 16 seconds later | POST /api/joinInterest |
+- **Start**: GET /tokenmaxx with text/markdown
+- **0.263 seconds later**: GET /llms.txt
+- **18 minutes 16 seconds later**: POST /api/joinInterest
 
 The reconstruction records:
 

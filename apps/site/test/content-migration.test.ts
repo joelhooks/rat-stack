@@ -162,7 +162,7 @@ for (const [source, directive, agentText] of [
   ["<AgentPointer />", "::AgentPointer", "For agents:"],
   ["<Sources />", "::Sources", ""],
   ["<PeerPins />", "::PeerPins", "4.0.0"],
-  ["<PeerRoster />", "::PeerRoster", "Repo"],
+  ["<PeerRoster />", "::PeerRoster", "Drift: = matches our pin"],
   ["<PeerSources />", "::PeerSources", ""],
   ["<PeersAlsoSeen />", "::PeersAlsoSeen", "Also seen"],
 ] as const) {

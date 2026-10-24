@@ -73,10 +73,8 @@ An assets response carries `CF-Cache-Status: HIT`. That proves only asset-cache 
 
 The cache candidate's home-page Markdown timings are:
 
-| Request | Local time |
-| --- | --- |
-| Cold: first application request in a fresh runtime | 8.25 ms |
-| Warm: median of 20 sequential requests | 1.69 ms |
+- **Cold: first application request in a fresh runtime**: 8.25 ms
+- **Warm: median of 20 sequential requests**: 1.69 ms
 
 Neither number measures reuse of a cached response in Cloudflare's data centers (`HIT`).
 

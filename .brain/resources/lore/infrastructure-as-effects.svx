@@ -88,13 +88,27 @@ He argues that infrastructure tools can retain application-code properties such 
 
 ## The joins at a glance
 
-| Join | What the program checks | Where to read more |
-| --- | --- | --- |
-| Contract → surfaces | Shared input and failure schemas | [One capability, every surface](/lore/one-capability-every-surface) |
-| Code → bindings → resources | Required services and resource providers | [Bindings](/lore/bindings) · [Infrastructure as Effects, Office Hours 27](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects) |
-| Plan → review → deploy | Changes before application; real-infrastructure behavior after deployment | [Plan model](/lore/plan-model) |
-| Compiler → joins | Relationships before deployment; code that requires a removed binding | [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin) |
-| Cartridges | Removal leaves no loose resources or broken imports | [Cartridges](/lore/cartridges) |
-| Lifecycles | Named states and the events between them | [Lifecycles are machines](/lore/lifecycles-are-machines) |
-| Fence | Project rules; whole-program behavior remains outside these checks | [The fence](/lore/the-fence) |
-| Cloud as a library | Debugging and tests for infrastructure code | [Cloud as a library](/lore/cloud-as-a-library) |
+- **Contract → surfaces**:
+  - What the program checks: Shared input and failure schemas
+  - Where to read more: [One capability, every surface](/lore/one-capability-every-surface)
+- **Code → bindings → resources**:
+  - What the program checks: Required services and resource providers
+  - Where to read more: [Bindings](/lore/bindings) · [Infrastructure as Effects, Office Hours 27](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects)
+- **Plan → review → deploy**:
+  - What the program checks: Changes before application; real-infrastructure behavior after deployment
+  - Where to read more: [Plan model](/lore/plan-model)
+- **Compiler → joins**:
+  - What the program checks: Relationships before deployment; code that requires a removed binding
+  - Where to read more: [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin)
+- **Cartridges**:
+  - What the program checks: Removal leaves no loose resources or broken imports
+  - Where to read more: [Cartridges](/lore/cartridges)
+- **Lifecycles**:
+  - What the program checks: Named states and the events between them
+  - Where to read more: [Lifecycles are machines](/lore/lifecycles-are-machines)
+- **Fence**:
+  - What the program checks: Project rules; whole-program behavior remains outside these checks
+  - Where to read more: [The fence](/lore/the-fence)
+- **Cloud as a library**:
+  - What the program checks: Debugging and tests for infrastructure code
+  - Where to read more: [Cloud as a library](/lore/cloud-as-a-library)

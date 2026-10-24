@@ -54,11 +54,9 @@ Choose and supply the services and their dependencies before running the applica
 
 Choose the combinator by the services the resulting Layer should expose:
 
-| Combinator | What the resulting Layer exposes |
-| --- | --- |
-| `Layer.provide(dependency)` | The consuming Layer's services |
-| `Layer.provideMerge(dependency)` | The consuming Layer's services and the dependency's services |
-| `Layer.merge` or `mergeAll` | The combined services; unrelated requirements remain unresolved |
+- **`Layer.provide(dependency)`**: The consuming Layer's services
+- **`Layer.provideMerge(dependency)`**: The consuming Layer's services and the dependency's services
+- **`Layer.merge` or `mergeAll`**: The combined services; unrelated requirements remain unresolved
 
 Merging services does not, by itself, feed one Layer into another Layer's requirements.
 
