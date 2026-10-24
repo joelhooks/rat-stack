@@ -24,6 +24,17 @@ export const saltedHash = (salt: string, parts: readonly string[]) =>
     return toHex(digest);
   });
 
+export const ipHashOf = (input: {
+  readonly day: string;
+  readonly ip: string;
+  readonly mode: IdentityMode;
+  readonly salt: string;
+}) =>
+  saltedHash(
+    input.salt,
+    input.mode === "daily" ? ["ip", input.day, input.ip] : ["ip", input.ip]
+  );
+
 export interface VisitorInput {
   readonly cookie: string | undefined;
   readonly day: string;

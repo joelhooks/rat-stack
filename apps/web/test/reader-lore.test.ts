@@ -1,6 +1,6 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, Predicate } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import {
@@ -9,102 +9,94 @@ import {
 } from "../../site/scripts/reader-body-document.ts";
 import { readerLoreFlagsFrom } from "../../site/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
-import { ReaderNode } from "../src/client/reader-node.js";
-import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";
+import { normalizedNodes } from "./reader-node-normalize.js";
 
-const normalizedNodes = (
-  nodes: readonly ReaderNodeValue[]
-): readonly ReaderNodeValue[] => {
-  const output: ReaderNodeValue[] = [];
+const loreShardCount = 8;
 
-  for (const node of nodes) {
-    ReaderNode.$match(node, {
-      CopyPrompt: (prompt) => output.push(prompt),
-      Element: (element) =>
-        output.push(
-          ReaderNode.Element({
-            ...element,
-            attributes: element.attributes.toSorted((left, right) =>
-              left.name.localeCompare(right.name)
-            ),
-            children: normalizedNodes(element.children),
-          })
-        ),
-      Text: ({ value }) => {
-        const previous = output.at(-1);
+const make = Effect.gen(function* readerLoreFixture() {
+  const inputs = yield* prepareReaderSiteInputs;
+  const flags = yield* readerLoreFlagsFrom(inputs, "https://ratstack.sh");
 
-        if (value !== "") {
-          if (Predicate.isTagged(previous, "Text")) {
-            output[output.length - 1] = ReaderNode.Text({
-              value: previous.value + value,
-            });
-          } else {
-            output.push(ReaderNode.Text({ value }));
-          }
-        }
-      },
-    });
-  }
+  const pages = inputs.pages.filter(
+    (page) => page.path === "/lore" || page.path.startsWith("/lore/")
+  );
 
-  return output;
-};
+  return { flags, inputs, pages };
+});
 
-const renderingEveryLoreRouteGrowsWithThePageCountMs = 10_000;
+class ReaderLoreFixture extends Context.Service<
+  ReaderLoreFixture,
+  Effect.Success<typeof make>
+>()("@rat-stack/web/test/ReaderLoreFixture") {
+  static readonly layer = Layer.effect(ReaderLoreFixture, make).pipe(
+    Layer.provide(NodeServices.layer)
+  );
+}
 
-it.effect(
-  "ReaderSiteParity: every published lore route preserves the complete human body and breadcrumb after Foldkit rendering",
-  () =>
-    Effect.gen(function* loreParity() {
-      const inputs = yield* prepareReaderSiteInputs;
-
-      const pages = inputs.pages.filter(
-        (page) => page.path === "/lore" || page.path.startsWith("/lore/")
-      );
-
-      const flags = yield* readerLoreFlagsFrom(inputs, "https://ratstack.sh");
+it.layer(ReaderLoreFixture.layer)((test) => {
+  test.effect("ReaderSiteParity: every lore route has a rendered page", () =>
+    Effect.gen(function* loreCoverage() {
+      const { flags, pages } = yield* ReaderLoreFixture;
 
       expect(flags.map((page) => page.page.path)).toEqual(
         pages.map((page) => page.path)
       );
+    })
+  );
 
-      yield* Effect.forEach((page: (typeof flags)[number]) =>
-        Effect.gen(function* pageParity() {
-          const original = pages.find(
-            (candidate) => candidate.path === page.page.path
-          );
+  for (let shard = 0; shard < loreShardCount; shard += 1) {
+    test.effect(
+      `ReaderSiteParity lore shard ${shard + 1}/${loreShardCount}: keeps the complete human body and breadcrumb after Foldkit rendering`,
+      () =>
+        Effect.gen(function* loreShardParity() {
+          const { flags, inputs, pages } = yield* ReaderLoreFixture;
 
-          expect(original).toBeDefined();
+          yield* Effect.forEach(
+            flags.filter((_, index) => index % loreShardCount === shard),
+            (page) =>
+              Effect.gen(function* pageParity() {
+                const original = pages.find(
+                  (candidate) => candidate.path === page.page.path
+                );
 
-          const before = yield* compileReaderBody(
-            original?.html.replaceAll("__RATSTACK_ORIGIN__", page.origin) ?? "",
-            page.page.sourcePath
-          );
+                expect(original).toBeDefined();
 
-          const rendered = yield* renderToString(
-            { Flags: ReaderFlags, init, view },
-            { flags: page, isHydratable: false }
-          );
+                const before = yield* compileReaderBody(
+                  original?.html.replaceAll(
+                    "__RATSTACK_ORIGIN__",
+                    page.origin
+                  ) ?? "",
+                  page.page.sourcePath
+                );
 
-          const after = yield* compileReaderBody(
-            rendered.html,
-            page.page.sourcePath
-          );
+                const rendered = yield* renderToString(
+                  { Flags: ReaderFlags, init, view },
+                  { flags: page, isHydratable: false }
+                );
 
-          expect(readerWorkshopCount(rendered.html), page.page.path).toBe(
-            readerWorkshopCount(original?.html ?? "")
+                const after = yield* compileReaderBody(
+                  rendered.html,
+                  page.page.sourcePath
+                );
+
+                expect(readerWorkshopCount(rendered.html), page.page.path).toBe(
+                  readerWorkshopCount(original?.html ?? "")
+                );
+                expect(after.heading, page.page.path).toBe(before.heading);
+                expect(after.breadcrumb, page.page.path).toEqual(
+                  before.breadcrumb
+                );
+                expect(normalizedNodes(after.nodes), page.page.path).toEqual(
+                  normalizedNodes(before.nodes)
+                );
+                expect(page.page.generation).toBe(inputs.generation);
+                expect(page.page.metadata).toEqual(original?.metadata);
+              })
           );
-          expect(after.heading, page.page.path).toBe(before.heading);
-          expect(after.breadcrumb, page.page.path).toEqual(before.breadcrumb);
-          expect(normalizedNodes(after.nodes), page.page.path).toEqual(
-            normalizedNodes(before.nodes)
-          );
-          expect(page.page.generation).toBe(inputs.generation);
-          expect(page.page.metadata).toEqual(original?.metadata);
-        })
-      )(flags);
-    }).pipe(Effect.provide(NodeServices.layer)),
-  { timeout: renderingEveryLoreRouteGrowsWithThePageCountMs }
-);
+        }).pipe(Effect.provide(NodeServices.layer))
+    );
+  }
+});

@@ -63,7 +63,7 @@ const htmlCodeWithPipes = (
     if (child.type === "inlineCode" && child.value.includes("|")) {
       return {
         type: "html",
-        value: `<code>${child.value.replaceAll(/[&<>{|}]/gu, characterReference)}</code>`,
+        value: `<code>${child.value.replaceAll(/[\\&:<>@[\]`{|}*_~]/gu, characterReference)}</code>`,
       };
     }
 

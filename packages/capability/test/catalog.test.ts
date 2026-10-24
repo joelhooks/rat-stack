@@ -138,6 +138,28 @@ describe("typeOf", () => {
     expect(typeOf({ $ref: "#/$defs/NotFoundEncoded" })).toBe("NotFoundEncoded");
     expect(typeOf({ type: 7 })).toBe("unknown");
   });
+
+  const memberTypes = ["string", "number", "boolean", "null"] as const;
+
+  const members = Arbitrary.schema(
+    Schema.Array(Schema.Literals(memberTypes)).check(Schema.isMinLength(1))
+  );
+
+  it.prop(
+    "prints each union member once, in first-seen order",
+    { members },
+    ({ members: picked }) => {
+      const expected = [...new Set(picked)].join(" | ");
+
+      expect(typeOf({ anyOf: picked.map((type) => ({ type })) })).toBe(
+        expected
+      );
+      expect(typeOf({ oneOf: picked.map((type) => ({ type })) })).toBe(
+        expected
+      );
+      expect(typeOf({ type: [...picked] })).toBe(expected);
+    }
+  );
 });
 
 describe("toTypeScript", () => {
