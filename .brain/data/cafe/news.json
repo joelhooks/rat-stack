@@ -1,12 +1,28 @@
 [
   {
     "kind": "release",
+    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.84",
+    "title": "Alchemy 2.0.0-beta.84 splits providers into packages",
+    "summary": "Alchemy beta.84 moves Cloudflare, AWS and other providers into their own packages and adds Foldkit SSR and prerendering across website providers.",
+    "date": "2026-10-24",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/alchemy-run/alchemy/releases"
+  },
+  {
+    "kind": "release",
     "url": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "title": "effect-tsrs runs Effect diagnostics on tsrs",
     "summary": "rat-stack type-checks with effect-tsrs 0.2.0 in strict mode, so Effect warnings fail. Patched tsc remains a separate CI backstop.",
     "date": "2026-10-24",
     "repo": "joelhooks/rat-stack",
-    "author": { "github": "joelhooks", "x": "joelhooks" },
+    "author": {
+      "github": "joelhooks",
+      "x": "joelhooks"
+    },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0"
   },
   {
@@ -21,6 +37,44 @@
       "x": "joelhooks"
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/makisuo/status/2113769275194495324",
+    "title": "Maple moves 300k lines of React to Foldkit",
+    "summary": "Maple moved 100+ pages off React onto Foldkit in about three days, using a validation harness to keep every interaction and animation identical.",
+    "date": "2026-10-23",
+    "repo": "MapleTechLabs/maple",
+    "author": {
+      "github": null,
+      "x": "makisuo"
+    },
+    "source": "https://x.com/makisuo/status/2113769275194495324",
+    "engagement": {
+      "likes": 115,
+      "participants": 19,
+      "replies": 18
+    },
+    "topReplies": [
+      {
+        "likes": 11,
+        "text": "@natebirdman @foldkit Oh yeah for sure would be 10x faster, was even surprised foldkit was faster at all. \n\nMostly wanted to do this migration since Foldkit fits my philosophy of building software and my stack a lot better and already build some other things on it and just knew it would make building",
+        "url": "https://x.com/makisuo/status/2113773685320634634",
+        "x": "makisuo"
+      },
+      {
+        "likes": 5,
+        "text": "@makisuo @foldkit If you spent 3 days with Claude optimizing React don’t you think you’d be a lot faster than this?",
+        "url": "https://x.com/natebirdman/status/2113772384759214497",
+        "x": "natebirdman"
+      },
+      {
+        "likes": 2,
+        "text": "@makisuo @foldkit I’m doing the same",
+        "url": "https://x.com/jsep_do/status/2113790298937610416",
+        "x": "jsep_do"
+      }
+    ]
   },
   {
     "kind": "release",
@@ -47,22 +101,6 @@
       "x": null
     },
     "source": "https://github.com/foldkit/foldkit/releases"
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.70",
-    "title": "xstate 6.0.0-alpha.70 and @xstate/effect 1.0.0-alpha.9",
-    "summary": "xstate 6.0.0-alpha.70 removes ActorRefFromLogic and resolves # targets by exact state id; @xstate/effect 1.0.0-alpha.9 tags root parallel states with the machine id.",
-    "date": "2026-10-19",
-    "repo": "statelyai/xstate",
-    "author": {
-      "github": "statelyai",
-      "x": null
-    },
-    "source": "https://github.com/statelyai/xstate/releases",
-    "engagement": {
-      "stars": 30331
-    }
   },
   {
     "kind": "release",
@@ -97,6 +135,22 @@
     }
   },
   {
+    "kind": "release",
+    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.70",
+    "title": "xstate 6.0.0-alpha.70 and @xstate/effect 1.0.0-alpha.9",
+    "summary": "xstate 6.0.0-alpha.70 removes ActorRefFromLogic and resolves # targets by exact state id; @xstate/effect 1.0.0-alpha.9 tags root parallel states with the machine id.",
+    "date": "2026-10-19",
+    "repo": "statelyai/xstate",
+    "author": {
+      "github": "statelyai",
+      "x": null
+    },
+    "source": "https://github.com/statelyai/xstate/releases",
+    "engagement": {
+      "stars": 30331
+    }
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/JuliaScript/status/2112316050322661762",
     "title": "effect-harness on Cloudflare with Alchemy",
@@ -124,22 +178,6 @@
   },
   {
     "kind": "launch",
-    "url": "https://github.com/acoyfellow/hark",
-    "title": "hark",
-    "summary": "A voice agent on your own Cloudflare account: Workers AI for thinking, Deepgram and Aura for speech, with an Effect 4 and Foldkit UI.",
-    "date": "2026-10-16",
-    "repo": "acoyfellow/hark",
-    "author": {
-      "github": "acoyfellow",
-      "x": "acoyfellow"
-    },
-    "source": "https://github.com/acoyfellow/hark",
-    "engagement": {
-      "stars": 11
-    }
-  },
-  {
-    "kind": "launch",
     "url": "https://github.com/acoyfellow/skin",
     "title": "skin",
     "summary": "An app that rewrites its own code as you use it: Pi Durable builds each change in a Worker Loader isolate and checks it first.",
@@ -152,6 +190,22 @@
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
       "stars": 3
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/acoyfellow/hark",
+    "title": "hark",
+    "summary": "A voice agent on your own Cloudflare account: Workers AI for thinking, Deepgram and Aura for speech, with an Effect 4 and Foldkit UI.",
+    "date": "2026-10-16",
+    "repo": "acoyfellow/hark",
+    "author": {
+      "github": "acoyfellow",
+      "x": "acoyfellow"
+    },
+    "source": "https://github.com/acoyfellow/hark",
+    "engagement": {
+      "stars": 11
     }
   },
   {
@@ -246,442 +300,21 @@
   },
   {
     "kind": "post",
-    "url": "https://effect.website/blog/releases/effect/40",
-    "title": "Effect 4.0",
-    "summary": "Rebuilt from the ground up, with a dependency-free core and long-term support.",
-    "date": "2026-09-30",
-    "repo": "Effect-TS/effect",
+    "url": "https://x.com/devinjameson/status/2108710271417999544",
+    "title": "A Foldkit Scene test for the Foldkit UI Toast",
+    "summary": "Walks through a Scene that swipes a toast a short way and checks it settles back instead of dismissing.",
+    "date": "2026-10-10",
+    "repo": "foldkit/foldkit",
     "author": {
-      "github": "Effect-TS",
-      "x": null
+      "github": "devinjameson",
+      "x": "devinjameson"
     },
-    "source": "https://effect.website/blog/releases/effect/40"
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/just_be_dev/status/2108012090938319192",
-    "title": "Very bullish on the CAFE stack (cloudflare, alchemy, foldkit, effect). Got my own template for it here: github.com/just-be-dev/ef…",
-    "summary": "Names the CAFE stack and shares a template; replies ask about Foldkit and point to Effect-TS/cafe.",
-    "date": "2026-10-08",
-    "repo": "just-be-dev/effect-cloudflare-foldkit-template",
-    "author": {
-      "github": null,
-      "x": "just_be_dev"
-    },
+    "source": "https://x.com/devinjameson/status/2108710271417999544",
     "engagement": {
-      "likes": 162,
-      "replies": 10,
-      "participants": 13
-    },
-    "topReplies": [
-      {
-        "x": "cnakazawa",
-        "likes": 5,
-        "text": "it should be CAFFE",
-        "url": "https://x.com/cnakazawa/status/2108020558826996141"
-      },
-      {
-        "x": "abbesm0hamed",
-        "likes": 5,
-        "text": "@maxwellbrown has also been working on one https://github.com/Effect-TS/cafe",
-        "url": "https://x.com/abbesm0hamed/status/2108101903716618367"
-      },
-      {
-        "x": "just_be_dev",
-        "likes": 3,
-        "text": "More analogous to react and it’s still early. I was a big fan of elm though and I’m a big effect fan so it’s like pb&j.",
-        "url": "https://x.com/just_be_dev/status/2108027696244752885"
-      }
-    ],
-    "source": "https://x.com/just_be_dev/status/2108012090938319192"
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-09-30",
-    "kind": "post",
-    "repo": null,
-    "source": "https://blog.cloudflare.com/faster-agent-sandboxes/",
-    "summary": "Containers can now pick their image and instance size from a Durable Object at runtime, with Sandbox SDK 1.0 on top, which matters to a CAFE builder running Worker-controlled sandboxes (beta).",
-    "title": "Cloudflare Containers, rebuilt to scale agent sandboxes",
-    "url": "https://blog.cloudflare.com/faster-agent-sandboxes/",
-    "engagement": {
-      "seen": 1
+      "likes": 27,
+      "replies": 4,
+      "views": 628
     }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-09-22",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/changelog/",
-    "summary": "Each PR gets its own Worker URL with isolated Durable Objects and Containers, which a CAFE builder can use for per-PR tests against real infrastructure.",
-    "title": "Test every pull request in an isolated environment with Worker Previews",
-    "url": "https://developers.cloudflare.com/changelog/post/2026-09-22-worker-previews/",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-01",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/changelog/",
-    "summary": "Durable Objects with a 2026-10-01 compatibility date keep running for pending service-binding and RPC calls for up to 15 minutes, which a CAFE builder running long jobs on Workers needs to know about.",
-    "title": "Pending I/O operations allow Durable Objects to continue long-running work without a connected client",
-    "url": "https://developers.cloudflare.com/changelog/post/2026-10-01-pending-io-keep-alive/",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-02",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/changelog/",
-    "summary": "Custom Dashboards can chart Workers logs and traces next to analytics, which helps a CAFE builder check a Worker's health in one place.",
-    "title": "Workers Observability in custom dashboards",
-    "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-01",
-    "kind": "post",
-    "repo": null,
-    "source": "https://neon.com/blog/announcing-neon-effect",
-    "summary": "Neon ships @neon/effect, Effect 4 bindings for the Neon SDK with typed errors and Streams.",
-    "title": "Announcing @neon/effect",
-    "url": "https://neon.com/blog/announcing-neon-effect",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-09-24",
-    "kind": "post",
-    "repo": null,
-    "source": "https://robotostudio.com/blog/effect-for-dummies",
-    "summary": "Plain-English intro to Effect covering typed errors, retries, timeouts and dependency injection.",
-    "title": "Effect TypeScript explained for beginners (2026)",
-    "url": "https://robotostudio.com/blog/effect-for-dummies",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "maxedapps"
-    },
-    "date": "2026-10-01",
-    "kind": "video",
-    "repo": null,
-    "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
-    "summary": "Academind video pitching Alchemy as the infrastructure companion to Effect.",
-    "title": "Using Effect? Use Alchemy, too!",
-    "url": "https://www.youtube.com/watch?v=jtGSHwXigIg",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-06",
-    "kind": "video",
-    "repo": null,
-    "source": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
-    "summary": "Better Stack video on Effect 4.0's rewritten runtime, smaller bundles and faster task throughput.",
-    "title": "Effect 4.0 Just Got a Lot Harder to Ignore",
-    "url": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "peterpme"
-    },
-    "date": "2026-10-07",
-    "kind": "thread",
-    "repo": null,
-    "source": "https://x.com/peterpme/status/2107852602356687187",
-    "summary": "Shares one Effect v4 code example that the poster says made the whole v4 API click.",
-    "title": "All of Effect v4 clicked with this example https://t.co/Kbu2ZIranW",
-    "url": "https://x.com/peterpme/status/2107852602356687187",
-    "engagement": {
-      "likes": 199,
-      "replies": 11,
-      "participants": 12
-    },
-    "topReplies": [
-      {
-        "likes": 7,
-        "text": "@peterpme I’m just joking! https://t.co/DU2xTncDQM",
-        "url": "https://x.com/rvcas/status/2107896797675040896",
-        "x": "rvcas"
-      },
-      {
-        "likes": 1,
-        "text": "@peterpme This code will give me nightmares for weeks.",
-        "url": "https://x.com/count_slopula/status/2108071844519518575",
-        "x": "count_slopula"
-      },
-      {
-        "likes": 1,
-        "text": "@peterpme const data = getMarketData().then().error()",
-        "url": "https://x.com/kevin_moechel/status/2108066405643870231",
-        "x": "kevin_moechel"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "JuliaScript"
-    },
-    "date": "2026-10-08",
-    "kind": "thread",
-    "repo": "julia-script/effect-harness",
-    "source": "https://x.com/JuliaScript/status/2108019487064936678",
-    "summary": "Ports pi-durable to Effect, built on Effect workflows and the Effect AI module.",
-    "title": "Now that I'm codex-resets rich, I kinda ported pi-durable to @EffectTS_, but built on workflows and their AI module https://t.co/M8nWw6OyUT",
-    "url": "https://x.com/JuliaScript/status/2108019487064936678",
-    "engagement": {
-      "likes": 158,
-      "replies": 5,
-      "participants": 6
-    },
-    "topReplies": [
-      {
-        "likes": 2,
-        "text": "@JuliaScript @EffectTS_ Porting pi-durable onto Effect workflows makes durable agent flows easier to express; the harder constraint becomes modeling retries and state transitions cleanly.",
-        "url": "https://x.com/catmanyau/status/2108093722348892490",
-        "x": "catmanyau"
-      },
-      {
-        "likes": 2,
-        "text": "@sheherenow_ @EffectTS_ ngl I was a bit embarrassed to share that after this https://t.co/oX5ffmOjrP",
-        "url": "https://x.com/JuliaScript/status/2108045325105791012",
-        "x": "JuliaScript"
-      },
-      {
-        "likes": 1,
-        "text": "@JuliaScript @EffectTS_ thanks!",
-        "url": "https://x.com/MrBye32/status/2108245346463764746",
-        "x": "MrBye32"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "esthor"
-    },
-    "date": "2026-10-07",
-    "kind": "thread",
-    "repo": null,
-    "source": "https://x.com/esthor/status/2107716096451326184",
-    "summary": "Reports that Alchemy v2 with Effect v4 works well for infrastructure as code, and that agents handle it better than older tools.",
-    "title": "@alchemy_run v2 + @EffectTS_ v4 is an incredible combo for infra-as-code biggest shocker: new frameworks and tools can be sooo much better",
-    "url": "https://x.com/esthor/status/2107716096451326184",
-    "engagement": {
-      "likes": 123,
-      "replies": 3,
-      "participants": 5
-    },
-    "topReplies": [
-      {
-        "likes": 16,
-        "text": "@esthor @alchemy_run @EffectTS_ Agents work well with high level declarative languages and symbolic reasoning with guardrails, they don’t work well with imperative logic filled with implementation det",
-        "url": "https://x.com/MichaelArnaldi/status/2107717758079340801",
-        "x": "MichaelArnaldi"
-      },
-      {
-        "likes": 3,
-        "text": "@MichaelArnaldi @esthor @alchemy_run @EffectTS_ I’ve been working on this https://t.co/ayCbVvzvSE",
-        "url": "https://x.com/bjacobso/status/2107854094216134738",
-        "x": "bjacobso"
-      },
-      {
-        "likes": 3,
-        "text": "@esthor @EffectTS_ @alchemy_run It’s GOATED. Porting a frankenstein stack over to this on AWS and it’s such a more tightly integrated experience.",
-        "url": "https://x.com/itsmattchan/status/2107827263538663682",
-        "x": "itsmattchan"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "SandroMaglione"
-    },
-    "date": "2026-10-08",
-    "kind": "thread",
-    "repo": null,
-    "source": "https://x.com/SandroMaglione/status/2108006825581060371",
-    "summary": "Argues that Effect plus XState is the strongest stack for building agents, quoting a related post.",
-    "title": "Turns out @EffectTS_ + XState is the best tech stack for agents The matter is settled 🤝 https://t.co/Gi7ZaGeJLd",
-    "url": "https://x.com/SandroMaglione/status/2108006825581060371",
-    "engagement": {
-      "likes": 153,
-      "replies": 3,
-      "participants": 3
-    },
-    "topReplies": [
-      {
-        "likes": 4,
-        "text": "@SandroMaglione @EffectTS_ XState is perfect for state management. I used to avoid it because it was too verbose and took too long to write, while Jotai and Zustand were much simpler. Now there is no",
-        "url": "https://x.com/the_madcoder/status/2108029441029095773",
-        "x": "the_madcoder"
-      },
-      {
-        "likes": 3,
-        "text": "@SandroMaglione @EffectTS_ XState actors map really well onto multi-agent handoffs: each agent its own machine, explicit transitions, and you can replay the whole run.",
-        "url": "https://x.com/buswe_com/status/2108058308342927397",
-        "x": "buswe_com"
-      },
-      {
-        "likes": 3,
-        "text": "Add in also some @alchemy_run and you stop worrying also about deployment",
-        "url": "https://x.com/SandroMaglione/status/2108006827569135672",
-        "x": "SandroMaglione"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "acoyfellow"
-    },
-    "date": "2026-10-07",
-    "kind": "thread",
-    "repo": "acoyfellow/tardigrade",
-    "source": "https://x.com/acoyfellow/status/2107929744029470841",
-    "summary": "Tardigrade: a durable agent on Pi Durable, Effect v4 and Foldkit over Durable Objects that survives repeated ctx.abort() and still ships its commit.",
-    "title": "Tardigrades survive space, boiling, and freezing. This one survives `ctx.abort()` Kill it N times while it works, and it comes back and sh",
-    "url": "https://x.com/acoyfellow/status/2107929744029470841",
-    "engagement": {
-      "likes": 55,
-      "replies": 3,
-      "participants": 5
-    },
-    "topReplies": [
-      {
-        "likes": 6,
-        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare great name... but @arjunkmrm has you beat - you should also check his out https://t.co/rYPQmSwtE3",
-        "url": "https://x.com/gingerhendrixai/status/2107931296508899603",
-        "x": "gingerhendrixai"
-      },
-      {
-        "likes": 3,
-        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare shout out to @arjunkmrm",
-        "url": "https://x.com/trydotworks/status/2107945257136447767",
-        "x": "trydotworks"
-      },
-      {
-        "likes": 1,
-        "text": "@acoyfellow @trydotworks @pidotdev @EffectTS_ @foldkit @Cloudflare It’s all cool! :D",
-        "url": "https://x.com/arjunkmrm/status/2107991850665828825",
-        "x": "arjunkmrm"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "just_be_dev"
-    },
-    "date": "2026-10-05",
-    "kind": "thread",
-    "repo": null,
-    "source": "https://x.com/just_be_dev/status/2107168256494649828",
-    "summary": "Asks for the best resources on structuring Effect codebases, for people just starting out.",
-    "title": "Looking for folks' best resources on recommendations for structuring effect codebases. @kitlangton, @samgoodwin89, @devinjameson, @arjunkmrm",
-    "url": "https://x.com/just_be_dev/status/2107168256494649828",
-    "engagement": {
-      "likes": 90,
-      "replies": 7,
-      "participants": 19
-    },
-    "topReplies": [
-      {
-        "likes": 170,
-        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ 🫡 https://t.co/9UNS28PZec",
-        "url": "https://x.com/kitlangton/status/2107197199482581101",
-        "x": "kitlangton"
-      },
-      {
-        "likes": 73,
-        "text": "@just_be_dev @kitlangton @devinjameson @arjunkmrm @EffectTS_ One file, one Context.Service+Layer. One file, one entrypoint+Effect.provide One file, one API route (may be controversial opinion) src/{do",
-        "url": "https://x.com/samgoodwin89/status/2107204053151428850",
-        "x": "samgoodwin89"
-      },
-      {
-        "likes": 16,
-        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ (I'll have a real reply later!)",
-        "url": "https://x.com/kitlangton/status/2107197276057895338",
-        "x": "kitlangton"
-      }
-    ]
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "samgoodwin89"
-    },
-    "date": "2026-10-07",
-    "kind": "thread",
-    "repo": null,
-    "source": "https://x.com/samgoodwin89/status/2107738774327435760",
-    "summary": "Floats SolidYield in Alchemy, with a screenshot, quoting a post about SolidYield.",
-    "title": "How about SolidYield in @alchemy_run ? https://t.co/KsmM3zi0Qs https://t.co/cSepsYwwXX",
-    "url": "https://x.com/samgoodwin89/status/2107738774327435760",
-    "engagement": {
-      "likes": 58,
-      "replies": 2,
-      "participants": 2
-    },
-    "topReplies": [
-      {
-        "likes": 4,
-        "text": "PR: https://t.co/5OdF48loX4",
-        "url": "https://x.com/samgoodwin89/status/2107738775900311950",
-        "x": "samgoodwin89"
-      },
-      {
-        "likes": 2,
-        "text": "@samgoodwin89 @alchemy_run Holy shit that was quick This is awesome!",
-        "url": "https://x.com/devagrawal09/status/2107739246882853339",
-        "x": "devagrawal09"
-      }
-    ]
   },
   {
     "author": {
@@ -868,21 +501,442 @@
     "topReplies": []
   },
   {
-    "kind": "post",
-    "url": "https://x.com/devinjameson/status/2108710271417999544",
-    "title": "A Foldkit Scene test for the Foldkit UI Toast",
-    "summary": "Walks through a Scene that swipes a toast a short way and checks it settles back instead of dismissing.",
-    "date": "2026-10-10",
-    "repo": "foldkit/foldkit",
+    "kind": "thread",
+    "url": "https://x.com/just_be_dev/status/2108012090938319192",
+    "title": "Very bullish on the CAFE stack (cloudflare, alchemy, foldkit, effect). Got my own template for it here: github.com/just-be-dev/ef…",
+    "summary": "Names the CAFE stack and shares a template; replies ask about Foldkit and point to Effect-TS/cafe.",
+    "date": "2026-10-08",
+    "repo": "just-be-dev/effect-cloudflare-foldkit-template",
     "author": {
-      "github": "devinjameson",
-      "x": "devinjameson"
+      "github": null,
+      "x": "just_be_dev"
     },
-    "source": "https://x.com/devinjameson/status/2108710271417999544",
     "engagement": {
-      "likes": 27,
-      "replies": 4,
-      "views": 628
+      "likes": 162,
+      "replies": 10,
+      "participants": 13
+    },
+    "topReplies": [
+      {
+        "x": "cnakazawa",
+        "likes": 5,
+        "text": "it should be CAFFE",
+        "url": "https://x.com/cnakazawa/status/2108020558826996141"
+      },
+      {
+        "x": "abbesm0hamed",
+        "likes": 5,
+        "text": "@maxwellbrown has also been working on one https://github.com/Effect-TS/cafe",
+        "url": "https://x.com/abbesm0hamed/status/2108101903716618367"
+      },
+      {
+        "x": "just_be_dev",
+        "likes": 3,
+        "text": "More analogous to react and it’s still early. I was a big fan of elm though and I’m a big effect fan so it’s like pb&j.",
+        "url": "https://x.com/just_be_dev/status/2108027696244752885"
+      }
+    ],
+    "source": "https://x.com/just_be_dev/status/2108012090938319192"
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "JuliaScript"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": "julia-script/effect-harness",
+    "source": "https://x.com/JuliaScript/status/2108019487064936678",
+    "summary": "Ports pi-durable to Effect, built on Effect workflows and the Effect AI module.",
+    "title": "Now that I'm codex-resets rich, I kinda ported pi-durable to @EffectTS_, but built on workflows and their AI module https://t.co/M8nWw6OyUT",
+    "url": "https://x.com/JuliaScript/status/2108019487064936678",
+    "engagement": {
+      "likes": 158,
+      "replies": 5,
+      "participants": 6
+    },
+    "topReplies": [
+      {
+        "likes": 2,
+        "text": "@JuliaScript @EffectTS_ Porting pi-durable onto Effect workflows makes durable agent flows easier to express; the harder constraint becomes modeling retries and state transitions cleanly.",
+        "url": "https://x.com/catmanyau/status/2108093722348892490",
+        "x": "catmanyau"
+      },
+      {
+        "likes": 2,
+        "text": "@sheherenow_ @EffectTS_ ngl I was a bit embarrassed to share that after this https://t.co/oX5ffmOjrP",
+        "url": "https://x.com/JuliaScript/status/2108045325105791012",
+        "x": "JuliaScript"
+      },
+      {
+        "likes": 1,
+        "text": "@JuliaScript @EffectTS_ thanks!",
+        "url": "https://x.com/MrBye32/status/2108245346463764746",
+        "x": "MrBye32"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "SandroMaglione"
+    },
+    "date": "2026-10-08",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/SandroMaglione/status/2108006825581060371",
+    "summary": "Argues that Effect plus XState is the strongest stack for building agents, quoting a related post.",
+    "title": "Turns out @EffectTS_ + XState is the best tech stack for agents The matter is settled 🤝 https://t.co/Gi7ZaGeJLd",
+    "url": "https://x.com/SandroMaglione/status/2108006825581060371",
+    "engagement": {
+      "likes": 153,
+      "replies": 3,
+      "participants": 3
+    },
+    "topReplies": [
+      {
+        "likes": 4,
+        "text": "@SandroMaglione @EffectTS_ XState is perfect for state management. I used to avoid it because it was too verbose and took too long to write, while Jotai and Zustand were much simpler. Now there is no",
+        "url": "https://x.com/the_madcoder/status/2108029441029095773",
+        "x": "the_madcoder"
+      },
+      {
+        "likes": 3,
+        "text": "@SandroMaglione @EffectTS_ XState actors map really well onto multi-agent handoffs: each agent its own machine, explicit transitions, and you can replay the whole run.",
+        "url": "https://x.com/buswe_com/status/2108058308342927397",
+        "x": "buswe_com"
+      },
+      {
+        "likes": 3,
+        "text": "Add in also some @alchemy_run and you stop worrying also about deployment",
+        "url": "https://x.com/SandroMaglione/status/2108006827569135672",
+        "x": "SandroMaglione"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "peterpme"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/peterpme/status/2107852602356687187",
+    "summary": "Shares one Effect v4 code example that the poster says made the whole v4 API click.",
+    "title": "All of Effect v4 clicked with this example https://t.co/Kbu2ZIranW",
+    "url": "https://x.com/peterpme/status/2107852602356687187",
+    "engagement": {
+      "likes": 199,
+      "replies": 11,
+      "participants": 12
+    },
+    "topReplies": [
+      {
+        "likes": 7,
+        "text": "@peterpme I’m just joking! https://t.co/DU2xTncDQM",
+        "url": "https://x.com/rvcas/status/2107896797675040896",
+        "x": "rvcas"
+      },
+      {
+        "likes": 1,
+        "text": "@peterpme This code will give me nightmares for weeks.",
+        "url": "https://x.com/count_slopula/status/2108071844519518575",
+        "x": "count_slopula"
+      },
+      {
+        "likes": 1,
+        "text": "@peterpme const data = getMarketData().then().error()",
+        "url": "https://x.com/kevin_moechel/status/2108066405643870231",
+        "x": "kevin_moechel"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "esthor"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/esthor/status/2107716096451326184",
+    "summary": "Reports that Alchemy v2 with Effect v4 works well for infrastructure as code, and that agents handle it better than older tools.",
+    "title": "@alchemy_run v2 + @EffectTS_ v4 is an incredible combo for infra-as-code biggest shocker: new frameworks and tools can be sooo much better",
+    "url": "https://x.com/esthor/status/2107716096451326184",
+    "engagement": {
+      "likes": 123,
+      "replies": 3,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 16,
+        "text": "@esthor @alchemy_run @EffectTS_ Agents work well with high level declarative languages and symbolic reasoning with guardrails, they don’t work well with imperative logic filled with implementation det",
+        "url": "https://x.com/MichaelArnaldi/status/2107717758079340801",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 3,
+        "text": "@MichaelArnaldi @esthor @alchemy_run @EffectTS_ I’ve been working on this https://t.co/ayCbVvzvSE",
+        "url": "https://x.com/bjacobso/status/2107854094216134738",
+        "x": "bjacobso"
+      },
+      {
+        "likes": 3,
+        "text": "@esthor @EffectTS_ @alchemy_run It’s GOATED. Porting a frankenstein stack over to this on AWS and it’s such a more tightly integrated experience.",
+        "url": "https://x.com/itsmattchan/status/2107827263538663682",
+        "x": "itsmattchan"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "acoyfellow"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": "acoyfellow/tardigrade",
+    "source": "https://x.com/acoyfellow/status/2107929744029470841",
+    "summary": "Tardigrade: a durable agent on Pi Durable, Effect v4 and Foldkit over Durable Objects that survives repeated ctx.abort() and still ships its commit.",
+    "title": "Tardigrades survive space, boiling, and freezing. This one survives `ctx.abort()` Kill it N times while it works, and it comes back and sh",
+    "url": "https://x.com/acoyfellow/status/2107929744029470841",
+    "engagement": {
+      "likes": 55,
+      "replies": 3,
+      "participants": 5
+    },
+    "topReplies": [
+      {
+        "likes": 6,
+        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare great name... but @arjunkmrm has you beat - you should also check his out https://t.co/rYPQmSwtE3",
+        "url": "https://x.com/gingerhendrixai/status/2107931296508899603",
+        "x": "gingerhendrixai"
+      },
+      {
+        "likes": 3,
+        "text": "@acoyfellow @pidotdev @EffectTS_ @foldkit @Cloudflare shout out to @arjunkmrm",
+        "url": "https://x.com/trydotworks/status/2107945257136447767",
+        "x": "trydotworks"
+      },
+      {
+        "likes": 1,
+        "text": "@acoyfellow @trydotworks @pidotdev @EffectTS_ @foldkit @Cloudflare It’s all cool! :D",
+        "url": "https://x.com/arjunkmrm/status/2107991850665828825",
+        "x": "arjunkmrm"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "samgoodwin89"
+    },
+    "date": "2026-10-07",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/samgoodwin89/status/2107738774327435760",
+    "summary": "Floats SolidYield in Alchemy, with a screenshot, quoting a post about SolidYield.",
+    "title": "How about SolidYield in @alchemy_run ? https://t.co/KsmM3zi0Qs https://t.co/cSepsYwwXX",
+    "url": "https://x.com/samgoodwin89/status/2107738774327435760",
+    "engagement": {
+      "likes": 58,
+      "replies": 2,
+      "participants": 2
+    },
+    "topReplies": [
+      {
+        "likes": 4,
+        "text": "PR: https://t.co/5OdF48loX4",
+        "url": "https://x.com/samgoodwin89/status/2107738775900311950",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 2,
+        "text": "@samgoodwin89 @alchemy_run Holy shit that was quick This is awesome!",
+        "url": "https://x.com/devagrawal09/status/2107739246882853339",
+        "x": "devagrawal09"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-06",
+    "kind": "video",
+    "repo": null,
+    "source": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
+    "summary": "Better Stack video on Effect 4.0's rewritten runtime, smaller bundles and faster task throughput.",
+    "title": "Effect 4.0 Just Got a Lot Harder to Ignore",
+    "url": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "just_be_dev"
+    },
+    "date": "2026-10-05",
+    "kind": "thread",
+    "repo": null,
+    "source": "https://x.com/just_be_dev/status/2107168256494649828",
+    "summary": "Asks for the best resources on structuring Effect codebases, for people just starting out.",
+    "title": "Looking for folks' best resources on recommendations for structuring effect codebases. @kitlangton, @samgoodwin89, @devinjameson, @arjunkmrm",
+    "url": "https://x.com/just_be_dev/status/2107168256494649828",
+    "engagement": {
+      "likes": 90,
+      "replies": 7,
+      "participants": 19
+    },
+    "topReplies": [
+      {
+        "likes": 170,
+        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ 🫡 https://t.co/9UNS28PZec",
+        "url": "https://x.com/kitlangton/status/2107197199482581101",
+        "x": "kitlangton"
+      },
+      {
+        "likes": 73,
+        "text": "@just_be_dev @kitlangton @devinjameson @arjunkmrm @EffectTS_ One file, one Context.Service+Layer. One file, one entrypoint+Effect.provide One file, one API route (may be controversial opinion) src/{do",
+        "url": "https://x.com/samgoodwin89/status/2107204053151428850",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 16,
+        "text": "@just_be_dev @samgoodwin89 @devinjameson @arjunkmrm @EffectTS_ (I'll have a real reply later!)",
+        "url": "https://x.com/kitlangton/status/2107197276057895338",
+        "x": "kitlangton"
+      }
+    ]
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-02",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Custom Dashboards can chart Workers logs and traces next to analytics, which helps a CAFE builder check a Worker's health in one place.",
+    "title": "Workers Observability in custom dashboards",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-01",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Durable Objects with a 2026-10-01 compatibility date keep running for pending service-binding and RPC calls for up to 15 minutes, which a CAFE builder running long jobs on Workers needs to know about.",
+    "title": "Pending I/O operations allow Durable Objects to continue long-running work without a connected client",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-10-01-pending-io-keep-alive/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-10-01",
+    "kind": "post",
+    "repo": null,
+    "source": "https://neon.com/blog/announcing-neon-effect",
+    "summary": "Neon ships @neon/effect, Effect 4 bindings for the Neon SDK with typed errors and Streams.",
+    "title": "Announcing @neon/effect",
+    "url": "https://neon.com/blog/announcing-neon-effect",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": "maxedapps"
+    },
+    "date": "2026-10-01",
+    "kind": "video",
+    "repo": null,
+    "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+    "summary": "Academind video pitching Alchemy as the infrastructure companion to Effect.",
+    "title": "Using Effect? Use Alchemy, too!",
+    "url": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://effect.website/blog/releases/effect/40",
+    "title": "Effect 4.0",
+    "summary": "Rebuilt from the ground up, with a dependency-free core and long-term support.",
+    "date": "2026-09-30",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": "Effect-TS",
+      "x": null
+    },
+    "source": "https://effect.website/blog/releases/effect/40"
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-30",
+    "kind": "post",
+    "repo": null,
+    "source": "https://blog.cloudflare.com/faster-agent-sandboxes/",
+    "summary": "Containers can now pick their image and instance size from a Durable Object at runtime, with Sandbox SDK 1.0 on top, which matters to a CAFE builder running Worker-controlled sandboxes (beta).",
+    "title": "Cloudflare Containers, rebuilt to scale agent sandboxes",
+    "url": "https://blog.cloudflare.com/faster-agent-sandboxes/",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-24",
+    "kind": "post",
+    "repo": null,
+    "source": "https://robotostudio.com/blog/effect-for-dummies",
+    "summary": "Plain-English intro to Effect covering typed errors, retries, timeouts and dependency injection.",
+    "title": "Effect TypeScript explained for beginners (2026)",
+    "url": "https://robotostudio.com/blog/effect-for-dummies",
+    "engagement": {
+      "seen": 1
+    }
+  },
+  {
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "date": "2026-09-22",
+    "kind": "post",
+    "repo": null,
+    "source": "https://developers.cloudflare.com/changelog/",
+    "summary": "Each PR gets its own Worker URL with isolated Durable Objects and Containers, which a CAFE builder can use for per-PR tests against real infrastructure.",
+    "title": "Test every pull request in an isolated environment with Worker Previews",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-09-22-worker-previews/",
+    "engagement": {
+      "seen": 1
     }
   }
 ]

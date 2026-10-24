@@ -1,5 +1,9 @@
 declare module "virtual:reader-pages" {
-  export const readerPages: unknown;
+  export const readerPagePaths: unknown;
+}
+
+declare module "virtual:reader-page-sources" {
+  export const readerPageSources: unknown;
 }
 
 declare module "virtual:reader-error" {
