@@ -29,18 +29,36 @@ Node `24.18.0` and pnpm `11.3.0` are required. The requirement is declared in `.
 
 ## Workspace layout
 
-| Path | Package | Role |
-| --- | --- | --- |
-| `apps/cli` | `@rat-stack/cli` | Composition root: `stats`, `openapi`, `serve`, `mcp` |
-| `packages/capability` | `@rat-stack/capability` | `defineContract`, `implement`, and the `toCommand`, `toHttpApi`, `toToolkit`, `toRpc`, and `toCodeMode` projections |
-| `packages/core` | `@rat-stack/core` | Domain example: the `inspectFile` contract, handler, and lifecycle machine |
-| `packages/flags` | `@rat-stack/flags` | Typed flags, Config, memory and KV adapters, stable rollouts, audited writes, and removal dates |
-| `packages/events` | `@rat-stack/events` | Request analytics with an EventSink port and Basin resources |
-| `packages/lore` | `@rat-stack/lore` | Public content graph and traversal service |
-| `packages/subscriber-delivery` | `@rat-stack/subscriber-delivery` | External subscriber intake and confirmation adapter behind core's job-shaped ports |
-| `apps/infra` | `@rat-stack/infra` | Alchemy Stack (Cloudflare by default) |
-| `apps/site` | `@rat-stack/site` | Cloudflare Worker for the public site, agent discovery, and sandboxed execute |
-| `.agent_sources/` | — | Shallow upstream mirrors (gitignored clones; see README there) |
+- **`apps/cli`**:
+  - Package: `@rat-stack/cli`
+  - Role: Composition root: `stats`, `openapi`, `serve`, `mcp`
+- **`packages/capability`**:
+  - Package: `@rat-stack/capability`
+  - Role: `defineContract`, `implement`, and the `toCommand`, `toHttpApi`, `toToolkit`, `toRpc`, and `toCodeMode` projections
+- **`packages/core`**:
+  - Package: `@rat-stack/core`
+  - Role: Domain example: the `inspectFile` contract, handler, and lifecycle machine
+- **`packages/flags`**:
+  - Package: `@rat-stack/flags`
+  - Role: Typed flags, Config, memory and KV adapters, stable rollouts, audited writes, and removal dates
+- **`packages/events`**:
+  - Package: `@rat-stack/events`
+  - Role: Request analytics with an EventSink port and Basin resources
+- **`packages/lore`**:
+  - Package: `@rat-stack/lore`
+  - Role: Public content graph and traversal service
+- **`packages/subscriber-delivery`**:
+  - Package: `@rat-stack/subscriber-delivery`
+  - Role: External subscriber intake and confirmation adapter behind core's job-shaped ports
+- **`apps/infra`**:
+  - Package: `@rat-stack/infra`
+  - Role: Alchemy Stack (Cloudflare by default)
+- **`apps/site`**:
+  - Package: `@rat-stack/site`
+  - Role: Cloudflare Worker for the public site, agent discovery, and sandboxed execute
+- **`.agent_sources/`**:
+  - Package: —
+  - Role: Shallow upstream mirrors (gitignored clones; see README there)
 
 ## Try the example CLI
 
@@ -84,7 +102,7 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 - **Alchemy `2.0.0-beta.83`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
 - **Vitest `5.0.5` + `@effect/vitest` `4.0.0`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
-- **`@effect/tsgo` `0.55.0`**: patches TypeScript 7 in `prepare` for the `typecheck:tsc` backstop. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Keep this separate CI check until a month with zero disagreements, or effect-tsrs 1.0. Stop rollout on any checker disagreement.
+- **`@effect/tsgo` `0.55.0`**: patches TypeScript 7 in `prepare` for `typecheck:tsc`. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Patched `tsc` runs at the switch and on checker bumps through parity, not on every CI run. Report any checker disagreement.
 - **varlock `1.23.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
 - **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [Foldkit](https://github.com/foldkit/foldkit) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
 - **Agent fence**: lefthook pre-commit + Pi/Cursor/Claude hooks that block `git … --no-verify`. Cheating should be uncomfortable and obvious.
@@ -93,20 +111,18 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm typecheck` | Check TypeScript and Effect diagnostics with strict effect-tsrs |
-| `pnpm typecheck:tsc` | Run the patched TypeScript `7.0.2` / `@effect/tsgo` `0.55.0` CI backstop |
-| `pnpm typecheck:fast` | Fast feedback with tsrs; no Effect diagnostics; `pnpm check` stays the gate |
-| `pnpm typecheck:parity` | Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded |
-| `pnpm bump:checkers` | Bump both exact checker pins to npm latest, report bundled revision alignment, and run both parity pairs |
-| `pnpm check` | Typecheck, check formatting, and run type-aware linting |
-| `pnpm fix` | Apply Oxfmt and safe Oxlint fixes |
-| `pnpm test` | Run the Vitest suite once |
-| `pnpm build` | Compile package outputs |
-| `pnpm cli -- ...` | Build and run the CLI |
-| `pnpm vendor:agent-sources` | Clone core lib mirrors |
-| `pnpm turbo run check test build` | Cached verification pipeline |
+- **`pnpm typecheck`**: Check TypeScript and Effect diagnostics with strict effect-tsrs
+- **`pnpm typecheck:tsc`**: Run patched TypeScript `7.0.2` / `@effect/tsgo` `0.55.0`; runs at checker bumps, not in CI
+- **`pnpm typecheck:fast`**: Fast feedback with tsrs; no Effect diagnostics; `pnpm check` stays the gate
+- **`pnpm typecheck:parity`**: Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded
+- **`pnpm bump:checkers`**: Bump both exact checker pins to npm latest, report bundled revision alignment, and run both parity pairs
+- **`pnpm check`**: Typecheck, check formatting, and run type-aware linting
+- **`pnpm fix`**: Apply Oxfmt and safe Oxlint fixes
+- **`pnpm test`**: Run the Vitest suite once
+- **`pnpm build`**: Compile package outputs
+- **`pnpm cli -- ...`**: Build and run the CLI
+- **`pnpm vendor:agent-sources`**: Clone core lib mirrors
+- **`pnpm turbo run check test build`**: Cached verification pipeline
 
 ## Agentic surface
 
@@ -174,17 +190,25 @@ pnpm turbo run check test build
 
 ## Keep or cut
 
-The template is a working project. Delete what you will not use on day one; the fence will identify dependent code that must go too. After each cut, trim `packages/capability/src/index.ts` and run `pnpm install`, `pnpm fix`, then `pnpm turbo run check test build`. Update the package table in `AGENTS.md`.
+The template is a working project. Delete what you will not use on day one; the fence will identify dependent code that must go too. After each cut, trim `packages/capability/src/index.ts` and run `pnpm install`, `pnpm fix`, then `pnpm turbo run check test build`. Update the package list in `AGENTS.md`.
 
-| Want | Keep | Delete |
-| --- | --- | --- |
-| Only the CLI | `packages/capability/src/contract.ts`, `packages/capability/src/implement.ts`, `packages/capability/src/to-command.ts`, `call-watch.ts`, `actor-watch.ts`, every dependency imported by retained code, and their tests; all of `packages/core`; the `toCommand` composition in `apps/cli/src/surfaces.ts` | unused projections and their matching tests after tracing the retained imports; unused compositions in `apps/cli/src/surfaces.ts`; the `catalog`, `openapi`, `serve`, and `mcp` commands in `apps/cli/src/command.ts`; `apps/cli/test/serve.test.ts` and the MCP and catalog cases in `apps/cli/test/cli.e2e.test.ts` |
-| No code mode |  | `packages/capability/src/catalog.ts`, `packages/capability/src/code-mode.ts`, `packages/capability/src/sandbox-error.ts`, `packages/capability/src/sandbox-service.ts`, `packages/capability/src/sandbox-subprocess.ts`, and `packages/capability/src/to-code-mode.ts`; `packages/capability/test/catalog.test.ts`, `packages/capability/test/sandbox.test.ts`, `packages/capability/test/sandbox-lifetime.test.ts`, `packages/capability/test/sandbox-orphan.test.ts`, `packages/capability/scripts/sandbox-lifetime-proof.mjs`, and `packages/capability/test/to-code-mode.test.ts`; the `./sandbox` and `./code-mode` exports in `packages/capability/package.json`; `codeMode` and `mcpServer.codeMode` in `apps/cli/src/surfaces.ts`; the `catalog` command and the `--code-mode` flag in `apps/cli/src/command.ts`; the code-mode and catalog cases in `apps/cli/test/cli.e2e.test.ts` |
-| No HTTP |  | `packages/capability/src/to-http-api.ts`, `packages/capability/src/http-api.ts`, and their tests; the `./http-api` export in `packages/capability/package.json`; `http`, `routes`, and `webServer` in `apps/cli/src/surfaces.ts`; the `openapi` and `serve` commands; `apps/cli/test/serve.test.ts`; the OpenAPI case in `apps/cli/test/cli.e2e.test.ts` |
-| No MCP |  | `packages/capability/src/to-toolkit.ts`, `packages/capability/src/toolkit.ts`, their test, and `packages/capability/test/mcp-harness.ts`; the `./toolkit` export in `packages/capability/package.json`; `tools` and `mcpServer` in `apps/cli/src/surfaces.ts`; the `mcp` command; the MCP cases in `apps/cli/test/cli.e2e.test.ts`. Code mode imports from `packages/capability/src/to-toolkit.ts`, so cutting MCP cuts code mode too |
-| Default flags only | Core's `Flags` port and declarations | Replace `apps/site/src/flags.ts` with core imports and `export const flagsLayer = Flags.defaults(eventFlags); export const liveFlagsLayer = flagsLayer;`; remove `packages/flags` and its dependency in `apps/site/package.json`. Readers use defaults; the CLI writer fails with a named read-only error |
-| No analytics |  | `packages/events`; `@rat-stack/events` in `apps/site/package.json`; the `Basin` and `basinFoundation` calls, `EVENTS_ENABLED`, `withEventCapture`, `inBackground`, `EVENTS_IDENTITY_MODE`, and the `events` parameter in `apps/site/src/worker.ts`; `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`; `apps/site/test/worker-events.test.ts` |
-| No XState (only after removing interest and every other lifecycle except file inspection) | Keep XState and its bridge while any retained lifecycle imports them | `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; `scripts/oxlint-plugin-xstate-effect.ts` and its entry in `oxlint.config.ts` |
+- **Only the CLI**:
+  - Keep: `packages/capability/src/contract.ts`, `packages/capability/src/implement.ts`, `packages/capability/src/to-command.ts`, `call-watch.ts`, `actor-watch.ts`, every dependency imported by retained code, and their tests; all of `packages/core`; the `toCommand` composition in `apps/cli/src/surfaces.ts`
+  - Delete: unused projections and their matching tests after tracing the retained imports; unused compositions in `apps/cli/src/surfaces.ts`; the `catalog`, `openapi`, `serve`, and `mcp` commands in `apps/cli/src/command.ts`; `apps/cli/test/serve.test.ts` and the MCP and catalog cases in `apps/cli/test/cli.e2e.test.ts`
+- **No code mode**:
+  - Delete: `packages/capability/src/catalog.ts`, `packages/capability/src/code-mode.ts`, `packages/capability/src/sandbox-error.ts`, `packages/capability/src/sandbox-service.ts`, `packages/capability/src/sandbox-subprocess.ts`, and `packages/capability/src/to-code-mode.ts`; `packages/capability/test/catalog.test.ts`, `packages/capability/test/sandbox.test.ts`, `packages/capability/test/sandbox-lifetime.test.ts`, `packages/capability/test/sandbox-orphan.test.ts`, `packages/capability/scripts/sandbox-lifetime-proof.mjs`, and `packages/capability/test/to-code-mode.test.ts`; the `./sandbox` and `./code-mode` exports in `packages/capability/package.json`; `codeMode` and `mcpServer.codeMode` in `apps/cli/src/surfaces.ts`; the `catalog` command and the `--code-mode` flag in `apps/cli/src/command.ts`; the code-mode and catalog cases in `apps/cli/test/cli.e2e.test.ts`
+- **No HTTP**:
+  - Delete: `packages/capability/src/to-http-api.ts`, `packages/capability/src/http-api.ts`, and their tests; the `./http-api` export in `packages/capability/package.json`; `http`, `routes`, and `webServer` in `apps/cli/src/surfaces.ts`; the `openapi` and `serve` commands; `apps/cli/test/serve.test.ts`; the OpenAPI case in `apps/cli/test/cli.e2e.test.ts`
+- **No MCP**:
+  - Delete: `packages/capability/src/to-toolkit.ts`, `packages/capability/src/toolkit.ts`, their test, and `packages/capability/test/mcp-harness.ts`; the `./toolkit` export in `packages/capability/package.json`; `tools` and `mcpServer` in `apps/cli/src/surfaces.ts`; the `mcp` command; the MCP cases in `apps/cli/test/cli.e2e.test.ts`. Code mode imports from `packages/capability/src/to-toolkit.ts`, so cutting MCP cuts code mode too
+- **Default flags only**:
+  - Keep: Core's `Flags` port and declarations
+  - Delete: Replace `apps/site/src/flags.ts` with core imports and `export const flagsLayer = Flags.defaults(eventFlags); export const liveFlagsLayer = flagsLayer;`; remove `packages/flags` and its dependency in `apps/site/package.json`. Readers use defaults; the CLI writer fails with a named read-only error
+- **No analytics**:
+  - Delete: `packages/events`; `@rat-stack/events` in `apps/site/package.json`; the `Basin` and `basinFoundation` calls, `EVENTS_ENABLED`, `withEventCapture`, `inBackground`, `EVENTS_IDENTITY_MODE`, and the `events` parameter in `apps/site/src/worker.ts`; `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`; `apps/site/test/worker-events.test.ts`
+- **No XState (only after removing interest and every other lifecycle except file inspection)**:
+  - Keep: Keep XState and its bridge while any retained lifecycle imports them
+  - Delete: `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; `scripts/oxlint-plugin-xstate-effect.ts` and its entry in `oxlint.config.ts`
 
 `defineContract`, `implement`, and `toCommand` are the minimum that keep `stats` working. The contract module has no dependency on the other projections.
 

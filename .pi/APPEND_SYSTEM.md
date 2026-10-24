@@ -3,7 +3,7 @@
 Pi appends this file to its system prompt for sessions in this repo. A child project rewrites this section on day one; what follows describes rat-stack itself.
 
 - Repo law lives in `AGENTS.md`; product intent in `VISION.md`. Read both before substantial work.
-- `typecheck` and `check` run `@yielded/effect-tsrs` `0.2.0` with `--strict`, so Effect errors and warnings fail. It bundles tsrs main `8f135f1`. Patched TypeScript `7.0.2` / `@effect/tsgo` `0.55.0` stays in `typecheck:tsc` as a separate CI backstop. Keep it until a month with zero disagreements, or effect-tsrs 1.0. Stop rollout on any checker disagreement.
+- `typecheck` and `check` run `@yielded/effect-tsrs` `0.2.0` with `--strict`, so Effect errors and warnings fail. It bundles tsrs main `8f135f1`. Patched TypeScript `7.0.2` / `@effect/tsgo` `0.55.0` runs through `typecheck:tsc` and `typecheck:parity` at the switch and on checker bumps, not on every CI run. Report any checker disagreement.
 - Agent edit loop: `pnpm typecheck:fast` keeps plain tsrs `0.18.0-ts7.1.0-dev.20260929`, without Effect diagnostics. Re-align both checker versions at the first tsrs release containing `8f135f1`.
 - Validation gate: `pnpm turbo run check test build`. Lefthook runs `pnpm check` and `pnpm test` on commit; CI runs the full gate on a cold cache.
 - Domain terms: a **capability** (`defineCapability` in `packages/core`) is one named, schema-typed behavior; a **projection** (`packages/capability`) turns capabilities into a CLI command, an HTTP API, an MCP toolkit, or code mode; the **fence** is the type-aware lint, Effect language-service diagnostics, and hooks that make bypasses fail loudly.

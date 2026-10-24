@@ -150,15 +150,13 @@ See [hexagonal architecture](/lore/hexagonal-architecture).
 
 ## House style versus Effect idiom
 
-| Take the Effect idiom | rat-stack adds |
-| --- | --- |
-| Services and composable Layers | `make` and `static layer` in the same file |
-| Schema-backed boundaries | Capability contracts and derived interface projections |
-| Replaceable implementations | Cartridges with an add/remove test |
-| Typed failures and scoped effects | XState lifecycles through `@xstate/effect` |
-| Effect-aware tests | Property/model testing and a manual-runtime ban |
-| Explicit requirements | A type-aware lint fence |
-| No prescribed comment policy | No prose comments in code |
+- **Services and composable Layers**: `make` and `static layer` in the same file
+- **Schema-backed boundaries**: Capability contracts and derived interface projections
+- **Replaceable implementations**: Cartridges with an add/remove test
+- **Typed failures and scoped effects**: XState lifecycles through `@xstate/effect`
+- **Effect-aware tests**: Property/model testing and a manual-runtime ban
+- **Explicit requirements**: A type-aware lint fence
+- **No prescribed comment policy**: No prose comments in code
 
 ## Where disagreement lives
 
