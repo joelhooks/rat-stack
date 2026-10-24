@@ -374,138 +374,123 @@
       "claims": ["c42"]
     },
     {
-      "kind": "cell",
-      "text": "Join",
-      "claims": ["c06", "c25"]
-    },
-    {
-      "kind": "cell",
-      "text": "What the program checks",
-      "claims": ["c06", "c25", "c23"]
-    },
-    {
-      "kind": "cell",
-      "text": "Where to read more",
-      "claims": ["c02", "c18", "c38"]
-    },
-    {
-      "kind": "cell",
-      "text": "Contract → surfaces",
+      "kind": "sentence",
+      "text": "Contract → surfaces:",
       "claims": ["c02", "c04"]
     },
     {
-      "kind": "cell",
-      "text": "Shared input and failure schemas",
+      "kind": "sentence",
+      "text": "What the program checks: Shared input and failure schemas",
       "claims": ["c06"]
     },
     {
-      "kind": "cell",
-      "text": "One capability, every surface",
+      "kind": "sentence",
+      "text": "Where to read more: One capability, every surface",
       "claims": ["c01", "c05"]
     },
     {
-      "kind": "cell",
-      "text": "Code → bindings → resources",
+      "kind": "sentence",
+      "text": "Code → bindings → resources:",
       "claims": ["c09", "c13", "c14"]
     },
     {
-      "kind": "cell",
-      "text": "Required services and resource providers",
+      "kind": "sentence",
+      "text": "What the program checks: Required services and resource providers",
       "claims": ["c26", "c27"]
     },
     {
-      "kind": "cell",
-      "text": "Bindings · Infrastructure as Effects, Office Hours 27",
+      "kind": "sentence",
+      "text": "Where to read more: Bindings · Infrastructure as Effects, Office Hours 27",
       "claims": ["c10", "c27"]
     },
     {
-      "kind": "cell",
-      "text": "Plan → review → deploy",
+      "kind": "sentence",
+      "text": "Plan → review → deploy:",
       "claims": ["c18", "c21"]
     },
     {
-      "kind": "cell",
-      "text": "Changes before application; real-infrastructure behavior after deployment",
+      "kind": "sentence",
+      "text": "What the program checks: Changes before application; real-infrastructure behavior after deployment",
       "claims": ["c18", "c23"]
     },
     {
-      "kind": "cell",
-      "text": "Plan model",
+      "kind": "sentence",
+      "text": "Where to read more: Plan model",
       "claims": ["c18"]
     },
     {
-      "kind": "cell",
-      "text": "Compiler → joins",
+      "kind": "sentence",
+      "text": "Compiler → joins:",
       "claims": ["c25"]
     },
     {
-      "kind": "cell",
-      "text": "Relationships before deployment; code that requires a removed binding",
+      "kind": "sentence",
+      "text": "What the program checks: Relationships before deployment; code that requires a removed binding",
       "claims": ["c25", "c28"]
     },
     {
-      "kind": "cell",
-      "text": "Happy Path 116",
+      "kind": "sentence",
+      "text": "Where to read more: Happy Path 116",
       "claims": ["c25", "c42"]
     },
     {
-      "kind": "cell",
-      "text": "Cartridges",
+      "kind": "sentence",
+      "text": "Cartridges:",
       "claims": ["c29"]
     },
     {
-      "kind": "cell",
-      "text": "Removal leaves no loose resources or broken imports",
+      "kind": "sentence",
+      "text": "What the program checks: Removal leaves no loose resources or broken imports",
       "claims": ["c17"]
     },
     {
-      "kind": "cell",
-      "text": "Cartridges",
+      "kind": "sentence",
+      "text": "Where to read more: Cartridges",
       "claims": ["c29"]
     },
     {
-      "kind": "cell",
-      "text": "Lifecycles",
+      "kind": "sentence",
+      "text": "Lifecycles:",
       "claims": ["c32"]
     },
     {
-      "kind": "cell",
-      "text": "Named states and the events between them",
+      "kind": "sentence",
+      "text": "What the program checks: Named states and the events between them",
       "claims": ["c33"]
     },
     {
-      "kind": "cell",
-      "text": "Lifecycles are machines",
+      "kind": "sentence",
+      "text": "Where to read more: Lifecycles are machines",
       "claims": ["c32"]
     },
     {
-      "kind": "cell",
-      "text": "Fence",
+      "kind": "sentence",
+      "text": "Fence:",
       "claims": ["c35"]
     },
     {
-      "kind": "cell",
-      "text": "Project rules; whole-program behavior remains outside these checks",
+      "kind": "sentence",
+      "text": "What the program checks: Project rules; whole-program behavior remains outside these checks",
       "claims": ["c35", "c37"]
     },
     {
-      "kind": "cell",
-      "text": "The fence",
+      "kind": "sentence",
+      "text": "Where to read more: The fence",
       "claims": ["c35"]
     },
     {
-      "kind": "cell",
-      "text": "Cloud as a library",
+      "kind": "sentence",
+      "text": "Cloud as a library:",
       "claims": ["c38"]
     },
     {
-      "kind": "cell",
-      "text": "Debugging and tests for infrastructure code",
+      "kind": "sentence",
+      "text": "What the program checks: Debugging and tests for infrastructure code",
       "claims": ["c42"]
     },
     {
-      "kind": "cell",
-      "text": "Cloud as a library",
+      "kind": "sentence",
+      "text": "Where to read more: Cloud as a library",
       "claims": ["c38"]
     },
     {

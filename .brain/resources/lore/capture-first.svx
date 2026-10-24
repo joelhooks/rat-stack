@@ -64,10 +64,8 @@ The request body is never read. The IP is stored only as a salted hash, computed
 
 Visitor identity is a setting:
 
-| Mode | Identity |
-| --- | --- |
-| `daily` | Hash of IP, user agent, and day; no cookie. |
-| `persistent` | One first-party id per browser. |
+- **`daily`**: Hash of IP, user agent, and day; no cookie.
+- **`persistent`**: One first-party id per browser.
 
 The server sets the persistent id. WebKit "deletes all cookies created in JavaScript and all other script-writeable storage after 7 days of no user interaction." [Tracking Prevention in WebKit](https://webkit.org/tracking-prevention/)
 

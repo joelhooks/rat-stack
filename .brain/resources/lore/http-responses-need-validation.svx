@@ -90,12 +90,10 @@ It does not start an HTTP server or call a provider.
 ```ts repo=rat-stack path=packages/deploy/test/http-response.test.ts at=4019cffbcbdb282d6f006854ff5b1f26d3b407e0 lines=15-30
 ```
 
-| Simulated response | Required outcome |
-| --- | --- |
-| 200, integer version | Decoded version |
-| 503, otherwise valid body | Named status-phase failure |
-| 200, malformed JSON | Named body-phase failure |
-| 200, string instead of integer | Named body-phase failure |
+- **200, integer version**: Decoded version
+- **503, otherwise valid body**: Named status-phase failure
+- **200, malformed JSON**: Named body-phase failure
+- **200, string instead of integer**: Named body-phase failure
 
 These tests of the HTTP client interface establish the fixture's status and decoding policy.
 Check live endpoint health separately.

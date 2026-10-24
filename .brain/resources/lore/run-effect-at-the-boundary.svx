@@ -55,12 +55,10 @@ The integration boundary owns the runtime's lifetime.
 
 ## Use the calling framework's Effect integration
 
-| Calling framework or process | Suitable execution boundary |
-| --- | --- |
-| One CLI process | Compose the program, then use `NodeRuntime.runMain` |
-| Effect-native HTTP router | Adapt its Layer with `HttpRouter.toWebHandler` |
-| Framework that expects native Promises rather than Effects | Reuse a `ManagedRuntime` owned by that integration |
-| Effect-aware test | Let `it.effect` or `it.layer` execute the test |
+- **One CLI process**: Compose the program, then use `NodeRuntime.runMain`
+- **Effect-native HTTP router**: Adapt its Layer with `HttpRouter.toWebHandler`
+- **Framework that expects native Promises rather than Effects**: Reuse a `ManagedRuntime` owned by that integration
+- **Effect-aware test**: Let `it.effect` or `it.layer` execute the test
 
 A managed runtime is one integration tool. It is not required inside every Effect application.
 

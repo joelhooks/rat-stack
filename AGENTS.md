@@ -26,58 +26,96 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 
 ## Packages
 
-| Package | Path | Role |
-| --- | --- | --- |
-| `@rat-stack/capability` | `packages/capability` | `defineContract`, `implement`, and the `toCommand`, `toHttpApi`, `toToolkit`, `toRpc`, and `toCodeMode` projections |
-| `@rat-stack/core` | `packages/core` | Shared `inspectFile`, `search`, and `read` contracts; `inspectFile` handler, lifecycle machine, and `FileInspector` |
-| `@rat-stack/database` | `packages/database` | Database cartridge: the `RunLog` service and the `DatabaseVendor` choice (D1 or Hyperdrive Postgres), with each vendor's schema, migrations, and resources |
-| `@rat-stack/auth` | `packages/auth` | Better Auth cartridge over the chosen `DatabaseVendor`: `Auth`, `CurrentPerson`, and the RPC middleware that provides it; only `Unauthenticated` crosses the wire. `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and `testPersonLayer` |
-| `@rat-stack/flags` | `packages/flags` | Typed flags cartridge: rollout evaluation, Config and writable memory adapters, cartridge-owned Alchemy KV, and immutable attempt/completion audit keys. Empty KV uses Config values or declared defaults. `EVENTS_ENABLED` stays deploy-time Config. Core owns the ports, declarations, reader capabilities, and approval-gated `setFlag`. Only the CLI mounts `setFlag`; its default composition has no live writer. Public readers and the sandbox stay read-only. Replace both exports in `apps/site/src/flags.ts` with `Flags.defaults(eventFlags)` to remove the adapter package. |
-| `@rat-stack/events` | `packages/events` | Events cartridge: capture-first request analytics. `withEventCapture` records one `request` event per HTTP request behind the `EventSink` port; `@rat-stack/events/basin` declares the Cloudflare Basin resources (R2 Data Catalog, unstructured Pipelines stream with public ingest off, Iceberg sink, `SELECT *` pipeline, visitor salt) and provides the sink; `@rat-stack/events/memory` is the in-memory sink for tests. Tests are property and model based (`it.prop`, `it.effect.prop`). Mischief provides it in `apps/site/src/worker.ts`; `EVENTS_ENABLED` (default false) turns capture and the catalog, sink, and pipeline on, and reads `EVENTS_SINK_TOKEN` at deploy time only; off still declares the bucket, stream, and salt so their state survives. `EVENTS_IDENTITY_MODE` picks `daily` or `persistent` visitor ids |
-| `@rat-stack/subscriber-delivery` | `packages/subscriber-delivery` | External subscriber intake and confirmation adapter; implements core's job-shaped `SubscriberIntake` and `SubscriberConfirm` ports, provided by the Worker, never imported by core |
-| `@rat-stack/learn` | `packages/learn` | Source-derived public concept deck and the learning lifecycle. Stateless capabilities return compact progress; `@rat-stack/learn/local` owns the local JSONL adapter and capabilities. The CLI provides the filesystem platform for core's `LearnerProgress` port. |
-| `@rat-stack/lore` | `packages/lore` | Public content graph and traversal service |
-| `@rat-stack/devtools` | `packages/devtools` | 🐀 devtools cartridge: `CallLog`, `record`, and the `rat_*` capabilities that list, read, dispatch, replay, and diff capability calls |
-| `@rat-stack/web` | `apps/web` | Default UI bin: Foldkit on Vite, deployed through Alchemy's `Cloudflare.Website.Foldkit` as `Website` (`apps/web/src/website.ts`). Browser `client/` Commands call an Effect `RpcClient` built from the contracts' `toRpcGroup`. The reader program mounts the document browser (`features/app.ts`, `client/docs`) as a Submodel at `/search`, where it calls `search` and `read` over that client. In production, the Worker that `@foldkit/vite-plugin` generates from `src/entry.server.ts` forwards `/rpc` through `src/server/website-bindings.ts` to the private `RpcBackend` in `apps/site/src/rpc-worker.ts`. `pnpm --filter @rat-stack/web dev` loads the `#backend` import, which resolves only under the `development` condition in `apps/web/package.json`, and serves the content capabilities in process from `src/dev/backend.ts`. In dev, `src/dev/backend.ts` runs the content capabilities under devtools: `/rpc` calls are recorded, `/__rat/rpc` serves the 🐀 overlay (`#devtools-overlay`, `src/dev/features/overlay`, ⌘K), and `/__rat/mcp` serves every `rat_*` tool to agents, with memory-Auth test people. `src/dev/client` and `src/dev/features` follow the browser rules. `test/production-bundle.test.ts` proves no `src/dev` module, no devtools code, and no test people reach a production build. Include it in the Stack with `const website = yield* Website;` |
-| `@rat-stack/cli` | `apps/cli` | Composition root: `stats`, `catalog`, `openapi`, `serve [--devtools]`, `mcp [--code-mode] [--devtools]` commands. Also builds the published `ratstack` npm package: `src/ratstack.ts` bundles the local learn commands and a learn-only `mcp` into `dist/npm` with Vite. `test/ratstack.e2e.test.ts` proves the package holds no devtools and serves only the learn tools |
-| `@rat-stack/infra` | `apps/infra` | Alchemy Stack: the project's cloud footprint as one Effect program |
-| `@rat-stack/site` | `apps/site` | Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface |
+- **`@rat-stack/capability`**:
+  - Path: `packages/capability`
+  - Role: `defineContract`, `implement`, and the `toCommand`, `toHttpApi`, `toToolkit`, `toRpc`, and `toCodeMode` projections
+- **`@rat-stack/core`**:
+  - Path: `packages/core`
+  - Role: Shared `inspectFile`, `search`, and `read` contracts; `inspectFile` handler, lifecycle machine, and `FileInspector`
+- **`@rat-stack/database`**:
+  - Path: `packages/database`
+  - Role: Database cartridge: the `RunLog` service and the `DatabaseVendor` choice (D1 or Hyperdrive Postgres), with each vendor's schema, migrations, and resources
+- **`@rat-stack/auth`**:
+  - Path: `packages/auth`
+  - Role: Better Auth cartridge over the chosen `DatabaseVendor`: `Auth`, `CurrentPerson`, and the RPC middleware that provides it; only `Unauthenticated` crosses the wire. `@rat-stack/auth/devtools` adds `runAsPerson`, the dev-only `rat_test_person` capability, and `testPersonLayer`
+- **`@rat-stack/flags`**:
+  - Path: `packages/flags`
+  - Role: Typed flags cartridge: rollout evaluation, Config and writable memory adapters, cartridge-owned Alchemy KV, and immutable attempt/completion audit keys. Empty KV uses Config values or declared defaults. `EVENTS_ENABLED` stays deploy-time Config. Core owns the ports, declarations, reader capabilities, and approval-gated `setFlag`. Only the CLI mounts `setFlag`; its default composition has no live writer. Public readers and the sandbox stay read-only. Replace both exports in `apps/site/src/flags.ts` with `Flags.defaults(eventFlags)` to remove the adapter package.
+- **`@rat-stack/events`**:
+  - Path: `packages/events`
+  - Role: Events cartridge: capture-first request analytics. `withEventCapture` records one `request` event per HTTP request behind the `EventSink` port; `@rat-stack/events/basin` declares the Cloudflare Basin resources (R2 Data Catalog, unstructured Pipelines stream with public ingest off, Iceberg sink, `SELECT *` pipeline, visitor salt) and provides the sink; `@rat-stack/events/memory` is the in-memory sink for tests. Tests are property and model based (`it.prop`, `it.effect.prop`). Mischief provides it in `apps/site/src/worker.ts`; `EVENTS_ENABLED` (default false) turns capture and the catalog, sink, and pipeline on, and reads `EVENTS_SINK_TOKEN` at deploy time only; off still declares the bucket, stream, and salt so their state survives. `EVENTS_IDENTITY_MODE` picks `daily` or `persistent` visitor ids
+- **`@rat-stack/subscriber-delivery`**:
+  - Path: `packages/subscriber-delivery`
+  - Role: External subscriber intake and confirmation adapter; implements core's job-shaped `SubscriberIntake` and `SubscriberConfirm` ports, provided by the Worker, never imported by core
+- **`@rat-stack/learn`**:
+  - Path: `packages/learn`
+  - Role: Source-derived public concept deck and the learning lifecycle. Stateless capabilities return compact progress; `@rat-stack/learn/local` owns the local JSONL adapter and capabilities. The CLI provides the filesystem platform for core's `LearnerProgress` port.
+- **`@rat-stack/lore`**:
+  - Path: `packages/lore`
+  - Role: Public content graph and traversal service
+- **`@rat-stack/devtools`**:
+  - Path: `packages/devtools`
+  - Role: 🐀 devtools cartridge: `CallLog`, `record`, and the `rat_*` capabilities that list, read, dispatch, replay, and diff capability calls
+- **`@rat-stack/web`**:
+  - Path: `apps/web`
+  - Role: Default UI bin: Foldkit on Vite, deployed through Alchemy's `Cloudflare.Website.Foldkit` as `Website` (`apps/web/src/website.ts`). Browser `client/` Commands call an Effect `RpcClient` built from the contracts' `toRpcGroup`. The reader program mounts the document browser (`features/app.ts`, `client/docs`) as a Submodel at `/search`, where it calls `search` and `read` over that client. In production, the Worker that `@foldkit/vite-plugin` generates from `src/entry.server.ts` forwards `/rpc` through `src/server/website-bindings.ts` to the private `RpcBackend` in `apps/site/src/rpc-worker.ts`. `pnpm --filter @rat-stack/web dev` loads the `#backend` import, which resolves only under the `development` condition in `apps/web/package.json`, and serves the content capabilities in process from `src/dev/backend.ts`. In dev, `src/dev/backend.ts` runs the content capabilities under devtools: `/rpc` calls are recorded, `/__rat/rpc` serves the 🐀 overlay (`#devtools-overlay`, `src/dev/features/overlay`, ⌘K), and `/__rat/mcp` serves every `rat_*` tool to agents, with memory-Auth test people. `src/dev/client` and `src/dev/features` follow the browser rules. `test/production-bundle.test.ts` proves no `src/dev` module, no devtools code, and no test people reach a production build. Include it in the Stack with `const website = yield* Website;`
+- **`@rat-stack/cli`**:
+  - Path: `apps/cli`
+  - Role: Composition root: `stats`, `catalog`, `openapi`, `serve [--devtools]`, `mcp [--code-mode] [--devtools]` commands. Also builds the published `ratstack` npm package: `src/ratstack.ts` bundles the local learn commands and a learn-only `mcp` into `dist/npm` with Vite. `test/ratstack.e2e.test.ts` proves the package holds no devtools and serves only the learn tools
+- **`@rat-stack/infra`**:
+  - Path: `apps/infra`
+  - Role: Alchemy Stack: the project's cloud footprint as one Effect program
+- **`@rat-stack/site`**:
+  - Path: `apps/site`
+  - Role: Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface
 
 ## Nouns
 
-| Noun | Home | Runtime job |
-| --- | --- | --- |
-| Contract | `packages/core/src/contracts.ts` | Shared name, schemas, failure, annotations, and approval setting. |
-| Capability | `packages/core/src/inspect-file.ts` or `apps/site/src/capabilities/<name>.ts` | Binds one contract to its server-side handler with `implement`. |
-| Projection | `packages/capability/src/to-<surface>.ts` | Expose implemented capabilities on one runtime surface. |
-| Cartridge | `packages/<name>/src/` | One Layer with its own infrastructure; it must pass the cartridge test in `VISION.md`. |
-| Machine | `packages/core/src/<name>-machine.ts` | Own one finite domain lifecycle. |
-| Feature | `apps/web/src/features/<name>/` | Thin route and view that read the Model and send Messages. |
-| System page | `.brain/areas/<name>.svx` | Public page at `/systems/<name>` for one system rat-stack ships: what it does, the standard it keeps, and how to check it. The content build rejects a system page without those three sections or outside `.brain/areas/`. |
-| Client | `apps/web/src/client/<name>/` | Own the Foldkit program's Model, Messages, update, and named Commands; Commands call an `RpcClient` over the contract group. |
+- **Contract**:
+  - Home: `packages/core/src/contracts.ts`
+  - Runtime job: Shared name, schemas, failure, annotations, and approval setting.
+- **Capability**:
+  - Home: `packages/core/src/inspect-file.ts` or `apps/site/src/capabilities/<name>.ts`
+  - Runtime job: Binds one contract to its server-side handler with `implement`.
+- **Projection**:
+  - Home: `packages/capability/src/to-<surface>.ts`
+  - Runtime job: Expose implemented capabilities on one runtime surface.
+- **Cartridge**:
+  - Home: `packages/<name>/src/`
+  - Runtime job: One Layer with its own infrastructure; it must pass the cartridge test in `VISION.md`.
+- **Machine**:
+  - Home: `packages/core/src/<name>-machine.ts`
+  - Runtime job: Own one finite domain lifecycle.
+- **Feature**:
+  - Home: `apps/web/src/features/<name>/`
+  - Runtime job: Thin route and view that read the Model and send Messages.
+- **System page**:
+  - Home: `.brain/areas/<name>.svx`
+  - Runtime job: Public page at `/systems/<name>` for one system rat-stack ships: what it does, the standard it keeps, and how to check it. The content build rejects a system page without those three sections or outside `.brain/areas/`.
+- **Client**:
+  - Home: `apps/web/src/client/<name>/`
+  - Runtime job: Own the Foldkit program's Model, Messages, update, and named Commands; Commands call an `RpcClient` over the contract group.
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm install` | Install workspace dependencies |
-| `pnpm sources:fetch` | Import missing pinned code objects once before the first gate; generation stays local-only |
-| `pnpm dev` | Run `apps/web` under `vite dev` through portless at `http://rat-stack.localhost:1355` (worktrees get their own prefix); `portless list` shows the route |
-| `pnpm check` | Typecheck, verify formatting, and run type-aware linting |
-| `pnpm lint` | Type-aware lint plus format check only; `turbo run check` runs this once at the root as `//#lint` |
-| `pnpm fix` | Apply Oxfmt and safe Oxlint fixes |
-| `pnpm test` | Build and run the Vitest suite once |
-| `pnpm build` | Compile package outputs |
-| `pnpm typecheck` | Strict effect-tsrs checks for workspaces and root scripts |
-| `pnpm typecheck:tsc` | Patched `tsc` backstop for workspaces and root scripts |
-| `pnpm typecheck:fast` | Fast feedback in seconds; no Effect diagnostics; `pnpm check` is still the gate |
-| `pnpm typecheck:parity` | Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded |
-| `pnpm bump:checkers` | Bump both checker pins to npm latest, install without scripts, report bundled revision alignment, and run both parity pairs; never commit or push |
-| `pnpm vendor:agent-sources` | Shallow-clone Effect, effect-solutions, xstate, alchemy, better-auth, and Foldkit mirrors |
-| `pnpm infra:plan` | Preview the Alchemy Stack diff without applying |
-| `pnpm infra:deploy` / `pnpm infra:destroy` | Apply or tear down the Stack (asks for approval) |
-| `pnpm exec lefthook install` | Install git hooks (also via `prepare`) |
-| `pnpm turbo run check test build` | Required validation before claiming a change is ready |
+- **`pnpm install`**: Install workspace dependencies
+- **`pnpm sources:fetch`**: Import missing pinned code objects once before the first gate; generation stays local-only
+- **`pnpm dev`**: Run `apps/web` under `vite dev` through portless at `http://rat-stack.localhost:1355` (worktrees get their own prefix); `portless list` shows the route
+- **`pnpm check`**: Typecheck, verify formatting, and run type-aware linting
+- **`pnpm lint`**: Type-aware lint plus format check only; `turbo run check` runs this once at the root as `//#lint`
+- **`pnpm fix`**: Apply Oxfmt and safe Oxlint fixes
+- **`pnpm test`**: Build and run the Vitest suite once
+- **`pnpm build`**: Compile package outputs
+- **`pnpm typecheck`**: Strict effect-tsrs checks for workspaces and root scripts
+- **`pnpm typecheck:tsc`**: Patched `tsc` backstop for workspaces and root scripts
+- **`pnpm typecheck:fast`**: Fast feedback in seconds; no Effect diagnostics; `pnpm check` is still the gate
+- **`pnpm typecheck:parity`**: Compare effect-tsrs and patched `tsc` errors and exit verdicts, including `TS377xxx`; also compare plain tsrs with Effect-only codes excluded
+- **`pnpm bump:checkers`**: Bump both checker pins to npm latest, install without scripts, report bundled revision alignment, and run both parity pairs; never commit or push
+- **`pnpm vendor:agent-sources`**: Shallow-clone Effect, effect-solutions, xstate, alchemy, better-auth, and Foldkit mirrors
+- **`pnpm infra:plan`**: Preview the Alchemy Stack diff without applying
+- **`pnpm infra:deploy` / `pnpm infra:destroy`**: Apply or tear down the Stack (asks for approval)
+- **`pnpm exec lefthook install`**: Install git hooks (also via `prepare`)
+- **`pnpm turbo run check test build`**: Required validation before claiming a change is ready
 
 Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo run check test build`.
 
@@ -134,13 +172,11 @@ pnpm vendor:agent-sources
 
 Inventory: `.agent_sources/README.md` is generated in the local source mirror and is not part of this repository.
 
-| Need | Path |
-| --- | --- |
-| Effect Schema, Context.Service, CLI | `.agent_sources/github.com/Effect-TS/effect/` |
-| Idiomatic Effect | `.agent_sources/github.com/kitlangton/effect-solutions/` |
-| XState | `.agent_sources/github.com/statelyai/xstate/` |
-| `@xstate/effect` (v6 Effect bridge) | `.agent_sources/github.com/statelyai/xstate/packages/xstate-effect/` (`README.md`, `docs/`, `src/*.test.ts`) |
-| Alchemy resources, Cloudflare, AWS | `.agent_sources/github.com/alchemy-run/alchemy/` and https://alchemy.run/llms.txt |
+- **Effect Schema, Context.Service, CLI**: `.agent_sources/github.com/Effect-TS/effect/`
+- **Idiomatic Effect**: `.agent_sources/github.com/kitlangton/effect-solutions/`
+- **XState**: `.agent_sources/github.com/statelyai/xstate/`
+- **`@xstate/effect` (v6 Effect bridge)**: `.agent_sources/github.com/statelyai/xstate/packages/xstate-effect/` (`README.md`, `docs/`, `src/*.test.ts`)
+- **Alchemy resources, Cloudflare, AWS**: `.agent_sources/github.com/alchemy-run/alchemy/` and https://alchemy.run/llms.txt
 
 Refs are derived from the workspace pins, so bumping a package and re-running the script keeps them matched. The `pi-effect` tool reads the Effect mirror in place; it needs no link.
 
@@ -159,7 +195,7 @@ A child project replaces this section on day one with its own product rules. The
 - Lifecycles are machines. Finite modes, retries, and cancellation live in XState machines started with `createEffectActor`; side effects live in declared `createEffectLogic` actors, never inline.
 - The sandbox is a surface, not a bypass. Anything reachable from a code-mode program must be a capability and goes through that capability's schemas and handler.
 - Gardener rule: add a lint rule before cleaning up a bad pattern; lint baselines only shrink. The routine is `skills/gardener`; before simplifying or replacing a design, run `skills/uncomplect`.
-- Refresh peers, versions, and tiers every week or two and after every bump of Effect, Alchemy, XState, or `@xstate/effect`. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit table rows. Drift is expected. Preserve every peer; show S through B in the main table and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
+- Refresh peers, versions, and tiers every week or two and after every bump of Effect, Alchemy, XState, or `@xstate/effect`. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit generated entries. Drift is expected. Preserve every peer; show S through B in the main list and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
 - Tautological tests considered harmful.
 - Change-detector tests considered harmful.
 - Do not create regression tests for bug fixes without a genuine gap in behavior testing.
@@ -200,7 +236,7 @@ Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical E
 - Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
 - Be plain and strict, not robotic.
 
-Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a table for trade-offs or state, pseudocode for logic, or a shallow file tree. Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Do not add decorative visuals.
+Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a list for trade-offs or state, pseudocode for logic, or a shallow file tree. Do not write Markdown tables in published content. Tables inside fenced code examples may stay. Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Do not add decorative visuals.
 
 Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
 

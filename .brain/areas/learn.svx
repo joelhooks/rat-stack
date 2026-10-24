@@ -61,23 +61,25 @@ A page that is not a concept, such as an announcement, sets `learn: false` in it
 
 A card can also teach with three optional fields:
 
-| Field | Source | Content |
-| --- | --- | --- |
-| `plain` | Page frontmatter | One line in plain words, shown before the claim. |
-| `snippet` | `.brain/data/learn-cards/<id>.ts` | The smallest idiomatic TypeScript for the idea. |
-| `diagram` | Page frontmatter | Plain text, at most 30 columns and 12 rows of one-column characters. |
+- **`plain`**:
+  - Source: Page frontmatter
+  - Content: One line in plain words, shown before the claim.
+- **`snippet`**:
+  - Source: `.brain/data/learn-cards/<id>.ts`
+  - Content: The smallest idiomatic TypeScript for the idea.
+- **`diagram`**:
+  - Source: Page frontmatter
+  - Content: Plain text, at most 30 columns and 12 rows of one-column characters.
 
 A capability is one named action with shared value definitions and a server-side implementation.
 Four capabilities serve the deck and learning events. Two local capabilities serve display preferences:
 
-| Capability | Job |
-| --- | --- |
-| `learnDeck` | List the public cards. |
-| `learnCard` | Read one card at a requested depth. |
-| `learnNext` | Select explanations for concepts in play. |
-| `learnRecord` | Record an explicit learning event. |
-| `learnPreferences` | Read local display preferences. Local only. |
-| `learnSetPreferences` | Change local display preferences. Local only. |
+- **`learnDeck`**: List the public cards.
+- **`learnCard`**: Read one card at a requested depth.
+- **`learnNext`**: Select explanations for concepts in play.
+- **`learnRecord`**: Record an explicit learning event.
+- **`learnPreferences`**: Read local display preferences. Local only.
+- **`learnSetPreferences`**: Change local display preferences. Local only.
 
 `learnNext` and `learnRecord` treat omitted progress as empty version 1 progress.
 
@@ -101,24 +103,20 @@ The CLI supplies filesystem access and the default directory.
 
 Public HTTP and MCP calls operate on supplied progress. The public server stores no progress. The default local directory is `~/.rat-learn/`.
 
-| Local file | Role |
-| --- | --- |
-| `log.jsonl` | Authoritative append-only learning events. |
-| `cards.jsonl` | Rebuildable concept progress. |
-| `tasks.jsonl` | Rebuildable concept ids and presentation depths. |
-| `README.md` | Store shape and recovery instructions. |
-| `preferences.json` | Display width, visual style, and snippet length. A missing file means narrow inline text with full snippets. |
+- **`log.jsonl`**: Authoritative append-only learning events.
+- **`cards.jsonl`**: Rebuildable concept progress.
+- **`tasks.jsonl`**: Rebuildable concept ids and presentation depths.
+- **`README.md`**: Store shape and recovery instructions.
+- **`preferences.json`**: Display width, visual style, and snippet length. A missing file means narrow inline text with full snippets.
 
 ### Feedback sign-in
 
 Feedback is separate from learning progress. A person signs in through Better Auth and approves an agent's code on their phone.
 The agent receives a credential that permits `learnFeedback` only. The database stores feedback against the approving person.
 
-| Capability | Job |
-| --- | --- |
-| `learnFeedbackStart` | Return a short code, verification URL, lifetime, and polling interval. |
-| `learnFeedbackPoll` | Report pending, approval, denial, expiry, or polling too fast. |
-| `learnFeedback` | Validate the credential and card, then store the agreed feedback. |
+- **`learnFeedbackStart`**: Return a short code, verification URL, lifetime, and polling interval.
+- **`learnFeedbackPoll`**: Report pending, approval, denial, expiry, or polling too fast.
+- **`learnFeedback`**: Validate the credential and card, then store the agreed feedback.
 
 The phone page is `/learn/approve`. It shows the code and requires sign-in before approval.
 The stock `/auth/device/token` endpoint is disabled because it issues a full sign-in session.

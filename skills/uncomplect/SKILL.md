@@ -30,25 +30,23 @@ Read `AGENTS.md`, `VISION.md`, and the relevant `.brain/` decisions. Inspect the
 
 ## Terms used here
 
-| Term | Meaning |
-| --- | --- |
-| Capability | One named action with a contract and a server-side handler. |
-| Contract | The shared name, input, output, failures, metadata, and approval setting. |
-| Projection | An interface built from capabilities: a command, API, or agent tool. |
-| Cartridge | A package that owns one job and its resources. It must pass the add-and-remove test below. |
-| Fence | Types, lint rules, tests, and hooks that reject prohibited changes. Project rules cover remaining gaps. |
-| Effect | The library for describing work with typed failures and required services. |
-| Service | A named interface for one job. A service tag identifies the service requested by a caller. |
-| Schema | A definition of accepted values that provides TypeScript types and runtime checks. |
-| Layer | A description of how to construct services and supply their dependencies. |
-| Alchemy Stack | The infrastructure program that declares cloud resources and their connections. |
-| Binding | A connection that gives runtime code access to a resource. |
-| Machine | Named states, events, and legal transitions for one lifecycle, defined with XState. |
-| Actor | A running unit of work used by a machine. |
-| Feature | A thin route and view that read client state and call named commands. |
-| Client | The module that owns queries, commands, and a local copy of server data. |
-| Port | An interface for an application job, independent of a provider. |
-| Adapter | An implementation of a port for a particular provider. |
+- **Capability**: One named action with a contract and a server-side handler.
+- **Contract**: The shared name, input, output, failures, metadata, and approval setting.
+- **Projection**: An interface built from capabilities: a command, API, or agent tool.
+- **Cartridge**: A package that owns one job and its resources. It must pass the add-and-remove test below.
+- **Fence**: Types, lint rules, tests, and hooks that reject prohibited changes. Project rules cover remaining gaps.
+- **Effect**: The library for describing work with typed failures and required services.
+- **Service**: A named interface for one job. A service tag identifies the service requested by a caller.
+- **Schema**: A definition of accepted values that provides TypeScript types and runtime checks.
+- **Layer**: A description of how to construct services and supply their dependencies.
+- **Alchemy Stack**: The infrastructure program that declares cloud resources and their connections.
+- **Binding**: A connection that gives runtime code access to a resource.
+- **Machine**: Named states, events, and legal transitions for one lifecycle, defined with XState.
+- **Actor**: A running unit of work used by a machine.
+- **Feature**: A thin route and view that read client state and call named commands.
+- **Client**: The module that owns queries, commands, and a local copy of server data.
+- **Port**: An interface for an application job, independent of a provider.
+- **Adapter**: An implementation of a port for a particular provider.
 
 CLI means command-line interface. MCP lets agents discover and call tools. RPC lets a client call named server operations.
 

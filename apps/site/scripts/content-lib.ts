@@ -1454,13 +1454,13 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
 
   const countRows = [...counts]
     .toSorted(([left], [right]) => left.localeCompare(right))
-    .map(([kind, count]) => `| ${kind} | ${count} |`);
+    .map(([kind, count]) => `- **${kind}**: ${count}`);
 
   const rows = entries.map((entry) => {
     const link = `https://github.com/joelhooks/rat-stack/blob/main/${entry.file}#L${entry.line}`;
     const reason = entry.reason ?? "no reason given";
 
-    return `| [${entry.file}:${entry.line}](${link}) | ${tableCell(entry.directive)} | ${tableCell(reason)} |`;
+    return `- **[${entry.file}:${entry.line}](${link})**\n  - Directive: ${tableCell(entry.directive)}\n  - Reason: ${tableCell(reason)}`;
   });
 
   return [
@@ -1472,16 +1472,12 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
     "",
     "## Count by directive kind",
     "",
-    "| Kind | Count |",
-    "| --- | ---: |",
     ...countRows,
     "",
     "The vendored `tools/oxlint/anti-slop/` plugin is excluded. It is Dillon Mulroy's code, not our debt.",
     "",
     "## Every directive",
     "",
-    "| File | Directive | Reason |",
-    "| --- | --- | --- |",
     ...rows,
     "",
   ].join("\n");

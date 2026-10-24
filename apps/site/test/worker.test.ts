@@ -616,7 +616,8 @@ it.effect(
         expect(resourceHtml).toContain(
           '<h1 id="effect-4-reference-projects-studied-2026-09-18">'
         );
-        expect(resourceHtml).toMatch(/<table\b[^>]*>/u);
+        expect(resourceHtml).toMatch(/<li>Stars: 23k<\/li>/u);
+        expect(resourceHtml).not.toMatch(/<table\b/u);
         expect(resourceHtml).not.toContain("<script");
 
         const favicon = yield* Effect.promise(
@@ -882,7 +883,8 @@ it.effect(
         expect(markdown).toContain("Total: **");
         expect(markdown).toContain("no reason given");
         expect(markdown).toContain("tools/oxlint/anti-slop/");
-        expect(page).toMatch(/<table\b[^>]*>/u);
+        expect(page).toContain("<li>Directive:");
+        expect(page).not.toMatch(/<table\b/u);
         expect(fullText).toContain(`# ${debt.routePath}`);
         expect(llmsText("https://ratstack.sh")).toContain(
           `[Lint and type escape ledger (debt.md)](${debt.routePath})`
