@@ -83,12 +83,18 @@ Read the [CAFE news](/news) and browse the [project directory](/directory).
 
 [Maxwell Brown](https://github.com/IMax153) coined the name; [Justin Bennett](https://github.com/just-be-dev) spread it with his template on 8 October 2026. That day, [Devin Jameson](https://github.com/devinjameson), Maxwell and [Sam Goodwin](https://github.com/sam-goodwin) streamed a CAFE build, and [Sebastian Lorenz](https://github.com/fubhy) wrote the explainer people share.
 
-| Letter | Part | Job |
-| --- | --- | --- |
-| C | Cloudflare | Runs the app: Workers, Durable Objects, storage, static assets. |
-| A | Alchemy | Declares the cloud resources as an Effect program. |
-| F | Foldkit | Draws the UI with the Elm Architecture on Effect. |
-| E | Effect | Does the typed work between the UI and the cloud. |
+- **C**:
+  - Part: Cloudflare
+  - Job: Runs the app: Workers, Durable Objects, storage, static assets.
+- **A**:
+  - Part: Alchemy
+  - Job: Declares the cloud resources as an Effect program.
+- **F**:
+  - Part: Foldkit
+  - Job: Draws the UI with the Elm Architecture on Effect.
+- **E**:
+  - Part: Effect
+  - Job: Does the typed work between the UI and the cloud.
 
 A request follows one path. The [Alchemy](/skills/learn-alchemy) Stack declares every box on it.
 
@@ -126,14 +132,12 @@ It shows these patterns:
 
 ## Other CAFE apps
 
-| App | What it shows |
-| --- | --- |
-| [just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template) | A template with tooling and guardrails for Effect 4, Foldkit, and Alchemy 2 on Cloudflare. |
-| [NigelThorne/foldkit-demo](https://github.com/NigelThorne/foldkit-demo) | Live shared sessions on Durable Objects with SQLite and hibernatable WebSockets. |
-| [mwarger/corefour](https://github.com/mwarger/corefour) | A poster app with an Effect `HttpApi` Worker, Foldkit server rendering, and KV and R2 storage. |
-| [Manzanita-Research/foldkit-dials](https://github.com/Manzanita-Research/foldkit-dials) | Live tuning controls for Foldkit apps. See the next section. |
-| [Manzanita-Research/pleat](https://github.com/Manzanita-Research/pleat) | Typed styles for Foldkit and Effect 4. MIT. |
-| [Effect-TS/slopcop](https://github.com/Effect-TS/slopcop) | Several Effect Workers with D1 and Queues, declared in one Alchemy Stack. |
+- **[just-be-dev/effect-cloudflare-foldkit-template](https://github.com/just-be-dev/effect-cloudflare-foldkit-template)**: A template with tooling and guardrails for Effect 4, Foldkit, and Alchemy 2 on Cloudflare.
+- **[NigelThorne/foldkit-demo](https://github.com/NigelThorne/foldkit-demo)**: Live shared sessions on Durable Objects with SQLite and hibernatable WebSockets.
+- **[mwarger/corefour](https://github.com/mwarger/corefour)**: A poster app with an Effect `HttpApi` Worker, Foldkit server rendering, and KV and R2 storage.
+- **[Manzanita-Research/foldkit-dials](https://github.com/Manzanita-Research/foldkit-dials)**: Live tuning controls for Foldkit apps. See the next section.
+- **[Manzanita-Research/pleat](https://github.com/Manzanita-Research/pleat)**: Typed styles for Foldkit and Effect 4. MIT.
+- **[Effect-TS/slopcop](https://github.com/Effect-TS/slopcop)**: Several Effect Workers with D1 and Queues, declared in one Alchemy Stack.
 
 Pleat treats a style as a value:
 
@@ -162,15 +166,27 @@ foldkit-dials is a clear example of the Foldkit rule that every change is a Mess
 
 rat-stack is a CAFE stack with [the fence](/lore/the-fence) around it. The table compares it with cafe at rat-stack commit `3fb103b`.
 
-| Area | rat-stack | cafe |
-| --- | --- | --- |
-| Alchemy Worker shape | Class form: `Cloudflare.Worker<Mischief>()`, `Cloudflare.Workers.RpcWorker`, `Cloudflare.Website.Foldkit` | `Cloudflare.Worker`, `Cloudflare.RpcDurableObject`, `Cloudflare.Website.Foldkit` |
-| Runtime tests | `alchemy/Test/Vitest` with fixture Workers in `apps/site/test/*-runtime.test.ts` | `Test.make` deploys the whole Stack; Playwright drives Chromium |
-| API surface | One contract projected to RPC, HTTP, MCP, and CLI by `packages/capability` | Hand-written `HttpApi` and `RpcGroup` |
-| Foldkit | `Runtime.makeApplication`, `Command.define`, `@foldkit/oxlint-plugin`, Story and Scene tests | The same, plus the Foldkit agent skills |
-| Config | varlock `.env.schema` into Effect `Config`; no `process.env` in source | `effect/Config`; no `process.env` |
-| Pull request stages | `scripts/deploy-preview.sh` deploys a Website and RpcBackend preview by hand; no live end-to-end test | CI deploys one stage per pull request, runs live tests, and destroys it on close |
-| Tracing | `Cloudflare.Telemetry`, opt-in, off by default | Not enabled |
+- **Alchemy Worker shape**:
+  - rat-stack: Class form: `Cloudflare.Worker<Mischief>()`, `Cloudflare.Workers.RpcWorker`, `Cloudflare.Website.Foldkit`
+  - cafe: `Cloudflare.Worker`, `Cloudflare.RpcDurableObject`, `Cloudflare.Website.Foldkit`
+- **Runtime tests**:
+  - rat-stack: `alchemy/Test/Vitest` with fixture Workers in `apps/site/test/*-runtime.test.ts`
+  - cafe: `Test.make` deploys the whole Stack; Playwright drives Chromium
+- **API surface**:
+  - rat-stack: One contract projected to RPC, HTTP, MCP, and CLI by `packages/capability`
+  - cafe: Hand-written `HttpApi` and `RpcGroup`
+- **Foldkit**:
+  - rat-stack: `Runtime.makeApplication`, `Command.define`, `@foldkit/oxlint-plugin`, Story and Scene tests
+  - cafe: The same, plus the Foldkit agent skills
+- **Config**:
+  - rat-stack: varlock `.env.schema` into Effect `Config`; no `process.env` in source
+  - cafe: `effect/Config`; no `process.env`
+- **Pull request stages**:
+  - rat-stack: `scripts/deploy-preview.sh` deploys a Website and RpcBackend preview by hand; no live end-to-end test
+  - cafe: CI deploys one stage per pull request, runs live tests, and destroys it on close
+- **Tracing**:
+  - rat-stack: `Cloudflare.Telemetry`, opt-in, off by default
+  - cafe: Not enabled
 
 The largest difference is the API [surface](/lore/one-schema-three-surfaces). See [one capability, every surface](/lore/one-capability-every-surface) and [infrastructure as effects](/lore/infrastructure-as-effects).
 

@@ -95,10 +95,10 @@ const errorDiagnostic = (
   return nested === undefined ? diagnostic : { ...diagnostic, cause: nested };
 };
 
-class ReturnedServerError extends Schema.TaggedError<ReturnedServerError>()(
-  "ReturnedServerError",
-  {}
-) {}
+class ReturnedServerError extends Schema.TaggedError<
+  ReturnedServerError,
+  { readonly brand: unique symbol }
+>()("ReturnedServerError", {}) {}
 
 const privateError = (cause: unknown, includeMessage = true) => {
   const diagnostic = includeMessage ? errorDiagnostic(cause) : undefined;
@@ -239,24 +239,24 @@ export const observeRequestIncidents = <E, R>(
 ) =>
   Effect.gen(function* observeRequest() {
     let response = yield* app.pipe(
-      Effect.catchCause((cause) =>
-        Cause.hasInterrupts(cause)
-          ? Effect.failCause(cause)
-          : HttpServerError.causeResponse(cause).pipe(
-              Effect.flatMap(([converted]) =>
-                converted.status === 500
-                  ? logRequestIncident(cause, "fetch").pipe(
-                      Effect.map((id) =>
-                        HttpServerResponse.setHeader(
-                          converted,
-                          "X-Incident-Id",
-                          id
-                        )
+      Effect.catchCauseIf(
+        (cause) => !Cause.hasInterrupts(cause),
+        (cause) =>
+          HttpServerError.causeResponse(cause).pipe(
+            Effect.flatMap(([converted]) =>
+              converted.status === 500
+                ? logRequestIncident(cause, "fetch").pipe(
+                    Effect.map((id) =>
+                      HttpServerResponse.setHeader(
+                        converted,
+                        "X-Incident-Id",
+                        id
                       )
                     )
-                  : Effect.succeed(converted)
-              )
+                  )
+                : Effect.succeed(converted)
             )
+          )
       )
     );
 

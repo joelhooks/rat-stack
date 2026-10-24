@@ -1,0 +1,59 @@
+---
+title: "Backpressure reaches the producer"
+description: "Bounded consumption helps only when upstream respects waiting or refusal."
+group: concept
+terms:
+  - "backpressure"
+  - "bounded concurrency"
+  - "overflow policy"
+sources:
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Queue.ts
+    title: "Effect contributors. Effect 4.0.0. Queue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Semaphore.ts
+    title: "Effect contributors. Effect 4.0.0. Semaphore.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Asynchronous sends can outrun the receiver. Bound fan-out against scarce resources and make the producer participate in the flow-control policy.
+
+Book basis: [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp), [B4](/lore/durability-bibliography#b4-release-it).
+
+## Failure it prevents
+
+A bounded consumer hides an ever-growing upstream mailbox or set of waiting producers.
+
+## Our Effect 4.0.0 reading
+
+`Queue.bounded` suspends offers at capacity. `Queue.dropping` and `Queue.sliding` choose loss policies. Bounded `Effect.forEach` and `Semaphore` cap active work. Upstream backlog needs its own bound.
+
+Source: `packages/effect/src/Queue.ts`, `packages/effect/src/Effect.ts`, `packages/effect/src/Semaphore.ts`.
+
+## How to check
+
+Run a faster producer against a slower consumer. Check backlog and memory, plus the documented wait, reject, or drop behavior. This check is our proposal. The books do not prescribe it.
+
+Continue with [Admission control protects recovery](/lore/admission-controls-new-work), [Bulkheads isolate scarce capacity](/lore/bulkheads-isolate-capacity).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

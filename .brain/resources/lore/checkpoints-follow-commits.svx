@@ -1,0 +1,51 @@
+---
+title: "Checkpoints follow the promised commit"
+description: "Persist state and progress together when one store can transact both."
+group: concept
+terms:
+  - "checkpoint"
+  - "acknowledgement boundary"
+  - "state and offset atomicity"
+sources:
+  - url: https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/
+    title: "Bellemare, Adam. Building Event-Driven Microservices: Leveraging Organizational Data at Scale. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Communication and Data Contracts; Chapter 6 Deterministic Stream Processing; Chapter 7 Stateful Streaming; Chapter 9 Microservices Using Function-as-a-Service; Chapter 14 Supportive Tooling."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/sql/SqlClient.ts
+    title: "Effect contributors. Effect 4.0.0. sql/SqlClient.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Stream.ts
+    title: "Effect contributors. Effect 4.0.0. Stream.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A consumer position and its materialized state must agree. Acknowledge processing only after the promised processing completes.
+
+> allowing a single stateful transaction to atomically update both the state and input offsets.
+
+Source: [Q13](/lore/durability-bibliography#q13); [B5](/lore/durability-bibliography#b5-building-event-driven-microservices).
+
+## Failure it prevents
+
+Progress advances without its state, or state commits while replay still reapplies the event.
+
+## Our Effect 4.0.0 reading
+
+`SqlClient.withTransaction` covers its database boundary. `Stream.runForEach` expresses handling only. Broker acknowledgement and remote transactions need their own protocol.
+
+Source: `packages/effect/src/sql/SqlClient.ts`, `packages/effect/src/Stream.ts`.
+
+## How to check
+
+Crash before and after state commit and acknowledgement. Redeliver and compare state with the expected checkpoint. This check is our proposal. The books do not prescribe it.
+
+Continue with [Retry needs idempotent effects](/lore/retry-needs-idempotency), [Dead letters need a return path](/lore/dead-letters-need-a-return-path).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

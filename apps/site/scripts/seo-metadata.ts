@@ -25,9 +25,9 @@ const contentDate = (value: string | undefined): string | undefined => {
     return undefined;
   }
 
-  const date = Schema.decodeUnknownSync(isoDate)(value);
+  const date = Schema.decodeSync(isoDate)(value);
 
-  const instant = Schema.decodeUnknownSync(Schema.DateTimeUtcFromString)(
+  const instant = Schema.decodeSync(Schema.DateTimeUtcFromString)(
     `${date}T00:00:00Z`
   );
 
@@ -47,7 +47,7 @@ export const contentDates = (
   sourcePath = "<inline>"
 ): ContentDates => {
   try {
-    const data = Schema.decodeUnknownSync(dateFields)(frontmatterData(rawText));
+    const data = Schema.decodeSync(dateFields)(frontmatterData(rawText));
     const datePublished = contentDate(data.created_at);
     const dateModified = contentDate(data.updated_at ?? data.updated);
     const dates: MutableContentDates = {};

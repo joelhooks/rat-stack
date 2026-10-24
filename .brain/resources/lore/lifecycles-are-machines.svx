@@ -48,3 +48,5 @@ The machine chooses transitions and records its outcome. The invoked actor perfo
 `packages/core/src/inspect-machine.ts` is the working example. `watchActor` makes the run visible to devtools. The rule in `scripts/oxlint-plugin-xstate-effect.ts` enforces declared actors by catching inline Effects in machine actions and actors.
 
 See [one capability, every surface](/lore/one-capability-every-surface) for how a capability can own a machine and [the fence](/lore/the-fence) for the rule that protects it.
+
+A machine in memory ends with its process. [Restart must reconstruct known state](/lore/restart-from-known-state) and [supervision chooses what restarts](/lore/supervision-is-a-recovery-policy) cover recovery.

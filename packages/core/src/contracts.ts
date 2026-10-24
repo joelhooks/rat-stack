@@ -143,13 +143,13 @@ export const ReadOutput = Schema.Struct({
   title: Schema.String,
 });
 
-export class ResourceNotFound extends Schema.TaggedError<ResourceNotFound>()(
-  "ResourceNotFound",
-  {
-    id: Schema.String,
-    message: Schema.String,
-  }
-) {}
+export class ResourceNotFound extends Schema.TaggedError<
+  ResourceNotFound,
+  { readonly brand: unique symbol }
+>()("ResourceNotFound", {
+  id: Schema.String,
+  message: Schema.String,
+}) {}
 
 export const LoreGroup = Schema.Literals([
   "idea",

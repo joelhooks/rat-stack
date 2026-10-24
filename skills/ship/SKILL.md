@@ -94,11 +94,9 @@ Report code-ready, deployed and behavior-verified separately. Check customer-fac
 
 Read [rollback](https://github.com/joelhooks/rat-stack/blob/main/skills/ship/references/rollback.md) before restoration.
 
-| Stop | Condition needed to continue |
-| --- | --- |
-| WAIT[release-scope] | Authorization and the target stage are known. |
-| WAIT[adapter-qualification] | The required behavior checks have passed for the adapter. |
-| WAIT[rollback-target] | The version to restore is recorded and usable. |
+- **WAIT[release-scope]**: Authorization and the target stage are known.
+- **WAIT[adapter-qualification]**: The required behavior checks have passed for the adapter.
+- **WAIT[rollback-target]**: The version to restore is recorded and usable.
 
 Missing evidence stops deployment. An observed failed check follows the project's failure policy. HOLD waits for a decision; it does not trigger rollback.
 

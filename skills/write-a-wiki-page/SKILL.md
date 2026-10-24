@@ -18,13 +18,21 @@ Write one useful page from checked sources. Keep claim titles and quoted voice. 
 
 ## 1. Choose the kind
 
-| Kind | Source | Rule |
-| --- | --- | --- |
-| Lore | `.brain/resources/lore/<slug>.svx` | Use a claim title and `group: idea`, `concept`, `source`, or `person`. |
-| System | `.brain/areas/<slug>.svx` | Use `group: system`. Include What it does, The standard, and How to check. |
-| Skill | `skills/<name>/SKILL.md` | Match directory and frontmatter `name`. Give the skill a distinct triggering description. |
-| Resource | `.brain/resources/` | Keep reference material here. Check publication wiring. Use clean `/resources/<slug>` links, not `.svx` URLs. |
-| Glossary | `glossaryDefinitions` in `apps/site/scripts/content-lib.ts` | Declare a term, its own definition, and a teaching page. The generator builds `/glossary`. |
+- **Lore**:
+  - Source: `.brain/resources/lore/<slug>.svx`
+  - Rule: Use a claim title and `group: idea`, `concept`, `source`, or `person`.
+- **System**:
+  - Source: `.brain/areas/<slug>.svx`
+  - Rule: Use `group: system`. Include What it does, The standard, and How to check.
+- **Skill**:
+  - Source: `skills/<name>/SKILL.md`
+  - Rule: Match directory and frontmatter `name`. Give the skill a distinct triggering description.
+- **Resource**:
+  - Source: `.brain/resources/`
+  - Rule: Keep reference material here. Check publication wiring. Use clean `/resources/<slug>` links, not `.svx` URLs.
+- **Glossary**:
+  - Source: `glossaryDefinitions` in `apps/site/scripts/content-lib.ts`
+  - Rule: Declare a term, its own definition, and a teaching page. The generator builds `/glossary`.
 
 Use `title`, `description`, `group`, `terms`, and `sources` for lore and systems. Copy a nearby page's field shape.
 
@@ -61,12 +69,10 @@ The check reads parsed prose, including list paragraphs. It skips code, tables, 
 
 ## 3. Use a visual when it explains something
 
-| Need               | Use                        |
-| ------------------ | -------------------------- |
-| Flow or topology   | Fenced box-drawing diagram |
-| Trade-off or state | Table                      |
-| Logic              | Pseudocode                 |
-| File placement     | Shallow tree               |
+- **Flow or topology**: Fenced box-drawing diagram
+- **Trade-off or state**: List. Do not write Markdown tables in published content. Tables inside fenced code examples may stay.
+- **Logic**: Pseudocode
+- **File placement**: Shallow tree
 
 Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Remove decorative visuals.
 
@@ -134,27 +140,63 @@ Fix the fence at the first path and line. The remaining context describes the re
 
 Read `packages/code-snippets/test/pipeline.test.ts` and `git.test.ts` for these messages. Example numbers describe test fixtures.
 
-| Tag | Real repair message | Meaning and fix |
-| --- | --- | --- |
-| `CodeInvalidProps` | "Add path for a pinned reference, or remove repo/at/lines." | Complete the partial reference or use an inline example. |
-| `CodeUnknownKey` | "Unknown key bogus; use repo, path, at, lines or title." | Remove the unsupported key. |
-| `CodeDuplicateKey` | "Remove duplicate title." | Keep one value per key and one highlight set. |
-| `CodeMalformedMeta` | "Close the highlight set with }." | Repair syntax. Quoted values must close too. |
-| `CodeBodyWithReference` | "Remove the fence body; path references read their content from Git." | Remove copied text. |
-| `CodeUnknownRepo` | "Use an id from the configured repository registry." | Choose a registered id. |
-| `CodeRepositoryConfigInvalid` | "[CodeRepositoryConfigInvalid] Configure repositories as {id, adapter, location, linkTemplate?}." | Repair the registry entry. |
-| `CodeMissingCommit` | "Commit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb isn't in rat-stack's local objects. Run pnpm sources:fetch (template children: once, after creating the repo)." | Check the SHA, then fetch missing history. |
-| `CodeMissingPath` | "File is not a blob at this commit; correct path or at." | Check the file at that revision. |
-| `CodeSourceUnavailable` | "Git objects are unavailable; run pnpm sources:fetch or use a full clone containing the pinned history." | Restore access to the objects. |
-| `CodeInvalidRanges` | "Order lines without overlaps, such as 3,5-7." | Sort ranges and remove overlap. |
-| `CodeRangeOutOfBounds` | "File has 48 lines; range 40-62 ends past it. Choose lines within the file." | Select lines within this revision. |
-| `CodeHighlightOutsideRanges` | "Highlighted line 5 is not shown; highlight only visible lines." | Select that line or remove its highlight. |
-| `CodeLineCapExceeded` | "26 visible lines exceeds the 25-line cap; choose a shorter excerpt." | Reduce visible lines. |
-| `UnknownLanguage` | "Unknown language nonexistent; use an active-engine language or explicit text." | Correct the language or choose `text`. |
-| `CodeHighlightFailed` | "Highlighter could not tokenize this file; check the language and source encoding." | Check the file and engine adapter. |
-| `SourceFetchUnknownRemote` | "Configure remote for this repository before running pnpm sources:fetch." | Configure the bootstrap remote. |
-| `SourceFetchMissingCommit` | "The configured remote has no requested SHA; correct at or remote." | Check the revision and remote. |
-| `SourceFetchOffline` | "Fetch failed; check the configured remote, authentication and connectivity, then retry pnpm sources:fetch." | Repair connectivity or credentials before retrying. |
+- **`CodeInvalidProps`**:
+  - Real repair message: "Add path for a pinned reference, or remove repo/at/lines."
+  - Meaning and fix: Complete the partial reference or use an inline example.
+- **`CodeUnknownKey`**:
+  - Real repair message: "Unknown key bogus; use repo, path, at, lines or title."
+  - Meaning and fix: Remove the unsupported key.
+- **`CodeDuplicateKey`**:
+  - Real repair message: "Remove duplicate title."
+  - Meaning and fix: Keep one value per key and one highlight set.
+- **`CodeMalformedMeta`**:
+  - Real repair message: "Close the highlight set with }."
+  - Meaning and fix: Repair syntax. Quoted values must close too.
+- **`CodeBodyWithReference`**:
+  - Real repair message: "Remove the fence body; path references read their content from Git."
+  - Meaning and fix: Remove copied text.
+- **`CodeUnknownRepo`**:
+  - Real repair message: "Use an id from the configured repository registry."
+  - Meaning and fix: Choose a registered id.
+- **`CodeRepositoryConfigInvalid`**:
+  - Real repair message: "[CodeRepositoryConfigInvalid] Configure repositories as {id, adapter, location, linkTemplate?}."
+  - Meaning and fix: Repair the registry entry.
+- **`CodeMissingCommit`**:
+  - Real repair message: "Commit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb isn't in rat-stack's local objects. Run pnpm sources:fetch (template children: once, after creating the repo)."
+  - Meaning and fix: Check the SHA, then fetch missing history.
+- **`CodeMissingPath`**:
+  - Real repair message: "File is not a blob at this commit; correct path or at."
+  - Meaning and fix: Check the file at that revision.
+- **`CodeSourceUnavailable`**:
+  - Real repair message: "Git objects are unavailable; run pnpm sources:fetch or use a full clone containing the pinned history."
+  - Meaning and fix: Restore access to the objects.
+- **`CodeInvalidRanges`**:
+  - Real repair message: "Order lines without overlaps, such as 3,5-7."
+  - Meaning and fix: Sort ranges and remove overlap.
+- **`CodeRangeOutOfBounds`**:
+  - Real repair message: "File has 48 lines; range 40-62 ends past it. Choose lines within the file."
+  - Meaning and fix: Select lines within this revision.
+- **`CodeHighlightOutsideRanges`**:
+  - Real repair message: "Highlighted line 5 is not shown; highlight only visible lines."
+  - Meaning and fix: Select that line or remove its highlight.
+- **`CodeLineCapExceeded`**:
+  - Real repair message: "26 visible lines exceeds the 25-line cap; choose a shorter excerpt."
+  - Meaning and fix: Reduce visible lines.
+- **`UnknownLanguage`**:
+  - Real repair message: "Unknown language nonexistent; use an active-engine language or explicit text."
+  - Meaning and fix: Correct the language or choose `text`.
+- **`CodeHighlightFailed`**:
+  - Real repair message: "Highlighter could not tokenize this file; check the language and source encoding."
+  - Meaning and fix: Check the file and engine adapter.
+- **`SourceFetchUnknownRemote`**:
+  - Real repair message: "Configure remote for this repository before running pnpm sources:fetch."
+  - Meaning and fix: Configure the bootstrap remote.
+- **`SourceFetchMissingCommit`**:
+  - Real repair message: "The configured remote has no requested SHA; correct at or remote."
+  - Meaning and fix: Check the revision and remote.
+- **`SourceFetchOffline`**:
+  - Real repair message: "Fetch failed; check the configured remote, authentication and connectivity, then retry pnpm sources:fetch."
+  - Meaning and fix: Repair connectivity or credentials before retrying.
 
 `CodeInvalidProps` also reports "Pin at to a full 40-character lowercase commit SHA." Use a SHA, not a branch or tag.
 

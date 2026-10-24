@@ -156,6 +156,9 @@ const primitive = (type: string, node: JsonSchemaNode): string => {
   }
 };
 
+const union = (members: readonly string[]): string =>
+  [...new Set(members)].join(" | ");
+
 const printNode = (node: JsonSchemaNode): string => {
   const ref = refName(node.$ref);
 
@@ -174,13 +177,13 @@ const printNode = (node: JsonSchemaNode): string => {
   const variants = node.anyOf ?? node.oneOf;
 
   if (variants !== undefined) {
-    return variants.map(printNode).join(" | ");
+    return union(variants.map(printNode));
   }
 
   const types = [node.type ?? []].flat();
 
   if (types.length > 0) {
-    return types.map((member) => primitive(member, node)).join(" | ");
+    return union(types.map((member) => primitive(member, node)));
   }
 
   if (node.enum !== undefined) {

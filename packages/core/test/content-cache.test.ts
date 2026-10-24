@@ -81,7 +81,9 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
           "turbo.json",
           yield* fileSystem.readFileString(path.join(root, "turbo.json"))
         );
-        yield* Effect.all(contentInputs.map((input) => write(input, "before")));
+        yield* Effect.forEach((input: string) => write(input, "before"))(
+          contentInputs
+        );
         yield* write("scratch/unrelated.txt", "before");
 
         const hashes = Effect.fnUntraced(function* readHashes() {
@@ -115,23 +117,21 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
         expect(unrelated["@rat-stack/site#build"]).toBe(
           before["@rat-stack/site#build"]
         );
-        yield* Effect.all(
-          contentInputs.map((input) =>
-            Effect.gen(function* changesContentInput() {
-              yield* write(input, "after");
-              const after = yield* hashes();
+        yield* Effect.forEach((input: string) =>
+          Effect.gen(function* changesContentInput() {
+            yield* write(input, "after");
+            const after = yield* hashes();
 
-              for (const task of tasks) {
-                const taskId = `@rat-stack/site#${task}`;
-                expect(after[taskId], `${input}: ${task}`).not.toBe(
-                  before[taskId]
-                );
-              }
+            for (const task of tasks) {
+              const taskId = `@rat-stack/site#${task}`;
+              expect(after[taskId], `${input}: ${task}`).not.toBe(
+                before[taskId]
+              );
+            }
 
-              yield* write(input, "before");
-            })
-          )
-        );
+            yield* write(input, "before");
+          })
+        )(contentInputs);
       }),
     { timeout: 30_000 }
   );

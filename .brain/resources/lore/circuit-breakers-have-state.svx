@@ -1,0 +1,55 @@
+---
+title: "Circuit breakers have state"
+description: "A breaker stops doomed calls and controls probes before restoring traffic."
+group: concept
+terms:
+  - "circuit breaker"
+  - "half-open probe"
+sources:
+  - url: https://archive.org/details/releaseitdesignd0000nyga
+    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
+    publisher: "Pragmatic Bookshelf"
+    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
+    accessed: "2026-10-23"
+  - url: https://pragprog.com/titles/fhproper/property-based-testing-with-proper-erlang-and-elixir/
+    title: "Hebert, Fred. Property-Based Testing with PropEr, Erlang, and Elixir. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Chapter 7 Shrinking; Laying Out Stateful Properties; Testing Parallel Executions; Initial State for the State Machine; Adjusting the Model. Use the actual breaker’s threshold semantics."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schema.ts
+    title: "Effect contributors. Effect 4.0.0. Schema.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A circuit breaker is a stateful guard around a dependency. It differs from retry. Its state determines whether a dependency call is attempted. Threshold accounting must match the actual implementation.
+
+> calls to the circuit breaker fail immediately, without any attempt to execute the real operation.
+
+Source: [Q06](/lore/durability-bibliography#q06); [B4](/lore/durability-bibliography#b4-release-it), [B11](/lore/durability-bibliography#b11-property-based-testing).
+
+## Failure it prevents
+
+Callers keep spending capacity on a known-unhealthy dependency.
+
+## Our Effect 4.0.0 reading
+
+No dependency circuit-breaker API was found. Compose timeout and typed failure handling with an explicit XState lifecycle. Define whether state is local or shared.
+
+Source: `packages/effect/src/Effect.ts`, `packages/effect/src/Schema.ts`.
+
+## How to check
+
+Generate success, failure, timeout, cooldown, and probe histories. Verify exact threshold semantics and visible state changes. This check is our proposal. The books do not prescribe it.
+
+Continue with [Bulkheads isolate scarce capacity](/lore/bulkheads-isolate-capacity), [Supervision chooses what restarts](/lore/supervision-is-a-recovery-policy).
+
+Connect this to [the existing rat-stack guidance](/lore/lifecycles-are-machines).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

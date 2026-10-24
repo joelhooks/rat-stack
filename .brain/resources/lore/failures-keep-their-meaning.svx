@@ -1,0 +1,66 @@
+---
+title: "Failures keep their meaning"
+description: "Expected refusals, infrastructure faults, and defects need different policies."
+group: concept
+terms:
+  - "domain error"
+  - "infrastructure error"
+  - "exception masking"
+sources:
+  - url: https://pragprog.com/titles/swdddf/domain-modeling-made-functional/
+    title: "Wlaschin, Scott. Domain Modeling Made Functional: Tackle Software Complexity with Domain-Driven Design and F#. Pragmatic Bookshelf, 2018."
+    publisher: "Pragmatic Bookshelf"
+    note: "Implementation: Working with Errors; Using the Result Type to Make Errors Explicit; Handling Exceptions; Composing in Parallel with Applicatives."
+    accessed: "2026-10-23"
+  - url: https://web.stanford.edu/~ouster/cgi-bin/book.php
+    title: "Ousterhout, John. A Philosophy of Software Design. 2018."
+    publisher: "John Ousterhout"
+    note: "§4.4 Deep Modules; §10.2 Too Many Exceptions; §10.3 Define Errors Out of Existence; §10.6 Mask Exceptions; §10.7 Exception Aggregation; §10.8 Just Crash?; §10.10 Taking It Too Far."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schema.ts
+    title: "Effect contributors. Effect 4.0.0. Schema.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Effect.ts
+    title: "Effect contributors. Effect 4.0.0. Effect.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Context.ts
+    title: "Effect contributors. Effect 4.0.0. Context.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Layer.ts
+    title: "Effect contributors. Effect 4.0.0. Layer.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Model expected business failures explicitly. Hide recoverable details only where callers do not need them to preserve correctness.
+
+> These different kinds of errors require different implementations.
+
+Source: [Q15](/lore/durability-bibliography#q15); [B7](/lore/durability-bibliography#b7-domain-modeling-made-functional), [B10](/lore/durability-bibliography#b10-a-philosophy-of-software-design).
+
+## Failure it prevents
+
+A broken execution becomes a permanent business refusal, or a permanent refusal triggers endless retry.
+
+## Our Effect 4.0.0 reading
+
+`Schema.TaggedError` and `Effect.catchTag` carry named expected outcomes. Classification and [defect](/lore/effect-basics) policy remain domain decisions. A [service](/lore/services-capture-dependencies) seam can own recoverable mechanics.
+
+Source: `packages/effect/src/Schema.ts`, `packages/effect/src/Effect.ts`, `packages/effect/src/Context.ts`, `packages/effect/src/Layer.ts`.
+
+## How to check
+
+Exercise each declared failure category. Verify retry, refusal, escalation, and uncertain outcomes remain distinguishable. This check is our proposal. The books do not prescribe it.
+
+Continue with [Cleanup can be an idempotent postcondition](/lore/cleanup-can-be-an-idempotent-postcondition), [Pure cores reduce timeline coupling](/lore/pure-cores-reduce-timelines).
+
+Connect this to [the existing rat-stack guidance](/lore/error-model).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

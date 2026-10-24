@@ -346,7 +346,8 @@ it.effect(
         applications: reader,
         erasure: yield* IntakeErasure.pipe(
           Effect.provide(IntakeErasure.layer),
-          Effect.provideService(JoinContactStore, contacts)
+          Effect.provideService(JoinContactStore, contacts),
+          Effect.provideService(IntakeEvents, events)
         ),
         operatorToken: "synthetic-operator",
         services,
@@ -470,6 +471,7 @@ it.effect(
         alreadyGone: 0,
         erased: 0,
         failed: 1,
+        pending: 0,
       });
       expect(yield* contacts.read("synthetic-submission")).toBeDefined();
       expect((yield* vault.contents).size).toBe(0);
@@ -495,6 +497,7 @@ it.effect(
           alreadyGone: attempt === 0 ? 0 : 1,
           erased: attempt === 0 ? 1 : 0,
           failed: 0,
+          pending: 0,
         });
 
         const after = yield* call(

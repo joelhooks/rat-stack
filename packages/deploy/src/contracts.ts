@@ -54,21 +54,21 @@ export const PreparedPlanSchema = Schema.Struct({
 
 export type PreparedPlan = typeof PreparedPlanSchema.Type;
 
-export class DeployStepError extends Schema.TaggedError<DeployStepError>()(
-  "DeployStepError",
-  {
-    keys: Schema.Array(Schema.String),
-    reason: Schema.String,
-    step: Schema.Literals([
-      "source",
-      "preflight",
-      "plan",
-      "quietWindow",
-      "apply",
-      "checks",
-    ]),
-  }
-) {}
+export class DeployStepError extends Schema.TaggedError<
+  DeployStepError,
+  { readonly brand: unique symbol }
+>()("DeployStepError", {
+  keys: Schema.Array(Schema.String),
+  reason: Schema.String,
+  step: Schema.Literals([
+    "source",
+    "preflight",
+    "plan",
+    "quietWindow",
+    "apply",
+    "checks",
+  ]),
+}) {}
 
 export const DeployVerdictSchema = Schema.Struct({
   checkout: Schema.optionalKey(CheckoutStateSchema),

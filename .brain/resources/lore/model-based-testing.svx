@@ -55,4 +55,4 @@ It never repeats on a later day. Making the daily hash ignore the day broke the 
 
 Machines in this repo are [lifecycles](/lore/lifecycles-are-machines), so each one is a ready-made test model. See [property-based testing](/lore/property-based-testing) for single-input rules.
 
-See also: [Tests through supplied services](/lore/tests-that-earn-their-place).
+See also: [Tests through supplied services](/lore/tests-that-earn-their-place) and [recovery needs model tests](/lore/recovery-needs-model-tests).

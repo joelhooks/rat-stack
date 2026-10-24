@@ -87,6 +87,7 @@ Everything built here is real.
 - Prose explains the why. CI, lefthook, and agent hooks enforce the fence.
 - Someone can ask an agent for an Effect-shaped, Alchemy-shaped solution and catch it when the agent gets it wrong.
 - Product-specific corpora, tokens, and customer data stay out of the shared reference.
+- Workers act at the lowest rung of the autonomy ladder in `AGENTS.md` that applies. Fixing red CI, a failing hook, or a stale snapshot is their work, so owners see decisions, not chores. A worker that must wait arms a wake on the event it needs and does not stall silently.
 
 ## Current priorities
 

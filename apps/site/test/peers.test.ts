@@ -66,7 +66,7 @@ it.prop(
       })
     );
 
-    const row = Schema.decodeUnknownSync(PeerRow)({
+    const row = Schema.decodeSync(PeerRow)({
       branch: "main",
       checked: "2026-10-01",
       commit: "abc123",
@@ -91,7 +91,7 @@ it.prop(
     );
 
     expect(markdown.replaceAll(/[ \t]+/gu, " ")).toContain(
-      `| ${effect} | 2.0.0-beta.79 |`
+      `- **Effect**: ${effect}\n- **Alchemy**: 2.0.0-beta.79`
     );
     expect(markdown).toContain(
       `4.0.0-rc.117 ${effect === "4.0.0-rc.117" ? "=" : "≠"}`
@@ -124,15 +124,15 @@ it.prop(
       .replaceAll(/[ \t]+/gu, " ")
       .split("<details>");
 
-    expect(roster).not.toContain("| XState · bridge |");
-    expect(roster).not.toContain("| @xstate/effect |");
-    expect(alsoSeen).toContain("| XState · bridge |");
+    expect(roster).not.toContain("XState · bridge:");
+    expect(roster).not.toContain("@xstate/effect:");
+    expect(alsoSeen).toContain("XState · bridge:");
     expect(alsoSeen).toContain("6.0.0-alpha.59 = · —");
-    expect(roster).toContain("| Seen / checked |");
+    expect(roster).toContain("Seen / checked:");
     expect(roster).toContain(`${row.firstSeen} · ${row.checked}`);
-    expect(roster).not.toContain("| Checked |");
-    expect(roster).not.toContain("| First seen |");
-    expect(alsoSeen).not.toContain("| @xstate/effect |");
+    expect(roster).not.toContain("Checked:");
+    expect(roster).not.toContain("First seen:");
+    expect(alsoSeen).not.toContain("@xstate/effect:");
     expect(roster).toContain("¹ workspace override");
     expect(roster).not.toContain("(workspace override)");
     expect(roster).toContain(`${effect} =¹`);
@@ -155,7 +155,7 @@ it.prop(
     );
 
     expect(bridgeOnly.replaceAll(/[ \t]+/gu, " ")).toContain(
-      "| XState · bridge |"
+      "XState · bridge:"
     );
     expect(bridgeOnly).toContain("— · 0.1.0-alpha.2 =");
   }

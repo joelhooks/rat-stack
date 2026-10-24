@@ -60,6 +60,10 @@ Leaves live in the repo; read them from a checkout.
 - `skills/rat-stack-mode/principles/make-operations-idempotent.md`: replaying commands or recovering after crashes.
 - `skills/rat-stack-mode/principles/subtract-before-you-add.md`: sequencing new work or removing unused interfaces.
 
+**Durability**
+
+- [durability](/skills/durability): any I/O boundary, pool, provider call, waiter, fan-out, flag, or gate. The hub lists seven patterns, each with its principle, example, and fence.
+
 **Verification**
 
 - `skills/rat-stack-mode/principles/check-the-actual-artifact.md`: finishing work or reviewing another agent's result.
@@ -73,6 +77,7 @@ Leaves live in the repo; read them from a checkout.
 
 - `skills/rat-stack-mode/principles/look-it-up-first.md`: entering unfamiliar code or deciding whether to ask.
 - `skills/rat-stack-mode/principles/ask-one-material-question.md`: reaching a decision that needs owner sign-off.
+- `skills/rat-stack-mode/principles/own-your-wait.md`: waiting on CI, another agent, or a long local run.
 - `skills/rat-stack-mode/principles/separate-writers-verify-readers.md`: dividing work or accepting delegated results.
 - `skills/rat-stack-mode/principles/encode-lessons-in-structure.md`: correcting a repeated bad pattern.
 
@@ -93,6 +98,7 @@ Match every applicable playbook; a capability with new persistence matches capab
 - New action: [add-a-capability](/skills/add-a-capability).
 - States, retries, or cancellation: [add-a-lifecycle-machine](/skills/add-a-lifecycle-machine).
 - New persistence: [add-a-store](/skills/add-a-store).
+- Existing email list or sending cutover: [onboard-a-list](/skills/onboard-a-list).
 - Public prose or skill pages: [write-a-wiki-page](/skills/write-a-wiki-page).
 - Package or interface choices: [keep-or-cut](/skills/keep-or-cut).
 - Stateful design, replacement, or read-model design: [uncomplect](/skills/uncomplect).

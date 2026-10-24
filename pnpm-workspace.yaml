@@ -18,6 +18,12 @@ allowBuilds:
 # Exact fresh pins that pnpm's release-age check would otherwise hold back.
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
+  - "@yielded/effect-tsrs@0.2.0"
+  - "@yielded/effect-tsrs-linux-x64@0.2.0"
+  - "@yielded/effect-tsrs-linux-arm64@0.2.0"
+  - "@yielded/effect-tsrs-darwin-x64@0.2.0"
+  - "@yielded/effect-tsrs-darwin-arm64@0.2.0"
+  - "@yielded/effect-tsrs-win32-x64@0.2.0"
   # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
   - "@alchemy.run/better-auth@2.0.0-beta.83"
   - alchemy@2.0.0-beta.83
@@ -59,11 +65,11 @@ minimumReleaseAgeExclude:
   - "@varlock/native-helper-linux-x64@1.23.0"
   - "@varlock/native-helper-win32-x64@1.23.0"
   - varlock@1.23.0
-  - "@effect/tsgo-darwin-arm64@0.54.0"
-  - "@effect/tsgo-darwin-x64@0.54.0"
-  - "@effect/tsgo-linux-arm64@0.54.0"
-  - "@effect/tsgo-linux-arm@0.54.0"
-  - "@effect/tsgo-linux-x64@0.54.0"
-  - "@effect/tsgo-win32-arm64@0.54.0"
-  - "@effect/tsgo-win32-x64@0.54.0"
-  - "@effect/tsgo@0.54.0"
+  - "@effect/tsgo-darwin-arm64@0.55.0"
+  - "@effect/tsgo-darwin-x64@0.55.0"
+  - "@effect/tsgo-linux-arm64@0.55.0"
+  - "@effect/tsgo-linux-arm@0.55.0"
+  - "@effect/tsgo-linux-x64@0.55.0"
+  - "@effect/tsgo-win32-arm64@0.55.0"
+  - "@effect/tsgo-win32-x64@0.55.0"
+  - "@effect/tsgo@0.55.0"

@@ -51,10 +51,10 @@ export const RunLogEntrySchema = Schema.Struct({
 
 export type RunLogEntry = typeof RunLogEntrySchema.Type;
 
-export class DatabaseError extends Schema.TaggedError<DatabaseError>()(
-  "DatabaseError",
-  {
-    cause: Schema.Defect(),
-    operation: DatabaseOperationSchema,
-  }
-) {}
+export class DatabaseError extends Schema.TaggedError<
+  DatabaseError,
+  { readonly brand: unique symbol }
+>()("DatabaseError", {
+  cause: Schema.Defect(),
+  operation: DatabaseOperationSchema,
+}) {}

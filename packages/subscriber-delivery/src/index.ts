@@ -4,7 +4,7 @@ export { subscriberDeliveryLayer } from "./delivery.js";
 
 export type { SubscriberDeliverySettings } from "./delivery.js";
 
-export { drovrIntakeLayer } from "./drovr-intake.js";
+export { DrovrIntakeTimeout, drovrIntakeLayer } from "./drovr-intake.js";
 
 export type { IntakeSettings } from "./drovr-intake.js";
 

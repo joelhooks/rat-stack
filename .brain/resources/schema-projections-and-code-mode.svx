@@ -31,15 +31,34 @@ Kody teach about the last two.
 Every target below is in `effect/unstable/*` today and takes `Schema` directly.
 None of them talk to each other.
 
-| Surface | Module | Entry | Schema goes in as |
-| --- | --- | --- | --- |
-| CLI | `unstable/cli` | `Command.make(name, config, handler)` | `Flag.withSchema`, `Flag.FileSchema`, `Argument.*` |
-| REST + OpenAPI | `unstable/httpapi` | `HttpApi` / `HttpApiGroup` / `HttpApiEndpoint.{get,post,...}` | payload, success, error schemas |
-| OpenAPI doc | `unstable/httpapi/OpenApi` | `OpenApi.fromApi(api)` | derived from the HttpApi |
-| Typed client | `unstable/httpapi/HttpApiClient` | `HttpApiClient.make(api)` | derived from the HttpApi |
-| MCP | `unstable/ai` | `Tool.make(name, { parameters, success, failure, dependencies, needsApproval })`, `Toolkit.make(...)`, `McpServer.toolkit(toolkit)`, `McpServer.layerStdio` / `layerHttp` | parameters, success, failure |
-| JSON Schema | `unstable/ai/Tool` | `Tool.getJsonSchema(tool)`, `Tool.getJsonSchemaFromSchema(schema)` | any Schema |
-| RPC | `unstable/rpc` | `Rpc.make`, `RpcGroup` | payload, success, error |
+- **CLI**:
+  - Module: `unstable/cli`
+  - Entry: `Command.make(name, config, handler)`
+  - Schema goes in as: `Flag.withSchema`, `Flag.FileSchema`, `Argument.*`
+- **REST + OpenAPI**:
+  - Module: `unstable/httpapi`
+  - Entry: `HttpApi` / `HttpApiGroup` / `HttpApiEndpoint.{get,post,...}`
+  - Schema goes in as: payload, success, error schemas
+- **OpenAPI doc**:
+  - Module: `unstable/httpapi/OpenApi`
+  - Entry: `OpenApi.fromApi(api)`
+  - Schema goes in as: derived from the HttpApi
+- **Typed client**:
+  - Module: `unstable/httpapi/HttpApiClient`
+  - Entry: `HttpApiClient.make(api)`
+  - Schema goes in as: derived from the HttpApi
+- **MCP**:
+  - Module: `unstable/ai`
+  - Entry: `Tool.make(name, { parameters, success, failure, dependencies, needsApproval })`, `Toolkit.make(...)`, `McpServer.toolkit(toolkit)`, `McpServer.layerStdio` / `layerHttp`
+  - Schema goes in as: parameters, success, failure
+- **JSON Schema**:
+  - Module: `unstable/ai/Tool`
+  - Entry: `Tool.getJsonSchema(tool)`, `Tool.getJsonSchemaFromSchema(schema)`
+  - Schema goes in as: any Schema
+- **RPC**:
+  - Module: `unstable/rpc`
+  - Entry: `Rpc.make`, `RpcGroup`
+  - Schema goes in as: payload, success, error
 
 Tool annotations already exist as Context references: `Tool.Readonly`,
 `Tool.Destructive`, `Tool.Idempotent`, `Tool.OpenWorld`. `needsApproval` is a

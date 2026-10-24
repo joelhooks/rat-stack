@@ -1,0 +1,58 @@
+---
+title: "Durable timers need recovery"
+description: "Persist scheduled intent when losing a worker must not lose its deadlines."
+group: concept
+terms:
+  - "durable timer"
+  - "scheduled-work rehydration"
+sources:
+  - url: https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/
+    title: "Gray II, James Edward; Tate, Bruce A. Designing Elixir Systems with OTP. Pragmatic Bookshelf, 2019."
+    publisher: "Pragmatic Bookshelf"
+    note: "Build a Functional Core; Isolate Process Machinery in a Boundary; Customize Your Lifecycle; Big, Loud Worker-Bees; Add Persistence as a Boundary Service; Test the Boundary."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/DurableClock.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/DurableClock.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/DurableDeferred.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/DurableDeferred.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/WorkflowEngine.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/WorkflowEngine.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Schedule.ts
+    title: "Effect contributors. Effect 4.0.0. Schedule.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+A crashed server loses timers that existed only in memory. Decide whether to restore scheduled work and identify its durable recovery data.
+
+Book basis: [B3](/lore/durability-bibliography#b3-designing-elixir-systems-with-otp).
+
+## Failure it prevents
+
+A scheduler restarts but pending deadlines silently disappear.
+
+## Our Effect 4.0.0 reading
+
+`DurableClock` and `DurableDeferred` cooperate with `WorkflowEngine`. For an existing storage/alarm owner, keep scheduling in that [adapter](/lore/hexagonal-architecture). A `Schedule` loop alone is not persistence.
+
+Source: `packages/effect/src/workflow/DurableClock.ts`, `packages/effect/src/workflow/DurableDeferred.ts`, `packages/effect/src/workflow/WorkflowEngine.ts`, `packages/effect/src/Schedule.ts`.
+
+## How to check
+
+Crash before the deadline. Recover it from storage and test both wakeup and cancellation. This check is our proposal. The books do not prescribe it.
+
+Continue with [Durable work needs storage](/lore/durable-work-needs-storage), [Restart must reconstruct known state](/lore/restart-from-known-state).
+
+Connect this to [the existing rat-stack guidance](/lore/lifecycles-are-machines).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

@@ -75,7 +75,7 @@ const build = (nodeEnv: "development" | "production") => {
 
     const contentRoot = path.resolve(webRoot, "../site/dist/content");
 
-    const manifest = Schema.decodeUnknownSync(
+    const manifest = Schema.decodeSync(
       Schema.fromJsonString(ContentAssetManifest)
     )(readFileSync(path.join(contentRoot, "manifest.json"), "utf-8"));
 

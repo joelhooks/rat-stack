@@ -99,12 +99,12 @@ export const CardDiagnostic = Schema.Struct({
   reason: Schema.String,
 });
 
-export class InvalidLearnDeck extends Schema.TaggedError<InvalidLearnDeck>()(
-  "InvalidLearnDeck",
-  {
-    errors: Schema.Array(CardDiagnostic),
-  }
-) {
+export class InvalidLearnDeck extends Schema.TaggedError<
+  InvalidLearnDeck,
+  { readonly brand: unique symbol }
+>()("InvalidLearnDeck", {
+  errors: Schema.Array(CardDiagnostic),
+}) {
   override get message() {
     return [
       `${this.errors.length} learn deck error(s):`,

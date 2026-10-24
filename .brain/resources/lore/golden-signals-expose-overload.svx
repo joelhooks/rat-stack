@@ -1,0 +1,46 @@
+---
+title: "Golden signals expose overload"
+description: "Measure latency, traffic, errors, and saturation, including failed work."
+group: concept
+terms:
+  - "four golden signals"
+  - "black-box monitoring"
+  - "white-box monitoring"
+sources:
+  - url: https://sre.google/sre-book/monitoring-distributed-systems/
+    title: "Ewaschuk, Rob. Monitoring Distributed Systems. O’Reilly, 2016."
+    publisher: "O’Reilly"
+    note: "The Four Golden Signals; Black-Box Versus White-Box; Symptoms Versus Causes."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Metric.ts
+    title: "Effect contributors. Effect 4.0.0. Metric.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+[Service](/lore/services-capture-dependencies) monitoring needs all four golden signals. Separate symptom detection from internal diagnosis, and distinguish failed-request latency from successful latency.
+
+> The four golden signals of monitoring are latency, traffic, errors, and saturation.
+
+Source: [Q18](/lore/durability-bibliography#q18); [B8](/lore/durability-bibliography#b8-monitoring-distributed-systems).
+
+## Failure it prevents
+
+A service reports fast responses while errors rise or scarce capacity is exhausted.
+
+## Our Effect 4.0.0 reading
+
+`Metric.counter`, gauge, and histogram supply instruments. Connect backlog and parked-work observations through the actual adapters. Define alerts and response outside these constructors.
+
+Source: `packages/effect/src/Metric.ts`.
+
+## How to check
+
+Create a slow dependency and a parked item. Verify that user-visible failure and resource saturation are observable. This check is our proposal. The books do not prescribe it.
+
+Continue with [Dead letters need a return path](/lore/dead-letters-need-a-return-path), [Admission control protects recovery](/lore/admission-controls-new-work).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

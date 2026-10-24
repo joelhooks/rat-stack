@@ -132,11 +132,26 @@ export const joinInterest = {
     }),
 };
 
-export { JoinContactStore, JoinContactSchema } from "./join-contact-store.js";
+export {
+  JoinContactStore,
+  JoinContactSchema,
+  withPending,
+  withState,
+} from "./join-contact-store.js";
 
-export type { JoinContact, JoinContactState } from "./join-contact-store.js";
+export type {
+  JoinContact,
+  JoinContactPending,
+  JoinContactState,
+} from "./join-contact-store.js";
 
 export { JoinRequest, joinIntakeLayer } from "./join-intake.js";
+
+export { JoinDeliveryDeadline } from "./join-delivery-machine.js";
+
+export { IntakeSweep, SWEEP_CONCURRENCY } from "./intake-sweep.js";
+
+export type { IntakeSweepCounts, IntakeSweepOutcome } from "./intake-sweep.js";
 
 export {
   JOIN_ANSWER,

@@ -189,13 +189,11 @@ HTML                   agent Markdown
 
 Each stage adds facts. Both renderers use the same final model.
 
-| Stage | Adds or checks |
-| --- | --- |
-| Collect | Walk Markdown syntax-tree code nodes; scan metadata; Schema-decode requests and source locations. |
-| Resolve | Read source text; determine file length and language; check ranges; derive a source link. |
-| Highlight | Produce tokens for every source line. |
-| Decorate | Select numbered lines; attach highlights, collapsed gaps, source details, and diagnostics. |
-| Emit | Write assets only after every independent job passes preflight. |
+- **Collect**: Walk Markdown syntax-tree code nodes; scan metadata; Schema-decode requests and source locations.
+- **Resolve**: Read source text; determine file length and language; check ranges; derive a source link.
+- **Highlight**: Produce tokens for every source line.
+- **Decorate**: Select numbered lines; attach highlights, collapsed gaps, source details, and diagnostics.
+- **Emit**: Write assets only after every independent job passes preflight.
 
 [Whole-file tokenization](/lore/tokenize-before-slicing) comes before range selection.
 This preserves the preceding source context for multiline comments and strings.
@@ -250,13 +248,21 @@ Each typed error keeps the source location, request context, and a repair instru
 Range errors include requested ranges and actual file length when available.
 Invalid metadata retains raw values because no decoded request exists.
 
-| Error family | Shipped tags | Repair |
-| --- | --- | --- |
-| Metadata | `CodeInvalidProps`, `CodeUnknownKey`, `CodeDuplicateKey`, `CodeMalformedMeta`, `CodeBodyWithReference` | Correct the fence metadata or remove reference body text. |
-| Registry | `CodeUnknownRepo`, `CodeRepositoryConfigInvalid` | Select a registered id or repair the registry. |
-| Source | `CodeMissingCommit`, `CodeMissingPath`, `CodeSourceUnavailable` | Correct the pin or path; fetch missing shallow history before generation. |
-| Selection | `CodeInvalidRanges`, `CodeRangeOutOfBounds`, `CodeHighlightOutsideRanges`, `CodeLineCapExceeded` | Use ordered, visible ranges within file bounds and the line cap. |
-| Engine | `UnknownLanguage`, `CodeHighlightFailed` | Select a supported language or repair the highlighter adapter. |
+- **Metadata**:
+  - Shipped tags: `CodeInvalidProps`, `CodeUnknownKey`, `CodeDuplicateKey`, `CodeMalformedMeta`, `CodeBodyWithReference`
+  - Repair: Correct the fence metadata or remove reference body text.
+- **Registry**:
+  - Shipped tags: `CodeUnknownRepo`, `CodeRepositoryConfigInvalid`
+  - Repair: Select a registered id or repair the registry.
+- **Source**:
+  - Shipped tags: `CodeMissingCommit`, `CodeMissingPath`, `CodeSourceUnavailable`
+  - Repair: Correct the pin or path; fetch missing shallow history before generation.
+- **Selection**:
+  - Shipped tags: `CodeInvalidRanges`, `CodeRangeOutOfBounds`, `CodeHighlightOutsideRanges`, `CodeLineCapExceeded`
+  - Repair: Use ordered, visible ranges within file bounds and the line cap.
+- **Engine**:
+  - Shipped tags: `UnknownLanguage`, `CodeHighlightFailed`
+  - Repair: Select a supported language or repair the highlighter adapter.
 
 The report-level `CodeBuildFailed` holds collected failures.
 [Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651). `validateAll` is not the operation used here.
@@ -275,16 +281,14 @@ Use a small plain-array reference model for visible line numbers, gaps, and high
 Do not copy production selection logic into the model.
 See [model-based testing](/lore/model-based-testing) and [tests that earn their place](/lore/tests-that-earn-their-place).
 
-| Property | Required behavior |
-| --- | --- |
-| P1 | Printing then parsing valid metadata preserves the request. |
-| P2 | Every arbitrary metadata string produces a request or a typed failure; parsing never crashes. |
-| P3 | Accepted ranges are positive, ordered, disjoint, and strictly within source bounds. |
-| P4 | Visible line numbers, collapsed gaps, and highlights match the independent array model. |
-| P5 | Selected tokens match whole-file Shiki tokens, including multiline comments and template strings. |
-| P6 | HTML, agent Markdown, and pinned source agree on selected text, repository, commit, file, and line numbers. |
-| P7 | Exactly `k` independent failures produce `k` diagnostics and no asset writes. |
-| P8 | Repeated rendering with an identical content key produces identical bytes. Every output-affecting input participates in the key. |
+- **P1**: Printing then parsing valid metadata preserves the request.
+- **P2**: Every arbitrary metadata string produces a request or a typed failure; parsing never crashes.
+- **P3**: Accepted ranges are positive, ordered, disjoint, and strictly within source bounds.
+- **P4**: Visible line numbers, collapsed gaps, and highlights match the independent array model.
+- **P5**: Selected tokens match whole-file Shiki tokens, including multiline comments and template strings.
+- **P6**: HTML, agent Markdown, and pinned source agree on selected text, repository, commit, file, and line numbers.
+- **P7**: Exactly `k` independent failures produce `k` diagnostics and no asset writes.
+- **P8**: Repeated rendering with an identical content key produces identical bytes. Every output-affecting input participates in the key.
 
 A changed key need not change output bytes. An engine version change can preserve token output.
 
@@ -306,13 +310,21 @@ Use [tests that earn their place](/lore/tests-that-earn-their-place) for planted
 
 ## Prior art and where we differ
 
-| Source | Reused idea | Shipped difference |
-| --- | --- | --- |
-| [rehype-pretty-code](https://rehype-pretty.pages.dev/) | Fence titles and `{1-3,4}` line highlights. | Add repository, commit, path, and selection keys. |
-| [Expressive Code text markers](https://expressive-code.com/key-features/text-markers/) | Line sets in fence metadata. | Reject malformed or unsupported metadata instead of accepting a broad marker language. |
-| [Expressive Code MetaOptions](https://github.com/expressive-code/expressive-code/blob/main/packages/%40expressive-code/core/src/helpers/meta-options.ts) | A dedicated metadata parser. | Use an allowlist and reject duplicate keys. Its accessors can return the last matching value. |
-| [Docusaurus Theme GitHub Codeblock](https://github.com/saucelabs/docusaurus-theme-github-codeblock) | Import excerpts from GitHub reference URLs. | Resolve local Git objects instead of downloading code. |
-| [remark-github-code-import](https://github.com/haocheng6/remark-github-code-import/blob/main/src/utils.ts) | Import excerpts from GitHub URLs, including commit permalinks. | Keep generation offline; use a configured repository registry. |
+- **[rehype-pretty-code](https://rehype-pretty.pages.dev/)**:
+  - Reused idea: Fence titles and `{1-3,4}` line highlights.
+  - Shipped difference: Add repository, commit, path, and selection keys.
+- **[Expressive Code text markers](https://expressive-code.com/key-features/text-markers/)**:
+  - Reused idea: Line sets in fence metadata.
+  - Shipped difference: Reject malformed or unsupported metadata instead of accepting a broad marker language.
+- **[Expressive Code MetaOptions](https://github.com/expressive-code/expressive-code/blob/main/packages/%40expressive-code/core/src/helpers/meta-options.ts)**:
+  - Reused idea: A dedicated metadata parser.
+  - Shipped difference: Use an allowlist and reject duplicate keys. Its accessors can return the last matching value.
+- **[Docusaurus Theme GitHub Codeblock](https://github.com/saucelabs/docusaurus-theme-github-codeblock)**:
+  - Reused idea: Import excerpts from GitHub reference URLs.
+  - Shipped difference: Resolve local Git objects instead of downloading code.
+- **[remark-github-code-import](https://github.com/haocheng6/remark-github-code-import/blob/main/src/utils.ts)**:
+  - Reused idea: Import excerpts from GitHub URLs, including commit permalinks.
+  - Shipped difference: Keep generation offline; use a configured repository registry.
 
 The scanner accepts only the grammar documented above, a stricter subset than the general `MetaOptions` parser.
 

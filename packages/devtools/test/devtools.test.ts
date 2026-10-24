@@ -39,7 +39,10 @@ import {
 } from "../src/index.js";
 import type { InvokeResult } from "../src/index.js";
 
-class NotFound extends Schema.TaggedError<NotFound>()("NotFound", {
+class NotFound extends Schema.TaggedError<
+  NotFound,
+  { readonly brand: unique symbol }
+>()("NotFound", {
   id: Schema.String,
 }) {}
 

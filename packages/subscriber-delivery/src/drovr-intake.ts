@@ -1,6 +1,14 @@
 import { SubscriberIntake } from "@rat-stack/core/interest";
 import type { IntakeRequest, IntakeResult } from "@rat-stack/core/interest";
-import { Effect, Layer, Option, Redacted, Schema } from "effect";
+import {
+  Context,
+  Duration,
+  Effect,
+  Layer,
+  Option,
+  Redacted,
+  Schema,
+} from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
 export interface IntakeSettings {
@@ -8,7 +16,12 @@ export interface IntakeSettings {
   readonly url: Option.Option<string>;
 }
 
-const INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND = "20 seconds";
+const INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND = Duration.seconds(20);
+
+export const DrovrIntakeTimeout = Context.Reference<Duration.Duration>(
+  "@rat-stack/subscriber-delivery/DrovrIntakeTimeout",
+  { defaultValue: () => INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND }
+);
 
 const accepted: IntakeResult = { kind: "accepted" };
 
@@ -43,6 +56,7 @@ export const drovrIntakeLayer = (settings: IntakeSettings) =>
     SubscriberIntake,
     Effect.gen(function* makeSubscriberIntake() {
       const http = yield* HttpClient.HttpClient;
+      const timeout = yield* DrovrIntakeTimeout;
 
       const submit = Effect.fn("SubscriberIntake.submit")(function* submit(
         intake: IntakeRequest
@@ -59,9 +73,9 @@ export const drovrIntakeLayer = (settings: IntakeSettings) =>
         );
 
         const outcome = yield* http.execute(request).pipe(
-          Effect.map(Option.some),
-          Effect.catchCause(() => Effect.succeed(Option.none())),
-          Effect.timeoutOption(INTAKE_TIMEOUT_ABOVE_DROVR_VERIFY_AND_SEND)
+          Effect.asSome,
+          Effect.catchCause(() => Effect.succeedNone),
+          Effect.timeoutOption(timeout)
         );
 
         if (Option.isNone(outcome)) {

@@ -1,0 +1,56 @@
+---
+title: "Dead letters need a return path"
+description: "Exhausted work needs durable evidence, an owner, and deliberate redrive."
+group: concept
+terms:
+  - "dead-letter queue"
+  - "redrive"
+  - "poison work"
+sources:
+  - url: https://www.oreilly.com/library/view/building-event-driven-microservices/9781492057888/
+    title: "Bellemare, Adam. Building Event-Driven Microservices: Leveraging Organizational Data at Scale. O’Reilly, 2020."
+    publisher: "O’Reilly"
+    note: "Chapter 3 Communication and Data Contracts; Chapter 6 Deterministic Stream Processing; Chapter 7 Stateful Streaming; Chapter 9 Microservices Using Function-as-a-Service; Chapter 14 Supportive Tooling."
+    accessed: "2026-10-23"
+  - url: https://www.manning.com/books/serverless-architectures-on-aws-second-edition
+    title: "Sbarski, Peter; Cui, Yan; Nair, Ajay. Serverless Architectures on AWS, Second Edition."
+    publisher: "Manning"
+    note: "Chapter 6, The New Search Microservice: Everything Fails, All the Time; Pay Attention to Retry Configurations. AWS-specific mechanisms are not universal runtime guarantees."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/persistence/PersistedQueue.ts
+    title: "Effect contributors. Effect 4.0.0. persistence/PersistedQueue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/workflow/DurableQueue.ts
+    title: "Effect contributors. Effect 4.0.0. workflow/DurableQueue.ts"
+    publisher: "Effect-TS"
+    note: "Pinned source for our Effect mapping, not a claim from the book."
+    accessed: "2026-10-23"
+---
+
+Partial batch failure needs a decision about failed records and successful siblings. Parking work is a recovery boundary. It does not prove successful processing.
+
+> Do you put the failed event into a DLQ and process it later?
+
+Source: [Q20](/lore/durability-bibliography#q20); [B5](/lore/durability-bibliography#b5-building-event-driven-microservices), [B9](/lore/durability-bibliography#b9-serverless-architectures-on-aws).
+
+## Failure it prevents
+
+A failed item disappears, blocks useful work, or causes successful siblings to run repeatedly.
+
+## Our Effect 4.0.0 reading
+
+`PersistedQueue` retains failed records. `DurableQueue` exhaustion can leave its `DurableDeferred` unresolved and the workflow parked. Provide out-of-band repair and requeue.
+
+Source: `packages/effect/src/persistence/PersistedQueue.ts`, `packages/effect/src/workflow/DurableQueue.ts`.
+
+## How to check
+
+Exhaust an item, find its failure record, repair it, and prove redrive resumes the intended waiter without repeating successful siblings. This check is our proposal. The books do not prescribe it.
+
+Continue with [Retry needs idempotent effects](/lore/retry-needs-idempotency), [Golden signals expose overload](/lore/golden-signals-expose-overload).
+
+Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+
+Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).

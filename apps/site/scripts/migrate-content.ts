@@ -11,13 +11,13 @@ import {
 import { migrationRegistry } from "./migration-inputs.ts";
 import { publishMigrationCandidates } from "./migration-writer.ts";
 
-class ContentMigrationBlocked extends Schema.TaggedError<ContentMigrationBlocked>()(
-  "ContentMigrationBlocked",
-  {
-    diffs: Schema.Finite,
-    failures: Schema.Finite,
-  }
-) {}
+class ContentMigrationBlocked extends Schema.TaggedError<
+  ContentMigrationBlocked,
+  { readonly brand: unique symbol }
+>()("ContentMigrationBlocked", {
+  diffs: Schema.Finite,
+  failures: Schema.Finite,
+}) {}
 
 const sourceFiles = Effect.fn("migration.sourceFiles")(function* sourceFiles(
   root: string,

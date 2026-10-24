@@ -103,7 +103,7 @@ export const defineFlag = <A>(
   }
 
   return {
-    ...Schema.decodeUnknownSync(FlagMetadataSchema)({ name, ...options }),
+    ...Schema.decodeSync(FlagMetadataSchema)({ name, ...options }),
     default: Schema.decodeUnknownSync(Schema.toType(schema))(options.default),
     failurePolicy: options.failurePolicy ?? "use-catalog-default",
     kill: options.kill ?? FlagKill.cases.default.make({}),

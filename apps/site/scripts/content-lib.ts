@@ -982,6 +982,36 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "Browser code that owns queries, named commands, and the local copy of server state.",
     term: "client",
   },
+  {
+    routePath: "/lore/circuit-breakers-have-state",
+    summary:
+      "A guard that fails calls to an unhealthy dependency at once, then lets a probe test recovery.",
+    term: "circuit breaker",
+  },
+  {
+    routePath: "/lore/bulkheads-isolate-capacity",
+    summary:
+      "A reserved share of capacity that one workload cannot take from another.",
+    term: "bulkhead",
+  },
+  {
+    routePath: "/lore/dead-letters-need-a-return-path",
+    summary:
+      "A durable holding place for work that exhausted its retries, with an owner who repairs and redrives it.",
+    term: "dead-letter queue",
+  },
+  {
+    routePath: "/lore/admission-controls-new-work",
+    summary:
+      "A decision at the entry point to accept, defer, or refuse new work under current load.",
+    term: "admission control",
+  },
+  {
+    routePath: "/lore/retry-load-needs-a-budget",
+    summary:
+      "A limit on the total retry attempts that one owner allows across a call path.",
+    term: "retry budget",
+  },
 ];
 
 export const glossaryEntries = (
@@ -1454,13 +1484,13 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
 
   const countRows = [...counts]
     .toSorted(([left], [right]) => left.localeCompare(right))
-    .map(([kind, count]) => `| ${kind} | ${count} |`);
+    .map(([kind, count]) => `- **${kind}**: ${count}`);
 
   const rows = entries.map((entry) => {
     const link = `https://github.com/joelhooks/rat-stack/blob/main/${entry.file}#L${entry.line}`;
     const reason = entry.reason ?? "no reason given";
 
-    return `| [${entry.file}:${entry.line}](${link}) | ${tableCell(entry.directive)} | ${tableCell(reason)} |`;
+    return `- **[${entry.file}:${entry.line}](${link})**\n  - Directive: ${tableCell(entry.directive)}\n  - Reason: ${tableCell(reason)}`;
   });
 
   return [
@@ -1472,16 +1502,12 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
     "",
     "## Count by directive kind",
     "",
-    "| Kind | Count |",
-    "| --- | ---: |",
     ...countRows,
     "",
     "The vendored `tools/oxlint/anti-slop/` plugin is excluded. It is Dillon Mulroy's code, not our debt.",
     "",
     "## Every directive",
     "",
-    "| File | Directive | Reason |",
-    "| --- | --- | --- |",
     ...rows,
     "",
   ].join("\n");

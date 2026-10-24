@@ -69,11 +69,9 @@ If acquisition fails before release registration, the acquisition code must clea
 
 ## Choose the lifetime
 
-| Operation | Owner |
-| --- | --- |
-| `acquireUseRelease` | One use callback; release follows that callback's exit |
-| `acquireRelease` | The current Scope; release runs when that Scope closes |
-| `scoped` | A new Scope around the supplied Effect |
+- **`acquireUseRelease`**: One use callback; release follows that callback's exit
+- **`acquireRelease`**: The current Scope; release runs when that Scope closes
+- **`scoped`**: A new Scope around the supplied Effect
 
 A resource finalizer is cleanup work attached to an owner. It is not a business-state transition.
 
@@ -115,4 +113,7 @@ Ordinary callers still need declared failures in the typed channel.
 
 Start with [Layer composition](/lore/layers-make-dependencies-explicit) when choosing the resource's owner.
 Then read [concurrent work](/lore/concurrent-work-needs-an-owner) before starting child work.
+
+A Scope ends with its process. [Steady state recycles resources](/lore/steady-state-recycles-resources) covers growth that outlives one Scope.
+
 Return to the [Effect reading order](/lore/effect-basics#read-next).

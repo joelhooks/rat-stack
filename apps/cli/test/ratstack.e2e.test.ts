@@ -33,7 +33,7 @@ const decodePack = Schema.decodeUnknownSync(
 const decodeJsonRpcResponse = Schema.decodeUnknownSync(
   Schema.fromJsonString(
     Schema.Struct({
-      id: Schema.optional(Schema.Number),
+      id: Schema.optional(Schema.Finite),
       result: Schema.optional(Schema.Unknown),
     })
   )

@@ -118,7 +118,9 @@ export const Basin = ({ id }: BasinOptions) =>
       return Layer.mergeAll(
         Layer.succeed(EventSink, {
           send: (events) =>
-            Effect.all(events.map((event) => unstructuredRow(event))).pipe(
+            Effect.forEach((event: (typeof events)[number]) =>
+              unstructuredRow(event)
+            )(events).pipe(
               Effect.flatMap((records) => writer.send(records)),
               Effect.mapError((cause) => new EventSinkError({ cause })),
               Effect.provide(RuntimeContext.RuntimeContext.phantom)
