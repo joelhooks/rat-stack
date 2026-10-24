@@ -57,11 +57,15 @@ An Effect describes work. Build the description, compose it with other Effects, 
 
 `Effect.Effect<A, E, R>` describes three things:
 
-| Parameter | Meaning | FileInspector's inspect method |
-| --- | --- | --- |
-| `A` | Success value | `FileStats` |
-| `E` | Expected failure | `FileStatsError` |
-| `R` | Required services | `never` |
+- **`A`**:
+  - Meaning: Success value
+  - FileInspector's inspect method: `FileStats`
+- **`E`**:
+  - Meaning: Expected failure
+  - FileInspector's inspect method: `FileStatsError`
+- **`R`**:
+  - Meaning: Required services
+  - FileInspector's inspect method: `never`
 
 This method's full return type is `Effect.Effect<FileStats, FileStatsError, never>`.
 The source omits the final parameter because it defaults to `never`.

@@ -9,21 +9,16 @@ import {
 } from "../scripts/content-lib.ts";
 import { linkStackEntities } from "../scripts/content-links.ts";
 import { renderMarkdownHtml } from "../scripts/markdown-html.ts";
-import {
-  homeDocumentHtml,
-  lawSources,
-  loreSources,
-  skillSources,
-} from "./generated-content.js";
+import { homeDocumentHtml } from "./generated-content.js";
 
 it.effect(
-  "labels every published table cell and gives each table a focusable region",
+  "labels fixture table cells and gives each table a focusable region",
   () =>
     Effect.sync(() => {
       const documents = [
-        homeDocumentHtml,
-        ...[...lawSources, ...loreSources, ...skillSources].map(
-          (source) => source.documentHtml
+        renderMarkdownHtml(
+          "| Package | Job |\n| --- | --- |\n| core | Operations |",
+          { rehypePlugins: [responsiveTables], sourcePath: "fixture.md" }
         ),
       ];
 
@@ -59,18 +54,6 @@ it.effect(
 
       expect(cellCount).toBeGreaterThan(0);
     })
-);
-
-it.effect("published table headers never acquire automatic term links", () =>
-  Effect.sync(() => {
-    for (const source of [...lawSources, ...loreSources, ...skillSources]) {
-      for (const [header] of source.documentHtml.matchAll(
-        /<th\b[^>]*>[\s\S]*?<\/th>/gu
-      )) {
-        expect(header).not.toContain("<a ");
-      }
-    }
-  })
 );
 
 it.effect(

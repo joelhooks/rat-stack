@@ -938,6 +938,39 @@ const endsWithWhitespace = /[ \t\r\n]+$/u;
 
 const hasContent = /[^ \t\r\n]/u;
 
+const inlineWhitespaceParents = new Set([
+  "a",
+  "abbr",
+  "b",
+  "bdi",
+  "bdo",
+  "button",
+  "cite",
+  "data",
+  "del",
+  "dfn",
+  "em",
+  "i",
+  "ins",
+  "kbd",
+  "label",
+  "mark",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "time",
+  "u",
+  "var",
+]);
+
 const removableSpaceParents = new Set([
   "colgroup",
   "datalist",
@@ -958,35 +991,6 @@ interface CollapseContext {
 
 const isBlankText = (node: TemplateNode | undefined) =>
   node?.type === "text" && !hasContent.test(node.data);
-
-const inlineParents = new Set([
-  "a",
-  "abbr",
-  "b",
-  "bdi",
-  "bdo",
-  "cite",
-  "code",
-  "data",
-  "del",
-  "dfn",
-  "em",
-  "i",
-  "ins",
-  "kbd",
-  "mark",
-  "q",
-  "s",
-  "samp",
-  "small",
-  "span",
-  "strong",
-  "sub",
-  "sup",
-  "time",
-  "u",
-  "var",
-]);
 
 const trimFragment = (nodes: readonly TemplateNode[]) => {
   const start = nodes.findIndex((node) => !isBlankText(node));
@@ -1047,7 +1051,9 @@ const collapseNodes = (
     context.preserve
       ? nodes
       : collapseText(
-          inlineParents.has(context.parent) ? [...nodes] : trimFragment(nodes),
+          inlineWhitespaceParents.has(context.parent)
+            ? nodes
+            : trimFragment(nodes),
           context
         ),
     context.parent
