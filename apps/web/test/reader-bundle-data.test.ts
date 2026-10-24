@@ -25,40 +25,38 @@ it.prop(
       },
     ];
 
-    const payload = Schema.encodeSync(
-      Schema.fromJsonString(Schema.Array(ReaderFlags))
-    )(input);
-
     const prepared = Schema.decodeSync(
       Schema.fromJsonString(Schema.Array(ReaderFlags))
-    )(payload);
+    )(
+      Schema.encodeSync(Schema.fromJsonString(Schema.Array(ReaderFlags)))(input)
+    );
 
-    const code = `var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(${payload}); const rat_call = "rat_test_person";`;
+    const sourcesOf = (pages: readonly (typeof prepared)[number][]) =>
+      JSON.stringify(
+        pages.map((document) => [
+          document.page.path,
+          Schema.encodeSync(Schema.fromJsonString(ReaderFlags))(document),
+        ])
+      );
+
+    const code = `const readerPageSources = ${sourcesOf(prepared)}; const rat_call = "rat_test_person";`;
     const runtime = readerCodeWithoutPageData(code, prepared);
 
-    const unrecognized = JSON.stringify(
+    const unrecognized = sourcesOf(
       prepared.map((document) => ({
         ...document,
-        registration: "rat_call",
+        page: { ...document.page, path: "/elsewhere" },
       }))
     );
 
     expect(() =>
       readerCodeWithoutPageData(
-        `var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(${unrecognized});`,
+        `const readerPageSources = ${unrecognized};`,
         prepared
       )
-    ).toThrow();
+    ).toThrow("differs");
     expect(runtime).toBe(
-      'var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))([]); const rat_call = "rat_test_person";'
-    );
-    expect(
-      readerCodeWithoutPageData(
-        `var readerPages = ${payload}; var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(readerPages);`,
-        prepared
-      )
-    ).toBe(
-      "var readerPages = []; var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(readerPages);"
+      'const readerPageSources = []; const rat_call = "rat_test_person";'
     );
     expect(() => readerCodeWithoutPageData(code, [])).toThrow(
       "ReaderFlags payload differs"
@@ -67,10 +65,7 @@ it.prop(
       readerCodeWithoutPageData('const unrelated = "rat_call";', prepared)
     ).toContain("rat_call");
     expect(() =>
-      readerCodeWithoutPageData(
-        "var pages = Schema.decodeUnknownSync(Schema.Array(ReaderFlags))(run());",
-        prepared
-      )
+      readerCodeWithoutPageData("const readerPageSources = run();", prepared)
     ).toThrow("not one static array");
   }
 );

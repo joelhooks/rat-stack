@@ -14,7 +14,10 @@ export const RangeSchema = Schema.Struct({
 
 export type Range = typeof RangeSchema.Type;
 
-export class CodeRequest extends Schema.Class<CodeRequest>("CodeRequest")({
+export class CodeRequest extends Schema.Class<
+  CodeRequest,
+  { readonly brand: unique symbol }
+>("CodeRequest")({
   body: Schema.String,
   commit: Schema.String,
   configured: Schema.Boolean,

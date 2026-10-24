@@ -98,7 +98,7 @@ export const joinContactStoreLayer = (
           return sealed;
         }
 
-        const envelope = yield* Schema.decodeUnknownEffect(
+        const envelope = yield* Schema.decodeEffect(
           Schema.fromJsonString(SealedContact)
         )(sealed).pipe(Effect.orDie);
 
@@ -118,7 +118,7 @@ export const joinContactStoreLayer = (
             )
         );
 
-        return yield* Schema.decodeUnknownEffect(
+        return yield* Schema.decodeEffect(
           Schema.fromJsonString(JoinContactSchema)
         )(decoder.decode(plaintext)).pipe(Effect.orDie);
       });

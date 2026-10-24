@@ -2,7 +2,7 @@ import { Schema } from "effect";
 
 import { errorFields } from "./fields.ts";
 
-export class CodeMissingCommit extends Schema.TaggedError<CodeMissingCommit>()(
-  "CodeMissingCommit",
-  errorFields
-) {}
+export class CodeMissingCommit extends Schema.TaggedError<
+  CodeMissingCommit,
+  { readonly brand: unique symbol }
+>()("CodeMissingCommit", errorFields) {}

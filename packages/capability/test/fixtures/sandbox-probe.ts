@@ -6,12 +6,12 @@ import { ProbeActivity } from "./probe-activity.js";
 
 export { ProbeActivity } from "./probe-activity.js";
 
-export class StorageBudgetExceeded extends Schema.TaggedError<StorageBudgetExceeded>()(
-  "StorageBudgetExceeded",
-  {
-    message: Schema.String,
-  }
-) {}
+export class StorageBudgetExceeded extends Schema.TaggedError<
+  StorageBudgetExceeded,
+  { readonly brand: unique symbol }
+>()("StorageBudgetExceeded", {
+  message: Schema.String,
+}) {}
 
 const probeContract = defineContract("probe", {
   description: "Exercise sandbox tool boundaries",

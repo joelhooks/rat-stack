@@ -706,6 +706,7 @@ const skillGroups = [
       "add-a-capability",
       "add-a-lifecycle-machine",
       "add-a-store",
+      "onboard-a-list",
       "query-design",
       "write-a-wiki-page",
     ],
@@ -834,7 +835,7 @@ const program = Effect.gen(function* generateContent() {
 
   const learnCoverageText = yield* readText(".brain/data/learn-coverage.json");
 
-  const learnCoverage = yield* Schema.decodeUnknownEffect(
+  const learnCoverage = yield* Schema.decodeEffect(
     Schema.fromJsonString(Schema.Array(Schema.String))
   )(learnCoverageText);
 
@@ -3342,7 +3343,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
-  const resources = yield* Schema.decodeUnknownEffect(
+  const resources = yield* Schema.decodeEffect(
     Schema.Array(ContentResourceSchema)
   )(
     normalizeSources({

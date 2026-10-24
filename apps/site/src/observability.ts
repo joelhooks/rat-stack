@@ -69,10 +69,10 @@ const privateTracerLayer = Layer.effect(
   })
 );
 
-class NativeTracingUnavailable extends Schema.TaggedError<NativeTracingUnavailable>()(
-  "NativeTracingUnavailable",
-  { cause: Schema.Unknown }
-) {}
+class NativeTracingUnavailable extends Schema.TaggedError<
+  NativeTracingUnavailable,
+  { readonly brand: unique symbol }
+>()("NativeTracingUnavailable", { cause: Schema.Unknown }) {}
 
 interface NativeSpan {
   readonly isTraced: boolean;

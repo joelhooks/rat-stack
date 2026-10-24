@@ -311,7 +311,7 @@ it.effect(
             "/lore/:slug",
             TestContent.pipe(
               Effect.flatMap((service) => service.read),
-              Effect.provide(Layer.succeed(TestContent, { read: failure }))
+              Effect.provideService(TestContent, { read: failure })
             )
           )
         );

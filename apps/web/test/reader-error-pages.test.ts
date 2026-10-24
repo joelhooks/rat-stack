@@ -35,9 +35,9 @@ const template = Effect.gen(function* builtTemplate() {
     new URL("../dist/reader-error.json", import.meta.url).pathname
   );
 
-  return yield* Schema.decodeUnknownEffect(
-    Schema.fromJsonString(ReaderErrorTemplate)
-  )(source);
+  return yield* Schema.decodeEffect(Schema.fromJsonString(ReaderErrorTemplate))(
+    source
+  );
 }).pipe(Effect.provide(NodeServices.layer));
 
 const tokenText = Arbitrary.array(

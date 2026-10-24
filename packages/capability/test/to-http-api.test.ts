@@ -46,11 +46,10 @@ const allowedApprovalLayer = approvalProjection.layer.pipe(
   Layer.provide(Approval.allowAll)
 );
 
-class UnavailableItem extends Schema.TaggedError<UnavailableItem>()(
-  "UnavailableItem",
-  {},
-  { httpApiStatus: 503 }
-) {}
+class UnavailableItem extends Schema.TaggedError<
+  UnavailableItem,
+  { readonly brand: unique symbol }
+>()("UnavailableItem", {}, { httpApiStatus: 503 }) {}
 
 const lookupContract = defineContract("lookup", {
   description: "Read a fixture item",

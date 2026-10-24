@@ -24,9 +24,7 @@ export * from "../src/bundled-content.generated.js";
 
 export * from "../src/interest-pages.generated.js";
 
-const manifest = Schema.decodeUnknownSync(
-  Schema.fromJsonString(ContentAssetManifest)
-)(
+const manifest = Schema.decodeSync(Schema.fromJsonString(ContentAssetManifest))(
   readFileSync(
     new URL("../dist/content/manifest.json", import.meta.url),
     "utf-8"
@@ -95,7 +93,7 @@ export const loreIndexDocumentHtml = documentFor("/lore");
 export const systemsIndexDocumentHtml = documentFor("/systems");
 
 const dataFor = <A>(path: string, schema: Schema.Codec<A, unknown>): A => {
-  const envelope = Schema.decodeUnknownSync(
+  const envelope = Schema.decodeSync(
     Schema.fromJsonString(
       Schema.Struct({ data: schema, generation: Schema.String })
     )
@@ -137,21 +135,21 @@ export const { llmsLoreLinks } = catalog;
 export const lawSources = contentResources
   .filter((source) => source.kind === "law")
   .map((source) => ({
-    ...Schema.decodeUnknownSync(LawSource)(source),
+    ...Schema.decodeSync(LawSource)(source),
     documentHtml: documentFor(source.routePath),
   }));
 
 export const loreSources = contentResources
   .filter((source) => source.kind === "lore")
   .map((source) => ({
-    ...Schema.decodeUnknownSync(LoreSource)(source),
+    ...Schema.decodeSync(LoreSource)(source),
     documentHtml: documentFor(source.routePath),
   }));
 
 export const skillSources = contentResources
   .filter((source) => source.kind === "skill")
   .map((source) => ({
-    ...Schema.decodeUnknownSync(SkillSource)(source),
+    ...Schema.decodeSync(SkillSource)(source),
     documentHtml: documentFor(source.routePath),
   }));
 
@@ -194,16 +192,14 @@ export const FileAssets = Layer.effect(
           Effect.mapError(
             (cause) => new AssetReadError({ cause, path, reason: "provider" })
           ),
-          Effect.flatMap((body) =>
-            body.byteLength > 0
-              ? Effect.succeed(body)
-              : Effect.fail(
-                  new AssetReadError({
-                    cause: "Asset body is empty",
-                    path,
-                    reason: "empty",
-                  })
-                )
+          Effect.filterOrFail(
+            (body) => body.byteLength > 0,
+            () =>
+              new AssetReadError({
+                cause: "Asset body is empty",
+                path,
+                reason: "empty",
+              })
           )
         ),
     });

@@ -116,18 +116,18 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
           )
         );
 
-      const stderr = yield* handle.stderr
-        .pipe(Stream.decodeText(), Stream.mkString)
-        .pipe(
-          Effect.mapError(
-            () =>
-              new SourceFetchOffline(
-                context(
-                  "Could not read the fetch result; check Git and connectivity."
-                )
+      const stderr = yield* handle.stderr.pipe(
+        Stream.decodeText(),
+        Stream.mkString,
+        Effect.mapError(
+          () =>
+            new SourceFetchOffline(
+              context(
+                "Could not read the fetch result; check Git and connectivity."
               )
-          )
-        );
+            )
+        )
+      );
 
       const status = yield* handle.exitCode.pipe(
         Effect.mapError(

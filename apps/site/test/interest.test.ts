@@ -1217,31 +1217,29 @@ it.effect("refuses on any other drovr answer without showing a reason", () =>
 );
 
 it.effect("sends the email's /confirm link to the confirm page", () =>
-  Effect.gen(function* confirmAlias() {
-    yield* withLiveInterest(
-      (handler) =>
-        Effect.gen(function* redirects() {
-          for (const request of [
-            new Request("https://ratstack.sh/confirm?token=a%2Bb"),
-            form("/confirm", { token: "t" }),
-          ]) {
-            const response = yield* call(handler, request);
+  withLiveInterest(
+    (handler) =>
+      Effect.gen(function* redirects() {
+        for (const request of [
+          new Request("https://ratstack.sh/confirm?token=a%2Bb"),
+          form("/confirm", { token: "t" }),
+        ]) {
+          const response = yield* call(handler, request);
 
-            expect(response.status).toBe(308);
-          }
+          expect(response.status).toBe(308);
+        }
 
-          const get = yield* call(
-            handler,
-            new Request("https://ratstack.sh/confirm?token=a%2Bb")
-          );
+        const get = yield* call(
+          handler,
+          new Request("https://ratstack.sh/confirm?token=a%2Bb")
+        );
 
-          expect(get.headers.get("location")).toBe(
-            "/tokenmaxx/confirm?token=a%2Bb"
-          );
-        }),
-      { confirm: confirmFake("pending", "confirmed"), mode: "drovr" }
-    );
-  })
+        expect(get.headers.get("location")).toBe(
+          "/tokenmaxx/confirm?token=a%2Bb"
+        );
+      }),
+    { confirm: confirmFake("pending", "confirmed"), mode: "drovr" }
+  )
 );
 
 it.effect("renders each confirm page from drovr's token state", () =>

@@ -35,7 +35,7 @@ const lines = Arbitrary.array(line, {
 });
 
 const decodes = <A>(schema: Schema.Codec<A, string>, value: string) =>
-  Exit.isSuccess(Schema.decodeUnknownExit(schema)(value));
+  Exit.isSuccess(Schema.decodeExit(schema)(value));
 
 const oneColumnCharacters = [
   "x",
@@ -139,9 +139,9 @@ it.prop(
   ({ card }) => {
     const json = Schema.fromJsonString(CardSchema);
 
-    expect(
-      Schema.decodeUnknownSync(json)(Schema.encodeSync(json)(card))
-    ).toEqual(card);
+    expect(Schema.decodeSync(json)(Schema.encodeSync(json)(card))).toEqual(
+      card
+    );
   }
 );
 
@@ -156,21 +156,19 @@ it.effect.prop(
       const encodedContext =
         yield* Schema.encodeEffect(LearnContextSchema)(context);
 
-      const next = yield* Schema.decodeUnknownEffect(learnNextContract.input)({
+      const next = yield* Schema.decodeEffect(learnNextContract.input)({
         context: encodedContext,
       });
 
-      const nextWithEmpty = yield* Schema.decodeUnknownEffect(
-        learnNextContract.input
-      )({ context: encodedContext, progress: emptyProgress });
-
-      const bare = yield* Schema.decodeUnknownEffect(learnNextContract.input)(
-        {}
+      const nextWithEmpty = yield* Schema.decodeEffect(learnNextContract.input)(
+        { context: encodedContext, progress: emptyProgress }
       );
 
-      const record = yield* Schema.decodeUnknownEffect(
-        learnRecordContract.input
-      )({ event });
+      const bare = yield* Schema.decodeEffect(learnNextContract.input)({});
+
+      const record = yield* Schema.decodeEffect(learnRecordContract.input)({
+        event,
+      });
 
       expect(next).toStrictEqual(nextWithEmpty);
       expect(bare.progress).toStrictEqual(emptyProgress);
