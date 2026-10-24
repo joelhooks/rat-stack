@@ -8,14 +8,36 @@ For the browser client, Alchemy resources, database, auth, and Worker tests, see
 
 ## Projects
 
-| Repo | Stars | Effect | Runtime | Why it matters to us |
-| --- | --- | --- | --- | --- |
-| [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | 23k | `4.0.0-rc.115` (catalog) | Node 24, pnpm 11, TS 7.0.2 | Same Effect, TS, and pnpm pins as rat-stack. Closest sibling. Heaviest `@effect/vitest` user (479 files). |
-| [anomalyco/opencode](https://github.com/anomalyco/opencode) | 208k | `4.0.0-beta.83` (patched) | Bun | Architecture reference only. Older beta: still has `ServiceMap.Service` remnants and `Schema.TaggedErrorClass`. Do not copy API names from it. |
-| [tim-smart/lalph](https://github.com/tim-smart/lalph) | 130 | `4.0.0-beta.94` | Node, pnpm, tsgo | Effect core maintainer's CLI. Uses `effect/unstable/cli`, `Context.Service` + `static layer`, `@effect/language-service`. Closest shape to our CLI. |
-| [kitlangton/ghui](https://github.com/kitlangton/ghui) | 1.1k | `4.0.0-beta.90` | Bun | Kit's TUI. `Context.Service`, `Schema.TaggedError`, `@effect/language-service`, oxlint + oxfmt. |
-| [alchemy-run/alchemy](https://github.com/alchemy-run/alchemy) | 1.3k | peer `>=4.0.0-rc.115` | Node | Our infra layer. Peer-depends on `@effect/language-service ^0.87`. |
-| [cevr/effect-machine](https://github.com/cevr/effect-machine) | 72 | peer `>=4.0.0-rc.112 <5` | any | Schema-first state machines native to Effect. The Effect-world answer to XState. |
+- **[pingdotgg/t3code](https://github.com/pingdotgg/t3code)**:
+  - Stars: 23k
+  - Effect: `4.0.0-rc.115` (catalog)
+  - Runtime: Node 24, pnpm 11, TS 7.0.2
+  - Why it matters to us: Same Effect, TS, and pnpm pins as rat-stack. Closest sibling. Heaviest `@effect/vitest` user (479 files).
+- **[anomalyco/opencode](https://github.com/anomalyco/opencode)**:
+  - Stars: 208k
+  - Effect: `4.0.0-beta.83` (patched)
+  - Runtime: Bun
+  - Why it matters to us: Architecture reference only. Older beta: still has `ServiceMap.Service` remnants and `Schema.TaggedErrorClass`. Do not copy API names from it.
+- **[tim-smart/lalph](https://github.com/tim-smart/lalph)**:
+  - Stars: 130
+  - Effect: `4.0.0-beta.94`
+  - Runtime: Node, pnpm, tsgo
+  - Why it matters to us: Effect core maintainer's CLI. Uses `effect/unstable/cli`, `Context.Service` + `static layer`, `@effect/language-service`. Closest shape to our CLI.
+- **[kitlangton/ghui](https://github.com/kitlangton/ghui)**:
+  - Stars: 1.1k
+  - Effect: `4.0.0-beta.90`
+  - Runtime: Bun
+  - Why it matters to us: Kit's TUI. `Context.Service`, `Schema.TaggedError`, `@effect/language-service`, oxlint + oxfmt.
+- **[alchemy-run/alchemy](https://github.com/alchemy-run/alchemy)**:
+  - Stars: 1.3k
+  - Effect: peer `>=4.0.0-rc.115`
+  - Runtime: Node
+  - Why it matters to us: Our infra layer. Peer-depends on `@effect/language-service ^0.87`.
+- **[cevr/effect-machine](https://github.com/cevr/effect-machine)**:
+  - Stars: 72
+  - Effect: peer `>=4.0.0-rc.112 <5`
+  - Runtime: any
+  - Why it matters to us: Schema-first state machines native to Effect. The Effect-world answer to XState.
 
 Other Effect 4 adopters found via GitHub code search for `effect/unstable` imports: `alchemy-run/distilled`, `MapleTechLabs/maple`, `tim-smart/receipts`, `tim-smart/dfx`, `kitlangton/motel`, `kitlangton/stack`, `leonitousconforti/the-moby-effect`, `crosshatch/crosshatch`, `anomalyco/effect-http-recorder`, `Effectful-Tech/clanka`.
 

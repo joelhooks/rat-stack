@@ -4,14 +4,12 @@ Keep pinned dependencies here until npm publishes them. Each entry records its b
 
 The current `xstate@6.0.0-alpha.69` and `@xstate/effect@1.0.0-alpha.8` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
 
-| Tarball | Built from | Why | Remove when |
-| ------- | ---------- | --- | ----------- |
-| (none)  |            |     |             |
+- **Vendored packages**: none.
 
 The last one was `xstate-effect-0.1.0-alpha.2.tgz`, built from the `statelyai/xstate` tag `xstate@6.0.0-alpha.58` with `pnpm exec preconstruct build && pnpm pack` after the first npm publish failed on 2026-09-17. npm published the same bytes on 2026-09-19 and `packages/core` moved to the registry version on 2026-09-20.
 
 ## Rules for the next one
 
-- Add a `file:` spec in the consuming package, the tarball here, and a row above with the exact tag or commit it was built from. Build from a pinned tag to keep lockfile integrity reproducible. A moving branch cannot provide that guarantee.
+- Add a `file:` spec in the consuming package, the tarball here, and a list entry above with the exact tag or commit it was built from. Build from a pinned tag to keep lockfile integrity reproducible. A moving branch cannot provide that guarantee.
 - A `file:` tarball still goes through pnpm's release-age check, which looks the version up on the registry. An unpublished version 404s and fails `pnpm install --frozen-lockfile` in CI; a warm local metadata cache hides this. Every vendored tarball needs a matching version-scoped `minimumReleaseAgeExclude` entry in `pnpm-workspace.yaml`.
-- When the version publishes, confirm the tarballs match (`npm pack <name>@<version>` and compare file lists and `dist`), replace the `file:` spec with the exact version, delete the tarball and its row, run `pnpm install`, and watch CI. Keep the `minimumReleaseAgeExclude` entry if the package is a prerelease pin like the others in that list.
+- When the version publishes, confirm the tarballs match (`npm pack <name>@<version>` and compare file lists and `dist`), replace the `file:` spec with the exact version, delete the tarball and its list entry, run `pnpm install`, and watch CI. Keep the `minimumReleaseAgeExclude` entry if the package is a prerelease pin like the others in that list.

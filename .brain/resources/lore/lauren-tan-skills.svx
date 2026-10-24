@@ -39,11 +39,9 @@ Lauren Tan (poteto) ships skills across four repos. Her talk on verification and
 
 Three form a learning loop:
 
-| Skill | Job |
-| --- | --- |
-| `reflect` | After sessions. |
-| `ruminate` | Over past conversations. |
-| `meditate` | Audit and prune. |
+- **`reflect`**: After sessions.
+- **`ruminate`**: Over past conversations.
+- **`meditate`**: Audit and prune.
 
 The README says `/reflect` alone gets you most of the value. [Skills](https://github.com/poteto/brainmaxxing/tree/ec4d8e43dee639d6f5d94aed3ca16af7b298ecfc/.agents/skills)
 

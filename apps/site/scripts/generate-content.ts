@@ -1119,11 +1119,9 @@ const program = Effect.gen(function* generateContent() {
       "",
       `Source: \`${workspace.sourcePath}\``,
       "",
-      "| Package | Kind | Version |",
-      "| --- | --- | --- |",
       ...workspace.dependencies.map(
         (dependency) =>
-          `| \`${dependency.name}\` | ${dependency.kind} | \`${dependency.version}\` |`
+          `- **\`${dependency.name}\`**: ${dependency.kind}, version \`${dependency.version}\`.`
       ),
       "",
     ]),
@@ -1808,24 +1806,22 @@ See the [vision](${originToken}/VISION.md) for the reasoning and sources.
 
 rat-stack ships these packages and apps. Remove the ones you don't need with the [removal checklists](${originToken}/README.md#keep-or-cut). Trace their imports and run the checks after each cut.
 
-| Package or app | Job | Removal |
-| --- | --- | --- |
-| capability | Shared data definitions and command-line, web, and agent interfaces | Keep the interfaces you use |
-| core | Shared operations and service interfaces | Keep what your app uses |
-| database | Run logs with D1 or Hyperdrive Postgres | Remove dependent services too |
-| auth | Identity and access through Better Auth | Remove dependent services too |
-| devtools | Record, replay, and compare operation calls | Optional development tools |
-| events | Capture request analytics | Optional |
-| lore | Query the public content graph | Remove dependent content operations too |
-| subscriber-delivery | Handle signup and email confirmation | Remove dependent signup operations too |
-| intake-live | Validate signup applications and protect stored answers | Remove dependent signup operations too |
-| code-snippets | Build highlighted code examples from source files | Remove dependent content features too |
-| check-harness | Run checks and report their results | Remove dependent deployment checks too |
-| deploy | Plan, apply, check, and roll back deployments | Remove dependent deployment commands too |
-| web | Browser UI built with Foldkit | Optional |
-| cli | Command-line interface | Optional |
-| mischief | Hosted site, agent interfaces, and code sandbox | Optional |
-| infra | Alchemy cloud resource declarations | Keep resources your app uses |
+- **capability**: shared data definitions and command-line, web and agent interfaces. Keep the interfaces you use.
+- **core**: shared operations and service interfaces. Keep what your app uses.
+- **database**: run logs with D1 or Hyperdrive Postgres. Remove dependent services too.
+- **auth**: identity and access through [Better Auth](${originToken}/systems/auth). Remove dependent services too.
+- **devtools**: record, replay and compare operation calls. Optional development tools.
+- **events**: capture [request analytics](${originToken}/systems/analytics). Optional.
+- **lore**: query the public content graph. Remove dependent content operations too.
+- **subscriber-delivery**: handle signup and email confirmation. Remove dependent signup operations too.
+- **intake-live**: validate signup applications and protect stored answers. Remove dependent signup operations too.
+- **code-snippets**: build highlighted code examples from source files. Remove dependent content features too.
+- **check-harness**: run checks and report their results. Remove dependent deployment checks too.
+- **deploy**: plan, apply, check and roll back deployments. Remove dependent deployment commands too.
+- **web**: browser UI built with Foldkit. Optional.
+- **cli**: command-line interface. Optional.
+- **mischief**: hosted site, agent interfaces and code sandbox. Optional.
+- **infra**: Alchemy cloud resource declarations. Keep resources your app uses.
 
 A [cartridge](${originToken}/lore/cartridges) is a package for one job, including its implementation and cloud resources. Add it with one package and one line that provides the implementation. Removing it must leave unrelated packages working.
 

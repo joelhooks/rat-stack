@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": ["tsconfig.base.json"],
   "tasks": {
     "typecheck": {
       "dependsOn": ["^typecheck"],

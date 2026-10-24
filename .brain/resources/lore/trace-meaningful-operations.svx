@@ -81,11 +81,8 @@ A span name should remain stable across requests.
 Put safe variation in attributes instead of generating a new name for every input.
 Keep unrestricted input, credentials, request bodies and private identities out of telemetry.
 
-| Useful context | Avoid |
-| --- | --- |
-| Operation phase or bounded outcome name | Full request or response bodies |
-| A deliberate public category | Credentials and authorization headers |
-| A measured count relevant to the operation | Unrestricted input or private identity |
+- **Useful context**: operation phase or bounded outcome name, a deliberate public category, or a measured count relevant to the operation.
+- **Avoid**: full request or response bodies, credentials and authorization headers, unrestricted input, or private identity.
 
 Structured attributes can outlive the request. Structure does not make a private value safe.
 
@@ -119,12 +116,10 @@ After shutdown, the test requires the operation name and the annotation key.
 
 The fixture observes a serialized export request. It does not prove backend acceptance, storage, or a production exporter configuration.
 
-| Evidence | What it establishes |
-| --- | --- |
-| Named `fn` in source | An instrumentation boundary exists |
-| Decoded outbound request in the fixture | This composed exporter emits the expected trace fields |
-| Collector receipt | That collector accepted the payload |
-| A queried stored trace | The backend retained a trace you can retrieve |
+- **Named `fn` in source**: An instrumentation boundary exists
+- **Decoded outbound request in the fixture**: This composed exporter emits the expected trace fields
+- **Collector receipt**: That collector accepted the payload
+- **A queried stored trace**: The backend retained a trace you can retrieve
 
 None of these observations substitutes for the next delivery boundary.
 
@@ -137,16 +132,14 @@ Its tests cover this boundary. They do not prove privacy for Cloudflare's automa
 
 [Cloudflare documents these automatic fields](https://developers.cloudflare.com/workers/observability/traces/spans-and-attributes/):
 
-| Span | Documented data |
-| --- | --- |
-| Fetch handler | Full URL, path, accept headers, language, user agent, geographic data and ASN |
-| Outbound fetch | Full URL and query, selected headers, method, status and body sizes |
-| Cache operation | Request URL, selected cache and conditional headers, and payload sizes |
-| D1 and Durable Object SQL | SQL text; Durable Object SQL also records query bindings |
-| KV and R2 | Keys, prefixes, metadata and operation details; R2 also lists encryption-key-related fields |
-| RPC | Method or property path, target kind and correlation IDs |
-| Email handler | Sender, recipient and message size |
-| Root and child spans | Worker identity, invocation/version IDs and region; root spans add outcome and timing |
+- **Fetch handler**: Full URL, path, accept headers, language, user agent, geographic data and ASN
+- **Outbound fetch**: Full URL and query, selected headers, method, status and body sizes
+- **Cache operation**: Request URL, selected cache and conditional headers, and payload sizes
+- **D1 and Durable Object SQL**: SQL text; Durable Object SQL also records query bindings
+- **KV and R2**: Keys, prefixes, metadata and operation details; R2 also lists encryption-key-related fields
+- **RPC**: Method or property path, target kind and correlation IDs
+- **Email handler**: Sender, recipient and message size
+- **Root and child spans**: Worker identity, invocation/version IDs and region; root spans add outcome and timing
 
 Full URLs and query strings can contain tokens or email addresses.
 SQL bindings, storage keys and custom metadata can contain private values.
