@@ -29,6 +29,11 @@
       "import": "./dist/crash-r2.js",
       "default": "./dist/crash-r2.js"
     },
+    "./web-crypto": {
+      "types": "./src/web-crypto.ts",
+      "import": "./dist/web-crypto.js",
+      "default": "./dist/web-crypto.js"
+    },
     "./memory": {
       "types": "./src/memory.ts",
       "import": "./dist/memory.js",

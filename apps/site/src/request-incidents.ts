@@ -1,5 +1,6 @@
 import {
   Cause,
+  Crypto,
   Effect,
   Match,
   Option,
@@ -154,17 +155,20 @@ const acceptClass = (accept: string | undefined) => {
   return types.has("*/*") ? "wildcard" : "other";
 };
 
-const newIncidentId = function newIncidentId(): string {
-  // @effect-diagnostics-next-line cryptoRandomUUID:off -- Workers provide Web Crypto but no Effect Crypto layer; incident ids belong to the native HTTP boundary.
-  return crypto.randomUUID();
-};
+const newIncidentId = Effect.gen(function* newIncidentIdOf() {
+  const crypto = yield* Crypto.Crypto;
+
+  return yield* crypto.randomUUIDv4.pipe(Effect.orDie);
+});
 
 export const logRequestIncident = Effect.fnUntraced(
   function* logRequestIncident(
     cause: Cause.Cause<unknown>,
     boundary: "content" | "fetch" | "response-body" | "initialization",
-    incidentId: string = newIncidentId()
-  ): Effect.fn.Return<string> {
+    incidentId?: string
+  ): Effect.fn.Return<string, never, Crypto.Crypto> {
+    const resolvedIncidentId = incidentId ?? (yield* newIncidentId);
+
     const request = yield* Effect.serviceOption(
       HttpServerRequest.HttpServerRequest
     );
@@ -218,7 +222,7 @@ export const logRequestIncident = Effect.fnUntraced(
       boundary,
       cause: Cause.pretty(sanitized).slice(0, 2048),
       error: diagnostic,
-      incidentId,
+      incidentId: resolvedIncidentId,
       kind: reason?._tag ?? "Unknown",
       method: Option.isSome(request) ? request.value.method : "INIT",
       route: Option.isSome(route) ? route.value.route.path : fallbackRoute,
@@ -230,7 +234,7 @@ export const logRequestIncident = Effect.fnUntraced(
             ),
     });
 
-    return incidentId;
+    return resolvedIncidentId;
   }
 );
 
@@ -276,10 +280,12 @@ export const observeRequestIncidents = <E, R>(
       return response;
     }
 
-    const context =
-      yield* Effect.context<HttpServerRequest.HttpServerRequest>();
+    const context = yield* Effect.context<
+      HttpServerRequest.HttpServerRequest | Crypto.Crypto
+    >();
 
-    const incidentId = response.headers["x-incident-id"] ?? newIncidentId();
+    const incidentId =
+      response.headers["x-incident-id"] ?? (yield* newIncidentId);
 
     const body = HttpBody.stream(
       response.body.stream.pipe(
