@@ -6,8 +6,8 @@ overrides:
   "@foldkit/vite-plugin>@effect/platform-node-shared": 4.0.6
 
 # Foldkit peer-pins effect and @effect/platform-browser to exactly 4.0.0.
-# Its dist uses only members that 4.0.6 keeps, and its own suite passes on
-# 4.0.6. Remove each entry once Foldkit publishes a range covering our pin.
+# These allowances travel with patches/@foldkit__vite-plugin@0.28.0.patch;
+# vendor/README.md "Patched packages" says why and when to remove both.
 peerDependencyRules:
   allowedVersions:
     "foldkit>effect": 4.0.6
