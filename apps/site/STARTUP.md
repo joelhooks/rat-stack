@@ -6,7 +6,7 @@ Run the portable size gate from the repository root:
 pnpm --filter @rat-stack/site typecheck
 ```
 
-It generates content, typechecks, and builds the production Worker with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials. The limits are **900,000 uncompressed entry bytes** and **2,500,000 total JavaScript bytes**. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+It generates content, typechecks, and builds the production Worker with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials. The limits are **975,000 uncompressed entry bytes** and **2,500,000 total JavaScript bytes**. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 ## Page count no longer sets bundle size
 
@@ -42,6 +42,8 @@ Keep those names, compatibility settings, and stack metadata aligned with `worke
 ## Size proof and headroom
 
 The pre-extraction entry was **3,090,009 bytes**, with **4,470,503 total JavaScript bytes**. Extraction reduced the entry to **822,362 entry bytes** and **2,205,180 total JavaScript bytes**. The entry gate leaves **77,638 bytes**: 9.44% above the entry, or 8.63% of the limit. The total-JavaScript gate leaves **294,820 bytes**: 13.37% above measured JavaScript, or 11.79% of the limit.
+
+The Alchemy beta.84 and Effect 4.0.6 bump moved the entry from **853,523** to **949,670 bytes**, and the entry limit from 900,000 to 975,000 bytes. Total JavaScript fell from **2,206,460** to **1,295,172 bytes**. The statically loaded set, the entry plus the chunks it imports statically, grew from **1,199,687** to **1,243,260 bytes**, or 3.6%. The Channel, NodeServices and Socket chunks now sit inside the entry. Alchemy's provider packages resolve the `worker` export condition to TypeScript source, and Rolldown splits chunks differently.
 
 Adding 15 synthetic lore pages changed the emitted page count from 111 to 126. Entry size stayed exactly **813,559 bytes**. The generated bootstrap stayed **104,026 bytes**. The temporary pages were removed and the normal generation restored. Subsequent main changes brought the fixed bootstrap to **104,861 bytes**.
 

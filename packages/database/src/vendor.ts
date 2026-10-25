@@ -1,5 +1,5 @@
-import type * as Cloudflare from "alchemy/Cloudflare";
-import type { StaticConnectionSource } from "alchemy/SQL/ConnectionSource";
+import type * as Cloudflare from "@alchemy.run/cloudflare";
+import type { StaticConnectionSource } from "@alchemy.run/sql/ConnectionSource";
 import { Context } from "effect";
 
 export type DatabaseVendorResource =

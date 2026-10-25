@@ -6,7 +6,14 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node/NodeFileSystem",
+          "@effect/platform-node/NodePath",
+          "@effect/platform-node/NodeServices",
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/Crypto",
+          "effect/FileSystem",
+          "effect/Path",
           "effect/ai/McpProtocol",
           "effect/ai/McpServer",
           "effect/http/FetchHttpClient",

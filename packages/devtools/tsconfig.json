@@ -4,7 +4,11 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "allowedUnstableApis": ["effect/ai/Tool", "effect/rpc/RpcTest"]
+        "allowedUnstableApis": [
+          "@effect/vitest",
+          "effect/ai/Tool",
+          "effect/rpc/RpcTest"
+        ]
       }
     ]
   },

@@ -1,7 +1,7 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { InterestStore, runInterestMachine } from "@rat-stack/core/interest";
 import type { CaptureRequest, InterestRecord } from "@rat-stack/core/interest";
 import type { SealedRow, TicketBinding } from "@rat-stack/intake-live";
-import * as Cloudflare from "alchemy/Cloudflare";
 import type { RuntimeContext } from "alchemy/RuntimeContext";
 import * as Effect from "effect/Effect";
 

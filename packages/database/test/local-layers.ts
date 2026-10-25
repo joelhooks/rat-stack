@@ -1,7 +1,7 @@
+import { MigrationError } from "@alchemy.run/sql/Migrations/Format";
+import type { SqlExecutor } from "@alchemy.run/sql/Migrations/Format";
 import { NodeServices } from "@effect/platform-node";
 import { PGlite } from "@electric-sql/pglite";
-import { MigrationError } from "alchemy/SQL/Migrations/Format";
-import type { SqlExecutor } from "alchemy/SQL/Migrations/Format";
 import { desc, eq } from "drizzle-orm";
 import { drizzle as drizzlePostgres } from "drizzle-orm/pglite";
 import { drizzle as drizzleSqlite } from "drizzle-orm/sql-js";

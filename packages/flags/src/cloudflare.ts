@@ -1,3 +1,4 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   FlagJournal,
   FlagFlipRefused,
@@ -11,7 +12,6 @@ import {
   InvalidFlagValue,
   UnknownFlag,
 } from "@rat-stack/core/flags";
-import * as Cloudflare from "alchemy/Cloudflare";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { Effect, Layer, Schema } from "effect";
 

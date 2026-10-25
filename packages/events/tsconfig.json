@@ -5,7 +5,9 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/Crypto",
           "effect/http/HttpServerRequest",
           "effect/http/HttpServerResponse"
         ]

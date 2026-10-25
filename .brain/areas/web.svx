@@ -57,7 +57,7 @@ One `vite build` makes three outputs:
 - The server `fetch` function that Foldkit generates from `src/entry.server.ts`.
 - One HTML file for each path in the server entry's `prerenderPaths` export.
 
-`Cloudflare.Website.Foldkit` deploys the outputs as one Worker. A request for a prerendered page gets the file. The Website sets `notFoundHandling: "none"`, so any other request goes to the server `fetch` function. It renders the page, an error page, or a 404 with its real status.
+`Cloudflare.Website.Foldkit` deploys the outputs as one Worker. A request for a prerendered page gets the file. Any other request goes to the server `fetch` function. It renders the page, an error page, or a 404 with its real status.
 
 The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands call capabilities through that path.
 

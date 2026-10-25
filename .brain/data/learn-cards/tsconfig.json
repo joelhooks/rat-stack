@@ -5,7 +5,10 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/FileSystem",
+          "effect/PlatformError",
           "effect/ai/Tool",
           "effect/ai/Toolkit",
           "effect/cli/Argument",

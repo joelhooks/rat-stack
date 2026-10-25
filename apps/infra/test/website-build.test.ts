@@ -1,12 +1,13 @@
 import { pathToFileURL } from "node:url";
 
+import { foldkitAssetsFromManifest } from "@alchemy.run/cloudflare/Website/FoldkitBuild";
+import { runViteBuildChild } from "@alchemy.run/cloudflare/Workers/ViteChild";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { readerHtmlProof } from "../../site/test/reader-html-proof.js";
-import { runViteBuildChild } from "../node_modules/alchemy/lib/Cloudflare/Workers/ViteChild.js";
 import { proveWebsiteWorkerd } from "./website-workerd.js";
 
 const workerProbe = String.raw`
@@ -67,6 +68,7 @@ it.layer(NodeServices.layer)((test) => {
             compatibilityDate: "2026-05-28",
             compatibilityFlags: ["nodejs_compat"],
             env: {},
+            framework: "foldkit",
             main: undefined,
             rootDir: new URL("../../web/", import.meta.url).pathname,
             viteEnvironments: undefined,
@@ -79,7 +81,8 @@ it.layer(NodeServices.layer)((test) => {
 
         if (
           result.clientDirectory === undefined ||
-          result.serverBundle === undefined
+          result.serverBundle === undefined ||
+          result.foldkit === undefined
         ) {
           return yield* Effect.die(
             new Error(
@@ -87,6 +90,21 @@ it.layer(NodeServices.layer)((test) => {
             )
           );
         }
+
+        const { prerendered } = result.foldkit.manifest;
+
+        expect(
+          foldkitAssetsFromManifest(result.foldkit.manifest)
+        ).toBeUndefined();
+        expect(prerendered).toEqual(
+          expect.arrayContaining([
+            "/",
+            "/lore/services-capture-dependencies",
+            "/news",
+            "/directory",
+          ])
+        );
+        expect(prerendered).not.toContain("/outside-the-slice");
 
         const home = yield* fs.readFileString(
           path.join(result.clientDirectory, "index.html")

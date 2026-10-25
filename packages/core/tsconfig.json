@@ -5,7 +5,13 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node/NodeCrypto",
+          "@effect/platform-node/NodeServices",
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/Crypto",
+          "effect/FileSystem",
+          "effect/Path",
           "effect/http/HttpClient",
           "effect/http/HttpClientResponse",
           "effect/observability/OtlpSerialization",

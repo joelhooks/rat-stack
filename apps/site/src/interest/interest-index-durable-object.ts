@@ -1,5 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import type { InterestRecord } from "@rat-stack/core/interest";
-import * as Cloudflare from "alchemy/Cloudflare";
 import type { RuntimeContext } from "alchemy/RuntimeContext";
 import { Clock } from "effect";
 import * as Effect from "effect/Effect";

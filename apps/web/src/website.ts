@@ -1,8 +1,8 @@
 import { fileURLToPath } from "node:url";
 
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import PreviewRpcBackend from "@rat-stack/site/preview-rpc-worker";
 import RpcBackend from "@rat-stack/site/rpc-worker";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Stage } from "alchemy/Stage";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -51,7 +51,6 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
     const props = {
       assets: {
         htmlHandling: "drop-trailing-slash",
-        notFoundHandling: "none",
         runWorkerFirst: [
           "/rpc",
           "/rpc/*",

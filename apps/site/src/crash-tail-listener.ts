@@ -1,10 +1,10 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   captureCrashes,
   CrashArchive,
   InvalidCrashTrace,
   TraceSchema,
 } from "@rat-stack/events/crash";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect, Schema } from "effect";
 
 export const registerCrashTail = Effect.gen(

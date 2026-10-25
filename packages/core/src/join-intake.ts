@@ -133,10 +133,12 @@ export const joinIntakeLayer = Layer.effect(
 
         const held = verdict.hold && !scorerDelayed;
 
-        const contactRef = yield* crypto.randomUUIDv4.pipe(
-          Effect.flatMap(Schema.decodeEffect(ContactRefSchema)),
-          Effect.orDie
-        );
+        const contactRef = yield* crypto
+          .randomUUIDv4()
+          .pipe(
+            Effect.flatMap(Schema.decodeEffect(ContactRefSchema)),
+            Effect.orDie
+          );
 
         yield* contacts.save({
           agentRef: input.agentRef,
@@ -161,7 +163,7 @@ export const joinIntakeLayer = Layer.effect(
             const recorded: IntakeStatement = {
               actor: contactRef,
               context: { intake: "tokenmaxx", submissionId: statusRef },
-              id: yield* crypto.randomUUIDv7.pipe(Effect.orDie),
+              id: yield* crypto.randomUUIDv7().pipe(Effect.orDie),
               object,
               timestamp,
               verb,

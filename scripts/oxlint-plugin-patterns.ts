@@ -463,6 +463,9 @@ const cacheConstructors = [
   "cachedInvalidateWithTTL",
 ];
 
+const isAlchemyModule = (module: string) =>
+  module.startsWith("alchemy") || module.startsWith("@alchemy.run/");
+
 const isInitializationCall = (
   node: ESTree.CallExpression,
   context: RuleContext
@@ -470,7 +473,7 @@ const isInitializationCall = (
   const scope = context.sourceCode.getScope(node);
   const identity = importIdentity(node.callee, scope, context);
 
-  if (identity?.module.startsWith("alchemy") === true) {
+  if (identity !== null && isAlchemyModule(identity.module)) {
     return true;
   }
 
@@ -484,7 +487,7 @@ const isInitializationCall = (
     object !== null &&
     ((object.module === "effect" && object.name === "Layer") ||
       object.module === "effect/Layer" ||
-      object.module.startsWith("alchemy"))
+      isAlchemyModule(object.module))
   );
 };
 

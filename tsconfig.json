@@ -2,7 +2,17 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "@effect/platform-node/NodeRuntime",
+          "@effect/platform-node/NodeServices",
+          "effect/FileSystem"
+        ]
+      }
+    ]
   },
   "include": ["*.config.ts", "scripts/*.ts", "tools/oxlint/**/*.ts"],
   "exclude": [

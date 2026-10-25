@@ -5,7 +5,14 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node/NodeHttpClient",
+          "@effect/platform-node/NodeHttpServer",
+          "@effect/platform-node/NodeServices",
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/Terminal",
           "effect/ai/McpProtocol",
           "effect/ai/McpSchema",
           "effect/ai/McpServer",
@@ -40,7 +47,8 @@
           "effect/rpc/RpcGroup",
           "effect/rpc/RpcSerialization",
           "effect/rpc/RpcServer",
-          "effect/rpc/RpcTest"
+          "effect/rpc/RpcTest",
+          "effect/testing/TestConsole"
         ]
       }
     ]

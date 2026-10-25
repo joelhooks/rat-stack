@@ -55,7 +55,7 @@ const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
   const recordedAt = yield* Clock.currentTimeMillis;
   const crypto = yield* Crypto.Crypto;
 
-  const random = yield* crypto.randomUUIDv7.pipe(
+  const random = yield* crypto.randomUUIDv7().pipe(
     Effect.mapError(
       (cause) =>
         new FlagStorageError({

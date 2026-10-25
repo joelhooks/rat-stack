@@ -1,9 +1,9 @@
+import { WorkerBundle } from "@alchemy.run/cloudflare/Workers/Sources/Rolldown";
+import type { BundleOutput } from "alchemy/Bundle/Bundle";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { rpcContentDirectory } from "../../site/src/rpc-worker.js";
-import type { BundleOutput } from "../node_modules/alchemy/lib/Bundle/Bundle.js";
-import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
 
 const nativeProbe = String.raw`
 import { Effect, Layer } from "effect";

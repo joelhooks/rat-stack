@@ -1,3 +1,4 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   Flags,
   eventsEnabled,
@@ -17,7 +18,6 @@ import { webCryptoLayer } from "@rat-stack/events/web-crypto";
 import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Duration, Schema } from "effect";
 import type { Context } from "effect";
 import * as Config from "effect/Config";
