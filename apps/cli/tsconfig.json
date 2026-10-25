@@ -5,6 +5,12 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node/NodeHttpServer",
+          "@effect/platform-node/NodeRuntime",
+          "@effect/platform-node/NodeServices",
+          "@effect/vitest",
+          "effect/FileSystem",
+          "effect/Path",
           "effect/ai/McpProtocol",
           "effect/ai/McpServer",
           "effect/cli/Command",

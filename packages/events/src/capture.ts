@@ -87,7 +87,7 @@ const recordRequest = <RB>(
       anonymousId: visitor.anonymousId,
       body: yield* encodeRequestBody(body),
       identityMode: options.identityMode,
-      messageId: yield* crypto.randomUUIDv7,
+      messageId: yield* crypto.randomUUIDv7(),
       server: withoutUndefined({
         ...geo,
         country: isGeoLabel(country) ? country : geo.country,

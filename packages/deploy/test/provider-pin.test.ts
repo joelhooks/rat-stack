@@ -19,15 +19,15 @@ it.layer(NodeServices.layer)("provider client pins", (test) => {
           .readFileString("package.json")
           .pipe(Effect.flatMap(Schema.decodeEffect(Dependencies)));
 
-        const alchemy = yield* fs
-          .readFileString("node_modules/alchemy/package.json")
+        const provider = yield* fs
+          .readFileString("node_modules/@alchemy.run/cloudflare/package.json")
           .pipe(Effect.flatMap(Schema.decodeEffect(Dependencies)));
 
         const declared = deploy.dependencies["@distilled.cloud/cloudflare"];
 
         expect(declared).toBeDefined();
         expect(declared).toBe(
-          alchemy.dependencies["@distilled.cloud/cloudflare"]
+          provider.dependencies["@distilled.cloud/cloudflare"]
         );
       })
   );

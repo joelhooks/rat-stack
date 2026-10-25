@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { DateTime, Effect, Layer, Schema } from "effect";
@@ -54,7 +54,7 @@ export const R2CrashArchive = Layer.unwrap(
             httpMetadata: { contentType: "application/json" },
           })
           .pipe(Effect.provide(RuntimeContext.RuntimeContext.phantom)),
-      webCrypto.randomUUIDv4
+      webCrypto.randomUUIDv4()
     );
   })
 ).pipe(Layer.provide(Cloudflare.R2.WriteBucketBinding));

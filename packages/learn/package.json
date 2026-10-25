@@ -43,12 +43,12 @@
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "@xstate/effect": "1.0.0-alpha.9",
-    "effect": "4.0.0",
+    "effect": "4.0.6",
     "xstate": "6.0.0-alpha.70"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0",
-    "@effect/vitest": "4.0.0",
+    "@effect/platform-node": "4.0.6",
+    "@effect/vitest": "4.0.6",
     "typescript": "7.0.2",
     "vitest": "5.0.5"
   }

@@ -1,5 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { R2CrashArchive } from "@rat-stack/events/crash-r2";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect } from "effect";
 
 import { registerCrashTail } from "./crash-tail-listener.js";

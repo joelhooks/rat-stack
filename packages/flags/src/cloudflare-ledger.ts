@@ -1,3 +1,4 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   FlagJournal,
   FlagLedger as LedgerPort,
@@ -14,7 +15,6 @@ import {
   eventsEnabled,
 } from "@rat-stack/core/flags";
 import type { Flag } from "@rat-stack/core/flags";
-import * as Cloudflare from "alchemy/Cloudflare";
 import type * as RuntimeContext from "alchemy/RuntimeContext";
 import { Clock, Effect, Layer, Option, Schema, Semaphore } from "effect";
 

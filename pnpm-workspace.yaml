@@ -2,6 +2,21 @@ verifyDepsBeforeRun: error
 
 overrides:
   kysely: 0.29.4
+  "@foldkit/vite-plugin>@effect/platform-node": 4.0.6
+  "@foldkit/vite-plugin>@effect/platform-node-shared": 4.0.6
+
+# Foldkit peer-pins effect and @effect/platform-browser to exactly 4.0.0.
+# These allowances travel with patches/@foldkit__vite-plugin@0.28.0.patch;
+# vendor/README.md "Patched packages" says why and when to remove both.
+peerDependencyRules:
+  allowedVersions:
+    "foldkit>effect": 4.0.6
+    "foldkit>@effect/platform-browser": 4.0.6
+    "@foldkit/ui>effect": 4.0.6
+    "@foldkit/devtools>effect": 4.0.6
+    "@foldkit/devtools>@effect/platform-browser": 4.0.6
+    "@foldkit/vite-plugin>effect": 4.0.6
+    "@foldkit/markdown>effect": 4.0.6
 
 packages:
   - "apps/*"
@@ -25,41 +40,38 @@ minimumReleaseAgeExclude:
   - "@yielded/effect-tsrs-darwin-arm64@0.2.0"
   - "@yielded/effect-tsrs-win32-x64@0.2.0"
   # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
-  - "@alchemy.run/better-auth@2.0.0-beta.83"
-  - alchemy@2.0.0-beta.83
-  - effect@4.0.0
+  - "@alchemy.run/better-auth@2.0.0-beta.84"
+  - alchemy@2.0.0-beta.84
+  - effect@4.0.6
   - "@foldkit/oxlint-plugin@0.15.3"
-  - "@effect/platform-node@4.0.0"
-  - "@effect/platform-node-shared@4.0.0"
-  - "@effect/sql-pg@4.0.0"
-  - "@effect/sql-d1@4.0.0"
-  - "@effect/sql-sqlite-do@4.0.0"
-  - "@effect/vitest@4.0.0"
+  - foldkit@0.169.0
+  - "@foldkit/ui@0.169.0"
+  - "@foldkit/devtools@0.169.0"
+  - "@foldkit/vite-plugin@0.28.0"
+  - "@effect/platform-browser@4.0.6"
+  - "@effect/platform-node@4.0.6"
+  - "@effect/platform-node-shared@4.0.6"
+  - "@effect/sql-pg@4.0.6"
+  - "@effect/sql-d1@4.0.6"
+  - "@effect/sql-sqlite-do@4.0.6"
+  - "@effect/vitest@4.0.6"
   - xstate@6.0.0-alpha.70
   - "@xstate/effect@1.0.0-alpha.9"
   - better-auth@1.7.11
   - satori@0.33.5
-  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.83"
-  - "@alchemy.run/floci@2.0.0-beta.83"
-  - "@alchemy.run/node-utils@2.0.0-beta.83"
-  - "@distilled.cloud/acme@1.0.0-rc.15"
-  - "@distilled.cloud/aws@1.0.0-rc.15"
-  - "@distilled.cloud/axiom@1.0.0-rc.15"
-  - "@distilled.cloud/cloudflare@1.0.0-rc.15"
-  - "@distilled.cloud/core@1.0.0-rc.15"
-  - "@distilled.cloud/doppler@1.0.0-rc.15"
-  - "@distilled.cloud/fly-io@1.0.0-rc.15"
-  - "@distilled.cloud/gcp@1.0.0-rc.15"
-  - "@distilled.cloud/hetzner@1.0.0-rc.15"
-  - "@distilled.cloud/iceberg@1.0.0-rc.15"
-  - "@distilled.cloud/infisical@1.0.0-rc.15"
-  - "@distilled.cloud/neon@1.0.0-rc.15"
-  - "@distilled.cloud/planetscale@1.0.0-rc.15"
-  - "@distilled.cloud/prisma@1.0.0-rc.15"
-  - "@distilled.cloud/railway@1.0.0-rc.15"
-  - "@distilled.cloud/stripe@1.0.0-rc.15"
-  - "@distilled.cloud/turso@1.0.0-rc.15"
-  - "@distilled.cloud/zerossl@1.0.0-rc.15"
+  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.84"
+  - "@alchemy.run/node-utils@2.0.0-beta.84"
+  - "@alchemy.run/acme@2.0.0-beta.84"
+  - "@alchemy.run/cloudflare@2.0.0-beta.84"
+  - "@alchemy.run/docker@2.0.0-beta.84"
+  - "@alchemy.run/drizzle@2.0.0-beta.84"
+  - "@alchemy.run/sql@2.0.0-beta.84"
+  - "@alchemy.run/sigil@0.1.0-alpha.1"
+  - "@distilled.cloud/acme@1.0.0-rc.17"
+  - "@distilled.cloud/aws4signer@1.0.0-rc.17"
+  - "@distilled.cloud/cloudflare@1.0.0-rc.17"
+  - "@distilled.cloud/core@1.0.0-rc.17"
+  - "@distilled.cloud/iceberg@1.0.0-rc.17"
   - "@varlock/native-helper-darwin@1.23.0"
   - "@varlock/native-helper-linux-arm64@1.23.0"
   - "@varlock/native-helper-linux-x64@1.23.0"
@@ -73,3 +85,6 @@ minimumReleaseAgeExclude:
   - "@effect/tsgo-win32-arm64@0.55.0"
   - "@effect/tsgo-win32-x64@0.55.0"
   - "@effect/tsgo@0.55.0"
+
+patchedDependencies:
+  "@foldkit/vite-plugin@0.28.0": patches/@foldkit__vite-plugin@0.28.0.patch

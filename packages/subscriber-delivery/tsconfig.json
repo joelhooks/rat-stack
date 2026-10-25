@@ -5,6 +5,7 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/vitest",
           "effect/Arbitrary",
           "effect/http/FetchHttpClient",
           "effect/http/HttpClient",

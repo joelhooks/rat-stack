@@ -223,6 +223,7 @@ const browserServerModule = (filename: string, specifier: string) => {
     isBuiltin(specifier) ||
     normalized.startsWith("node:") ||
     /^alchemy(?:\/|$)/u.test(normalized) ||
+    normalized.startsWith("@alchemy.run/") ||
     normalized === "cloudflare:workers" ||
     normalized === "@effect/platform-node" ||
     normalized.startsWith("@effect/platform-node/") ||

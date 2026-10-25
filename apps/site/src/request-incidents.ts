@@ -158,7 +158,7 @@ const acceptClass = (accept: string | undefined) => {
 const newIncidentId = Effect.gen(function* newIncidentIdOf() {
   const crypto = yield* Crypto.Crypto;
 
-  return yield* crypto.randomUUIDv4.pipe(Effect.orDie);
+  return yield* crypto.randomUUIDv4().pipe(Effect.orDie);
 });
 
 export const logRequestIncident = Effect.fnUntraced(

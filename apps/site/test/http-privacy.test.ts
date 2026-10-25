@@ -1,5 +1,5 @@
+import { makeRequestEffect as untypedRequestEffect } from "@alchemy.run/cloudflare/Workers";
 import { expect, it } from "@effect/vitest";
-import { makeRequestEffect as untypedRequestEffect } from "alchemy/Cloudflare/Workers";
 import { RuntimeContext } from "alchemy/RuntimeContext";
 import { buildEventTelemetry } from "alchemy/Telemetry";
 import {
@@ -23,7 +23,7 @@ type NativeRequestBridge = (
   handler: Effect.Effect<HttpServerResponse.HttpServerResponse>
 ) => ScopedHandledEffect;
 
-const requestBridge = Schema.decodeSync(
+const requestBridge = Schema.decodeUnknownSync(
   Schema.declare<NativeRequestBridge>((input): input is NativeRequestBridge =>
     Predicate.isFunction(input)
   )

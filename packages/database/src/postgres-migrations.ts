@@ -1,17 +1,17 @@
-import { Action } from "alchemy";
-import type { Input } from "alchemy";
-import { CurrentRuntimeContext, sanitizeKey } from "alchemy/RuntimeContext";
 import {
   connectionSourceDigest,
   resolveConnectionSource,
-} from "alchemy/SQL/ConnectionSource";
-import type { StaticConnectionSource } from "alchemy/SQL/ConnectionSource";
-import type { SqlExecutor } from "alchemy/SQL/Migrations/Format";
-import { makePgMigrationExecutor } from "alchemy/SQL/Migrations/PgExecutor";
+} from "@alchemy.run/sql/ConnectionSource";
+import type { StaticConnectionSource } from "@alchemy.run/sql/ConnectionSource";
+import type { SqlExecutor } from "@alchemy.run/sql/Migrations/Format";
+import { makePgMigrationExecutor } from "@alchemy.run/sql/Migrations/PgExecutor";
 import {
   normalizeMigrationsInput,
   runMigrations,
-} from "alchemy/SQL/Migrations/Registry";
+} from "@alchemy.run/sql/Migrations/Registry";
+import { Action } from "alchemy";
+import type { Input } from "alchemy";
+import { CurrentRuntimeContext, sanitizeKey } from "alchemy/RuntimeContext";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";

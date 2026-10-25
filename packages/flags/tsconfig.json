@@ -4,7 +4,12 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "allowedUnstableApis": ["effect/Arbitrary"]
+        "allowedUnstableApis": [
+          "@effect/platform-node/NodeCrypto",
+          "@effect/platform-node/NodeRuntime",
+          "@effect/vitest",
+          "effect/Arbitrary"
+        ]
       }
     ]
   },

@@ -6,7 +6,15 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node/NodeCrypto",
+          "@effect/platform-node/NodeRuntime",
+          "@effect/platform-node/NodeServices",
+          "@effect/vitest",
           "effect/Arbitrary",
+          "effect/Crypto",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/PlatformError",
           "effect/ai/McpProtocol",
           "effect/ai/McpSchema",
           "effect/ai/McpServer",
@@ -36,7 +44,8 @@
           "effect/process/ChildProcessSpawner",
           "effect/rpc/RpcClient",
           "effect/rpc/RpcSerialization",
-          "effect/rpc/RpcServer"
+          "effect/rpc/RpcServer",
+          "effect/testing/TestConsole"
         ]
       }
     ],

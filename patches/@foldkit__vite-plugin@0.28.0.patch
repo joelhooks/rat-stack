@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 2ea77b1694f0f0a7cd02b1ca3b50546627cc8893..48feb099b91d15438ae6ee3a2f478f57366d58a2 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -288,7 +288,7 @@ class RelayBindFailed extends Data.TaggedError('RelayBindFailed') {
+ const isPortInUse = (error) => Predicate.hasProperty(error, 'code') && error.code === 'EADDRINUSE';
+ const relayId = Effect.gen(function* () {
+     const crypto = yield* Crypto.Crypto;
+-    return yield* crypto.randomUUIDv4.pipe(Effect.orDie);
++    return yield* crypto.randomUUIDv4().pipe(Effect.orDie);
+ });
+ const attachRelayHandlers = (wss, enqueue) => {
+     wss.on('connection', client => {

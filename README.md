@@ -92,17 +92,17 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 ## What is in the stack?
 
 - **pnpm workspaces + Turborepo `2.11.9`**: cached `typecheck` / `test` / `build` across packages from day one.
-- **Effect `4.0.0`**: typed runtime, errors, filesystem service, and the three surfaces the capabilities project onto: `effect/cli`, `effect/http-api` (with `OpenApi.fromApi`), and `effect/ai` (`Toolkit` + `McpServer`).
-- **`@effect/platform-node` `4.0.0`**: Node-backed services; keep adapter and core pins matched.
+- **Effect `4.0.6`**: typed runtime, errors, filesystem service, and the three surfaces the capabilities project onto: `effect/cli`, `effect/http-api` (with `OpenApi.fromApi`), and `effect/ai` (`Toolkit` + `McpServer`).
+- **`@effect/platform-node` `4.0.6`**: Node-backed services; keep adapter and core pins matched.
 - **TypeScript `7.0.2`**: strict module and index-access checks.
 - **`@yielded/effect-tsrs` `0.2.0`**: runs TypeScript and Effect diagnostics in `typecheck` and `check`. `--strict` makes warnings fail. It bundles tsrs main `8f135f1`, newer than the plain pin.
 - **tsrs `0.18.0-ts7.1.0-dev.20260929`**: experimental compiler for `typecheck:fast`, without Effect diagnostics. Re-align both checker versions when tsrs releases `8f135f1`.
 - **XState `6.0.0-alpha.70`**: real lifecycle states; do not replace those with boolean soup.
 - **`@xstate/effect` `1.0.0-alpha.9`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `createEffectLogic` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
-- **Alchemy `2.0.0-beta.83`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
+- **Alchemy `2.0.0-beta.84`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; cloud providers come from `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql`; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Foldkit `0.169.0` + `@foldkit/vite-plugin` `0.28.0`**: the web UI. Server rendering and prerendering are on by default. One `vite build` writes the browser bundle, a server `fetch` function, and an HTML file for every public page. `Cloudflare.Website.Foldkit` serves the files and sends every other request to that function. The browser hydrates the same view. `.brain/areas/web.svx` is the system page.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
-- **Vitest `5.0.5` + `@effect/vitest` `4.0.0`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
+- **Vitest `5.0.5` + `@effect/vitest` `4.0.6`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
 - **`@effect/tsgo` `0.55.0`**: patches TypeScript 7 in `prepare` for `typecheck:tsc`. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Patched `tsc` runs at the switch and on checker bumps through parity, not on every CI run. Report any checker disagreement.
 - **varlock `1.23.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
 - **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [Foldkit](https://github.com/foldkit/foldkit) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).

@@ -1,10 +1,10 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   SubscriberConfirm,
   InterestMode,
   InterestTokens,
 } from "@rat-stack/core/interest";
 import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect, Layer, Redacted } from "effect";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpRouter from "effect/http/HttpRouter";

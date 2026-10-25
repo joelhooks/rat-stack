@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import * as Cloudflare from "alchemy/Cloudflare";
-import type { WorkerObservability } from "alchemy/Cloudflare/Workers";
+import * as Cloudflare from "@alchemy.run/cloudflare";
+import type { WorkerObservability } from "@alchemy.run/cloudflare/Workers";
 import { CurrentRuntimeContext } from "alchemy/RuntimeContext";
 import {
   Config,

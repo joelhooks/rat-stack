@@ -1,5 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { expect } from "@effect/vitest";
-import * as Cloudflare from "alchemy/Cloudflare";
 import * as Test from "alchemy/Test/Vitest";
 import { Effect } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";

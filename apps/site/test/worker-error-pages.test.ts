@@ -1,6 +1,6 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { expect, it } from "@effect/vitest";
 import { InterestDirectory } from "@rat-stack/core/interest";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { ConfigProvider, Effect, Layer, Option, Schema } from "effect";
 import type { ConfigError } from "effect/Config";
 import type * as Scope from "effect/Scope";
@@ -10,6 +10,7 @@ import { ReaderErrorPage, readerErrorPath } from "../src/reader-error-page.js";
 import type { WorkerLoaderBinding } from "../src/sandbox-worker-loader.js";
 import { readerContentSecurityPolicy } from "../src/security.js";
 import { makeMischief } from "../src/worker.js";
+import { untouchedRawExecutionContext } from "./fixtures/execution-context.js";
 import {
   disposeFixtureAssets,
   fetchFixtureAsset,
@@ -136,8 +137,10 @@ const requestThroughWorker = (
           cache: {
             purge: () => Effect.die(new Error("An error page must not purge")),
           },
+          exports: {},
           passThroughOnException: () => Effect.void,
-          raw: {},
+          props: Effect.succeed({}),
+          raw: untouchedRawExecutionContext,
           waitUntil: () => Effect.void,
         })
       )

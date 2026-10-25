@@ -890,7 +890,7 @@ const legacySessionOf = Effect.fnUntraced(function* legacySessionOf(
 
   const crypto = yield* Crypto.Crypto;
 
-  return yield* crypto.randomUUIDv4.pipe(Effect.orDie);
+  return yield* crypto.randomUUIDv4().pipe(Effect.orDie);
 });
 
 const routeLegacyMcp = (

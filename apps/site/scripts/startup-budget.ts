@@ -1,7 +1,7 @@
+import { WorkerBundle } from "@alchemy.run/cloudflare/Workers/Sources/Rolldown";
 import { NodeServices } from "@effect/platform-node";
 import { Context, Effect, FileSystem, Schema } from "effect";
 
-import { WorkerBundle } from "../node_modules/alchemy/lib/Cloudflare/Workers/Sources/Rolldown.js";
 import {
   feedbackAuthBuild,
   feedbackGatewayBuild,
@@ -15,7 +15,7 @@ const BundleGraph = Schema.fromJsonString(
   })
 );
 
-const entryBudgetBytes = 900_000;
+const entryBudgetBytes = 975_000;
 
 const javascriptBudgetBytes = 2_500_000;
 

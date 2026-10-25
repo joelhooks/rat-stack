@@ -61,7 +61,7 @@ const makeRunLogService = (store: RunLogRepository, crypto: Crypto.Crypto) =>
         )
       );
 
-      const id = yield* crypto.randomUUIDv7.pipe(
+      const id = yield* crypto.randomUUIDv7().pipe(
         Effect.flatMap((value) => Schema.decodeEffect(RunIdSchema)(value)),
         Effect.mapError(
           (cause) => new DatabaseError({ cause, operation: "record" })

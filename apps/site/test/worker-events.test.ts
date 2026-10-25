@@ -1,8 +1,8 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { expect, it } from "@effect/vitest";
 import { InterestDirectory } from "@rat-stack/core/interest";
 import { RequestBodySchema } from "@rat-stack/events";
 import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { ConfigProvider, Effect, Layer, Option, Ref, Schema } from "effect";
 import type { ConfigError } from "effect/Config";
 import type * as Scope from "effect/Scope";
@@ -11,6 +11,7 @@ import type { MischiefRouteOptions } from "../src/app.js";
 import type { RateLimitBindings } from "../src/rate-limits.js";
 import type { WorkerLoaderBinding } from "../src/sandbox-worker-loader.js";
 import { makeMischief } from "../src/worker.js";
+import { untouchedRawExecutionContext } from "./fixtures/execution-context.js";
 import {
   disposeFixtureAssets,
   fetchFixtureAsset,
@@ -84,8 +85,10 @@ it.effect(
               purge: () =>
                 Effect.die(new Error("The events request must not purge")),
             },
+            exports: {},
             passThroughOnException: () => Effect.void,
-            raw: {},
+            props: Effect.succeed({}),
+            raw: untouchedRawExecutionContext,
             waitUntil: (effect) =>
               Effect.andThen(
                 Ref.update(backgroundRuns, (runs) => runs + 1),

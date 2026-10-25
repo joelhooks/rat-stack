@@ -77,7 +77,7 @@ export const resolveVisitor = (input: VisitorInput) =>
     const crypto = yield* Crypto.Crypto;
 
     return {
-      anonymousId: yield* anonymousIdOf(yield* crypto.randomUUIDv7),
+      anonymousId: yield* anonymousIdOf(yield* crypto.randomUUIDv7()),
       issueCookie: true,
     } satisfies Visitor;
   });

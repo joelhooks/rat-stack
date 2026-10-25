@@ -1,8 +1,8 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import * as Alchemy from "alchemy";
 import { AlchemyContext } from "alchemy/AlchemyContext";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { collection } from "alchemy/Provider";
 import { Stage } from "alchemy/Stage";
 import { inMemoryState } from "alchemy/State";
