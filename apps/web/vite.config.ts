@@ -10,9 +10,8 @@ import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
 
-export default defineConfig(({ isSsrBuild }) => ({
+export default defineConfig({
   build: {
-    outDir: "dist/client",
     rolldownOptions: { external: [/^cloudflare:/u] },
   },
   optimizeDeps: {
@@ -21,22 +20,14 @@ export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     stylexPlugin(),
     readerPagesPlugin(),
-    foldkit(
-      isSsrBuild === true
-        ? {}
-        : {
-            ssr: {
-              build: {
-                clientOutDir: "dist/client",
-                prerender: { origin: readerPrerenderOrigin },
-                serverOutDir: "dist/server",
-              },
-              clientEntry: "/src/client/entry.ts",
-              serverEntry: "/src/entry.server.ts",
-            },
-          }
-    ),
-    ...(isSsrBuild === true ? [] : [readerFinalizationPlugin()]),
+    foldkit({
+      ssr: {
+        build: { prerender: { origin: readerPrerenderOrigin } },
+        clientEntry: "/src/client/entry.ts",
+        serverEntry: "/src/entry.server.ts",
+      },
+    }),
+    readerFinalizationPlugin(),
     {
       apply: "build",
       config: (config, environment) => {
@@ -156,4 +147,4 @@ export default defineConfig(({ isSsrBuild }) => ({
       name: "foldkit-devtools-single-instance",
     },
   ],
-}));
+});

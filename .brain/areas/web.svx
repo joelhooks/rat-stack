@@ -1,0 +1,78 @@
+---
+title: "Web"
+description: "The Foldkit reader renders on the server and prerenders its public pages; the browser hydrates the same view."
+plain: "One Foldkit program renders HTML at build time, renders the rest in a Worker, and takes over in the browser."
+diagram: |-
+  vite build
+    ├ client bundle
+    ├ server handler
+    └ prerendered pages
+    │
+  Website.Foldkit
+    page file → static
+    miss → server render
+    │
+  browser hydrates
+group: system
+prerequisites: ["system.capabilities"]
+terms:
+  - "server rendering"
+  - "prerendering"
+  - "hydration"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/web/vite.config.ts
+    title: "Web Vite configuration"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The Foldkit plugin call that turns on the server build and prerendering."
+    accessed: "2026-10-25"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/web/src/website.ts
+    title: "Website resource"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The Alchemy resource that deploys the client assets and the server handler."
+    accessed: "2026-10-25"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/web/src/entry.server.ts
+    title: "Server entry"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The render function, the document renderer, and the prerendered paths."
+    accessed: "2026-10-25"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/infra/test/website-build.test.ts
+    title: "Website build test"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Builds the Website through Alchemy and serves it from workerd."
+    accessed: "2026-10-25"
+---
+
+## What it does
+
+`apps/web` is the reader site. It is one Foldkit program.
+Foldkit is a UI framework on Effect: a Model, Messages, an `update` function, and a pure view.
+
+Server rendering means the Worker builds the page HTML for each request.
+Prerendering means the build writes page HTML to files before deployment.
+Hydration means the browser program adopts HTML that the server rendered and continues from it.
+
+One `vite build` makes three outputs:
+
+- The browser bundle that hydrates each page.
+- The server `fetch` function that Foldkit generates from `src/entry.server.ts`.
+- One HTML file for each path in the server entry's `prerenderPaths` export.
+
+`Cloudflare.Website.Foldkit` deploys the outputs as one Worker. A request for a prerendered page gets the file. The Website sets `notFoundHandling: "none"`, so any other request goes to the server `fetch` function. It renders the page, an error page, or a 404 with its real status.
+
+The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands call capabilities through that path.
+
+## The standard
+
+- `vite.config.ts` turns on rendering with one `foldkit({ ssr })` call. It uses the default `dist/client` and `dist/server` directories.
+- The server entry exports `renderPage`, `renderDocument`, and `prerenderPaths`.
+- Every finite public page is prerendered. Pages that depend on the request render on the server.
+- Readable content and links work before browser JavaScript runs.
+- A missing page returns a real 404. It never falls back to the home page.
+- Production builds contain no development modules, devtools code, or test people.
+
+## How to check
+
+- Run `pnpm --filter @rat-stack/web build`. Read `apps/web/dist/server/foldkit.build.json`. It names `fetch.js` as the server entry and lists the prerendered paths.
+- Run `pnpm --filter @rat-stack/web test` for page parity and the production-bundle exclusion test.
+- Run `pnpm --filter @rat-stack/infra test`. The Website build test builds through [Alchemy](/skills/learn-alchemy), reads prerendered pages, and serves them, `/rpc`, and a 404 from the server bundle in workerd.
+- On a preview, request a prerendered page and an unknown path with `curl`. The page returns complete HTML with `X-Preview-Commit`. The unknown path returns 404.
