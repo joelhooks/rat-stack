@@ -1,6 +1,7 @@
 import { defineContract } from "@rat-stack/capability/contract";
 import { Schema } from "effect";
 
+import { FlagAtomicityRequired } from "./flag-atomicity-required.js";
 import { FlagChangesPage, ListFlagChangesInput } from "./flag-change.js";
 import {
   FlagFlipRefused,
@@ -40,6 +41,7 @@ export const getFlagContract = defineContract("getFlag", {
 });
 
 const flagWriteFailure = Schema.Union([
+  FlagAtomicityRequired,
   UnknownFlag,
   InvalidFlagValue,
   FlagStorageError,

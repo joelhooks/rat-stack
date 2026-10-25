@@ -94,7 +94,8 @@ Under the default policy, an empty KV keeps deployment Config or declared defaul
 The `refuse` policy returns a typed failure on a missing or failed replica read.
 
 The explicit KV ledger fallback retains attempt and outcome keys.
-It cannot serialize writers across isolates or atomically commit the ledger and value.
+It refuses authoritative writes by default.
+A composition must explicitly accept non-atomic writes without cross-isolate serialization.
 
 ## Keep urgent stops out of KV
 

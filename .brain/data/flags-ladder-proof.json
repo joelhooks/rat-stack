@@ -1,5 +1,6 @@
 {
   "suite": "packages/flags/test/writes.model.test.ts",
+  "kvConcurrencySuite": "packages/flags/test/kv-concurrency.model.test.ts",
   "projectionSuite": "packages/flags/test/projection.model.test.ts",
   "mutationProcedure": "Change one rule, rebuild core, run the named model, restore the source, then run the full gate.",
   "mutations": [
@@ -54,7 +55,15 @@
       "replay": "[0,\"-856023131330781\",0,0,[],\"PropertyError\"]"
     }
   ],
-  "restoredSuite": { "files": 7, "tests": 21, "result": "pass" },
+  "kvGuardMutation": {
+    "rule": "KV authoritative writes require explicit acceptance of non-atomic, unserialized writes.",
+    "mutation": "Return the writable ledger for every KV composition, ignoring the opt-in.",
+    "result": "failed",
+    "shrunkInput": { "initial": false, "scope": "alpha" },
+    "observed": "Both independent compositions completed the same next-rung climb.",
+    "replay": "[0,\"-1917475080638243\",0,0,[0],\"PropertyError\"]"
+  },
+  "restoredSuite": { "files": 8, "tests": 22, "result": "pass" },
   "codecProof": "The scoped sequence model uses NumberFromString to exercise non-identity JSON encodings. It failed against the initial memory reader, replay [0,\"5667198049340441\",0,0,[],\"PropertyError\"], then passed after decoding persisted values through the declared codec.",
   "providerProof": "The projection model uses a persisted service double, not deployed workerd. Native transaction atomicity and alarm scheduling follow the pinned Alchemy adapter and Cloudflare contracts; no live deployment is claimed."
 }

@@ -20,7 +20,7 @@ Merge new behavior behind a typed flag at its lowest rung. Climb one rung at a t
 - Operator authentication runs before dispatch, outside approval.
 - `EVENTS_ENABLED` stays deploy-time Config, and live writes cannot change it.
 
-The explicit KV fallback lacks atomic commit and cross-isolate serialization. Use the Durable Object adapter for authoritative writes. See [add-a-feature-flag](/skills/add-a-feature-flag) for declarations and composition.
+The explicit KV fallback refuses authoritative writes by default. A typed composition option must accept non-atomic writes without cross-isolate serialization. Use the Durable Object adapter for authoritative writes. See [add-a-feature-flag](/skills/add-a-feature-flag) for declarations and composition.
 
 **Incident:** drovr, 2026-10-23 (drovr-mode O7). A timeout change shipped as a constant by deploy. Joel: "crazy we arent using feature flags 😭". drovr then shipped `postshiba-send-hold` dark, with the rungs off, release, and release-30s.
 

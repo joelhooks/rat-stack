@@ -3,6 +3,8 @@ import {
   PendingFlagChangeSchema,
   CompletedFlagChangeSchema,
   FlagJournal,
+  FlagLedger,
+  FlagAtomicityRequired,
   FlagPosition,
   flagPartition,
   validateFlagScope,
@@ -328,9 +330,43 @@ export const kvFlagJournalLayer = <E>(kv: FlagKV<E>) =>
       ),
   });
 
+export interface KVFlagControlOptions {
+  readonly deployOnly?: readonly string[];
+  readonly authoritativeWrites?: "accept-non-atomic-unserialized";
+}
+
+const refuseNonAtomicWrite = (flagName: string) =>
+  Effect.fail(
+    new FlagAtomicityRequired({
+      flagName,
+      repair:
+        "KV cannot commit atomically or serialize writers across isolates. Use the Durable Object ledger, or set authoritativeWrites to accept-non-atomic-unserialized in the KV composition.",
+    })
+  );
+
 export const kvFlagControlLayer = <E>(
   registry: readonly Flag<unknown>[],
   kv: FlagKV<E>,
-  deployOnly: readonly string[] = []
-) =>
-  Layer.merge(kvLedgerLayer(registry, kv, deployOnly), kvFlagJournalLayer(kv));
+  options: KVFlagControlOptions = {}
+) => {
+  const guarded = Layer.effect(
+    FlagLedger,
+    Effect.gen(function* guardKVWrites() {
+      const ledger = yield* FlagLedger;
+
+      if (options.authoritativeWrites === "accept-non-atomic-unserialized") {
+        return ledger;
+      }
+
+      return {
+        flip: (input: Parameters<typeof ledger.flip>[0]) =>
+          refuseNonAtomicWrite(input.name),
+        read: ledger.read,
+        recordEvidence: (input: Parameters<typeof ledger.recordEvidence>[0]) =>
+          refuseNonAtomicWrite(input.name),
+      };
+    })
+  ).pipe(Layer.provide(kvLedgerLayer(registry, kv, options.deployOnly ?? [])));
+
+  return Layer.merge(guarded, kvFlagJournalLayer(kv));
+};

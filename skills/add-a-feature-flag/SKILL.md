@@ -79,7 +79,7 @@ A projection is a copy derived from a committed value.
 
 The DO commits the authoritative value, receipt, and dirty projection marker in one storage transaction. An alarm projects committed values to KV. Failed projections retain their markers. Cloudflare retries a failed alarm six times, starting with two seconds of backoff. After the final failed retry, the [adapter](/lore/hexagonal-architecture) schedules a fresh window at the next exponential backoff step. The operator can also call the internal `redrive` method after recovery. A successful flip means committed, not globally visible.
 
-`kvFlagControlLayer(registry, kv)` remains an explicit fallback. It has no cross-isolate serialization or atomic commit guarantee. Avoid it where competing writers must obey one ladder. The memory adapter supplies the same domain behavior for tests.
+`kvFlagControlLayer(registry, kv)` refuses authoritative flips and evidence writes with `FlagAtomicityRequired` by default. Reads and attempt journals remain available. A composition can accept the weaker guarantee with the typed option `{ authoritativeWrites: "accept-non-atomic-unserialized" }`. Pass it as the third argument. This permits non-atomic writes without cross-isolate serialization; it does not make them safe for competing writers. The memory adapter supplies the same domain behavior for tests.
 
 ## 5. Prove and remove
 

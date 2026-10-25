@@ -198,7 +198,7 @@ const modelOutcome = (step: typeof Command.Type, allowed: boolean) => {
 it.effect.prop(
   "generated scoped flips and evidence obey the independent ladder model and ledger every attempt",
   {
-    backend: Schema.Literals(["memory", "kv"]),
+    backend: Schema.Literals(["memory", "kv", "kv-refuse"]),
     commands: Arbitrary.array(Arbitrary.schema(Command), { maxLength: 35 }),
   },
   ({ backend, commands }) =>
@@ -213,7 +213,13 @@ it.effect.prop(
               kvFlagsLayer(registry, double.kv).pipe(
                 Layer.provide(Flags.defaults(registry))
               ),
-              kvFlagControlLayer(registry, double.kv)
+              kvFlagControlLayer(
+                registry,
+                double.kv,
+                backend === "kv"
+                  ? { authoritativeWrites: "accept-non-atomic-unserialized" }
+                  : {}
+              )
             );
 
       yield* Effect.gen(function* compareCommands() {
@@ -237,7 +243,7 @@ it.effect.prop(
               ? Approval.denyAll
               : Approval.allowAll;
 
-          const allowed = modelAllows(step, state);
+          const allowed = backend !== "kv-refuse" && modelAllows(step, state);
 
           const result = yield* runCommand(step).pipe(
             Effect.provide(approval),

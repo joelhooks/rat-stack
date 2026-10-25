@@ -118,8 +118,15 @@ The observed old value in an attempt may be stale. Climb validation uses the DO'
 Use deployment settings or a stronger control path for kill switches and safety stops.
 
 The explicit KV ledger fallback keeps immutable attempt and outcome keys.
-It cannot serialize writers across isolates or commit all changes in one transaction.
+It refuses authoritative flips and evidence writes with `FlagAtomicityRequired` by default.
+A composition can opt in with `authoritativeWrites: "accept-non-atomic-unserialized"`.
+
+That option accepts the absence of atomic commit and cross-isolate serialization.
 Writes to the same KV key can hit its one-write-per-second limit.
+
+The crash-recovery proof uses a persisted service double.
+Native workerd transaction and alarm behavior still needs provider qualification.
+The operator ledger is not wired into the deployed Stack.
 
 The lifecycle journal is scoped memory, with no durable state between processes.
 

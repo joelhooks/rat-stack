@@ -24,6 +24,8 @@ export {
 
 export { FlagLedger } from "./flag-ledger.js";
 
+export { FlagAtomicityRequired } from "./flag-atomicity-required.js";
+
 export {
   FlagChangeSchema,
   PendingFlagChangeSchema,

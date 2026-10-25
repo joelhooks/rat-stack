@@ -1,6 +1,7 @@
 import { Context } from "effect";
 import type { Effect, Schema } from "effect";
 
+import type { FlagAtomicityRequired } from "./flag-atomicity-required.js";
 import type { FlagFlipRefused } from "./flag-flip-refused.js";
 import type {
   FlagPosition,
@@ -14,6 +15,7 @@ import type { InvalidFlagValue } from "./invalid-flag-value.js";
 import type { UnknownFlag } from "./unknown-flag.js";
 
 type FlagLedgerFailure =
+  | FlagAtomicityRequired
   | FlagStorageError
   | UnknownFlag
   | InvalidFlagValue

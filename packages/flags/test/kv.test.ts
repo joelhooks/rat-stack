@@ -153,7 +153,9 @@ it.effect(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer([switchFlag], double.kv)
+        kvFlagControlLayer([switchFlag], double.kv, {
+          authoritativeWrites: "accept-non-atomic-unserialized",
+        })
       );
 
       yield* Effect.gen(function* inspectAuditFailure() {
@@ -196,7 +198,9 @@ it.effect(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer([switchFlag], double.kv)
+        kvFlagControlLayer([switchFlag], double.kv, {
+          authoritativeWrites: "accept-non-atomic-unserialized",
+        })
       );
 
       yield* Effect.gen(function* interruptApproval() {
@@ -261,7 +265,9 @@ it.effect(
         kvFlagsLayer([switchFlag], double.kv).pipe(
           Layer.provide(Flags.defaults([switchFlag]))
         ),
-        kvFlagControlLayer([switchFlag], double.kv)
+        kvFlagControlLayer([switchFlag], double.kv, {
+          authoritativeWrites: "accept-non-atomic-unserialized",
+        })
       );
 
       yield* Effect.gen(function* corruptJournal() {
