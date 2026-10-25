@@ -13,6 +13,7 @@ import {
 import { withEventCapture } from "@rat-stack/events";
 import type { EventSink, VisitorSalt } from "@rat-stack/events";
 import { Basin, basinFoundation } from "@rat-stack/events/basin";
+import { webCryptoLayer } from "@rat-stack/events/web-crypto";
 import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
@@ -389,7 +390,7 @@ export const makeMischief = (
                   runInBackground: inBackground,
                 })(readerApp).pipe(Effect.provideContext(events));
               })
-        )
+        ).pipe(Effect.provide(webCryptoLayer))
       ),
     };
   });
@@ -485,7 +486,10 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     )
   ),
   Effect.tapCause((cause) =>
-    logRequestIncident(cause, "initialization").pipe(Effect.asVoid)
+    logRequestIncident(cause, "initialization").pipe(
+      Effect.provide(webCryptoLayer),
+      Effect.asVoid
+    )
   )
 );
 

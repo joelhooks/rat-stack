@@ -8,10 +8,19 @@ import type {
 import { Flags } from "@rat-stack/core/flags";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
+import { webCryptoLayer } from "@rat-stack/events/web-crypto";
 import { Learner } from "@rat-stack/learn";
 import * as AlchemyHttp from "alchemy/Http";
 import type { Context } from "effect";
-import { Cause, Effect, Layer, Option, Predicate, Schema } from "effect";
+import {
+  Cause,
+  Crypto,
+  Effect,
+  Layer,
+  Option,
+  Predicate,
+  Schema,
+} from "effect";
 import * as McpProtocol from "effect/ai/McpProtocol";
 import * as McpServer from "effect/ai/McpServer";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
@@ -861,10 +870,10 @@ const firstExceededLimit = (
     return null;
   });
 
-const legacySessionOf = (
+const legacySessionOf = Effect.fnUntraced(function* legacySessionOf(
   request: HttpServerRequest.HttpServerRequest,
   routing: McpRequestRouting
-) => {
+): Effect.fn.Return<string | null, never, Crypto.Crypto> {
   if (!routing.isMcp || routing.modernMcp) {
     return null;
   }
@@ -879,9 +888,10 @@ const legacySessionOf = (
     return null;
   }
 
-  // @effect-diagnostics-next-line cryptoRandomUUID:off -- Workers ship Web Crypto and Effect has no Web Crypto layer; a random session id needs no injectable service.
-  return crypto.randomUUID();
-};
+  const crypto = yield* Crypto.Crypto;
+
+  return yield* crypto.randomUUIDv4.pipe(Effect.orDie);
+});
 
 const routeLegacyMcp = (
   router: LegacyMcpRouter,
@@ -943,7 +953,9 @@ const requestProtection = (options: {
         const session =
           options.legacyMcp === undefined
             ? null
-            : legacySessionOf(request, routing);
+            : yield* legacySessionOf(request, routing).pipe(
+                Effect.provide(webCryptoLayer)
+              );
 
         if (session !== null && options.legacyMcp !== undefined) {
           return yield* routeLegacyMcp(
@@ -1054,6 +1066,7 @@ export const errorPages = HttpRouter.middleware(
           (cause) => !machine && !Cause.hasInterrupts(cause),
           (cause) =>
             logRequestIncident(cause, "content").pipe(
+              Effect.provide(webCryptoLayer),
               Effect.flatMap((incidentId) =>
                 errorResponse(request, {
                   code: 500,

@@ -1,5 +1,15 @@
 import { it } from "@effect/vitest";
-import { Cause, Context, Effect, Layer, Logger, Schema, Stream } from "effect";
+import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import {
+  Cause,
+  Context,
+  Crypto,
+  Effect,
+  Layer,
+  Logger,
+  Schema,
+  Stream,
+} from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
@@ -29,6 +39,12 @@ class TestContent extends Context.Service<
 const privateMessage =
   "token=secret cookie=session body=private 203.0.113.9 ?query=hidden";
 
+const incidentEnvironment = (logs: unknown[]) =>
+  Layer.mergeAll(
+    webCryptoLayer,
+    Logger.layer([Logger.make(({ message }) => logs.push(message))])
+  );
+
 const withHandler = <E = never>(
   routes: Layer.Layer<
     never,
@@ -44,9 +60,11 @@ const withHandler = <E = never>(
     Effect.sync(() =>
       HttpRouter.toWebHandler(
         Layer.mergeAll(
-          HttpRouter.middleware((app) => observeRequestIncidents(app), {
-            global: true,
-          }),
+          HttpRouter.middleware(
+            (app) =>
+              observeRequestIncidents(app).pipe(Effect.provide(webCryptoLayer)),
+            { global: true }
+          ),
           routes
         ).pipe(
           Layer.provideMerge(
@@ -153,13 +171,7 @@ it.effect.prop(
       yield* logRequestIncident(
         Cause.die(new TypeError(message, { cause: new Error(safeDiagnostic) })),
         "initialization"
-      ).pipe(
-        Effect.provide(
-          Logger.layer([
-            Logger.make(({ message: record }) => logs.push(record)),
-          ])
-        )
-      );
+      ).pipe(Effect.provide(incidentEnvironment(logs)));
 
       expect(logs).toHaveLength(1);
 
@@ -207,9 +219,7 @@ it.effect(
       }
 
       yield* logRequestIncident(Cause.fail(cause), "initialization").pipe(
-        Effect.provide(
-          Logger.layer([Logger.make(({ message }) => logs.push(message))])
-        )
+        Effect.provide(incidentEnvironment(logs))
       );
 
       const [, record] = yield* Schema.decodeUnknownEffect(IncidentLog)(
@@ -239,11 +249,7 @@ it.effect(
         const typedLogs: unknown[] = [];
 
         yield* logRequestIncident(failure, "initialization").pipe(
-          Effect.provide(
-            Logger.layer([
-              Logger.make(({ message }) => typedLogs.push(message)),
-            ])
-          )
+          Effect.provide(incidentEnvironment(typedLogs))
         );
 
         const [, typedRecord] = yield* Schema.decodeUnknownEffect(IncidentLog)(
@@ -266,11 +272,7 @@ it.effect(
       const id = yield* logRequestIncident(
         Cause.die(new ReferenceError(privateMessage)),
         "initialization"
-      ).pipe(
-        Effect.provide(
-          Logger.layer([Logger.make(({ message }) => logs.push(message))])
-        )
-      );
+      ).pipe(Effect.provide(incidentEnvironment(logs)));
 
       expect(logs).toHaveLength(1);
 
@@ -544,4 +546,20 @@ it.effect(
       })
     );
   }
+);
+
+it.effect("draws incident ids from the Crypto service as v4 UUIDs", () =>
+  Effect.gen(function* incidentIdFromCrypto() {
+    const fixedBytes = Crypto.make({
+      digest: () => Effect.succeed(new Uint8Array(0)),
+      randomBytes: (size) => new Uint8Array(size).fill(7),
+    });
+
+    const id = yield* logRequestIncident(
+      Cause.die(new ReferenceError("probe")),
+      "initialization"
+    ).pipe(Effect.provide(Layer.succeed(Crypto.Crypto, fixedBytes)));
+
+    expect(id).toBe("07070707-0707-4707-8707-070707070707");
+  })
 );
