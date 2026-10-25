@@ -16,7 +16,9 @@ import { UnknownPrompt } from "./unknown-prompt.js";
 export {
   getFlagContract,
   listFlagsContract,
-  setFlagContract,
+  flipFeatureFlagContract,
+  recordFlagEvidenceContract,
+  readFlagLedgerContract,
 } from "./flag-contracts.js";
 
 export { UnknownPrompt } from "./unknown-prompt.js";

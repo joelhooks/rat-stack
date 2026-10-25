@@ -709,6 +709,7 @@ const skillGroups = [
       "add-a-capability",
       "add-a-lifecycle-machine",
       "add-a-store",
+      "add-a-feature-flag",
       "onboard-a-list",
       "query-design",
       "write-a-wiki-page",

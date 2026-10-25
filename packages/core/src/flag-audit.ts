@@ -10,7 +10,6 @@ import {
 import { Cause, Clock, Crypto, Effect, Exit, Option, Schema } from "effect";
 import { types } from "xstate";
 
-import { SetFlagInput } from "./flag-contracts.js";
 import {
   FlagActor,
   CompletedFlagChangeSchema,
@@ -21,8 +20,17 @@ import type { PendingFlagChange, CompletedFlagChange } from "./flag-control.js";
 import { FlagStorageError } from "./flag-storage-error.js";
 import { Flags, InvalidFlagValue } from "./flags.js";
 
+const FlagAttemptInput = Schema.Struct({
+  name: Schema.String,
+  scope: Schema.optionalKey(Schema.Json),
+});
+
+type FlagAttempt = typeof FlagAttemptInput.Type & {
+  readonly value: Schema.Json;
+};
+
 const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
-  input: typeof SetFlagInput.Type
+  input: FlagAttempt
 ) {
   const flags = yield* Flags;
   const journal = yield* FlagJournal;
@@ -33,7 +41,7 @@ const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
       ? Effect.succeed(
           FlagPreviousValue.cases.Unavailable.make({ reason: "UnknownFlag" })
         )
-      : flags.get(flag, {}).pipe(
+      : flags.get(flag, { scope: input.scope ?? "global" }).pipe(
           Effect.flatMap((value) => Schema.encodeEffect(flag.schema)(value)),
           Effect.flatMap(Schema.decodeUnknownEffect(Schema.Json)),
           Effect.map((value) => FlagPreviousValue.cases.Known.make({ value })),
@@ -69,6 +77,7 @@ const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
     oldValue: yield* observed,
     outcome: "Pending",
     recordedAt,
+    scope: input.scope ?? "global",
   };
 
   yield* journal.record(change);
@@ -100,10 +109,7 @@ interface AttemptContext<A, E> {
   readonly result: Exit.Exit<A, E | FlagStorageError> | undefined;
 }
 
-const observeRun = <A, E, R>(
-  input: typeof SetFlagInput.Type,
-  run: Effect.Effect<A, E, R>
-) =>
+const observeRun = <A, E, R>(input: FlagAttempt, run: Effect.Effect<A, E, R>) =>
   Effect.gen(function* runFlagAttemptMachine() {
     const prepare = createEffectLogic(prepareAttempt(input).pipe(Effect.exit));
     const execute = createEffectLogic(run.pipe(Effect.exit));
@@ -201,13 +207,16 @@ export const auditFlagRun: Around<
   FlagStorageError | InvalidFlagValue,
   Flags | FlagJournal | Crypto.Crypto
 > = (_contract, input, run) =>
-  Schema.decodeUnknownEffect(SetFlagInput)(input).pipe(
+  Effect.all({
+    parsed: Schema.decodeUnknownEffect(FlagAttemptInput)(input),
+    value: Schema.decodeUnknownEffect(Schema.Json)(input),
+  }).pipe(
     Effect.mapError(
       () =>
         new InvalidFlagValue({
-          name: "setFlag",
+          name: "flag attempt",
           repair: "Supply a declared name and a JSON value.",
         })
     ),
-    Effect.flatMap((parsed) => observeRun(parsed, run))
+    Effect.flatMap(({ parsed, value }) => observeRun({ ...parsed, value }, run))
   );

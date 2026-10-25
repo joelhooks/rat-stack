@@ -53,6 +53,12 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Evidence-led feature flags
+
+The flag ladder in core, the Durable Object ledger in `packages/flags`, and `skills/add-a-feature-flag` adapt drovr's flag design at commit `97f3c98efb4af003c3b1de89846560544c62a7ad`.
+
+Source modules: the flags catalog, rung and flip models, ledger port, KV store, and Durable Object ledger. The implementation is rewritten for rat-stack's capability approval service, child-supplied read scope schemas, role names, and pending-before-gate audit lifecycle. No tenant declarations or credential policies are copied.
+
 ## Shared waiters
 
 `rat-stack-patterns/shared-waiters` adapts drovr's `tools/oxlint/drovr-layers/shared-waiters.ts` at commit `13f075b3` (drovr #2348). The original rule catches unsafe Deferred and Semaphore construction outside class instances. This implementation uses rat-stack's import resolution, checks module const construction and class fields, and adds Cache, Ref, Queue, Latch, PubSub, PartitionedSemaphore, and TxSemaphore. Only instance fields whose class directly extends the imported Cloudflare DurableObject receive the class-field exemption; static fields and unrelated subclasses do not. There are no inherited path exceptions. Drovr #2344 and #2348 record the cross-request waiter incident: another caller could hang or receive a 503.

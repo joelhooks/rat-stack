@@ -27,14 +27,18 @@ sources:
 ## What it does
 
 The `packages/flags` [cartridge](/lore/cartridges) evaluates typed flags.
-A flag declares its name, [schema](/lore/schemas-define-the-boundary), default, owner, and removal date.
+A flag declares its name, [schema](/lore/schemas-define-the-boundary), default, owner, purpose, removal date, and [evidence ladder](/lore/flags-climb-on-evidence).
+
+Each rung names its authority and exit measurements. A read scope is the partition for a flag value and its evidence.
+A child schema defines it; the default is `global`.
 
 Handlers request the `Flags` [service](/lore/services-capture-dependencies) from core.
 The Config [adapter](/lore/hexagonal-architecture) reads deployment configuration.
 The memory adapter supplies rules and writable values for tests.
 
 The KV adapter owns its namespace through [Alchemy](/skills/learn-alchemy).
-Missing KV values use Config values or declared defaults.
+Under the default policy, missing KV values use Config values or declared defaults.
+The `refuse` policy returns a typed failure on a missing or failed replica read.
 
 - `listFlags` lists names, owners, and removal dates.
 - `getFlag` evaluates one flag for an optional subject.
@@ -51,7 +55,8 @@ Config keeps the existing environment keys and boolean spellings.
 An empty KV namespace preserves Config behavior.
 
 Invalid Config stops initialization.
-A failed KV read returns a typed error with its configured fallback recorded.
+A failed KV read follows the catalog's `failurePolicy`.
+The default policy returns the declared default. The `refuse` policy preserves the typed failure.
 
 Previews use Config and declare no flags namespace.
 The production Worker and content backend read KV.
@@ -70,15 +75,25 @@ See [Analytics](/systems/analytics) for capture and identity behavior.
 - Declared [Effect](/lore/effect-basics) actors record lifecycle transitions. Removed flags stay removed.
 - Each [capability](/systems/capabilities) shares its [contract](/systems/capabilities) across surfaces. JSON encoding is required for `getFlag`.
 
-`setFlag` is an approval-gated capability on the CLI.
-The CLI accepts `--yes` or asks for interactive approval.
-Its default composition has no live writer and returns a named error.
+Three operator capabilities replace the raw setter:
+
+- `flip_feature_flag` climbs one rung or flips `off`.
+- `record_flag_evidence` records a measurement at the current rung and exact scope.
+- `read_flag_ledger` reads a bounded attempt page and the authoritative position.
+
+Climbs use the capability approval service. Above agent, they also need an `approvalRef` quote.
+The roles are `agent`, `arbiter`, and `owner`. Token checks belong in the child's composition.
+
+`off` bypasses approval and still records its caller in the attempt ledger.
+
+The CLI accepts `--yes` or asks for interactive approval on a climb.
+Its default composition has no live ledger and returns a named error.
 
 The CLI records `local-cli` as a channel label.
 Its caller has no authenticated person identity.
 
 The public Worker, [RPC](/skills/learn-rat-stack) readers, and read-only sandbox expose no flag writes.
-A live operator write [surface](/lore/one-schema-three-surfaces) and `listFlagChanges` remain future work.
+A child mounts its operator [surface](/lore/one-schema-three-surfaces) and supplies its approval policy and ledger adapter.
 
 Each available-store attempt records its caller, flag, observed old value, requested value, time, and outcome.
 The journal stores an immutable Pending key before the approval gate.
@@ -90,12 +105,28 @@ A failed completion write returns a typed error; the flag may have changed.
 Audit storage failures block only writes.
 Config and default journals use composition-local memory.
 
-KV changes may take 60 seconds or more to reach another location.
-The observed old value may be stale.
-KV cannot commit a flag value and its audit outcome in one transaction.
-Unique journal keys avoid its one-write-per-second limit on each key.
+A projection is a copy derived from a committed value.
 
-Writes to the same flag can still hit that limit and return a typed error.
+The default operator adapter uses one Durable Object per flag and scope.
+It serializes transitions and commits the value, receipt, and dirty projection marker together.
+An alarm projects that committed value to KV. Failed projection keeps the marker for redrive.
+
+Readers use KV and never call the Durable Object.
+
+KV changes may take 60 seconds or more to reach another location.
+The observed old value in an attempt may be stale. Climb validation uses the DO's authoritative position.
+Use deployment settings or a stronger control path for kill switches and safety stops.
+
+The explicit KV ledger fallback keeps immutable attempt and outcome keys.
+It refuses authoritative flips and evidence writes with `FlagAtomicityRequired` by default.
+A composition can opt in with `authoritativeWrites: "accept-non-atomic-unserialized"`.
+
+That option accepts the absence of atomic commit and cross-isolate serialization.
+Writes to the same KV key can hit its one-write-per-second limit.
+
+The crash-recovery proof uses a persisted service double.
+Native workerd transaction and alarm behavior still needs provider qualification.
+The operator ledger is not wired into the deployed Stack.
 
 The lifecycle journal is scoped memory, with no durable state between processes.
 
@@ -104,7 +135,8 @@ The lifecycle journal is scoped memory, with no durable state between processes.
 1. Run `pnpm --filter @rat-stack/flags test` for rollout properties, generated write histories, audit failures, and lifecycle histories.
 2. Run `pnpm --filter @rat-stack/core exec vitest run test/patterns-rule.test.ts` for the removal-date [fence](/lore/the-fence).
 3. Run `pnpm turbo run check test build --concurrency=1` for the full gate.
-4. Inspect the deployment plan. Adding live flags declares one KV namespace and updates its Worker bindings.
+4. Inspect the deployment plan. Readers declare one KV namespace. The operator [layer](/lore/layers-make-dependencies-explicit) adds the ledger DO and its KV write [binding](/lore/bindings).
+5. Follow [Add a feature flag](/skills/add-a-feature-flag) for scoped evidence, authority, and crash-redrive checks.
 
 To remove the cartridge:
 

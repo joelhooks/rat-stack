@@ -19,6 +19,11 @@
       "import": "./dist/flags.js",
       "default": "./dist/flags.js"
     },
+    "./flag-ledger-engine": {
+      "types": "./src/flag-ledger-engine.ts",
+      "import": "./dist/flag-ledger-engine.js",
+      "default": "./dist/flag-ledger-engine.js"
+    },
     "./flag-control": {
       "types": "./src/flag-control.ts",
       "import": "./dist/flag-control.js",
