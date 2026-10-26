@@ -1,18 +1,13 @@
 export { normalizeAddress } from "./interest-address.js";
 
 export {
-  CAPTURE_ANSWER,
   CONFIRM_ANSWER,
   CONSENT_LINE,
   CONSENT_VERSION,
-  REGISTER_ANSWER,
   confirmInterestContract,
-  registerInterestContract,
 } from "./interest-contracts.js";
 
 export { InterestLinkRefused } from "./interest-link-refused.js";
-
-export { InvalidInterestAddress } from "./invalid-interest-address.js";
 
 export {
   InterestDirectory,
@@ -25,10 +20,6 @@ export type {
   RemoveCounts,
   RemoveSelector,
 } from "./interest-directory.js";
-
-export { InterestMailer, recordingMailerLayer } from "./interest-mailer.js";
-
-export type { InterestMail, MailResult } from "./interest-mailer.js";
 
 export {
   CONFIRMATION_WINDOW_MS,
@@ -76,9 +67,5 @@ export { digestsMatch, sha256Hex } from "./interest-services.js";
 export { InterestTokens } from "./interest-token.js";
 
 export { InvalidInterestToken } from "./invalid-interest-token.js";
-
-export { MailerFailed } from "./mailer-failed.js";
-
-export { RecordedMail } from "./recorded-mail.js";
 
 export type { InterestClaims } from "./interest-token.js";

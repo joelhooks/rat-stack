@@ -4,9 +4,7 @@ import {
   InterestMode,
   InterestTokens,
 } from "@rat-stack/core/interest";
-import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
 import { Effect, Layer, Redacted } from "effect";
-import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { interestDirectoryLayer } from "../../src/interest/directory.js";
@@ -37,13 +35,7 @@ export default class InterestWorker extends Cloudflare.Worker<InterestWorker>()(
         InterestTokens.layer(Redacted.make("local-token-secret")),
         fakeIntakeLayer,
         SubscriberConfirm.unconfigured,
-        InterestMode.layer("doi"),
-        postShibaMailerLayer({
-          apiKey: Redacted.make(""),
-          cluster: "",
-          enabled: false,
-          team: "",
-        }).pipe(Layer.provide(FetchHttpClient.layer))
+        InterestMode.layer("doi")
       )
     );
 

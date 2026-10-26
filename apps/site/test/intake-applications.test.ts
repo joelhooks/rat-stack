@@ -12,7 +12,6 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  recordingMailerLayer,
 } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
@@ -337,7 +336,6 @@ it.effect(
           InterestMode.layer("drovr"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          recordingMailerLayer,
           fakeIntakeLayer
         )
       );
@@ -559,7 +557,6 @@ it.effect("disables the route when no operator token is configured", () =>
         InterestMode.layer("drovr"),
         InterestTokens.layer(Redacted.make("synthetic-secret")),
         SubscriberConfirm.unconfigured,
-        recordingMailerLayer,
         fakeIntakeLayer
       )
     );

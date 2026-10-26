@@ -9,19 +9,11 @@ import {
   InterestDirectory,
   InterestMode,
   InterestTokens,
-  RecordedMail,
   SubscriberConfirm,
-  recordingMailerLayer,
 } from "@rat-stack/core/interest";
-import type {
-  ConfirmState,
-  SubscriberIntake,
-  InterestMailer,
-} from "@rat-stack/core/interest";
-import { postShibaMailerLayer } from "@rat-stack/subscriber-delivery";
+import type { ConfirmState, SubscriberIntake } from "@rat-stack/core/interest";
 import { Clock, Effect, Layer, Redacted, Ref, Schema } from "effect";
 import type { Context } from "effect";
-import { HttpClient, HttpClientResponse } from "effect/http";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { copyPrompts } from "../scripts/component-data.ts";
@@ -34,10 +26,7 @@ import {
   executeProjection,
 } from "../src/capabilities/index.js";
 import { tokenmaxxTitle } from "../src/house-ad-copy.js";
-import {
-  interestCapabilities,
-  registerInterest,
-} from "../src/interest/handlers.js";
+import { interestCapabilities } from "../src/interest/handlers.js";
 import {
   llmsText,
   publicPaths,
@@ -63,8 +52,7 @@ const withInterest = <A, E, R>(
         InterestMode.layer("drovr"),
         InterestTokens.layer(Redacted.make("test-token-secret")),
         intake.layer,
-        confirmation,
-        recordingMailerLayer
+        confirmation
       )
     );
 
@@ -88,8 +76,6 @@ const withInterest = <A, E, R>(
       confirmed: [],
       pending: 0,
     });
-    const mail = yield* RecordedMail.pipe(Effect.provideContext(services));
-    expect(yield* mail.all).toEqual([]);
 
     return result;
   }).pipe(Effect.scoped);
@@ -406,11 +392,9 @@ it.effect(
 );
 
 type LiveInterestServices = Context.Context<
-  | RecordedMail
   | InterestDirectory
   | InterestTokens
   | InterestMode
-  | InterestMailer
   | SubscriberIntake
   | SubscriberConfirm
   | InterestGate
@@ -420,19 +404,6 @@ type LiveInterestServices = Context.Context<
 const tokenSecret = Redacted.make("route-test-secret");
 
 const operatorToken = "operator-test-token";
-
-const postedMailRequests: Request[] = [];
-
-const fakeHttp = Layer.succeed(
-  HttpClient.HttpClient,
-  HttpClient.make((request) => {
-    postedMailRequests.push(new Request("http://provider.test/"));
-
-    return Effect.succeed(
-      HttpClientResponse.fromWeb(request, Response.json({ queued: true }))
-    );
-  })
-);
 
 const requestFixture = Layer.mergeAll(
   Layer.succeed(InterestGate, { allow: () => Effect.succeed(true) }),
@@ -464,7 +435,6 @@ const withLiveInterest = <A, E, R>(
           InterestMode.layer(options.mode ?? "doi"),
           options.intake ?? fakeIntakeLayer,
           options.confirm ?? SubscriberConfirm.unconfigured,
-          recordingMailerLayer,
           requestFixture,
           Layer.succeed(Clock.Clock, yield* Clock.Clock)
         )
@@ -522,23 +492,6 @@ const seedCapture = (services: LiveInterestServices, address: string) =>
     })
   ).pipe(Effect.provideContext(services));
 
-const seedLocalMail = (services: LiveInterestServices) =>
-  registerInterest
-    .handler({ email: "reader@example.com" })
-    .pipe(Effect.provideContext(services));
-
-const drovrMode = (script: ReturnType<typeof fakeIntake>) =>
-  Effect.gen(function* withScript() {
-    const intake = yield* script;
-
-    return {
-      ...intake,
-      options: { intake: intake.layer, mode: "drovr" } as const,
-    };
-  });
-
-const tryAgain = "We couldn't verify that. Please try again.";
-
 const form = (
   path: string,
   fields: Readonly<Record<string, string>>,
@@ -556,20 +509,11 @@ const form = (
 const text = (response: Response) =>
   Effect.promise(response.text.bind(response));
 
-const sent = (services: Context.Context<RecordedMail>) =>
-  RecordedMail.use((recorded) => recorded.all).pipe(
-    Effect.provideContext(services)
-  );
-
 const json = (response: Response) =>
   Effect.promise(response.json.bind(response));
 
 const visible = (html: string) =>
   html.replaceAll("&#39;", "'").replaceAll("&quot;", '"');
-
-const linkIn = (body: string) =>
-  /https:\/\/ratstack\.sh\/tokenmaxx\/confirm\?token=[^\s]+/u.exec(body)?.[0] ??
-  "";
 
 const capturing = { mode: "capture" } as const;
 
@@ -775,37 +719,6 @@ it.effect("serves the credited screenshot", () =>
 );
 
 it.effect(
-  "sends the approved email with the confirm link as the only substitution",
-  () =>
-    withLiveInterest((_handler, services) =>
-      Effect.gen(function* approvedEmail() {
-        yield* seedLocalMail(services);
-        const [mail] = yield* sent(services);
-        const link = linkIn(mail?.text ?? "");
-
-        expect(mail?.from).toBe("workshop@ratstack.sh");
-        expect(mail?.subject).toBe(`Confirm: ${tokenmaxxTitle}`);
-        expect(mail?.to).toBe("reader@example.com");
-        expect(link).not.toBe("");
-        expect(mail?.text).toBe(
-          `Hi,
-
-You asked to hear about "${tokenmaxxTitle}," a four-hour workshop on agent harnesses at ratstack.sh.
-
-Confirm your email:
-${link}
-
-The link expires in 72 hours. After you confirm, you'll get one email when the date is set, and that's it.
-
-If you didn't ask for this, ignore it. You won't get anything else.
-
-Joel Hooks`
-        );
-      })
-    )
-);
-
-it.effect(
   "counts an address only after its link is used, and shows the operator the list",
   () =>
     withLiveInterest((handler, services) =>
@@ -921,51 +834,6 @@ it.effect(
         ["confirmInterest"]
       );
     })
-);
-
-it.effect(
-  "does not call the provider while sending is disabled, and answers the same",
-  () =>
-    Effect.scoped(
-      Effect.gen(function* disabledSending() {
-        postedMailRequests.length = 0;
-
-        const services = yield* Layer.build(
-          Layer.mergeAll(
-            InterestDirectory.memory,
-            InterestTokens.layer(tokenSecret),
-            InterestMode.layer("doi"),
-            fakeIntakeLayer,
-            SubscriberConfirm.unconfigured,
-            postShibaMailerLayer({
-              apiKey: Redacted.make("not-a-real-key"),
-              cluster: "cluster",
-              enabled: false,
-              team: "team",
-            }).pipe(Layer.provide(fakeHttp))
-          )
-        );
-
-        const answered = yield* registerInterest
-          .handler({ email: "quiet@example.com" })
-          .pipe(
-            Effect.provideContext(services),
-            Effect.provide(requestFixture)
-          );
-
-        expect(answered.message).toBe(
-          "Check your email for a link to confirm."
-        );
-        expect(postedMailRequests).toHaveLength(0);
-        yield* registerInterest
-          .handler({ email: "quiet@example.com" })
-          .pipe(
-            Effect.provideContext(services),
-            Effect.provide(requestFixture)
-          );
-        expect(postedMailRequests).toHaveLength(0);
-      })
-    )
 );
 
 it.effect("compares operator tokens by digest", () =>
@@ -1192,28 +1060,6 @@ it.effect(
         }),
       capturing
     )
-);
-
-it.effect("refuses on any other drovr answer without showing a reason", () =>
-  Effect.gen(function* refusedByDrovr() {
-    const { calls, options } = yield* drovrMode(
-      fakeIntake([{ kind: "refused" }])
-    );
-
-    yield* withLiveInterest(
-      (_handler, services) =>
-        Effect.gen(function* refusal() {
-          const failure = yield* registerInterest
-            .handler({ email: "no@example.com", shieldToken: "challenge" })
-            .pipe(Effect.flip, Effect.provideContext(services));
-
-          expect(failure.message).toBe(tryAgain);
-          expect(failure.message).not.toContain("Check your email for a link");
-          expect(yield* calls).toHaveLength(1);
-        }),
-      options
-    );
-  })
 );
 
 it.effect("sends the email's /confirm link to the confirm page", () =>
