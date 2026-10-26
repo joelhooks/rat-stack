@@ -91,6 +91,19 @@
   },
   {
     "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.6",
+    "title": "effect@4.0.6 released",
+    "summary": "Patch release blocks imports of internal modules, adds Atom skipInitialRun and Base64Url.encodePadded, and encodes HTTP basic auth credentials as UTF-8.",
+    "date": "2026-10-22",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+  },
+  {
+    "kind": "release",
     "url": "https://github.com/Effect-TS/tsgo/releases/tag/%40effect%2Ftsgo%400.56.0",
     "title": "@effect/tsgo 0.56.0 released",
     "summary": "Effect language service for tsgo now builds, tests and ships against the TypeScript beta channel, currently the 7.1.0 beta compiler.",
@@ -220,19 +233,6 @@
     "engagement": {
       "stars": 11
     }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.5",
-    "title": "effect@4.0.5 released",
-    "summary": "Patch release adds gzip request compression and decompression middleware, opt-in OTLP export compression, Path.resolveWithin, and redaction of sensitive URL values in HTTP spans.",
-    "date": "2026-10-15",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
   },
   {
     "kind": "launch",
