@@ -43,15 +43,15 @@ const fixture = (scenario: Scenario = {}) => {
   );
   writeFileSync(
     path.join(directory, "package.json"),
-    `${JSON.stringify({ devDependencies: { "@yielded/effect-tsrs": "0.2.0", tsrs: "0.18.0-ts7.1.0-dev.20260929" }, type: "module" }, null, 2)}\n`
+    `${JSON.stringify({ devDependencies: { "@yielded/effect-tsrs": "0.2.2", tsrs: "0.20.0-ts7.1.0-beta" }, type: "module" }, null, 2)}\n`
   );
   writeFileSync(
     path.join(directory, "packages/example/package.json"),
-    '{ "devDependencies": { "tsrs": "0.18.0-ts7.1.0-dev.20260929" } }\n'
+    '{ "devDependencies": { "tsrs": "0.20.0-ts7.1.0-beta" } }\n'
   );
   writeFileSync(
     path.join(directory, "pnpm-workspace.yaml"),
-    'minimumReleaseAgeExclude:\n  - "@yielded/effect-tsrs@0.2.0"\n  - "@yielded/effect-tsrs-linux-x64@0.2.0"\n'
+    'minimumReleaseAgeExclude:\n  - "@yielded/effect-tsrs@0.2.2"\n  - "@yielded/effect-tsrs-linux-x64@0.2.2"\n'
   );
   writeFileSync(
     path.join(bin, "pnpm"),
@@ -61,9 +61,9 @@ const args = process.argv.slice(2);
 appendFileSync("calls.jsonl", JSON.stringify(args) + "\\n");
 if (args[0] === "view") {
   if (${scenario.npmExit ?? 0} !== 0) process.exit(${scenario.npmExit ?? 0});
-  console.log(JSON.stringify(args[1] === "tsrs" ? ${JSON.stringify(scenario.tsrsVersion ?? "0.18.0-ts7.1.0-dev.20260929")} : ${JSON.stringify(scenario.effectVersion ?? "0.2.0")}));
+  console.log(JSON.stringify(args[1] === "tsrs" ? ${JSON.stringify(scenario.tsrsVersion ?? "0.20.0-ts7.1.0-beta")} : ${JSON.stringify(scenario.effectVersion ?? "0.2.2")}));
 } else if (args[0] === "exec") {
-  console.log("effect-tsrs 0.2.0 (tsrs 8f135f106a63)");
+  console.log("effect-tsrs 0.2.2 (tsrs 8f135f106a63)");
 } else if (args[0] === "typecheck:parity") {
   process.exit(${scenario.parityExit ?? 0});
 }
@@ -134,19 +134,19 @@ describe("checker bump CLI", () => {
 
   it("updates exact pins across workspaces and age exceptions before install and parity", () => {
     withFixture(
-      { effectVersion: "0.3.0", tsrsVersion: "0.19.0" },
+      { effectVersion: "0.3.0", tsrsVersion: "0.21.0" },
       ({ directory, run }) => {
         const result = run();
         expect(result.status, result.stderr).toBe(0);
         expect(
           readFileSync(path.join(directory, "package.json"), "utf-8")
-        ).toContain('"tsrs": "0.19.0"');
+        ).toContain('"tsrs": "0.21.0"');
         expect(
           readFileSync(
             path.join(directory, "packages/example/package.json"),
             "utf-8"
           )
-        ).toContain('"tsrs": "0.19.0"');
+        ).toContain('"tsrs": "0.21.0"');
 
         const workspace = readFileSync(
           path.join(directory, "pnpm-workspace.yaml"),
@@ -155,8 +155,8 @@ describe("checker bump CLI", () => {
 
         expect(workspace).toContain("@yielded/effect-tsrs@0.3.0");
         expect(workspace).toContain("@yielded/effect-tsrs-linux-x64@0.3.0");
-        expect(workspace).toContain("tsrs@0.19.0");
-        expect(workspace).not.toContain("@0.2.0");
+        expect(workspace).toContain("tsrs@0.21.0");
+        expect(workspace).not.toContain("@0.2.2");
 
         const calls = readFileSync(
           path.join(directory, "calls.jsonl"),
@@ -167,7 +167,7 @@ describe("checker bump CLI", () => {
         expect(calls.indexOf('"install"')).toBeLessThan(
           calls.indexOf('"typecheck:parity"')
         );
-        expect(result.stdout).toContain("0.2.0 -> 0.3.0");
+        expect(result.stdout).toContain("0.2.2 -> 0.3.0");
       }
     );
   });

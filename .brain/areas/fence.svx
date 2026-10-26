@@ -61,9 +61,9 @@ These checks enforce it today:
 - `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core. An adapter implements an application-owned interface for a specific provider.
 - Ports, interfaces named for application jobs, stay in core. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
 - Effect language-service diagnostics, compiler messages about Effect code, are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so both `tsc` and the editor report failures.
-- `@yielded/effect-tsrs` `0.2.0` runs TypeScript and Effect diagnostics in `typecheck` and `check`. Every invocation uses `--strict`, so warnings fail too.
-- effect-tsrs bundles tsrs main `8f135f1`. Plain [tsrs](https://blog.cloudflare.com/typescript-rust-port/) `0.18.0-ts7.1.0-dev.20260929` stays in `typecheck:fast`, without Effect diagnostics.
-- Re-align both checker versions when tsrs releases `8f135f1`.
+- `@yielded/effect-tsrs` `0.2.2` runs TypeScript and Effect diagnostics in `typecheck` and `check`. Every invocation uses `--strict --type-check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail.
+- effect-tsrs bundles tsrs `8f135f106a63`, contained in plain tsrs `0.20.0`.
+- Plain [tsrs](https://blog.cloudflare.com/typescript-rust-port/) `0.20.0-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
 - Patched TypeScript `7.0.2` with `@effect/tsgo` `0.55.0` runs through `pnpm typecheck:tsc` at the switch and on checker bumps. CI does not run it. `ignoreEffectWarningsInTscExitCode` stays false.
 - Report any checker disagreement.
 - Lefthook runs `pnpm check` and `pnpm test` before every commit.
