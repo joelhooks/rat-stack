@@ -1,7 +1,7 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
+import { basinStream, icebergSink } from "@rat-stack/basin";
+import type { CatalogMaintenance } from "@rat-stack/basin";
 import { IntakeEvents, IntakeEventsUnavailable } from "@rat-stack/core/intake";
-import { basinStream, icebergSink } from "@rat-stack/events/basin";
-import type { CatalogMaintenance } from "@rat-stack/events/basin";
 import "alchemy/Phase";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { Effect, Layer } from "effect";

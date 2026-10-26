@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.84",
+    "@rat-stack/basin": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "alchemy": "2.0.0-beta.84",
     "effect": "4.0.6"
