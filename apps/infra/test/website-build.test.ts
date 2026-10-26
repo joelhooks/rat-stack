@@ -91,6 +91,29 @@ it.layer(NodeServices.layer)((test) => {
           );
         }
 
+        const [entry] = result.serverBundle.files;
+
+        expect(entry).toBeDefined();
+
+        const entryBytes = new Blob([entry.content]).size;
+
+        const javascriptBytes = result.serverBundle.files
+          .filter((file) => file.path.endsWith(".js"))
+          .reduce((total, file) => total + new Blob([file.content]).size, 0);
+
+        yield* fs.writeFileString(
+          new URL("../../web/dist/website-upload-metrics.json", import.meta.url)
+            .pathname,
+          JSON.stringify({ entryBytes, javascriptBytes })
+        );
+        yield* Effect.log(
+          `Website upload: entry ${entryBytes} bytes; complete JavaScript ${javascriptBytes} bytes`
+        );
+        expect(entryBytes).toBeGreaterThan(0);
+        expect(javascriptBytes).toBeGreaterThanOrEqual(entryBytes);
+        expect(entryBytes).toBeLessThanOrEqual(1_566_139);
+        expect(javascriptBytes).toBeLessThanOrEqual(14_742_838);
+
         const { prerendered } = result.foldkit.manifest;
 
         expect(
