@@ -15,8 +15,6 @@ import {
   joinIntakeLayer,
   joinInterestContract,
 } from "@rat-stack/core/join-interest";
-import { withEventCapture } from "@rat-stack/events";
-import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
 import { Clock, Effect, Layer, Logger, Redacted, Schema, Tracer } from "effect";
 import { HttpRouter } from "effect/http";
 
@@ -25,6 +23,7 @@ import {
   mischiefRoutes,
   toolkitProjection,
 } from "../src/app.js";
+import { memoryEvents } from "../src/events.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 const metadata = {
@@ -42,6 +41,8 @@ it.effect(
       const logs: unknown[] = [];
       const spans: Tracer.NativeSpan[] = [];
 
+      const captured = yield* memoryEvents("synthetic-salt");
+
       const dependencies = Layer.mergeAll(
         Layer.succeed(Clock.Clock, yield* Clock.Clock),
         IntakeTicket.testLayer,
@@ -50,7 +51,6 @@ it.effect(
         JoinContactStore.testLayer,
         InterestTokens.layer(Redacted.make("test-secret")),
         NodeCrypto.layer,
-        memoryEventsLayer("synthetic-salt"),
         Logger.layer([Logger.make(({ message }) => logs.push(message))]),
         Layer.succeed(
           Tracer.Tracer,
@@ -106,7 +106,7 @@ it.effect(
       );
 
       const { dispose, handler } = HttpRouter.toWebHandler(router, {
-        middleware: withEventCapture({
+        middleware: captured.capture({
           identityMode: "daily",
           runInBackground: (effect) => effect,
         }),
@@ -205,10 +205,9 @@ it.effect(
         { name: "Fake Private Applicant", x: "https://x.com/fake_private" },
         { name: "Fake Private Applicant", x: "https://x.com/fake_private" },
       ]);
-      const sink = yield* EventSinkMemory.pipe(Effect.provideContext(services));
 
       const telemetry = JSON.stringify({
-        events: yield* sink.events,
+        events: yield* captured.recorded,
         logs,
         spans: spans.map((span) => ({
           attributes: [...span.attributes],

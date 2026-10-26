@@ -1,5 +1,5 @@
 import { it } from "@effect/vitest";
-import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import {
   Cause,
   Context,

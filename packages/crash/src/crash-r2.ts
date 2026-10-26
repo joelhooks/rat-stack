@@ -1,4 +1,5 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
+import { webCrypto } from "@rat-stack/core/web-crypto";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { DateTime, Effect, Layer, Schema } from "effect";
@@ -9,7 +10,6 @@ import {
   CrashRecordSchema,
   InvalidCrashTrace,
 } from "./crash.js";
-import { webCrypto } from "./web-crypto.js";
 
 export const CrashBucket = Cloudflare.R2.Bucket("MischiefCrashBucket", {}).pipe(
   retain()

@@ -1,14 +1,16 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { basinStream, icebergSink } from "@rat-stack/basin";
+import {
+  EventSink,
+  EventSinkError,
+  RawEventSchema,
+} from "@rat-stack/core/event-sink";
 import "alchemy/Phase";
 import { Random } from "alchemy/Random";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { Effect, Layer, Redacted, Schema } from "effect";
 
-import { EventSinkError } from "./event-sink-error.js";
-import { EventSink } from "./event-sink.js";
-import { RawEventSchema } from "./schemas.js";
 import { VisitorSalt } from "./visitor-salt.js";
 
 export interface BasinOptions {

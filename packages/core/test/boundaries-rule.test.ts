@@ -179,7 +179,6 @@ describe("architecture boundary rules", () => {
         lintFixture("packages/intake-live/src", source),
         "Import shared Basin infrastructure from @rat-stack/basin"
       );
-      expect(lintFixture("apps/site/src", source).status).toBe(0);
       expect(lintFixture("packages/events/src", source).status).toBe(0);
     }
 
@@ -189,6 +188,27 @@ describe("architecture boundary rules", () => {
         'import { basinStream } from "@rat-stack/basin";'
       ).status
     ).toBe(0);
+  });
+
+  it("lets only the site seam import the events cartridge", () => {
+    for (const source of [
+      'import { events } from "@rat-stack/events/site";',
+      'import { withEventCapture } from "@rat-stack/events";',
+      'export { memoryEvents } from "@rat-stack/events/site";',
+    ]) {
+      for (const area of [
+        "apps/site/src",
+        "apps/site/test",
+        "packages/intake-live/src",
+      ]) {
+        expectRuleSoft(
+          lintFixture(area, source),
+          "Reach the events cartridge only through apps/site/src/events.ts"
+        );
+      }
+
+      expect(lintFixture("packages/events/test", source).status).toBe(0);
+    }
   });
 
   it("blocks package imports from application code", () => {

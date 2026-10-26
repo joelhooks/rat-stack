@@ -4,7 +4,7 @@ import {
   CrashArchive,
   InvalidCrashTrace,
   TraceSchema,
-} from "@rat-stack/events/crash";
+} from "@rat-stack/crash";
 import { Effect, Schema } from "effect";
 
 export const registerCrashTail = Effect.gen(

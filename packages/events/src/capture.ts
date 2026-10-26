@@ -1,28 +1,23 @@
+import { EventSink, RawEventSchema } from "@rat-stack/core/event-sink";
+import type { RequestCaptureSettings } from "@rat-stack/core/request-capture";
 import { isGeoLabel } from "@rat-stack/core/request-geo";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { Clock, Crypto, DateTime, Effect, Schema } from "effect";
+import type { Context } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
-import { EventSink } from "./event-sink.js";
 import {
   capturedQuery,
   referrerOf,
   withoutUndefined,
 } from "./request-facts.js";
 import { requestGeoOf } from "./request-geo.js";
-import { RawEventSchema, RequestBodySchema } from "./schemas.js";
-import type { IdentityMode } from "./schemas.js";
+import { RequestBodySchema } from "./schemas.js";
 import { VisitorSalt } from "./visitor-salt.js";
 import { VISITOR_COOKIE, ipHashOf, resolveVisitor } from "./visitor.js";
-import { webCryptoLayer } from "./web-crypto.js";
 
-export interface CaptureOptions<RB> {
-  readonly captureCity?: boolean;
-  readonly identityMode: IdentityMode;
-  readonly runInBackground: (
-    effect: Effect.Effect<void>
-  ) => Effect.Effect<void, never, RB>;
-}
+export type CaptureOptions<RB> = RequestCaptureSettings<RB>;
 
 const VISITOR_COOKIE_MAX_AGE = "400 days";
 
@@ -160,3 +155,9 @@ export const withEventCapture =
         )
       );
     });
+
+export const captureWith =
+  (services: Context.Context<VisitorSalt>) =>
+  <RB>(options: CaptureOptions<RB>) =>
+  <E, R>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>) =>
+    withEventCapture(options)(app).pipe(Effect.provideContext(services));

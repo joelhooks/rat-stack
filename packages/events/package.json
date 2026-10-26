@@ -14,30 +14,10 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./basin": {
-      "types": "./src/basin.ts",
-      "import": "./dist/basin.js",
-      "default": "./dist/basin.js"
-    },
-    "./crash": {
-      "types": "./src/crash.ts",
-      "import": "./dist/crash.js",
-      "default": "./dist/crash.js"
-    },
-    "./crash-r2": {
-      "types": "./src/crash-r2.ts",
-      "import": "./dist/crash-r2.js",
-      "default": "./dist/crash-r2.js"
-    },
-    "./web-crypto": {
-      "types": "./src/web-crypto.ts",
-      "import": "./dist/web-crypto.js",
-      "default": "./dist/web-crypto.js"
-    },
-    "./memory": {
-      "types": "./src/memory.ts",
-      "import": "./dist/memory.js",
-      "default": "./dist/memory.js"
+    "./site": {
+      "types": "./src/site.ts",
+      "import": "./dist/site.js",
+      "default": "./dist/site.js"
     }
   },
   "scripts": {

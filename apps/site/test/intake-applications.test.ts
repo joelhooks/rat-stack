@@ -18,8 +18,6 @@ import {
   IntakeErasure,
   JoinContactStore,
 } from "@rat-stack/core/join-interest";
-import { withEventCapture } from "@rat-stack/events";
-import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
 import {
   makeMemoryIntakeVault,
   sealedIntakeEventsLayer,
@@ -28,6 +26,7 @@ import { Effect, Layer, Logger, Redacted, Ref, Schema, Tracer } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as HttpRouter from "effect/http/HttpRouter";
 
+import { memoryEvents } from "../src/events.js";
 import { privateHttpTracingLayer } from "../src/http-privacy.js";
 import { intakeApplicationsLayer } from "../src/interest/applications.js";
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
@@ -315,9 +314,10 @@ it.effect(
         },
       });
 
+      const captured = yield* memoryEvents("synthetic-salt");
+
       const telemetry = yield* Layer.build(
         Layer.mergeAll(
-          memoryEventsLayer("synthetic-salt"),
           Logger.layer([Logger.make(({ message }) => logs.push(message))]),
           Layer.succeed(Tracer.Tracer, tracer),
           Layer.succeed(CallWatch, {
@@ -356,7 +356,7 @@ it.effect(
 
       const { handler, dispose } = HttpRouter.toWebHandler(routes, {
         disableLogger: true,
-        middleware: withEventCapture({
+        middleware: captured.capture({
           identityMode: "daily",
           runInBackground: (effect) => effect,
         }),
@@ -538,11 +538,7 @@ it.effect(
         "Applications unavailable.\n"
       );
 
-      const sink = yield* EventSinkMemory.pipe(
-        Effect.provideContext(telemetry)
-      );
-
-      expect(yield* sink.events).toEqual([]);
+      expect(yield* captured.recorded).toEqual([]);
       expect(logs).toEqual([]);
       expect(spans).toEqual([]);
       expect(calls).toEqual([]);
