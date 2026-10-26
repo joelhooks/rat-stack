@@ -37,10 +37,10 @@ sources:
     publisher: "Effect-TS"
     note: "Schema-derived generators, generated command arrays, and shrinking support properties and history models."
     accessed: "2026-10-06"
-  - url: https://github.com/joelhooks/rat-stack/tree/65e9465f38092e24486392f22c08f45d61230c20/packages/events/test
-    title: "rat-stack contributors. 2026. Events behavior tests."
+  - url: https://github.com/joelhooks/rat-stack/tree/f1e24f7ee9f9b5f4a06574cb8c1646de001e4a3f/packages/core/test
+    title: "rat-stack contributors. 2026. Core behavior tests."
     publisher: "rat-stack"
-    note: "An independent sensitive-key property and generated visitor histories exercise domain behavior."
+    note: "An independent name-validation property and generated inspection histories exercise domain behavior."
     accessed: "2026-10-06"
   - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/AGENTS.md
     title: "rat-stack contributors. 2026. Agent instructions."
@@ -95,28 +95,28 @@ Generated inputs do not create the assertion. The test still needs an independen
 
 `Arbitrary.schema` derives input generators from Schema.
 Pure properties use `it.prop`; properties returning Effects use `it.effect.prop`.
-The events suite generates requests and checks that capture preserves the response while excluding private data.
+The core suite generates names and checks that validation trims them before applying the length rule.
 
 ## Keep the assertion independent
 
-The sensitive-query property generates a known sensitive key and requires its removal:
+The name-validation property checks the length rule after trimming each generated string:
 
-```ts repo=rat-stack path=packages/events/test/request-facts.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=25-39
+```ts repo=rat-stack path=packages/core/test/join-identity.test.ts at=f1e24f7ee9f9b5f4a06574cb8c1646de001e4a3f lines=101-120
 ```
 
-The assertion does not call `isSensitiveKey` to decide whether removal was required.
-The independent generator includes keys that the capture filter must reject.
+The assertion does not call `ApplicantName` to decide whether a name is valid.
+It states the accepted length directly and checks the trimmed result.
 
-When the property was first written, deleting `token` from the filter did not fail a test that reused that same filter.
+When the sensitive-query test was first written, deleting `token` from the filter did not fail a test that reused that filter.
 An independent sensitive-key property closed the gap.
 [Property-based testing](/lore/property-based-testing) records that planted violation and the smaller counterexample.
 
 ## Generate histories when order matters
 
-Visitor identity depends on the device, retained cookie, and day boundary.
-The model generates action sequences rather than picking one successful sequence:
+The inspection lifecycle keeps its first terminal outcome after later commands.
+The model generates action sequences and checks each step:
 
-```ts repo=rat-stack path=packages/events/test/visitor.model.test.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=8-14,89-100
+```ts repo=rat-stack path=packages/core/test/inspect-machine.model.test.ts at=f1e24f7ee9f9b5f4a06574cb8c1646de001e4a3f lines=23-25,214-219
 ```
 
 [Model-based testing](/lore/model-based-testing) explains the assertions and records the failed day-boundary mutation.
