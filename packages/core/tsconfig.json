@@ -14,6 +14,8 @@
           "effect/Path",
           "effect/http/HttpClient",
           "effect/http/HttpClientResponse",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
           "effect/observability/OtlpSerialization",
           "effect/observability/OtlpTracer",
           "effect/process/ChildProcess",

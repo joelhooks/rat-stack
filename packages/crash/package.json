@@ -1,0 +1,45 @@
+{
+  "name": "@rat-stack/crash",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "types": "./src/crash.ts",
+  "exports": {
+    ".": {
+      "types": "./src/crash.ts",
+      "import": "./dist/crash.js",
+      "default": "./dist/crash.js"
+    },
+    "./r2": {
+      "types": "./src/crash-r2.ts",
+      "import": "./dist/crash-r2.js",
+      "default": "./dist/crash-r2.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "effect-tsrs diagnostics --project tsconfig.json --strict --type-check",
+    "typecheck:tsc": "tsc --noEmit -p tsconfig.json",
+    "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "check": "pnpm run typecheck",
+    "pretest": "pnpm run --silent build"
+  },
+  "dependencies": {
+    "@alchemy.run/cloudflare": "2.0.0-beta.84",
+    "@rat-stack/core": "workspace:*",
+    "alchemy": "2.0.0-beta.84",
+    "effect": "4.0.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261019.1",
+    "@effect/vitest": "4.0.6",
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}

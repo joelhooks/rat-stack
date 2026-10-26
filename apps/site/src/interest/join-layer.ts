@@ -12,7 +12,7 @@ import type {
   IntakeApplications,
   JoinContactStore,
 } from "@rat-stack/core/join-interest";
-import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import type { Context, Effect } from "effect";
 import { Layer } from "effect";
 

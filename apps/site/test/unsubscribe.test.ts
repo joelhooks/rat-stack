@@ -1,6 +1,4 @@
 import { expect, it } from "@effect/vitest";
-import { RequestBodySchema, withEventCapture } from "@rat-stack/events";
-import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
 import {
   Context,
   Effect,
@@ -404,45 +402,5 @@ it.effect("HTTP tracing never records the private unsubscribe URL", () =>
     expect(
       spans.flatMap((span) => [...span.attributes.values()])
     ).not.toContain(rawToken);
-  }).pipe(Effect.scoped)
-);
-
-it.effect("a captured unsubscribe event never contains the query token", () =>
-  Effect.gen(function* privateEvent() {
-    const client = HttpClient.make((outgoing) =>
-      Effect.succeed(
-        HttpClientResponse.fromWeb(outgoing, new Response("unused"))
-      )
-    );
-
-    const app = yield* HttpRouter.toHttpEffect(routeLayer(client));
-    const events = yield* Layer.build(memoryEventsLayer("unsubscribe-test"));
-
-    const response = yield* withEventCapture({
-      identityMode: "daily",
-      runInBackground: (effect) => effect,
-    })(app).pipe(
-      Effect.provideContext(events),
-      Effect.provideService(
-        HttpServerRequest.HttpServerRequest,
-        HttpServerRequest.fromWeb(request("GET", true))
-      )
-    );
-
-    const recorded = yield* EventSinkMemory.use((sink) => sink.events).pipe(
-      Effect.provideContext(events)
-    );
-
-    expect(response.status).toBe(200);
-    expect(recorded).toHaveLength(1);
-    const [event] = recorded;
-
-    const body = yield* Schema.decodeUnknownEffect(RequestBodySchema)(
-      event?.body
-    );
-
-    expect(body.query).not.toHaveProperty("t");
-    expect(JSON.stringify(event)).not.toContain(rawToken);
-    expect(JSON.stringify(event)).not.toContain(decodeURIComponent(rawToken));
   }).pipe(Effect.scoped)
 );

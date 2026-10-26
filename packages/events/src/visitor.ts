@@ -1,7 +1,6 @@
+import { AnonymousIdSchema } from "@rat-stack/core/event-sink";
+import type { AnonymousId, IdentityMode } from "@rat-stack/core/event-sink";
 import { Crypto, Effect, Schema } from "effect";
-
-import { AnonymousIdSchema } from "./schemas.js";
-import type { AnonymousId, IdentityMode } from "./schemas.js";
 
 export const VISITOR_COOKIE = "rat_vid";
 

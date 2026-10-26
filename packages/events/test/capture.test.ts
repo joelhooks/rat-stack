@@ -1,4 +1,10 @@
 import { describe, expect, it } from "@effect/vitest";
+import {
+  EventSink,
+  EventSinkError,
+  RawEventSchema,
+} from "@rat-stack/core/event-sink";
+import type { IdentityMode, RawEvent } from "@rat-stack/core/event-sink";
 import { Effect, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
@@ -6,15 +12,11 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { TestClock } from "effect/testing";
 
 import {
-  EventSink,
-  EventSinkError,
-  RawEventSchema,
   RequestBodySchema,
   VISITOR_COOKIE,
   VisitorSalt,
   withEventCapture,
 } from "../src/index.js";
-import type { IdentityMode, RawEvent } from "../src/index.js";
 import { EventSinkMemory, memoryEventsLayer } from "../src/memory.js";
 import { queryPairs, word } from "./arbitraries.js";
 
@@ -227,6 +229,31 @@ describe("request capture", () => {
         ) {
           expect(event.anonymousId).toBe(existingCookie);
         }
+      }).pipe(Effect.provide(memoryEventsLayer("property-salt")))
+  );
+
+  it.effect.prop(
+    "an unsubscribe token in the t query key never lands in an event",
+    {
+      generated: exchange,
+      key: Arbitrary.schema(Schema.Literals(["t", "T"])),
+      token: word.pipe(Arbitrary.map((suffix) => `Z9Q${suffix}`)),
+    },
+    ({ generated, key, token }) =>
+      Effect.gen(function* dropToken() {
+        yield* respond({
+          ...generated,
+          query: [...generated.query, [key, token]],
+        });
+
+        const event = yield* onlyEvent(yield* (yield* EventSinkMemory).events);
+
+        const body = yield* Schema.decodeUnknownEffect(RequestBodySchema)(
+          event.body
+        );
+
+        expect(body.query).not.toHaveProperty(key);
+        expect(JSON.stringify(event)).not.toContain(token);
       }).pipe(Effect.provide(memoryEventsLayer("property-salt")))
   );
 

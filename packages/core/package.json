@@ -59,6 +59,26 @@
       "import": "./dist/join-interest.js",
       "default": "./dist/join-interest.js"
     },
+    "./event-sink": {
+      "types": "./src/event-sink.ts",
+      "import": "./dist/event-sink.js",
+      "default": "./dist/event-sink.js"
+    },
+    "./events-off": {
+      "types": "./src/events-off.ts",
+      "import": "./dist/events-off.js",
+      "default": "./dist/events-off.js"
+    },
+    "./request-capture": {
+      "types": "./src/request-capture.ts",
+      "import": "./dist/request-capture.js",
+      "default": "./dist/request-capture.js"
+    },
+    "./web-crypto": {
+      "types": "./src/web-crypto.ts",
+      "import": "./dist/web-crypto.js",
+      "default": "./dist/web-crypto.js"
+    },
     "./request-geo": {
       "types": "./src/request-geo.ts",
       "import": "./dist/request-geo.js",

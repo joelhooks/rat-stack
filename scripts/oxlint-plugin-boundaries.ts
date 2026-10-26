@@ -69,6 +69,8 @@ const workspacePath = (filename: string) => {
 const isWithin = (filename: string, directory: string) =>
   filename === directory || filename.startsWith(`${directory}/`);
 
+const EVENTS_SEAM = "apps/site/src/events.ts";
+
 const isPackage = (filename: string) => isWithin(filename, "packages");
 
 const isCapabilityPackage = (filename: string) =>
@@ -181,6 +183,15 @@ const importModule = (
     /^packages\/events\/(?:src\/)?basin(?:\.[cm]?[jt]s)?$/u.test(target)
   ) {
     context.report({ messageId: "eventsBasinOwner", node });
+  }
+
+  if (
+    target !== null &&
+    isWithin(target, "packages/events") &&
+    !isWithin(filename, "packages/events") &&
+    filename !== EVENTS_SEAM
+  ) {
+    context.report({ messageId: "eventsSeam", node });
   }
 
   if (target !== null && isPackage(filename) && isWithin(target, "apps")) {
@@ -898,6 +909,8 @@ const noCrossLayerImports = defineRule({
         "packages/capability cannot import packages/core domain code.",
       eventsBasinOwner:
         "Import shared Basin infrastructure from @rat-stack/basin, not the events cartridge.",
+      eventsSeam:
+        "Reach the events cartridge only through apps/site/src/events.ts, so removing it stays one line.",
       infraOwner:
         "apps/infra owns its Stack wiring; import a capability or service contract instead.",
       packageApp: "Packages cannot import application code.",

@@ -3,8 +3,6 @@ import { expect, it } from "@effect/vitest";
 import { invokerFor, toCommand } from "@rat-stack/capability";
 import { toRpc } from "@rat-stack/capability/rpc";
 import { joinInterest } from "@rat-stack/core/join-interest";
-import { withEventCapture } from "@rat-stack/events";
-import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
 import { Effect, Layer, Logger, Schema, Tracer } from "effect";
 import { CliOutput, Command } from "effect/cli";
 import { HttpRouter } from "effect/http";
@@ -21,6 +19,7 @@ import {
   contentCapabilities,
   executeProjection,
 } from "../src/capabilities/index.js";
+import { memoryEvents } from "../src/events.js";
 import { nodeContentLayer as contentLayer } from "../src/node-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
@@ -47,9 +46,10 @@ it.effect(
         const spans: Tracer.NativeSpan[] = [];
         const logs: unknown[] = [];
 
+        const captured = yield* memoryEvents("synthetic-salt");
+
         const telemetry = yield* Layer.build(
           Layer.mergeAll(
-            memoryEventsLayer("synthetic-salt"),
             TestConsole.layer,
             CliOutput.layer(CliOutput.defaultFormatter({ colors: false })),
             NodeServices.layer,
@@ -125,7 +125,7 @@ it.effect(
           );
 
           const { handler, dispose } = HttpRouter.toWebHandler(observedRoutes, {
-            middleware: withEventCapture({
+            middleware: captured.capture({
               identityMode: "daily",
               runInBackground: (effect) => effect,
             }),
@@ -169,12 +169,8 @@ it.effect(
           }
         }
 
-        const sink = yield* EventSinkMemory.pipe(
-          Effect.provideContext(telemetry)
-        );
-
         const observed = JSON.stringify({
-          events: yield* sink.events,
+          events: yield* captured.recorded,
           logs,
           spans: spans.map((span) => ({
             attributes: [...span.attributes],
@@ -202,9 +198,10 @@ it.effect(
           },
         });
 
+        const captured = yield* memoryEvents("synthetic-salt");
+
         const telemetry = yield* Layer.build(
           Layer.mergeAll(
-            memoryEventsLayer("synthetic-salt"),
             Logger.layer([Logger.make(({ message }) => logs.push(message))]),
             Layer.succeed(Tracer.Tracer, tracer)
           )
@@ -218,7 +215,7 @@ it.effect(
         );
 
         const { handler, dispose } = HttpRouter.toWebHandler(routes, {
-          middleware: withEventCapture({
+          middleware: captured.capture({
             identityMode: "daily",
             runInBackground: (effect) => effect,
           }),
@@ -320,12 +317,8 @@ it.effect(
           expect(body).not.toContain('"isError":true');
         }
 
-        const sink = yield* EventSinkMemory.pipe(
-          Effect.provideContext(telemetry)
-        );
-
         const observed = JSON.stringify({
-          events: yield* sink.events,
+          events: yield* captured.recorded,
           logs,
           spans: spans.map((span) => ({
             attributes: [...span.attributes],

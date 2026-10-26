@@ -1,9 +1,8 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { expect, it } from "@effect/vitest";
+import type { IdentityMode } from "@rat-stack/core/event-sink";
 import { InterestDirectory } from "@rat-stack/core/interest";
-import { RequestBodySchema } from "@rat-stack/events";
-import { EventSinkMemory, memoryEventsLayer } from "@rat-stack/events/memory";
-import { ConfigProvider, Effect, Layer, Option, Ref, Schema } from "effect";
+import { ConfigProvider, Effect, Layer, Option, Ref } from "effect";
 import type { ConfigError } from "effect/Config";
 import type * as Scope from "effect/Scope";
 
@@ -11,6 +10,7 @@ import type { MischiefRouteOptions } from "../src/app.js";
 import type { RateLimitBindings } from "../src/rate-limits.js";
 import type { WorkerLoaderBinding } from "../src/sandbox-worker-loader.js";
 import { makeMischief } from "../src/worker.js";
+import type { RequestCapture } from "../src/worker.js";
 import { untouchedRawExecutionContext } from "./fixtures/execution-context.js";
 import {
   disposeFixtureAssets,
@@ -60,105 +60,133 @@ const runtimeServices = Layer.provideMerge(
   )
 );
 
-it.effect(
-  "the deployed Worker records each request through waitUntil without changing the response",
-  () =>
-    Effect.acquireUseRelease(
-      Effect.sync(() => {
-        const previous = globalThis.__ALCHEMY_RUNTIME__;
-        globalThis.__ALCHEMY_RUNTIME__ = true;
+interface Seen {
+  readonly captureCity: boolean | undefined;
+  readonly identityMode: IdentityMode;
+}
 
-        return previous;
+const fetchThrough = (capture?: RequestCapture) =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previous = globalThis.__ALCHEMY_RUNTIME__;
+      globalThis.__ALCHEMY_RUNTIME__ = true;
+
+      return previous;
+    }),
+    () =>
+      Effect.gen(function* fetchThroughWorker() {
+        yield* Effect.addFinalizer(() => Effect.promise(disposeFixtureAssets));
+
+        const backgroundRuns = yield* Ref.make(0);
+
+        const execution = Cloudflare.WorkerExecutionContext.of({
+          access: Effect.succeedNone.pipe(Effect.map(Option.getOrUndefined)),
+          cache: {
+            purge: () =>
+              Effect.die(new Error("The events request must not purge")),
+          },
+          exports: {},
+          passThroughOnException: () => Effect.void,
+          props: Effect.succeed({}),
+          raw: untouchedRawExecutionContext,
+          waitUntil: (effect) =>
+            Effect.andThen(
+              Ref.update(backgroundRuns, (runs) => runs + 1),
+              effect
+            ).pipe(Effect.ignore),
+        });
+
+        const erasedWorkerInit: unknown = makeMischief(
+          unavailableLegacyMcp,
+          InterestDirectory.memory,
+          capture
+        ).pipe(Effect.provide(runtimeServices));
+
+        // SAFETY: runtimeServices provides the bindings Alchemy erases from the init effect type.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- runtimeServices provides the Worker init bindings.
+        const workerInit = erasedWorkerInit as InitializedMischief;
+        const worker = yield* workerInit;
+        const handler = Cloudflare.Workers.makeRequestHandler(worker.fetch);
+
+        const responseEffect: unknown = handler({
+          context: {},
+          env: workerEnvironment,
+          input: new Request(
+            "https://ratstack.sh/not-a-route?utm_source=x&token=secret",
+            {
+              headers: { accept: "text/html", host: "ratstack.sh" },
+            }
+          ),
+          kind: "Cloudflare.Workers.WorkerEvent",
+          type: "fetch",
+        });
+
+        if (responseEffect === undefined) {
+          return yield* Effect.die(
+            new Error("Worker fetch handler was absent")
+          );
+        }
+
+        // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
+        const typedResponseEffect = responseEffect as Effect.Effect<Response>;
+
+        const response = yield* typedResponseEffect.pipe(
+          Effect.provideService(Cloudflare.WorkerExecutionContext, execution)
+        );
+
+        return {
+          backgroundRuns: yield* Ref.get(backgroundRuns),
+          status: response.status,
+        };
       }),
-      () =>
-        Effect.gen(function* recordThroughWorker() {
-          yield* Effect.addFinalizer(() =>
-            Effect.promise(disposeFixtureAssets)
-          );
+    (previous) =>
+      Effect.sync(() => {
+        globalThis.__ALCHEMY_RUNTIME__ = previous;
+      })
+  );
 
-          const events = yield* Layer.build(memoryEventsLayer("worker-salt"));
-          const backgroundRuns = yield* Ref.make(0);
+it.effect(
+  "the Worker hands each request to the capture port with live settings and runs its background work through waitUntil",
+  () =>
+    Effect.gen(function* wireCapture() {
+      const seen = yield* Ref.make<readonly Seen[]>([]);
 
-          const execution = Cloudflare.WorkerExecutionContext.of({
-            access: Effect.succeedNone.pipe(Effect.map(Option.getOrUndefined)),
-            cache: {
-              purge: () =>
-                Effect.die(new Error("The events request must not purge")),
+      const capture: RequestCapture = (settings) => (app) =>
+        Effect.gen(function* observe() {
+          const response = yield* app;
+
+          yield* Ref.update(seen, (all) => [
+            ...all,
+            {
+              captureCity: settings.captureCity,
+              identityMode: settings.identityMode,
             },
-            exports: {},
-            passThroughOnException: () => Effect.void,
-            props: Effect.succeed({}),
-            raw: untouchedRawExecutionContext,
-            waitUntil: (effect) =>
-              Effect.andThen(
-                Ref.update(backgroundRuns, (runs) => runs + 1),
-                effect
-              ).pipe(Effect.ignore),
-          });
+          ]);
 
-          const erasedWorkerInit: unknown = makeMischief(
-            unavailableLegacyMcp,
-            InterestDirectory.memory,
-            events
-          ).pipe(Effect.provide(runtimeServices));
+          yield* settings.runInBackground(Effect.void);
 
-          // SAFETY: runtimeServices provides the bindings Alchemy erases from the init effect type.
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- runtimeServices provides the Worker init bindings.
-          const workerInit = erasedWorkerInit as InitializedMischief;
-          const worker = yield* workerInit;
-          const handler = Cloudflare.Workers.makeRequestHandler(worker.fetch);
+          return response;
+        });
 
-          const responseEffect: unknown = handler({
-            context: {},
-            env: workerEnvironment,
-            input: new Request(
-              "https://ratstack.sh/not-a-route?utm_source=x&token=secret",
-              {
-                headers: { accept: "text/html", host: "ratstack.sh" },
-              }
-            ),
-            kind: "Cloudflare.Workers.WorkerEvent",
-            type: "fetch",
-          });
+      const result = yield* fetchThrough(capture);
 
-          if (responseEffect === undefined) {
-            return yield* Effect.die(
-              new Error("Worker fetch handler was absent")
-            );
-          }
+      expect(result.status).toBe(404);
+      expect(result.backgroundRuns).toBe(1);
 
-          // SAFETY: Alchemy's handler provides request services before casting its response effect to any.
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- makeRequestHandler erases its response effect type.
-          const typedResponseEffect = responseEffect as Effect.Effect<Response>;
+      expect(yield* Ref.get(seen)).toStrictEqual([
+        { captureCity: true, identityMode: "persistent" },
+      ]);
+    }).pipe(Effect.scoped)
+);
 
-          const response = yield* typedResponseEffect.pipe(
-            Effect.provideService(Cloudflare.WorkerExecutionContext, execution)
-          );
+it.effect(
+  "a Worker composed without the capture port serves the same response with no background work",
+  () =>
+    Effect.gen(function* serveWithoutCapture() {
+      const result = yield* fetchThrough();
 
-          const recorded = yield* Effect.provideContext(
-            Effect.gen(function* readRecorded() {
-              return yield* (yield* EventSinkMemory).events;
-            }),
-            events
-          );
-
-          expect(response.status).toBe(404);
-          expect(yield* Ref.get(backgroundRuns)).toBe(1);
-          expect(recorded).toHaveLength(1);
-
-          const body = yield* Schema.decodeUnknownEffect(RequestBodySchema)(
-            recorded[0]?.body
-          );
-
-          expect(body.path).toBe("/not-a-route");
-          expect(body.status).toBe(404);
-          expect(body.query).toStrictEqual({ utm_source: ["x"] });
-
-          return yield* Effect.void;
-        }),
-      (previous) =>
-        Effect.sync(() => {
-          globalThis.__ALCHEMY_RUNTIME__ = previous;
-        })
-    )
+      expect(result.status).toBe(404);
+      expect(result.backgroundRuns).toBe(0);
+    }).pipe(Effect.scoped)
 );

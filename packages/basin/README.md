@@ -25,4 +25,4 @@ Run `pnpm --filter @rat-stack/basin test`. The declaration property checks priva
 
 Other packages import these helpers from `@rat-stack/basin`, never from `@rat-stack/events/basin`. The cross-layer import rule enforces this boundary.
 
-This extraction removes intake's dependency on events. It does not make the events cartridge removable yet. Site capture, crypto, and crash-tail imports still need their own composition boundary.
+Events no longer blocks its own removal through Basin. `packages/events/README.md` shows how to remove the cartridge.

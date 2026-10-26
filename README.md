@@ -43,7 +43,10 @@ Node `24.18.0` and pnpm `11.3.0` are required. The requirement is declared in `.
   - Role: Typed flags, Config, memory and KV adapters, stable rollouts, audited writes, and removal dates
 - **`packages/events`**:
   - Package: `@rat-stack/events`
-  - Role: Request analytics with an EventSink port and Basin resources
+  - Role: Request analytics: capture, visitor privacy rules, and Basin resources behind core's `EventSink` port
+- **`packages/crash`**:
+  - Package: `@rat-stack/crash`
+  - Role: Private crash-trace archive for the Mischief Worker
 - **`packages/lore`**:
   - Package: `@rat-stack/lore`
   - Role: Public content graph and traversal service
@@ -206,7 +209,10 @@ The template is a working project. Delete what you will not use on day one; the 
   - Keep: Core's `Flags` port and declarations
   - Delete: Replace `apps/site/src/flags.ts` with core imports and `export const flagsLayer = Flags.defaults(eventFlags); export const liveFlagsLayer = flagsLayer;`; remove `packages/flags` and its dependency in `apps/site/package.json`. Readers use defaults; the CLI writer fails with a named read-only error
 - **No analytics**:
-  - Delete: `packages/events`; `@rat-stack/events` in `apps/site/package.json`; the `Basin` and `basinFoundation` calls, `EVENTS_ENABLED`, `withEventCapture`, `inBackground`, `EVENTS_IDENTITY_MODE`, and the `events` parameter in `apps/site/src/worker.ts`; `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`; `apps/site/test/worker-events.test.ts`
+  - Delete: `packages/events`; the `@rat-stack/events` line in `apps/site/package.json`; the code excerpts that quote `packages/events/test` in `.brain/resources/lore/tests-that-earn-their-place.svx` and `skills/test-behaviour/SKILL.md`
+  - Change: the one line in `apps/site/src/events.ts` becomes `export { events, memoryEvents } from "@rat-stack/core/events-off";`
+  - Then: `pnpm install`, `pnpm git-snapshot`, and the gate
+  - Optional: `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`, and the events flags in `packages/core/src/flags.ts`. The Worker ignores them once capture is off. Details: `packages/events/README.md`
 - **No XState (only after removing interest and every other lifecycle except file inspection)**:
   - Keep: Keep XState and its bridge while any retained lifecycle imports them
   - Delete: `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; `scripts/oxlint-plugin-xstate-effect.ts` and its entry in `oxlint.config.ts`

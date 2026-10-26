@@ -8,7 +8,7 @@ import type {
 import { Flags } from "@rat-stack/core/flags";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
-import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { Learner } from "@rat-stack/learn";
 import * as AlchemyHttp from "alchemy/Http";
 import type { Context } from "effect";

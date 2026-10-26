@@ -11,15 +11,12 @@ import {
   IntakeErasure,
   IntakeRedeliver,
 } from "@rat-stack/core/join-interest";
-import { withEventCapture } from "@rat-stack/events";
-import type { EventSink, VisitorSalt } from "@rat-stack/events";
-import { Basin, basinFoundation } from "@rat-stack/events/basin";
-import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import type { RequestCaptureSettings } from "@rat-stack/core/request-capture";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
 import { subscriberDeliveryLayer } from "@rat-stack/subscriber-delivery";
 import { Stage } from "alchemy";
 import { Duration, Schema } from "effect";
-import type { Context } from "effect";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import { FetchHttpClient } from "effect/http";
@@ -41,6 +38,7 @@ import { mischiefConfigFingerprint } from "./config-fingerprint.js";
 import { ContentStore } from "./content-store.js";
 import CrashTail from "./crash-tail.js";
 import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
+import { events as eventsFor } from "./events.js";
 import { flagsLayer, liveFlagsLayer } from "./flags.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
@@ -88,10 +86,20 @@ const inBackground = (effect: Effect.Effect<void>) =>
     yield* execution.waitUntil(effect);
   });
 
+export type RequestCapture = <RB>(
+  settings: RequestCaptureSettings<RB>
+) => <E, R>(
+  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
+) => Effect.Effect<
+  HttpServerResponse.HttpServerResponse,
+  E,
+  R | RB | HttpServerRequest.HttpServerRequest
+>;
+
 export const makeMischief = (
   legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
   interestDirectory: Layer.Layer<InterestDirectory>,
-  events?: Context.Context<EventSink | VisitorSalt>,
+  capture?: RequestCapture,
   agentSignup?: AgentSignupOptions,
   feedback?: ReturnType<typeof feedbackAccess>,
   liveFlags?: Flags["Service"]
@@ -341,7 +349,7 @@ export const makeMischief = (
     return {
       fetch: observeRequestLog(
         observeRequestIncidents(
-          events === undefined
+          capture === undefined
             ? readerApp
             : Effect.gen(function* captureWithLiveIdentity() {
                 const currentIdentity =
@@ -358,11 +366,11 @@ export const makeMischief = (
                           )
                         );
 
-                return yield* withEventCapture({
+                return yield* capture({
                   captureCity: true,
                   identityMode: currentIdentity,
                   runInBackground: inBackground,
-                })(readerApp).pipe(Effect.provideContext(events));
+                })(readerApp);
               })
         ).pipe(Effect.provide(webCryptoLayer))
       ),
@@ -418,12 +426,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
     flags.get(eventsEnabled, {}).pipe(Effect.orDie)
   ).pipe(Effect.provide(flagsLayer));
 
-  const events = enabled
-    ? yield* Layer.build(Basin({ id: "Mischief" }))
-    : yield* basinFoundation({ id: "Mischief" }).pipe(
-        Effect.andThen(Effect.succeedNone),
-        Effect.map(Option.getOrUndefined)
-      );
+  const capture = yield* eventsFor({ enabled, id: "Mischief" });
 
   return yield* makeMischief(
     {
@@ -444,7 +447,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
       (address) => interests.getByName(address),
       () => interestIndex.getByName("index")
     ),
-    events,
+    capture,
     agentSignup,
     feedback,
     liveFlags
