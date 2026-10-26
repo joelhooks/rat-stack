@@ -1,17 +1,10 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
-import * as Output from "alchemy/Output";
+import { basinStream, icebergSink } from "@rat-stack/basin";
 import "alchemy/Phase";
 import { Random } from "alchemy/Random";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
-import {
-  Config,
-  ConfigProvider,
-  Effect,
-  Layer,
-  Redacted,
-  Schema,
-} from "effect";
+import { Effect, Layer, Redacted, Schema } from "effect";
 
 import { EventSinkError } from "./event-sink-error.js";
 import { EventSink } from "./event-sink.js";
@@ -29,74 +22,12 @@ const encodeRawEvent = Schema.encodeEffect(RawEventSchema);
 export const unstructuredRow = (event: typeof RawEventSchema.Type) =>
   encodeRawEvent(event).pipe(Effect.map((value) => ({ value })));
 
-export const basinStream = (name: string) =>
-  Effect.gen(function* declareBasinStream() {
-    const bucket = yield* Cloudflare.R2.Bucket(`${name}Bucket`, {}).pipe(
-      retain()
-    );
-
-    const stream = yield* Cloudflare.Pipelines.Stream(`${name}Stream`, {
-      http: { enabled: false },
-    }).pipe(retain());
-
-    return { bucket, stream } as const;
-  });
-
 export const basinFoundation = ({ id }: BasinOptions) =>
   Effect.gen(function* declareBasinFoundation() {
     const { bucket, stream } = yield* basinStream(`${id}Events`);
     const salt = yield* Random(`${id}VisitorSalt`).pipe(retain());
 
     return { bucket, salt, stream } as const;
-  });
-
-const sinkToken = Config.Redacted("EVENTS_SINK_TOKEN").pipe(
-  Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())
-);
-
-export type CatalogMaintenance = Pick<
-  Cloudflare.R2.DataCatalogProps,
-  "compaction" | "snapshotExpiration"
->;
-
-export interface IcebergSinkOptions {
-  readonly bucketName: Output.Output<string>;
-  readonly maintenance?: CatalogMaintenance;
-  readonly name: string;
-  readonly streamName: Output.Output<string>;
-  readonly table: string;
-}
-
-export const icebergSink = ({
-  bucketName,
-  maintenance = {},
-  name,
-  streamName,
-  table,
-}: IcebergSinkOptions) =>
-  Effect.gen(function* declareIcebergSink() {
-    const token = yield* sinkToken;
-
-    const catalog = yield* Cloudflare.R2.DataCatalog(`${name}Catalog`, {
-      ...maintenance,
-      bucketName,
-      token,
-    }).pipe(retain());
-
-    const sink = yield* Cloudflare.Pipelines.Sink(`${name}Sink`, {
-      config: {
-        bucket: catalog.bucketName,
-        namespace: "default",
-        tableName: table,
-        token,
-      },
-      format: { compression: "zstd", type: "parquet" },
-      type: "r2_data_catalog",
-    }).pipe(retain());
-
-    return yield* Cloudflare.Pipelines.Pipeline(`${name}Pipeline`, {
-      sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${streamName}`,
-    }).pipe(retain());
   });
 
 export const Basin = ({ id }: BasinOptions) =>

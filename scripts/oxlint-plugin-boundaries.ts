@@ -174,6 +174,15 @@ const importModule = (
 ) => {
   const target = normalizeWorkspacePath(filename, specifier);
 
+  if (
+    target !== null &&
+    isPackage(filename) &&
+    !isWithin(filename, "packages/events") &&
+    /^packages\/events\/(?:src\/)?basin(?:\.[cm]?[jt]s)?$/u.test(target)
+  ) {
+    context.report({ messageId: "eventsBasinOwner", node });
+  }
+
   if (target !== null && isPackage(filename) && isWithin(target, "apps")) {
     context.report({ messageId: "packageApp", node });
   }
@@ -887,6 +896,8 @@ const noCrossLayerImports = defineRule({
     messages: {
       capabilityDomain:
         "packages/capability cannot import packages/core domain code.",
+      eventsBasinOwner:
+        "Import shared Basin infrastructure from @rat-stack/basin, not the events cartridge.",
       infraOwner:
         "apps/infra owns its Stack wiring; import a capability or service contract instead.",
       packageApp: "Packages cannot import application code.",
