@@ -4,7 +4,6 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  recordingMailerLayer,
 } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
@@ -29,7 +28,6 @@ it.effect.prop(
           InterestMode.layer("doi"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          recordingMailerLayer,
           fakeIntakeLayer
         )
       );

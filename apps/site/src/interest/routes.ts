@@ -9,10 +9,7 @@ import {
   InterestTokens,
   digestsMatch,
 } from "@rat-stack/core/interest";
-import type {
-  SubscriberIntake,
-  InterestMailer,
-} from "@rat-stack/core/interest";
+import type { SubscriberIntake } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
   IntakeErasure,
@@ -51,7 +48,6 @@ export interface InterestOptions {
     | SubscriberConfirm
     | SubscriberIntake
     | InterestDirectory
-    | InterestMailer
     | InterestMode
     | InterestTokens
   >;

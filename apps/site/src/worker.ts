@@ -122,10 +122,6 @@ export const makeMischief = (
       Config.Redacted("WEB_BOT_AUTH_PRIVATE_JWK")
     );
 
-    const interestSendEnabled = yield* Config.Boolean(
-      "INTEREST_SEND_ENABLED"
-    ).pipe(Config.withDefault(false));
-
     const interestMode = yield* Config.schema(
       Schema.Literals(["capture", "doi", "drovr"]),
       "INTEREST_MODE"
@@ -165,16 +161,6 @@ export const makeMischief = (
 
     const drovrIntakeCredential = yield* Config.option(
       Config.Redacted("DROVR_INTAKE_CREDENTIAL")
-    );
-
-    const postShibaApiKey = yield* Config.option(
-      Config.Redacted("POSTSHIBA_API_KEY")
-    );
-
-    const postShibaTeam = yield* Config.option(Config.String("POSTSHIBA_TEAM"));
-
-    const postShibaCluster = yield* Config.option(
-      Config.String("POSTSHIBA_CLUSTER")
     );
 
     const identityMode = yield* Flags.use((flags) =>
@@ -222,18 +208,6 @@ export const makeMischief = (
                 Option.map(Duration.seconds),
                 Option.getOrUndefined
               ),
-              mailer: {
-                apiKey: Option.getOrElse(postShibaApiKey, () =>
-                  Redacted.make("")
-                ),
-                cluster: Option.getOrElse(postShibaCluster, () => ""),
-                enabled:
-                  interestSendEnabled &&
-                  Option.isSome(postShibaApiKey) &&
-                  Option.isSome(postShibaTeam) &&
-                  Option.isSome(postShibaCluster),
-                team: Option.getOrElse(postShibaTeam, () => ""),
-              },
             })
           )
         );

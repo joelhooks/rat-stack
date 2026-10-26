@@ -12,26 +12,12 @@ import type {
   IntakeApplications,
   JoinContactStore,
 } from "@rat-stack/core/join-interest";
-import type { Context } from "effect";
-import { Crypto, Effect, Layer } from "effect";
+import { webCryptoLayer } from "@rat-stack/events/web-crypto";
+import type { Context, Effect } from "effect";
+import { Layer } from "effect";
 
 import { joinContactStoreLayer } from "./join-contact-store.js";
 import type { JoinContactStub } from "./join-contact-store.js";
-
-const workerCryptoLayer = Layer.succeed(
-  Crypto.Crypto,
-  Crypto.make({
-    digest: (algorithm, data) =>
-      Effect.promise(
-        crypto.subtle.digest.bind(
-          crypto.subtle,
-          algorithm,
-          new Uint8Array(data)
-        )
-      ).pipe(Effect.map((buffer) => new Uint8Array(buffer))),
-    randomBytes: (size) => crypto.getRandomValues(new Uint8Array(size)),
-  })
-);
 
 export interface AgentSignupOptions {
   readonly intake: Layer.Layer<IntakeTicket | AbuseScore | IntakeEvents>;
@@ -67,7 +53,7 @@ export const agentSignupLayer = (
           Layer.mergeAll(
             options.intake,
             Layer.succeedContext(services),
-            workerCryptoLayer
+            webCryptoLayer
           )
         )
       )
