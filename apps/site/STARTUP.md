@@ -6,7 +6,15 @@ Run the portable size gate from the repository root:
 pnpm --filter @rat-stack/site typecheck
 ```
 
-It generates content, typechecks, and builds the production Worker with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials. The limits are **975,000 uncompressed entry bytes** and **2,500,000 total JavaScript bytes**. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
+
+The hard, shrink-only ceilings cover the **static startup set**: **1,250,000 bytes for Mischief** and **1,600,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+
+The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
+
+Entry bytes and total JavaScript bytes remain logged measurements. Total JavaScript above **2,500,000 bytes** emits a warning, never a size failure. Page sources, search records, and graph data are static assets outside the JavaScript upload. Their growth does not block this gate. Fixed document shells remain startup code when statically imported. Do not inline growing content data into startup code.
+
+`dist/startup/metrics.json` and `dist/startup-auth/metrics.json` record entry bytes, startup bytes, the counted filenames, total JavaScript bytes, and ceilings. Metrics are written before the size verdict, including failed measurements.
 
 ## Page count no longer sets bundle size
 
@@ -41,9 +49,16 @@ Keep those names, compatibility settings, and stack metadata aligned with `worke
 
 ## Size proof and headroom
 
-The pre-extraction entry was **3,090,009 bytes**, with **4,470,503 total JavaScript bytes**. Extraction reduced the entry to **822,362 entry bytes** and **2,205,180 total JavaScript bytes**. The entry gate leaves **77,638 bytes**: 9.44% above the entry, or 8.63% of the limit. The total-JavaScript gate leaves **294,820 bytes**: 13.37% above measured JavaScript, or 11.79% of the limit.
+The pre-extraction entry was **3,090,009 bytes**, with **4,470,503 total JavaScript bytes**. Extraction reduced the entry to **822,362 bytes** and total JavaScript to **2,205,180 bytes**. These historical entry and total figures no longer set hard ceilings.
 
-The Alchemy beta.84 and Effect 4.0.6 bump moved the entry from **853,523** to **949,670 bytes**, and the entry limit from 900,000 to 975,000 bytes. Total JavaScript fell from **2,206,460** to **1,295,172 bytes**. The statically loaded set, the entry plus the chunks it imports statically, grew from **1,199,687** to **1,243,260 bytes**, or 3.6%. The Channel, NodeServices and Socket chunks now sit inside the entry. Alchemy's provider packages resolve the `worker` export condition to TypeScript source, and Rolldown splits chunks differently.
+The Alchemy beta.84 and Effect 4.0.6 bump moved the entry from **853,523** to **949,670 bytes**. Total JavaScript fell from **2,206,460** to **1,295,172 bytes**. The static startup set grew from **1,199,687** to **1,243,260 bytes**, or 3.6%. The Channel, NodeServices and Socket chunks now sit inside the entry. Alchemy's provider packages resolve the `worker` export condition to TypeScript source, and Rolldown splits chunks differently. This layout change exposed the entry-only gate's weakness.
+
+The startup-set gate baseline at `fd7bb92` measures:
+
+- Mischief: **949,849 entry bytes**, **1,243,439 startup bytes**, and **1,295,351 total JavaScript bytes**.
+- LearnFeedbackAuth: **123 entry bytes**, **1,588,571 startup bytes**, and **1,603,410 total JavaScript bytes**.
+
+Rounding each measured startup set up to the next 50,000 bytes gives the hard ceilings above. Mischief has **6,561 bytes** of headroom. LearnFeedbackAuth has **11,429 bytes**. A forwarding entry does not hide its statically imported implementation from these ceilings.
 
 Adding 15 synthetic lore pages changed the emitted page count from 111 to 126. Entry size stayed exactly **813,559 bytes**. The generated bootstrap stayed **104,026 bytes**. The temporary pages were removed and the normal generation restored. Subsequent main changes brought the fixed bootstrap to **104,861 bytes**.
 
@@ -59,4 +74,4 @@ Main also gained identity validation and observability changes during this slice
 
 There is deliberately no portable millisecond gate. Wrangler's alpha profiler samples a dynamically imported Worker during a local request. Elapsed time includes inspector and idle time; sampled non-idle time is not Cloudflare's startup CPU accounting. CPUs, runner load, V8 versions, and sampling vary. Use profiles on the same host for comparisons, and calibrate runners against an empty-worker control before making milliseconds a CI threshold.
 
-The byte thresholds are regression alarms, not Cloudflare's compressed-upload limit and not proof that a deployment will start successfully. Live startup and parity remain deployment checks.
+The startup ceilings guard code growth. Total JavaScript is an alarm only. Neither measurement is Cloudflare's compressed-upload limit or proof that a deployment will start successfully. Live startup and parity remain deployment checks.
