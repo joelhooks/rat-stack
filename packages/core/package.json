@@ -64,6 +64,11 @@
       "import": "./dist/event-sink.js",
       "default": "./dist/event-sink.js"
     },
+    "./events-off": {
+      "types": "./src/events-off.ts",
+      "import": "./dist/events-off.js",
+      "default": "./dist/events-off.js"
+    },
     "./request-capture": {
       "types": "./src/request-capture.ts",
       "import": "./dist/request-capture.js",

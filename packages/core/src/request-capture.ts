@@ -1,6 +1,6 @@
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
-import type { IdentityMode, RawEvent } from "./event-sink.js";
+import type { IdentityMode } from "./event-sink.js";
 
 export interface RequestCaptureSettings<RB> {
   readonly captureCity?: boolean;
@@ -14,14 +14,3 @@ export interface EventsOptions {
   readonly enabled: boolean;
   readonly id: string;
 }
-
-export const eventsOff = (_options: EventsOptions) => Effect.undefined;
-
-export const memoryEventsOff = (_salt: string) =>
-  Effect.succeed({
-    capture:
-      <RB>(_settings: RequestCaptureSettings<RB>) =>
-      <A, E, R>(app: Effect.Effect<A, E, R>) =>
-        app,
-    recorded: Effect.succeed<readonly RawEvent[]>([]),
-  });

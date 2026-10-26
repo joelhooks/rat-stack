@@ -5,7 +5,7 @@
 The rest of the repo sees only ports in `@rat-stack/core`:
 
 - `EventSink` in `@rat-stack/core/event-sink` takes `RawEvent` values. Its default drops them, so a composition without a sink still serves.
-- `eventsOff` and `memoryEventsOff` in `@rat-stack/core/request-capture` compose no capture.
+- `@rat-stack/core/events-off` exports the same `events` and `memoryEvents` names with capture off.
 - `RawEventSchema` and `IdentityModeSchema` are the wire contract.
 
 `apps/site/src/events.ts` is the only file outside this package that imports it. The `rat-stack-boundaries/no-cross-layer-imports` rule enforces that.
@@ -22,15 +22,13 @@ export { events, memoryEvents } from "@rat-stack/events/site";
 1. Replace the line in `apps/site/src/events.ts` with:
 
    ```ts
-   export {
-     eventsOff as events,
-     memoryEventsOff as memoryEvents,
-   } from "@rat-stack/core/request-capture";
+   export { events, memoryEvents } from "@rat-stack/core/events-off";
    ```
 
 2. Delete `packages/events`.
 3. Delete the `@rat-stack/events` line in `apps/site/package.json`.
-4. Run `pnpm install`, then `pnpm turbo run check test build`.
+4. Delete the code excerpts that quote the cartridge's tests: the two `packages/events/test` blocks in `.brain/resources/lore/tests-that-earn-their-place.svx` and the one in `skills/test-behaviour/SKILL.md`. The content build reads each excerpt's source file and fails without it.
+5. Run `pnpm install`, `pnpm git-snapshot`, then `pnpm turbo run check test build`.
 
 The Worker builds and serves with capture off. Tests that read `memoryEvents` still run. They assert that telemetry never holds private values, which holds with nothing recorded. The Basin resources leave the Stack, and the retained R2 bucket, stream, and salt stay in the cloud account until someone deletes them.
 

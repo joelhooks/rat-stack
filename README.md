@@ -209,8 +209,9 @@ The template is a working project. Delete what you will not use on day one; the 
   - Keep: Core's `Flags` port and declarations
   - Delete: Replace `apps/site/src/flags.ts` with core imports and `export const flagsLayer = Flags.defaults(eventFlags); export const liveFlagsLayer = flagsLayer;`; remove `packages/flags` and its dependency in `apps/site/package.json`. Readers use defaults; the CLI writer fails with a named read-only error
 - **No analytics**:
-  - Delete: `packages/events`; the `@rat-stack/events` line in `apps/site/package.json`
-  - Change: the one line in `apps/site/src/events.ts` becomes `export { eventsOff as events, memoryEventsOff as memoryEvents } from "@rat-stack/core/request-capture";`
+  - Delete: `packages/events`; the `@rat-stack/events` line in `apps/site/package.json`; the code excerpts that quote `packages/events/test` in `.brain/resources/lore/tests-that-earn-their-place.svx` and `skills/test-behaviour/SKILL.md`
+  - Change: the one line in `apps/site/src/events.ts` becomes `export { events, memoryEvents } from "@rat-stack/core/events-off";`
+  - Then: `pnpm install`, `pnpm git-snapshot`, and the gate
   - Optional: `EVENTS_ENABLED`, `EVENTS_SINK_TOKEN`, and `EVENTS_IDENTITY_MODE` in `apps/site/.env.schema` and `apps/site/src/config-fingerprint.ts`, and the events flags in `packages/core/src/flags.ts`. The Worker ignores them once capture is off. Details: `packages/events/README.md`
 - **No XState (only after removing interest and every other lifecycle except file inspection)**:
   - Keep: Keep XState and its bridge while any retained lifecycle imports them
