@@ -167,6 +167,30 @@ describe("architecture boundary rules", () => {
     );
   });
 
+  it("keeps shared Basin infrastructure independent of the events cartridge", () => {
+    for (const source of [
+      'import { basinStream } from "@rat-stack/events/basin";',
+      'export { icebergSink } from "@rat-stack/events/basin";',
+      'type Maintenance = import("@rat-stack/events/basin").CatalogMaintenance;',
+      'const basin = require("@rat-stack/events/basin");',
+      'import { basinStream } from "../../../events/src/basin.js";',
+    ]) {
+      expectRuleSoft(
+        lintFixture("packages/intake-live/src", source),
+        "Import shared Basin infrastructure from @rat-stack/basin"
+      );
+      expect(lintFixture("apps/site/src", source).status).toBe(0);
+      expect(lintFixture("packages/events/src", source).status).toBe(0);
+    }
+
+    expect(
+      lintFixture(
+        "packages/intake-live/src",
+        'import { basinStream } from "@rat-stack/basin";'
+      ).status
+    ).toBe(0);
+  });
+
   it("blocks package imports from application code", () => {
     const result = lintFixture(
       "packages/core/test",
