@@ -33,7 +33,7 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
-    "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict && pnpm run --silent startup:check",
+    "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict --type-check && pnpm run --silent startup:check",
     "typecheck:tsc": "node scripts/prepare-content.ts && tsc --noEmit -p tsconfig.json && pnpm run --silent startup:check",
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "startup:check": "node scripts/startup-budget.ts",

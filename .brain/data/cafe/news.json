@@ -1,6 +1,19 @@
 [
   {
     "kind": "release",
+    "url": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
+    "title": "rat-stack aligns its tsrs checker pins",
+    "summary": "rat-stack uses effect-tsrs 0.2.2 with --strict --type-check for TypeScript and Effect diagnostics. Plain tsrs 0.20.0 targets TypeScript 7.1 beta. Patched tsc checks parity on checker bumps. effect-tsrs 0.2.2 needs `--type-check` to report ordinary TypeScript errors.",
+    "date": "2026-10-26",
+    "repo": "joelhooks/rat-stack",
+    "author": {
+      "github": "joelhooks",
+      "x": "joelhooks"
+    },
+    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2"
+  },
+  {
+    "kind": "release",
     "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.84",
     "title": "Alchemy 2.0.0-beta.84 splits providers into packages",
     "summary": "Alchemy beta.84 moves Cloudflare, AWS and other providers into their own packages and adds Foldkit SSR and prerendering across website providers.",

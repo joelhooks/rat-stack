@@ -1,6 +1,13 @@
 // @effect-diagnostics nodeBuiltinImport:off -- This compiler seam test reads workspace manifests and runs both installed compilers.
 import { spawnSync } from "node:child_process";
-import { globSync, readFileSync } from "node:fs";
+import {
+  globSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "@effect/vitest";
@@ -103,7 +110,13 @@ const compile = (
   const result = spawnSync(
     path.join(repoRoot, "node_modules/.bin", compiler),
     compiler === "effect-tsrs"
-      ? ["diagnostics", "--project", "tsconfig.json", "--strict"]
+      ? [
+          "diagnostics",
+          "--project",
+          "tsconfig.json",
+          "--strict",
+          "--type-check",
+        ]
       : ["--noEmit", "-p", "tsconfig.json", "--pretty", "false"],
     { cwd: path.join(repoRoot, workspace), encoding: "utf-8" }
   );
@@ -210,6 +223,44 @@ describe("compiler result normalization", () => {
 });
 
 describe("workspace compiler parity", () => {
+  it("rejects ordinary TypeScript errors even without Effect diagnostics", () => {
+    mkdirSync(path.join(repoRoot, ".rat"), { recursive: true });
+    const directory = mkdtempSync(path.join(repoRoot, ".rat/checker-parity-"));
+    const workspace = path.relative(repoRoot, directory);
+    writeFileSync(
+      path.join(directory, "tsconfig.json"),
+      JSON.stringify({
+        extends: "../../tsconfig.base.json",
+        files: ["fixture.ts"],
+      })
+    );
+    const source = path.join(directory, "fixture.ts");
+
+    try {
+      writeFileSync(source, "export const value: string = 1;\n");
+
+      for (const compiler of ["effect-tsrs", "tsc", "tsrs"] as const) {
+        const result = compile(workspace, compiler);
+        expect(result.status, result.output).not.toBe(0);
+        expect(normalize(result, workspace).errors).toEqual([
+          `${workspace}/fixture.ts:1:14:TS2322`,
+        ]);
+      }
+
+      writeFileSync(source, 'export const value: string = "valid";\n');
+
+      for (const compiler of ["effect-tsrs", "tsc", "tsrs"] as const) {
+        const result = compile(workspace, compiler);
+        expect(normalize(result, workspace), result.output).toEqual({
+          errors: [],
+          passed: true,
+        });
+      }
+    } finally {
+      rmSync(directory, { force: true, recursive: true });
+    }
+  });
+
   it("discovers workspaces", () => {
     expect(workspaces.length).toBeGreaterThan(0);
   });

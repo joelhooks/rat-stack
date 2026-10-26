@@ -33,12 +33,13 @@ allowBuilds:
 # Exact fresh pins that pnpm's release-age check would otherwise hold back.
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
-  - "@yielded/effect-tsrs@0.2.0"
-  - "@yielded/effect-tsrs-linux-x64@0.2.0"
-  - "@yielded/effect-tsrs-linux-arm64@0.2.0"
-  - "@yielded/effect-tsrs-darwin-x64@0.2.0"
-  - "@yielded/effect-tsrs-darwin-arm64@0.2.0"
-  - "@yielded/effect-tsrs-win32-x64@0.2.0"
+  - "tsrs@0.20.0-ts7.1.0-beta"
+  - "@yielded/effect-tsrs@0.2.2"
+  - "@yielded/effect-tsrs-linux-x64@0.2.2"
+  - "@yielded/effect-tsrs-linux-arm64@0.2.2"
+  - "@yielded/effect-tsrs-darwin-x64@0.2.2"
+  - "@yielded/effect-tsrs-darwin-arm64@0.2.2"
+  - "@yielded/effect-tsrs-win32-x64@0.2.2"
   # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
   - "@alchemy.run/better-auth@2.0.0-beta.84"
   - alchemy@2.0.0-beta.84
@@ -85,6 +86,13 @@ minimumReleaseAgeExclude:
   - "@effect/tsgo-win32-arm64@0.55.0"
   - "@effect/tsgo-win32-x64@0.55.0"
   - "@effect/tsgo@0.55.0"
+  - "@tsrs/darwin-arm64@0.20.0-ts7.1.0-beta"
+  - "@tsrs/darwin-x64@0.20.0-ts7.1.0-beta"
+  - "@tsrs/linux-arm64-gnu@0.20.0-ts7.1.0-beta"
+  - "@tsrs/linux-arm64-musl@0.20.0-ts7.1.0-beta"
+  - "@tsrs/linux-x64-gnu@0.20.0-ts7.1.0-beta"
+  - "@tsrs/linux-x64-musl@0.20.0-ts7.1.0-beta"
+  - "@tsrs/win32-x64@0.20.0-ts7.1.0-beta"
 
 patchedDependencies:
   "@foldkit/vite-plugin@0.28.0": patches/@foldkit__vite-plugin@0.28.0.patch
