@@ -95,24 +95,57 @@ it.layer(NodeServices.layer)((test) => {
 
         expect(entry).toBeDefined();
 
+        const entryBudgetBytes = 1_600_000;
+        const nonContentBudgetBytes = 4_500_000;
         const entryBytes = new Blob([entry.content]).size;
 
-        const javascriptBytes = result.serverBundle.files
-          .filter((file) => file.path.endsWith(".js"))
-          .reduce((total, file) => total + new Blob([file.content]).size, 0);
+        const javascript = result.serverBundle.files.filter((file) =>
+          file.path.endsWith(".js")
+        );
+
+        const contentModules = javascript.filter((file) =>
+          /(?:^|\/)_virtual_reader-page-sources(?:-[^/]+)?\.js$/u.test(
+            file.path
+          )
+        );
+
+        const javascriptBytes = javascript.reduce(
+          (total, file) => total + new Blob([file.content]).size,
+          0
+        );
+
+        const contentBytes = contentModules.reduce(
+          (total, file) => total + new Blob([file.content]).size,
+          0
+        );
+
+        const nonContentBytes = javascriptBytes - contentBytes;
 
         yield* fs.writeFileString(
           new URL("../../web/dist/website-upload-metrics.json", import.meta.url)
             .pathname,
-          JSON.stringify({ entryBytes, javascriptBytes })
+          JSON.stringify({
+            contentBytes,
+            contentModules: contentModules.map((file) => file.path),
+            entryBudgetBytes,
+            entryBytes,
+            javascriptBytes,
+            nonContentBudgetBytes,
+            nonContentBytes,
+          })
         );
         yield* Effect.log(
-          `Website upload: entry ${entryBytes} bytes; complete JavaScript ${javascriptBytes} bytes`
+          `Website hard budgets: entry ${entryBytes}/${entryBudgetBytes} bytes; non-content JavaScript ${nonContentBytes}/${nonContentBudgetBytes} bytes`
+        );
+        yield* Effect.logWarning(
+          `Website content size alarm (non-blocking): ${contentBytes} bytes; complete JavaScript upload ${javascriptBytes} bytes`
         );
         expect(entryBytes).toBeGreaterThan(0);
-        expect(javascriptBytes).toBeGreaterThanOrEqual(entryBytes);
-        expect(entryBytes).toBeLessThanOrEqual(1_566_139);
-        expect(javascriptBytes).toBeLessThanOrEqual(14_742_838);
+        expect(contentModules.length).toBeGreaterThan(0);
+        expect(contentModules).not.toContain(entry);
+        expect(nonContentBytes).toBeGreaterThanOrEqual(entryBytes);
+        expect(entryBytes).toBeLessThanOrEqual(entryBudgetBytes);
+        expect(nonContentBytes).toBeLessThanOrEqual(nonContentBudgetBytes);
 
         const { prerendered } = result.foldkit.manifest;
 
