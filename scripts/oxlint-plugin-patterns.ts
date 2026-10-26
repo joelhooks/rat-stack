@@ -1617,6 +1617,62 @@ const flagRemovalDate = defineRule({
   },
 });
 
+const noSleepInLoop = defineRule({
+  create(context) {
+    if (!isRuntimeSource(workspacePath(context.filename))) {
+      return {};
+    }
+
+    return {
+      CallExpression(node) {
+        if (!isEffectCall(node, "sleep", context)) {
+          return;
+        }
+
+        let yielded = false;
+        let parent: ESTree.Node | null = node;
+
+        while (parent !== null) {
+          if (
+            parent.type === "FunctionExpression" ||
+            parent.type === "FunctionDeclaration" ||
+            parent.type === "ArrowFunctionExpression"
+          ) {
+            return;
+          }
+
+          if (parent.type === "YieldExpression") {
+            yielded = true;
+          }
+
+          if (
+            yielded &&
+            (parent.type === "WhileStatement" ||
+              parent.type === "DoWhileStatement" ||
+              parent.type === "ForStatement" ||
+              parent.type === "ForOfStatement" ||
+              parent.type === "ForInStatement")
+          ) {
+            context.report({ messageId: "machine", node: parent });
+
+            return;
+          }
+
+          ({ parent } = parent);
+        }
+      },
+    };
+  },
+  meta: {
+    docs: { description: "Sleeping retry loops belong in lifecycle machines." },
+    messages: {
+      machine:
+        "Move loops that yield Effect.sleep into an XState lifecycle machine with declared Effect actors.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-patterns" },
   rules: {
@@ -1628,6 +1684,7 @@ export default definePlugin({
     "learn-snippet-idiom": learnSnippetIdiom,
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "no-shared-pending-cache": noSharedPendingCache,
+    "no-sleep-in-loop": noSleepInLoop,
     "shared-waiters": sharedWaiters,
     "watch-effect-actors": watchEffectActors,
   },

@@ -30,6 +30,7 @@ export const settledWorkerVersion = Effect.fn("settledWorkerVersion")(
       readonly version: string | undefined;
     }[] = [];
 
+    // oxlint-disable-next-line rat-stack-patterns/no-sleep-in-loop -- deploy polling loop; moves to a machine in a follow-up PR
     for (;;) {
       const remaining = Math.max(
         1,

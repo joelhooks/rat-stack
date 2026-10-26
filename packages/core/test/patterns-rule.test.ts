@@ -27,6 +27,7 @@ const rules = [
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/no-shared-pending-cache",
   "rat-stack-patterns/shared-waiters",
+  "rat-stack-patterns/no-sleep-in-loop",
   "rat-stack-patterns/watch-effect-actors",
 ];
 
@@ -81,6 +82,57 @@ const eagerAcquire = "Build the resource inside acquire";
 const moduleState = "Module-level let and var are shared by every request";
 
 describe("rat-stack pattern rules", () => {
+  it("keeps sleeping loops in machines without flagging unrelated sleep functions", () => {
+    const message = "Move loops that yield Effect.sleep";
+
+    for (const area of ["apps/site/src", "packages/core/src"]) {
+      for (const loop of [
+        "while (true)",
+        "for (;;)",
+        "for (const item of items)",
+        "for (const key in items)",
+      ]) {
+        for (const [binding, sleep] of [
+          ['import { Effect } from "effect";', "Effect.sleep"],
+          ['import { Effect as E } from "effect";', "E.sleep"],
+          ['import { sleep as wait } from "effect/Effect";', "wait"],
+        ]) {
+          expectRule(
+            lintFixture(
+              area,
+              `${binding} function* work() { ${loop} { yield* ${sleep}(1).pipe(identity); } }`
+            ),
+            message
+          );
+        }
+      }
+
+      expectRule(
+        lintFixture(
+          area,
+          'import { Effect } from "effect"; function* work() { do { yield* Effect.sleep(1); } while (true); }'
+        ),
+        message
+      );
+
+      for (const source of [
+        'import { Effect } from "effect"; function* work() { for (;;) { Effect.sleep(1); } }',
+        "const Effect = { sleep: () => [] }; function* work() { while (true) { yield* Effect.sleep(1); } }",
+        'import { Effect } from "other"; function* work() { for (;;) { yield* Effect.sleep(1); } }',
+        'import { Effect } from "effect"; function* work() { yield* Effect.sleep(1); for (;;) { break; } }',
+        'import { Effect } from "effect"; for (;;) { const work = function* () { yield* Effect.sleep(1); }; break; }',
+      ]) {
+        expect(lintFixture(area, source).status).toBe(0);
+      }
+    }
+
+    expect(
+      lintFixture(
+        "packages/core/test",
+        'import { Effect } from "effect"; function* work() { for (;;) { yield* Effect.sleep(1); } }'
+      ).status
+    ).toBe(0);
+  });
   it("rejects a module-owned waiter even through an Effect runner", () => {
     expectRule(
       lintFixture(

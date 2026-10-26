@@ -360,6 +360,7 @@ export const settledContentVersionCheck = Effect.fn(
   const startedAt = yield* Clock.currentTimeMillis;
   const attempts: Verdict[] = [];
 
+  // oxlint-disable-next-line rat-stack-patterns/no-sleep-in-loop -- Content-version deadline retries move to a machine in the separate deploy lifecycle change.
   for (;;) {
     const remaining = Math.max(
       0,
