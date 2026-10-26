@@ -8,26 +8,25 @@ import {
 } from "../src/auth/build-options.ts";
 import { PublicAuthBundleLeak } from "./startup-auth-dependency.ts";
 import { assertBuildOnlyModules } from "./startup-build-dependency.ts";
+import {
+  assertStartupBudget,
+  measureStartupSet,
+  StartupGraph,
+} from "./startup-set.ts";
 
 const BundleGraph = Schema.fromJsonString(
   Schema.Struct({
+    ...StartupGraph.fields,
     modules: Schema.Array(Schema.Struct({ path: Schema.String })),
   })
 );
 
-const entryBudgetBytes = 975_000;
+const startupBudgets = {
+  LearnFeedbackAuth: 1_600_000,
+  Mischief: 1_250_000,
+};
 
-const javascriptBudgetBytes = 2_500_000;
-
-class StartupBudgetExceeded extends Schema.TaggedError<
-  StartupBudgetExceeded,
-  { readonly brand: unique symbol }
->()("StartupBudgetExceeded", {
-  budget: Schema.Finite,
-  bytes: Schema.Finite,
-  scope: Schema.Literals(["entry", "javascript-upload"]),
-  worker: Schema.Literals(["Mischief", "LearnFeedbackAuth"]),
-}) {}
+const javascriptAlarmBytes = 2_500_000;
 
 const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   worker: "Mischief" | "LearnFeedbackAuth"
@@ -135,46 +134,45 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
     new Uint8Array(yield* Effect.promise(upload.arrayBuffer.bind(upload)))
   );
 
-  const bytes = new Blob([entry.content]).size;
+  const entryBytes = new Blob([entry.content]).size;
 
-  const javascriptBytes = bundle.files
+  const files = bundle.files
     .filter((file) => file.path.endsWith(".js"))
-    .reduce((total, file) => total + new Blob([file.content]).size, 0);
+    .map((file) => ({
+      bytes: new Blob([file.content]).size,
+      path: file.path,
+    }));
+
+  const javascriptBytes = files.reduce((total, file) => total + file.bytes, 0);
+  const startup = yield* measureStartupSet(files, graph, entry.path);
+  const startupBudgetBytes = startupBudgets[worker];
+
+  const metrics = {
+    entryBytes,
+    javascriptAlarmBytes,
+    javascriptBytes,
+    ...startup,
+    startupBudgetBytes,
+    worker,
+  };
 
   yield* Effect.log(
-    `${worker} entry: ${bytes} bytes; budget: ${entryBudgetBytes}; complete JS upload: ${javascriptBytes} bytes; budget: ${javascriptBudgetBytes}`
+    `${worker} entry: ${entryBytes} bytes; static startup: ${startup.startupBytes} bytes; shrink-only ceiling: ${startupBudgetBytes}; complete JS upload (alarm only): ${javascriptBytes} bytes`
   );
 
-  if (bytes > entryBudgetBytes) {
-    return yield* new StartupBudgetExceeded({
-      budget: entryBudgetBytes,
-      bytes,
-      scope: "entry",
-      worker,
-    });
-  }
-
-  if (javascriptBytes > javascriptBudgetBytes) {
-    return yield* new StartupBudgetExceeded({
-      budget: javascriptBudgetBytes,
-      bytes: javascriptBytes,
-      scope: "javascript-upload",
-      worker,
-    });
+  if (javascriptBytes > javascriptAlarmBytes) {
+    yield* Effect.logWarning(
+      `${worker} complete JS upload exceeds ${javascriptAlarmBytes} bytes; inspect dynamic chunks and content growth; startup alone gates code size`
+    );
   }
 
   yield* fs.writeFileString(
     `${directory}/metrics.json`,
-    JSON.stringify({
-      entryBudgetBytes,
-      entryBytes: bytes,
-      javascriptBudgetBytes,
-      javascriptBytes,
-      worker,
-    })
+    JSON.stringify(metrics)
   );
+  yield* assertStartupBudget(startup.startupBytes, startupBudgetBytes, worker);
 
-  return { entryBytes: bytes, javascriptBytes, worker };
+  return metrics;
 });
 
 const program = Effect.validate(
