@@ -15,11 +15,3 @@ export {
 } from "./drovr-confirm.js";
 
 export type { ConfirmSettings } from "./drovr-confirm.js";
-
-export {
-  plainTextToHtml,
-  postShibaMailerLayer,
-  sendsUrl,
-} from "./postshiba.js";
-
-export type { PostShibaSettings } from "./postshiba.js";
