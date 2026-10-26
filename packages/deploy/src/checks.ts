@@ -11,6 +11,7 @@ import * as RpcClient from "effect/rpc/RpcClient";
 import * as RpcSerialization from "effect/rpc/RpcSerialization";
 
 import { DeployStepError } from "./contracts.js";
+import { runPoll } from "./poll-machine.js";
 
 const ToolsResponse = Schema.Struct({
   result: Schema.Struct({
@@ -357,59 +358,48 @@ export const settledContentVersionCheck = Effect.fn(
   work: Effect.Effect<Verdict, E, R>,
   options = contentVersionRetryDefaults
 ) {
-  const startedAt = yield* Clock.currentTimeMillis;
-  const attempts: Verdict[] = [];
+  const { attempts, elapsedMs } = yield* runPoll(
+    (remainingMs) =>
+      runCheck(
+        "content-version",
+        work.pipe(Effect.timeout(Math.max(1, remainingMs)))
+      ).pipe(
+        Effect.map((verdict) => ({
+          observation: verdict,
+          settled:
+            gateOutcome(verdict) === "pass" ||
+            verdict.reason !== "content-version-mismatch",
+        }))
+      ),
+    options
+  );
 
-  // oxlint-disable-next-line rat-stack-patterns/no-sleep-in-loop -- Content-version deadline retries move to a machine in the separate deploy lifecycle change.
-  for (;;) {
-    const remaining = Math.max(
-      0,
-      options.deadlineMs - ((yield* Clock.currentTimeMillis) - startedAt)
-    );
+  const rows = attempts.map((row) => row.observation);
+  const verdict = rows.at(-1);
 
-    const verdict = yield* runCheck(
-      "content-version",
-      work.pipe(Effect.timeout(Math.max(1, remaining)))
-    );
-
-    attempts.push(verdict);
-    const elapsed = (yield* Clock.currentTimeMillis) - startedAt;
-
-    if (
-      gateOutcome(verdict) === "pass" ||
-      verdict.reason !== "content-version-mismatch" ||
-      elapsed >= options.deadlineMs
-    ) {
-      return {
-        ...verdict,
-        counts: {
-          ...verdict.counts,
-          attempts: attempts.length,
-          deadlineMs: options.deadlineMs,
-          durationMs: elapsed,
-          failedAttempts: attempts.filter((row) => gateOutcome(row) !== "pass")
-            .length,
-        },
-        provenance: attempts.flatMap((row, index) => [
-          {
-            fetchedAt: row.observedAt,
-            id: `content-attempt:${index + 1}`,
-            source: "content-version-check",
-            status: `${row.status}:${row.reason}`,
-          },
-          ...(row.provenance ?? []),
-        ]),
-      } satisfies Verdict;
-    }
-
-    const delay = Math.min(
-      options.maximumDelayMs,
-      options.initialDelayMs * 2 ** Math.min(attempts.length - 1, 20),
-      options.deadlineMs - elapsed
-    );
-
-    yield* Effect.sleep(delay);
+  if (verdict === undefined) {
+    return yield* Effect.die("content-version-poll-without-attempt");
   }
+
+  return {
+    ...verdict,
+    counts: {
+      ...verdict.counts,
+      attempts: rows.length,
+      deadlineMs: options.deadlineMs,
+      durationMs: elapsedMs,
+      failedAttempts: rows.filter((row) => gateOutcome(row) !== "pass").length,
+    },
+    provenance: rows.flatMap((row, index) => [
+      {
+        fetchedAt: row.observedAt,
+        id: `content-attempt:${index + 1}`,
+        source: "content-version-check",
+        status: `${row.status}:${row.reason}`,
+      },
+      ...(row.provenance ?? []),
+    ]),
+  } satisfies Verdict;
 });
 
 export const postDeployChecks = Effect.fn("postDeployChecks")(
