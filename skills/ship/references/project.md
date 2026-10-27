@@ -1,6 +1,6 @@
 # Ship rat-stack
 
-Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
+Follow [ship](/skills/ship) for the release procedure. This reference owns rat-stack's deployment commands and recovery details.
 
 ## Commands
 
@@ -12,7 +12,7 @@ Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
 - `--ownerApproved` records obtained owner sign-off for deletion, replacement, orphaning or unbinding. It does not obtain permission. The exact allow entry is still required.
 - `--expectSha <full sha>` names the commit you mean to ship. The driver refuses to plan or apply unless `HEAD` is that commit and the tree has no changes or untracked files. The verdict records the head it saw and the changed paths.
 - Run `pnpm turbo run check test build --concurrency=1` first.
-- Keep `pnpm site:smoke` until typed checks pass in production.
+- Keep `pnpm site:smoke` until typed checks pass in production. `pnpm mischief:smoke` is an alias for one release.
 - Sandbox checks decode the execute diagnostic from the capability schema. HTTP 200 alone does not establish success. Timeout requires `TimeoutExceeded` and a null result. Network refusal requires `ExecutionFailure`, a refused-fetch message, and a null result. Consumers that parsed `SandboxError` response bodies must migrate to `diagnostic`.
 
 ## Authority
@@ -21,7 +21,11 @@ Read [AGENTS.md, Deploy](../../../AGENTS.md#deploy) before planning or applying.
 
 Missing production inputs, unreadable plans and refused permissions stop before apply. Unknown checks do not prove health. Partial apply exits with code 4 and lists completed and incomplete resources. A step crash exits with code 5.
 
+Only updates and no-ops pass by default. Other actions need exact `{resource, action}` entries in `--allow`.
+
 Replacements and deletions need owner sign-off, recorded separately from the allow-list. Neither flag creates authority.
+
+The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
 
 A refused plan stops before apply. The verdict's `resources` field names each resource that needs an allow entry or owner sign-off.
 
@@ -105,7 +109,7 @@ To disable crash capture, remove Mischief's tail-consumer attachment through an 
 
 ## Local inputs
 
-The three root deployment commands use `APP_ENV=production` with varlock. Put private application resolvers in gitignored `.env.production.local`. Keep each key declared in `.env.schema`.
+The three root deployment commands use `APP_ENV=production` with varlock. Put private application resolvers in gitignored `.env.production.local`. Keep each key declared in `.env.schema`. Verdicts record key names only.
 
 - The root `.env.schema` imports `apps/site/.env.schema`. Varlock types and validates the Worker's keys before planning.
 - The import omits the keys the root declares itself. Those keys keep the root's production requirements.

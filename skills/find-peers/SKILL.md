@@ -1,7 +1,7 @@
 ---
 name: find-peers
-description: Refresh public peers, exact stack versions, and usefulness tiers every week or two and after each shared dependency update. Study source before adopting patterns.
-plain: "Every week or two, refresh public repos on the same pins and adopt a pattern only after reading its code."
+description: Refresh public peers, exact stack versions, and usefulness tiers after any stack bump. Study source before adopting patterns.
+plain: "After any stack bump, refresh public repos on the same pins and adopt a pattern only after reading its code."
 diagram: |-
   refresh peers
     │ exact versions
@@ -32,7 +32,7 @@ A repo missing from `.brain/data/peers.json` is marked `new`. The search takes a
 
 ## Refresh peers, versions, and tiers
 
-Refresh the structured rows in `.brain/data/peers.json` every week or two and after every shared dependency update (Effect, Alchemy, XState, or `@xstate/effect`). The gardener pass owns this step. Run discovery, add new peers, and revisit existing peers even when discovery finds nothing new.
+Refresh the structured rows in `.brain/data/peers.json` after any stack bump. The gardener pass owns this step. Run discovery, add new peers, and revisit existing peers even when discovery finds nothing new.
 
 Rat-stack's own pins are read from its root, infra, and core manifests at content-build time, so a bump changes the comparison without a hand-edited baseline. For every peer, resolve its default branch to a commit and read its actual manifests or lockfiles at that commit. Record all four dependency families, the checked date, and source links. Preserve exact pins; label ranges, workspace/catalog references, and missing dependencies honestly. Resolve references from the workspace catalog or lockfile where possible; never turn a range into an invented pin. Show differences beside rat-stack's pins. Expect version drift. Keep tiers unchanged unless usefulness changes.
 

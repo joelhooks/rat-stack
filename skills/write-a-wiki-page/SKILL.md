@@ -42,7 +42,7 @@ Lore and system directories are discovered without per-page registration. Skills
 
 ## 2. Write short prose
 
-Follow the Wiki writing section in `AGENTS.md`. Aim about 80% toward Simplified Technical English. Keep the prose natural.
+Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical English. This is a house style, not certification.
 
 - Aim for 20 words per sentence. Keep descriptive sentences within 25 words.
 - Put one idea in each sentence.
@@ -51,6 +51,8 @@ Follow the Wiki writing section in `AGENTS.md`. Aim about 80% toward Simplified 
 - Prefer lists to dense paragraphs.
 - Give one instruction per step.
 - Remove idioms and filler.
+- Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
+- Be plain and strict, not robotic.
 - Keep historical observations dated. Do not turn observations into guarantees.
 
 Before:
@@ -63,9 +65,9 @@ After:
 
 A schema defines accepted values and their runtime checks. A handler implements an action on the server.
 
-Generation warns on sentences above 25 words and paragraphs above four sentences in lore and systems. Warnings show `file:line`, the count, and the limit. The generator prints a total too.
+Generation warns on sentences above 25 words and paragraphs above four sentences in lore and systems. It also warns on history wording, contrast hedges, and em dashes. Warnings show `file:line`, the count, and the limit. The generator prints a total too.
 
-The check reads parsed prose, including list paragraphs. It skips code, tables, blockquotes, and frontmatter. Warnings never fail the build. Fix new warnings or explain why they remain.
+The check reads parsed prose, including list paragraphs. Style rules skip quoted spans, blockquotes, code, links, tables, and frontmatter. Length rules still count link labels. Warnings never fail the build. Fix new warnings or explain why they remain.
 
 ## 3. Use a visual when it explains something
 
@@ -225,7 +227,7 @@ Cite exact revisions for code. Keep sourced content within its evidence. Mark mi
 
 Use `apps/site/scripts/component-registry.ts`. Every component needs human and agent renderers. Read the agent view; do not assume a visual carries its meaning there.
 
-Code renderers share a CodeSnippet model. Git and Shiki stay build-only. Ship page content as static assets. Keep it out of new Worker route handlers.
+Registry renderers in Mischief derive both views from one CodeSnippet model. Git and Shiki stay build-only. Ship page content as static assets. Keep it out of new Worker route handlers.
 
 Hot pink is the only accent. Use it for at most one thing per screen, plus focus. Links, headings, tables, and tier cells never use pink.
 
