@@ -27,8 +27,7 @@ export { events, memoryEvents } from "@rat-stack/events/site";
 
 2. Delete `packages/events`.
 3. Delete the `@rat-stack/events` line in `apps/site/package.json`.
-4. Delete the code excerpts that quote the cartridge's tests: the two `packages/events/test` blocks in `.brain/resources/lore/tests-that-earn-their-place.svx` and the one in `skills/test-behaviour/SKILL.md`. The content build reads each excerpt's source file and fails without it.
-5. Run `pnpm install`, `pnpm git-snapshot`, then `pnpm turbo run check test build`.
+4. Run `pnpm install`, `pnpm git-snapshot`, then `pnpm turbo run check test build`.
 
 The Worker builds and serves with capture off. Tests that read `memoryEvents` still run. They assert that telemetry never holds private values, which holds with nothing recorded. The Basin resources leave the Stack, and the retained R2 bucket, stream, and salt stay in the cloud account until someone deletes them.
 

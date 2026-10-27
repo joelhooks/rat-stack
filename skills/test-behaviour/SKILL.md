@@ -23,9 +23,9 @@ Each shape returns a fixed, independent answer. A test that reruns the code unde
 
 A rule that holds for many inputs is an `it.prop` over Effect `Arbitrary` inputs. Use `it.effect.prop` when the check returns an Effect.
 
-The events suite generates a sensitive key and requires its removal. The assertion does not call the filter to decide the answer:
+The core suite generates names and checks their length after trimming. The assertion states the accepted length without calling the validator:
 
-```ts repo=rat-stack path=packages/events/test/request-facts.test.ts at=1d4d3252326a216909ccec05e93312d1ab0eaf84 lines=25-39
+```ts repo=rat-stack path=packages/core/test/join-identity.test.ts at=f1e24f7ee9f9b5f4a06574cb8c1646de001e4a3f lines=101-120
 
 ```
 
