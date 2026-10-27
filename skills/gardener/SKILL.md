@@ -53,7 +53,7 @@ Commit each dependency family separately, so a regression can be traced to one l
 
 ## 3. Peers refresh
 
-Run the `find-peers` skill after any stack bump, even when there are no new peers. Read each peer's default-branch manifests or lockfiles and refresh its exact versions, checked date, tier, and evidence-based reason in `.brain/data/peers.json`. The content build reads rat-stack's current pins from its manifests and filters/sorts this one dataset into `.brain/resources/peers.svx`; do not hand-edit generated entries. Drift is expected. Keep every peer: S through B in the main list, C through F in the collapsed **Also seen** list. Study relevant new peers using the skill's source-first process.
+Run the `find-peers` skill after any stack bump, even when there are no new peers. On every gardener pass, refresh peers whose checked date is more than 14 days old. Report stale dates; they never block other gardener work. Read each peer's default-branch manifests or lockfiles and refresh its exact versions, checked date, tier, and evidence-based reason in `.brain/data/peers.json`. The content build reads rat-stack's current pins from its manifests and filters/sorts this one dataset into `.brain/resources/peers.svx`; do not hand-edit generated entries. Drift is expected. Keep every peer: S through B in the main list, C through F in the collapsed **Also seen** list. Study relevant new peers using the skill's source-first process.
 
 Put the rubric, full ranking, tier changes, and unresolved versions at the top of the report for feedback after shipping; no separate approval round is required.
 
