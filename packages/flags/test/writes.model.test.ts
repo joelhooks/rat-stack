@@ -22,7 +22,7 @@ import { kvFlagControlLayer, kvFlagsLayer } from "../src/kv.js";
 import { memoryFlagsLayer } from "../src/memory.js";
 import { makeKVDouble } from "./kv-double.js";
 
-const scopedFlag = defineFlag("SCOPED_ROLLOUT", Schema.NumberFromString, {
+const scopedFlag = defineFlag("SCOPED_ROLLOUT", Schema.FiniteFromString, {
   default: 0,
   owner: "tests",
   purpose: "Prove scoped ladder transitions.",

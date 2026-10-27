@@ -4,10 +4,10 @@ import { Effect, Schema } from "effect";
 
 import { flagRemoteCall } from "../src/remote.js";
 
-class RemoteUnavailable extends Schema.TaggedError<RemoteUnavailable>()(
-  "RemoteUnavailable",
-  {}
-) {}
+class RemoteUnavailable extends Schema.TaggedError<
+  RemoteUnavailable,
+  { readonly brand: unique symbol }
+>()("RemoteUnavailable", {}) {}
 
 it.effect.prop(
   "remote scope failures regain their typed repair and unexpected transport failures become storage failures",

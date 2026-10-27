@@ -37,14 +37,14 @@ const decodeComparison = Schema.decodeUnknownSync(
   )
 );
 
-class CheckerBumpError extends Schema.TaggedError<CheckerBumpError>()(
-  "CheckerBumpError",
-  {
-    command: Schema.String,
-    detail: Schema.String,
-    step: Schema.String,
-  }
-) {
+class CheckerBumpError extends Schema.TaggedError<
+  CheckerBumpError,
+  { readonly brand: unique symbol }
+>()("CheckerBumpError", {
+  command: Schema.String,
+  detail: Schema.String,
+  step: Schema.String,
+}) {
   override get message() {
     return `${this.step} failed: ${this.detail}. Next command: ${this.command}`;
   }

@@ -52,7 +52,7 @@ export const memoryFlagsLayer = (
             const position = current.get(flagPartition(flag.name, scope));
 
             if (position !== undefined) {
-              return yield* Schema.decodeUnknownEffect(flag.schema)(
+              return yield* Schema.decodeEffect(flag.schema)(
                 position.value
               ).pipe(
                 Effect.mapError(

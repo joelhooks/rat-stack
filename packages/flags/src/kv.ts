@@ -22,7 +22,7 @@ import {
   InvalidFlagValue,
 } from "@rat-stack/core/flags";
 import type { Flag } from "@rat-stack/core/flags";
-import { Clock, Effect, Layer, Option, Schema } from "effect";
+import { Clock, Effect, Layer, Schema } from "effect";
 
 import { InvalidFlagJournal } from "./invalid-flag-journal.js";
 
@@ -53,10 +53,10 @@ const kvLedgerLayer = <E>(
       kv.get(`state/${key}`).pipe(
         Effect.flatMap((text) =>
           text === null
-            ? Effect.succeed(Option.none())
+            ? Effect.succeedNone
             : Schema.decodeEffect(Schema.fromJsonString(FlagPosition))(
                 text
-              ).pipe(Effect.map(Option.some))
+              ).pipe(Effect.asSome)
         ),
         Effect.mapError(storageFailure(key, "read"))
       ),

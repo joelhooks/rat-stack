@@ -16,7 +16,7 @@ import {
 } from "@rat-stack/core/flags";
 import type { Flag } from "@rat-stack/core/flags";
 import type * as RuntimeContext from "alchemy/RuntimeContext";
-import { Clock, Effect, Layer, Option, Schema, Semaphore } from "effect";
+import { Clock, Effect, Layer, Schema, Semaphore } from "effect";
 
 import { flagsNamespace } from "./cloudflare-store.js";
 import { kvFlagJournalLayer } from "./kv.js";
@@ -66,10 +66,10 @@ export const defineFlagLedger = (
             storage(state.storage.get<string>(`state/${key}`)).pipe(
               Effect.flatMap((text) =>
                 text === undefined
-                  ? Effect.succeed(Option.none())
+                  ? Effect.succeedNone
                   : Schema.decodeEffect(Schema.fromJsonString(FlagPosition))(
                       text
-                    ).pipe(Effect.map(Option.some))
+                    ).pipe(Effect.asSome)
               ),
               Effect.mapError(
                 (cause) =>

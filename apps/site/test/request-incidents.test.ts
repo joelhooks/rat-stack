@@ -558,7 +558,7 @@ it.effect("draws incident ids from the Crypto service as v4 UUIDs", () =>
     const id = yield* logRequestIncident(
       Cause.die(new ReferenceError("probe")),
       "initialization"
-    ).pipe(Effect.provide(Layer.succeed(Crypto.Crypto, fixedBytes)));
+    ).pipe(Effect.provideService(Crypto.Crypto, fixedBytes));
 
     expect(id).toBe("07070707-0707-4707-8707-070707070707");
   })

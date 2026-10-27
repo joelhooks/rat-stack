@@ -80,7 +80,7 @@ export const defineFlag = <A>(
     readonly failurePolicy?: "use-catalog-default" | "refuse";
   }
 ): Flag<A> => {
-  const rungs = Schema.decodeUnknownSync(
+  const rungs = Schema.decodeSync(
     Schema.NonEmptyArray(flagRungSchema(Schema.toType(schema)))
   )(options.rungs);
 

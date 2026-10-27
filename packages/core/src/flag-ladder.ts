@@ -137,7 +137,7 @@ export const validateFlagScope = (
       scope,
     });
 
-  return Schema.decodeUnknownEffect(flag.readScope, {
+  return Schema.decodeEffect(flag.readScope, {
     onExcessProperty: "error",
   })(scope).pipe(
     Effect.mapError(mismatch),
