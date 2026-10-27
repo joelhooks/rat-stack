@@ -55,7 +55,7 @@ const noLedger = (name: string) =>
     new FlagStorageError({
       cause: "This composition has no live flag ledger.",
       fallback: null,
-      name,
+      flag: name,
       operation: "write",
       repair:
         "Provide the flags cartridge's operator ledger at the child composition.",

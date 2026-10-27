@@ -167,7 +167,7 @@ describe("toTypeScript", () => {
     const declarations = toTypeScript(catalog);
 
     expect(declarations).toContain(
-      'type NotFoundEncoded = { readonly _tag: "NotFound"; readonly name: string };'
+      'type NotFoundEncoded = { readonly _tag: "NotFound"; readonly subject: string };'
     );
     expect(declarations).toContain("declare const tools: {");
     expect(declarations).toContain(

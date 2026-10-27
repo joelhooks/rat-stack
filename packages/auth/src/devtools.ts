@@ -43,7 +43,7 @@ export const ratTestPerson = implement(ratTestPersonContract, ({ name }) =>
     const credentials = { email, password: TEST_PERSON_PASSWORD };
 
     const unavailable = (message: string) =>
-      new TestPersonUnavailable({ message, name });
+      new TestPersonUnavailable({ message, person: name });
 
     const raw = yield* auth.auth;
 

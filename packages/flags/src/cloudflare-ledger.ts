@@ -76,7 +76,7 @@ export const defineFlagLedger = (
                   new FlagStorageError({
                     cause,
                     fallback: null,
-                    name: key,
+                    flag: key,
                     operation: "read",
                     repair:
                       "Repair the authoritative ledger position before retrying.",
@@ -91,7 +91,7 @@ export const defineFlagLedger = (
                 return yield* new FlagStorageError({
                   cause: "Deployment-only flag",
                   fallback: null,
-                  name,
+                  flag: name,
                   operation: "write",
                   repair:
                     "Change deployment Config and review the infrastructure plan.",
@@ -106,7 +106,7 @@ export const defineFlagLedger = (
                     new FlagStorageError({
                       cause,
                       fallback: null,
-                      name,
+                      flag: name,
                       operation: "write",
                       repair: "Declare valid JSON ledger positions.",
                     })
@@ -146,7 +146,7 @@ export const defineFlagLedger = (
                     new FlagStorageError({
                       cause,
                       fallback: null,
-                      name,
+                      flag: name,
                       operation: "write",
                       repair:
                         "Restore the ledger transaction; inspect its pending attempt before retrying.",
@@ -219,7 +219,7 @@ export const defineFlagLedger = (
                     new FlagStorageError({
                       cause,
                       fallback: null,
-                      name: key,
+                      flag: key,
                       operation: "write",
                       repair: "Retry the retained projection marker.",
                     })
@@ -233,7 +233,7 @@ export const defineFlagLedger = (
                     new FlagStorageError({
                       cause,
                       fallback: null,
-                      name: key,
+                      flag: key,
                       operation: "write",
                       repair:
                         "Restore KV access; the committed projection marker remains pending.",

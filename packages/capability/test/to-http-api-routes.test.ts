@@ -39,7 +39,7 @@ const lookupContract = defineContract("lookup", {
 
 const lookup = implement(lookupContract, ({ item, window }) =>
   item === "nobody"
-    ? Effect.fail(new NotFound({ name: item }))
+    ? Effect.fail(new NotFound({ subject: item }))
     : Effect.succeed({ item, window: window ?? 60 })
 );
 

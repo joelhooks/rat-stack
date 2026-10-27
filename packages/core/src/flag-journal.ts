@@ -13,7 +13,7 @@ export const validateFlagChangeQuery = (
         new FlagStorageError({
           cause,
           fallback: null,
-          name: "",
+          flag: "",
           operation: "listChanges",
           repair:
             "Supply a journal page limit from 1 to 100 and an optional cursor.",
