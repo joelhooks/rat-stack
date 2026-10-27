@@ -126,25 +126,7 @@ Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo ru
 
 ## Deploy
 
-- Run `pnpm turbo run check test build --concurrency=1` before deployment.
-- `pnpm deploy:plan --profile <profile>` reads and classifies the production plan without applying it.
-- `pnpm deploy:prod --profile <profile> --yes` applies that exact plan, then runs typed checks and a bounded watch.
-- `pnpm deploy:rollback --profile <profile> --yes` restores prior Worker versions from a local apply receipt. It requires explicit approval; no automatic rollback runs.
-- Recovery evidence lives in gitignored `.rat/deploy/`. Rollback writes separate progress receipts and preserves its source.
-- Content-version mismatches retry for 120 seconds by default. `DEPLOY_CONTENT_VERSION_DEADLINE_MS` sets a bounded override; verdicts retain failed attempts.
-- Application-secret resolvers belong in gitignored `.env.production.local`, under `.env.schema` keys. The root schema imports `apps/site/.env.schema`, so deploy commands type the Worker's keys too; the root owns the keys it omits. The root commands run varlock in production mode; provider credentials remain profile-only.
-- Set `ALCHEMY_PROFILE` explicitly. It must match `--profile`. The driver refuses environment provider credentials.
-- `.env.schema` owns required production inputs. Missing inputs stop before planning. Verdicts record key names only.
-- Only updates and no-ops pass by default. Use `--allow` with a JSON array of exact `{resource, action}` pairs for other actions.
-- An allow-list does not grant approval. Replacements and deletions still need owner sign-off, recorded with `--ownerApproved` as well as exact allow entries. A refused plan names the resources in the verdict.
-- `--expectSha <full sha>` refuses to plan or apply unless `HEAD` is that commit and the tree is clean.
-- `DEPLOY_QUIET_WINDOWS` lists UTC windows when `deployProd` must not apply: `HH:MM` times repeat daily, `:MM` times repeat hourly. Inside one, the driver waits up to `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` (default 0), then refuses.
-- Deploy commands write the full verdict to `.rat/deploy/<profile>/` and print one summary line with its `verdictPath`.
-- Classification reads Alchemy Plan values, including binding and task changes. Retention is a physical-resource backstop, not a delete guard: it removes state rows and leaves cloud objects. Apply receipts list confirmed retained orphans. Alchemy confirmations use the capability approval service; unattended input prompts fail typed.
-- Partial apply exits 4 and names completed and incomplete resources. A crash exits 5. Unknown evidence never establishes health.
-- The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
-- Keep `pnpm site:smoke` until typed checks pass in production. Phase 1 adds no production qualification or automatic rollback. `pnpm mischief:smoke` is an alias for one release.
-- Procedure: [ship](/skills/ship), with project commands in `skills/ship/references/project.md`.
+Follow [ship](/skills/ship) and `skills/ship/references/project.md` for deployment commands, approval, checks, and recovery.
 
 ## Release the ratstack package
 
@@ -200,13 +182,13 @@ A child project replaces this section on day one with its own product rules. The
 - Lifecycles are machines. Finite modes, retries, and cancellation live in XState machines started with `createEffectActor`; side effects live in declared `createEffectLogic` actors, never inline.
 - The sandbox is a surface, not a bypass. Anything reachable from a code-mode program must be a capability and goes through that capability's schemas and handler.
 - Gardener rule: add a lint rule before cleaning up a bad pattern; lint baselines only shrink. The routine is `skills/gardener`; before simplifying or replacing a design, run `skills/uncomplect`.
-- Refresh peers, versions, and tiers every week or two and after every bump of Effect, Alchemy, XState, or `@xstate/effect`. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit generated entries. Drift is expected. Preserve every peer; show S through B in the main list and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
+- Refresh peers, versions, and tiers after every bump of Effect, Alchemy, XState, or `@xstate/effect`. On every gardener pass, refresh peers whose checked date is more than 14 days old. Report stale dates; they never block other gardener work. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit generated entries. Drift is expected. Preserve every peer; show S through B in the main list and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
 - Tautological tests considered harmful.
 - Change-detector tests considered harmful.
 - Do not create regression tests for bug fixes without a genuine gap in behavior testing.
 - Prefer property and model tests over example tests. A domain rule is an `it.prop` over Effect `Arbitrary` inputs; anything with history (sessions, retries, lifecycles) is a model checked over generated command sequences. Keep example tests for seams. Plant a bug before trusting a new property: it must fail. Reference: `packages/events/test/`.
 - Errors are part of the interface. Name the failure, keep its source context, say how to fix it, and fail at the boundary. Build-time code references accumulate every independent failure before emitting assets; drift is a warning, never a fallback.
-- Code excerpts use fenced Markdown, not `<Code>`. Metadata is whitespace-separated `key=value` or `key="quoted value"` (JSON string escaping), plus at most one `{3,5-7}` highlight set. Allowed keys: `repo`, `path`, `at`, `lines`, `title`. Inline example: `ts {3,5-7} title="example.ts"`. Reference example: `ts repo=rat-stack path=apps/cli/src/surfaces.ts at=<full-sha> lines=21-25`, with an empty body. Ranges and highlights use positive, ordered, non-overlapping line numbers. Explicit language wins, otherwise a referenced file extension, otherwise Markdown; `svx` maps to Markdown and `txt` to text. Unknown explicit languages, unknown or duplicate keys, malformed metadata, nonempty reference bodies, unavailable Git objects and invalid ranges fail with typed repair messages. Configured excerpts show at most 25 source lines; gap labels do not count. `packages/code-snippets` owns the build-only pipeline and ports; `/git` and `/shiki` are adapters. Registry renderers in Mischief derive both views from one CodeSnippet. Worker graphs must contain neither code-snippets nor Shiki. A shallow clone must contain each pinned object or fetch its history before building.
+- `packages/code-snippets` owns the build-only excerpt pipeline and ports; `/git` and `/shiki` are adapters. Worker graphs must contain neither code-snippets nor Shiki.
 - No comments in code. `no-comments/no-comments` (`scripts/oxlint-plugin-no-comments.ts`) bans them, after Lauren Tan's Dune rule: agents copy comments, and a comment that explains a workaround spreads the workaround. Say it in a name, a type, a test, a commit message, or the Brain. Two kinds survive: tool directives, with the reason inline after `--`, and a one-line `SAFETY:` invariant above a type assertion. TypeScript's `@ts-expect-error`, `@ts-ignore`, and `@ts-nocheck` count as directives here; `typescript/ban-ts-comment` decides which may stay, so write `// @ts-expect-error -- <reason>`. `--fix` deletes prose, so move anything a comment knows into a name, a test, the commit, or the Brain before running it. Plain JS files keep JSDoc blocks made only of type tags (`@param {string} command`), because that is their type syntax; Ultracite's JSDoc description rules are off for the same reason. Credit for borrowed code lives in `PROVENANCE.md`.
 - Diagnostic overrides are targeted and explained: `// @effect-diagnostics-next-line <rule>:off -- <reason>`. File-level overrides exist only at projection boundaries (`packages/capability/src/to-toolkit.ts`, `packages/capability/src/to-code-mode.ts`, `packages/capability/src/to-rpc.ts`) and in process-spawning test files.
 - Lint overrides follow the same rule: `// oxlint-disable-next-line <rule> -- <reason>`. Every type assertion carries a one-line `SAFETY:` comment naming the invariant it relies on. `unicorn/throw-new-error` is off because `Schema.TaggedError(...)` looks like a throw to it. Anti-slop overrides exist only where a type is erased on purpose (the projections in `packages/capability`, the sandbox RPC boundary, the lint plugin's AST walker); anywhere else, parse the value at its boundary with Effect `Schema`.
@@ -232,20 +214,7 @@ A child project replaces this section on day one with its own architecture. Reco
 
 ## Wiki writing
 
-Lore and system pages use low prose, about 80% ASD-STE100 Simplified Technical English. This is a house style, not certification.
-
-- Aim for sentences of 20 words or fewer. Descriptive sentences may use up to 25 words.
-- Put one idea in each sentence. Use active voice and present tense.
-- Use the same glossary term for the same thing. Remove idioms and filler.
-- Prefer lists to paragraphs. Put one instruction in each step.
-- Keep lore titles as claims. Keep Joel's voice unchanged inside quotes.
-- Be plain and strict, not robotic.
-
-Use a visual only when it explains the point. Choose a fenced box-drawing diagram for flow or topology, a list for trade-offs or state, pseudocode for logic, or a shallow file tree. Do not write Markdown tables in published content. Tables inside fenced code examples may stay. Keep diagrams below 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences. Do not add decorative visuals.
-
-Write for a person first. Avoid hedged 'X, not Y' asides and narration about sources.
-
-The content generator warns on sentences above 25 words and paragraphs above four sentences in lore and systems pages. It also warns on history wording, contrast hedges, and em dashes. It reads parsed Markdown prose. The style rules skip quoted spans, blockquotes, code, links, tables, and frontmatter. Length rules still count link labels. Warnings show `file:line` and a total count. They never fail the build. Fix new warnings or explain why they remain.
+Follow [write-a-wiki-page](/skills/write-a-wiki-page) for prose, visuals, code excerpts, and content-build diagnostics.
 
 ## Web feature blueprint
 
@@ -272,5 +241,4 @@ Never end a turn "waiting" without a wake. Procedure: `skills/rat-stack-mode/pri
 A child project replaces this section on day one with its own boundaries. This section names changes agents may make directly and changes that need owner approval.
 
 - Safe by default: adding a capability in `packages/core` and wiring it into `capabilities`; new or tightened tests; a targeted diagnostic override with a written reason; README, AGENTS.md, and `.brain/` edits; tightening a lint rule; removing a surface by following Keep or cut; any change under `apps/infra`, and `pnpm infra:deploy` once `pnpm infra:plan` shows only the intended diff and the gate passes, followed by `pnpm site:smoke`.
-- When a call is unclear, get a second opinion from a Pi session on `openai-codex/gpt-6-astra:xhigh` before asking the owner.
 - Needs owner sign-off: adding or changing a dependency version (pins are exact and CI installs cold); any edit to `oxlint.config.ts`, the diagnostics map in `tsconfig.base.json`, `lefthook.yml`, or `scripts/vcs-command-policy.js` that loosens the fence; `pnpm infra:destroy`, and a deploy whose plan replaces or deletes a resource; widening sandbox permissions or adding a runtime that reaches the network; exposing `serve` or `mcp` beyond localhost; vendoring a package as a `file:` tarball; deleting `.agent_sources/` or `vendor/`.

@@ -120,7 +120,7 @@ Maple builds Drizzle over `@effect/sql-pg`, opens the client inside an Effect `S
 
 Adapt this for the [database cartridge](/lore/cartridges). Keep the public repository-shaped database service small and let each vendor Layer implement it.
 Scope clients to one invocation. Use a real embedded database for migrations and query tests. Keep Drizzle's driver type behind the cross-provider API.
-Share migration fixtures and the service contract. D1 and Postgres keep their own schemas and implementations, as Joel decided.
+Share migration fixtures and the service contract. D1 and Postgres keep their own schemas and implementations.
 
 ### Better Auth's database seam — adopt
 
