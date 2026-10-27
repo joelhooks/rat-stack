@@ -61,7 +61,7 @@ const lookupContract = defineContract("lookup", {
 const lookup = implement(lookupContract, ({ mode }) =>
   Effect.fail(
     mode === "missing"
-      ? new NotFound({ name: "fixture" })
+      ? new NotFound({ subject: "fixture" })
       : new UnavailableItem({})
   )
 );

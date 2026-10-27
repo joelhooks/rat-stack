@@ -61,7 +61,7 @@ const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
         new FlagStorageError({
           cause,
           fallback: null,
-          name: input.name,
+          flag: input.name,
           operation: "audit",
           repair:
             "Restore the cryptographic attempt-id service before retrying this write.",
@@ -214,7 +214,7 @@ export const auditFlagRun: Around<
     Effect.mapError(
       () =>
         new InvalidFlagValue({
-          name: "flag attempt",
+          flag: "flag attempt",
           repair: "Supply a declared name and a JSON value.",
         })
     ),

@@ -71,7 +71,7 @@ export const cloudflareFlagControlLayer = (
                   new FlagStorageError({
                     cause: "Missing ledger partition",
                     fallback: null,
-                    name: "",
+                    flag: "",
                     operation: "listChanges",
                     repair: "Supply the declared flag name and read scope.",
                   })

@@ -3,7 +3,7 @@ import { Schema } from "effect";
 export class FlagScopeMismatch extends Schema.TaggedError<FlagScopeMismatch>()(
   "FlagScopeMismatch",
   {
-    name: Schema.String,
+    flag: Schema.String,
     repair: Schema.String,
     scope: Schema.Json,
   }

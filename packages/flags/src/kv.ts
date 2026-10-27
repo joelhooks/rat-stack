@@ -37,7 +37,7 @@ const storageFailure =
     new FlagStorageError({
       cause,
       fallback: null,
-      name,
+      flag: name,
       operation,
       repair:
         "Restore ledger storage. Inspect the pending attempt and authoritative position before retrying.",
@@ -159,7 +159,7 @@ export const kvFlagsLayer = <E>(
               Effect.mapError(
                 () =>
                   new InvalidFlagValue({
-                    name: flag.name,
+                    flag: flag.name,
                     repair: "Declare a flag with a JSON encoding.",
                   })
               )
@@ -171,7 +171,7 @@ export const kvFlagsLayer = <E>(
                   new FlagStorageError({
                     cause,
                     fallback: encoded,
-                    name: flag.name,
+                    flag: flag.name,
                     operation: "read",
                     repair:
                       "Restore KV access. The recorded fallback is the composition's Config value or declared default.",
@@ -185,7 +185,7 @@ export const kvFlagsLayer = <E>(
                   cause:
                     "The required flag value is absent from the read replica.",
                   fallback: encoded,
-                  name: flag.name,
+                  flag: flag.name,
                   operation: "read",
                   repair:
                     "Commit this scoped flag through its ledger and redrive the KV projection before reading it.",
@@ -201,7 +201,7 @@ export const kvFlagsLayer = <E>(
               Effect.mapError(
                 () =>
                   new InvalidFlagValue({
-                    name: flag.name,
+                    flag: flag.name,
                     repair:
                       "Replace the stored KV value with its declared JSON encoding.",
                   })
@@ -241,7 +241,7 @@ export const kvFlagJournalLayer = <E>(kv: FlagKV<E>) =>
             new FlagStorageError({
               cause,
               fallback: null,
-              name: "",
+              flag: "",
               operation: "listChanges",
               repair: "Restore KV access and retry this cursor.",
             })
@@ -293,7 +293,7 @@ export const kvFlagJournalLayer = <E>(kv: FlagKV<E>) =>
               new FlagStorageError({
                 cause,
                 fallback: null,
-                name: key.name,
+                flag: key.name,
                 operation: "listChanges",
                 repair:
                   "Restore or repair this journal entry, then retry the same cursor.",
@@ -322,7 +322,7 @@ export const kvFlagJournalLayer = <E>(kv: FlagKV<E>) =>
             new FlagStorageError({
               cause,
               fallback: null,
-              name: change.name,
+              flag: change.name,
               operation: "audit",
               repair: `Inspect attempt ${change.attemptId}. Missing completion means Pending; the flag may have changed. Restore audit storage before retrying.`,
             })

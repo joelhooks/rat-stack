@@ -59,7 +59,7 @@ export const redriveFlagProjections = Effect.fn("redriveFlagProjections")(
             new FlagStorageError({
               cause,
               fallback: null,
-              name: key,
+              flag: key,
               operation: "read",
               repair:
                 "Repair the committed projection marker; do not delete it to hide the failure.",
@@ -71,7 +71,7 @@ export const redriveFlagProjections = Effect.fn("redriveFlagProjections")(
         return yield* new FlagStorageError({
           cause: "Missing committed receipt",
           fallback: null,
-          name: key,
+          flag: key,
           operation: "read",
           repair: "Restore the receipt before projecting this position.",
         });

@@ -3,7 +3,7 @@ import { Schema } from "effect";
 export class FlagFlipRefused extends Schema.TaggedError<FlagFlipRefused>()(
   "FlagFlipRefused",
   {
-    name: Schema.String,
+    flag: Schema.String,
     reason: Schema.Literals([
       "not-next-rung",
       "evidence-required",

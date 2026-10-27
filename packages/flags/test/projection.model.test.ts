@@ -55,7 +55,7 @@ const failure = () =>
   new FlagStorageError({
     cause: "Replica unavailable",
     fallback: null,
-    name: switchFlag.name,
+    flag: switchFlag.name,
     operation: "write",
     repair: "Retry the retained marker.",
   });

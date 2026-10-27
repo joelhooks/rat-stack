@@ -4,9 +4,9 @@ export class NotFound extends Schema.TaggedError<
   NotFound,
   { readonly brand: unique symbol }
 >()("NotFound", {
-  name: Schema.String,
+  subject: Schema.String,
 }) {
   override get message(): string {
-    return `No one called ${this.name}`;
+    return `No one called ${this.subject}`;
   }
 }

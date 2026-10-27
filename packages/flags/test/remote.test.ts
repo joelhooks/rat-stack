@@ -19,7 +19,7 @@ it.effect.prop(
   ({ name, repair, scope }) =>
     Effect.gen(function* checkRemoteFailure() {
       const encoded = yield* Schema.encodeEffect(FlagScopeMismatch)(
-        new FlagScopeMismatch({ name, repair, scope })
+        new FlagScopeMismatch({ flag: name, repair, scope })
       );
 
       const failure = yield* flagRemoteCall(
