@@ -1,7 +1,10 @@
 import { defineContract, implement } from "@rat-stack/capability";
 import { Effect, Schema } from "effect";
 
-export class EmptyText extends Schema.TaggedError<EmptyText>()("EmptyText", {
+export class EmptyText extends Schema.TaggedError<
+  EmptyText,
+  { readonly brand: unique symbol }
+>()("EmptyText", {
   fix: Schema.String,
 }) {}
 

@@ -1,10 +1,10 @@
 import * as Capability from "@rat-stack/capability";
 import { Effect, Schema } from "effect";
 
-export class NoteMissing extends Schema.TaggedError<NoteMissing>()(
-  "NoteMissing",
-  { id: Schema.String }
-) {}
+export class NoteMissing extends Schema.TaggedError<
+  NoteMissing,
+  { readonly brand: unique symbol }
+>()("NoteMissing", { id: Schema.String }) {}
 
 export const archiveNoteContract = Capability.defineContract("archiveNote", {
   annotations: { destructive: true, idempotent: true },

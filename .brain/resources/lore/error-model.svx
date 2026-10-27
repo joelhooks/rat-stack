@@ -37,7 +37,7 @@ sources:
     publisher: "Effect-TS"
     note: "mapError translates expected failures; catchTag selects tagged failures; catchDefect and orDie handle different failure boundaries."
     accessed: "2026-10-06"
-  - url: https://github.com/joelhooks/rat-stack/blob/65e9465f38092e24486392f22c08f45d61230c20/packages/core/src/stats.ts
+  - url: https://github.com/joelhooks/rat-stack/blob/c936b94c957ada7199df3ab7b39a330d6e1c644f/packages/core/src/stats.ts
     title: "rat-stack contributors. 2026. File statistics and failures."
     publisher: "rat-stack"
     note: "FileStatsError retains the failed path and filesystem reason."
@@ -69,8 +69,9 @@ Catch a failure where the application can recover or report it truthfully.
 `Schema.TaggedError` defines a yieldable error: an error a generator can raise with `yield*`.
 Its tag identifies the error type; its fields retain context.
 `FileStatsError` keeps the path and the filesystem reason.
+The brand stops two classes with the same fields from being assignable to each other.
 
-```ts repo=rat-stack path=packages/core/src/stats.ts at=65e9465f38092e24486392f22c08f45d61230c20 lines=13-26
+```ts repo=rat-stack path=packages/core/src/stats.ts at=c936b94c957ada7199df3ab7b39a330d6e1c644f lines=13-26
 ```
 
 Inside a generator, `return yield*` can raise a yieldable error directly.

@@ -3,15 +3,17 @@ import { HttpClient, HttpClientResponse } from "effect/http";
 
 const Release = Schema.Struct({ version: Schema.Int });
 
-export class ReleaseError extends Schema.TaggedError<ReleaseError>()(
-  "ReleaseError",
-  { cause: Schema.Defect(), phase: Schema.Literals(["status", "body"]) }
-) {}
+export class ReleaseError extends Schema.TaggedError<
+  ReleaseError,
+  { readonly brand: unique symbol }
+>()("ReleaseError", {
+  cause: Schema.Defect(),
+  phase: Schema.Literals(["status", "body"]),
+}) {}
 
 export const latestRelease = Effect.gen(function* readRelease() {
-  const client = (yield* HttpClient.HttpClient).pipe(HttpClient.filterStatusOk);
-
-  const response = yield* client
+  const response = yield* (yield* HttpClient.HttpClient)
+    .pipe(HttpClient.filterStatusOk)
     .get("https://provider.example.test/version")
     .pipe(
       Effect.mapError((cause) => new ReleaseError({ cause, phase: "status" }))
