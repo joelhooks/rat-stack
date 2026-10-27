@@ -130,7 +130,6 @@ The shipped request records content, selection, and source repository, commit, f
 ```
 
 `configured` distinguishes metadata fences from ordinary fences. `ranges` carries decoded selections.
-The brand stops two classes with the same fields from being assignable to each other.
 
 A source reference has an empty body. These selected lines enforce the pin and path rules:
 

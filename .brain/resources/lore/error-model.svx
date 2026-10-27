@@ -2,7 +2,6 @@
 title: "Handle expected failures without hiding defects"
 description: "Declare expected failures, preserve their context, and recover by tag without turning crashes into successful outcomes."
 plain: "Give expected failures a type and context, recover by tag, and never turn a crash into a success."
-card: "Declare expected failures, preserve their context, and recover by tag without turning crashes into successful outcomes. The brand stops two classes with the same fields from being assignable to each other."
 diagram: |-
   fs error
     │ mapError
