@@ -1,5 +1,21 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/foldkit/foldkit-domains",
+    "title": "Foldkit Domains example",
+    "summary": "A Foldkit example of domain search: the field ships in static HTML, accepts edits before hydration, and runs on the Blocks and Layers preview.",
+    "date": "2026-10-27",
+    "repo": "foldkit/foldkit-domains",
+    "author": {
+      "github": "foldkit",
+      "x": "foldkit"
+    },
+    "source": "https://github.com/foldkit/foldkit-domains",
+    "engagement": {
+      "stars": 0
+    }
+  },
+  {
     "kind": "release",
     "url": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "title": "rat-stack aligns its tsrs checker pins",
