@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect";
 
-export class SnippetError extends Schema.TaggedError<SnippetError>()(
-  "SnippetError",
-  { id: Schema.String, reason: Schema.String }
-) {}
+export class SnippetError extends Schema.TaggedError<
+  SnippetError,
+  { readonly brand: unique symbol }
+>()("SnippetError", { id: Schema.String, reason: Schema.String }) {}
 
 interface Snippet {
   readonly id: string;

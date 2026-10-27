@@ -39,6 +39,9 @@ Each error carries:
 - Requested ranges and actual file length, when available.
 - A repair instruction.
 
+The `RangeOutOfBounds` error class also has a brand.
+The brand stops two classes with the same fields from being assignable to each other.
+
 Invalid metadata keeps its raw values. It has no decoded request yet.
 
 The author needs the rejected input, its location, and a repair instruction. A stack trace alone cannot supply them.

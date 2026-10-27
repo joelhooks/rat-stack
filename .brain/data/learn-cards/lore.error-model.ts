@@ -1,6 +1,9 @@
 import { Console, Effect, FileSystem, Schema } from "effect";
 
-export class ReadError extends Schema.TaggedError<ReadError>()("ReadError", {
+export class ReadError extends Schema.TaggedError<
+  ReadError,
+  { readonly brand: unique symbol }
+>()("ReadError", {
   path: Schema.String,
   reason: Schema.String,
 }) {}

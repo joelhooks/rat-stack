@@ -126,7 +126,7 @@ Unknown keys, duplicate keys, and malformed metadata are errors.
 
 The shipped request records content, selection, and source repository, commit, file, and line numbers:
 
-```ts repo=rat-stack path=packages/code-snippets/src/model.ts at=a646f7ffd00273d85fbe1d905d9cdb194fdc0f60 lines=17-31 {20,26} title="Decoded CodeRequest"
+```ts repo=rat-stack path=packages/code-snippets/src/model.ts at=c936b94c957ada7199df3ab7b39a330d6e1c644f lines=17-34 {23,29} title="Decoded CodeRequest"
 ```
 
 `configured` distinguishes metadata fences from ordinary fences. `ranges` carries decoded selections.
