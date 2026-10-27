@@ -2,6 +2,7 @@
 title: "One capability, every surface"
 description: "A schema-typed contract and one handler feed every interface rat-stack keeps."
 plain: "One schema-typed contract and one handler feed every interface: CLI, HTTP, MCP, RPC and code mode."
+card: "A schema-typed contract and one handler feed every interface rat-stack keeps. The brand stops two classes with the same fields from being assignable to each other."
 diagram: |-
   defineContract
     name, schemas

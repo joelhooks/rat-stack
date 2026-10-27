@@ -2,6 +2,7 @@
 name: add-a-capability
 description: Learn how one contract and its handler become a command, HTTP route, MCP tool, browser RPC, and sandbox call.
 plain: "Define one contract, bind one handler, register it once, and every surface projects the same action."
+card: "Learn how one contract and its handler become a command, HTTP route, MCP tool, browser RPC, and sandbox call. The brand stops two classes with the same fields from being assignable to each other."
 diagram: |-
   1 defineContract
       input, output, failure

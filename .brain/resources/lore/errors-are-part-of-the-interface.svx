@@ -2,6 +2,7 @@
 title: "Errors are part of the interface"
 description: "An author error needs a location, the rejected input, and a repair."
 plain: "An error an author sees must say where it happened, what input was rejected, and how to fix it."
+card: "An author error needs a location, the rejected input, and a repair. The brand stops two classes with the same fields from being assignable to each other."
 diagram: |-
   RangeOutOfBounds
     at: lore/x.svx:12

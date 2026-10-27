@@ -2,6 +2,7 @@
 title: "HTTP success needs a status check and a decoder"
 description: "Supply the client, check the response status, decode accepted data, and name failures at the adapter boundary."
 plain: "A finished HTTP request is not success. Check the status and decode the body before trusting the data."
+card: "Supply the client, check the response status, decode accepted data, and name failures at the adapter boundary. The brand stops two classes with the same fields from being assignable to each other."
 diagram: |-
   client.get(url)
     │ filterStatusOk

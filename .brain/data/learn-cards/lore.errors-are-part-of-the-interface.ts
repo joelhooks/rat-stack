@@ -1,14 +1,14 @@
 import { Effect, Schema } from "effect";
 
-export class RangeOutOfBounds extends Schema.TaggedError<RangeOutOfBounds>()(
-  "RangeOutOfBounds",
-  {
-    at: Schema.String,
-    fileLength: Schema.Int,
-    fix: Schema.String,
-    requested: Schema.String,
-  }
-) {}
+export class RangeOutOfBounds extends Schema.TaggedError<
+  RangeOutOfBounds,
+  { readonly brand: unique symbol }
+>()("RangeOutOfBounds", {
+  at: Schema.String,
+  fileLength: Schema.Int,
+  fix: Schema.String,
+  requested: Schema.String,
+}) {}
 
 export const checkRange = (at: string, end: number, fileLength: number) =>
   end <= fileLength
