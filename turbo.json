@@ -69,7 +69,10 @@
       "cache": false,
       "outputs": [
         "src/bundled-content.generated.ts",
-        "src/interest-pages.generated.ts"
+        "src/interest-pages.generated.ts",
+        "src/rat-icons.generated.ts",
+        "dist/content/**",
+        "dist/reader-source.json"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -128,7 +131,7 @@
     },
     "@rat-stack/site#build": {
       "dependsOn": ["@rat-stack/site#generate", "^build"],
-      "outputs": ["dist/**"],
+      "outputs": ["dist/**", "!dist/content/**", "!dist/reader-source.json"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.brain/**",
