@@ -26,7 +26,7 @@ export const getFlag = implement(getFlagContract, ({ name, context }) =>
 
     if (flag === undefined) {
       return yield* new UnknownFlag({
-        name,
+        flag: name,
         repair: "Choose a name returned by listFlags.",
       });
     }
@@ -37,7 +37,7 @@ export const getFlag = implement(getFlagContract, ({ name, context }) =>
       Effect.mapError(
         () =>
           new InvalidFlagValue({
-            name,
+            flag: name,
             repair: "Use a flag schema with a JSON encoding for getFlag.",
           })
       )
@@ -47,7 +47,7 @@ export const getFlag = implement(getFlagContract, ({ name, context }) =>
       Effect.mapError(
         () =>
           new InvalidFlagValue({
-            name,
+            flag: name,
             repair: "Use a flag schema with a JSON encoding for getFlag.",
           })
       )

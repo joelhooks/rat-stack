@@ -40,7 +40,7 @@ const greetContract = defineContract("greet", {
 
 export const greet = implement(greetContract, ({ name }) =>
   name === "nobody"
-    ? Effect.fail(new NotFound({ name }))
+    ? Effect.fail(new NotFound({ subject: name }))
     : Greeter.use((greeter) => greeter.greet(name)).pipe(
         Effect.map((greeting) => ({ greeting }))
       )

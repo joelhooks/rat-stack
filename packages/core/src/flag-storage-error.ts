@@ -6,7 +6,7 @@ export class FlagStorageError extends Schema.TaggedError<
 >()("FlagStorageError", {
   cause: Schema.Defect(),
   fallback: Schema.Json,
-  name: Schema.String,
+  flag: Schema.String,
   operation: Schema.Literals(["read", "write", "audit", "listChanges"]),
   repair: Schema.String,
 }) {}

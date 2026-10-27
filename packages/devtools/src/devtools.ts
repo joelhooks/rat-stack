@@ -303,7 +303,9 @@ const toolsFor = <
     implement(ratDescribeContract, ({ name }) =>
       Option.match(Option.fromUndefinedOr(byName.get(name)), {
         onNone: () =>
-          Effect.fail(new UnknownCapability({ available: names, name })),
+          Effect.fail(
+            new UnknownCapability({ available: names, capability: name })
+          ),
         onSome: (capability) =>
           Effect.gen(function* describe() {
             const [entry] = toCatalog([capability]).capabilities;

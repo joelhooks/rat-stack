@@ -132,7 +132,7 @@ export const validateFlagScope = (
 ) => {
   const mismatch = () =>
     new FlagScopeMismatch({
-      name: flag.name,
+      flag: flag.name,
       repair: `Supply an exact scope accepted by ${flag.name}'s declared readScope schema. Evidence and flips must use that same scope.`,
       scope,
     });
@@ -141,10 +141,9 @@ export const validateFlagScope = (
     onExcessProperty: "error",
   })(scope).pipe(
     Effect.mapError(mismatch),
-    Effect.flatMap((decoded) =>
-      scopeKey(decoded) === scopeKey(scope)
-        ? Effect.succeed(decoded)
-        : Effect.fail(mismatch())
+    Effect.filterOrFail(
+      (decoded) => scopeKey(decoded) === scopeKey(scope),
+      mismatch
     )
   );
 };

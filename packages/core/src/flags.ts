@@ -119,7 +119,7 @@ export const decodeFlag = <A>(flag: Flag<A>) =>
     Effect.mapError(
       () =>
         new InvalidFlagValue({
-          name: flag.name,
+          flag: flag.name,
           repair: `Set ${flag.name} to a value accepted by its declared schema.`,
         })
     )

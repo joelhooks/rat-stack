@@ -16,7 +16,7 @@ export const flagRemoteCall = <A, E, F>(
               new FlagStorageError({
                 cause: error,
                 fallback: null,
-                name,
+                flag: name,
                 operation,
                 repair:
                   "Restore the Durable Object connection. Read the authoritative ledger before retrying a pending write.",

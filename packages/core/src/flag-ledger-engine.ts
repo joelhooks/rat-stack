@@ -62,7 +62,7 @@ export const flagLedgerEngine = Layer.effect(
 
       if (flag === undefined) {
         return yield* new UnknownFlag({
-          name,
+          flag: name,
           repair: "Choose a name returned by listFlags.",
         });
       }
@@ -76,7 +76,7 @@ export const flagLedgerEngine = Layer.effect(
         Effect.mapError(
           () =>
             new InvalidFlagValue({
-              name,
+              flag: name,
               repair: "Declare JSON-encoded rung values.",
             })
         )
@@ -106,7 +106,7 @@ export const flagLedgerEngine = Layer.effect(
         const here = flag.rungs[at];
 
         const refuse = (reason: FlagFlipRefused["reason"], repair: string) =>
-          new FlagFlipRefused({ name: input.name, reason, repair });
+          new FlagFlipRefused({ flag: input.name, reason, repair });
 
         const off = Predicate.isTagged(input.target, "off");
 
@@ -181,7 +181,7 @@ export const flagLedgerEngine = Layer.effect(
           Effect.mapError(
             () =>
               new InvalidFlagValue({
-                name: input.name,
+                flag: input.name,
                 repair: "Declare JSON-encoded rung values.",
               })
           )
@@ -240,7 +240,7 @@ export const flagLedgerEngine = Layer.effect(
           )
         ) {
           return yield* new FlagFlipRefused({
-            name: input.name,
+            flag: input.name,
             reason: "evidence-required",
             repair:
               "Measure a declared exit event at the current rung, using its declared read location and exact scope.",

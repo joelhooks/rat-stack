@@ -5,5 +5,5 @@ export class UnknownCapability extends Schema.TaggedError<
   { readonly brand: unique symbol }
 >()("UnknownCapability", {
   available: Schema.Array(Schema.String),
-  name: Schema.String,
+  capability: Schema.String,
 }) {}
