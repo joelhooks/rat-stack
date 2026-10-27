@@ -224,6 +224,50 @@ This refresh records the existing adoption. It copies no new implementation.
 
 Symbol-screened without a relevant client/resource pattern: `Dhravya/radish`, `zonko-ai/harbor-sdk`, `dmmulroy/overseer`, `instructa/planr`, and `statelyai/agent`. `cameronapak/dotflowy` has Better Auth but no Alchemy integration and uses Effect rc.115 / XState alpha.12, so it is not a useful match for this lane. The earlier Effect reference note already covers the XState bridge; this note does not repeat it.
 
+## Weekly peers Oct 27
+
+The refresh checks default-branch commits on October 27. No implementation is adopted.
+DeepWiki is unavailable in this session. The three questions below use commit-pinned source directly.
+
+### Session publication: keep the existing boundary
+
+Question: How does `omp-agent-mesh` distinguish local work from publication failure?
+
+Its [session machine](https://github.com/masrurimz/omp-agent-mesh/blob/9729284b8cc62b6d397da349d332ae5f993d3cbe/src/lifecycle/session-machine.ts) declares `announce`, `publishStatus`, and `depart` actors.
+The idle and working states each contain publication states. Publication failure enters `unsynced` and retains the typed failure.
+Its manifest pins Effect 4.0.6, XState alpha.70, and bridge alpha.9.
+
+Keep this as a current bridge reference. Do not copy a second publication model into rat-stack without a matching domain need.
+
+### Local preparation: keep the existing actor seam
+
+Question: How does `durable-pi` separate local cancellation from durable execution?
+
+Its [preparation reference](https://github.com/cill-i-am/durable-pi/blob/b426e6928b5d7fecf787d8e4eac9a9bfaa85e7f3/tests/lifecycle/preparation.machine.ts) invokes a declared Effect actor.
+The machine owns cancellation and deadline transitions. The [architecture decision](https://github.com/cill-i-am/durable-pi/blob/b426e6928b5d7fecf787d8e4eac9a9bfaa85e7f3/docs/decisions/xstate-effect-state-machines.md) separates local scope cleanup from remote cancellation confirmation.
+Its manifest pins Effect 4.0.5, XState alpha.68, and bridge alpha.8.
+
+Keep the local lifetime example as a study reference. Do not infer durable execution guarantees from the local actor.
+No durable adapter is copied.
+
+### Worker reconciliation: reject direct reuse on the older bridge
+
+Question: Where does `ceirean` handle uncertain worker outcomes?
+
+Its [worker lifecycle](https://github.com/opsydyn/ceirean/blob/9a83e0c498589c10f8577efc07abdb10d0a19f3a/packages/engine/src/worker-lifecycle.ts) separates readiness, execution authorization, and reconciliation states.
+Mutation failures can route to reconciliation. Its manifest pins Effect 4.0.5, XState alpha.64, and bridge alpha.6.
+
+Keep the state separation as a reference. Direct reuse requires a bridge migration and behavior checks.
+No worker implementation is copied.
+
+### Existing peer corrections
+
+Clankerbox now declares `createEffectLogic` actors on bridge alpha.9. Its current lifecycle no longer supports the roster's older `fromEffect` warning.
+The refresh preserves its tier B and updates that reason from current source.
+
+GitHub redirects `danieljvdm/effect-agent` to `yielded-dev/agent` and the Foldkit template to `just-be-dev/cafe-stack`.
+The roster uses those canonical names and keeps both first-seen dates and tiers.
+
 ## Recommendations from the September study
 
 These recommendations record the original study. The current web bin uses Foldkit; [current pins](/pins.md) come from manifests.
