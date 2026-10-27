@@ -39,24 +39,19 @@ it.effect.prop(
         )
       );
 
-      const work = (observed: HttpClient.HttpClient) =>
-        Effect.gen(function* typedProvider() {
-          const response = yield* observed.execute(
-            HttpClientRequest.put(
-              "https://api.cloudflare.com/client/v4/accounts/test/workers/scripts/Mischief"
-            )
-          );
-
-          expect(yield* response.json).toEqual(body);
-
-          return yield* new BadRequest({ message });
-        }).pipe(
-          Effect.withSpan("apply.resource", {
-            attributes: hasResource
-              ? { "alchemy.resource.fqn": "Mischief" }
-              : {},
-          })
+      const work = Effect.fn("apply.resource", {
+        attributes: hasResource ? { "alchemy.resource.fqn": "Mischief" } : {},
+      })(function* typedProvider(observed: HttpClient.HttpClient) {
+        const response = yield* observed.execute(
+          HttpClientRequest.put(
+            "https://api.cloudflare.com/client/v4/accounts/test/workers/scripts/Mischief"
+          )
         );
+
+        expect(yield* response.json).toEqual(body);
+
+        return yield* new BadRequest({ message });
+      });
 
       const captured = yield* applyWithProviderEvidence(
         work,
