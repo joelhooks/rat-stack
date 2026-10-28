@@ -7,8 +7,8 @@ The current `xstate@6.0.0-alpha.70` and `@xstate/effect@1.0.0-alpha.9` pins come
 - **Vendored packages**: none.
 - **Patched packages**:
   - `@foldkit/vite-plugin@0.28.0`, through `patchedDependencies` in `pnpm-workspace.yaml` and `patches/@foldkit__vite-plugin@0.28.0.patch`. The patch changes one line in `dist/index.js`: the DevTools [MCP](/lore/mcp-is-another-surface) relay id calls `crypto.randomUUIDv4()`. Effect 4.0.3 made `Crypto.randomUUIDv4` a function, so the published `.pipe` call throws and the relay never starts.
-  - The `peerDependencyRules.allowedVersions` entries for `foldkit`, `@foldkit/ui`, `@foldkit/devtools`, `@foldkit/vite-plugin`, and `@foldkit/markdown` travel with it. Those packages peer on exact Effect `4.0.0`; the repo runs `4.0.6`.
-  - Remove both when Foldkit publishes a `@foldkit/vite-plugin` that calls `randomUUIDv4()` and peers that accept Effect `4.0.6`. Bump to that version, delete the patch file, its `patchedDependencies` entry, and the allowed versions, run `pnpm install`, and check that the dev server logs `MCP relay listening`.
+  - The `peerDependencyRules.allowedVersions` entries for `foldkit`, `@foldkit/ui`, `@foldkit/devtools`, `@foldkit/vite-plugin`, and `@foldkit/markdown` travel with it. Those packages peer on exact Effect `4.0.0`; the repo runs `4.0.7`.
+  - Remove both when Foldkit publishes a `@foldkit/vite-plugin` that calls `randomUUIDv4()` and peers that accept Effect `4.0.7`. Bump to that version, delete the patch file, its `patchedDependencies` entry, and the allowed versions, run `pnpm install`, and check that the dev server logs `MCP relay listening`.
 
 The last one was `xstate-effect-0.1.0-alpha.2.tgz`, built from the `statelyai/xstate` tag `xstate@6.0.0-alpha.58` with `pnpm exec preconstruct build && pnpm pack` after the first npm publish failed on 2026-09-17. npm published the same bytes on 2026-09-19 and `packages/core` moved to the registry version on 2026-09-20.
 

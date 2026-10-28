@@ -205,8 +205,8 @@ settings:
 
 overrides:
   kysely: 0.29.4
-  '@foldkit/vite-plugin>@effect/platform-node': 4.0.6
-  '@foldkit/vite-plugin>@effect/platform-node-shared': 4.0.6
+  '@foldkit/vite-plugin>@effect/platform-node': 4.0.7
+  '@foldkit/vite-plugin>@effect/platform-node-shared': 4.0.7
 
 patchedDependencies:
   '@foldkit/vite-plugin@0.28.0': a98dff01444d2e6c3a07d38a5e03b22c7ecef6b7466181c2a583e42384fcffa7
@@ -223,7 +223,7 @@ importers:
         version: 0.55.0
       '@foldkit/oxlint-plugin':
         specifier: 0.15.3
-        version: 0.15.3(effect@4.0.6)
+        version: 0.15.3(effect@4.0.7)
       '@oxlint/plugins':
         specifier: 1.88.0
         version: 1.88.0
@@ -234,8 +234,8 @@ importers:
         specifier: 0.2.2
         version: 0.2.2
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       lefthook:
         specifier: 2.2.2
         version: 2.2.2
@@ -273,8 +273,8 @@ importers:
   apps/cli:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../../packages/capability
@@ -288,12 +288,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/learn
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -311,26 +311,26 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@alchemy.run/drizzle':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(9243376ea5e5fa2a045f1b96eb1fde1b)
+        version: 2.0.0-beta.84(dc1e163579eba8ea997d2da7fbf4df23)
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@rat-stack/site':
         specifier: workspace:*
         version: link:../site
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -345,7 +345,7 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -381,23 +381,23 @@ importers:
         version: link:../../packages/subscriber-delivery
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/platform-browser':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@foldkit/markdown':
         specifier: 0.14.3
-        version: 0.14.3(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 0.14.3(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/code-snippets':
         specifier: workspace:*
         version: link:../../packages/code-snippets
@@ -415,7 +415,7 @@ importers:
         version: 3.0.3
       foldkit:
         specifier: 0.169.0
-        version: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+        version: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
       htmlparser2:
         specifier: 12.0.0
         version: 12.0.0
@@ -448,13 +448,13 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@effect/platform-browser':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
       '@foldkit/ui':
         specifier: 0.169.0
-        version: 0.169.0(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))
+        version: 0.169.0(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))
       '@rat-stack/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -475,29 +475,29 @@ importers:
         version: 0.19.1
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       foldkit:
         specifier: 0.169.0
-        version: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+        version: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@foldkit/devtools':
         specifier: 0.169.0
-        version: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(@foldkit/ui@0.169.0(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)))(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))
+        version: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(@foldkit/ui@0.169.0(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)))(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))
       '@foldkit/markdown':
         specifier: 0.14.3
-        version: 0.14.3(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 0.14.3(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@foldkit/vite-plugin':
         specifier: 0.28.0
-        version: 0.28.0(patch_hash=a98dff01444d2e6c3a07d38a5e03b22c7ecef6b7466181c2a583e42384fcffa7)(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))(redis@6.2.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 0.28.0(patch_hash=a98dff01444d2e6c3a07d38a5e03b22c7ecef6b7466181c2a583e42384fcffa7)(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))(redis@6.2.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@stylexjs/unplugin':
         specifier: 0.19.1
         version: 0.19.1(unplugin@2.3.11)
@@ -521,7 +521,7 @@ importers:
     dependencies:
       '@alchemy.run/better-auth':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(ea18f4b8df9165f2403ed237a29eb008)
+        version: 2.0.0-beta.84(b72fac4bb93ea014cd140bd770a445fe)
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../capability
@@ -530,16 +530,16 @@ importers:
         version: link:../database
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       better-auth:
         specifier: 1.7.11
-        version: 1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       drizzle-orm:
         specifier: 1.0.0-rc.5-ab785fc
-        version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+        version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       kysely:
         specifier: 0.29.4
         version: 0.29.4
@@ -551,8 +551,8 @@ importers:
         specifier: 5.20261019.1
         version: 5.20261019.1
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@rat-stack/devtools':
         specifier: workspace:*
         version: link:../devtools
@@ -576,17 +576,17 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -600,15 +600,15 @@ importers:
   packages/capability:
     dependencies:
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -622,12 +622,12 @@ importers:
   packages/check-harness:
     dependencies:
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -641,18 +641,18 @@ importers:
   packages/code-snippets:
     dependencies:
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       shiki:
         specifier: 4.5.0
         version: 4.5.0
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -663,24 +663,24 @@ importers:
   packages/core:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../capability
       '@xstate/effect':
         specifier: 1.0.0-alpha.9
-        version: 1.0.0-alpha.9(effect@4.0.6)(xstate@6.0.0-alpha.70)
+        version: 1.0.0-alpha.9(effect@4.0.7)(xstate@6.0.0-alpha.70)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       xstate:
         specifier: 6.0.0-alpha.70
         version: 6.0.0-alpha.70
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -695,23 +695,23 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/core':
         specifier: workspace:*
         version: link:../core
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261019.1
         version: 5.20261019.1
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -726,25 +726,25 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@alchemy.run/drizzle':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(9243376ea5e5fa2a045f1b96eb1fde1b)
+        version: 2.0.0-beta.84(dc1e163579eba8ea997d2da7fbf4df23)
       '@alchemy.run/sql':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/sql-pg@4.0.6(effect@4.0.6))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)
+        version: 2.0.0-beta.84(@effect/sql-pg@4.0.7(effect@4.0.7))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)
       '@effect/sql-pg':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       drizzle-orm:
         specifier: 1.0.0-rc.5-ab785fc
-        version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+        version: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -753,11 +753,11 @@ importers:
         specifier: 5.20261019.1
         version: 5.20261019.1
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@electric-sql/pglite':
         specifier: 0.5.10
         version: 0.5.10
@@ -787,10 +787,10 @@ importers:
     dependencies:
       '@distilled.cloud/cloudflare':
         specifier: 1.0.0-rc.17
-        version: 1.0.0-rc.17(effect@4.0.6)
+        version: 1.0.0-rc.17(effect@4.0.7)
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../capability
@@ -802,23 +802,23 @@ importers:
         version: link:../core
       '@xstate/effect':
         specifier: 1.0.0-alpha.9
-        version: 1.0.0-alpha.9(effect@4.0.6)(xstate@6.0.0-alpha.70)
+        version: 1.0.0-alpha.9(effect@4.0.7)(xstate@6.0.0-alpha.70)
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       xstate:
         specifier: 6.0.0-alpha.70
         version: 6.0.0-alpha.70
     devDependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -835,12 +835,12 @@ importers:
         specifier: workspace:*
         version: link:../capability
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -855,7 +855,7 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/basin':
         specifier: workspace:*
         version: link:../basin
@@ -864,17 +864,17 @@ importers:
         version: link:../core
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261019.1
         version: 5.20261019.1
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -889,7 +889,7 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/capability':
         specifier: workspace:*
         version: link:../capability
@@ -898,23 +898,23 @@ importers:
         version: link:../core
       '@xstate/effect':
         specifier: 1.0.0-alpha.9
-        version: 1.0.0-alpha.9(effect@4.0.6)(xstate@6.0.0-alpha.70)
+        version: 1.0.0-alpha.9(effect@4.0.7)(xstate@6.0.0-alpha.70)
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       xstate:
         specifier: 6.0.0-alpha.70
         version: 6.0.0-alpha.70
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -929,7 +929,7 @@ importers:
     dependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@rat-stack/basin':
         specifier: workspace:*
         version: link:../basin
@@ -938,14 +938,14 @@ importers:
         version: link:../core
       alchemy:
         specifier: 2.0.0-beta.84
-        version: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -966,20 +966,20 @@ importers:
         version: link:../core
       '@xstate/effect':
         specifier: 1.0.0-alpha.9
-        version: 1.0.0-alpha.9(effect@4.0.6)(xstate@6.0.0-alpha.70)
+        version: 1.0.0-alpha.9(effect@4.0.7)(xstate@6.0.0-alpha.70)
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
       xstate:
         specifier: 6.0.0-alpha.70
         version: 6.0.0-alpha.70
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.2.1)
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(redis@6.2.1)
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -993,12 +993,12 @@ importers:
         specifier: workspace:*
         version: link:../core
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -1012,12 +1012,12 @@ importers:
         specifier: workspace:*
         version: link:../core
       effect:
-        specifier: 4.0.6
-        version: 4.0.6
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@effect/vitest':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -1602,38 +1602,38 @@ packages:
     resolution: {integrity: sha512-AlKvEwEWyVtnuw7SVb4N/mUhlfIohyFslUNWarZVdLHHSdt3ca5EhMLwTzblBpDpaofSz+f+tAHie6CfxVrWKA==}
     engines: {node: '>=22.19.0'}
 
-  '@effect/platform-browser@4.0.6':
-    resolution: {integrity: sha512-i4bf1+FlUnZypqK0pQ5cq46KhroTgqFGktFn2WorwIk+yc+RuZO6qsF+Sk6lY5uHwdHTOLGMlnlXSJ8u1UG42g==}
+  '@effect/platform-browser@4.0.7':
+    resolution: {integrity: sha512-FHzX6Q8pUwAB8fL8Jw75NXsXcOAe/iT7KVhb5ricaCcCNqVeIrhWUTM677HqVkRONzQPH09RB9r5NbNUa2YtFg==}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
 
-  '@effect/platform-node-shared@4.0.6':
-    resolution: {integrity: sha512-0PhyC4uG30xGtsajnxjkcBWfTjNRzUh4ZKl1Kvo/MNyCTb+W2O+fBzf7wCRCoqt+nLudiq4V7vX40Q8XIBuMaQ==}
+  '@effect/platform-node-shared@4.0.7':
+    resolution: {integrity: sha512-uCeBJ00hliKQsb7gMfvyEXUL1XmUKQcRzKi1X8ISG0UxTDMAdPRigOyKDnKxUTxE5PoT4kxLHQvOxo6U405FGg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
 
-  '@effect/platform-node@4.0.6':
-    resolution: {integrity: sha512-gXvGHAy0/8PZbWvMMguloDUyeSP+rzYEo3FSEqUuGduxo9ORcGioDxPI+GOLCIFfam7VuNkmSUxBOiRMIrMrBw==}
+  '@effect/platform-node@4.0.7':
+    resolution: {integrity: sha512-YXUh0A4ZjuPAONt/yXb5zBM7zPR6eUPYUBtyj1374zq0P5SUpdcz8Lf54JSavXb8mdrc1glsXWHFVINpJyrlWA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
       redis: '>=5.0.0 <7.0.0'
 
-  '@effect/sql-d1@4.0.6':
-    resolution: {integrity: sha512-W149Svo5pR+7eoKtTmMX3aFCJKQmvMdypKhMlFekKvy2UjY6h5Af8d+9YeBeOXkYtDQjxNs4l6iv7EqbF6XBbg==}
+  '@effect/sql-d1@4.0.7':
+    resolution: {integrity: sha512-LHF6vItApeUt+FkyxXKYdMhi//HyRQeyYaeTjHHFvSdSnhcb+44pcoo8ClbvH13ps7OFVPPJ9yL3/7oBSnYBKQ==}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
 
-  '@effect/sql-pg@4.0.6':
-    resolution: {integrity: sha512-mh2Z+Hi1/AWtkoGuzub2PPCHN7ZsMAbY8dlv/YbdJ6PoXVdrVAGsr+FeeoeD6f0rdnln4DQm7PvFjv1htAjY9w==}
+  '@effect/sql-pg@4.0.7':
+    resolution: {integrity: sha512-KANrOvBKm3KUvOAgTQz9cWKOwKJW1oHdkJ0rsIldDeO5zot9S4qzOtsQrhafNelbxY9S/F9k4Z+7oiw//oO6bg==}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
 
-  '@effect/sql-sqlite-do@4.0.6':
-    resolution: {integrity: sha512-/s0hoRu0/J3Xdp2PoUAsNEc1AwFb+Y9rldXVkZmtdcOSnrx3Vo9DsZaCSK6+qLbhI10jjJftzmmtFtLrUqAwIw==}
+  '@effect/sql-sqlite-do@4.0.7':
+    resolution: {integrity: sha512-1CKW0SEMks+xPCsnoCu1gjv84zHT6SpZ/Ey5YV19GBnqG6mSx6kaqF92ZwAHa0bUy22hvzMX006OJgjwbNkVlQ==}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
 
   '@effect/tsgo-darwin-arm64@0.55.0':
     resolution: {integrity: sha512-jXS0GXyDrtPCCkViy21O50I3+8z9G1j5I1v5yYQUz1kDQuuwXycZiKk8NcsukdYgLiq6mPDMcKw6VhrYHyWP3g==}
@@ -1674,10 +1674,10 @@ packages:
     resolution: {integrity: sha512-LTFmPvNKrrGW3xJXrAx/tWHN90UXXgE4PcIIQQcBajt8eAexjoiFycs0gc8j+axopEbaSrjQ943bYTMHywkYbA==}
     hasBin: true
 
-  '@effect/vitest@4.0.6':
-    resolution: {integrity: sha512-oKNbtyUHK5+0o730CXwojULEu7f3+c235pYFD4U5T//o+hHrJbYbZU4bRkcv936tPr5IOnmujeyQiC/LuJJjHw==}
+  '@effect/vitest@4.0.7':
+    resolution: {integrity: sha512-WdF1w9K65ZyjeDAUfUxDOCBSEgVjUtJfM+G83KAE3mKoZcO6aGgrRoKgwiDKsACAmVWT3zG5hDhwNH3GQg++FQ==}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
       vitest: '>=5.0.0 <6.0.0'
 
   '@electric-sql/pglite@0.5.10':
@@ -3656,8 +3656,8 @@ packages:
     peerDependencies:
       effect: ^4.0.0
 
-  effect@4.0.6:
-    resolution: {integrity: sha512-Tc3mkzuLR6t6P9dhLt0D2GrxYtmU5td4XEJEiXCmILz53IRIfJyHsKZWjTA3xEjiwpNTtXBgI4iqYPxMztBDrw==}
+  effect@4.0.7:
+    resolution: {integrity: sha512-47CiUzNAmeLr40pDT9vKMxxtB8o3bdpZEKU4IUM3fVxsK2GYzPsV7fQoZP0I41A308BZd71nMxqJ0KRh3s9u2g==}
 
   electron-to-chromium@1.5.444:
     resolution: {integrity: sha512-5ss/uJfoDYDHT0lfJzT6FbcskIzROIOPf0BbbFkGcvDzoJU7i//9GDrwwIHQVmIsrAGiF3ihpADBRIsrEFt1rQ==}
@@ -5131,23 +5131,23 @@ packages:
 
 snapshots:
 
-  '@alchemy.run/acme@2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)':
+  '@alchemy.run/acme@2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)':
     dependencies:
-      '@distilled.cloud/acme': 1.0.0-rc.17(effect@4.0.6)
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      effect: 4.0.6
+      '@distilled.cloud/acme': 1.0.0-rc.17(effect@4.0.7)
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      effect: 4.0.7
 
-  '@alchemy.run/better-auth@2.0.0-beta.84(ea18f4b8df9165f2403ed237a29eb008)':
+  '@alchemy.run/better-auth@2.0.0-beta.84(b72fac4bb93ea014cd140bd770a445fe)':
     dependencies:
-      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.6(effect@4.0.6))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      better-auth: 1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
-      effect: 4.0.6
+      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.7(effect@4.0.7))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      better-auth: 1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+      effect: 4.0.7
     optionalDependencies:
-      '@alchemy.run/cloudflare': 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))
+      '@alchemy.run/cloudflare': 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))
       '@cloudflare/workers-types': 5.20261019.1
-      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
       kysely: 0.29.4
       pg: 8.23.1
     transitivePeerDependencies:
@@ -5155,14 +5155,14 @@ snapshots:
       - '@effect/sql-mysql2'
       - '@effect/sql-pg'
 
-  '@alchemy.run/cloudflare-runtime@2.0.0-beta.84(@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.6))(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@types/node@24.19.2)(effect@4.0.6)(rolldown@1.2.13)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@alchemy.run/cloudflare-runtime@2.0.0-beta.84(@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.7))(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@types/node@24.19.2)(effect@4.0.7)(rolldown@1.2.13)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       '@alchemy.run/node-utils': 2.0.0-beta.84
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261012.1)
-      '@distilled.cloud/cloudflare': 1.0.0-rc.17(effect@4.0.6)
+      '@distilled.cloud/cloudflare': 1.0.0-rc.17(effect@4.0.7)
       '@puppeteer/browsers': 3.2.6(yauzl@3.4.0)
       capnp-es: 0.0.16(typescript@7.0.2)
-      effect: 4.0.6
+      effect: 4.0.7
       magic-string: 0.30.21
       mime: 4.1.1
       sharp: 0.35.5(@types/node@24.19.2)
@@ -5170,7 +5170,7 @@ snapshots:
       workerd: 1.20261012.1
       yauzl: 3.4.0
     optionalDependencies:
-      '@effect/platform-node': 4.0.6(effect@4.0.6)(redis@6.2.1)
+      '@effect/platform-node': 4.0.7(effect@4.0.7)(redis@6.2.1)
       rolldown: 1.2.13
       vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -5178,24 +5178,24 @@ snapshots:
       - proxy-agent
       - typescript
 
-  '@alchemy.run/cloudflare@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@alchemy.run/cloudflare@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@alchemy.run/acme': 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)
-      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.84(@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.6))(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@types/node@24.19.2)(effect@4.0.6)(rolldown@1.2.13)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@alchemy.run/docker': 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)
-      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.6(effect@4.0.6))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)
-      '@distilled.cloud/aws4signer': 1.0.0-rc.17(effect@4.0.6)
-      '@distilled.cloud/cloudflare': 1.0.0-rc.17(effect@4.0.6)
-      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.6)
-      '@distilled.cloud/iceberg': 1.0.0-rc.17(effect@4.0.6)
-      '@effect/sql-d1': 4.0.6(effect@4.0.6)
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      effect: 4.0.6
+      '@alchemy.run/acme': 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)
+      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.84(@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.7))(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@types/node@24.19.2)(effect@4.0.7)(rolldown@1.2.13)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@alchemy.run/docker': 2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)
+      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.7(effect@4.0.7))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)
+      '@distilled.cloud/aws4signer': 1.0.0-rc.17(effect@4.0.7)
+      '@distilled.cloud/cloudflare': 1.0.0-rc.17(effect@4.0.7)
+      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.7)
+      '@distilled.cloud/iceberg': 1.0.0-rc.17(effect@4.0.7)
+      '@effect/sql-d1': 4.0.7(effect@4.0.7)
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      effect: 4.0.7
       pathe: 2.0.3
       rolldown: 1.2.13
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@effect/platform-node': 4.0.6(effect@4.0.6)(redis@6.2.1)
+      '@effect/platform-node': 4.0.7(effect@4.0.7)(redis@6.2.1)
       vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@effect/sql-libsql'
@@ -5207,23 +5207,23 @@ snapshots:
       - proxy-agent
       - typescript
 
-  '@alchemy.run/docker@2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)':
+  '@alchemy.run/docker@2.0.0-beta.84(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)':
     dependencies:
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      effect: 4.0.6
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      effect: 4.0.7
       rolldown: 1.2.13
 
-  '@alchemy.run/drizzle@2.0.0-beta.84(9243376ea5e5fa2a045f1b96eb1fde1b)':
+  '@alchemy.run/drizzle@2.0.0-beta.84(dc1e163579eba8ea997d2da7fbf4df23)':
     dependencies:
-      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.6(effect@4.0.6))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)
-      '@effect/sql-d1': 4.0.6(effect@4.0.6)
-      '@effect/sql-sqlite-do': 4.0.6(effect@4.0.6)
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
-      effect: 4.0.6
+      '@alchemy.run/sql': 2.0.0-beta.84(@effect/sql-pg@4.0.7(effect@4.0.7))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)
+      '@effect/sql-d1': 4.0.7(effect@4.0.7)
+      '@effect/sql-sqlite-do': 4.0.7(effect@4.0.7)
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+      effect: 4.0.7
     optionalDependencies:
-      '@alchemy.run/cloudflare': 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/sql-pg@4.0.6(effect@4.0.6))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@effect/sql-pg': 4.0.6(effect@4.0.6)
+      '@alchemy.run/cloudflare': 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/sql-pg@4.0.7(effect@4.0.7))(@types/node@24.19.2)(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@effect/sql-pg': 4.0.7(effect@4.0.7)
       drizzle-kit: 1.0.0-rc.5-ab785fc
     transitivePeerDependencies:
       - mysql2
@@ -5236,12 +5236,12 @@ snapshots:
 
   '@alchemy.run/sigil@0.1.0-alpha.1': {}
 
-  '@alchemy.run/sql@2.0.0-beta.84(@effect/sql-pg@4.0.6(effect@4.0.6))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.6)(pg@8.23.1)':
+  '@alchemy.run/sql@2.0.0-beta.84(@effect/sql-pg@4.0.7(effect@4.0.7))(alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0))(effect@4.0.7)(pg@8.23.1)':
     dependencies:
-      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
-      effect: 4.0.6
+      alchemy: 2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+      effect: 4.0.7
     optionalDependencies:
-      '@effect/sql-pg': 4.0.6(effect@4.0.6)
+      '@effect/sql-pg': 4.0.7(effect@4.0.7)
       pg: 8.23.1
 
   '@anthropic-ai/sdk@0.129.0(zod@4.6.5)':
@@ -5578,12 +5578,12 @@ snapshots:
       nanostores: 1.5.3
       zod: 4.6.5
 
-  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))':
+  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))':
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3)
       '@better-auth/utils': 0.5.0
     optionalDependencies:
-      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
 
   '@better-auth/kysely-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(kysely@0.29.4)':
     dependencies:
@@ -5682,29 +5682,29 @@ snapshots:
 
   '@csstools/css-tokenizer@4.0.2': {}
 
-  '@distilled.cloud/acme@1.0.0-rc.17(effect@4.0.6)':
+  '@distilled.cloud/acme@1.0.0-rc.17(effect@4.0.7)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.6)
-      effect: 4.0.6
+      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.7)
+      effect: 4.0.7
 
-  '@distilled.cloud/aws4signer@1.0.0-rc.17(effect@4.0.6)':
+  '@distilled.cloud/aws4signer@1.0.0-rc.17(effect@4.0.7)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.6)
-      effect: 4.0.6
+      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.7)
+      effect: 4.0.7
 
-  '@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.6)':
+  '@distilled.cloud/cloudflare@1.0.0-rc.17(effect@4.0.7)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.6)
-      effect: 4.0.6
+      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.7)
+      effect: 4.0.7
 
-  '@distilled.cloud/core@1.0.0-rc.17(effect@4.0.6)':
+  '@distilled.cloud/core@1.0.0-rc.17(effect@4.0.7)':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
 
-  '@distilled.cloud/iceberg@1.0.0-rc.17(effect@4.0.6)':
+  '@distilled.cloud/iceberg@1.0.0-rc.17(effect@4.0.7)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.6)
-      effect: 4.0.6
+      '@distilled.cloud/core': 1.0.0-rc.17(effect@4.0.7)
+      effect: 4.0.7
 
   '@drizzle-team/brocli@0.12.1': {}
 
@@ -5803,41 +5803,41 @@ snapshots:
       get-east-asian-width: 1.6.0
       marked: 18.0.11
 
-  '@effect/platform-browser@4.0.6(effect@4.0.6)':
+  '@effect/platform-browser@4.0.7(effect@4.0.7)':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
 
-  '@effect/platform-node-shared@4.0.6(effect@4.0.6)':
+  '@effect/platform-node-shared@4.0.7(effect@4.0.7)':
     dependencies:
       '@types/ws': 8.18.2
-      effect: 4.0.6
+      effect: 4.0.7
       ws: 8.22.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1)':
+  '@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.6(effect@4.0.6)
-      effect: 4.0.6
+      '@effect/platform-node-shared': 4.0.7(effect@4.0.7)
+      effect: 4.0.7
       redis: 6.2.1
       undici: 8.12.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/sql-d1@4.0.6(effect@4.0.6)':
+  '@effect/sql-d1@4.0.7(effect@4.0.7)':
     dependencies:
       '@cloudflare/workers-types': 5.20261019.1
-      effect: 4.0.6
+      effect: 4.0.7
 
-  '@effect/sql-pg@4.0.6(effect@4.0.6)':
+  '@effect/sql-pg@4.0.7(effect@4.0.7)':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
 
-  '@effect/sql-sqlite-do@4.0.6(effect@4.0.6)':
+  '@effect/sql-sqlite-do@4.0.7(effect@4.0.7)':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
 
   '@effect/tsgo-darwin-arm64@0.55.0':
     optional: true
@@ -5870,9 +5870,9 @@ snapshots:
       '@effect/tsgo-win32-arm64': 0.55.0
       '@effect/tsgo-win32-x64': 0.55.0
 
-  '@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))':
+  '@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
       vitest: 5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
 
   '@electric-sql/pglite@0.5.10': {}
@@ -5975,18 +5975,18 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@foldkit/devtools@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(@foldkit/ui@0.169.0(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)))(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))':
+  '@foldkit/devtools@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(@foldkit/ui@0.169.0(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)))(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))':
     dependencies:
-      '@effect/platform-browser': 4.0.6(effect@4.0.6)
-      '@foldkit/ui': 0.169.0(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))
+      '@effect/platform-browser': 4.0.7(effect@4.0.7)
+      '@foldkit/ui': 0.169.0(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))
       clsx: 2.1.1
-      effect: 4.0.6
-      foldkit: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+      effect: 4.0.7
+      foldkit: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
 
-  '@foldkit/markdown@0.14.3(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@foldkit/markdown@0.14.3(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      effect: 4.0.6
-      foldkit: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+      effect: 4.0.7
+      foldkit: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
       remark-directive: 4.0.0
       remark-frontmatter: 5.0.0
       remark-gfm: 4.0.1
@@ -5996,24 +5996,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@foldkit/oxlint-plugin@0.15.3(effect@4.0.6)':
+  '@foldkit/oxlint-plugin@0.15.3(effect@4.0.7)':
     dependencies:
-      effect-oxlint: 0.4.0(effect@4.0.6)
+      effect-oxlint: 0.4.0(effect@4.0.7)
     transitivePeerDependencies:
       - effect
 
-  '@foldkit/ui@0.169.0(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))':
+  '@foldkit/ui@0.169.0(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))':
     dependencies:
       '@floating-ui/dom': 1.8.0
-      effect: 4.0.6
-      foldkit: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+      effect: 4.0.7
+      foldkit: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
 
-  '@foldkit/vite-plugin@0.28.0(patch_hash=a98dff01444d2e6c3a07d38a5e03b22c7ecef6b7466181c2a583e42384fcffa7)(effect@4.0.6)(foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6))(redis@6.2.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@foldkit/vite-plugin@0.28.0(patch_hash=a98dff01444d2e6c3a07d38a5e03b22c7ecef6b7466181c2a583e42384fcffa7)(effect@4.0.7)(foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7))(redis@6.2.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@effect/platform-node': 4.0.6(effect@4.0.6)(redis@6.2.1)
-      '@effect/platform-node-shared': 4.0.6(effect@4.0.6)
-      effect: 4.0.6
-      foldkit: 0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6)
+      '@effect/platform-node': 4.0.7(effect@4.0.7)(redis@6.2.1)
+      '@effect/platform-node-shared': 4.0.7(effect@4.0.7)
+      effect: 4.0.7
+      foldkit: 0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7)
       magic-string: 1.4.3
       vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
       vitefu: 1.1.3(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -6805,9 +6805,9 @@ snapshots:
 
   '@vitest/spy@5.0.5': {}
 
-  '@xstate/effect@1.0.0-alpha.9(effect@4.0.6)(xstate@6.0.0-alpha.70)':
+  '@xstate/effect@1.0.0-alpha.9(effect@4.0.7)(xstate@6.0.0-alpha.70)':
     dependencies:
-      effect: 4.0.6
+      effect: 4.0.7
       xstate: 6.0.0-alpha.70
 
   '@yielded/effect-tsrs-darwin-arm64@0.2.2':
@@ -6841,12 +6841,12 @@ snapshots:
 
   agent-base@9.0.0: {}
 
-  alchemy@2.0.0-beta.84(@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.2.1))(@effect/vitest@4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.6)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
+  alchemy@2.0.0-beta.84(@effect/platform-node@4.0.7(effect@4.0.7)(redis@6.2.1))(@effect/vitest@4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.0.7)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
     dependencies:
       '@alchemy.run/node-utils': 2.0.0-beta.84
       '@alchemy.run/sigil': 0.1.0-alpha.1
       capnweb: 0.12.0
-      effect: 4.0.6
+      effect: 4.0.7
       fflate: 0.8.3
       pathe: 2.0.3
       picomatch: 4.0.7
@@ -6854,8 +6854,8 @@ snapshots:
       tinyglobby: 0.2.17
       yaml: 2.9.1
     optionalDependencies:
-      '@effect/platform-node': 4.0.6(effect@4.0.6)(redis@6.2.1)
-      '@effect/vitest': 4.0.6(effect@4.0.6)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+      '@effect/platform-node': 4.0.7(effect@4.0.7)(redis@6.2.1)
+      '@effect/vitest': 4.0.7(effect@4.0.7)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
       vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
       ws: 8.22.0
     transitivePeerDependencies:
@@ -6882,10 +6882,10 @@ snapshots:
 
   baseline-browser-mapping@2.11.27: {}
 
-  better-auth@1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))):
+  better-auth@1.7.11(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))(pg@8.23.1)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))):
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3)
-      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))
+      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5))
       '@better-auth/kysely-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)(kysely@0.29.4)
       '@better-auth/memory-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)
       '@better-auth/mongo-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.5))(jose@6.2.12)(kysely@0.29.4)(nanostores@1.5.3))(@better-auth/utils@0.5.0)
@@ -6903,7 +6903,7 @@ snapshots:
       zod: 4.6.5
     optionalDependencies:
       drizzle-kit: 1.0.0-rc.5-ab785fc
-      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
+      drizzle-orm: 1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5)
       pg: 8.23.1
       vitest: 5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
     transitivePeerDependencies:
@@ -7093,16 +7093,16 @@ snapshots:
       get-tsconfig: 4.14.3
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.6(effect@4.0.6))(@effect/sql-pg@4.0.6(effect@4.0.6))(@effect/sql-sqlite-do@4.0.6(effect@4.0.6))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.6)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5):
+  drizzle-orm@1.0.0-rc.5-ab785fc(@cloudflare/workers-types@5.20261019.1)(@effect/sql-d1@4.0.7(effect@4.0.7))(@effect/sql-pg@4.0.7(effect@4.0.7))(@effect/sql-sqlite-do@4.0.7(effect@4.0.7))(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(@types/sql.js@1.4.11)(effect@4.0.7)(pg@8.23.1)(sql.js@1.15.0)(typebox@1.3.27)(zod@4.6.5):
     optionalDependencies:
       '@cloudflare/workers-types': 5.20261019.1
-      '@effect/sql-d1': 4.0.6(effect@4.0.6)
-      '@effect/sql-pg': 4.0.6(effect@4.0.6)
-      '@effect/sql-sqlite-do': 4.0.6(effect@4.0.6)
+      '@effect/sql-d1': 4.0.7(effect@4.0.7)
+      '@effect/sql-pg': 4.0.7(effect@4.0.7)
+      '@effect/sql-sqlite-do': 4.0.7(effect@4.0.7)
       '@electric-sql/pglite': 0.5.10
       '@types/pg': 8.23.1
       '@types/sql.js': 1.4.11
-      effect: 4.0.6
+      effect: 4.0.7
       pg: 8.23.1
       sql.js: 1.15.0
       typebox: 1.3.27
@@ -7112,12 +7112,12 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  effect-oxlint@0.4.0(effect@4.0.6):
+  effect-oxlint@0.4.0(effect@4.0.7):
     dependencies:
       '@oxlint/plugins': 1.86.0
-      effect: 4.0.6
+      effect: 4.0.7
 
-  effect@4.0.6: {}
+  effect@4.0.7: {}
 
   electron-to-chromium@1.5.444: {}
 
@@ -7246,10 +7246,10 @@ snapshots:
       pkg-types: 1.3.1
       yaml: 2.9.1
 
-  foldkit@0.169.0(@effect/platform-browser@4.0.6(effect@4.0.6))(effect@4.0.6):
+  foldkit@0.169.0(@effect/platform-browser@4.0.7(effect@4.0.7))(effect@4.0.7):
     dependencies:
-      '@effect/platform-browser': 4.0.6(effect@4.0.6)
-      effect: 4.0.6
+      '@effect/platform-browser': 4.0.7(effect@4.0.7)
+      effect: 4.0.7
       parse5: 8.0.1
 
   format@0.2.2: {}

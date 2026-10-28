@@ -10,7 +10,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
-- Effect `4.0.6` and `@effect/platform-node` `4.0.6`. Foldkit `0.169.0` peers on exact `4.0.0`; `peerDependencyRules.allowedVersions` admits `4.0.6`, and the `@foldkit/vite-plugin` patch in `vendor/README.md` travels with it. Every Effect package resolves to one runtime.
+- Effect `4.0.7` and `@effect/platform-node` `4.0.7`. Foldkit `0.169.0` peers on exact `4.0.0`; `peerDependencyRules.allowedVersions` admits `4.0.7`, and the `@foldkit/vite-plugin` patch in `vendor/README.md` travels with it. Every Effect package resolves to one runtime.
 - XState `6.0.0-alpha.70` for finite lifecycles, retries, cancellation, and resumability
 - `@xstate/effect` `1.0.0-alpha.9` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
 - Foldkit `0.169.0` with `@foldkit/ui` and `@foldkit/devtools` `0.169.0` and `@foldkit/vite-plugin` `0.28.0` for the web UI, server-rendered and prerendered by default
@@ -18,7 +18,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.55.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
 - `@yielded/effect-tsrs` `0.2.2` runs `typecheck` and `check` with `diagnostics --project tsconfig.json --strict --type-check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail. It bundles tsrs revision `8f135f106a63`, contained in plain tsrs `0.20.0`. Keep `ignoreEffectWarningsInTscExitCode` false. Patched TypeScript `7.0.2` with `@effect/tsgo` `0.55.0` runs through `typecheck:tsc` and `typecheck:parity` at the switch and on checker bumps (`pnpm bump:checkers`), not on every CI run. Report any checker disagreement.
 - Plain tsrs `0.20.0-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
-- `@effect/vitest` `4.0.6` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
+- `@effect/vitest` `4.0.7` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
 - `@oxlint/plugins` `1.88.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
 - Oxlint `1.88.0` with Ultracite `8.0.1`, Oxfmt `0.73.0`, and Turborepo `2.11.9`
 - varlock `1.23.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
