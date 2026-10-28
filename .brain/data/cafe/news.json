@@ -1,5 +1,18 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.7",
+    "title": "effect@4.0.7 released",
+    "summary": "Patch release adds CLI output and completion helpers, concurrent property checks and tool model output, and fixes cluster workflow replay and HTTP compression bugs.",
+    "date": "2026-10-28",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/foldkit/foldkit-domains",
     "title": "Foldkit Domains example",
@@ -104,19 +117,6 @@
         "x": "jsep_do"
       }
     ]
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.6",
-    "title": "effect@4.0.6 released",
-    "summary": "Patch release blocks imports of internal modules, adds Atom skipInitialRun and Base64Url.encodePadded, and encodes HTTP basic auth credentials as UTF-8.",
-    "date": "2026-10-22",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
   },
   {
     "kind": "release",
