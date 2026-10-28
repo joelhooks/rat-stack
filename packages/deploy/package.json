@@ -20,18 +20,18 @@
   },
   "dependencies": {
     "@distilled.cloud/cloudflare": "1.0.0-rc.17",
-    "@effect/platform-node": "4.0.6",
+    "@effect/platform-node": "4.0.7",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/check-harness": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "@xstate/effect": "1.0.0-alpha.9",
     "alchemy": "2.0.0-beta.84",
-    "effect": "4.0.6",
+    "effect": "4.0.7",
     "xstate": "6.0.0-alpha.70"
   },
   "devDependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.84",
-    "@effect/vitest": "4.0.6",
+    "@effect/vitest": "4.0.7",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.0.5"

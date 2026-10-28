@@ -58,12 +58,12 @@
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
     "alchemy": "2.0.0-beta.84",
-    "effect": "4.0.6"
+    "effect": "4.0.7"
   },
   "devDependencies": {
-    "@effect/platform-browser": "4.0.6",
-    "@effect/platform-node": "4.0.6",
-    "@effect/vitest": "4.0.6",
+    "@effect/platform-browser": "4.0.7",
+    "@effect/platform-node": "4.0.7",
+    "@effect/vitest": "4.0.7",
     "@foldkit/markdown": "0.14.3",
     "@rat-stack/code-snippets": "workspace:*",
     "@resvg/resvg-js": "2.6.2",
