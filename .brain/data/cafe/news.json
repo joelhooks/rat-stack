@@ -1,16 +1,61 @@
 [
   {
     "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.7",
-    "title": "effect@4.0.7 released",
-    "summary": "Patch release adds CLI output and completion helpers, concurrent property checks and tool model output, and fixes cluster workflow replay and HTTP compression bugs.",
-    "date": "2026-10-28",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.0",
+    "title": "effect@4.1.0 released",
+    "summary": "Minor release replaces effect/Crypto with per-family crypto services and adds HttpApi Problem Details, McpServer per-request middleware and ISO durations.",
+    "date": "2026-10-29",
     "repo": "Effect-TS/effect",
     "author": {
       "github": null,
       "x": null
     },
     "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.71",
+    "title": "xstate 6.0.0-alpha.71 and @xstate/effect 1.0.0-alpha.10",
+    "summary": "xstate adds system-wide onEmitted; @xstate/effect keeps full Effect Causes on failures, adds a snapshot codec and ships its oxlint plugin.",
+    "date": "2026-10-29",
+    "repo": "statelyai/xstate",
+    "author": {
+      "github": "statelyai",
+      "x": null
+    },
+    "source": "https://github.com/statelyai/xstate/releases",
+    "engagement": {
+      "stars": 30375
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/rivet-dev/durable-object-migrator",
+    "title": "durable-object-migrator moves Durable Object data off Cloudflare",
+    "summary": "Migrates Durable Object SQLite data to Postgres, files or Rivet Actors without downtime. Ships a library, an agent prompt and Alchemy support.",
+    "date": "2026-10-29",
+    "repo": "rivet-dev/durable-object-migrator",
+    "author": {
+      "github": "rivet-dev",
+      "x": "NathanFlurry"
+    },
+    "source": "https://x.com/NathanFlurry/status/2115789130911429006",
+    "engagement": {
+      "stars": 19
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://github.com/alchemy-run/alchemy/pull/2700",
+    "title": "Alchemy adds a Foldkit adapter for Domain Apis",
+    "summary": "Merged: @alchemy.run/domain/Foldkit turns a Domain Api into Foldkit Commands and Subscriptions, so apps stop hand-writing the client bridge.",
+    "date": "2026-10-29",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": "artile",
+      "x": null
+    },
+    "source": "https://github.com/alchemy-run/alchemy/pull/2700"
   },
   {
     "kind": "launch",
@@ -174,22 +219,6 @@
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
       "stars": 16
-    }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.70",
-    "title": "xstate 6.0.0-alpha.70 and @xstate/effect 1.0.0-alpha.9",
-    "summary": "xstate 6.0.0-alpha.70 removes ActorRefFromLogic and resolves # targets by exact state id; @xstate/effect 1.0.0-alpha.9 tags root parallel states with the machine id.",
-    "date": "2026-10-19",
-    "repo": "statelyai/xstate",
-    "author": {
-      "github": "statelyai",
-      "x": null
-    },
-    "source": "https://github.com/statelyai/xstate/releases",
-    "engagement": {
-      "stars": 30331
     }
   },
   {
