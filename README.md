@@ -100,8 +100,8 @@ Code mode is the fourth projection. The model gets `search` for ranked matches w
 - **TypeScript `7.0.2`**: strict module and index-access checks.
 - **`@yielded/effect-tsrs` `0.2.3`**: runs TypeScript and Effect diagnostics in `typecheck` and `check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail. It bundles tsrs `8f135f106a63`, contained in plain tsrs `0.20.0`.
 - **tsrs `0.20.1-ts7.1.0-beta`**: experimental compiler targeting TypeScript `7.1.0-beta` for `typecheck:fast`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
-- **XState `6.0.0-alpha.70`**: real lifecycle states; do not replace those with boolean soup.
-- **`@xstate/effect` `1.0.0-alpha.9`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `createEffectLogic` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
+- **XState `6.0.0-alpha.71`**: real lifecycle states; do not replace those with boolean soup.
+- **`@xstate/effect` `1.0.0-alpha.10`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `createEffectLogic` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
 - **Alchemy `2.0.0-beta.84`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; cloud providers come from `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql`; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Foldkit `0.169.0` + `@foldkit/vite-plugin` `0.28.0`**: the web UI. Server rendering and prerendering are on by default. One `vite build` writes the browser bundle, a server `fetch` function, and an HTML file for every public page. `Cloudflare.Website.Foldkit` serves the files and sends every other request to that function. The browser hydrates the same view. `.brain/areas/web.svx` is the system page.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.

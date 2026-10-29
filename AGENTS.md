@@ -11,8 +11,8 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
 - Effect `4.0.7` and `@effect/platform-node` `4.0.7`. Foldkit `0.169.0` peers on exact `4.0.0`; `peerDependencyRules.allowedVersions` admits `4.0.7`, and the `@foldkit/vite-plugin` patch in `vendor/README.md` travels with it. Every Effect package resolves to one runtime.
-- XState `6.0.0-alpha.70` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `1.0.0-alpha.9` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
+- XState `6.0.0-alpha.71` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `1.0.0-alpha.10` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
 - Foldkit `0.169.0` with `@foldkit/ui` and `@foldkit/devtools` `0.169.0` and `@foldkit/vite-plugin` `0.28.0` for the web UI, server-rendered and prerendered by default
 - Alchemy `2.0.0-beta.84` with the `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql` providers (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.55.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason

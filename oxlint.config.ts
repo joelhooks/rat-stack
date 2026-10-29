@@ -1,3 +1,5 @@
+import { createRequire } from "node:module";
+
 import foldkitRecommended from "@foldkit/oxlint-plugin/recommended.json" with { type: "json" };
 import { defineConfig } from "oxlint";
 import core from "ultracite/oxlint/core";
@@ -45,7 +47,9 @@ export default defineConfig({
   ],
   jsPlugins: [
     { name: "foldkit", specifier: "@foldkit/oxlint-plugin" },
-    "./scripts/oxlint-plugin-xstate-effect.ts",
+    createRequire(
+      new URL("packages/core/package.json", import.meta.url)
+    ).resolve("@xstate/effect/oxlint"),
     "./scripts/oxlint-plugin-effect-tests.ts",
     "./scripts/oxlint-plugin-no-comments.ts",
     {

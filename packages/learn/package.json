@@ -62,9 +62,9 @@
   "dependencies": {
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
-    "@xstate/effect": "1.0.0-alpha.9",
+    "@xstate/effect": "1.0.0-alpha.10",
     "effect": "4.0.7",
-    "xstate": "6.0.0-alpha.70"
+    "xstate": "6.0.0-alpha.71"
   },
   "devDependencies": {
     "@effect/platform-node": "4.0.7",

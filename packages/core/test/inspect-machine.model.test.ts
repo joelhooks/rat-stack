@@ -1,6 +1,13 @@
 import { describe, expect, it } from "@effect/vitest";
-import { createEffectActor, join, send, waitFor } from "@xstate/effect";
-import { Deferred, Effect, Schema } from "effect";
+import {
+  createEffectActor,
+  EffectFailure,
+  join,
+  send,
+  waitFor,
+} from "@xstate/effect";
+import { sendAndAwait } from "@xstate/effect/test";
+import { Cause, Deferred, Effect, Exit, Match, Result, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import type { SnapshotFrom } from "xstate";
 import { getPathsFromEvents, getShortestPaths } from "xstate/graph";
@@ -31,7 +38,7 @@ type InspectionCommand = typeof Command.Type;
 const outcomesFor = ({ stats, reason }: InspectionScenario) =>
   ({
     failure: inspectOutcome.Unreadable({
-      error: new FileStatsError({ path: stats.path, reason }),
+      cause: Cause.fail(new FileStatsError({ path: stats.path, reason })),
     }),
     success: inspectOutcome.Inspected({ stats }),
   }) satisfies { failure: InspectOutcome; success: InspectOutcome };
@@ -47,7 +54,7 @@ const eventsFor = (scenario: InspectionScenario) => {
   return {
     fail: {
       actorId: invocation.id,
-      error: failure.error,
+      error: new EffectFailure(failure.cause),
       type: "xstate.error.actor",
     },
     probe: { type: "UNHANDLED" },
@@ -59,16 +66,28 @@ const eventsFor = (scenario: InspectionScenario) => {
   };
 };
 
+const domainOutcome = (outcome: InspectOutcome | undefined) =>
+  outcome?._tag === "Unreadable"
+    ? {
+        _tag: outcome._tag,
+        error: Result.getOrThrow(Cause.findError(outcome.cause)),
+      }
+    : outcome;
+
 const assertSnapshot = (
   snapshot: SnapshotFrom<typeof inspectMachine>,
   expected?: InspectOutcome
 ) => {
   expect(snapshot.status).toBe(expected === undefined ? "active" : "done");
-  expect(snapshot.context.outcome).toStrictEqual(expected);
-  expect(snapshot.output).toStrictEqual(expected);
+  expect(domainOutcome(snapshot.context.outcome)).toStrictEqual(
+    domainOutcome(expected)
+  );
+  expect(domainOutcome(snapshot.output)).toStrictEqual(domainOutcome(expected));
 
   if (snapshot.output?._tag === "Unreadable") {
-    expect(Schema.is(FileStatsError)(snapshot.output.error)).toBe(true);
+    expect(Schema.is(FileStatsError)(Cause.squash(snapshot.output.cause))).toBe(
+      true
+    );
   }
 };
 
@@ -150,7 +169,7 @@ const replayActor = Effect.fn("replayActor")(function* replayActor(
 
     if (expected === undefined && command === "fail") {
       expected = failure;
-      yield* Deferred.fail(result, failure.error);
+      yield* Deferred.failCause(result, failure.cause);
       yield* waitFor(actor, (snapshot) => snapshot.status === "done");
     } else if (expected === undefined && command === "succeed") {
       expected = success;
@@ -159,8 +178,10 @@ const replayActor = Effect.fn("replayActor")(function* replayActor(
     } else {
       const event = events[command];
 
-      yield* send(actor, event);
-      yield* Effect.yieldNow;
+      yield* before.status === "active"
+        ? sendAndAwait(actor, event)
+        : send(actor, event);
+
       expect(actor.getSnapshot()).toBe(before);
     }
 
@@ -169,20 +190,66 @@ const replayActor = Effect.fn("replayActor")(function* replayActor(
 
   expect(requested).toStrictEqual([scenario.stats.path]);
   // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level failures are defects; FileStatsError travels through the final outcome.
-  expect(yield* join(actor).pipe(Effect.orDie)).toStrictEqual(expected);
+  expect(domainOutcome(yield* join(actor).pipe(Effect.orDie))).toStrictEqual(
+    domainOutcome(expected)
+  );
 
   const running = runInspectMachine(scenario.stats.path).pipe(
     Effect.provideService(FileInspector, inspector)
   );
 
   if (expected?._tag === "Unreadable") {
-    expect(yield* Effect.flip(running)).toStrictEqual(failure.error);
+    expect(yield* Effect.flip(running)).toStrictEqual(
+      Cause.squash(failure.cause)
+    );
   } else {
     expect(yield* running).toStrictEqual(success.stats);
   }
 }, Effect.scoped);
 
 describe("inspection lifecycle contract", () => {
+  it.effect.prop(
+    "preserves typed failures, defects and interruption through invoked errors",
+    {
+      kind: Schema.Literals(["failure", "defect", "interruption"]),
+      reason: Schema.String,
+    },
+    ({ kind, reason }) =>
+      Effect.gen(function* preservesCause() {
+        const error = new FileStatsError({ path: "generated.txt", reason });
+
+        const cause = Match.value(kind).pipe(
+          Match.when("failure", () => Cause.fail(error)),
+          Match.when("defect", () => Cause.die(error)),
+          Match.when("interruption", () => Cause.interrupt()),
+          Match.exhaustive
+        );
+
+        const inspector = FileInspector.of({
+          inspect: () => Effect.failCause(cause),
+        });
+
+        const exit = yield* runInspectMachine(error.path).pipe(
+          Effect.provideService(FileInspector, inspector),
+          Effect.exit
+        );
+
+        expect(Exit.isFailure(exit)).toBe(true);
+
+        if (Exit.isFailure(exit)) {
+          expect(exit.cause.reasons.map((entry) => entry._tag)).toStrictEqual(
+            cause.reasons.map((entry) => entry._tag)
+          );
+
+          if (kind === "failure") {
+            expect(Result.getOrThrow(Cause.findError(exit.cause))).toBe(error);
+          } else if (kind === "defect") {
+            expect(Result.getOrThrow(Cause.findDefect(exit.cause))).toBe(error);
+          }
+        }
+      }),
+    { arbitrary: { runs: 100 } }
+  );
   it.prop(
     "graph paths preserve one terminal outcome across generated command histories",
     { generated: commands, scenario: Scenario },

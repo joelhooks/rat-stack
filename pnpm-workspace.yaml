@@ -56,8 +56,8 @@ minimumReleaseAgeExclude:
   - "@effect/sql-d1@4.0.7"
   - "@effect/sql-sqlite-do@4.0.7"
   - "@effect/vitest@4.0.7"
-  - xstate@6.0.0-alpha.70
-  - "@xstate/effect@1.0.0-alpha.9"
+  - xstate@6.0.0-alpha.71
+  - "@xstate/effect@1.0.0-alpha.10"
   - better-auth@1.7.11
   - satori@0.33.5
   - "@alchemy.run/cloudflare-runtime@2.0.0-beta.84"

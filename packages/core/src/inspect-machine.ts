@@ -6,6 +6,7 @@ import {
   setupEffect,
 } from "@xstate/effect";
 import { Data, Effect, Schema } from "effect";
+import type { Cause } from "effect";
 import { types } from "xstate";
 
 import { FileInspector } from "./file-inspector.js";
@@ -13,7 +14,7 @@ import type { FileStats, FileStatsError } from "./stats.js";
 
 export type InspectOutcome = Data.TaggedEnum<{
   Inspected: { readonly stats: FileStats };
-  Unreadable: { readonly error: FileStatsError };
+  Unreadable: { readonly cause: Cause.Cause<FileStatsError> };
 }>;
 
 export const inspectOutcome = Data.taggedEnum<InspectOutcome>();
@@ -52,7 +53,7 @@ export const inspectMachine = setupEffect({
         },
         onError: {
           context: ({ event }) => ({
-            outcome: inspectOutcome.Unreadable({ error: event.error }),
+            outcome: inspectOutcome.Unreadable({ cause: event.error.cause }),
           }),
           target: "unreadable",
         },
@@ -78,7 +79,7 @@ export const runInspectMachine = Effect.fn("runInspectMachine")(
 
     return yield* inspectOutcome.$match(outcome, {
       Inspected: ({ stats }) => Effect.succeed(stats),
-      Unreadable: ({ error }) => Effect.fail(error),
+      Unreadable: ({ cause }) => Effect.failCause(cause),
     });
   },
   Effect.scoped

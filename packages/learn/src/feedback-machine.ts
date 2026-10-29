@@ -8,6 +8,7 @@ import {
   setupEffect,
 } from "@xstate/effect";
 import { Effect, Schema } from "effect";
+import type { Cause } from "effect";
 import { types } from "xstate";
 
 import { FeedbackAuthor } from "./feedback-author.js";
@@ -16,7 +17,7 @@ interface DeviceContext {
   readonly deviceCode: string;
   readonly grant: typeof FeedbackGrant.Type | undefined;
   readonly result: typeof FeedbackPoll.Type | undefined;
-  readonly error: LearnUnauthenticated | undefined;
+  readonly error: Cause.Cause<LearnUnauthenticated> | undefined;
 }
 
 const inspectDevice = createEffectLogic({
@@ -69,7 +70,7 @@ export const feedbackDeviceMachine = setupEffect({
           target: "issued",
         },
         onError: {
-          context: ({ event }) => ({ error: event.error }),
+          context: ({ event }) => ({ error: event.error.cause }),
           target: "unauthenticated",
         },
         src: "issueCredential",
@@ -83,7 +84,7 @@ export const feedbackDeviceMachine = setupEffect({
             ? { context: { grant: event.output.grant }, target: "approved" }
             : { context: { result: event.output }, target: event.output.state },
         onError: {
-          context: ({ event }) => ({ error: event.error }),
+          context: ({ event }) => ({ error: event.error.cause }),
           target: "unauthenticated",
         },
         src: "inspectDevice",
@@ -155,7 +156,7 @@ export const pollFeedbackDevice = Effect.fn("pollFeedbackDevice")(
     const outcome = yield* join(actor).pipe(Effect.orDie);
 
     if (outcome.error !== undefined) {
-      return yield* outcome.error;
+      return yield* Effect.failCause(outcome.error);
     }
 
     if (outcome.result === undefined) {
