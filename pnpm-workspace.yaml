@@ -34,12 +34,12 @@ allowBuilds:
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
   - "tsrs@0.20.1-ts7.1.0-beta"
-  - "@yielded/effect-tsrs@0.2.2"
-  - "@yielded/effect-tsrs-linux-x64@0.2.2"
-  - "@yielded/effect-tsrs-linux-arm64@0.2.2"
-  - "@yielded/effect-tsrs-darwin-x64@0.2.2"
-  - "@yielded/effect-tsrs-darwin-arm64@0.2.2"
-  - "@yielded/effect-tsrs-win32-x64@0.2.2"
+  - "@yielded/effect-tsrs@0.2.3"
+  - "@yielded/effect-tsrs-linux-x64@0.2.3"
+  - "@yielded/effect-tsrs-linux-arm64@0.2.3"
+  - "@yielded/effect-tsrs-darwin-x64@0.2.3"
+  - "@yielded/effect-tsrs-darwin-arm64@0.2.3"
+  - "@yielded/effect-tsrs-win32-x64@0.2.3"
   # Effect 4 unblock: stable runtime and adapters replace removed unstable imports.
   - "@alchemy.run/better-auth@2.0.0-beta.84"
   - alchemy@2.0.0-beta.84
