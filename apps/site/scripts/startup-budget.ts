@@ -22,8 +22,8 @@ const BundleGraph = Schema.fromJsonString(
 );
 
 const startupBudgets = {
-  LearnFeedbackAuth: 1_600_000,
-  Mischief: 1_250_000,
+  LearnFeedbackAuth: 1_456_000,
+  Mischief: 1_247_000,
 };
 
 const javascriptAlarmBytes = 2_500_000;

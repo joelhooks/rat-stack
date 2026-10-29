@@ -1,5 +1,5 @@
-import { PromptLibrary } from "@rat-stack/core";
 import { UnknownPrompt } from "@rat-stack/core/contracts";
+import { PromptLibrary } from "@rat-stack/core/prompts";
 import { Effect, Layer } from "effect";
 
 import { ContentStore } from "./content-store.js";

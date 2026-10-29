@@ -8,7 +8,7 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,250,000 bytes for Mischief** and **1,600,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+The hard, shrink-only ceilings cover the **static startup set**: **1,247,000 bytes for Mischief** and **1,456,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
@@ -58,7 +58,22 @@ The startup-set gate baseline at `fd7bb92` measures:
 - Mischief: **949,849 entry bytes**, **1,243,439 startup bytes**, and **1,295,351 total JavaScript bytes**.
 - LearnFeedbackAuth: **123 entry bytes**, **1,588,571 startup bytes**, and **1,603,410 total JavaScript bytes**.
 
-Rounding each measured startup set up to the next 50,000 bytes gives the hard ceilings above. Mischief has **6,561 bytes** of headroom. LearnFeedbackAuth has **11,429 bytes**. A forwarding entry does not hide its statically imported implementation from these ceilings.
+Rounding that baseline up to the next 50,000 bytes gave the original ceilings of 1,250,000 and 1,600,000 bytes. At that baseline, Mischief had **6,561 bytes** of headroom and LearnFeedbackAuth had **11,429 bytes**. A forwarding entry does not hide its statically imported implementation from these ceilings.
+
+### Request-time learning and narrow imports
+
+Against main `fd4ed2a`, with XState still pinned to `6.0.0-alpha.70`:
+
+| Worker | Before startup bytes | After startup bytes | Reduction | Old ceiling | New ceiling | Remaining headroom |
+| --- | --: | --: | --: | --: | --: | --: |
+| Mischief | 1,248,053 | 1,238,260 | 9,793 | 1,250,000 | 1,247,000 | 8,740 |
+| LearnFeedbackAuth | 1,599,083 | 1,446,046 | 153,037 | 1,600,000 | 1,456,000 | 9,954 |
+
+The ceilings were chosen from the initial trimmed startup sizes plus 10,000 bytes, rounded down to the nearest 1,000. Typed feedback chunk failures then added 283 bytes to Mischief and 20 bytes to LearnFeedbackAuth. The ceilings stay unchanged rather than rising to recover that margin. The startup-set calculation is unchanged.
+
+`Learner.layer` supplies the same API without importing its implementation until a method runs. Learner and feedback-machine chunk-load rejections become `LearnError`. The poll contract declares that failure at HTTP 422 alongside its existing HTTP 401 authentication refusal. The public graph reaches `learner-service` and `feedback-machine` only through dynamic imports. Narrow author imports remove both modules entirely from the private auth graph. Narrow cafe and prompt imports also keep the unused file-inspection service and machine out of the public graph.
+
+The request seam test observes native module loading in a fresh Node process running the built app. Requests to `/` and `/news` as HTML and Markdown load no Learner implementation. The first learning request loads it once and succeeds. An eager import planted at layer construction makes that test fail. A separate loader test checks typed chunk-load failure. Existing selection, progress, feedback, HTTP, and published CLI tests cover the unchanged behavior.
 
 Adding 15 synthetic lore pages changed the emitted page count from 111 to 126. Entry size stayed exactly **813,559 bytes**. The generated bootstrap stayed **104,026 bytes**. The temporary pages were removed and the normal generation restored. Subsequent main changes brought the fixed bootstrap to **104,861 bytes**.
 

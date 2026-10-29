@@ -1,14 +1,10 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode/execute";
-import {
-  getPrompt,
-  listCafeNews,
-  listCafeProjects,
-  listPrompts,
-} from "@rat-stack/core";
+import { listCafeNews, listCafeProjects } from "@rat-stack/core/cafe-directory";
 import { flagCapabilities } from "@rat-stack/core/flag-capabilities";
 import type { Flags } from "@rat-stack/core/flags";
 import { joinInterest } from "@rat-stack/core/join-interest";
-import { feedbackCapabilities } from "@rat-stack/learn/feedback";
+import { getPrompt, listPrompts } from "@rat-stack/core/prompts";
+import { feedbackCapabilities } from "@rat-stack/learn/feedback-capabilities";
 import { Layer } from "effect";
 
 import { cafeDirectoryLayer } from "../cafe-directory.js";
@@ -22,7 +18,7 @@ import { search } from "./search.js";
 
 export { read } from "./read.js";
 
-export { listCafeNews, listCafeProjects } from "@rat-stack/core";
+export { listCafeNews, listCafeProjects } from "@rat-stack/core/cafe-directory";
 
 export { backlinks, mentions, neighbors, path } from "./lore.js";
 

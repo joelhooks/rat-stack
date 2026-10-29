@@ -1,10 +1,10 @@
 import { LearnError } from "@rat-stack/core/learn";
-import { Learner } from "@rat-stack/learn";
+import { Learner } from "@rat-stack/learn/learner";
 import { Effect, Layer } from "effect";
 
 import { ContentStore } from "../content-store.js";
 
-export { learnCapabilities } from "@rat-stack/learn";
+export { learnCapabilities } from "@rat-stack/learn/capabilities";
 
 export const learnLayer = Layer.unwrap(
   ContentStore.pipe(
