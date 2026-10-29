@@ -16,9 +16,9 @@ registerHooks({
   },
 });
 
-const { mischiefRoutes } = await import("../../dist/app.js");
+const { mischiefRoutes } = await import("#built-app");
 
-const { nodeAssetsLayer } = await import("../../dist/node-content.js");
+const { nodeAssetsLayer } = await import("#built-node-content");
 
 const sandbox = Layer.succeed(Sandbox, {
   run: () => Effect.die(new Error("Unexpected sandbox request")),

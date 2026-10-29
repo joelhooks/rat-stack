@@ -4,9 +4,9 @@ import { Effect, Schema } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 const Observation = Schema.Struct({
-  characters: Schema.Number,
-  loads: Schema.Number,
-  status: Schema.Number,
+  characters: Schema.Finite,
+  loads: Schema.Finite,
+  status: Schema.Finite,
 });
 
 const Report = Schema.fromJsonString(
@@ -32,7 +32,7 @@ it.effect(
         ChildProcess.make("node", ["test/fixtures/learner-load-observer.mjs"])
       );
 
-      const report = yield* Schema.decodeUnknownEffect(Report)(output);
+      const report = yield* Schema.decodeEffect(Report)(output);
 
       expect(report.requests).toHaveLength(4);
 

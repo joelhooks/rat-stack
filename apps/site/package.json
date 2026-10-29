@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "imports": {
+    "#built-app": {
+      "types": "./src/app.ts",
+      "default": "./dist/app.js"
+    },
+    "#built-node-content": {
+      "types": "./src/node-content.ts",
+      "default": "./dist/node-content.js"
+    }
+  },
   "exports": {
     "./node-content": {
       "types": "./src/node-content.ts",
