@@ -1,4 +1,4 @@
-import { CafeDirectory } from "@rat-stack/core";
+import { CafeDirectory } from "@rat-stack/core/cafe-directory";
 import { Effect, Layer } from "effect";
 
 import { ContentStore } from "./content-store.js";

@@ -14,6 +14,26 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./learner": {
+      "types": "./src/learner.ts",
+      "import": "./dist/learner.js",
+      "default": "./dist/learner.js"
+    },
+    "./capabilities": {
+      "types": "./src/capabilities.ts",
+      "import": "./dist/capabilities.js",
+      "default": "./dist/capabilities.js"
+    },
+    "./feedback-capabilities": {
+      "types": "./src/feedback-capabilities.ts",
+      "import": "./dist/feedback-capabilities.js",
+      "default": "./dist/feedback-capabilities.js"
+    },
+    "./feedback-author": {
+      "types": "./src/feedback-author.ts",
+      "import": "./dist/feedback-author.js",
+      "default": "./dist/feedback-author.js"
+    },
     "./feedback": {
       "types": "./src/feedback.ts",
       "import": "./dist/feedback.js",

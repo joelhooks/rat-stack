@@ -1,6 +1,6 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toToolkit } from "@rat-stack/capability/toolkit";
-import { CafeDirectory } from "@rat-stack/core";
+import { CafeDirectory } from "@rat-stack/core/cafe-directory";
 import type {
   AssetReadError,
   ResourceNotFound,
@@ -9,7 +9,7 @@ import { Flags } from "@rat-stack/core/flags";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
-import { Learner } from "@rat-stack/learn";
+import { Learner } from "@rat-stack/learn/learner";
 import * as AlchemyHttp from "alchemy/Http";
 import type { Context } from "effect";
 import {

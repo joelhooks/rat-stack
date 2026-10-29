@@ -1,0 +1,225 @@
+{
+  "baseline": "fd4ed2a",
+  "xstate": "6.0.0-alpha.70",
+  "entries": [
+    {
+      "worker": "Mischief",
+      "metrics": {
+        "entryBytes": 784218,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1299227,
+        "startupBytes": 1238260,
+        "startupFiles": [
+          "Fiber-CYopfYWz.js",
+          "Match-B9g7PKvl.js",
+          "Ref-GZICvEXo.js",
+          "Schema-Cgnhip7f.js",
+          "catalog-model-wUEJAW1e.js",
+          "contract-DzIjzje5.js",
+          "feedback-author-CvSpRb7_.js",
+          "learn-ByVqaV2x.js",
+          "rolldown-runtime-h-LrNgu6.js",
+          "sandbox-diagnostic-schema-8tNFFqj3.js",
+          "sandbox-limits-schema-B5119xEg.js",
+          "sandbox-port-CkmFcFCP.js",
+          "worker.js"
+        ],
+        "startupBudgetBytes": 1247000,
+        "worker": "Mischief"
+      },
+      "proof": {
+        "learner-service": {
+          "status": "dynamic-only",
+          "chunks": ["learner-service-5Qd27y2p.js"],
+          "sourceBytes": 4922
+        },
+        "feedback-machine": {
+          "status": "dynamic-only",
+          "chunks": ["feedback-machine-4XW58rFm.js"],
+          "sourceBytes": 5860
+        },
+        "inspect-machine": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        },
+        "file-inspector": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        }
+      }
+    },
+    {
+      "worker": "LearnFeedbackAuth",
+      "metrics": {
+        "entryBytes": 123,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1460885,
+        "startupBytes": 1446046,
+        "startupFiles": [
+          "_distilled_worker-entry__virtual_alchemy-entry_private-worker-BTn07TD8.js",
+          "compiled-query-CvogUxvK.js",
+          "dist-DvB-1Ni5.js",
+          "factory-BlxRBzHh.js",
+          "private-worker.js",
+          "rolldown-runtime-BJS_XihH.js",
+          "sqlite-adapter-Cm6SS7X2.js",
+          "sqlite-introspector-DSCAP82F-8db5NyHw.js"
+        ],
+        "startupBudgetBytes": 1456000,
+        "worker": "LearnFeedbackAuth"
+      },
+      "proof": {
+        "learner-service": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        },
+        "feedback-machine": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        },
+        "inspect-machine": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        },
+        "file-inspector": {
+          "status": "absent",
+          "chunks": [],
+          "sourceBytes": 0
+        }
+      }
+    }
+  ],
+  "measurements": {
+    "baseline": {
+      "Mischief": {
+        "entryBytes": 950388,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1299965,
+        "startupBytes": 1248053,
+        "startupFiles": [
+          "Match-B9g7PKvl.js",
+          "Schema-Cgnhip7f.js",
+          "catalog-model-DfgI1zwP.js",
+          "rolldown-runtime-h-LrNgu6.js",
+          "sandbox-diagnostic-schema-8tNFFqj3.js",
+          "sandbox-limits-schema-B5119xEg.js",
+          "sandbox-port-DPqFOwDc.js",
+          "worker.js"
+        ],
+        "startupBudgetBytes": 1250000,
+        "worker": "Mischief"
+      },
+      "LearnFeedbackAuth": {
+        "entryBytes": 123,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1613922,
+        "startupBytes": 1599083,
+        "startupFiles": [
+          "_distilled_worker-entry__virtual_alchemy-entry_private-worker-CrDfd_xO.js",
+          "compiled-query-CvogUxvK.js",
+          "dist-DNtw8UNV.js",
+          "factory-BYJM-4l9.js",
+          "private-worker.js",
+          "rolldown-runtime-BJS_XihH.js",
+          "sqlite-adapter-Cm6SS7X2.js",
+          "sqlite-introspector-DSCAP82F-8db5NyHw.js"
+        ],
+        "startupBudgetBytes": 1600000,
+        "worker": "LearnFeedbackAuth"
+      }
+    },
+    "learner-only": {
+      "Mischief": {
+        "entryBytes": 790051,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1301062,
+        "startupBytes": 1243238,
+        "startupFiles": [
+          "Fiber-CYopfYWz.js",
+          "Match-B9g7PKvl.js",
+          "Schema-Cgnhip7f.js",
+          "catalog-model-wUEJAW1e.js",
+          "contract-DzIjzje5.js",
+          "learn-WwmMEBHN.js",
+          "rolldown-runtime-h-LrNgu6.js",
+          "sandbox-diagnostic-schema-8tNFFqj3.js",
+          "sandbox-limits-schema-B5119xEg.js",
+          "sandbox-port-CkmFcFCP.js",
+          "worker.js"
+        ],
+        "startupBudgetBytes": 1250000,
+        "worker": "Mischief"
+      },
+      "LearnFeedbackAuth": {
+        "entryBytes": 123,
+        "javascriptAlarmBytes": 2500000,
+        "javascriptBytes": 1614918,
+        "startupBytes": 1594225,
+        "startupFiles": [
+          "_distilled_worker-entry__virtual_alchemy-entry_private-worker-CHD9ykhN.js",
+          "compiled-query-CvogUxvK.js",
+          "dist-I6jSA_Iu.js",
+          "factory-DrC_KmJ_.js",
+          "private-worker.js",
+          "rolldown-runtime-BJS_XihH.js",
+          "sqlite-adapter-Cm6SS7X2.js",
+          "sqlite-introspector-DSCAP82F-8db5NyHw.js",
+          "xstate-effect-DDB0kjjc.js"
+        ],
+        "startupBudgetBytes": 1600000,
+        "worker": "LearnFeedbackAuth"
+      }
+    }
+  },
+  "requestObservation": {
+    "learning": {
+      "characters": 140305,
+      "loads": 1,
+      "status": 200
+    },
+    "requests": [
+      {
+        "accept": "text/html",
+        "characters": 12357,
+        "loads": 0,
+        "path": "/",
+        "status": 200
+      },
+      {
+        "accept": "text/markdown",
+        "characters": 12357,
+        "loads": 0,
+        "path": "/",
+        "status": 200
+      },
+      {
+        "accept": "text/html",
+        "characters": 28140,
+        "loads": 0,
+        "path": "/news",
+        "status": 200
+      },
+      {
+        "accept": "text/markdown",
+        "characters": 28140,
+        "loads": 0,
+        "path": "/news",
+        "status": 200
+      }
+    ]
+  },
+  "checks": {
+    "requestSeam": "A fresh Node process observes native module loads without mocking. HTML and Markdown requests to / and /news return 200 without loading learner-service. The first learnDeck request loads it once and returns 200.",
+    "mutation": "An eager learner-service import inserted at Learner.layer construction fails the native observer test: one load instead of zero on ordinary pages. Removing the insertion restores success.",
+    "chunkFailure": "The loader test maps rejected chunk loading to LearnError with id learner and the original failure message.",
+    "pins": "No dependency pins changed. @xstate/effect remains 1.0.0-alpha.9.",
+    "feedbackChunkFailure": "Rejected feedback-machine imports become LearnError in both handlers. An Effect.promise mutation fails the loader test; restoring Effect.tryPromise passes.",
+    "feedbackProjections": "Poll adds LearnError to its failure union with owner approval. OpenAPI documents Unauthenticated at 401 and LearnError at 422; MCP and RPC error schemas decode both tags. No CLI or web poll-tag switch or device-login loop exists on baseline fd4ed2a."
+  },
+  "ceilingPolicy": "Keep already-lowered ceilings unchanged after typed feedback failures add 283 Mischief bytes and 20 LearnFeedbackAuth bytes; do not raise a ceiling to restore the original rounding margin."
+}

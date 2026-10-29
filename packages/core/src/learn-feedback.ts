@@ -73,7 +73,7 @@ export const learnFeedbackPollContract = defineContract("learnFeedbackPoll", {
   annotations: { idempotent: false, readOnly: false },
   description:
     "Poll a device code. Approval returns a credential that authorizes learnFeedback only.",
-  failure: FeedbackAuthFailure,
+  failure: Schema.Union([FeedbackAuthFailure, LearnError]),
   input: Schema.Struct({
     deviceCode: Schema.String.check(
       Schema.isNonEmpty(),

@@ -8,7 +8,7 @@ import {
   FeedbackRequest,
   LearnUnauthenticated,
 } from "@rat-stack/core/learn";
-import { FeedbackAuthor } from "@rat-stack/learn/feedback";
+import { FeedbackAuthor } from "@rat-stack/learn/feedback-author";
 import { Schema } from "effect";
 
 const failure = LearnUnauthenticated.annotate({ httpApiStatus: 401 });
