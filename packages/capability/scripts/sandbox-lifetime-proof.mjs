@@ -6,8 +6,8 @@ import { NodeServices } from "@effect/platform-node";
 import { Deferred, Effect, Fiber, Layer, Predicate, Schema } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
-import { Sandbox } from "../dist/sandbox-service.js";
-import { RUNNER_SOURCE, layerSubprocess } from "../dist/sandbox-subprocess.js";
+import { Sandbox } from "#built-sandbox-service";
+import { RUNNER_SOURCE, layerSubprocess } from "#built-sandbox-subprocess";
 
 const marker = process.argv[3] ?? `sandbox-proof-${process.pid}`;
 

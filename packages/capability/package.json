@@ -8,6 +8,16 @@
   ],
   "type": "module",
   "types": "./src/index.ts",
+  "imports": {
+    "#built-sandbox-service": {
+      "types": "./src/sandbox-service.ts",
+      "default": "./dist/sandbox-service.js"
+    },
+    "#built-sandbox-subprocess": {
+      "types": "./src/sandbox-subprocess.ts",
+      "default": "./dist/sandbox-subprocess.js"
+    }
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",
