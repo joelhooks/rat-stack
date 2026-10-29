@@ -59,7 +59,7 @@
     "oxlint": "1.88.0",
     "oxlint-tsgolint": "7.0.2004",
     "portless": "0.15.8",
-    "tsrs": "0.20.0-ts7.1.0-beta",
+    "tsrs": "0.20.1-ts7.1.0-beta",
     "turbo": "2.11.9",
     "typescript": "7.0.2",
     "ultracite": "8.0.1",
