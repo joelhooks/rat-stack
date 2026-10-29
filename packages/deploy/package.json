@@ -24,10 +24,10 @@
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/check-harness": "workspace:*",
     "@rat-stack/core": "workspace:*",
-    "@xstate/effect": "1.0.0-alpha.9",
+    "@xstate/effect": "1.0.0-alpha.10",
     "alchemy": "2.0.0-beta.84",
     "effect": "4.0.7",
-    "xstate": "6.0.0-alpha.70"
+    "xstate": "6.0.0-alpha.71"
   },
   "devDependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.84",

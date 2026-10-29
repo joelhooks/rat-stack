@@ -17,7 +17,7 @@ Refs below are derived from the workspace `package.json` pins by `scripts/vendor
 | --- | --- | --- | --- |
 | `github.com/Effect-TS/effect` | https://github.com/Effect-TS/effect.git | `effect@4.0.0` | Effect v4 Schema, Context.Service, Config, platform-node, CLI, `@effect/vitest` |
 | `github.com/kitlangton/effect-solutions` | https://github.com/kitlangton/effect-solutions.git | `main` | Idiomatic Effect patterns (Kit) |
-| `github.com/statelyai/xstate` | https://github.com/statelyai/xstate.git | `xstate@6.0.0-alpha.70` | XState `6.0.0-alpha.70` core plus `packages/xstate-effect` at `1.0.0-alpha.9` (both versions checked by the mirror script) |
+| `github.com/statelyai/xstate` | https://github.com/statelyai/xstate.git | `xstate@6.0.0-alpha.71` | XState `6.0.0-alpha.71` core plus `packages/xstate-effect` at `1.0.0-alpha.10` (both versions checked by the mirror script) |
 | `github.com/alchemy-run/alchemy` | https://github.com/alchemy-run/alchemy.git | `v2.0.0-beta.83` | Alchemy resources, Cloudflare and AWS providers, Effect-native Stack API |
 | `github.com/better-auth/better-auth` | https://github.com/better-auth/better-auth.git | `v1.7.11` | Better Auth core, adapters, and plugins behind `packages/auth` |
 | `github.com/foldkit/foldkit` | https://github.com/foldkit/foldkit.git | `foldkit@0.168.0` | Foldkit UI behind `apps/web` |

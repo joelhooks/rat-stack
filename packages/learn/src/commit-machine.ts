@@ -8,13 +8,14 @@ import {
   setupEffect,
 } from "@xstate/effect";
 import { Effect } from "effect";
+import type { Cause } from "effect";
 import { types } from "xstate";
 
 import { LearnEventWriter } from "./event-writer.js";
 
 interface CommitContext {
   readonly event: LearnEvent;
-  readonly error: LearnerProgressError | undefined;
+  readonly error: Cause.Cause<LearnerProgressError> | undefined;
 }
 
 const append = createEffectLogic({
@@ -35,7 +36,7 @@ const commitMachine = setupEffect({
         input: ({ context }) => context.event,
         onDone: { target: "committed" },
         onError: {
-          context: ({ event }) => ({ error: event.error }),
+          context: ({ event }) => ({ error: event.error.cause }),
           target: "failed",
         },
         src: "append",
@@ -55,7 +56,7 @@ export const commitEvent = Effect.fn("commitEvent")(function* commitEvent(
   const error = yield* join(actor).pipe(Effect.orDie);
 
   if (error !== undefined) {
-    return yield* error;
+    return yield* Effect.failCause(error);
   }
 
   return yield* Effect.void;
