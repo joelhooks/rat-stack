@@ -6,7 +6,7 @@ summary: Exact pins, upstream compatibility checks, and the source mirror choice
 # XState alpha.69 migration
 
 This page started at `xstate@6.0.0-alpha.69` and `@xstate/effect@1.0.0-alpha.8`.
-The current pins are `xstate@6.0.0-alpha.70` and `@xstate/effect@1.0.0-alpha.9`; see the alpha.70 section.
+The current pins are `xstate@6.0.0-alpha.71` and `@xstate/effect@1.0.0-alpha.10`; see the alpha.71 section.
 Effect stays at `4.0.0`. The bridge peers accept Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
 
 ## Upstream changes
@@ -65,3 +65,19 @@ Neither tarball declares lifecycle scripts or runtime dependencies. The age exce
 
 Consumers must move both pins, refresh mirrors, and run their lifecycle tests.
 Audit persisted snapshots, whole-id targets, graph payload samples, and root parallel tag matching before upgrading.
+
+## Alpha.71 and bridge alpha.10
+
+The update moves both exact npm pins together. Effect stays at `4.0.7`.
+The bridge peers accept XState `^6.0.0-alpha.71`, Effect `^4.0.0`, and optional `@oxlint/plugins` `^1.76.0`; our lint plugin runtime is `1.88.0`.
+
+- [Core release](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.71) adds system-wide emission observation and improves graph traversal, serialization diagnostics, and invalid-snapshot errors.
+- [Bridge release](https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-alpha.10) carries complete Effect Causes in `EffectFailure<E>`. Invoked child `onError` handlers read `event.error.cause`. `join` replays the original Cause, including defects and interruption.
+- Inspection, learning-log commit, and feedback-device machines retain the Cause and lift it with `Effect.failCause`. Public capability failures stay unchanged. The inspection machine's exported `Unreadable` outcome now carries `cause`, not a bare `error`.
+- Existing `join(...).pipe(Effect.orDie)` boundaries remain deliberate: machine-level failures are defects there, while expected domain failures travel through final output. `watchActor` and the devtools watcher read status, context, and opaque events, not domain fields on snapshot errors; no watcher migration is needed.
+- The compiled `@xstate/effect/oxlint` rule replaces our copy. Both implementations have the same constructor set, enqueue names, return traversal, Promise wrapper handling, and diagnostics. Upstream fixtures and our real-Oxlint fixtures cover discarded actions and inline spawns. Severity stays `error`.
+- `sendAndAwait` replaces the inspection model test's send-plus-yield mailbox guess. `createSnapshotCodec` is deferred because runtime code does not persist XState snapshots.
+
+The source mirror uses `xstate@6.0.0-alpha.71`; both release tags resolve to the same commit and match both package versions. Exact release-age exclusions move in place. Historical peer observations above retain their original versions.
+
+Consumers must move both pins, preserve Causes in invoked-child error handling, wrap synthetic Effect errors with `EffectFailure`, and rerun lifecycle tests. Do not turn defects or interruption into expected domain errors.

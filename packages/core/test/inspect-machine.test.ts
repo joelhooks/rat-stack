@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { createEffectActor, join } from "@xstate/effect";
-import { Effect, FileSystem, Layer, Path, Schema } from "effect";
+import { Cause, Effect, FileSystem, Layer, Path, Schema } from "effect";
 
 import { FileInspector } from "../src/file-inspector.js";
 import {
@@ -47,7 +47,7 @@ it.layer(TestLayer)("inspectMachine", (test) => {
       expect(state).toBe("unreadable");
       expect(
         inspectOutcome.$is("Unreadable")(outcome) &&
-          Schema.is(FileStatsError)(outcome.error)
+          Schema.is(FileStatsError)(Cause.squash(outcome.cause))
       ).toBe(true);
     })
   );

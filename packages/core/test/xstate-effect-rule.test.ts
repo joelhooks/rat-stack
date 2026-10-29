@@ -1,6 +1,7 @@
 // @effect-diagnostics nodeBuiltinImport:off -- These tests create temporary source fixtures and run the real oxlint binary against them.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -22,9 +23,8 @@ const lintFixture = (source: string) => {
       jsPlugins: [
         {
           name: "xstate-effect",
-          specifier: path.join(
-            repoRoot,
-            "scripts/oxlint-plugin-xstate-effect.ts"
+          specifier: createRequire(import.meta.url).resolve(
+            "@xstate/effect/oxlint"
           ),
         },
       ],

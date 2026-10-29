@@ -2,7 +2,7 @@
 
 Keep pinned dependencies here until npm publishes them. Each entry records its build source and removal condition. Nothing is vendored right now. One published package carries a pnpm patch.
 
-The current `xstate@6.0.0-alpha.70` and `@xstate/effect@1.0.0-alpha.9` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
+The current `xstate@6.0.0-alpha.71` and `@xstate/effect@1.0.0-alpha.10` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0`, XState `^6.0.0-alpha.71`, and optional `@oxlint/plugins` `^1.76.0`. Its compiled `@xstate/effect/oxlint` export supplies `xstate-effect/no-inline-effect` at error severity.
 
 - **Vendored packages**: none.
 - **Patched packages**:
