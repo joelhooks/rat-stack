@@ -1,5 +1,21 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/Tanner-Scadden/munch-manor",
+    "title": "Munch Manor",
+    "summary": "Open-source pixel zombie shooter built with Foldkit and Effect on Cloudflare: seed-replayable games, server-run co-op on Durable Objects, art drawn in code.",
+    "date": "2026-10-31",
+    "repo": "Tanner-Scadden/munch-manor",
+    "author": {
+      "github": "Tanner-Scadden",
+      "x": null
+    },
+    "source": "https://github.com/Tanner-Scadden/munch-manor",
+    "engagement": {
+      "stars": 2
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.1",
     "title": "effect@4.1.1 released",
