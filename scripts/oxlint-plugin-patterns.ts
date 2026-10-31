@@ -517,6 +517,20 @@ const isEffectThunk = (node: FunctionThunk, context: RuleContext) => {
   );
 };
 
+const isEffectFnMethod = (node: FunctionThunk, context: RuleContext) => {
+  const call = node.parent;
+
+  return (
+    call?.type === "CallExpression" &&
+    call.parent?.type === "Property" &&
+    call.parent.value === call &&
+    (isEffectCall(call, "fn", context) ||
+      isEffectCall(call, "fnUntraced", context) ||
+      (call.callee.type === "CallExpression" &&
+        isEffectCall(call.callee, "fn", context)))
+  );
+};
+
 const isSharedConstruction = (node: ESTree.Node, context: RuleContext) => {
   let current: ESTree.Node | null = node.parent;
 
@@ -526,6 +540,15 @@ const isSharedConstruction = (node: ESTree.Node, context: RuleContext) => {
       isInitializationCall(current, context)
     ) {
       return true;
+    }
+
+    if (
+      (current.type === "FunctionDeclaration" ||
+        current.type === "FunctionExpression" ||
+        current.type === "ArrowFunctionExpression") &&
+      isEffectFnMethod(current, context)
+    ) {
+      return false;
     }
 
     if (
