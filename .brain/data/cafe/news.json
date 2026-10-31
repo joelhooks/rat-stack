@@ -1,6 +1,19 @@
 [
   {
     "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.1",
+    "title": "effect@4.1.1 released",
+    "summary": "Patch fixes effect/crypto type-checks with @types/node and no DOM lib, caps BigDecimal scales, enforces MaxBodySize on buffered bodies, and fixes cluster reply persistence.",
+    "date": "2026-10-30",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+  },
+  {
+    "kind": "release",
     "url": "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.170.0",
     "title": "Foldkit 0.170.0 moves to Effect 4.1",
     "summary": "Foldkit and its companion packages move to Effect 4.1, using effect/crypto SecureRandom for UUIDs; the Node adapter and Vite plugin need Node 22.19.",
@@ -12,21 +25,8 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1078
+      "stars": 1079
     }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.0",
-    "title": "effect@4.1.0 released",
-    "summary": "Minor release replaces effect/Crypto with per-family crypto services and adds HttpApi Problem Details, McpServer per-request middleware and ISO durations.",
-    "date": "2026-10-29",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
   },
   {
     "kind": "release",
@@ -41,7 +41,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30378
+      "stars": 30383
     }
   },
   {
@@ -57,7 +57,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 37
+      "stars": 39
     }
   },
   {
@@ -86,7 +86,7 @@
     },
     "source": "https://github.com/foldkit/foldkit-domains",
     "engagement": {
-      "stars": 23
+      "stars": 28
     }
   },
   {
@@ -115,7 +115,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 449
+      "stars": 450
     }
   },
   {
@@ -221,7 +221,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1078
+      "stars": 1079
     }
   },
   {
@@ -237,7 +237,7 @@
     },
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
-      "stars": 29
+      "stars": 30
     }
   },
   {
@@ -311,7 +311,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1926
+      "stars": 1935
     }
   },
   {
@@ -356,7 +356,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1813
+      "stars": 1818
     }
   },
   {
