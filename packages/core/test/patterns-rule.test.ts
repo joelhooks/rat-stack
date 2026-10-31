@@ -360,9 +360,21 @@ describe("rat-stack pattern rules", () => {
         `import { Effect } from "effect";\n// oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- This cache imports a CryptoKey from a fixed secret without request I/O.\nexport const shared = Effect.${name}(importKey(secret), "Infinity");`
       );
 
+      const serviceMethod = lintFixture(
+        "packages/core/src",
+        `import { Effect, Layer } from "effect"; export const layer = Layer.effect(Tag, Effect.gen(function* () { return Tag.of({ read: Effect.fn("Tag.read")(function* read(input) { return yield* Effect.${name}(load(input), "Infinity"); }) }); }));`
+      );
+
+      const boundFn = lintFixture(
+        "packages/core/src",
+        `import { Effect } from "effect"; export const read = Effect.fn("read")(function* read(input) { return yield* Effect.${name}(load(input), "Infinity"); });`
+      );
+
       expectRule(module, message);
       expectRule(service, message);
       expectRule(contentStorePlant, message);
+      expectRule(boundFn, message);
+      expect(serviceMethod.status).toBe(0);
       expect(request.status).toBe(0);
       expect(exception.status).toBe(0);
     }
