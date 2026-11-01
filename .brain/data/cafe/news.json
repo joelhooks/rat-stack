@@ -1,6 +1,22 @@
 [
   {
     "kind": "launch",
+    "url": "https://github.com/Manzanita-Research/terrarium-v2",
+    "title": "Terrarium v2",
+    "summary": "Small deterministic agent simulations on Alchemy Domain and Effect, with a run explorer for forking and replaying agent runs.",
+    "date": "2026-11-01",
+    "repo": "Manzanita-Research/terrarium-v2",
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "source": "https://github.com/Manzanita-Research/terrarium-v2",
+    "engagement": {
+      "stars": 0
+    }
+  },
+  {
+    "kind": "launch",
     "url": "https://github.com/Tanner-Scadden/munch-manor",
     "title": "Munch Manor",
     "summary": "Open-source pixel zombie shooter built with Foldkit and Effect on Cloudflare: seed-replayable games, server-run co-op on Durable Objects, art drawn in code.",
@@ -12,7 +28,7 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 2
+      "stars": 10
     }
   },
   {
@@ -41,7 +57,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1079
+      "stars": 1084
     }
   },
   {
@@ -57,7 +73,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30383
+      "stars": 30388
     }
   },
   {
@@ -73,7 +89,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 39
+      "stars": 40
     }
   },
   {
@@ -237,7 +253,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1079
+      "stars": 1084
     }
   },
   {
@@ -295,7 +311,7 @@
     },
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
-      "stars": 11
+      "stars": 12
     }
   },
   {
@@ -327,7 +343,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1935
+      "stars": 1939
     }
   },
   {
@@ -372,7 +388,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1818
+      "stars": 1827
     }
   },
   {
