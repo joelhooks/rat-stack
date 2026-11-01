@@ -337,7 +337,7 @@ const undeclaredFailure: Partial<typeof Gone.Type> & {
 const gate = implement(gateContract, ({ mode, status }) => {
   if (mode === "undeclared") {
     // SAFETY: this handler breaks its contract on purpose, failing with a value its failure schema refuses, to show that the projection fails closed.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the handler breaks its failure schema on purpose to prove the projection fails closed.
     return Effect.fail(undeclaredFailure as typeof Gone.Type);
   }
 
@@ -367,7 +367,7 @@ const leakyContract = defineContract("leaky", {
 
 const leaky = implement(leakyContract, () =>
   // SAFETY: this handler breaks its contract on purpose, failing with a response value its failure schema refuses, to show that the projection never answers with it.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the handler breaks its failure schema on purpose to prove the projection never leaks it.
   Effect.fail(leakedResponse as never)
 );
 

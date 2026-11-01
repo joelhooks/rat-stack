@@ -108,7 +108,7 @@ export default class CodeModeWorker extends Cloudflare.Worker<CodeModeWorker>()(
     const environment = yield* Cloudflare.WorkerEnvironment;
 
     // SAFETY: CODE_SANDBOX is the native worker_loader binding declared by this test Worker.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Alchemy types the test Worker environment as a dictionary, so the binding needs one boundary cast.
     const bindings = environment as {
       readonly CODE_SANDBOX: WorkerLoaderBinding;
     };

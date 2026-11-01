@@ -96,7 +96,7 @@ const describe = (field: PlainSchema): FieldSpec => {
 const jsonFlag = (name: string, field: PlainSchema) =>
   Flag.String(name).pipe(
     // SAFETY: a JSON-string flag decoded by the field's own schema. `withSchema` wants a codec with the CLI environment as its services; a plain field schema needs none, which `never` satisfies.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- a plain field schema needs no CLI services, which never satisfies.
     Flag.withSchema(Schema.fromJsonString(field) as never),
     Flag.withMetavar("JSON")
   );
@@ -264,7 +264,7 @@ export const toCommand = <C extends AnyCapability>(
   const encodeOutput = Schema.encodeEffect(contract.output);
 
   // SAFETY: `C extends Any` widens the handler's channels to `unknown`; the extractors recover the concrete ones from `C`.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the handler channels; the C extractors restore them.
   const run = capability.handler as (
     input: InputOf<C>["Type"]
   ) => Effect.Effect<

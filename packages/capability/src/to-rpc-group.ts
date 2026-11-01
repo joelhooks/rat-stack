@@ -40,7 +40,7 @@ export const toRpcGroup = <const Contracts extends readonly AnyContract[]>(
   const rpcGroup: unknown = RpcGroup.make(...contracts.map(rpcFor));
 
   // SAFETY: each RPC is built from the matching contract's name and schemas, which is exactly the mapped tuple represented by RpcsOf<Contracts>.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary: each RPC is built from its contract, which is RpcsOf<Contracts>.
   const group = rpcGroup as RpcGroup.RpcGroup<RpcsOf<Contracts>[number]>;
 
   return { group };

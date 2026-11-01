@@ -142,7 +142,7 @@ const primitive = (type: string, node: JsonSchemaNode): string => {
     case "array": {
       return node.items === undefined
         ? "ReadonlyArray<unknown>"
-        : // oxlint-disable-next-line no-use-before-define
+        : // oxlint-disable-next-line no-use-before-define -- printNode and the array printer are mutually recursive.
           `ReadonlyArray<${printNode(node.items)}>`;
     }
 

@@ -881,7 +881,6 @@ it.effect(
         );
         expect(markdown).toContain('> "Debt only shrinks."');
         expect(markdown).toContain("Total: **");
-        expect(markdown).toContain("no reason given");
         expect(markdown).toContain("tools/oxlint/anti-slop/");
         expect(page).toContain("<li>Directive:");
         expect(page).not.toMatch(/<table\b/u);

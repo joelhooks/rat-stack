@@ -98,7 +98,7 @@ export const toToolkit = <const Caps extends readonly AnyCapability[]>(
 ): ToolkitProjection<Caps> => {
   const made: unknown = Toolkit.make(...capabilities.map(toTool));
   // SAFETY: `Toolkit.make` is variadic over a tuple of tools; the tuple type is recovered by `ToolsOf<Caps>`, which `map` over the runtime array cannot carry. One cast at this boundary keeps every caller fully typed.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary recovers the tool tuple type that map cannot carry.
   const toolkit = made as Toolkit.Toolkit<ToolsOf<Caps>>;
 
   const layer = toolkit.toLayer(
@@ -113,9 +113,9 @@ export const toToolkit = <const Caps extends readonly AnyCapability[]>(
 
       for (const capability of capabilities) {
         // SAFETY: `Any` erased this capability's requirements to `unknown`; they are a subset of `RequirementsOf<Caps>`, which `context` carries.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the handler type; RequirementsOf<Caps> restores it.
         const run = capability.handler as (
-          // oxlint-disable-next-line anti-slop/no-unknown-parameters
+          // oxlint-disable-next-line anti-slop/no-unknown-parameters -- Toolkit decodes the tool parameters schema before calling this handler.
           input: unknown
         ) => Effect.Effect<unknown, unknown, RequirementsOf<Caps>>;
 
@@ -137,7 +137,7 @@ export const toToolkit = <const Caps extends readonly AnyCapability[]>(
       }
 
       // SAFETY: same boundary as the toolkit cast: the record is keyed by the capabilities' names, which is exactly `HandlersFrom<ToolsOf<Caps>>`.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- projection boundary: the record keyed by capability names is HandlersFrom<ToolsOf<Caps>>.
       return handlers as unknown as Toolkit.HandlersFrom<ToolsOf<Caps>>;
     })
   );

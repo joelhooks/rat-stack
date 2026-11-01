@@ -136,6 +136,7 @@ export default defineConfig({
     "effect-tests/no-manual-effect-runtime-in-tests": "error",
     "jsdoc/require-param-description": "off",
     "jsdoc/require-returns-description": "off",
+    "no-comments/directive-reason": "error",
     "no-comments/no-comments": "error",
     "oxc/no-accumulating-spread": "error",
     "rat-stack-boundaries/no-browser-globals-on-server": "error",

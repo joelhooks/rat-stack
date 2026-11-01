@@ -269,6 +269,6 @@ export const failureSchemaOf = <
     : contract.failure;
 
   // SAFETY: the runtime branch preserves the exact schema members represented by the literal `NeedsApproval` type supplied by the contract.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the runtime branch matches the literal NeedsApproval type the contract supplies.
   return schema as FailureSchemaOf<Failure, NeedsApproval>;
 };
