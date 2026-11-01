@@ -45,6 +45,73 @@ const lintFixed = (name: string, source: string) => {
   }
 };
 
+const lintReasons = (source: string) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "directive-reason-"));
+  const file = path.join(directory, "sample.ts");
+  const config = path.join(directory, ".oxlintrc.json");
+
+  try {
+    writeFileSync(file, source);
+    writeFileSync(
+      config,
+      JSON.stringify({
+        jsPlugins: [plugin],
+        rules: { "no-comments/directive-reason": "error" },
+      })
+    );
+
+    const run = spawnSync(oxlint, ["-c", config, "-f", "json", file], {
+      encoding: "utf-8",
+    });
+
+    return {
+      lines: [...run.stdout.matchAll(/"line":\s*(?<line>\d+)/gu)].map((match) =>
+        Number(match.groups?.line)
+      ),
+      status: run.status,
+    };
+  } finally {
+    rmSync(directory, { force: true, recursive: true });
+  }
+};
+
+describe("directive-reason rule", () => {
+  it("reports every disable directive without a reason after --", () => {
+    const { lines, status } = lintReasons(
+      [
+        "// oxlint-disable-next-line no-debugger",
+        "debugger;",
+        "// eslint-disable-next-line no-debugger --",
+        "debugger;",
+        "/* oxlint-disable no-debugger */",
+        "debugger; // oxlint-disable-line no-debugger --   ",
+        "export {};",
+        "",
+      ].join("\n")
+    );
+
+    expect(status).not.toBe(0);
+    expect(lines).toEqual([1, 3, 5, 6]);
+  });
+
+  it("passes directives with a reason and ignores strings that mention one", () => {
+    const { lines, status } = lintReasons(
+      [
+        "// oxlint-disable-next-line no-debugger -- the debugger is the point",
+        "debugger;",
+        "/* eslint-disable no-debugger -- fixture file */",
+        'export const quoted = "// oxlint-disable-next-line no-debugger";',
+        "export const template = `/* eslint-disable */`;",
+        "// oxlint-enable no-debugger",
+        "",
+      ].join("\n")
+    );
+
+    expect(lines).toEqual([]);
+    expect(status).toBe(0);
+  });
+});
+
 describe("no-comments rule", () => {
   it("removes prose and folds a reason into the directive it explains", () => {
     const { fixed, remaining } = lintFixed(

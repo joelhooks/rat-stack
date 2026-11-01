@@ -26,7 +26,7 @@ export const toRpc = <const Caps extends readonly AnyCapability[]>(
 ): RpcProjection<Caps> => {
   const contracts = capabilities.map((capability) => capability.contract);
   // SAFETY: mapping preserves the capability order and each implementation exposes its exact contract.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary: map keeps capability order, so the array is ContractsOf<Caps>.
   const contractTuple = contracts as ContractsOf<Caps>;
   const { group } = toRpcGroup(contractTuple);
 
@@ -44,7 +44,7 @@ export const toRpc = <const Caps extends readonly AnyCapability[]>(
 
       for (const capability of capabilities) {
         // SAFETY: the server decodes this RPC's payload schema before dispatch, and the capability's requirements are included in RequirementsOf<Caps>.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the handler type; RequirementsOf<Caps> restores it.
         const run = capability.handler as (
           // oxlint-disable-next-line anti-slop/no-unknown-parameters -- RpcGroup invokes this only after decoding the RPC payload schema.
           input: unknown
@@ -63,7 +63,7 @@ export const toRpc = <const Caps extends readonly AnyCapability[]>(
   );
 
   // SAFETY: the group contains exactly the RPCs derived from the capability contracts, and the handlers capture but do not provide their requirements.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary: the group holds exactly the RPCs derived from the contracts.
   const layer = built as RpcProjection<Caps>["layer"];
 
   return { group, layer };

@@ -178,7 +178,7 @@ export const makeMischief = (
     const environment = yield* Cloudflare.WorkerEnvironment;
 
     // SAFETY: these are the native runtime bindings declared above. Alchemy types the environment as a dictionary it fills in at runtime, so this is the one boundary cast.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Alchemy types the Worker environment as a dictionary, so the declared bindings need one boundary cast.
     const bindings = environment as RateLimitBindings & {
       readonly CODE_SANDBOX: WorkerLoaderBinding;
     };

@@ -193,9 +193,9 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
       }
 
       // SAFETY: `AnyCapability` erased this capability's requirements to `unknown`; they are a subset of `RequirementsOf<Caps>`, which `context` carries. The input is decoded by its schema first.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the handler type; RequirementsOf<Caps> restores it.
       const run = item.handler as (
-        // oxlint-disable-next-line anti-slop/no-unknown-parameters
+        // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the sandbox decodes the input with the capability schema before this handler runs.
         input: unknown
       ) => Effect.Effect<unknown, unknown, RequirementsOf<Caps>>;
 
@@ -288,7 +288,7 @@ export const toExecuteCapability = <
 
   const hasApproval = capabilities.some((item) => item.contract.needsApproval);
   // SAFETY: Caps preserves the literal approval flag for the generated capability, and `some` over the same array computes exactly that flag.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- some over the same array computes the literal approval flag Caps carries.
   const needsApproval = hasApproval as NeedsApprovalOf<Caps>;
 
   const executeContract = defineContract("execute", {
@@ -333,7 +333,7 @@ export const toExecuteCapability = <
         diagnostic: run.diagnostic ?? null,
         logs: run.logs,
         // SAFETY: every Sandbox implementation must JSON-round-trip a successful result before crossing this boundary.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- every Sandbox JSON-round-trips a successful result before this boundary.
         result: run.result as typeof ExecuteResult.Type.result,
         toolCalls: run.toolCalls ?? [],
         truncated: run.truncated ?? false,

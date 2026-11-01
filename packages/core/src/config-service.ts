@@ -32,7 +32,7 @@ const Service =
           this,
           Effect.gen(function* makeConfig() {
             // SAFETY: Config.all's conditional return type cannot be evaluated for a generic record, but for a Record<string, Config> it is exactly ConfigValues<Fields>.
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Config.all's conditional return type cannot be evaluated for a generic record.
             const parsed = (yield* Config.all(fields)) as ConfigValues<Fields>;
 
             return parsed;

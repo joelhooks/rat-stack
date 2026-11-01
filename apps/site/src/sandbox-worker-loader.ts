@@ -122,7 +122,7 @@ const makeRpcDispatcher = (invoke: Invoke) =>
           // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare RPC requires a Promise-returning method at this boundary. This is the sandbox's way out, so `input` arrives untrusted and is parsed as JSON before any capability sees it.
           async call(
             name: string,
-            // oxlint-disable-next-line anti-slop/no-unknown-parameters
+            // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the sandbox RPC boundary hands over untrusted input, which decodeCallInput parses as JSON.
             input: unknown
           ): Promise<InvokeOutcome> {
             const json = decodeCallInput(input);

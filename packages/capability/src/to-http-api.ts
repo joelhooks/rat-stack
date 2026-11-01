@@ -35,7 +35,7 @@ import type { RequirementsOf } from "./to-toolkit.js";
 export const GROUP = "capabilities";
 
 // SAFETY: `HttpApiEndpoint.post` checks at the type level that the error schema is not a streaming schema, through a non-exported conditional type that a generic `Failure` cannot satisfy. A plain schema is never a stream, so the runtime call goes through this loosely typed alias and `EndpointOf` names the precise endpoint type separately.
-// oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- a generic Failure cannot satisfy HttpApiEndpoint's non-exported stream check.
 const post = HttpApiEndpoint.post as unknown as (
   name: string,
   path: `/${string}`,
@@ -47,7 +47,7 @@ const post = HttpApiEndpoint.post as unknown as (
 ) => HttpApiEndpoint.Constraint;
 
 // SAFETY: as for `post`: `HttpApiEndpoint.make(method)` rejects a generic error schema only through its non-exported stream check, and `RoutedEndpointOf` names the precise endpoint type separately.
-// oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- a generic Failure cannot satisfy HttpApiEndpoint's non-exported stream check.
 const route = HttpApiEndpoint.make as unknown as (method: HttpMethod) => (
   name: string,
   path: `/${string}`,
@@ -394,11 +394,11 @@ const provideMiddleware = (
     );
 
   // SAFETY: the hook's requirements are erased to `unknown` here; the builder runs middleware in the group layer's context, which `HttpApiProjection["layer"]` requires to hold them.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the hook requirements; the group layer's context holds them.
   const layer = Layer.succeed(key, provideFromRequest as never);
 
   // SAFETY: the key is the middleware service this layer builds; its phantom identity and the hook's erased requirements are recovered for callers by `MiddlewareOf`.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- projection boundary: MiddlewareOf recovers the key's phantom identity and requirements.
   return { key, layer } as unknown as HostMiddleware;
 };
 
@@ -417,7 +417,7 @@ const refusalMiddleware = (
   );
 
   // SAFETY: as for `provideMiddleware`: the key is the middleware service this layer builds.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- projection boundary: MiddlewareOf recovers the key's phantom identity and requirements.
   return { key, layer } as unknown as HostMiddleware;
 };
 
@@ -432,7 +432,7 @@ const withMiddleware = (
   }
 
   // SAFETY: every group here comes from `groupFor`, an `HttpApiGroup`; `middleware` changes only each endpoint's middleware services, which `GroupOf` recomputes for callers from the same hooks.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- every group comes from groupFor, and GroupOf recomputes its type for callers.
   const httpGroup = group as HttpApiGroup.Top;
 
   return withMiddleware(httpGroup.middleware(next.key), others);
@@ -447,7 +447,7 @@ const withPrefix = <Id extends string>(
   }
 
   // SAFETY: prefixing changes endpoint paths only; the builder and OpenAPI read the prefixed paths at runtime.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- prefix changes endpoint paths only, so the stable public API type still holds.
   return api.prefix(prefix) as unknown as HttpApi.HttpApi<
     Id,
     HttpApiGroup.Constraint
@@ -504,7 +504,7 @@ export const toHttpApi = <
   );
 
   // SAFETY: prefixing changes endpoint paths but not the API id, group id, schemas, or handler service. Keep the stable public type while preserving that runtime path transformation for HttpApiBuilder and OpenAPI.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- prefix changes endpoint paths only, so ApiOf still names the projected API.
   const api = projectedApi as unknown as ApiOf<Id, Caps, MiddlewareOf<Hooks>>;
 
   const implementations: Record<
@@ -518,9 +518,9 @@ export const toHttpApi = <
 
   for (const capability of capabilities) {
     // SAFETY: `Any` erased this capability's requirements to `unknown`; they are a subset of `RequirementsOf<Caps>`. HttpApi decodes the payload.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- projection boundary erases the handler type; RequirementsOf<Caps> restores it.
     const run = capability.handler as (
-      // oxlint-disable-next-line anti-slop/no-unknown-parameters
+      // oxlint-disable-next-line anti-slop/no-unknown-parameters -- HttpApi decodes the endpoint payload schema before calling this handler.
       input: unknown
     ) => Effect.Effect<unknown, unknown, RequirementsOf<Caps>>;
 
@@ -537,7 +537,7 @@ export const toHttpApi = <
 
   // SAFETY: `handleAll` wants a record keyed by the group's endpoint identifiers with each handler typed to its endpoint; that is what `implementations` is at runtime, but a loop cannot say so. `never` is accepted by every parameter type, so the call stays checked on its return side.
   const built = HttpApiBuilder.group(projectedApi, GROUP, (handlers) =>
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- a loop cannot type the handleAll record that implementations is at runtime.
     handlers.handleAll(implementations as never)
   );
 
@@ -557,7 +557,7 @@ export const toHttpApi = <
         );
 
   // SAFETY: `withHostMiddleware` is the layer for exactly the group `api` names, plus the middleware services the hooks build, which is what `HttpApiProjection["layer"]` spells out.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion, anti-slop/no-chained-type-assertions -- projection boundary: the layer serves exactly the group api names plus hook middleware.
   const layer = withHostMiddleware as unknown as HttpApiProjection<
     Id,
     Caps,

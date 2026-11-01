@@ -276,7 +276,43 @@ const noComments = defineRule({
   },
 });
 
+const disableDirectivePattern =
+  /^(?:oxlint|eslint)-disable(?:-next-line|-line)?\b/u;
+
+const reasonPattern = /\s--\s+\S/u;
+
+const directiveReason = defineRule({
+  create(context) {
+    return {
+      Program() {
+        for (const comment of context.sourceCode.getAllComments()) {
+          const text = textOf(comment);
+
+          if (
+            comment.type !== "Shebang" &&
+            disableDirectivePattern.test(text) &&
+            !reasonPattern.test(text)
+          ) {
+            context.report({ loc: comment.loc, messageId: "reason" });
+          }
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Require a reason after -- on every oxlint-disable and eslint-disable directive.",
+    },
+    messages: {
+      reason:
+        "Lint overrides carry their reason: `// oxlint-disable-next-line <rule> -- <reason>`. Name the invariant or boundary that makes the override safe.",
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "no-comments" },
-  rules: { "no-comments": noComments },
+  rules: { "directive-reason": directiveReason, "no-comments": noComments },
 });

@@ -21,7 +21,7 @@ export default class LegacyMcp extends Cloudflare.DurableObject<LegacyMcp>()(
     const environment = yield* Cloudflare.WorkerEnvironment;
 
     // SAFETY: the object shares its Worker's environment. The Worker declares this binding; the object only reads it. This is the one boundary cast.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the object shares its Worker's environment, which Alchemy types as a dictionary.
     const bindings = environment as {
       readonly CODE_SANDBOX: WorkerLoaderBinding;
     };
