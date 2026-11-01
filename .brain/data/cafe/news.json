@@ -1,6 +1,22 @@
 [
   {
     "kind": "launch",
+    "url": "https://github.com/Manzanita-Research/terrarium-v2",
+    "title": "Terrarium v2",
+    "summary": "Small deterministic agent simulations on Alchemy Domain and Effect, with a run explorer for forking and replaying agent runs.",
+    "date": "2026-11-01",
+    "repo": "Manzanita-Research/terrarium-v2",
+    "author": {
+      "github": "Manzanita-Research",
+      "x": null
+    },
+    "source": "https://github.com/Manzanita-Research/terrarium-v2",
+    "engagement": {
+      "stars": 0
+    }
+  },
+  {
+    "kind": "launch",
     "url": "https://github.com/Tanner-Scadden/munch-manor",
     "title": "Munch Manor",
     "summary": "Open-source pixel zombie shooter built with Foldkit and Effect on Cloudflare: seed-replayable games, server-run co-op on Durable Objects, art drawn in code.",
@@ -12,7 +28,7 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 2
+      "stars": 10
     }
   },
   {
@@ -41,7 +57,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1079
+      "stars": 1084
     }
   },
   {
@@ -57,7 +73,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30383
+      "stars": 30388
     }
   },
   {
@@ -73,7 +89,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 39
+      "stars": 40
     }
   },
   {
@@ -237,7 +253,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1079
+      "stars": 1084
     }
   },
   {
@@ -295,7 +311,7 @@
     },
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
-      "stars": 11
+      "stars": 12
     }
   },
   {
@@ -327,7 +343,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1935
+      "stars": 1939
     }
   },
   {
@@ -372,7 +388,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1818
+      "stars": 1827
     }
   },
   {
@@ -450,83 +466,6 @@
     "summary": "Custom Dashboards can chart Workers logs and traces next to analytics, which helps a CAFE builder check a Worker's health in one place.",
     "title": "Workers Observability in custom dashboards",
     "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-01",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/changelog/",
-    "summary": "Durable Objects with a 2026-10-01 compatibility date keep running for pending service-binding and RPC calls for up to 15 minutes, which a CAFE builder running long jobs on Workers needs to know about.",
-    "title": "Pending I/O operations allow Durable Objects to continue long-running work without a connected client",
-    "url": "https://developers.cloudflare.com/changelog/post/2026-10-01-pending-io-keep-alive/",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-01",
-    "kind": "post",
-    "repo": null,
-    "source": "https://neon.com/blog/announcing-neon-effect",
-    "summary": "Neon ships @neon/effect, Effect 4 bindings for the Neon SDK with typed errors and Streams.",
-    "title": "Announcing @neon/effect",
-    "url": "https://neon.com/blog/announcing-neon-effect",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": "maxedapps"
-    },
-    "date": "2026-10-01",
-    "kind": "video",
-    "repo": null,
-    "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
-    "summary": "Academind video pitching Alchemy as the infrastructure companion to Effect.",
-    "title": "Using Effect? Use Alchemy, too!",
-    "url": "https://www.youtube.com/watch?v=jtGSHwXigIg",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "kind": "post",
-    "url": "https://effect.website/blog/releases/effect/40",
-    "title": "Effect 4.0",
-    "summary": "Rebuilt from the ground up, with a dependency-free core and long-term support.",
-    "date": "2026-09-30",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": "Effect-TS",
-      "x": null
-    },
-    "source": "https://effect.website/blog/releases/effect/40"
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-09-30",
-    "kind": "post",
-    "repo": null,
-    "source": "https://blog.cloudflare.com/faster-agent-sandboxes/",
-    "summary": "Containers can now pick their image and instance size from a Durable Object at runtime, with Sandbox SDK 1.0 on top, which matters to a CAFE builder running Worker-controlled sandboxes (beta).",
-    "title": "Cloudflare Containers, rebuilt to scale agent sandboxes",
-    "url": "https://blog.cloudflare.com/faster-agent-sandboxes/",
     "engagement": {
       "seen": 1
     }
