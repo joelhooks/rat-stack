@@ -2,8 +2,9 @@ import { EventSink, RawEventSchema } from "@rat-stack/core/event-sink";
 import type { RequestCaptureSettings } from "@rat-stack/core/request-capture";
 import { isGeoLabel } from "@rat-stack/core/request-geo";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
-import { Clock, Crypto, DateTime, Effect, Schema } from "effect";
+import { Clock, DateTime, Effect, Schema } from "effect";
 import type { Context } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
@@ -40,7 +41,7 @@ const recordRequest = <RB>(
   Effect.gen(function* recordRequestEvent() {
     const sink = yield* EventSink;
     const salt = yield* (yield* VisitorSalt).salt;
-    const crypto = yield* Crypto.Crypto;
+    const crypto = yield* SecureRandom.SecureRandom;
     const { headers } = request;
     const ip = headers["cf-connecting-ip"];
     const userAgent = headers["user-agent"];
@@ -82,7 +83,7 @@ const recordRequest = <RB>(
       anonymousId: visitor.anonymousId,
       body: yield* encodeRequestBody(body),
       identityMode: options.identityMode,
-      messageId: yield* crypto.randomUUIDv7(),
+      messageId: yield* crypto.uuidV7(),
       server: withoutUndefined({
         ...geo,
         country: isGeoLabel(country) ? country : geo.country,

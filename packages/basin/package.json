@@ -25,12 +25,12 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.84",
-    "alchemy": "2.0.0-beta.84",
-    "effect": "4.0.7"
+    "@alchemy.run/cloudflare": "2.0.0-beta.85",
+    "alchemy": "2.0.0-beta.85",
+    "effect": "4.1.2"
   },
   "devDependencies": {
-    "@effect/vitest": "4.0.7",
+    "@effect/vitest": "4.1.2",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.0.5"

@@ -126,7 +126,7 @@ it.effect(
           .multiSelect<string>({ message: "select", options: [] })
           .pipe(Effect.asVoid),
         interaction.prompt
-          .awaitExternal({ message: "external", waitingLabel: "waiting" })
+          .screen<string>({ name: "external", render: () => null })
           .pipe(Effect.asVoid),
       ];
 

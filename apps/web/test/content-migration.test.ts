@@ -1,4 +1,4 @@
-import { NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import * as Markdown from "@foldkit/markdown";
 import { Effect, Option, Schema } from "effect";
@@ -103,6 +103,6 @@ it.effect(
       expect(rendered.html).toContain('href="/lore/error-model"');
       expect(text).toContain("Sources");
       expect(text).toContain("Kit Langton");
-    }).pipe(Effect.provide(NodeServices.layer)),
+    }).pipe(Effect.provide([NodeServices.layer, NodeCrypto.layerDigest])),
   HAND_PAGE_PIPELINE
 );

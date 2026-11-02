@@ -9,11 +9,15 @@ import { liveFlagsLayer } from "../flags.js";
 import { layerWorkerLoader, sandboxLimits } from "../sandbox-loader.js";
 import type { WorkerLoaderBinding } from "../sandbox-worker-loader.js";
 import { workerAssetsLayer } from "../worker-content.js";
-import { legacyMcpRuntime } from "./runtime.js";
 import { LEGACY_SESSION_HEADER, openLegacySession } from "./session.js";
 import type { StoredSession } from "./session.js";
 
 const SESSION_KEY = "session";
+
+const loadLegacyMcpRuntime = Effect.promise(
+  // @effect-diagnostics-next-line asyncFunction:off -- lint requires an awaiting async thunk around the dynamic import that keeps the MCP server out of Mischief's static startup graph
+  async () => await import("./runtime.js")
+);
 
 export default class LegacyMcp extends Cloudflare.DurableObject<LegacyMcp>()(
   "LegacyMcp",
@@ -29,6 +33,8 @@ export default class LegacyMcp extends Cloudflare.DurableObject<LegacyMcp>()(
     const state = yield* Cloudflare.DurableObjectState;
 
     const flags = yield* Flags.pipe(Effect.provide(liveFlagsLayer));
+
+    const { legacyMcpRuntime } = yield* loadLegacyMcpRuntime;
 
     const forward = yield* legacyMcpRuntime(
       Layer.merge(

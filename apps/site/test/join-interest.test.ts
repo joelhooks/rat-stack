@@ -18,12 +18,9 @@ import {
 import { Clock, Effect, Layer, Logger, Redacted, Schema, Tracer } from "effect";
 import { HttpRouter } from "effect/http";
 
-import {
-  apiProjection,
-  mischiefRoutes,
-  toolkitProjection,
-} from "../src/app.js";
+import { apiProjection, mischiefRoutes } from "../src/app.js";
 import { memoryEvents } from "../src/events.js";
+import { toolkitProjection } from "../src/mcp-surface.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 const metadata = {

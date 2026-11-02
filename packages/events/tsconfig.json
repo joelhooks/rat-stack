@@ -7,7 +7,8 @@
         "allowedUnstableApis": [
           "@effect/vitest",
           "effect/Arbitrary",
-          "effect/Crypto",
+          "effect/crypto/Digest",
+          "effect/crypto/SecureRandom",
           "effect/http/HttpServerRequest",
           "effect/http/HttpServerResponse"
         ]

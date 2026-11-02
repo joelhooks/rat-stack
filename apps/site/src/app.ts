@@ -1,5 +1,4 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
-import { toToolkit } from "@rat-stack/capability/toolkit";
 import { CafeDirectory } from "@rat-stack/core/cafe-directory";
 import type {
   AssetReadError,
@@ -11,18 +10,16 @@ import type { InterestTokens } from "@rat-stack/core/interest";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { Learner } from "@rat-stack/learn/learner";
 import * as AlchemyHttp from "alchemy/Http";
-import type { Context } from "effect";
 import {
   Cause,
-  Crypto,
+  Context,
   Effect,
   Layer,
   Option,
   Predicate,
   Schema,
 } from "effect";
-import * as McpProtocol from "effect/ai/McpProtocol";
-import * as McpServer from "effect/ai/McpServer";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
 import * as HttpHeaders from "effect/http/Headers";
@@ -68,10 +65,7 @@ import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
 import { flagsLayer } from "./flags.js";
-import {
-  privateHttpTracingLayer,
-  privateMcpTracingLayer,
-} from "./http-privacy.js";
+import { privateHttpTracingLayer } from "./http-privacy.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { retiredInterestRoutes } from "./interest/retired-routes.js";
@@ -79,7 +73,7 @@ import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
 import { legacySessionNotFound } from "./legacy-mcp/session.js";
-import { mcpContent } from "./mcp-content.js";
+import type { modernMcpLayer } from "./mcp-surface.js";
 import { acceptedMediaTypes, acceptsHtml } from "./negotiation.js";
 import { promptLibraryLayer } from "./prompt-library.js";
 import type { RateLimitName, RateLimits } from "./rate-limits.js";
@@ -467,10 +461,6 @@ const staticCaching = (cache: StaticResponseCache) =>
     { global: true }
   );
 
-export const toolkitProjection = toToolkit(capabilities);
-
-const authenticatedToolkitProjection = toToolkit(authenticatedCapabilities);
-
 const RateLimited = Schema.String.annotate({
   description:
     "Rate limit exceeded for this IP or for execute globally. Retry after the number of seconds in Retry-After.",
@@ -509,45 +499,49 @@ const authenticatedApiRoutes = HttpApiBuilder.layer(
   Layer.provide(AlchemyHttp.Platform)
 );
 
-export const modernMcpProtocols = [McpProtocol.v2026_07_28] as const;
+const loadMcpSurface = Effect.promise(
+  // @effect-diagnostics-next-line asyncFunction:off -- lint requires an awaiting async thunk around the dynamic import that keeps the MCP server out of Mischief's static startup graph
+  async () => await import("./mcp-surface.js")
+);
 
-export const legacyMcpProtocols = [
-  McpProtocol.v2025_11_25,
-  McpProtocol.v2025_06_18,
-  McpProtocol.v2025_03_26,
-  McpProtocol.v2024_11_05,
-] as const;
+const lazyMcpRoutes = (feedback: boolean) =>
+  HttpRouter.use(
+    Effect.fnUntraced(function* registerLazyMcp(router) {
+      const services =
+        yield* Effect.context<
+          Layer.Services<ReturnType<typeof modernMcpLayer>>
+        >();
 
-const mcpTransport = (
-  protocols: typeof modernMcpProtocols | typeof legacyMcpProtocols
-) =>
-  McpServer.layerHttp({
-    allowedOrigins: ["https://ratstack.sh", "http://localhost:1337"],
-    description:
-      "Search, read, and traverse the rat-stack source corpus and lore graph",
-    instructions:
-      "Use search and read for source text. Use backlinks, neighbors, mentions, and path to traverse lore relationships. Use execute when one short program can replace several tool calls.",
-    name: "sh.ratstack/rat-stack",
-    path: "/mcp",
-    protocols,
-    version: "0.2.0",
-    websiteUrl: "https://ratstack.sh/",
-  }).pipe(Layer.provide(privateMcpTracingLayer));
+      const scope = yield* Effect.scope;
+      const memoMap = yield* Layer.makeMemoMap;
 
-export const mcpLayer = (
-  protocols: typeof modernMcpProtocols | typeof legacyMcpProtocols,
-  feedback = false
-) =>
-  Layer.mergeAll(
-    feedback
-      ? McpServer.toolkit(authenticatedToolkitProjection.toolkit).pipe(
-          Layer.provide(authenticatedToolkitProjection.layer)
+      // oxlint-disable-next-line rat-stack-patterns/no-shared-pending-cache -- The Mischief router's layer scope owns this cache: one dynamic import and one MCP sub-router build over services captured at router construction, with no request-bound I/O.
+      const mcp = yield* Effect.cached(
+        loadMcpSurface.pipe(
+          Effect.flatMap((surface) =>
+            Layer.buildWithMemoMap(
+              Layer.provideMerge(
+                surface.modernMcpLayer(feedback),
+                HttpRouter.layer
+              ),
+              memoMap,
+              scope
+            )
+          ),
+          Effect.map((context) =>
+            // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- HttpRouter declares asHttpEffect's error as unknown upstream; the MCP transport answers every request itself, so a failure here is a defect.
+            Context.get(context, HttpRouter.HttpRouter)
+              .asHttpEffect()
+              .pipe(Effect.orDie)
+          ),
+          Effect.provideContext(services),
+          Effect.orDie
         )
-      : McpServer.toolkit(toolkitProjection.toolkit).pipe(
-          Layer.provide(toolkitProjection.layer)
-        ),
-    mcpContent
-  ).pipe(Layer.provide(mcpTransport(protocols)));
+      );
+
+      yield* router.add("*", "/mcp", Effect.flatten(mcp));
+    })
+  );
 
 const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
   errorResponse(request, {
@@ -873,7 +867,7 @@ const firstExceededLimit = (
 const legacySessionOf = Effect.fnUntraced(function* legacySessionOf(
   request: HttpServerRequest.HttpServerRequest,
   routing: McpRequestRouting
-): Effect.fn.Return<string | null, never, Crypto.Crypto> {
+): Effect.fn.Return<string | null, never, SecureRandom.SecureRandom> {
   if (!routing.isMcp || routing.modernMcp) {
     return null;
   }
@@ -888,9 +882,9 @@ const legacySessionOf = Effect.fnUntraced(function* legacySessionOf(
     return null;
   }
 
-  const crypto = yield* Crypto.Crypto;
+  const crypto = yield* SecureRandom.SecureRandom;
 
-  return yield* crypto.randomUUIDv4().pipe(Effect.orDie);
+  return yield* crypto.uuidV4();
 });
 
 const routeLegacyMcp = (
@@ -1255,7 +1249,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
               ...options.interest,
               rateLimits: options.rateLimits,
             }),
-        mcpLayer(modernMcpProtocols, options.feedback !== undefined),
+        lazyMcpRoutes(options.feedback !== undefined),
         securityHeadersMiddleware,
         errorPages,
         options.rateLimits === undefined && options.legacyMcp === undefined

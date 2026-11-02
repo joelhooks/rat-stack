@@ -4,9 +4,9 @@ import { Context, Effect, Layer } from "effect";
 import * as HttpEffect from "effect/http/HttpEffect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
-import { legacyMcpProtocols, mcpLayer } from "../app.js";
 import { contentLayerWithFlags } from "../capabilities/index.js";
 import { flagsLayer } from "../flags.js";
+import { legacyMcpProtocols, mcpLayer } from "../mcp-surface.js";
 import type { StaticAssets } from "../static-assets.js";
 
 type WebHandler = (request: Request) => Promise<Response>;

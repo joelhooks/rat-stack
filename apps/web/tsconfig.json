@@ -6,16 +6,17 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
+          "@effect/platform-node-shared/NodeCrypto",
           "@effect/platform-node/NodeFileSystem",
           "@effect/platform-node/NodePath",
           "@effect/platform-node/NodeServices",
           "@effect/vitest",
           "effect/Arbitrary",
-          "effect/Crypto",
           "effect/FileSystem",
           "effect/Path",
           "effect/ai/McpProtocol",
           "effect/ai/McpServer",
+          "effect/crypto/Digest",
           "effect/http/FetchHttpClient",
           "effect/http/HttpRouter",
           "effect/http/HttpServerRequest",

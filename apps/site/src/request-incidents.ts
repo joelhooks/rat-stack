@@ -1,6 +1,5 @@
 import {
   Cause,
-  Crypto,
   Effect,
   Match,
   Option,
@@ -8,6 +7,7 @@ import {
   Schema,
   Stream,
 } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpBody from "effect/http/HttpBody";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpServerError from "effect/http/HttpServerError";
@@ -156,9 +156,9 @@ const acceptClass = (accept: string | undefined) => {
 };
 
 const newIncidentId = Effect.gen(function* newIncidentIdOf() {
-  const crypto = yield* Crypto.Crypto;
+  const crypto = yield* SecureRandom.SecureRandom;
 
-  return yield* crypto.randomUUIDv4().pipe(Effect.orDie);
+  return yield* crypto.uuidV4();
 });
 
 export const logRequestIncident = Effect.fnUntraced(
@@ -166,7 +166,7 @@ export const logRequestIncident = Effect.fnUntraced(
     cause: Cause.Cause<unknown>,
     boundary: "content" | "fetch" | "response-body" | "initialization",
     incidentId?: string
-  ): Effect.fn.Return<string, never, Crypto.Crypto> {
+  ): Effect.fn.Return<string, never, SecureRandom.SecureRandom> {
     const resolvedIncidentId = incidentId ?? (yield* newIncidentId);
 
     const request = yield* Effect.serviceOption(
@@ -281,7 +281,7 @@ export const observeRequestIncidents = <E, R>(
     }
 
     const context = yield* Effect.context<
-      HttpServerRequest.HttpServerRequest | Crypto.Crypto
+      HttpServerRequest.HttpServerRequest | SecureRandom.SecureRandom
     >();
 
     const incidentId =
