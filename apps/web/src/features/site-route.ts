@@ -3,6 +3,8 @@ import { Route } from "foldkit";
 
 export const SiteRoute = Route.defineRouteUnion({
   AgentGuide: {},
+  AllStars: {},
+  AllStarsFeed: {},
   ApiDocs: {},
   ChangeLog: {},
   Directory: {},
@@ -101,4 +103,14 @@ export const directoryRouter = pipe(
 export const searchRouter = pipe(
   Route.literal("search"),
   Route.mapTo(SiteRoute.Search)
+);
+
+export const allStarsRouter = pipe(
+  Route.literal("all-stars"),
+  Route.mapTo(SiteRoute.AllStars)
+);
+
+export const allStarsFeedRouter = pipe(
+  Route.literal("all-stars.xml"),
+  Route.mapTo(SiteRoute.AllStarsFeed)
 );

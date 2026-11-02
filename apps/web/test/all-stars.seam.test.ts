@@ -1,9 +1,10 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import { readerBodyFlags } from "../../site/scripts/reader-body-flags.ts";
+import { readerCafeFlags } from "../../site/scripts/reader-cafe-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
@@ -51,10 +52,30 @@ it.effect("every seed profile renders as prerendered HTML", () =>
       }
     }
 
-    const index = flags.find(
+    const index = (yield* readerCafeFlags("https://ratstack.sh")).find(
       (candidate) => candidate.page.path === "/all-stars"
     );
 
     expect(index?.heading).toBe("CAFE all stars");
+
+    if (index === undefined) {
+      return;
+    }
+
+    const cards = yield* renderToString(
+      { Flags: ReaderFlags, init, view },
+      {
+        flags: yield* Schema.decodeUnknownEffect(ReaderFlags)(index),
+        isHydratable: false,
+      }
+    );
+
+    for (const person of inputs.cafe.people) {
+      expect(cards.html).toContain(`src="${person.avatar.path}"`);
+      expect(cards.html).toContain(`href="/all-stars/${person.id}"`);
+      expect(cards.html).toContain(htmlText(person.bio[0].text));
+    }
+
+    expect(cards.html).toContain('href="/all-stars">all stars</a>');
   }).pipe(Effect.provide(NodeServices.layer))
 );

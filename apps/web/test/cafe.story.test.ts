@@ -69,6 +69,7 @@ it.prop(
   ({ history }) => {
     const news = Model.News({
       items: [],
+      profiles: [],
       rankedAt: Schema.decodeSync(Schema.String.pipe(Schema.brand("IsoDate")))(
         "2026-10-08"
       ),

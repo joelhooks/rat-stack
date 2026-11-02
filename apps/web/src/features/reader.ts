@@ -23,6 +23,7 @@ import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
+  allStarsRouter,
   glossaryRouter,
   homeRouter,
   isWithinSection,
@@ -48,6 +49,7 @@ const siteSections = [
   [loreRouter(), "lore"],
   [systemsRouter(), "systems"],
   [newsRouter(), "news"],
+  [allStarsRouter(), "all stars"],
   [glossaryRouter(), "glossary"],
   [searchRouter(), "search"],
 ] as const;

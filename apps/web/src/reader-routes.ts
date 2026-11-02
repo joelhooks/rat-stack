@@ -4,6 +4,7 @@ export const readerRoutePaths: readonly string[] = [
   "/learn",
   "/news",
   "/directory",
+  "/all-stars",
   "/search",
 ];
 
@@ -25,12 +26,11 @@ export const readerBodyRoutePaths: readonly string[] = [
   "/vendor/README.md",
 ];
 
-export const isAllStarsRoutePath = (path: string) =>
-  path === "/all-stars" ||
+export const isAllStarsProfilePath = (path: string) =>
   /^\/all-stars\/[a-z0-9](?:[a-z0-9-]{0,38})$/u.test(path);
 
 export const isReaderBodyRoutePath = (path: string) =>
-  readerBodyRoutePaths.includes(path) || isAllStarsRoutePath(path);
+  readerBodyRoutePaths.includes(path) || isAllStarsProfilePath(path);
 
 export const isWorkerFirstReaderRoute = (path: string) =>
   path === "/prompts" || path.startsWith("/prompts/");

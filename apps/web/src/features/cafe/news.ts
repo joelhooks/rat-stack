@@ -9,7 +9,7 @@ import type {
   CafeReply,
 } from "@rat-stack/core/contracts";
 import * as stylex from "@stylexjs/stylex";
-import { Option } from "effect";
+import { Array, Option } from "effect";
 import type { Html, HtmlBuilder } from "foldkit/html";
 
 import type { CafeMessage } from "../../client/cafe/message.js";
@@ -17,6 +17,7 @@ import type { NewsModel } from "../../client/cafe/model.js";
 import { newsFeedRouter } from "../site-route.js";
 import { cafeStyles } from "./cafe.stylex.js";
 import {
+  allStarsCopy,
   cafeSubmissionPrompt,
   newsCopy,
   newsKindLabels,
@@ -87,7 +88,30 @@ const threadView = (
       ]
     : [];
 
-const itemView = (h: HtmlBuilder<CafeMessage>, item: CafeNewsItemValue): Html =>
+const profileLinkView = (
+  h: HtmlBuilder<CafeMessage>,
+  profiles: NewsModel["profiles"],
+  item: CafeNewsItemValue
+): (Html | string)[] =>
+  Option.match(
+    Array.findFirst(profiles, (profile) => profile.url === item.url),
+    {
+      onNone: (): (Html | string)[] => [],
+      onSome: (profile) => [
+        " · ",
+        h.a(
+          [h.Href(profile.route), h.AriaLabel(`${profile.name} on all stars`)],
+          [allStarsCopy.profileLabel]
+        ),
+      ],
+    }
+  );
+
+const itemView = (
+  h: HtmlBuilder<CafeMessage>,
+  profiles: NewsModel["profiles"],
+  item: CafeNewsItemValue
+): Html =>
   h.li(
     [h.Key(item.url), h.Class(stylex.props(cafeStyles.item).className ?? "")],
     [
@@ -117,6 +141,7 @@ const itemView = (h: HtmlBuilder<CafeMessage>, item: CafeNewsItemValue): Html =>
               h.time([], [item.date]),
               " by ",
               authorView(h, item.author, cafeDomain(item.url)),
+              ...profileLinkView(h, profiles, item),
             ]
           ),
           ...threadView(h, item),
@@ -162,7 +187,7 @@ export const view = (model: NewsModel, h: HtmlBuilder<CafeMessage>): Html =>
       h.p([], [h.a([h.Href(newsFeedRouter())], [newsCopy.feedLabel])]),
       h.ol(
         [h.Class(stylex.props(cafeStyles.list).className ?? "")],
-        model.items.map((item) => itemView(h, item))
+        model.items.map((item) => itemView(h, model.profiles, item))
       ),
       sortSectionView(h),
       h.p([], [cafeSubmissionPrompt]),
