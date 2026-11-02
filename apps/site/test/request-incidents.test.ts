@@ -1,16 +1,8 @@
 import { it } from "@effect/vitest";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
-import {
-  Cause,
-  Context,
-  Crypto,
-  Effect,
-  Layer,
-  Logger,
-  Schema,
-  Stream,
-} from "effect";
+import { Cause, Context, Effect, Layer, Logger, Schema, Stream } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
@@ -548,17 +540,16 @@ it.effect(
   }
 );
 
-it.effect("draws incident ids from the Crypto service as v4 UUIDs", () =>
-  Effect.gen(function* incidentIdFromCrypto() {
-    const fixedBytes = Crypto.make({
-      digest: () => Effect.succeed(new Uint8Array(0)),
-      randomBytes: (size) => new Uint8Array(size).fill(7),
-    });
+it.effect("draws incident ids from the SecureRandom service as v4 UUIDs", () =>
+  Effect.gen(function* incidentIdFromSecureRandom() {
+    const fixedBytes = SecureRandom.make((size) =>
+      new Uint8Array(size).fill(7)
+    );
 
     const id = yield* logRequestIncident(
       Cause.die(new ReferenceError("probe")),
       "initialization"
-    ).pipe(Effect.provideService(Crypto.Crypto, fixedBytes));
+    ).pipe(Effect.provideService(SecureRandom.SecureRandom, fixedBytes));
 
     expect(id).toBe("07070707-0707-4707-8707-070707070707");
   })

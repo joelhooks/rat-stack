@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
-import { Progress } from "alchemy/Report";
+import { emit } from "alchemy/Events";
 import {
   Cause,
   ConfigProvider,
@@ -9,7 +9,6 @@ import {
   Exit,
   FileSystem,
   Layer,
-  Predicate,
   Ref,
   Schema,
 } from "effect";
@@ -31,14 +30,6 @@ class BadRequest extends Schema.TaggedError<
 >()("BadRequest", {
   message: Schema.String,
 }) {}
-
-const ResourceStatus = Schema.TaggedStruct("apply.resource.status", {
-  fqn: Schema.String,
-  id: Schema.String,
-  message: Schema.optionalKey(Schema.String),
-  status: Schema.Literals(["updated", "fail"]),
-  type: Schema.String,
-});
 
 const ApiEnvelope = Schema.Struct({
   errors: Schema.Array(
@@ -122,17 +113,14 @@ it.effect.prop(
 
       const apply = (observed: HttpClient.HttpClient) =>
         Effect.gen(function* fakeApply() {
-          const progress = yield* Progress;
-
           for (const resource of completed) {
-            yield* progress(
-              ResourceStatus.make({
-                fqn: resource,
-                id: resource,
-                status: "updated",
-                type: "Cloudflare.Worker",
-              })
-            );
+            yield* emit({
+              fqn: resource,
+              id: resource,
+              resourceType: "Cloudflare.Worker",
+              status: "updated",
+              type: "apply.resource.status",
+            });
           }
 
           const exits = yield* Effect.forEach(
@@ -153,15 +141,14 @@ it.effect.prop(
                 const primary =
                   envelope.errors[0]?.message ?? "Missing diagnostic";
 
-                yield* progress(
-                  ResourceStatus.make({
-                    fqn: resource,
-                    id: resource,
-                    message: `BadRequest: ${primary}`,
-                    status: "fail",
-                    type: "Cloudflare.Worker",
-                  })
-                );
+                yield* emit({
+                  fqn: resource,
+                  id: resource,
+                  message: `BadRequest: ${primary}`,
+                  resourceType: "Cloudflare.Worker",
+                  status: "fail",
+                  type: "apply.resource.status",
+                });
 
                 return yield* new BadRequest({ message: primary });
               }).pipe(
@@ -196,7 +183,7 @@ it.effect.prop(
               apply,
               client,
               (event) =>
-                Predicate.isTagged(event, "apply.resource.status") &&
+                event.type === "apply.resource.status" &&
                 event.status === "updated"
                   ? Ref.update(updated, (rows) => [...rows, event.fqn])
                   : Effect.void,

@@ -1,4 +1,4 @@
-import { NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { it } from "@effect/vitest";
 import { Drift, codeIdentity, prepareCode } from "@rat-stack/code-snippets";
 import type { CodeSnippet } from "@rat-stack/code-snippets";
@@ -376,60 +376,62 @@ class RegistryFixtures extends Context.Service<
   );
 }
 
-it.layer(Layer.provideMerge(RegistryFixtures.layer, NodeServices.layer))(
-  "file-backed registry pages",
-  (test) => {
-    test.effect.each([...lawSources, ...skillSources, ...loreSources])(
-      "$routePath uses the shared svx registry",
-      (page) =>
-        Effect.gen(function* checkFileBackedSourceRegistry() {
-          const fileSystem = yield* FileSystem.FileSystem;
-          const fixtures = yield* RegistryFixtures;
+const registryServices = Layer.provideMerge(
+  RegistryFixtures.layer,
+  Layer.mergeAll(NodeServices.layer, NodeCrypto.layerDigest)
+);
 
-          const file = new URL(`../../../${page.sourcePath}`, import.meta.url)
-            .pathname;
+it.layer(registryServices)("file-backed registry pages", (test) => {
+  test.effect.each([...lawSources, ...skillSources, ...loreSources])(
+    "$routePath uses the shared svx registry",
+    (page) =>
+      Effect.gen(function* checkFileBackedSourceRegistry() {
+        const fileSystem = yield* FileSystem.FileSystem;
+        const fixtures = yield* RegistryFixtures;
 
-          if (!(yield* fileSystem.exists(file))) {
-            return;
+        const file = new URL(`../../../${page.sourcePath}`, import.meta.url)
+          .pathname;
+
+        if (!(yield* fileSystem.exists(file))) {
+          return;
+        }
+
+        const source = yield* fileSystem.readFileString(file);
+
+        const rendered = renderSvxMarkdown(
+          source,
+          "agent",
+          {},
+          fixtures.registry
+        );
+
+        expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
+        const code: string[] = [];
+        visitContentNodes(parseContentMarkdown(rendered), (node) => {
+          if (node.type === "code") {
+            code.push(node.value);
           }
+        });
 
-          const source = yield* fileSystem.readFileString(file);
+        for (const node of collectCodeFences(source, page.sourcePath)) {
+          const snippet = fixtures.snippets.get(codeIdentity(node));
 
-          const rendered = renderSvxMarkdown(
-            source,
+          if (snippet !== undefined) {
+            expect(code, page.sourcePath).toContain(
+              snippet.lines.map((line) => line.text).join("\n")
+            );
+          }
+        }
+
+        expect(
+          renderSvxMarkdown(
+            `${source}\n\n<Proof />`,
             "agent",
             {},
-            fixtures.registry
-          );
-
-          expect(rendered.length, page.sourcePath).toBeGreaterThan(0);
-          const code: string[] = [];
-          visitContentNodes(parseContentMarkdown(rendered), (node) => {
-            if (node.type === "code") {
-              code.push(node.value);
-            }
-          });
-
-          for (const node of collectCodeFences(source, page.sourcePath)) {
-            const snippet = fixtures.snippets.get(codeIdentity(node));
-
-            if (snippet !== undefined) {
-              expect(code, page.sourcePath).toContain(
-                snippet.lines.map((line) => line.text).join("\n")
-              );
-            }
-          }
-
-          expect(
-            renderSvxMarkdown(
-              `${source}\n\n<Proof />`,
-              "agent",
-              {},
-              fixtures.extension
-            ),
-            page.sourcePath
-          ).toContain("Registry proof");
-        })
-    );
-  }
-);
+            fixtures.extension
+          ),
+          page.sourcePath
+        ).toContain("Registry proof");
+      })
+  );
+});

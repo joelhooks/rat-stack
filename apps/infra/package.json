@@ -17,15 +17,15 @@
     "logs": "alchemy logs"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.84",
-    "@alchemy.run/drizzle": "2.0.0-beta.84",
-    "@effect/platform-node": "4.0.7",
+    "@alchemy.run/cloudflare": "2.0.0-beta.85",
+    "@alchemy.run/drizzle": "2.0.0-beta.85",
+    "@effect/platform-node": "4.1.2",
     "@rat-stack/site": "workspace:*",
-    "alchemy": "2.0.0-beta.84",
-    "effect": "4.0.7"
+    "alchemy": "2.0.0-beta.85",
+    "effect": "4.1.2"
   },
   "devDependencies": {
-    "@effect/vitest": "4.0.7",
+    "@effect/vitest": "4.1.2",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.0.5"

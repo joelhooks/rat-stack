@@ -1,14 +1,13 @@
 import { Approval } from "@rat-stack/capability/approval";
 import { AuthProviders } from "alchemy";
-import * as Stacks from "alchemy/Alchemist/routes/stack";
-import { collectAuthProviders } from "alchemy/Alchemist/Session";
+import * as Alchemist from "alchemy/Alchemist";
+import { collectAuthProviders } from "alchemy/Alchemist/AuthRegistry";
 import { AlchemyContextLive } from "alchemy/AlchemyContext";
 import { ArtifactStore, createArtifactStore } from "alchemy/Artifacts";
 import { getAuthProvider } from "alchemy/Auth/AuthProvider";
 import { CredentialsStoreLive } from "alchemy/Auth/Credentials";
 import { ProfileStore, ProfileStoreLive } from "alchemy/Auth/Profile";
 import { Interaction, layerNonInteractive } from "alchemy/Interaction";
-import { Progress } from "alchemy/Report";
 import { State } from "alchemy/State/State";
 import {
   Cause,
@@ -20,7 +19,6 @@ import {
   FileSystem,
   Layer,
   Option,
-  Predicate,
   Redacted,
   Ref,
   Result,
@@ -135,10 +133,14 @@ export const profileCredential = Effect.fn("profileCredential")(
     >("Cloudflare").pipe(Effect.provideService(AuthProviders, registry));
 
     const store = yield* ProfileStore;
-    const config = yield* store.loadProviderConfig(auth, profile);
 
-    const resolved = yield* auth.read(profile, config, (updated) =>
-      store.setProviderConfig(profile, "Cloudflare", updated).pipe(Effect.orDie)
+    const resolved = yield* auth.read(
+      profile,
+      store.loadProviderConfig(auth, profile),
+      (updated) =>
+        store
+          .setProviderConfig(profile, "Cloudflare", updated)
+          .pipe(Effect.orDie)
     );
 
     const credential = yield* Schema.decodeEffect(NativeCredentialSchema)(
@@ -235,9 +237,9 @@ export const localLayer = (
       const receipts = yield* ReceiptStore;
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-      const planned = yield* Ref.make<
-        Option.Option<Effect.Success<ReturnType<typeof Stacks.plan>>>
-      >(Option.none());
+      const planned = yield* Ref.make<Option.Option<Alchemist.StackPlan>>(
+        Option.none()
+      );
 
       const pinned = yield* Ref.make<
         Option.Option<Effect.Success<ReturnType<typeof profileCredential>>>
@@ -267,12 +269,10 @@ export const localLayer = (
       const capturePreviousVersions = Effect.fn(
         "local.capturePreviousVersions"
       )(function* capturePreviousVersions(
-        value: Stacks.PlanSnapshot,
+        value: Alchemist.StackPlan,
         credential: Effect.Success<ReturnType<typeof profileCredential>>
       ) {
-        const state = yield* State.pipe(
-          Effect.provideContext(value.session.context)
-        );
+        const state = yield* State.pipe(Effect.provideContext(value.context));
 
         const store = yield* state;
         const prior: Record<string, string> = {};
@@ -435,19 +435,19 @@ export const localLayer = (
       );
 
       const plan = Effect.fn("local.plan")(function* plan(input: DeployInput) {
-        // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy imports arbitrary stack modules; this adapter maps the upstream unknown failure into DeployStepError.
-        const snapshot = yield* Stacks.plan({
-          operation: "deploy",
-          target: {
-            entrypoint,
-            envFile: "../../packages/deploy/empty.env",
-            profile: input.profile,
-            stage: "prod",
-          },
-          updateStateStore: false,
-        }).pipe(
-          Effect.provideService(Progress, (event) =>
-            Predicate.isTagged(event, "state.bootstrap.started")
+        const snapshot = yield* Alchemist.importStack(entrypoint).pipe(
+          Effect.flatMap((stack) =>
+            Alchemist.plan({
+              envFile: "../../packages/deploy/empty.env",
+              operation: "deploy",
+              profile: input.profile,
+              stack,
+              stage: "prod",
+              updateStateStore: false,
+            })
+          ),
+          Alchemist.onEvent((event) =>
+            event.type === "state.bootstrap.started"
               ? Effect.die(stepError("plan", "state-store-mutation-refused"))
               : Effect.void
           ),
@@ -519,9 +519,7 @@ export const localLayer = (
           return yield* stepError("apply", "build-and-profile-not-pinned");
         }
 
-        const state = yield* State.pipe(
-          Effect.provideContext(value.session.context)
-        );
+        const state = yield* State.pipe(Effect.provideContext(value.context));
 
         const store = yield* state;
         const prior = yield* capturePreviousVersions(value, credential.value);
@@ -611,27 +609,24 @@ export const localLayer = (
 
         const { exit, providerErrors } = yield* applyWithProviderEvidence(
           (observedClient) =>
-            Stacks.apply({
+            Alchemist.apply({
               ...value,
-              session: {
-                ...value.session,
-                context: Context.add(
-                  Context.add(
-                    value.session.context,
-                    HttpClient.HttpClient,
-                    observedClient
-                  ),
-                  Interaction,
-                  interaction
+              context: Context.add(
+                Context.add(
+                  value.context,
+                  HttpClient.HttpClient,
+                  observedClient
                 ),
-              },
+                Interaction,
+                interaction
+              ),
             }),
           Option.getOrElse(
-            Context.getOption(value.session.context, HttpClient.HttpClient),
+            Context.getOption(value.context, HttpClient.HttpClient),
             () => client
           ),
           (event) =>
-            Predicate.isTagged(event, "apply.resource.status") &&
+            event.type === "apply.resource.status" &&
             [
               "created",
               "updated",

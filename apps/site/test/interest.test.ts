@@ -19,7 +19,7 @@ import * as HttpRouter from "effect/http/HttpRouter";
 import { copyPrompts } from "../scripts/component-data.ts";
 import { htmlTokens } from "../scripts/svx-ast.ts";
 import { agentNextActions } from "../src/agent-guide.js";
-import { mischiefRoutes, toolkitProjection } from "../src/app.js";
+import { mischiefRoutes } from "../src/app.js";
 import {
   capabilities,
   contentCapabilities,
@@ -27,6 +27,7 @@ import {
 } from "../src/capabilities/index.js";
 import { tokenmaxxTitle } from "../src/house-ad-copy.js";
 import { interestCapabilities } from "../src/interest/handlers.js";
+import { toolkitProjection } from "../src/mcp-surface.js";
 import {
   llmsText,
   publicPaths,

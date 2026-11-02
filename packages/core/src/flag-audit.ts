@@ -7,7 +7,8 @@ import {
   join,
   setupEffect,
 } from "@xstate/effect";
-import { Cause, Clock, Crypto, Effect, Exit, Option, Schema } from "effect";
+import { Cause, Clock, Effect, Exit, Option, Schema } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import { types } from "xstate";
 
 import {
@@ -17,7 +18,7 @@ import {
   FlagPreviousValue,
 } from "./flag-control.js";
 import type { PendingFlagChange, CompletedFlagChange } from "./flag-control.js";
-import { FlagStorageError } from "./flag-storage-error.js";
+import type { FlagStorageError } from "./flag-storage-error.js";
 import { Flags, InvalidFlagValue } from "./flags.js";
 
 const FlagAttemptInput = Schema.Struct({
@@ -53,21 +54,7 @@ const prepareAttempt = Effect.fn("prepareFlagAttempt")(function* prepareAttempt(
         );
 
   const recordedAt = yield* Clock.currentTimeMillis;
-  const crypto = yield* Crypto.Crypto;
-
-  const random = yield* crypto.randomUUIDv7().pipe(
-    Effect.mapError(
-      (cause) =>
-        new FlagStorageError({
-          cause,
-          fallback: null,
-          flag: input.name,
-          operation: "audit",
-          repair:
-            "Restore the cryptographic attempt-id service before retrying this write.",
-        })
-    )
-  );
+  const random = yield* (yield* SecureRandom.SecureRandom).uuidV7();
 
   const change: PendingFlagChange = {
     actor: yield* FlagActor,
@@ -205,7 +192,7 @@ const observeRun = <A, E, R>(input: FlagAttempt, run: Effect.Effect<A, E, R>) =>
 
 export const auditFlagRun: Around<
   FlagStorageError | InvalidFlagValue,
-  Flags | FlagJournal | Crypto.Crypto
+  Flags | FlagJournal | SecureRandom.SecureRandom
 > = (_contract, input, run) =>
   Effect.all({
     parsed: Schema.decodeUnknownEffect(FlagAttemptInput)(input),

@@ -111,14 +111,14 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@effect/platform-node": "4.0.7",
+    "@effect/platform-node": "4.1.2",
     "@rat-stack/capability": "workspace:*",
     "@xstate/effect": "1.0.0-alpha.10",
-    "effect": "4.0.7",
+    "effect": "4.1.2",
     "xstate": "6.0.0-alpha.71"
   },
   "devDependencies": {
-    "@effect/vitest": "4.0.7",
+    "@effect/vitest": "4.1.2",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.0.5"
