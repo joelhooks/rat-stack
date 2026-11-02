@@ -22,6 +22,7 @@ export const readerFlagsFixture: ReaderPageFlags = {
   copyPrompts: [promptFixture],
   docs: Option.none(),
   heading: "Rat Stack",
+  newsTitle: Option.none(),
   origin: "https://ratstack.sh",
   page: {
     generation: "0".repeat(64),
@@ -41,7 +42,6 @@ export const readerFlagsFixture: ReaderPageFlags = {
   references: Option.none(),
   snippets: [],
   terms: [],
-  workshop: Option.none(),
 };
 
 export const readerModelFixture = initialModel(readerFlagsFixture);

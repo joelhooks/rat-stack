@@ -44,7 +44,7 @@ import {
   contentPagePath,
 } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
-import { houseAdCopy, tokenmaxxTitle } from "../src/house-ad-copy.ts";
+import { tokenmaxxTitle } from "../src/house-ad-copy.ts";
 import {
   addInboundCounts,
   backlinksFor,
@@ -111,21 +111,22 @@ import {
 import { lawSpecs } from "./content-specs.ts";
 import type { SourceSpec } from "./content-specs.ts";
 import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
-import {
-  renderCopyPrompt,
-  renderDocumentShell,
-  renderHouseAd,
-} from "./document-html.ts";
+import { renderCopyPrompt, renderDocumentShell } from "./document-html.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
 import {
   glossaryFirstUseWarnings,
   glossaryFirstUseWarningText,
 } from "./glossary-first-use.ts";
-import { hasHouseAd, withHouseAdPointer } from "./house-ad.ts";
 import { buildLearningDeck } from "./learn-deck.ts";
 import { collectLearnSnippets } from "./learn-snippets.ts";
 import { renderMarkdownHtml } from "./markdown-html.ts";
+import {
+  hasNewsCallout,
+  newestNewsTitle,
+  renderNewsCallout,
+  withNewsPointer,
+} from "./news-callout.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import { validatePromptSources } from "./prompt-source.ts";
 import {
@@ -214,7 +215,7 @@ interface DocumentProps {
   readonly discoveryLinks:
     | ReturnType<typeof markdownDiscoveryLinks>
     | readonly [];
-  readonly houseAdHtml?: string;
+  readonly newsCalloutHtml?: string;
   readonly noindex?: boolean;
   readonly stylesheet: string;
   readonly breadcrumbHref?: string;
@@ -955,8 +956,6 @@ const program = Effect.gen(function* generateContent() {
       )
     );
 
-  const houseAdHtml = renderHouseAd(houseAdCopy);
-
   const peerSourcePath = ".brain/resources/peers.svx";
   const peerDataPath = ".brain/data/peers.json";
 
@@ -1054,6 +1053,12 @@ const program = Effect.gen(function* generateContent() {
   const encodedCafeData = yield* Schema.encodeEffect(CafeData)(cafeData).pipe(
     Effect.mapError((cause) => buildError("cafe encode", cafeNewsFile, cause))
   );
+
+  const newsTitle = newestNewsTitle(cafeData.news);
+  const newsCalloutHtml = renderNewsCallout(newsTitle);
+
+  const withNewsCallout = (markdown: string, routePath: string) =>
+    withNewsPointer(markdown, routePath, newsTitle);
 
   const cafeNewsSource = cafeNewsMarkdown(cafeData, allStarsList);
 
@@ -1988,7 +1993,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const homeMarkdownTemplate = renderAgentPage(
     appendLoreMarkdown(
-      withHouseAdPointer(homeMarkdownAgentSource, "/"),
+      withNewsCallout(homeMarkdownAgentSource, "/"),
       homeBody.linkedLoreRoutes
     ),
     "/",
@@ -2101,7 +2106,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
 
   const skillIndexMarkdown = renderAgentPage(
     appendLoreMarkdown(
-      withHouseAdPointer(skillIndexSourceMarkdown, "/skills"),
+      withNewsCallout(skillIndexSourceMarkdown, "/skills"),
       skillIndexBody.linkedLoreRoutes
     ),
     "/skills",
@@ -2118,7 +2123,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   );
 
   const loreIndexMarkdown = renderAgentPage(
-    withHouseAdPointer(loreIndexSourceMarkdown, "/lore"),
+    withNewsCallout(loreIndexSourceMarkdown, "/lore"),
     "/lore",
     "Lore"
   );
@@ -2133,7 +2138,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   );
 
   const systemsIndexMarkdown = renderAgentPage(
-    withHouseAdPointer(systemsIndexSourceMarkdown, "/systems"),
+    withNewsCallout(systemsIndexSourceMarkdown, "/systems"),
     "/systems",
     "Systems"
   );
@@ -2307,7 +2312,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           bodyHtml: "",
           description: "",
           discoveryLinks: markdownDiscoveryLinks("/"),
-          houseAdHtml,
+          newsCalloutHtml,
           ogImageUrl: "",
           origin: "https://ratstack.sh",
           path: "/",
@@ -2763,7 +2768,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       {
         bodyHtml: addInboundCounts(bodyHtml, metadata.path, backlinkIndex),
         discoveryLinks: markdownDiscoveryLinks(metadata.path),
-        houseAdHtml: hasHouseAd(metadata.path) ? houseAdHtml : "",
+        newsCalloutHtml: hasNewsCallout(metadata.path) ? newsCalloutHtml : "",
         ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
         origin: originToken,
         stylesheet,
@@ -3125,7 +3130,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         );
 
         const bodyMarkdown = deriveAgentMarkdown(
-          withHouseAdPointer(
+          withNewsCallout(
             `${skill.text}${pageFooterMarkdown(skill.routePath)}`,
             skill.routePath
           )
@@ -3168,7 +3173,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         );
 
         const bodyMarkdown = deriveAgentMarkdown(
-          withHouseAdPointer(
+          withNewsCallout(
             `${lore.text}${pageFooterMarkdown(lore.routePath)}`,
             lore.routePath
           )

@@ -33,6 +33,7 @@ export const ReaderFlags = Schema.Struct({
   copyPrompts: Schema.Array(CopyPrompt),
   docs: Schema.OptionFromOptional(DocsModel),
   heading: Schema.String,
+  newsTitle: Schema.OptionFromOptional(Schema.String),
   origin: Schema.String,
   page: ReaderPageDescriptor,
   references: Schema.OptionFromOptional(ReaderReferences),
@@ -46,14 +47,6 @@ export const ReaderFlags = Schema.Struct({
     })
   ),
   terms: Schema.Array(Schema.String),
-  workshop: Schema.OptionFromOptional(
-    Schema.Struct({
-      href: Schema.String,
-      label: Schema.String,
-      line: Schema.String,
-      link: Schema.String,
-    })
-  ),
 });
 
 export type ReaderPageFlags = typeof ReaderFlags.Type;

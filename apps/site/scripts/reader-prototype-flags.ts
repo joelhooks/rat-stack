@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
-import { houseAdCopy } from "../src/house-ad-copy.ts";
+import { readerNewsTitle } from "./reader-body-document.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
@@ -106,6 +106,7 @@ export const readerPrototypeFlags = Effect.fn("readerPrototypeFlags")(
       codeFences: [],
       copyPrompts: [],
       heading: page.metadata.title.replace(/ \| rat-stack$/u, ""),
+      newsTitle: readerNewsTitle(page.html),
       origin,
       page: {
         generation: inputs.generation,
@@ -121,7 +122,6 @@ export const readerPrototypeFlags = Effect.fn("readerPrototypeFlags")(
       references: inputs.references,
       snippets,
       terms: inputs.lore.terms,
-      workshop: houseAdCopy,
     };
   }
 );

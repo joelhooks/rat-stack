@@ -7,12 +7,8 @@ import {
   isReaderBodyRoutePath,
   readerBodyRoutePaths,
 } from "../../web/src/reader-routes.js";
-import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { copyPrompts } from "./component-data.ts";
-import {
-  compileReaderBody,
-  readerWorkshopCount,
-} from "./reader-body-document.ts";
+import { compileReaderBody, readerNewsTitle } from "./reader-body-document.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
@@ -72,6 +68,7 @@ export const readerBodyFlags = Effect.fn("readerBodyFlags")(
           codeFences: [],
           copyPrompts: prompts.filter((prompt) => used.has(prompt.id)),
           heading: body.heading,
+          newsTitle: readerNewsTitle(page.html),
           origin,
           page: {
             generation: inputs.generation,
@@ -82,8 +79,6 @@ export const readerBodyFlags = Effect.fn("readerBodyFlags")(
           },
           snippets: [],
           terms: [],
-          workshop:
-            readerWorkshopCount(page.html) > 0 ? houseAdCopy : undefined,
         });
       })
     );

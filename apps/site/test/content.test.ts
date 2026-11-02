@@ -1,8 +1,10 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { parseCodeRequest, sourceLines } from "@rat-stack/code-snippets";
+import { CafeNewsItem, sortCafeNewsNewest } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import { DomUtils, parseDocument } from "htmlparser2";
 
 import { collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
@@ -32,7 +34,6 @@ import {
   parseContentMarkdown,
   stringifyContentMarkdown,
 } from "../scripts/svx-ast.ts";
-import { houseAdCopy } from "../src/house-ad-copy.ts";
 import {
   contentResources,
   llmsText,
@@ -63,8 +64,21 @@ import {
   tokenmaxxMarkdown,
 } from "./generated-content.js";
 
-it.effect("places one workshop pointer after each promoted page title", () =>
-  Effect.sync(() => {
+it.effect("links promoted pages to the newest CAFE news headline", () =>
+  Effect.gen(function* newestNewsPointer() {
+    const fs = yield* FileSystem.FileSystem;
+
+    const news = yield* Schema.decodeEffect(
+      Schema.fromJsonString(Schema.Array(CafeNewsItem))
+    )(
+      yield* fs.readFileString(
+        new URL("../../../.brain/data/cafe/news.json", import.meta.url).pathname
+      )
+    );
+
+    const newest = sortCafeNewsNewest(news).at(0);
+    expect(newest).toBeDefined();
+
     const pages = [
       homeDocumentHtml,
       loreIndexDocumentHtml,
@@ -75,12 +89,40 @@ it.effect("places one workshop pointer after each promoted page title", () =>
     ];
 
     for (const page of pages) {
-      expect(page.match(/<aside class="workshop-callout"/gu)).toHaveLength(1);
-      expect(page.indexOf('<aside class="workshop-callout"')).toBeLessThan(
+      const document = parseDocument(page);
+
+      const callouts = DomUtils.getElementsByTagName(
+        "aside",
+        document.children
+      ).filter((element) => element.attribs.class === "news-callout");
+
+      expect(callouts).toHaveLength(1);
+
+      const links = DomUtils.getElementsByTagName(
+        "a",
+        callouts.flatMap((element) => element.children)
+      );
+
+      expect(
+        links.map((link) => ({
+          href: link.attribs.href,
+          title: DomUtils.textContent(link),
+        }))
+      ).toStrictEqual([{ href: "/news", title: newest?.title }]);
+      expect(page.indexOf('<aside class="news-callout"')).toBeLessThan(
         page.search(/<h1\b/u)
       );
-      expect(page).toContain(houseAdCopy.line);
-      expect(page).toContain(`href="${houseAdCopy.href}"`);
+
+      const nav = DomUtils.getElementsByTagName("nav", document.children).find(
+        (element) => element.attribs["aria-label"] === "Primary navigation"
+      );
+
+      expect(
+        DomUtils.getElementsByTagName("a", nav?.children ?? []).map((link) => ({
+          href: link.attribs.href,
+          title: DomUtils.textContent(link),
+        }))
+      ).toContainEqual({ href: "/news", title: "news" });
     }
 
     const agentPages = [
@@ -92,15 +134,14 @@ it.effect("places one workshop pointer after each promoted page title", () =>
     ];
 
     for (const page of agentPages) {
-      expect(page).toContain(
-        `${houseAdCopy.label}: [${houseAdCopy.line}](${houseAdCopy.href}).`
-      );
+      expect(page).toContain(`New on /news: [${newest?.title}](/news).`);
       expect(page).not.toContain("<aside");
+      expect(page).not.toContain("Free workshop:");
     }
-  })
+  }).pipe(Effect.provide(NodeServices.layer))
 );
 
-it.effect("keeps house ads off the workshop and confirmation flow", () =>
+it.effect("keeps news chrome off the workshop and confirmation flow", () =>
   Effect.sync(() => {
     for (const page of [
       tokenmaxxDocumentHtml,
@@ -108,8 +149,8 @@ it.effect("keeps house ads off the workshop and confirmation flow", () =>
       interestResultDocumentHtml,
       tokenmaxxMarkdown,
     ]) {
-      expect(page).not.toContain('class="house-ad"');
-      expect(page).not.toContain(`${houseAdCopy.label}: [${houseAdCopy.line}]`);
+      expect(page).not.toContain('class="news-callout"');
+      expect(page).not.toContain("New on /news:");
     }
   })
 );

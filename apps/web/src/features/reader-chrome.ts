@@ -1,8 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
-import type { ReaderModel } from "../client/reader/model.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
@@ -10,50 +8,18 @@ import {
   changeLogRouter,
   glossaryRouter,
   learnRouter,
+  newsRouter,
   peersRouter,
   promptsRouter,
 } from "./site-route.js";
 
-export const readerWorkshop = <Message>(
-  workshop: Option.Option.Value<ReaderModel["workshop"]>,
+export const readerNewsCallout = <Message>(
+  title: string,
   h: HtmlBuilder<Message>
 ) =>
   h.aside(
-    [h.Class("workshop-callout"), h.AriaLabel(workshop.label)],
-    [
-      h.span([h.Class("workshop-callout-label")], [workshop.label]),
-      h.span([h.Class("workshop-callout-title")], [workshop.line]),
-      h.span(
-        [h.Class("workshop-callout-action")],
-        [
-          h.a(
-            [h.Class("workshop-callout-apply"), h.Href(workshop.href)],
-            [
-              workshop.link,
-              h.svg(
-                [
-                  h.Class("icon"),
-                  h.Fill("none"),
-                  h.Height("16"),
-                  h.Width("16"),
-                  h.Stroke("currentColor"),
-                  h.StrokeWidth("2"),
-                  h.ViewBox("0 0 24 24"),
-                  h.AriaHidden(true),
-                ],
-                [
-                  h.path([
-                    h.D("M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"),
-                    h.StrokeLinecap("round"),
-                    h.StrokeLinejoin("round"),
-                  ]),
-                ]
-              ),
-            ]
-          ),
-        ]
-      ),
-    ]
+    [h.Class("news-callout"), h.AriaLabel("New on /news")],
+    [h.span([], ["New on /news:"]), " ", h.a([h.Href(newsRouter())], [title])]
   );
 
 export const readerFooter = <Message>(

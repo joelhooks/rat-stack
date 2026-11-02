@@ -5,7 +5,7 @@ import { renderToString } from "foldkit/experimental/server";
 
 import {
   compileReaderBody,
-  readerWorkshopCount,
+  readerNewsTitle,
 } from "../../site/scripts/reader-body-document.ts";
 import { readerLoreFlagsFrom } from "../../site/scripts/reader-lore-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
@@ -82,8 +82,11 @@ it.layer(ReaderLoreFixture.layer)((test) => {
                   page.page.sourcePath
                 );
 
-                expect(readerWorkshopCount(rendered.html), page.page.path).toBe(
-                  readerWorkshopCount(original?.html ?? "")
+                expect(readerNewsTitle(rendered.html), page.page.path).toBe(
+                  readerNewsTitle(original?.html ?? "")
+                );
+                expect(rendered.html).toMatch(
+                  /<a [^>]*href="\/news"[^>]*>news<\/a>/u
                 );
                 expect(after.heading, page.page.path).toBe(before.heading);
                 expect(after.breadcrumb, page.page.path).toEqual(
