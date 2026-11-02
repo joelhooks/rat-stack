@@ -12,6 +12,7 @@ export default defineConfig({
           environment: "jsdom",
           include: [
             "test/app.test.ts",
+            "test/built-images.test.ts",
             "test/overlay.test.ts",
             "test/reader-csp.test.ts",
           ],
@@ -24,6 +25,7 @@ export default defineConfig({
           environment: "node",
           exclude: [
             "test/app.test.ts",
+            "test/built-images.test.ts",
             "test/overlay.test.ts",
             "test/reader-csp.test.ts",
           ],

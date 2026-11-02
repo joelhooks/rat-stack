@@ -6,9 +6,15 @@ import { acceptsHtml } from "./negotiation.js";
 import { readerContentSecurityPolicy, secureResponse } from "./security.js";
 import type { AssetBinding } from "./static-assets.js";
 
+export const readerWebsiteAssetPrefixes: readonly string[] = [
+  "/assets/",
+  "/avatars/",
+];
+
 export const readerWebsiteRoutes: readonly string[] = [
   "/",
   "/assets/*",
+  "/avatars/*",
   "/AGENTS.md",
   "/all-stars",
   "/all-stars/*",
@@ -67,7 +73,9 @@ export const readerWebsiteTarget = (
     return "rpc";
   }
 
-  if (pathname.startsWith("/assets/")) {
+  if (
+    readerWebsiteAssetPrefixes.some((prefix) => pathname.startsWith(prefix))
+  ) {
     return "asset";
   }
 
