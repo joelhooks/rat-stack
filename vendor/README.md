@@ -2,7 +2,7 @@
 
 Keep pinned dependencies here until npm publishes them. Each entry records its build source and removal condition. Nothing is vendored or patched right now.
 
-The current `xstate@6.0.0-alpha.71` and `@xstate/effect@1.0.0-alpha.10` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0`, XState `^6.0.0-alpha.71`, and optional `@oxlint/plugins` `^1.76.0`. Its compiled `@xstate/effect/oxlint` export supplies `xstate-effect/no-inline-effect` at error severity.
+The current `xstate@6.0.0-alpha.73` and `@xstate/effect@1.0.0-alpha.12` pins come from npm. Their exact `minimumReleaseAgeExclude` entries move together. The bridge accepts Effect `^4.0.0`, XState `^6.0.0-alpha.73`, and optional `@oxlint/plugins` `^1.76.0`. Its compiled `@xstate/effect/oxlint` export supplies `xstate-effect/no-inline-effect` at error severity.
 
 - **Vendored packages**: none.
 - **Patched packages**: none. The last patch was `@foldkit/vite-plugin@0.28.0`. Its DevTools [MCP](/lore/mcp-is-another-surface) relay id called the removed `Crypto.randomUUIDv4` as a value, and the `peerDependencyRules.allowedVersions` entries for Foldkit's exact Effect `4.0.0` peers travelled with it. `@foldkit/vite-plugin@0.29.0` draws the id from `SecureRandom.uuidV4()` in `effect/crypto`, and Foldkit `0.170.0` peers on `effect ~4.1.0`. The patch, the allowances, and the `@foldkit/vite-plugin>@effect/platform-node*` overrides went away with the Effect `4.1.2` bump on 2026-11-02.

@@ -667,14 +667,14 @@ importers:
         specifier: workspace:*
         version: link:../capability
       '@xstate/effect':
-        specifier: 1.0.0-alpha.10
-        version: 1.0.0-alpha.10(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.71)
+        specifier: 1.0.0-alpha.12
+        version: 1.0.0-alpha.12(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.73)
       effect:
         specifier: 4.1.2
         version: 4.1.2
       xstate:
-        specifier: 6.0.0-alpha.71
-        version: 6.0.0-alpha.71
+        specifier: 6.0.0-alpha.73
+        version: 6.0.0-alpha.73
     devDependencies:
       '@effect/vitest':
         specifier: 4.1.2
@@ -799,8 +799,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@xstate/effect':
-        specifier: 1.0.0-alpha.10
-        version: 1.0.0-alpha.10(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.71)
+        specifier: 1.0.0-alpha.12
+        version: 1.0.0-alpha.12(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.73)
       alchemy:
         specifier: 2.0.0-beta.85
         version: 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
@@ -808,8 +808,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       xstate:
-        specifier: 6.0.0-alpha.71
-        version: 6.0.0-alpha.71
+        specifier: 6.0.0-alpha.73
+        version: 6.0.0-alpha.73
     devDependencies:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.85
@@ -895,8 +895,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@xstate/effect':
-        specifier: 1.0.0-alpha.10
-        version: 1.0.0-alpha.10(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.71)
+        specifier: 1.0.0-alpha.12
+        version: 1.0.0-alpha.12(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.73)
       alchemy:
         specifier: 2.0.0-beta.85
         version: 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
@@ -904,8 +904,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       xstate:
-        specifier: 6.0.0-alpha.71
-        version: 6.0.0-alpha.71
+        specifier: 6.0.0-alpha.73
+        version: 6.0.0-alpha.73
     devDependencies:
       '@effect/platform-node':
         specifier: 4.1.2
@@ -963,14 +963,14 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@xstate/effect':
-        specifier: 1.0.0-alpha.10
-        version: 1.0.0-alpha.10(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.71)
+        specifier: 1.0.0-alpha.12
+        version: 1.0.0-alpha.12(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.73)
       effect:
         specifier: 4.1.2
         version: 4.1.2
       xstate:
-        specifier: 6.0.0-alpha.71
-        version: 6.0.0-alpha.71
+        specifier: 6.0.0-alpha.73
+        version: 6.0.0-alpha.73
     devDependencies:
       '@effect/platform-node':
         specifier: 4.1.2
@@ -2977,12 +2977,12 @@ packages:
   '@vitest/spy@5.0.5':
     resolution: {integrity: sha512-lwJRExuH417257Q5wv9QYugN9IMJkoxcrKrYxGPQkBzl7wlNpTUxD/5yNX4ESKVUIShKPgkGchYPFMWOOk0wzw==}
 
-  '@xstate/effect@1.0.0-alpha.10':
-    resolution: {integrity: sha512-Wh0eRE2o6xT9uhY2w7vGHFE/pcTTfEXq5IVGRYgR7TmvXk4HPb6RovKLodhSEr7KjOAF9KeVCHbIaisKYXvCLg==}
+  '@xstate/effect@1.0.0-alpha.12':
+    resolution: {integrity: sha512-D72whH2VWGnvMefc3CrylVwgqu2Ph2jfA861RG3gbLOk0mkXH8ZUn9h+IZO//xRKaCPFfKMXkXnqy4aIED1THg==}
     peerDependencies:
       '@oxlint/plugins': ^1.76.0
       effect: ^4.0.0
-      xstate: ^6.0.0-alpha.71
+      xstate: ^6.0.0-alpha.73
     peerDependenciesMeta:
       '@oxlint/plugins':
         optional: true
@@ -4958,8 +4958,8 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
-  xstate@6.0.0-alpha.71:
-    resolution: {integrity: sha512-ABNE8jHjqzpQd/gX8huQYvSlbrOEaJcvzBtt6qWMooQuvxKoarkEKT0JFr3ymhI5Jza72YmfsWnFEophersmhQ==}
+  xstate@6.0.0-alpha.73:
+    resolution: {integrity: sha512-Ru3g082hzyn2h1TspciGFgHplK35jZl6Sl808cspInc0xx/RsALM8sc3AoQpg2KusApD2HPlX7liaVnSxlMyHw==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6649,10 +6649,10 @@ snapshots:
 
   '@vitest/spy@5.0.5': {}
 
-  '@xstate/effect@1.0.0-alpha.10(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.71)':
+  '@xstate/effect@1.0.0-alpha.12(@oxlint/plugins@1.88.0)(effect@4.1.2)(xstate@6.0.0-alpha.73)':
     dependencies:
       effect: 4.1.2
-      xstate: 6.0.0-alpha.71
+      xstate: 6.0.0-alpha.73
     optionalDependencies:
       '@oxlint/plugins': 1.88.0
 
@@ -8625,7 +8625,7 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  xstate@6.0.0-alpha.71: {}
+  xstate@6.0.0-alpha.73: {}
 
   xtend@4.0.2: {}
 
