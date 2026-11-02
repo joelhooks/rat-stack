@@ -20,7 +20,8 @@ Rat-stack's stacks live in the account's shared default store, `alchemy-state-st
   - **No deletes.** The destination view refuses `delete` and `deleteStack`. `syncState` deletes destination keys the source lacks, so this guard matters.
   - **Empty destination.** The copy refuses when the destination already holds any listed stack.
   - **Known stacks.** It refuses a listed stack that the source does not hold, which catches typos, and an empty `--stacks`.
-  - **No provisioning.** It loads `packages/deploy/state-copy.env`, which sets `CI=true`, so Alchemy never bootstraps or upgrades a missing or outdated store. A missing store fails with `store-unavailable` and names the bootstrap command.
+  - **No provisioning.** Alchemy deploys, resumes and upgrades a Cloudflare store inside an `Interaction` task. The copy opens both stores under `packages/deploy/src/provisioning-fence.ts`, a non-interactive `Interaction` that runs only the task "Refreshing Cloudflare State Store credentials" and refuses every other task before its effect starts, with `provisioning-refused`. Every prompt fails, so no upgrade or new encryption key is ever confirmed. A missing or outdated store therefore stops the copy and names `alchemy state bootstrap`. If Alchemy renames the credential task, opening a store without cached credentials is refused too; the fence fails closed.
+  - **Profile auth.** The copy authenticates through `--profile`, like every other Alchemy command here. An earlier version set `CI=true` to block provisioning, but Alchemy's CI mode ignores the profile and demands `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`.
   - **Outputs.** It copies each stage's stack output, which `syncState` skips.
   - **Readback.** It reads the destination back and compares FQN sets and output presence for every stage. A difference fails with `copy-mismatch`.
 - `--dryRun` reads both stores and prints per-stage record counts. It writes nothing.

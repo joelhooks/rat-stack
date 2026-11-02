@@ -32,6 +32,7 @@ export const StateCopyRefusalSchema = Schema.Literals([
   "source-missing-stack",
   "destination-holds-stack",
   "store-unavailable",
+  "provisioning-refused",
   "copy-mismatch",
 ]);
 
@@ -43,6 +44,8 @@ const fixes: Record<StateCopyRefusal, string> = {
   "destination-holds-stack":
     "Copy only into a store that holds none of the listed stacks; syncState deletes destination records the source lacks.",
   "empty-allowlist": "Pass --stacks with at least one exact stack name.",
+  "provisioning-refused":
+    "Alchemy tried to deploy, resume or upgrade a state store, which state copy never does. Bootstrap or upgrade the named store with `alchemy state bootstrap`, then copy again.",
   "same-store": "Pass different --from and --to stores.",
   "source-missing-stack":
     "Check the names with `alchemy state list --backend cloudflare`; every listed stack must exist in the source.",

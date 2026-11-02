@@ -53,7 +53,7 @@ const program = Command.runWith(root, { version: "0.1.0" })(
   }),
   Effect.provide(
     RollbackRunner.layer("https://ratstack.sh").pipe(
-      Layer.merge(stateStoresLayer("../../packages/deploy/state-copy.env")),
+      Layer.merge(stateStoresLayer()),
       Layer.provideMerge(
         WorkerDeployments.layer("alchemy.run.ts").pipe(
           Layer.provideMerge(
