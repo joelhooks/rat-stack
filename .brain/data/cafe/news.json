@@ -1,5 +1,88 @@
 [
   {
+    "kind": "thread",
+    "url": "https://x.com/mattpocockuk/status/2117157362700058671",
+    "title": "What is the aha moment for Foldkit?",
+    "summary": "Asks for Foldkit's aha moment; replies cite explicit reducer transitions, agent devtools for state inspection, Scene tests, and the Elm Architecture in TypeScript.",
+    "date": "2026-11-02",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": null,
+      "x": "mattpocockuk"
+    },
+    "source": "https://x.com/mattpocockuk/status/2117157362700058671",
+    "engagement": {
+      "likes": 387,
+      "participants": 67,
+      "replies": 55
+    },
+    "topReplies": [
+      {
+        "likes": 104,
+        "text": "@mattpocockuk Work on it with agents, connect them to the devtools to inspect state, do scene testing, you won’t have many aha moments but you’ll have no wtf moment",
+        "url": "https://x.com/MichaelArnaldi/status/2117158569607098459",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 20,
+        "text": "@mattpocockuk the elm architecture, but with typescript and effect\nthere's not that many aha moments, for me it's more like damn why didn't i do this sooner\n\nit feels correctly designed for agents end to end, everything is visible to them including state transitions",
+        "url": "https://x.com/elianiva_/status/2117166491376165087",
+        "x": "elianiva_"
+      },
+      {
+        "likes": 9,
+        "text": "@mattpocockuk Imagine DDD on the app level. And every state transition is explicit, semantic, traceable. \n\nImagine useReducer was the core of your app/framework. \n\nIt just makes everything more predictable. More domain-shaped. More about the semantics of your application, and less about where",
+        "url": "https://x.com/RelevantElement/status/2117231177580916841",
+        "x": "RelevantElement"
+      }
+    ]
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+    "title": "Effect Office Hours 51: McpTask for long-running tools",
+    "summary": "Office Hours clip: a community review of adding McpTask to Effect's MCP support for long-running tools.",
+    "date": "2026-11-02",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+    "engagement": {
+      "views": 239
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.2",
+    "title": "effect@4.1.2 released",
+    "summary": "Patch fixes ByteSize decimal units, cluster workflow engine shard and retry faults, McpServer middleware and failure encoding, and cookie selection with HttpApiClient baseUrl.",
+    "date": "2026-11-02",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.73",
+    "title": "xstate 6.0.0-alpha.73 and @xstate/effect 1.0.0-alpha.12",
+    "summary": "Child-to-parent events under createEffectActor keep send order; async logic resolving null reports null; public exports carry stability tags.",
+    "date": "2026-11-02",
+    "repo": "statelyai/xstate",
+    "author": {
+      "github": "statelyai",
+      "x": null
+    },
+    "source": "https://github.com/statelyai/xstate/releases",
+    "engagement": {
+      "stars": 30403
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/Manzanita-Research/terrarium-v2",
     "title": "Terrarium v2",
@@ -12,7 +95,7 @@
     },
     "source": "https://github.com/Manzanita-Research/terrarium-v2",
     "engagement": {
-      "stars": 0
+      "stars": 1
     }
   },
   {
@@ -28,21 +111,8 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 10
+      "stars": 11
     }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.1",
-    "title": "effect@4.1.1 released",
-    "summary": "Patch fixes effect/crypto type-checks with @types/node and no DOM lib, caps BigDecimal scales, enforces MaxBodySize on buffered bodies, and fixes cluster reply persistence.",
-    "date": "2026-10-30",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
   },
   {
     "kind": "release",
@@ -57,23 +127,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1084
-    }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.71",
-    "title": "xstate 6.0.0-alpha.71 and @xstate/effect 1.0.0-alpha.10",
-    "summary": "xstate adds system-wide onEmitted; @xstate/effect keeps full Effect Causes on failures, adds a snapshot codec and ships its oxlint plugin.",
-    "date": "2026-10-29",
-    "repo": "statelyai/xstate",
-    "author": {
-      "github": "statelyai",
-      "x": null
-    },
-    "source": "https://github.com/statelyai/xstate/releases",
-    "engagement": {
-      "stars": 30388
+      "stars": 1152
     }
   },
   {
@@ -147,7 +201,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 450
+      "stars": 451
     }
   },
   {
@@ -253,7 +307,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1084
+      "stars": 1152
     }
   },
   {
@@ -343,7 +397,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1939
+      "stars": 1941
     }
   },
   {
@@ -388,7 +442,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1827
+      "stars": 1832
     }
   },
   {
@@ -450,22 +504,6 @@
     "summary": "Better Stack video on Effect 4.0's rewritten runtime, smaller bundles and faster task throughput.",
     "title": "Effect 4.0 Just Got a Lot Harder to Ignore",
     "url": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
-    "engagement": {
-      "seen": 1
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-02",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/changelog/",
-    "summary": "Custom Dashboards can chart Workers logs and traces next to analytics, which helps a CAFE builder check a Worker's health in one place.",
-    "title": "Workers Observability in custom dashboards",
-    "url": "https://developers.cloudflare.com/changelog/post/2026-10-02-workers-observability-in-custom-dashboards/",
     "engagement": {
       "seen": 1
     }
