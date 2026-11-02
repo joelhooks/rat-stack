@@ -9,13 +9,6 @@ export const escapeHtmlAttribute = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("<", "&lt;");
 
-export interface HouseAd {
-  readonly href: string;
-  readonly label: string;
-  readonly line: string;
-  readonly link: string;
-}
-
 export interface DiscoveryLink {
   readonly href: string;
   readonly rel: string;
@@ -30,7 +23,7 @@ export interface DocumentShell {
   readonly breadcrumbName?: string;
   readonly description: string;
   readonly discoveryLinks: readonly DiscoveryLink[];
-  readonly houseAdHtml?: string;
+  readonly newsCalloutHtml?: string;
   readonly noindex?: boolean;
   readonly ogImageUrl: string;
   readonly origin: string;
@@ -61,14 +54,8 @@ export const renderCopyPrompt = (spec: CopyPromptSpec) => {
     : copyControl(spec);
 };
 
-const arrowIcon =
-  '<svg aria-hidden="true" class="icon" fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
-
-export const renderHouseAd = (ad: HouseAd) =>
-  `<aside class="workshop-callout" aria-label="${escapeHtmlAttribute(ad.label)}"><span class="workshop-callout-label">${escapeHtmlText(ad.label)}</span> <span class="workshop-callout-title">${escapeHtmlText(ad.line)}</span> <span class="workshop-callout-action"><a class="workshop-callout-apply" href="${escapeHtmlAttribute(ad.href)}">${escapeHtmlText(ad.link)}${arrowIcon}</a></span></aside>`;
-
 const siteNavigation =
-  '<header><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/"><strong>🐀 Rat Stack</strong></a> <div class="site-links"><ul><li><a href="/skills">skills</a></li> <li><a href="/lore">lore</a></li> <li><a href="/systems">systems</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/search">search</a></li></ul> <ul><li><a href="/llms.txt">agent guide</a></li></ul></div></nav></header>';
+  '<header><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/"><strong>🐀 Rat Stack</strong></a> <div class="site-links"><ul><li><a href="/skills">skills</a></li> <li><a href="/lore">lore</a></li> <li><a href="/systems">systems</a></li> <li><a href="/news">news</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/search">search</a></li></ul> <ul><li><a href="/llms.txt">agent guide</a></li></ul></div></nav></header>';
 
 const siteFooter =
   '<footer><hr> <div class="site-reference"><section aria-label="Explore"><h2>Explore</h2> <ul><li><a href="/learn">learn mode</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/log">change log</a></li> <li><a href="/resources/peers">peers</a></li></ul></section> <section aria-label="Reference"><h2>Reference</h2> <ul><li><a href="/llms.txt">agent guide</a></li> <li><a href="/openapi.json">API docs</a></li> <li><a href="https://github.com/joelhooks/rat-stack">source</a></li></ul></section></div> <p>Markdown by default. HTML when you ask for it. <a href="/llms.txt">Agents start here</a>.</p></footer>';
@@ -124,7 +111,7 @@ export const renderDocumentShell = (shell: DocumentShell) => {
       ? `<nav aria-label="Breadcrumb" class="breadcrumb"><a href="${escapeHtmlAttribute(shell.breadcrumbHref)}">${escapeHtmlText(shell.breadcrumbLabel)}</a> / ${escapeHtmlText(shell.breadcrumbName)}</nav>`
       : "";
 
-  const body = `${siteNavigation} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${shell.houseAdHtml ?? ""} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
+  const body = `${siteNavigation} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${shell.newsCalloutHtml ?? ""} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
 
   return { body, head };
 };

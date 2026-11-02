@@ -1,10 +1,6 @@
 import { Effect } from "effect";
 
-import { houseAdCopy } from "../src/house-ad-copy.ts";
-import {
-  compileReaderBody,
-  readerWorkshopCount,
-} from "./reader-body-document.ts";
+import { compileReaderBody, readerNewsTitle } from "./reader-body-document.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 import { isSystemsSkillsRoute } from "./reader-systems-skills-routes.ts";
 
@@ -31,6 +27,7 @@ export const readerSystemsSkillsFlags = Effect.fn("readerSystemsSkillsFlags")(
           codeFences: [],
           copyPrompts: [],
           heading: document.heading,
+          newsTitle: readerNewsTitle(page.html),
           origin,
           page: {
             generation: inputs.generation,
@@ -41,8 +38,6 @@ export const readerSystemsSkillsFlags = Effect.fn("readerSystemsSkillsFlags")(
           },
           snippets: [],
           terms: [],
-          workshop:
-            readerWorkshopCount(page.html) > 0 ? houseAdCopy : undefined,
         };
       })
     );

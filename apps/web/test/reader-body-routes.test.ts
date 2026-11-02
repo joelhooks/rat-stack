@@ -5,7 +5,7 @@ import { renderToString } from "foldkit/experimental/server";
 
 import {
   compileReaderBody,
-  readerWorkshopCount,
+  readerNewsTitle,
 } from "../../site/scripts/reader-body-document.ts";
 import {
   readerBodyFlags,
@@ -82,9 +82,10 @@ it.layer(ReaderParityFixture.layer)((test) => {
           readerCopyPrompts(page.origin)
         );
 
-        expect(readerWorkshopCount(rendered.html), path).toBe(
-          readerWorkshopCount(original?.html ?? "")
+        expect(readerNewsTitle(rendered.html), path).toBe(
+          readerNewsTitle(original?.html ?? "")
         );
+        expect(rendered.html).toMatch(/<a [^>]*href="\/news"[^>]*>news<\/a>/u);
         expect(after.heading, path).toBe(before.heading);
         expect(after.breadcrumb, path).toEqual(before.breadcrumb);
         expect(normalizedNodes(after.nodes), path).toEqual(

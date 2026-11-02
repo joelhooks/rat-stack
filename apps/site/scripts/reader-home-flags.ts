@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
-import { houseAdCopy } from "../src/house-ad-copy.ts";
 import { copyPrompts } from "./component-data.ts";
+import { readerNewsTitle } from "./reader-body-document.ts";
 import { compileReaderDocument } from "./reader-home-document.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
@@ -106,6 +106,7 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
         text: prompt.text.replaceAll("__RATSTACK_ORIGIN__", origin),
       })),
       heading: "Rat Stack",
+      newsTitle: readerNewsTitle(page.html),
       origin,
       page: {
         generation: inputs.generation,
@@ -121,7 +122,6 @@ export const readerHomeFlags = Effect.fn("readerHomeFlags")(
       },
       snippets: [],
       terms: [],
-      workshop: houseAdCopy,
     };
   }
 );
