@@ -27,6 +27,8 @@ Replacements and deletions need owner sign-off, recorded separately from the all
 
 The driver refuses Alchemy state-store bootstrap during planning. Bootstrap needs separate authorization.
 
+Rat-stack's stacks live in their own store, `ratstack-state-store` (`apps/infra/src/state-store.ts`), not the account's shared default. `pnpm state:copy` moves allowlisted stacks between stores; the move and its rollback are in `.brain/projects/ratstack-own-state-store.svx`.
+
 A refused plan stops before apply. The verdict's `resources` field names each resource that needs an allow entry or owner sign-off.
 
 ## Output

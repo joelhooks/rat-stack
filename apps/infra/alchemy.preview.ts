@@ -6,6 +6,7 @@ import * as Schema from "effect/Schema";
 
 import { Website } from "../web/src/website.js";
 import { PreviewStage, previewResourcesAllowed } from "./src/preview.js";
+import { ratstackState } from "./src/state-store.js";
 
 export const previewProgram = Effect.gen(function* previewStack() {
   yield* Schema.decodeEffect(PreviewStage)(yield* Stage).pipe(Effect.orDie);
@@ -23,6 +24,6 @@ export const previewProgram = Effect.gen(function* previewStack() {
 
 export default Alchemy.Stack(
   "RatStackPreview",
-  { providers: Cloudflare.providers(), state: Cloudflare.state() },
+  { providers: Cloudflare.providers(), state: ratstackState() },
   previewProgram
 );

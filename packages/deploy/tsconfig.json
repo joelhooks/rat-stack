@@ -7,6 +7,7 @@
         "allowedUnstableApis": [
           "@effect/platform-node/NodeRuntime",
           "@effect/platform-node/NodeServices",
+          "@effect/platform-node/NodeSocket",
           "@effect/vitest",
           "effect/Arbitrary",
           "effect/FileSystem",

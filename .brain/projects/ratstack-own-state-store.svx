@@ -1,0 +1,76 @@
+---
+title: "Move rat-stack to its own Alchemy state store"
+type: "project"
+status: "active"
+created_at: "2026-11-02"
+privacy: "public"
+---
+
+# Move rat-stack to its own Alchemy state store
+
+Rat-stack's stacks live in the account's shared default store, `alchemy-state-store`, alongside other repos that still run Alchemy beta.83 and beta.84. Alchemy beta.85 upgrades a store to v8 on first deploy, and that upgrade is one-way. Rat-stack therefore moves to its own store first, on beta.84. The beta.85 bump then upgrades only that store.
+
+## What the code does
+
+- `apps/infra/src/state-store.ts` names the store `ratstack-state-store`. Both entrypoints, `apps/infra/alchemy.run.ts` (`RatStack`) and `apps/infra/alchemy.preview.ts` (`RatStackPreview`), use `ratstackState()`. On beta.84, `Cloudflare.state({ name })` addresses the Worker `alchemy-state-store-ratstack-state-store`. Beta.85 renames the option to `workerName`; the bump changes that one file.
+- `pnpm deploy:plan`, `pnpm deploy:prod`, `pnpm deploy:rollback` and `scripts/deploy-preview.sh` all load those entrypoints, so they all follow the store.
+- `pnpm state:copy` is the `stateCopy` capability in `packages/deploy`. It opens both stores through Alchemy's own `Alchemist` state route and copies with Alchemy's `syncState`. Its guards:
+  - **Exact allowlist.** Only the stacks named in `--stacks` are listed, read or written. Any other stack on either side is invisible to the copy.
+  - **Read-only source.** The source view refuses `set`, `setOutput`, `delete` and `deleteStack`.
+  - **No deletes.** The destination view refuses `delete` and `deleteStack`. `syncState` deletes destination keys the source lacks, so this guard matters.
+  - **Empty destination.** The copy refuses when the destination already holds any listed stack.
+  - **Known stacks.** It refuses a listed stack that the source does not hold, which catches typos, and an empty `--stacks`.
+  - **No provisioning.** It loads `packages/deploy/state-copy.env`, which sets `CI=true`, so Alchemy never bootstraps or upgrades a missing or outdated store. A missing store fails with `store-unavailable` and names the bootstrap command.
+  - **Outputs.** It copies each stage's stack output, which `syncState` skips.
+  - **Readback.** It reads the destination back and compares FQN sets and output presence for every stage. A difference fails with `copy-mismatch`.
+- `--dryRun` reads both stores and prints per-stage record counts. It writes nothing.
+
+## Stacks
+
+| Stack | Source in this repo | Move |
+|---|---|---|
+| `RatStack` | `apps/infra/alchemy.run.ts` | yes |
+| `RatStackPreview` | `apps/infra/alchemy.preview.ts`, every `pr-<n>` stage | yes |
+| `RatstackDoProbe` | not in this repo | only if the store holds it and the desk confirms rat-stack owns it |
+| `BasinProof`, `BasinErasureProof` | not in this repo; `packages/basin` tests use an in-memory `BasinDeclaration` stack | no |
+
+## Runbook
+
+The desk runs these on the deploy host with the `ratstack` profile, from a checkout of the commit that adds this page, on beta.84. Hold every other deploy and preview of rat-stack from the first step until step 4 passes.
+
+1. Bootstrap the store:
+
+   ```sh
+   pnpm alchemy state bootstrap --backend cloudflare --name ratstack-state-store --profile ratstack
+   ```
+
+2. Dry run. Check the counts against `pnpm alchemy state list --backend cloudflare --profile ratstack -r`:
+
+   ```sh
+   pnpm state:copy --from alchemy-state-store --to ratstack-state-store --stacks RatStack,RatStackPreview --profile ratstack --dryRun
+   ```
+
+3. Copy. The report must say `"mode":"copied"` and `"fqnSetsEqual":true`:
+
+   ```sh
+   pnpm state:copy --from alchemy-state-store --to ratstack-state-store --stacks RatStack,RatStackPreview --profile ratstack
+   ```
+
+4. Plan against the new store. It must show **zero creates and zero deletes**:
+
+   ```sh
+   pnpm deploy:plan --profile ratstack
+   ```
+
+   A create means a record did not arrive, and a delete means the store holds a record the code no longer declares. Stop on either and roll back.
+
+5. Previews. `scripts/deploy-preview.sh` loads `alchemy.preview.ts`, so `RatStackPreview` stage `pr-<n>` now resolves in `ratstack-state-store`. Previews for open PRs moved with the copy. A preview deployed from a branch cut before this commit still writes to the default store; rebase such a branch before its next preview.
+
+## Rollback
+
+The copy never writes the default store, so rat-stack's records there stay exactly as they were. To roll back, revert the commit that adds `apps/infra/src/state-store.ts`, which points both entrypoints at `Cloudflare.state()` again, and redeploy nothing until the plan is clean. The new store can stay until the desk tears it down with `alchemy state teardown --backend cloudflare --name ratstack-state-store`.
+
+## After the move
+
+- The default store still holds rat-stack's old records. Removing them is a separate, later decision for the desk, after the beta.85 deploy settles. Until then, no checkout older than this commit may deploy rat-stack, because it would write to the old records.
+- The beta.85 bump (draft PR #180) rebases onto this commit, renames `name` to `workerName` in `apps/infra/src/state-store.ts`, and upgrades only `ratstack-state-store` to v8.

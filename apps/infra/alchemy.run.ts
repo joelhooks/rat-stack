@@ -12,12 +12,13 @@ import * as Schema from "effect/Schema";
 import privateAuth from "../site/src/auth/private-worker.js";
 import Mischief from "../site/src/worker.js";
 import { Website } from "../web/src/website.js";
+import { ratstackState } from "./src/state-store.js";
 
 export default Alchemy.Stack(
   "RatStack",
   {
     providers: Layer.mergeAll(Cloudflare.providers(), Drizzle.providers()),
-    state: Cloudflare.state(),
+    state: ratstackState(),
   },
   Effect.gen(function* stack() {
     const dev = yield* Alchemy.ALCHEMY_DEV;
