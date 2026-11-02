@@ -104,6 +104,11 @@ it.effect.prop(
                 "path",
                 "listCafeNews",
                 "listCafeProjects",
+                "listPeople",
+                "listChannels",
+                "readPerson",
+                "searchPeople",
+                "peopleFor",
               ].includes(name)
             )
           ).toBe(true);

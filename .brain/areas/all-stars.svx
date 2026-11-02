@@ -1,0 +1,75 @@
+---
+title: "CAFE all stars"
+description: "Public profiles of people and channels who build with Cloudflare, Alchemy, Foldkit and Effect, served by five read-only capabilities."
+plain: "One reviewed data file lists each person or channel; agents ask the capabilities, and the pages are built from the same answers."
+diagram: |-
+  people.json
+    │ content build
+    ▼
+  five capabilities
+    ├ MCP, HTTP, RPC, CLI
+    ├ /all-stars pages
+    └ /all-stars.xml feed
+group: system
+terms: ["all stars"]
+sources:
+  - url: https://github.com/joelhooks/rat-stack/tree/main/packages/core/src
+    title: "rat-stack/packages/core/src at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The people schema in cafe.ts, the capabilities in cafe-directory.ts, and the join in cafe-people.ts."
+    accessed: "2026-11-02"
+---
+
+## What it does
+
+[CAFE all stars](/all-stars) lists people and channels whose public work builds with Cloudflare, [Alchemy](/skills/learn-alchemy), Foldkit and [Effect](/lore/effect-basics).
+A channel is a YouTube channel, a GitHub org or a blog.
+
+Each entry lives in `.brain/data/cafe/people.json`, beside the CAFE news file.
+The content build decodes it with the `CafePerson` [schema](/lore/schemas-define-the-boundary) in `packages/core/src/cafe.ts`.
+A bad entry fails the build with its index and field, the same way a bad news row does.
+
+Five read-only capabilities answer every question about the data:
+
+- `listPeople` lists every entry, and `listChannels` lists only the channels.
+- `readPerson` reads one profile by its stable id: a GitHub login, or the handle of an org or channel.
+- `searchPeople` matches words against names, handles, topics, packages, repos, bios and videos.
+- `peopleFor` returns the entries whose topics or repo packages cover every term, with the evidence for each term.
+
+The `/all-stars` index and each `/all-stars/<id>` page are built from `listPeople` and `readPerson` answers.
+They are Markdown by default and HTML for a browser.
+`llms.txt` lists the index and every profile, and `/all-stars.xml` is an Atom feed of the entries and their activity.
+
+A news row joins a profile when its GitHub login or X handle matches one of the profile's handles.
+A row with no author joins the profile that owns its repo.
+The profile lists those rows newest first, and the row on [/news](/news) links back to the profile.
+
+## The standard
+
+- Every fact carries its `source` URL and the `verified` date it was checked, so an agent can cite it.
+- A bio holds two or three sentences about CAFE work only, each quoted or linked from its source.
+- An avatar is a file committed under `apps/site/content/avatars`. Pages never load an image from another site.
+- A profile never includes location, employer guesses, family, follower counts, private messages, or anything the person did not post publicly about their work.
+- Each page ends with a removal line that opens an issue in `joelhooks/rat-stack`.
+
+To remove a profile, delete its entry from `people.json` and its avatar file, then rebuild.
+Nothing else stores the profile.
+
+## How to check
+
+Run the core tests:
+
+```sh
+pnpm --filter @rat-stack/core exec vitest run test/cafe-people.test.ts
+```
+
+They check that a generated news row lands on exactly the profile that authored it, newest first.
+They also answer three agent questions from the seed data through the capabilities alone.
+
+Then call a [capability](/systems/capabilities) on a running site:
+
+```sh
+curl --request POST 'https://ratstack.sh/api/peopleFor' \
+  --header 'content-type: application/json' \
+  --data '{"terms":["foldkit"]}'
+```

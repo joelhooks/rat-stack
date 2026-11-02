@@ -25,14 +25,24 @@ export { CafeDataError } from "./cafe-data-error.js";
 export { CafeDataInvalid } from "./cafe-data-invalid.js";
 
 export {
-  CafeDirectory,
   cafeNewsFile,
+  cafePeopleFile,
   cafeProjectsFile,
   decodeCafeData,
   decodeCafeEntries,
   describeCafeDataError,
+} from "./cafe-data.js";
+
+export {
+  CafeDirectory,
   listCafeNews,
   listCafeProjects,
+  listChannels,
+  listPeople,
+  peopleCapabilities,
+  peopleFor,
+  readPerson,
+  searchPeople,
 } from "./cafe-directory.js";
 
 export {

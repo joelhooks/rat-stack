@@ -1,0 +1,311 @@
+[
+  {
+    "avatar": {
+      "path": "/avatars/devinjameson.jpg",
+      "source": "https://github.com/devinjameson.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/devinjameson",
+        "text": "The GitHub profile reads \"Building Foldkit, the frontend framework for correctness.\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "text": "Listed first among the contributors to foldkit/foldkit on GitHub.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/devinjameson/status/2116009356521005124",
+        "text": "On X: \"I made Vercel Domains, CAFE style. A fun excuse to hack with @Cloudflare, @alchemy_run, @foldkit, and @EffectTS_\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "handles": [
+      {
+        "handle": "devinjameson",
+        "kind": "github",
+        "source": "https://github.com/devinjameson",
+        "url": "https://github.com/devinjameson",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "devinjameson",
+        "kind": "x",
+        "source": "https://github.com/devinjameson",
+        "url": "https://x.com/devinjameson",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "foldkit.dev",
+        "kind": "site",
+        "source": "https://github.com/devinjameson",
+        "url": "https://foldkit.dev",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "devinjameson",
+    "kind": "person",
+    "name": "Devin Jameson",
+    "repos": [
+      {
+        "description": null,
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit",
+        "source": "https://github.com/foldkit/foldkit",
+        "stars": 1151,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "A domain search example built with Foldkit, with editable static HTML and hydration.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/devtools",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@alchemy.run/cloudflare",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit-domains",
+        "source": "https://github.com/foldkit/foldkit-domains",
+        "stars": 28,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/devinjameson",
+        "topic": "foldkit",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/effect-ts.png",
+      "source": "https://github.com/Effect-TS.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/Effect-TS",
+        "text": "The Effect-TS GitHub org describes itself as \"A set of libraries to write better TypeScript\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+        "text": "Effect-TS/effect publishes @effect/sql-d1, \"A Cloudflare D1 integration for Effect\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://www.youtube.com/@effect-ts",
+        "text": "The YouTube channel @effect-ts is titled \"Effect | TypeScript for the AI Era\".",
+        "verified": "2026-11-02"
+      }
+    ],
+    "handles": [
+      {
+        "handle": "@effect-ts",
+        "kind": "youtube",
+        "source": "https://www.youtube.com/@effect-ts",
+        "url": "https://www.youtube.com/@effect-ts",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "Effect-TS",
+        "kind": "github",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://github.com/Effect-TS",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "EffectTS_",
+        "kind": "x",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://x.com/EffectTS_",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "effect.website",
+        "kind": "site",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://effect.website",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "effect-ts",
+    "kind": "channel",
+    "name": "Effect",
+    "repos": [
+      {
+        "description": "Build production-ready applications in TypeScript",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/Effect-TS/effect/blob/main/packages/effect/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/sql-d1",
+            "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "Effect-TS/effect",
+        "source": "https://github.com/Effect-TS/effect",
+        "stars": 17464,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/Effect-TS",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+        "topic": "d1",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": [
+      {
+        "date": "2026-11-02",
+        "source": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+        "title": "Community Review: add McpTask for long-running Tools // Office Hours 51",
+        "url": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+        "verified": "2026-11-02"
+      },
+      {
+        "date": "2026-11-01",
+        "source": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+        "title": "Software engineering in the AI era // Cause & Effect 10",
+        "url": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+        "verified": "2026-11-02"
+      }
+    ]
+  },
+  {
+    "avatar": {
+      "path": "/avatars/sam-goodwin.png",
+      "source": "https://github.com/sam-goodwin.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "text": "Listed first among the contributors to alchemy-run/alchemy, which GitHub describes as \"Infrastructure as Effects\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/alchemy-run/alchemy/commits/main/website/src/content/docs/cloudflare/compute/durable-objects.mdx",
+        "text": "Author of the latest commits to the Alchemy Durable Objects guide.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/samgoodwin89/status/2115885818703495441",
+        "text": "On X: \"We'll be playing with Alchemy Domain and Foldkit Blocks.\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "handles": [
+      {
+        "handle": "sam-goodwin",
+        "kind": "github",
+        "source": "https://github.com/sam-goodwin",
+        "url": "https://github.com/sam-goodwin",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "samgoodwin89",
+        "kind": "x",
+        "source": "https://github.com/sam-goodwin",
+        "url": "https://x.com/samgoodwin89",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "sam-goodwin",
+    "kind": "person",
+    "name": "sam",
+    "repos": [
+      {
+        "description": "Infrastructure as Effects",
+        "packages": [
+          {
+            "name": "alchemy",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "effect",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "alchemy-run/alchemy",
+        "source": "https://github.com/alchemy-run/alchemy",
+        "stars": 1832,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "topic": "alchemy",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/alchemy-run/alchemy/commits/main/website/src/content/docs/cloudflare/compute/durable-objects.mdx",
+        "topic": "durable-objects",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  }
+]

@@ -177,8 +177,86 @@ export const RankedCafeNewsItem = Schema.Struct({
 
 export type RankedCafeNewsItemValue = typeof RankedCafeNewsItem.Type;
 
+export const PersonId = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9](?:[a-z0-9-]{0,38})$/u)
+).pipe(Schema.brand("PersonId"));
+
+export const CafeTopic = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
+).pipe(Schema.brand("CafeTopic"));
+
+export const PackageName = Schema.String.check(
+  Schema.isPattern(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/u)
+).pipe(Schema.brand("PackageName"));
+
+export const AvatarPath = Schema.String.check(
+  Schema.isPattern(/^\/avatars\/[a-z0-9-]+\.(?:png|jpg)$/u)
+);
+
+const verified = { source: HttpsUrl, verified: IsoDate };
+
+export const CafeHandleKind = Schema.Literals([
+  "github",
+  "x",
+  "youtube",
+  "blog",
+  "site",
+]);
+
+export const CafeHandle = Schema.Struct({
+  handle: OneLine,
+  kind: CafeHandleKind,
+  url: HttpsUrl,
+  ...verified,
+});
+
+export const CafeFact = Schema.Struct({ text: CafeDescription, ...verified });
+
+export const CafeTopicFact = Schema.Struct({ topic: CafeTopic, ...verified });
+
+export const CafePackageFact = Schema.Struct({
+  name: PackageName,
+  ...verified,
+});
+
+export const CafePersonRepo = Schema.Struct({
+  description: Schema.NullOr(CafeDescription),
+  packages: Schema.Array(CafePackageFact),
+  repo: RepoName,
+  stars: Count,
+  ...verified,
+});
+
+export const CafeVideo = Schema.Struct({
+  date: IsoDate,
+  title: OneLine,
+  url: HttpsUrl,
+  ...verified,
+});
+
+export const CafePersonKind = Schema.Literals(["person", "channel"]);
+
+export const CafePerson = Schema.Struct({
+  avatar: Schema.Struct({ path: AvatarPath, ...verified }),
+  bio: Schema.NonEmptyArray(CafeFact).check(
+    Schema.isMinLength(2),
+    Schema.isMaxLength(3)
+  ),
+  handles: Schema.Array(CafeHandle).check(Schema.isMinLength(1)),
+  id: PersonId,
+  kind: CafePersonKind,
+  name: OneLine,
+  repos: Schema.Array(CafePersonRepo),
+  topics: Schema.Array(CafeTopicFact),
+  updated: IsoDate,
+  videos: Schema.Array(CafeVideo),
+});
+
+export type CafePersonValue = typeof CafePerson.Type;
+
 export const CafeData = Schema.Struct({
   news: Schema.Array(CafeNewsItem),
+  people: Schema.Array(CafePerson),
   projects: Schema.Array(CafeProject),
   rankedAt: IsoDate,
 });
@@ -398,6 +476,81 @@ export const CafeProjectQuery = Schema.Struct({
 
 export const CafeProjectList = Schema.Struct({
   projects: Schema.Array(CafeProject),
+  total: Schema.Int,
+});
+
+const Limit = Schema.optional(
+  Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
+);
+
+export const CafePersonSummary = Schema.Struct({
+  avatar: AvatarPath,
+  handles: Schema.Array(CafeHandle),
+  id: PersonId,
+  kind: CafePersonKind,
+  name: OneLine,
+  packages: Schema.Array(PackageName),
+  route: Schema.String,
+  summary: CafeFact,
+  topics: Schema.Array(CafeTopic),
+});
+
+export const CafeProfile = Schema.Struct({
+  ...CafePerson.fields,
+  newsRows: Schema.Array(CafeNewsItem),
+  packages: Schema.Array(PackageName),
+  route: Schema.String,
+});
+
+export type CafeProfileValue = typeof CafeProfile.Type;
+
+export const CafePeopleQuery = Schema.Struct({
+  kind: Schema.optional(CafePersonKind),
+  limit: Limit,
+});
+
+export const CafePeopleList = Schema.Struct({
+  people: Schema.Array(CafePersonSummary),
+  total: Schema.Int,
+});
+
+export const CafePeopleSearchQuery = Schema.Struct({
+  limit: Limit,
+  query: Schema.String.check(Schema.isNonEmpty()),
+});
+
+export const CafePeopleMatches = Schema.Struct({
+  matches: Schema.Array(
+    Schema.Struct({
+      matched: Schema.Array(Schema.String),
+      person: CafePersonSummary,
+    })
+  ),
+  total: Schema.Int,
+});
+
+export const CafeEvidence = Schema.Struct({
+  repo: Schema.NullOr(RepoName),
+  term: Schema.String,
+  value: Schema.String,
+  via: Schema.Literals(["topic", "package"]),
+  ...verified,
+});
+
+export const CafePeopleForQuery = Schema.Struct({
+  terms: Schema.Array(Schema.String.check(Schema.isNonEmpty())).check(
+    Schema.isMinLength(1)
+  ),
+});
+
+export const CafePeopleForList = Schema.Struct({
+  people: Schema.Array(
+    Schema.Struct({
+      evidence: Schema.Array(CafeEvidence),
+      person: CafePersonSummary,
+    })
+  ),
+  terms: Schema.Array(Schema.String),
   total: Schema.Int,
 });
 

@@ -6,6 +6,8 @@ import { ExecuteResult } from "@rat-stack/capability/code-mode";
 import { parseCodeRequest } from "@rat-stack/code-snippets";
 import {
   CafeNewsList,
+  CafePeopleList,
+  CafeProfile,
   LorePathOutput,
   NeighborsOutput,
   ReadOutput,
@@ -1377,13 +1379,18 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
         "/api/learnRecord",
         "/api/listCafeNews",
         "/api/listCafeProjects",
+        "/api/listChannels",
         "/api/listFlags",
+        "/api/listPeople",
         "/api/listPrompts",
         "/api/mentions",
         "/api/neighbors",
         "/api/path",
+        "/api/peopleFor",
         "/api/read",
+        "/api/readPerson",
         "/api/search",
+        "/api/searchPeople",
       ]);
     })
   )
@@ -1872,13 +1879,18 @@ it.effect(
           "learnRecord",
           "listCafeNews",
           "listCafeProjects",
+          "listChannels",
           "listFlags",
+          "listPeople",
           "listPrompts",
           "mentions",
           "neighbors",
           "path",
+          "peopleFor",
           "read",
+          "readPerson",
           "search",
+          "searchPeople",
         ]);
 
         const executeDescription = tools?.find(
@@ -2112,6 +2124,85 @@ it.effect(
             "File only after the person approves that exact issue."
           );
           expect(agentView).toContain("Listing is not guaranteed.");
+        }
+      })
+    )
+);
+
+it.effect(
+  "serves every all-stars profile as Markdown, in llms.txt and in the feed from the people capabilities",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* testAllStarsSurfaces() {
+        const listed = yield* Schema.decodeUnknownEffect(CafePeopleList)(
+          yield* readJson(
+            yield* postJson(handler, "/api/listPeople", { limit: 100 })
+          )
+        );
+
+        const llms = yield* responseText(
+          handler,
+          new Request("http://localhost/llms.txt")
+        );
+
+        const feed = yield* responseText(
+          handler,
+          new Request("http://localhost/all-stars.xml")
+        );
+
+        const index = yield* responseText(
+          handler,
+          new Request("http://localhost/all-stars")
+        );
+
+        expect(listed.people.map((person) => person.id).toSorted()).toEqual([
+          "devinjameson",
+          "effect-ts",
+          "sam-goodwin",
+        ]);
+        expect(llms).toContain("/all-stars)");
+        expect(index).toContain("# CAFE all stars");
+        expect(index).toContain("To be removed from this page");
+
+        for (const person of listed.people) {
+          const profile = yield* Schema.decodeUnknownEffect(CafeProfile)(
+            yield* readJson(
+              yield* postJson(handler, "/api/readPerson", { id: person.id })
+            )
+          );
+
+          const markdown = yield* responseText(
+            handler,
+            new Request(`http://localhost${person.route}`, {
+              headers: { accept: "text/markdown" },
+            })
+          );
+
+          const avatar = yield* Effect.promise(
+            handler.bind(
+              undefined,
+              new Request(`http://localhost${person.avatar}`)
+            )
+          );
+
+          expect(markdown).toContain(`# ${profile.name}`);
+          expect(markdown).toContain(`(${profile.avatar.path})`);
+          expect(markdown).toContain("To be removed from this page");
+
+          for (const fact of profile.bio) {
+            expect(markdown).toContain(fact.source);
+          }
+
+          for (const row of profile.newsRows) {
+            expect(markdown).toContain(row.url);
+            expect(feed).toContain(row.url);
+          }
+
+          expect(avatar.status).toBe(200);
+          expect(avatar.headers.get("content-type")).toMatch(/^image\//u);
+          expect(llms).toContain(`${person.route})`);
+          expect(index).toContain(`(${person.route})`);
+          expect(feed).toContain(`${person.route}"/>`);
         }
       })
     )

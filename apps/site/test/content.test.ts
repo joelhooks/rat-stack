@@ -39,6 +39,7 @@ import {
   searchContent,
 } from "./content-fixture.js";
 import {
+  allStarsRoutes,
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
@@ -977,6 +978,7 @@ it.layer(NodeServices.layer)("generated content", (test) => {
         "/prompts",
         "/news",
         "/directory",
+        ...allStarsRoutes,
         "/search",
         "/systems",
         "/glossary",

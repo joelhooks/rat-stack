@@ -115,6 +115,7 @@ export const ContentCatalog = Schema.Struct({
   ),
   homeMarkdownTemplate: Schema.String,
   imagePaths: Schema.Array(Schema.String),
+  llmsAllStarsLinks: Schema.String,
   llmsLoreLinks: Schema.String,
   loreIndexMarkdown: Schema.String,
   pageRoutes: Schema.Array(Schema.String),

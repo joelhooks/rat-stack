@@ -10,6 +10,8 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/",
   "/assets/*",
   "/AGENTS.md",
+  "/all-stars",
+  "/all-stars/*",
   "/directory",
   "/news",
   "/search",

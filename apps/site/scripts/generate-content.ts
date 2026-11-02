@@ -6,9 +6,13 @@ import { Drift, prepareCode } from "@rat-stack/code-snippets";
 import type { Diagnostics } from "@rat-stack/code-snippets";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
 import {
+  CafeDirectory,
   cafeNewsFile,
+  cafePeopleFile,
   cafeProjectsFile,
   decodeCafeData,
+  listPeople,
+  readPerson,
 } from "@rat-stack/core";
 import { CafeData } from "@rat-stack/core/contracts";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
@@ -27,7 +31,11 @@ import {
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import satori from "satori";
 
-import { directoryCopy, newsCopy } from "../../web/src/features/cafe/copy.ts";
+import {
+  allStarsCopy,
+  directoryCopy,
+  newsCopy,
+} from "../../web/src/features/cafe/copy.ts";
 import { searchCopy } from "../../web/src/features/docs-copy.ts";
 import { agentNextActions } from "../src/agent-guide.ts";
 import {
@@ -42,7 +50,12 @@ import {
   backlinksFor,
   buildBacklinkIndex,
 } from "./backlink-lib.ts";
-import { cafeDirectoryMarkdown, cafeNewsMarkdown } from "./cafe-pages.ts";
+import {
+  allStarsIndexMarkdown,
+  allStarsProfileMarkdown,
+  cafeDirectoryMarkdown,
+  cafeNewsMarkdown,
+} from "./cafe-pages.ts";
 import { collectBuildFences } from "./code-inputs.ts";
 import { codeComponent } from "./code-pipeline.ts";
 import type { ComponentRegistry } from "./component-registry.ts";
@@ -973,14 +986,76 @@ const program = Effect.gen(function* generateContent() {
 
   const cafeData = yield* Effect.all({
     news: readText(cafeNewsFile),
+    people: readText(cafePeopleFile),
     projects: readText(cafeProjectsFile),
   }).pipe(Effect.flatMap(decodeCafeData));
+
+  const cafeDirectory = CafeDirectory.layer(cafeData);
+
+  const allStarsList = yield* listPeople.handler({ limit: 100 }).pipe(
+    Effect.provide(cafeDirectory),
+    Effect.mapError((cause) => buildError("listPeople", cafePeopleFile, cause))
+  );
+
+  const allStarsProfiles = yield* Effect.forEach(
+    (person: (typeof allStarsList.people)[number]) =>
+      readPerson.handler({ id: person.id }).pipe(
+        Effect.provide(cafeDirectory),
+        Effect.mapError((cause) =>
+          buildError("readPerson", cafePeopleFile, cause)
+        )
+      )
+  )(allStarsList.people);
+
+  const avatarImages = yield* Effect.forEach(
+    (profile: (typeof allStarsProfiles)[number]) => {
+      const sourcePath = `apps/site/content${profile.avatar.path}`;
+
+      return fileSystem.readFile(path.join(root, sourcePath)).pipe(
+        Effect.mapError((cause) =>
+          buildError(
+            `avatar for ${profile.id}; fetch ${profile.avatar.source} once and save it at`,
+            sourcePath,
+            cause
+          )
+        ),
+        Effect.map((bytes) => ({
+          base64: Buffer.from(bytes).toString("base64"),
+          path: profile.avatar.path,
+        }))
+      );
+    }
+  )(allStarsProfiles);
+
+  const allStarsIndexText = renderAgentPage(
+    allStarsIndexMarkdown(allStarsList),
+    "/all-stars",
+    allStarsCopy.heading
+  );
+
+  const allStarsPages = allStarsProfiles.map((profile) => {
+    const source = allStarsProfileMarkdown(profile);
+
+    return {
+      profile,
+      source,
+      text: renderAgentPage(source, profile.route, profile.name),
+    };
+  });
+
+  const llmsAllStarsLinks = [
+    `- [${allStarsCopy.heading}](${originToken}/all-stars): ${allStarsCopy.description} Also an [Atom feed](${originToken}/all-stars.xml) and the \`listPeople\`, \`readPerson\`, \`searchPeople\`, \`listChannels\` and \`peopleFor\` tools`,
+    ...allStarsList.people.map(
+      (person) =>
+        `  - [${person.name}](${originToken}${person.route}): ${person.summary.text}`
+    ),
+  ].join("\n");
 
   const encodedCafeData = yield* Schema.encodeEffect(CafeData)(cafeData).pipe(
     Effect.mapError((cause) => buildError("cafe encode", cafeNewsFile, cause))
   );
 
-  const cafeNewsSource = cafeNewsMarkdown(cafeData);
+  const cafeNewsSource = cafeNewsMarkdown(cafeData, allStarsList);
 
   const cafeNewsText = renderAgentPage(
     cafeNewsSource,
@@ -2126,6 +2201,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
     "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
+    llmsAllStarsLinks,
     "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken, tokenmaxxTitle),
@@ -2163,6 +2239,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/news",
     "/news.xml",
     "/directory",
+    "/all-stars",
+    "/all-stars.xml",
+    ...allStarsProfiles.flatMap((profile) => [
+      profile.route,
+      profile.avatar.path,
+    ]),
     "/search",
     "/",
     "/skills",
@@ -2806,6 +2888,9 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       learnCoverageText,
       cafeNewsText,
       cafeDirectoryText,
+      allStarsIndexText,
+      ...allStarsPages.map((page) => page.text),
+      ...avatarImages.map((image) => image.base64),
       searchPageText,
       homeMarkdownTemplate,
       homeBodyHtml,
@@ -2872,6 +2957,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: "/directory",
       title: directoryCopy.heading,
     },
+    {
+      description: allStarsCopy.description,
+      routePath: "/all-stars",
+      title: allStarsCopy.heading,
+    },
+    ...allStarsProfiles.map<OgPage>((profile) => ({
+      description: profile.bio[0].text,
+      routePath: `/all-stars/${profile.id}`,
+      title: profile.name,
+    })),
     {
       description: searchCopy.description,
       routePath: "/search",
@@ -3323,6 +3418,56 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const allStarsIndexBody = yield* compileMarkdownBody(
+    allStarsIndexMarkdown(allStarsList),
+    "all-stars.md",
+    highlighter,
+    emptyTargets,
+    [],
+    "/all-stars"
+  );
+
+  const allStarsIndexDocument = yield* makeDocument(
+    allStarsIndexBody.bodyHtml,
+    {
+      description: allStarsCopy.description,
+      path: "/all-stars",
+      title: pageTitle(allStarsCopy.heading),
+    },
+    cafePeopleFile,
+    contentVersion
+  );
+
+  const allStarsSources = yield* Effect.forEach(
+    (page: (typeof allStarsPages)[number]) =>
+      compileMarkdownBody(
+        page.source,
+        `all-stars-${page.profile.id}.md`,
+        highlighter,
+        emptyTargets,
+        [],
+        page.profile.route
+      ).pipe(
+        Effect.flatMap((body) =>
+          makeDocument(
+            body.bodyHtml,
+            {
+              description: page.profile.bio[0].text,
+              path: page.profile.route,
+              title: pageTitle(page.profile.name),
+            },
+            cafePeopleFile,
+            contentVersion
+          )
+        ),
+        Effect.map((documentHtml) => ({
+          documentHtml,
+          routePath: page.profile.route,
+          text: page.text,
+        }))
+      )
+  )(allStarsPages);
+
   const searchPageBody = yield* compileMarkdownBody(
     searchPageText,
     "search.md",
@@ -3389,7 +3534,9 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/lore/cartridges/snes-sfam-cartridges.jpg",
           ...infrastructureImages.map((image) => image.path),
           dillonPosterRoutePath,
+          ...avatarImages.map((image) => image.path),
         ],
+        llmsAllStarsLinks,
         llmsLoreLinks,
         loreIndexMarkdown: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
         pageRoutes: [
@@ -3402,6 +3549,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/prompts",
           "/news",
           "/directory",
+          "/all-stars",
+          ...allStarsProfiles.map((profile) => profile.route),
           "/search",
         ],
         resources: resources.map(
@@ -3460,6 +3609,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       },
       ...infrastructureImages,
       { base64: dillonPosterJpegBase64, path: dillonPosterRoutePath },
+      ...avatarImages,
     ],
     pages: [
       ...lawSources,
@@ -3481,6 +3631,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         routePath: "/directory",
         text: cafeDirectoryText,
       },
+      {
+        documentHtml: allStarsIndexDocument,
+        routePath: "/all-stars",
+        text: allStarsIndexText,
+      },
+      ...allStarsSources,
       {
         documentHtml: searchPageDocument,
         routePath: "/search",
