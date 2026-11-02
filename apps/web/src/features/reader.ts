@@ -14,7 +14,7 @@ import {
 import type { ReaderModel } from "../client/reader/model.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
-import { readerFooter, readerWorkshop } from "./reader-chrome.js";
+import { readerFooter, readerNewsCallout } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import type { SnippetReference } from "./reader-document.js";
@@ -28,6 +28,7 @@ import {
   isWithinSection,
   learnRouter,
   loreRouter,
+  newsRouter,
   promptsRouter,
   searchRouter,
   skillsRouter,
@@ -46,6 +47,7 @@ const siteSections = [
   [skillsRouter(), "skills"],
   [loreRouter(), "lore"],
   [systemsRouter(), "systems"],
+  [newsRouter(), "news"],
   [glossaryRouter(), "glossary"],
   [searchRouter(), "search"],
 ] as const;
@@ -367,9 +369,9 @@ export const view = (
         [h.DataAttribute("path", model.page.path)],
         [
           agentPointer(model, h),
-          ...Option.match(model.workshop, {
+          ...Option.match(model.newsTitle, {
             onNone: () => [],
-            onSome: (workshop) => [readerWorkshop(workshop, h)],
+            onSome: (title) => [readerNewsCallout(title, h)],
           }),
           ...breadcrumbView(model, h),
           ...bodyView(model, h),

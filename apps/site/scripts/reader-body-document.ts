@@ -11,11 +11,22 @@ import {
 import type { ReaderNodeValue } from "../../web/src/client/reader-node.js";
 import { ReaderInputError } from "./reader-input-error.ts";
 
-export const readerWorkshopCount = (html: string) =>
-  DomUtils.getElementsByTagName("aside", parseDocument(html).children).filter(
+export const readerNewsTitle = (html: string) => {
+  const callout = DomUtils.getElementsByTagName(
+    "aside",
+    parseDocument(html).children
+  ).find(
     (element) =>
-      element.attribs.class?.split(/\s+/u).includes("workshop-callout") === true
-  ).length;
+      element.attribs.class?.split(/\s+/u).includes("news-callout") === true
+  );
+
+  const link =
+    callout === undefined
+      ? undefined
+      : DomUtils.getElementsByTagName("a", callout.children).at(0);
+
+  return link === undefined ? undefined : DomUtils.textContent(link);
+};
 
 const ReaderBody = Schema.Struct({
   breadcrumb: Schema.optional(ReaderBreadcrumb),
@@ -185,7 +196,7 @@ const readBody = (
 
     return !(
       (node.name === "p" && classes.includes("agent-pointer")) ||
-      (node.name === "aside" && classes.includes("workshop-callout")) ||
+      (node.name === "aside" && classes.includes("news-callout")) ||
       (node.name === "nav" && node.attribs["aria-label"] === "Breadcrumb")
     );
   });

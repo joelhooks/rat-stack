@@ -8,9 +8,6 @@ const accentSelectors = new Set([
   ":focus-visible",
   ".table-wrapper:focus-visible",
   ".copy:focus-visible",
-  ".workshop-callout",
-  ".workshop-callout-label",
-  ".workshop-callout-apply",
   ".copy-primary",
   ".copy .icon-done",
   ".copy:has(.icon-done:not([hidden]))",
@@ -34,7 +31,6 @@ it.effect("uses hot pink only where the accent rule allows", () =>
     expect(
       used.filter((selector) => !accentSelectors.has(selector))
     ).toStrictEqual([]);
-    expect(used).toContain(".workshop-callout");
     expect(used).toContain(":focus-visible");
   })
 );

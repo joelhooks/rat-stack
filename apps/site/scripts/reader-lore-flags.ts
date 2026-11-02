@@ -1,11 +1,7 @@
 import { Effect, Schema } from "effect";
 
 import { ReaderFlags } from "../../web/src/client/reader/model.js";
-import { houseAdCopy } from "../src/house-ad-copy.ts";
-import {
-  compileReaderBody,
-  readerWorkshopCount,
-} from "./reader-body-document.ts";
+import { compileReaderBody, readerNewsTitle } from "./reader-body-document.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
 type ReaderSiteInputs = Effect.Success<typeof prepareReaderSiteInputs>;
@@ -31,6 +27,7 @@ export const readerLoreFlagsFrom = Effect.fn("readerLoreFlagsFrom")(
           codeFences: [],
           copyPrompts: [],
           heading: body.heading,
+          newsTitle: readerNewsTitle(page.html),
           origin,
           page: {
             generation: inputs.generation,
@@ -41,8 +38,6 @@ export const readerLoreFlagsFrom = Effect.fn("readerLoreFlagsFrom")(
           },
           snippets: [],
           terms: [],
-          workshop:
-            readerWorkshopCount(page.html) > 0 ? houseAdCopy : undefined,
         });
       })
     );
