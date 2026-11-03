@@ -30,10 +30,7 @@ it.effect("searches and reads through the in-memory RPC transport", () =>
       HttpClientRequest.toWeb(request).pipe(
         Effect.orDie,
         Effect.flatMap((webRequest) =>
-          Effect.promise(
-            // @effect-diagnostics-next-line asyncFunction:off -- The in-memory HTTP handler exposes a Promise boundary.
-            async () => await handler(webRequest)
-          )
+          Effect.promise(() => handler(webRequest))
         ),
         Effect.map((response) => HttpClientResponse.fromWeb(request, response))
       )

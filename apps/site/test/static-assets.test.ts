@@ -11,7 +11,6 @@ import { StaticAssets } from "../src/static-assets.js";
 import { fixtureBytes } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
-// oxlint-disable-next-line typescript/promise-function-async -- The native ASSETS fixture implements the platform Promise API.
 const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
   const path = new URL(request.url).pathname;
   calls.push(path);
@@ -30,16 +29,13 @@ const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
   );
 };
 
-// oxlint-disable-next-line typescript/promise-function-async -- The missing-asset fixture implements the platform Promise API.
 const fetchMissing = (): Promise<Response> =>
   Promise.resolve(new Response(null, { status: 404 }));
 
-// oxlint-disable-next-line typescript/promise-function-async -- This fixture matches the native Cache API.
 const cacheMiss = (): Promise<Response | undefined> =>
   // oxlint-disable-next-line unicorn/no-useless-undefined -- An explicit miss preserves the native API Promise type rather than Promise<void>.
   Promise.resolve<Response | undefined>(undefined);
 
-// oxlint-disable-next-line typescript/promise-function-async -- A populated Cache API fixture must not conceal a missing asset.
 const cacheHit = (): Promise<Response | undefined> =>
   Promise.resolve(
     new Response("Old cached representation", {
@@ -47,10 +43,8 @@ const cacheHit = (): Promise<Response | undefined> =>
     })
   );
 
-// oxlint-disable-next-line typescript/promise-function-async -- This fixture matches the native Cache API.
 const cachePut = (): Promise<void> => Promise.resolve();
 
-// oxlint-disable-next-line typescript/promise-function-async -- Native binding fixtures expose Promise-returning fetch.
 const fetchFailure = (
   reason: "response" | "empty" | "provider"
 ): Promise<Response> =>

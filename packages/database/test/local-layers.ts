@@ -46,8 +46,7 @@ const d1Layer = runLogLayer(
 
     const SQL = yield* Effect.tryPromise({
       catch: (cause) => new DatabaseError({ cause, operation: "record" }),
-      // @effect-diagnostics-next-line asyncFunction:off -- SQL.js initializes its local SQLite engine through a Promise API.
-      try: async () => await initSqlJs(),
+      try: () => initSqlJs(),
     });
 
     const database = yield* Effect.acquireRelease(
@@ -99,9 +98,8 @@ const d1Layer = runLogLayer(
         Effect.tryPromise({
           catch: (cause) =>
             new DatabaseError({ cause, operation: "listRecent" }),
-          // @effect-diagnostics-next-line asyncFunction:off -- The SQL.js Drizzle adapter exposes Promise-based queries.
-          try: async () =>
-            await db
+          try: () =>
+            db
               .select()
               .from(D1RunLogs)
               .where(eq(D1RunLogs.personId, personId))
@@ -119,16 +117,9 @@ const postgresLayer = runLogLayer(
     const connection = yield* Effect.acquireRelease(
       Effect.tryPromise({
         catch: (cause) => new DatabaseError({ cause, operation: "record" }),
-        // @effect-diagnostics-next-line asyncFunction:off -- PGlite creates its local Postgres engine through a Promise API.
-        try: async () => await PGlite.create(),
+        try: () => PGlite.create(),
       }),
-      (client) =>
-        Effect.promise(
-          // @effect-diagnostics-next-line asyncFunction:off -- PGlite closes its local Postgres engine through a Promise API.
-          async () => {
-            await client.close();
-          }
-        )
+      (client) => Effect.promise(() => client.close())
     );
 
     const migrationRoot = databaseMigrationDirectory("postgres");
@@ -141,9 +132,8 @@ const postgresLayer = runLogLayer(
               cause,
               message: "PGlite migration batch failed",
             }),
-          // @effect-diagnostics-next-line asyncFunction:off -- PGlite transactions use a Promise callback.
-          try: async () => {
-            await connection.transaction(
+          try: () =>
+            connection.transaction(
               // @effect-diagnostics-next-line asyncFunction:off -- PGlite exposes the transaction callback as a Promise API.
               async (transaction) => {
                 for (const statement of statements) {
@@ -151,8 +141,7 @@ const postgresLayer = runLogLayer(
                   await transaction.exec(statement);
                 }
               }
-            );
-          },
+            ),
         }),
       dialect: "postgres",
       query: (sql, params) =>
@@ -206,9 +195,8 @@ const postgresLayer = runLogLayer(
         Effect.tryPromise({
           catch: (cause) =>
             new DatabaseError({ cause, operation: "listRecent" }),
-          // @effect-diagnostics-next-line asyncFunction:off -- PGlite's Drizzle adapter exposes Promise-based queries.
-          try: async () =>
-            await db
+          try: () =>
+            db
               .select()
               .from(PostgresRunLogs)
               .where(eq(PostgresRunLogs.personId, personId))

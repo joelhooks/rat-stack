@@ -154,6 +154,7 @@ export default defineConfig({
     "rat-stack-patterns/no-sleep-in-loop": "error",
     "rat-stack-patterns/shared-waiters": "error",
     "rat-stack-patterns/watch-effect-actors": "error",
+    "typescript/promise-function-async": "off",
     "unicorn/throw-new-error": "off",
     "xstate-effect/no-inline-effect": "error",
   },

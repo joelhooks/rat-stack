@@ -72,9 +72,7 @@ import type { WorkerLoaderBinding } from "./sandbox-worker-loader.js";
 import { AssetBindingSchema, StaticAssets } from "./static-assets.js";
 
 const cloudflareStaticCache = {
-  // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare provides this global only when a request reaches the Worker.
   match: (request: Request) => caches.default.match(request),
-  // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare provides this global only when a request reaches the Worker.
   put: (request: Request, response: Response) =>
     caches.default.put(request, response),
 };

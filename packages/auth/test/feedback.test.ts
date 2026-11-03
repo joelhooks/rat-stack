@@ -249,18 +249,13 @@ it.layer(services)((test) => {
 
         const instance = yield* auth.auth;
 
-        const context = yield* Effect.promise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-          () => instance.$context
-        );
+        const context = yield* Effect.promise(() => instance.$context);
 
-        const raw = yield* Effect.promise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-          () =>
-            context.adapter.findOne({
-              model: "learnFeedback",
-              where: [{ field: "id", value: saved.id }],
-            })
+        const raw = yield* Effect.promise(() =>
+          context.adapter.findOne({
+            model: "learnFeedback",
+            where: [{ field: "id", value: saved.id }],
+          })
         );
 
         const row = yield* Schema.decodeUnknownEffect(

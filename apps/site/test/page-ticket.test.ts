@@ -253,7 +253,6 @@ it.effect("the cache layer cannot read or write the tokenmaxx page", () =>
 
     const routes = mischiefRoutes({
       staticCache: {
-        // oxlint-disable-next-line typescript/promise-function-async -- This fake matches the native Cache API Promise boundary.
         match: () => {
           reads += 1;
 
@@ -261,7 +260,6 @@ it.effect("the cache layer cannot read or write the tokenmaxx page", () =>
             Option.getOrUndefined(Option.none<Response>())
           );
         },
-        // oxlint-disable-next-line typescript/promise-function-async -- This fake matches the native Cache API Promise boundary.
         put: () => {
           writes += 1;
 

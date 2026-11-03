@@ -119,10 +119,7 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
         ) {
           yield* Effect.tryPromise({
             catch: () => new HighlightFault({ kind: "render" }),
-            // @effect-diagnostics-next-line asyncFunction:off -- Shiki owns the variadic Promise grammar-loader boundary.
-            try: async () => {
-              await engine.loadLanguage(canonical);
-            },
+            try: () => engine.loadLanguage(canonical),
           });
         }
 

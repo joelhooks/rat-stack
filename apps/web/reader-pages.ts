@@ -52,10 +52,7 @@ const preparedError = Effect.gen(function* preparedError() {
 }).pipe(Effect.provide(NodeServices.layer));
 
 export const readerPagesPlugin = (): Plugin => ({
-  // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits preparation before loading any reader module.
-  configResolved: async (config) => {
-    await Effect.runPromise(prepareReader(config.root));
-  },
+  configResolved: (config) => Effect.runPromise(prepareReader(config.root)),
   // @effect-diagnostics-next-line asyncFunction:off -- Vite awaits this build-time virtual module boundary.
   load: async (id) => {
     if (

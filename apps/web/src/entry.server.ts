@@ -210,9 +210,8 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
   }
 );
 
-// @effect-diagnostics-next-line asyncFunction:off -- Foldkit awaits the Web request boundary.
-export const renderPage = async (request: Request) =>
-  await Effect.runPromise(
+export const renderPage = (request: Request) =>
+  Effect.runPromise(
     renderReaderPage(request).pipe(
       Effect.provide(
         Layer.mergeAll(

@@ -96,7 +96,6 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
         }
 
         const website = {
-          // oxlint-disable-next-line typescript/promise-function-async -- The service binding stub returns Cloudflare's native Promise.
           fetch: () =>
             Promise.resolve(
               new Response("Foldkit", {

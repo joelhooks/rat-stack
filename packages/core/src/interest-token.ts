@@ -17,16 +17,14 @@ const decodeClaims = Schema.decodeUnknownEffect(Schema.fromJsonString(Claims));
 const encodeClaims = Schema.encodeEffect(Schema.fromJsonString(Claims));
 
 const importKey = (secret: Redacted.Redacted) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-    () =>
-      crypto.subtle.importKey(
-        "raw",
-        encoder.encode(Redacted.value(secret)),
-        { hash: "SHA-256", name: "HMAC" },
-        false,
-        ["sign", "verify"]
-      )
+  Effect.promise(() =>
+    crypto.subtle.importKey(
+      "raw",
+      encoder.encode(Redacted.value(secret)),
+      { hash: "SHA-256", name: "HMAC" },
+      false,
+      ["sign", "verify"]
+    )
   );
 
 export class InterestTokens extends Context.Service<
@@ -56,9 +54,8 @@ export class InterestTokens extends Context.Service<
           const key = yield* loadKey;
           const payload = yield* encodeClaims(claims).pipe(Effect.orDie);
 
-          const signature = yield* Effect.promise(
-            // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-            () => crypto.subtle.sign("HMAC", key, encoder.encode(payload))
+          const signature = yield* Effect.promise(() =>
+            crypto.subtle.sign("HMAC", key, encoder.encode(payload))
           );
 
           return `${Base64Url.encode(payload)}.${Base64Url.encode(new Uint8Array(signature))}`;
@@ -92,15 +89,13 @@ export class InterestTokens extends Context.Service<
 
           const key = yield* loadKey;
 
-          const valid = yield* Effect.promise(
-            // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-            () =>
-              crypto.subtle.verify(
-                "HMAC",
-                key,
-                new Uint8Array(signature),
-                encoder.encode(payload)
-              )
+          const valid = yield* Effect.promise(() =>
+            crypto.subtle.verify(
+              "HMAC",
+              key,
+              new Uint8Array(signature),
+              encoder.encode(payload)
+            )
           );
 
           if (!valid) {
@@ -124,14 +119,12 @@ export class InterestTokens extends Context.Service<
         ) {
           const key = yield* loadKey;
 
-          const mac = yield* Effect.promise(
-            // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-            () =>
-              crypto.subtle.sign(
-                "HMAC",
-                key,
-                encoder.encode(`ratstack:intake:${label}:v1\0${value}`)
-              )
+          const mac = yield* Effect.promise(() =>
+            crypto.subtle.sign(
+              "HMAC",
+              key,
+              encoder.encode(`ratstack:intake:${label}:v1\0${value}`)
+            )
           );
 
           return [...new Uint8Array(mac)]

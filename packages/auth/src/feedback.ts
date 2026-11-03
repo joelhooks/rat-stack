@@ -61,26 +61,21 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
     function* loadContext() {
       const instance = yield* auth.auth;
 
-      return yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-        () => instance.$context
-      );
+      return yield* Effect.promise(() => instance.$context);
     }
   );
 
   const key = Effect.fn("FeedbackIdentity.key")(function* key() {
     const context = yield* loadContext();
 
-    return yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-      () =>
-        crypto.subtle.importKey(
-          "raw",
-          encoder.encode(`learn-feedback:v1:${context.secret}`),
-          { hash: "SHA-256", name: "HMAC" },
-          false,
-          ["sign", "verify"]
-        )
+    return yield* Effect.promise(() =>
+      crypto.subtle.importKey(
+        "raw",
+        encoder.encode(`learn-feedback:v1:${context.secret}`),
+        { hash: "SHA-256", name: "HMAC" },
+        false,
+        ["sign", "verify"]
+      )
     );
   });
 
@@ -88,13 +83,11 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
     function* readDevice(field: "id" | "deviceCode", value: string) {
       const context = yield* loadContext();
 
-      const raw = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-        () =>
-          context.adapter.findOne({
-            model: "deviceCode",
-            where: [{ field, value }],
-          })
+      const raw = yield* Effect.promise(() =>
+        context.adapter.findOne({
+          model: "deviceCode",
+          where: [{ field, value }],
+        })
       );
 
       return raw === null
@@ -150,14 +143,12 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
       }
 
       const context = yield* loadContext();
-      yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-        () =>
-          context.adapter.update({
-            model: "deviceCode",
-            update: { lastPolledAt: DateTime.toDate(DateTime.makeUnsafe(now)) },
-            where: [{ field: "id", value: device.id }],
-          })
+      yield* Effect.promise(() =>
+        context.adapter.update({
+          model: "deviceCode",
+          update: { lastPolledAt: DateTime.toDate(DateTime.makeUnsafe(now)) },
+          where: [{ field: "id", value: device.id }],
+        })
       );
 
       if (device.status === "approved") {
@@ -205,9 +196,8 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
 
     const signingKey = yield* key();
 
-    const signature = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-      () => crypto.subtle.sign("HMAC", signingKey, encoder.encode(payload))
+    const signature = yield* Effect.promise(() =>
+      crypto.subtle.sign("HMAC", signingKey, encoder.encode(payload))
     );
 
     return `lf1.${Base64Url.encode(payload)}.${Base64Url.encode(new Uint8Array(signature))}`;
@@ -252,15 +242,13 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
 
       const signingKey = yield* key();
 
-      const valid = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-        () =>
-          crypto.subtle.verify(
-            "HMAC",
-            signingKey,
-            new Uint8Array(signature),
-            encoder.encode(payload)
-          )
+      const valid = yield* Effect.promise(() =>
+        crypto.subtle.verify(
+          "HMAC",
+          signingKey,
+          new Uint8Array(signature),
+          encoder.encode(payload)
+        )
       );
 
       if (!valid) {
@@ -295,9 +283,8 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
 
       const context = yield* loadContext();
 
-      const person = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-        () => context.internalAdapter.findUserById(grant.personId)
+      const person = yield* Effect.promise(() =>
+        context.internalAdapter.findUserById(grant.personId)
       );
 
       return person === null
@@ -320,16 +307,14 @@ const makeFeedbackIdentity = Effect.gen(function* makeFeedbackIdentity() {
     const context = yield* loadContext();
     const now = yield* Clock.currentTimeMillis;
 
-    const result = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Better Auth and Web Crypto own native Promises at this adapter boundary.
-      () =>
-        context.adapter.create({
-          data: {
-            ...parsed,
-            createdAt: DateTime.toDate(DateTime.makeUnsafe(now)),
-          },
-          model: "learnFeedback",
-        })
+    const result = yield* Effect.promise(() =>
+      context.adapter.create({
+        data: {
+          ...parsed,
+          createdAt: DateTime.toDate(DateTime.makeUnsafe(now)),
+        },
+        model: "learnFeedback",
+      })
     );
 
     return yield* Schema.decodeUnknownEffect(

@@ -17,7 +17,6 @@ export const makeForeignRuntimeBoundary = (options: {
 
   return {
     close: runtime.dispose.bind(runtime),
-    // @effect-diagnostics-next-line asyncFunction:off -- This foreign framework boundary exposes a native Promise API.
-    read: async () => await runtime.runPromise(read),
+    read: () => runtime.runPromise(read),
   };
 };

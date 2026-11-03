@@ -51,16 +51,14 @@ export const ratTestPerson = implement(ratTestPersonContract, ({ name }) =>
 
     const signedIn = yield* Effect.tryPromise({
       catch: refused,
-      // @effect-diagnostics-next-line asyncFunction:off -- Better Auth's raw API is Promise-based.
-      try: async () =>
-        await raw.api.signInEmail({ body: credentials, returnHeaders: true }),
+      try: () =>
+        raw.api.signInEmail({ body: credentials, returnHeaders: true }),
     }).pipe(
       Effect.catch(() =>
         Effect.tryPromise({
           catch: refused,
-          // @effect-diagnostics-next-line asyncFunction:off -- Better Auth's raw API is Promise-based.
-          try: async () =>
-            await raw.api.signUpEmail({
+          try: () =>
+            raw.api.signUpEmail({
               body: { ...credentials, name },
               returnHeaders: true,
             }),

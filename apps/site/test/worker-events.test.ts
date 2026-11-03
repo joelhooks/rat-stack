@@ -24,7 +24,6 @@ type InitializedMischief = Effect.Effect<
 >;
 
 const rateLimit = {
-  // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare's binding returns a native Promise.
   limit: () => Promise.resolve({ success: true }),
 };
 

@@ -97,10 +97,7 @@ it.effect(
         HttpClientRequest.toWeb(request).pipe(
           Effect.orDie,
           Effect.flatMap((webRequest) =>
-            Effect.promise(
-              // @effect-diagnostics-next-line asyncFunction:off -- The in-memory HTTP handler exposes a Promise boundary.
-              async () => await server.handler(webRequest)
-            )
+            Effect.promise(() => server.handler(webRequest))
           ),
           Effect.map((response) =>
             HttpClientResponse.fromWeb(request, response)

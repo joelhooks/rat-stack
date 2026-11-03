@@ -63,25 +63,23 @@ it.effect.prop(
 
       yield* Effect.addFinalizer(() => Effect.promise(dispose));
 
-      const response = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- The in-memory router owns this Promise boundary.
-        () =>
-          handler(
-            new Request(
-              "https://ratstack.sh/operator/interest/applications/redeliver",
-              {
-                body: JSON.stringify({
-                  submissionIds: valid ? ["synthetic-first"] : 42,
-                }),
-                headers: {
-                  authorization: authorized
-                    ? "Bearer synthetic-operator"
-                    : "Bearer wrong",
-                },
-                method: "POST",
-              }
-            )
+      const response = yield* Effect.promise(() =>
+        handler(
+          new Request(
+            "https://ratstack.sh/operator/interest/applications/redeliver",
+            {
+              body: JSON.stringify({
+                submissionIds: valid ? ["synthetic-first"] : 42,
+              }),
+              headers: {
+                authorization: authorized
+                  ? "Bearer synthetic-operator"
+                  : "Bearer wrong",
+              },
+              method: "POST",
+            }
           )
+        )
       );
 
       const expectedStatus = authorized ? 400 : 401;

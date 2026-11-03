@@ -112,7 +112,6 @@ const makeRpcDispatcher = (invoke: Invoke) =>
           "protocol",
           `Unable to load the Cloudflare RPC runtime: ${messageOf(error)}`
         ),
-      // oxlint-disable-next-line typescript/promise-function-async -- The built-in exists only inside workerd; keeping it lazy lets Alchemy import the Stack under Node without resolving the special URL.
       try: () => import("cloudflare:workers"),
     }).pipe(
       Effect.map(({ RpcTarget }) => {
@@ -280,7 +279,6 @@ export const layerWorkerLoader = (
                         : undefined
                     );
                   },
-                  // oxlint-disable-next-line typescript/promise-function-async -- Effect.tryPromise accepts the platform Promise directly.
                   try: () => entrypoint.run(dispatcher),
                 })
               ),

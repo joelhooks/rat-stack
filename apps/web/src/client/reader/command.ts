@@ -26,10 +26,7 @@ export const CopyReaderText = Command.define("CopyReaderText", {
   execute: ({ id, text }) =>
     Effect.tryPromise({
       catch: (cause) => new ClipboardFailure({ cause }),
-      // @effect-diagnostics-next-line asyncFunction:off -- The native Clipboard API owns this Promise boundary.
-      try: async () => {
-        await navigator.clipboard.writeText(text);
-      },
+      try: () => navigator.clipboard.writeText(text),
     }).pipe(
       Effect.match({
         onFailure: () => Message.FailedCopyReaderText({ id }),

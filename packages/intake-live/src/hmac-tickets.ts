@@ -30,33 +30,29 @@ const encodePayload = Schema.encodeEffect(
 
 const deriveTicketKey = (secret: Redacted.Redacted) =>
   Effect.gen(function* deriveKey() {
-    const base = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-      () =>
-        crypto.subtle.importKey(
-          "raw",
-          encoder.encode(Redacted.value(secret)),
-          "HKDF",
-          false,
-          ["deriveKey"]
-        )
+    const base = yield* Effect.promise(() =>
+      crypto.subtle.importKey(
+        "raw",
+        encoder.encode(Redacted.value(secret)),
+        "HKDF",
+        false,
+        ["deriveKey"]
+      )
     );
 
-    return yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-      () =>
-        crypto.subtle.deriveKey(
-          {
-            hash: "SHA-256",
-            info: encoder.encode("ratstack:intake-ticket:v1"),
-            name: "HKDF",
-            salt: new Uint8Array(0),
-          },
-          base,
-          { hash: "SHA-256", length: 256, name: "HMAC" },
-          false,
-          ["sign", "verify"]
-        )
+    return yield* Effect.promise(() =>
+      crypto.subtle.deriveKey(
+        {
+          hash: "SHA-256",
+          info: encoder.encode("ratstack:intake-ticket:v1"),
+          name: "HKDF",
+          salt: new Uint8Array(0),
+        },
+        base,
+        { hash: "SHA-256", length: 256, name: "HMAC" },
+        false,
+        ["sign", "verify"]
+      )
     );
   });
 
@@ -110,9 +106,8 @@ export const hmacIntakeTicketLayer = (secret: Redacted.Redacted) =>
           t: mintedAt,
         }).pipe(Effect.orDie);
 
-        const signature = yield* Effect.promise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-          () => crypto.subtle.sign("HMAC", key, encoder.encode(payload))
+        const signature = yield* Effect.promise(() =>
+          crypto.subtle.sign("HMAC", key, encoder.encode(payload))
         );
 
         return `${Base64Url.encode(payload)}.${Base64Url.encode(new Uint8Array(signature))}`;
@@ -132,15 +127,13 @@ export const hmacIntakeTicketLayer = (secret: Redacted.Redacted) =>
 
         const key = yield* loadKey;
 
-        const valid = yield* Effect.promise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-          () =>
-            crypto.subtle.verify(
-              "HMAC",
-              key,
-              parts.signature,
-              encoder.encode(parts.payload)
-            )
+        const valid = yield* Effect.promise(() =>
+          crypto.subtle.verify(
+            "HMAC",
+            key,
+            parts.signature,
+            encoder.encode(parts.payload)
+          )
         );
 
         if (!valid) {

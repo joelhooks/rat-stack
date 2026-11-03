@@ -26,17 +26,15 @@ const encoder = new TextEncoder();
 export const fingerprintOf = (
   entries: readonly (readonly [string, string | undefined])[]
 ) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-    () =>
-      crypto.subtle.digest(
-        "SHA-256",
-        encoder.encode(
-          entries
-            .map(([name, value]) => `${name}=${value ?? "\0unset"}`)
-            .join("\n")
-        )
+  Effect.promise(() =>
+    crypto.subtle.digest(
+      "SHA-256",
+      encoder.encode(
+        entries
+          .map(([name, value]) => `${name}=${value ?? "\0unset"}`)
+          .join("\n")
       )
+    )
   ).pipe(
     Effect.map((digest) =>
       [...new Uint8Array(digest)]

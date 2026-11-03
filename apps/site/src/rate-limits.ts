@@ -78,10 +78,7 @@ export interface RateLimits {
 
 export const rateLimitsFrom = (bindings: RateLimitBindings): RateLimits => ({
   limit: (name, key) =>
-    Effect.tryPromise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare owns this Promise-returning runtime boundary.
-      () => bindings[name].limit({ key })
-    ).pipe(
+    Effect.tryPromise(() => bindings[name].limit({ key })).pipe(
       Effect.map(({ success }) => success),
       Effect.orDie
     ),

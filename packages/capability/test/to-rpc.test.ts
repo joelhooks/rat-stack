@@ -161,7 +161,6 @@ describe("toRpc", () => {
 
       yield* Effect.addFinalizer(() => Effect.promise(dispose));
 
-      // oxlint-disable-next-line typescript/promise-function-async -- HttpRouter exposes a Promise API for this in-memory RPC transport test.
       const response = yield* Effect.promise(() =>
         handler(
           new Request("http://localhost/rpc", {
@@ -179,7 +178,6 @@ describe("toRpc", () => {
         )
       );
 
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Response.text returns a Promise at this in-memory transport boundary.
       const responseText = yield* Effect.promise(() => response.text());
 
       expect(handlerRuns).toBe(0);
