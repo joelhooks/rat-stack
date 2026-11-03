@@ -485,13 +485,7 @@ main > pre:has(+ .copy-actions) {
   flex-wrap: wrap;
   list-style: none;
   margin: 0;
-  min-width: 0;
   padding: 0;
-  row-gap: 0.25rem;
-}
-
-.site-links li {
-  white-space: nowrap;
 }
 
 .site-links li:not(:last-child)::after {
