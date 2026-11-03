@@ -29,6 +29,7 @@ const decodeOpenApi = Schema.decodeUnknownSync(
 const noCafe = CafeDirectory.layer(
   Schema.decodeSync(CafeData)({
     news: [],
+    people: [],
     projects: [],
     rankedAt: "2026-10-09",
   })

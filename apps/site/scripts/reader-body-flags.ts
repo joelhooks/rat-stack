@@ -3,7 +3,10 @@ import { Effect, Schema } from "effect";
 import { ReaderNode } from "../../web/src/client/reader-node.js";
 import type { ReaderNodeValue } from "../../web/src/client/reader-node.js";
 import { ReaderFlags } from "../../web/src/client/reader/model.js";
-import { readerBodyRoutePaths } from "../../web/src/reader-routes.js";
+import {
+  isReaderBodyRoutePath,
+  readerBodyRoutePaths,
+} from "../../web/src/reader-routes.js";
 import { copyPrompts } from "./component-data.ts";
 import { compileReaderBody, readerNewsTitle } from "./reader-body-document.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
@@ -31,7 +34,7 @@ export const readerBodyFlags = Effect.fn("readerBodyFlags")(
     const inputs = yield* prepareReaderSiteInputs;
 
     const pages = inputs.pages.filter((page) =>
-      readerBodyRoutePaths.includes(page.path)
+      isReaderBodyRoutePath(page.path)
     );
 
     const missing = readerBodyRoutePaths.filter(

@@ -14,6 +14,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./cafe-people": {
+      "types": "./src/cafe-people.ts",
+      "import": "./dist/cafe-people.js",
+      "default": "./dist/cafe-people.js"
+    },
     "./cafe-directory": {
       "types": "./src/cafe-directory.ts",
       "import": "./dist/cafe-directory.js",

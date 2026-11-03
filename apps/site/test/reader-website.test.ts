@@ -6,6 +6,7 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { acceptsHtml } from "../src/negotiation.js";
 import {
   forwardsToReaderWebsite,
+  readerWebsiteAssetPrefixes,
   readerWebsiteRoutes,
   withReaderWebsite,
 } from "../src/reader-website.js";
@@ -31,6 +32,7 @@ const pathSchema = Schema.Union([
     "//unconverted",
     "//assets/x.js",
     "/assets/main-abc123.js",
+    "/avatars/ada.png",
     "/rpc",
     "/rpc/",
     "/rpc/search",
@@ -155,7 +157,9 @@ it.effect.prop(
             family.every((segment, index) => segment === segments[index])
         );
 
-      const asset = actualPath.startsWith("/assets/");
+      const asset = readerWebsiteAssetPrefixes.some((prefix) =>
+        actualPath.startsWith(prefix)
+      );
 
       const rpc = isRpcPath(actualPath);
 

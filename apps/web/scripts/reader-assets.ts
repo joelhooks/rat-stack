@@ -22,6 +22,8 @@ export const copyReaderAssets = Effect.fn("reader.copyAssets")(
       });
     }
 
+    const serialized = pages.map((page) => JSON.stringify(page));
+
     const images = [
       ...new Set([
         ...pages.map(
@@ -33,6 +35,9 @@ export const copyReaderAssets = Effect.fn("reader.copyAssets")(
             (page) =>
               page.page.path !== "/" && image.startsWith(`${page.page.path}/`)
           )
+        ),
+        ...manifest.images.filter((image) =>
+          serialized.some((page) => page.includes(image))
         ),
       ]),
     ];

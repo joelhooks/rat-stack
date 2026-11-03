@@ -3,6 +3,14 @@ import * as stylex from "@stylexjs/stylex";
 import { reader } from "../tokens.stylex.js";
 
 export const cafeStyles = stylex.create({
+  avatar: {
+    border: "1px solid #ccd0da",
+    borderRadius: "4px",
+    display: "block",
+    flexShrink: 0,
+    height: "4rem",
+    width: "4rem",
+  },
   badge: {
     border: "1px solid #6c6f85",
     borderRadius: "4px",
@@ -18,6 +26,20 @@ export const cafeStyles = stylex.create({
     display: "inline-flex",
     gap: reader.spaceTight,
     marginInlineStart: reader.spaceTight,
+  },
+  card: {
+    alignItems: "flex-start",
+    border: "1px solid #ccd0da",
+    display: "flex",
+    gap: reader.spaceSmall,
+    padding: reader.spaceSmall,
+  },
+  cards: {
+    display: "grid",
+    gap: reader.spaceSmall,
+    listStyle: "none",
+    margin: 0,
+    padding: 0,
   },
   filter: {
     border: "none",

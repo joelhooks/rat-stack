@@ -3,6 +3,7 @@ import {
   CafeDataError,
   CafeDataInvalid,
   cafeNewsFile,
+  cafePeopleFile,
   cafeProjectsFile,
   decodeCafeData,
   decodeCafeEntries,
@@ -355,7 +356,11 @@ const program = Effect.gen(function* cafeImport() {
   const newsText = `${JSON.stringify(news, null, 2)}\n`;
   const projectsText = `${JSON.stringify(projects, null, 2)}\n`;
 
-  yield* decodeCafeData({ news: newsText, projects: projectsText });
+  yield* decodeCafeData({
+    news: newsText,
+    people: yield* fs.readFileString(cafePeopleFile),
+    projects: projectsText,
+  });
 
   if (!write) {
     return yield* Console.log(

@@ -1,4 +1,6 @@
 import { it } from "@effect/vitest";
+import { CafePersonSummary, CafeStory } from "@rat-stack/core/contracts";
+import { Schema } from "effect";
 import { click, expect, given, label, role, scene, text } from "foldkit/scene";
 
 import { Model } from "../src/client/cafe/model.js";
@@ -9,7 +11,7 @@ import { directoryHome, fullStack } from "./cafe-fixture.js";
 it("CAFE pages show the short prompt instead of the agent filing instructions", () => {
   for (const model of [
     directoryHome,
-    Model.News({ items: [], rankedAt: fullStack.date }),
+    Model.News({ items: [], profiles: [], rankedAt: fullStack.date }),
   ]) {
     scene(
       { update, view },
@@ -58,5 +60,85 @@ it("badges name each verified letter and its evidence", () => {
     expect(label("Effect: effect evidence in package.json")).toHaveText("E"),
     expect(label("Foldkit: foldkit evidence in package.json")).toHaveText("F"),
     expect(label("Foldkit: null")).toBeAbsent()
+  );
+});
+
+const fact = {
+  source: "https://github.com/ada",
+  text: "Ada builds CAFE things.",
+  verified: "2026-11-02",
+};
+
+const ada = Schema.decodeSync(CafePersonSummary)({
+  avatar: "/avatars/ada.png",
+  handles: [
+    {
+      handle: "ada",
+      kind: "github",
+      url: "https://github.com/ada",
+      ...fact,
+    },
+  ],
+  id: "ada",
+  kind: "person",
+  name: "Ada",
+  packages: [],
+  repos: [{ repo: "ada/engine", stars: 12, ...fact }],
+  route: "/all-stars/ada",
+  summary: fact,
+  topics: [],
+});
+
+it("the all stars index shows one card per person, and channels under their own heading", () => {
+  scene(
+    { update, view },
+    given(
+      Model.AllStars({
+        people: [
+          ada,
+          Schema.decodeSync(CafePersonSummary)({
+            ...Schema.encodeSync(CafePersonSummary)(ada),
+            id: "fold",
+            kind: "channel",
+            name: "Fold",
+          }),
+        ],
+      })
+    ),
+    expect(role("link", { name: "Ada" })).toHaveAttr("href", "/all-stars/ada"),
+    expect(role("heading", { name: "People" })).toExist(),
+    expect(role("heading", { name: "Channels" })).toExist(),
+    expect(role("link", { name: "Fold" })).toExist(),
+    expect(text("Ada builds CAFE things.")).toExist(),
+    expect(role("link", { name: "ada/engine" })).toExist(),
+    expect(role("link", { name: "open an issue" })).toExist()
+  );
+});
+
+it("a news row whose author has a profile links to it", () => {
+  const row = Schema.decodeSync(CafeStory)({
+    author: { github: "ada", x: null },
+    date: "2026-11-01",
+    kind: "post",
+    repo: null,
+    source: "https://example.com/source",
+    summary: "A row.",
+    title: "Ada's row",
+    url: "https://example.com/row",
+  });
+
+  scene(
+    { update, view },
+    given(
+      Model.News({
+        items: [row],
+        profiles: [{ name: "Ada", route: "/all-stars/ada", url: row.url }],
+        rankedAt: row.date,
+      })
+    ),
+    expect(role("link", { name: "Ada on all stars" })).toHaveAttr(
+      "href",
+      "/all-stars/ada"
+    )
   );
 });

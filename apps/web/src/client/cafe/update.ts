@@ -24,6 +24,7 @@ const updateDirectory = (
   change: (directory: DirectoryModel) => DirectoryModel
 ): UpdateReturn => ({
   model: Model.match<CafeModel>(model, {
+    AllStars: (allStars) => allStars,
     Directory: change,
     News: (news) => news,
   }),

@@ -1,0 +1,1382 @@
+[
+  {
+    "avatar": {
+      "path": "/avatars/acoyfellow.jpg",
+      "source": "https://github.com/acoyfellow.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/acoyfellow/coil",
+        "text": "GitHub describes acoyfellow/coil as \"One thread, one agent, one computer. Pi Durable and a Cloudflare Container in one Durable Object, compacted together.\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/acoyfellow/status/2107929744029470841",
+        "text": "On X, about tardigrade: \"Kill it N times while it works, and it comes back and ships the commit anyway..\" Built with Pi Durable, Effect v4 and Foldkit on Cloudflare Durable Objects.",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/acoyfellow/status/2107929744029470841",
+      "https://github.com/acoyfellow/coil"
+    ],
+    "handles": [
+      {
+        "handle": "acoyfellow",
+        "kind": "github",
+        "source": "https://github.com/acoyfellow",
+        "url": "https://github.com/acoyfellow",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "acoyfellow",
+        "kind": "x",
+        "source": "https://github.com/acoyfellow",
+        "url": "https://x.com/acoyfellow",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "coey.dev",
+        "kind": "site",
+        "source": "https://github.com/acoyfellow",
+        "url": "https://coey.dev",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "acoyfellow",
+    "kind": "person",
+    "name": "Jordan Coeyman",
+    "repos": [
+      {
+        "description": "One thread, one agent, one computer, in one Durable Object.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/acoyfellow/coil/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/acoyfellow/coil/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/acoyfellow/coil/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "wrangler",
+            "source": "https://github.com/acoyfellow/coil/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "acoyfellow/coil",
+        "source": "https://github.com/acoyfellow/coil",
+        "stars": 42,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "A personal AI agent operating environment you self-host on Cloudflare.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/acoyfellow/my-ax/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "wrangler",
+            "source": "https://github.com/acoyfellow/my-ax/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "acoyfellow/my-ax",
+        "source": "https://github.com/acoyfellow/my-ax",
+        "stars": 37,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "An agent you can kill, and it comes back.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/acoyfellow/tardigrade/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/acoyfellow/tardigrade/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/acoyfellow/tardigrade/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "wrangler",
+            "source": "https://github.com/acoyfellow/tardigrade/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "acoyfellow/tardigrade",
+        "source": "https://github.com/acoyfellow/tardigrade",
+        "stars": 13,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/acoyfellow/coil",
+        "topic": "cloudflare",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/acoyfellow/status/2107929744029470841",
+        "topic": "durable-objects",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/alchemy-run.png",
+      "source": "https://github.com/alchemy-run.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy",
+        "text": "GitHub describes alchemy-run/alchemy as \"Infrastructure as Effects\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/alchemy_run",
+        "text": "The Alchemy X profile reads \"Bootstrapping Agentic Infrastructure with pure TypeScript and Effect.\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.81",
+      "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.82"
+    ],
+    "handles": [
+      {
+        "handle": "alchemy-run",
+        "kind": "github",
+        "source": "https://github.com/alchemy-run",
+        "url": "https://github.com/alchemy-run",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "alchemy_run",
+        "kind": "x",
+        "source": "https://github.com/alchemy-run",
+        "url": "https://x.com/alchemy_run",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "alchemy.run",
+        "kind": "site",
+        "source": "https://github.com/alchemy-run",
+        "url": "https://alchemy.run",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "alchemy-run",
+    "kind": "channel",
+    "name": "Alchemy",
+    "repos": [
+      {
+        "description": "Infrastructure as Effects",
+        "packages": [
+          {
+            "name": "alchemy",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "effect",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "alchemy-run/alchemy",
+        "source": "https://github.com/alchemy-run/alchemy",
+        "stars": 1833,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy",
+        "topic": "alchemy",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/devinjameson.jpg",
+      "source": "https://github.com/devinjameson.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/devinjameson",
+        "text": "The GitHub profile reads \"Building Foldkit, the frontend framework for correctness.\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "text": "Listed first among the contributors to foldkit/foldkit on GitHub.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/devinjameson/status/2116009356521005124",
+        "text": "On X: \"I made Vercel Domains, CAFE style. A fun excuse to hack with @Cloudflare, @alchemy_run, @foldkit, and @EffectTS_\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://foldkit.dev/blog/foldkit-0-159-0",
+      "https://foldkit.dev/blog/foldkit-0-163-0"
+    ],
+    "handles": [
+      {
+        "handle": "devinjameson",
+        "kind": "github",
+        "source": "https://github.com/devinjameson",
+        "url": "https://github.com/devinjameson",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "devinjameson",
+        "kind": "x",
+        "source": "https://github.com/devinjameson",
+        "url": "https://x.com/devinjameson",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "foldkit.dev",
+        "kind": "site",
+        "source": "https://github.com/devinjameson",
+        "url": "https://foldkit.dev",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "devinjameson",
+    "kind": "person",
+    "name": "Devin Jameson",
+    "repos": [
+      {
+        "description": null,
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit",
+        "source": "https://github.com/foldkit/foldkit",
+        "stars": 1158,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "A domain search example built with Foldkit, with editable static HTML and hydration.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/devtools",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@alchemy.run/cloudflare",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit-domains",
+        "source": "https://github.com/foldkit/foldkit-domains",
+        "stars": 28,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/devinjameson",
+        "topic": "foldkit",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/effect-ts.png",
+      "source": "https://github.com/Effect-TS.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/Effect-TS",
+        "text": "The Effect-TS GitHub org describes itself as \"A set of libraries to write better TypeScript\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+        "text": "Effect-TS/effect publishes @effect/sql-d1, \"A Cloudflare D1 integration for Effect\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://www.youtube.com/@effect-ts",
+        "text": "The YouTube channel @effect-ts is titled \"Effect | TypeScript for the AI Era\".",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://effect.website/blog/releases/effect/40",
+      "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.0"
+    ],
+    "handles": [
+      {
+        "handle": "@effect-ts",
+        "kind": "youtube",
+        "source": "https://www.youtube.com/@effect-ts",
+        "url": "https://www.youtube.com/@effect-ts",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "Effect-TS",
+        "kind": "github",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://github.com/Effect-TS",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "EffectTS_",
+        "kind": "x",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://x.com/EffectTS_",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "effect.website",
+        "kind": "site",
+        "source": "https://github.com/Effect-TS",
+        "url": "https://effect.website",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "effect-ts",
+    "kind": "channel",
+    "name": "Effect",
+    "repos": [
+      {
+        "description": "Build production-ready applications in TypeScript",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/Effect-TS/effect/blob/main/packages/effect/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/sql-d1",
+            "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "Effect-TS/effect",
+        "source": "https://github.com/Effect-TS/effect",
+        "stars": 17464,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/Effect-TS",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/Effect-TS/effect/blob/main/packages/sql/d1/package.json",
+        "topic": "d1",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": [
+      {
+        "date": "2026-11-02",
+        "source": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+        "title": "Community Review: add McpTask for long-running Tools // Office Hours 51",
+        "url": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
+        "verified": "2026-11-02"
+      },
+      {
+        "date": "2026-11-01",
+        "source": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+        "title": "Software engineering in the AI era // Cause & Effect 10",
+        "url": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+        "verified": "2026-11-02"
+      }
+    ]
+  },
+  {
+    "avatar": {
+      "path": "/avatars/foldkit.png",
+      "source": "https://github.com/foldkit.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/foldkit",
+        "text": "The Foldkit GitHub org describes Foldkit as \"The frontend framework for correctness.\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/foldkit",
+        "text": "The Foldkit X profile reads \"Foldkit is a TypeScript frontend framework built on @EffectTS_. Created by @devinjameson.\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://github.com/foldkit/foldkit/pull/1655",
+      "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.169.0"
+    ],
+    "handles": [
+      {
+        "handle": "foldkit",
+        "kind": "github",
+        "source": "https://github.com/foldkit",
+        "url": "https://github.com/foldkit",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "foldkit",
+        "kind": "x",
+        "source": "https://x.com/foldkit",
+        "url": "https://x.com/foldkit",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "foldkit.dev",
+        "kind": "site",
+        "source": "https://github.com/foldkit",
+        "url": "https://foldkit.dev",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "foldkit",
+    "kind": "channel",
+    "name": "Foldkit",
+    "repos": [
+      {
+        "description": null,
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/foldkit/foldkit/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit",
+        "source": "https://github.com/foldkit/foldkit",
+        "stars": 1158,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "A domain search example built with Foldkit, with editable static HTML and hydration.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/devtools",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@alchemy.run/cloudflare",
+            "source": "https://github.com/foldkit/foldkit-domains/blob/main/infra/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "foldkit/foldkit-domains",
+        "source": "https://github.com/foldkit/foldkit-domains",
+        "stars": 28,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/foldkit",
+        "topic": "foldkit",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/jem-computer.jpg",
+      "source": "https://github.com/jem-computer.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/jem-computer",
+        "text": "The GitHub profile reads \"your favorite technologists’ favorite technologist\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/sheherenow_/status/2108430801268506670",
+        "text": "On X: \"Pleat is an homage to an algebraic style composition library I wrote in the Fantasy Land era\", built for Foldkit frontends.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/sheherenow_/status/2108407994136576215",
+        "text": "On X: \"btw i made a wrapper for Foldkit (🪨: sick Elm Architecture frontend framework built on Effect) that renders natively with gpui\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/sheherenow_/status/2107972404643598380",
+      "https://x.com/sheherenow_/status/2108407994136576215"
+    ],
+    "handles": [
+      {
+        "handle": "jem-computer",
+        "kind": "github",
+        "source": "https://github.com/jem-computer",
+        "url": "https://github.com/jem-computer",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "Manzanita-Research",
+        "kind": "github",
+        "source": "https://x.com/sheherenow_/status/2108435992957026499",
+        "url": "https://github.com/Manzanita-Research",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "sheherenow_",
+        "kind": "x",
+        "source": "https://github.com/jem-computer",
+        "url": "https://x.com/sheherenow_",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "jem.computer",
+        "kind": "site",
+        "source": "https://github.com/jem-computer",
+        "url": "https://jem.computer",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "jem-computer",
+    "kind": "person",
+    "name": "Jem",
+    "repos": [
+      {
+        "description": "Algebraic, typed styles for Foldkit and Effect v4.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/Manzanita-Research/pleat/blob/main/packages/core/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/Manzanita-Research/pleat/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/Manzanita-Research/pleat/blob/main/site/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/Manzanita-Research/pleat/blob/main/site/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/Manzanita-Research/pleat/blob/main/packages/foldkit/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "Manzanita-Research/pleat",
+        "source": "https://github.com/Manzanita-Research/pleat",
+        "stars": 32,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "Foldkit apps drawn natively by GPUI through gpuix.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/Manzanita-Research/foldkit-native/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/Manzanita-Research/foldkit-native/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/Manzanita-Research/foldkit-native/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/Manzanita-Research/foldkit-native/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "Manzanita-Research/foldkit-native",
+        "source": "https://github.com/Manzanita-Research/foldkit-native",
+        "stars": 32,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "Live tuning controls for Foldkit apps: dials are Effect Schemas, every edit is a Message.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/Manzanita-Research/foldkit-dials/blob/main/packages/foldkit-dials/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/Manzanita-Research/foldkit-dials/blob/main/packages/foldkit-dials/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/Manzanita-Research/foldkit-dials/blob/main/stacks/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/Manzanita-Research/foldkit-dials/blob/main/packages/foldkit-dials/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/Manzanita-Research/foldkit-dials/blob/main/packages/foldkit-dials/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "Manzanita-Research/foldkit-dials",
+        "source": "https://github.com/Manzanita-Research/foldkit-dials",
+        "stars": 14,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://x.com/sheherenow_/status/2108430801268506670",
+        "topic": "foldkit",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/joelhooks.jpg",
+      "source": "https://github.com/joelhooks.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/joelhooks/rat-stack",
+        "text": "GitHub describes joelhooks/rat-stack as an \"Agentic TypeScript scaffold: Effect 4, XState 6 + @xstate/effect, Alchemy infra\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/joelhooks/rat-king",
+        "text": "GitHub describes joelhooks/rat-king as \"an encrypted, AT Protocol agent network. Pure rat-stack: Effect + Alchemy\".",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://github.com/joelhooks/potion-calendar",
+      "https://blog.cloudflare.com/typescript-rust-port/"
+    ],
+    "handles": [
+      {
+        "handle": "joelhooks",
+        "kind": "github",
+        "source": "https://github.com/joelhooks",
+        "url": "https://github.com/joelhooks",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "joelhooks",
+        "kind": "x",
+        "source": "https://github.com/joelhooks",
+        "url": "https://x.com/joelhooks",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "@JoelHooks",
+        "kind": "youtube",
+        "source": "https://x.com/joelhooks",
+        "url": "https://www.youtube.com/@JoelHooks",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "ratstack.sh",
+        "kind": "site",
+        "source": "https://x.com/joelhooks",
+        "url": "https://ratstack.sh",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "joelhooks",
+    "kind": "person",
+    "name": "Joel Hooks",
+    "repos": [
+      {
+        "description": "Agentic TypeScript scaffold: Effect 4, XState 6 + @xstate/effect, Alchemy infra.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/joelhooks/rat-stack/blob/main/packages/core/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/joelhooks/rat-stack/blob/main/apps/web/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/joelhooks/rat-stack/blob/main/apps/infra/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@alchemy.run/cloudflare",
+            "source": "https://github.com/joelhooks/rat-stack/blob/main/apps/infra/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@xstate/effect",
+            "source": "https://github.com/joelhooks/rat-stack/blob/main/packages/core/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "joelhooks/rat-stack",
+        "source": "https://github.com/joelhooks/rat-stack",
+        "stars": 140,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "An encrypted, AT Protocol agent network built on rat-stack.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/joelhooks/rat-king/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/joelhooks/rat-king/blob/main/apps/ratking-sh/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/joelhooks/rat-king/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@xstate/effect",
+            "source": "https://github.com/joelhooks/rat-king/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/joelhooks/rat-king/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "joelhooks/rat-king",
+        "source": "https://github.com/joelhooks/rat-king",
+        "stars": 41,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/joelhooks/rat-stack",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/julia-script.jpg",
+      "source": "https://github.com/julia-script.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://x.com/JuliaScript/status/2108019487064936678",
+        "text": "On X: \"I kinda ported pi-durable to @EffectTS_, but built on workflows and their AI module\", linking julia-script/effect-harness.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/JuliaScript/status/2112316050322661762",
+        "text": "On X: \"@EffectTS_ gave effect-harness distribution for free.\", running it with Alchemy on Cloudflare.",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/JuliaScript/status/2108019487064936678",
+      "https://x.com/JuliaScript/status/2112316050322661762"
+    ],
+    "handles": [
+      {
+        "handle": "julia-script",
+        "kind": "github",
+        "source": "https://github.com/julia-script",
+        "url": "https://github.com/julia-script",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "JuliaScript",
+        "kind": "x",
+        "source": "https://x.com/JuliaScript",
+        "url": "https://x.com/JuliaScript",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "julia-script",
+    "kind": "person",
+    "name": "Julia Ortiz",
+    "repos": [
+      {
+        "description": null,
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/julia-script/effect-harness/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/julia-script/effect-harness/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/julia-script/effect-harness/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/julia-script/effect-harness/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/julia-script/effect-harness/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "julia-script/effect-harness",
+        "source": "https://github.com/julia-script/effect-harness",
+        "stars": 69,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": null,
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/julia-script/effect-inspect/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/julia-script/effect-inspect/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/julia-script/effect-inspect/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/julia-script/effect-inspect/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "julia-script/effect-inspect",
+        "source": "https://github.com/julia-script/effect-inspect",
+        "stars": 27,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://x.com/JuliaScript/status/2108019487064936678",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/just-be-dev.jpg",
+      "source": "https://github.com/just-be-dev.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://x.com/just_be_dev/status/2108012090938319192",
+        "text": "On X: \"Very bullish on the CAFE stack (cloudflare, alchemy, foldkit, effect). Got my own template for it here\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/just-be-dev/cafe-stack",
+        "text": "GitHub describes just-be-dev/cafe-stack as \"Reusable organization, tooling, and guardrails for Effect 4, Foldkit, Bun/mise, and Alchemy 2 on Cloudflare\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/just-be-dev/effect-typed-id",
+        "text": "GitHub describes just-be-dev/effect-typed-id as \"Typed IDs in Effect.ts\".",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/just_be_dev/status/2107168256494649828",
+      "https://x.com/just_be_dev/status/2108012090938319192"
+    ],
+    "handles": [
+      {
+        "handle": "just-be-dev",
+        "kind": "github",
+        "source": "https://github.com/just-be-dev",
+        "url": "https://github.com/just-be-dev",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "just_be_dev",
+        "kind": "x",
+        "source": "https://github.com/just-be-dev",
+        "url": "https://x.com/just_be_dev",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "just-be.dev",
+        "kind": "site",
+        "source": "https://github.com/just-be-dev",
+        "url": "https://just-be.dev",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "just-be-dev",
+    "kind": "person",
+    "name": "Justin Bennett",
+    "repos": [
+      {
+        "description": "Reusable organization, tooling, and guardrails for Effect 4, Foldkit, Bun/mise, and Alchemy 2 on Cloudflare.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/just-be-dev/cafe-stack/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/just-be-dev/cafe-stack/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/just-be-dev/cafe-stack/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/just-be-dev/cafe-stack/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/just-be-dev/cafe-stack/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "just-be-dev/cafe-stack",
+        "source": "https://github.com/just-be-dev/cafe-stack",
+        "stars": 60,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "Typed IDs in Effect.ts.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/just-be-dev/effect-typed-id/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "just-be-dev/effect-typed-id",
+        "source": "https://github.com/just-be-dev/effect-typed-id",
+        "stars": 37,
+        "verified": "2026-11-02"
+      },
+      {
+        "description": "Visual feedback for Foldkit applications and coding agents, built with Foldkit and Effect.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/just-be-dev/foldmark/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/just-be-dev/foldmark/blob/main/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/just-be-dev/foldmark/blob/main/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "just-be-dev/foldmark",
+        "source": "https://github.com/just-be-dev/foldmark",
+        "stars": 2,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/just-be-dev/effect-typed-id",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/maxedapps.jpg",
+      "source": "https://pbs.twimg.com/profile_images/1745781333400399872/MN7Wm4Ya_400x400.jpg",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://x.com/maxedapps",
+        "text": "The X profile reads \"I teach AI & coding\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+        "text": "Published the YouTube video \"You MUST learn and use Effect now!\"",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+        "text": "Published the YouTube video \"Using Effect? Use Alchemy, too!\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+      "https://www.youtube.com/watch?v=jtGSHwXigIg"
+    ],
+    "handles": [
+      {
+        "handle": "maxedapps",
+        "kind": "x",
+        "source": "https://x.com/maxedapps",
+        "url": "https://x.com/maxedapps",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "@maximilian-schwarzmueller",
+        "kind": "youtube",
+        "source": "https://x.com/maxedapps",
+        "url": "https://www.youtube.com/@maximilian-schwarzmueller",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "maximilian-schwarzmueller.com",
+        "kind": "site",
+        "source": "https://x.com/maxedapps",
+        "url": "https://maximilian-schwarzmueller.com",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "maxedapps",
+    "kind": "person",
+    "name": "maxedapps",
+    "repos": [],
+    "topics": [
+      {
+        "source": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+        "topic": "effect",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+        "topic": "alchemy",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": [
+      {
+        "date": "2026-09-24",
+        "source": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+        "title": "You MUST learn and use Effect now!",
+        "url": "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+        "verified": "2026-11-02"
+      },
+      {
+        "date": "2026-10-01",
+        "source": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+        "title": "Using Effect? Use Alchemy, too!",
+        "url": "https://www.youtube.com/watch?v=jtGSHwXigIg",
+        "verified": "2026-11-02"
+      }
+    ]
+  },
+  {
+    "avatar": {
+      "path": "/avatars/sam-goodwin.png",
+      "source": "https://github.com/sam-goodwin.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "text": "Listed first among the contributors to alchemy-run/alchemy, which GitHub describes as \"Infrastructure as Effects\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/alchemy-run/alchemy/commits/main/website/src/content/docs/cloudflare/compute/durable-objects.mdx",
+        "text": "Author of the latest commits to the Alchemy Durable Objects guide.",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://x.com/samgoodwin89/status/2115885818703495441",
+        "text": "On X: \"We'll be playing with Alchemy Domain and Foldkit Blocks.\"",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/samgoodwin89/status/2107738774327435760",
+      "https://github.com/alchemy-run/alchemy/pull/2176"
+    ],
+    "handles": [
+      {
+        "handle": "sam-goodwin",
+        "kind": "github",
+        "source": "https://github.com/sam-goodwin",
+        "url": "https://github.com/sam-goodwin",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "samgoodwin89",
+        "kind": "x",
+        "source": "https://github.com/sam-goodwin",
+        "url": "https://x.com/samgoodwin89",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "sam-goodwin",
+    "kind": "person",
+    "name": "sam-goodwin",
+    "repos": [
+      {
+        "description": "Infrastructure as Effects",
+        "packages": [
+          {
+            "name": "alchemy",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "effect",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          },
+          {
+            "name": "@effect/platform-node",
+            "source": "https://github.com/alchemy-run/alchemy/blob/main/packages/alchemy/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "alchemy-run/alchemy",
+        "source": "https://github.com/alchemy-run/alchemy",
+        "stars": 1833,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "topic": "alchemy",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/alchemy-run/alchemy/commits/main/website/src/content/docs/cloudflare/compute/durable-objects.mdx",
+        "topic": "durable-objects",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/statelyai.png",
+      "source": "https://github.com/statelyai.png?size=240",
+      "verified": "2026-11-02"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/statelyai/xstate",
+        "text": "GitHub describes statelyai/xstate as \"State machines, statecharts, and actors for complex logic\".",
+        "verified": "2026-11-02"
+      },
+      {
+        "source": "https://github.com/statelyai/xstate/blob/next/packages/xstate-effect/package.json",
+        "text": "Publishes @xstate/effect from the xstate repo; its package.json lists effect as a peer dependency.",
+        "verified": "2026-11-02"
+      }
+    ],
+    "entryRows": [
+      "https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%400.1.0-alpha.7",
+      "https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-alpha.8"
+    ],
+    "handles": [
+      {
+        "handle": "statelyai",
+        "kind": "github",
+        "source": "https://github.com/statelyai",
+        "url": "https://github.com/statelyai",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "statelyai",
+        "kind": "x",
+        "source": "https://github.com/statelyai",
+        "url": "https://x.com/statelyai",
+        "verified": "2026-11-02"
+      },
+      {
+        "handle": "stately.ai",
+        "kind": "site",
+        "source": "https://github.com/statelyai",
+        "url": "https://stately.ai",
+        "verified": "2026-11-02"
+      }
+    ],
+    "id": "statelyai",
+    "kind": "channel",
+    "name": "Stately",
+    "repos": [
+      {
+        "description": "State machines, statecharts, and actors for complex logic.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/statelyai/xstate/blob/next/packages/xstate-effect/package.json",
+            "verified": "2026-11-02"
+          }
+        ],
+        "repo": "statelyai/xstate",
+        "source": "https://github.com/statelyai/xstate",
+        "stars": 30403,
+        "verified": "2026-11-02"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://github.com/statelyai/xstate",
+        "topic": "xstate",
+        "verified": "2026-11-02"
+      }
+    ],
+    "updated": "2026-11-02",
+    "videos": []
+  }
+]

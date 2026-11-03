@@ -15,7 +15,10 @@ import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.t
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";
-import { readerBodyRoutePaths } from "../src/reader-routes.js";
+import {
+  isAllStarsProfilePath,
+  readerBodyRoutePaths,
+} from "../src/reader-routes.js";
 import { normalizedNodes } from "./reader-node-normalize.js";
 
 const make = Effect.gen(function* readerParityFixture() {
@@ -40,10 +43,15 @@ const parityTitle = (path: string) =>
 it.layer(ReaderParityFixture.layer)((test) => {
   test.effect("ReaderSiteParity: every body route has a rendered page", () =>
     Effect.gen(function* bodyRouteCoverage() {
-      const { flags } = yield* ReaderParityFixture;
+      const { flags, inputs } = yield* ReaderParityFixture;
 
+      const allStars = inputs.pages
+        .map((page) => page.path)
+        .filter(isAllStarsProfilePath);
+
+      expect(allStars).toContain("/all-stars/devinjameson");
       expect(flags.map((page) => page.page.path).toSorted()).toEqual(
-        readerBodyRoutePaths.toSorted()
+        [...readerBodyRoutePaths, ...allStars].toSorted()
       );
     })
   );

@@ -1,5 +1,9 @@
 import { toExecuteCapability } from "@rat-stack/capability/code-mode/execute";
-import { listCafeNews, listCafeProjects } from "@rat-stack/core/cafe-directory";
+import {
+  listCafeNews,
+  listCafeProjects,
+  peopleCapabilities,
+} from "@rat-stack/core/cafe-directory";
 import { flagCapabilities } from "@rat-stack/core/flag-capabilities";
 import type { Flags } from "@rat-stack/core/flags";
 import { joinInterest } from "@rat-stack/core/join-interest";
@@ -18,7 +22,12 @@ import { search } from "./search.js";
 
 export { read } from "./read.js";
 
-export { listCafeNews, listCafeProjects } from "@rat-stack/core/cafe-directory";
+export {
+  listCafeNews,
+  listCafeProjects,
+  listPeople,
+  readPerson,
+} from "@rat-stack/core/cafe-directory";
 
 export { backlinks, mentions, neighbors, path } from "./lore.js";
 
@@ -54,6 +63,7 @@ export const readerCapabilities = [
   path,
   listCafeNews,
   listCafeProjects,
+  ...peopleCapabilities,
 ] as const;
 
 export const contentCapabilities = [

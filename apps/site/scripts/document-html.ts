@@ -55,7 +55,7 @@ export const renderCopyPrompt = (spec: CopyPromptSpec) => {
 };
 
 const siteNavigation =
-  '<header><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/"><strong>🐀 Rat Stack</strong></a> <div class="site-links"><ul><li><a href="/skills">skills</a></li> <li><a href="/lore">lore</a></li> <li><a href="/systems">systems</a></li> <li><a href="/news">news</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/search">search</a></li></ul> <ul><li><a href="/llms.txt">agent guide</a></li></ul></div></nav></header>';
+  '<header><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/"><strong>🐀 Rat Stack</strong></a> <div class="site-links"><ul><li><a href="/skills">skills</a></li> <li><a href="/lore">lore</a></li> <li><a href="/systems">systems</a></li> <li><a href="/news">news</a></li> <li><a href="/all-stars">all stars</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/search">search</a></li></ul> <ul><li><a href="/llms.txt">agent guide</a></li></ul></div></nav></header>';
 
 const siteFooter =
   '<footer><hr> <div class="site-reference"><section aria-label="Explore"><h2>Explore</h2> <ul><li><a href="/learn">learn mode</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/log">change log</a></li> <li><a href="/resources/peers">peers</a></li></ul></section> <section aria-label="Reference"><h2>Reference</h2> <ul><li><a href="/llms.txt">agent guide</a></li> <li><a href="/openapi.json">API docs</a></li> <li><a href="https://github.com/joelhooks/rat-stack">source</a></li></ul></section></div> <p>Markdown by default. HTML when you ask for it. <a href="/llms.txt">Agents start here</a>.</p></footer>';

@@ -5,12 +5,20 @@ import { AssetReadError } from "./asset-read-error.js";
 import {
   CafeNewsList,
   CafeNewsQuery,
+  CafePeopleForList,
+  CafePeopleForQuery,
+  CafePeopleList,
+  CafePeopleMatches,
+  CafePeopleQuery,
+  CafePeopleSearchQuery,
+  CafeProfile,
   CafeProjectList,
   CafeProjectQuery,
 } from "./cafe.js";
 import { NoPath } from "./no-path.js";
 import { FileStatsError, FileStatsSchema } from "./stats.js";
 import { UnknownPage } from "./unknown-page.js";
+import { UnknownPerson } from "./unknown-person.js";
 import { UnknownPrompt } from "./unknown-prompt.js";
 
 export {
@@ -23,20 +31,39 @@ export {
 
 export { UnknownPrompt } from "./unknown-prompt.js";
 
+export { UnknownPerson } from "./unknown-person.js";
+
 export { AssetReadError } from "./asset-read-error.js";
 
 export {
   CAFE_DIVERSITY_PENALTY,
   CAFE_FRESHNESS_HOURS,
+  AvatarPath,
   CafeAuthor,
   CafeData,
   CafeEngagement,
+  CafeEvidence,
+  CafeFact,
+  CafeHandle,
+  CafeHandleKind,
   CafeLetter,
   CafeNewsItem,
   CafeNewsKind,
   CafeNewsList,
   CafeNewsQuery,
   CafeNewsSort,
+  CafePackageFact,
+  CafePeopleForList,
+  CafePeopleForQuery,
+  CafePeopleList,
+  CafePeopleMatches,
+  CafePeopleQuery,
+  CafePeopleSearchQuery,
+  CafePerson,
+  CafePersonKind,
+  CafePersonRepo,
+  CafePersonSummary,
+  CafeProfile,
   CafeProject,
   CafeProjectList,
   CafeProjectQuery,
@@ -46,10 +73,15 @@ export {
   CafeStackEvidence,
   CafeStory,
   CafeThread,
+  CafeTopic,
+  CafeTopicFact,
+  CafeVideo,
   GithubLogin,
   HttpsUrl,
   IsoDate,
   OneLine,
+  PackageName,
+  PersonId,
   RankedCafeNewsItem,
   RepoName,
   ReplyText,
@@ -79,6 +111,8 @@ export type {
   CafeLetterValue,
   CafeNewsItemValue,
   CafeNewsKindValue,
+  CafePersonValue,
+  CafeProfileValue,
   CafeProjectValue,
   CafeSignalValue,
   IsoDateValue,
@@ -312,6 +346,51 @@ export const listCafeProjectsContract = defineContract("listCafeProjects", {
   failure: AssetReadError,
   input: CafeProjectQuery,
   output: CafeProjectList,
+});
+
+export const listPeopleContract = defineContract("listPeople", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "List CAFE all stars: people and channels with public CAFE work, with stable ids for readPerson.",
+  failure: AssetReadError,
+  input: CafePeopleQuery,
+  output: CafePeopleList,
+});
+
+export const listChannelsContract = defineContract("listChannels", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "List CAFE all-star channels: YouTube channels, GitHub orgs and blogs.",
+  failure: AssetReadError,
+  input: Schema.Struct({ limit: CafePeopleQuery.fields.limit }),
+  output: CafePeopleList,
+});
+
+export const readPersonContract = defineContract("readPerson", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "Read one CAFE all-star profile by id. Every fact has a source URL and a verified date; newsRows are newest first.",
+  failure: Schema.Union([UnknownPerson, AssetReadError]),
+  input: Schema.Struct({ id: Schema.String }),
+  output: CafeProfile,
+});
+
+export const searchPeopleContract = defineContract("searchPeople", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    "Search CAFE all stars by name, handle, topic, package, repo, bio or video words.",
+  failure: AssetReadError,
+  input: CafePeopleSearchQuery,
+  output: CafePeopleMatches,
+});
+
+export const peopleForContract = defineContract("peopleFor", {
+  annotations: { idempotent: true, readOnly: true },
+  description:
+    'Find CAFE all stars whose topics or packages cover every term, such as ["foldkit", "d1"], with sourced evidence.',
+  failure: AssetReadError,
+  input: CafePeopleForQuery,
+  output: CafePeopleForList,
 });
 
 export const searchContract = defineContract("search", {

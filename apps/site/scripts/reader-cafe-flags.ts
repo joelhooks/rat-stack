@@ -1,9 +1,15 @@
+import { CafeDirectory, listPeople } from "@rat-stack/core/cafe-directory";
+import { profileForNewsRow } from "@rat-stack/core/cafe-people";
 import { selectCafeNews, sortCafeProjects } from "@rat-stack/core/contracts";
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 
 import { Model } from "../../web/src/client/cafe/model.ts";
 import type { CafeModel } from "../../web/src/client/cafe/model.ts";
-import { directoryCopy, newsCopy } from "../../web/src/features/cafe/copy.ts";
+import {
+  allStarsCopy,
+  directoryCopy,
+  newsCopy,
+} from "../../web/src/features/cafe/copy.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
@@ -15,7 +21,7 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
     const data = inputs.cafe;
 
     const page = Effect.fn("readerCafeFlags.page")(function* page(
-      path: "/news" | "/directory",
+      path: "/news" | "/directory" | "/all-stars",
       heading: string,
       sourcePath: string,
       cafe: CafeModel
@@ -50,18 +56,39 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
       };
     });
 
+    const people = yield* listPeople
+      .handler({ limit: pageLimit })
+      .pipe(Effect.provide(CafeDirectory.layer(data)));
+
+    const items = selectCafeNews(data, {
+      limit: pageLimit,
+      sort: "rank",
+    }).items.map((entry) => entry.item);
+
     return [
       yield* page(
         "/news",
         newsCopy.heading,
         ".brain/data/cafe/news.json",
         Model.News({
-          items: selectCafeNews(data, {
-            limit: pageLimit,
-            sort: "rank",
-          }).items.map((entry) => entry.item),
+          items,
+          profiles: items.flatMap((item) =>
+            Option.toArray(
+              Option.map(profileForNewsRow(people.people, item), (person) => ({
+                name: person.name,
+                route: person.route,
+                url: item.url,
+              }))
+            )
+          ),
           rankedAt: data.rankedAt,
         })
+      ),
+      yield* page(
+        "/all-stars",
+        allStarsCopy.heading,
+        ".brain/data/cafe/people.json",
+        Model.AllStars({ people: people.people })
       ),
       yield* page(
         "/directory",

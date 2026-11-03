@@ -40,6 +40,7 @@ import {
   searchContent,
 } from "./content-fixture.js";
 import {
+  allStarsRoutes,
   appleTouchIconPngBase64,
   faviconIcoBase64,
   homeDocumentHtml,
@@ -121,7 +122,12 @@ it.effect("links promoted pages to the newest CAFE news headline", () =>
           href: link.attribs.href,
           title: DomUtils.textContent(link),
         }))
-      ).toContainEqual({ href: "/news", title: "news" });
+      ).toEqual(
+        expect.arrayContaining([
+          { href: "/news", title: "news" },
+          { href: "/all-stars", title: "all stars" },
+        ])
+      );
     }
 
     const agentPages = [
@@ -1023,6 +1029,7 @@ it.layer(contentServices)("generated content", (test) => {
         "/prompts",
         "/news",
         "/directory",
+        ...allStarsRoutes,
         "/search",
         "/systems",
         "/glossary",

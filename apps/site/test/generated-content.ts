@@ -132,6 +132,31 @@ export const { systemsIndexMarkdown } = catalog;
 
 export const { llmsLoreLinks } = catalog;
 
+const seedPeople = Schema.decodeSync(
+  Schema.fromJsonString(
+    Schema.Array(
+      Schema.Struct({
+        avatar: Schema.Struct({ path: Schema.String }),
+        id: Schema.String,
+      })
+    )
+  )
+)(
+  readFileSync(
+    new URL("../../../.brain/data/cafe/people.json", import.meta.url),
+    "utf-8"
+  )
+);
+
+export const allStarsRoutes = [
+  "/all-stars",
+  ...seedPeople.map((person) => `/all-stars/${person.id}`),
+];
+
+export const allStarsAvatarPaths = seedPeople.map(
+  (person) => person.avatar.path
+);
+
 export const lawSources = contentResources
   .filter((source) => source.kind === "law")
   .map((source) => ({

@@ -7,6 +7,8 @@ import { ContentAssetManifest, emitAssets } from "../scripts/emit-assets.ts";
 import { mischiefRoutes } from "../src/app.js";
 import { contentResources, ogImagePath } from "./content-fixture.js";
 import {
+  allStarsAvatarPaths,
+  allStarsRoutes,
   cartridgesImageJpegBase64,
   dillonPosterJpegBase64,
   faviconIcoBase64,
@@ -48,6 +50,7 @@ it.effect(
           "/systems",
           "/skills",
           "/glossary",
+          ...allStarsRoutes,
           ...contentResources.map((page) => page.routePath),
         ].toSorted()
       );
@@ -209,7 +212,10 @@ it.effect(
       ];
 
       expect(manifest.images.toSorted()).toEqual(
-        images.map((image) => image.path).toSorted()
+        [
+          ...images.map((image) => image.path),
+          ...allStarsAvatarPaths,
+        ].toSorted()
       );
     }).pipe(Effect.provide(NodeServices.layer))
 );

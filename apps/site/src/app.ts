@@ -1,9 +1,7 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { CafeDirectory } from "@rat-stack/core/cafe-directory";
-import type {
-  AssetReadError,
-  ResourceNotFound,
-} from "@rat-stack/core/contracts";
+import { AssetReadError } from "@rat-stack/core/contracts";
+import type { ResourceNotFound } from "@rat-stack/core/contracts";
 import { Flags } from "@rat-stack/core/flags";
 import { IntakeTicket } from "@rat-stack/core/intake";
 import type { InterestTokens } from "@rat-stack/core/interest";
@@ -38,6 +36,8 @@ import {
   authenticatedCapabilities,
   capabilities,
   listCafeNews,
+  listPeople,
+  readPerson,
   search,
 } from "./capabilities/index.js";
 import { learnLayer } from "./capabilities/learn.js";
@@ -168,6 +168,7 @@ export interface StaticResponseCache {
 const staticPaths = new Set([
   "/auth.md",
   "/news.xml",
+  "/all-stars.xml",
   "/llms.txt",
   "/llms-full.txt",
   "/openapi.json",
@@ -606,6 +607,39 @@ const contentRoutes = () =>
               HttpServerResponse.text(cafeAtomFeed(originOf(request), list), {
                 contentType: "application/atom+xml; charset=utf-8",
               })
+            )
+          )
+        ),
+        HttpRouter.add("GET", "/all-stars.xml", (request) =>
+          listPeople.handler({ limit: 100 }).pipe(
+            Effect.flatMap((list) =>
+              Effect.forEach((person: (typeof list.people)[number]) =>
+                readPerson.handler({ id: person.id })
+              )(list.people)
+            ),
+            Effect.provideService(CafeDirectory, cafe),
+            Effect.catchTag("UnknownPerson", Effect.die),
+            Effect.flatMap((profiles) =>
+              Effect.suspend(() => {
+                const loaded = import("./all-stars-feed.js");
+
+                return Effect.tryPromise({
+                  catch: (cause) =>
+                    new AssetReadError({
+                      cause,
+                      path: "/all-stars.xml",
+                      reason: "provider",
+                    }),
+                  try: loaded.finally.bind(loaded, undefined),
+                });
+              }).pipe(
+                Effect.map(({ allStarsAtomFeed }) =>
+                  HttpServerResponse.text(
+                    allStarsAtomFeed(originOf(request), profiles),
+                    { contentType: "application/atom+xml; charset=utf-8" }
+                  )
+                )
+              )
             )
           )
         ),
