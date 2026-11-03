@@ -1,0 +1,86 @@
+---
+title: "Motion"
+description: "@rat-stack/motion gives Foldkit apps Penner and CSS easings, tweens, fixed-step springs and interpolation, held in the Model and checked by properties."
+plain: "Easing curves, tweens and springs are plain functions over Model state, so every frame is a Message and every result is testable."
+diagram: |-
+  animation frame
+    │ TickedFrame
+    ▼
+  Motion.advance
+    springs step
+    clock moves
+    │
+  view samples
+    tweens at now
+group: system
+terms:
+  - "easing"
+  - "spring"
+  - "tween"
+sources:
+  - url: https://robertpenner.com/easing_terms_of_use.html
+    title: "Terms of Use: Easing Functions (Equations)"
+    publisher: "Robert Penner"
+    note: "The MIT and 3-Clause BSD terms for the easing equations; used for the curve set."
+    accessed: "2026-11-02"
+  - url: https://www.w3.org/TR/css-easing-1/
+    title: "CSS Easing Functions Level 1"
+    publisher: "W3C"
+    note: "The cubic-bezier() and steps() definitions and the named presets."
+    accessed: "2026-11-02"
+  - url: https://bottosson.github.io/posts/oklab/
+    title: "A perceptual color space for image processing"
+    publisher: "Björn Ottosson"
+    note: "The OKLab matrices used for colour interpolation."
+    accessed: "2026-11-02"
+---
+
+## What it does
+
+`@rat-stack/motion` moves values over time in a Foldkit app. Its core is four TypeScript modules in `packages/motion/src/*.pure.ts`. They import only each other, so another project can copy them at a pinned commit.
+
+- **Easing**: Robert Penner's ten curve families come in three variants each: in, out and in-out.
+- **CSS easing**: `linear`, `cubic-bezier()`, `steps()` and keywords such as `ease-in-out` follow the CSS spec.
+- **Tween**: a value moves between two endpoints over a duration along one easing. The `sample` function reads the value at any time. A retarget starts a new tween from the sampled value, so the value never jumps.
+- **Spring**: a value of any dimension follows a target with stiffness, damping and mass. The `critical(frequency)` preset arrives without overshoot.
+- **Interpolation**: numbers, tuples, colours in OKLab, and 2D transforms split into translate, scale and rotate.
+
+The spring takes fixed steps of 1/120 s. It carries the leftover time to the next frame. When it comes to rest, it snaps exactly onto the target.
+
+```ts repo=rat-stack path=packages/motion/src/spring.pure.ts at=5fa5df1543b8122a678722d5465ae65fc8a4bf2d lines=245-259 {252-254} title="Each substep checks for rest, so the snap happens at the same instant at any frame rate"
+
+```
+
+The Foldkit [adapter](/lore/hexagonal-architecture), `@rat-stack/motion/foldkit`, keeps a clock and the named tweens and springs in the Model. A frame is a `TickedFrame` Message. `Motion.advance` steps every spring and moves the clock. The view samples each tween at the clock time.
+
+```ts repo=rat-stack path=packages/motion/src/foldkit.ts at=5fa5df1543b8122a678722d5465ae65fc8a4bf2d lines=186-202 title="Frames run only while something moves, and the reduced-motion preference arrives as a Message"
+
+```
+
+Pick a target in the demo at the end of this page, then pick another before the dots arrive. The tween restarts its curve. The spring keeps its speed and turns.
+
+The curve gallery plots every easing.
+
+## The standard
+
+- Every easing starts at 0 and ends at 1. The CSS start jumps are the exception: `steps(n, jump-start)` begins at 1/n, as the spec requires.
+- Every curve except back, elastic and bounce never falls. Every out curve mirrors its in curve: `out(t) = 1 - in(1 - t)`.
+- `cubicBezier` agrees with an exact bisection reference for any valid control points.
+- A tween with a monotonic easing stays between its endpoints. A retarget keeps the sampled value.
+- One spring step of a span gives the same state as two steps that split it on the substep grid.
+- A critically damped spring from rest settles within six periods, snaps exactly, and never overshoots in one dimension.
+- Under `prefers-reduced-motion`, every tween and spring lands on its target at once.
+- No Worker graph imports the package, so it adds no startup bytes.
+
+Each rule is an `it.prop` property over generated inputs. Each property also runs against a planted bug, and the suite fails if the property passes it.
+
+```ts repo=rat-stack path=packages/motion/test/spring.test.ts at=5fa5df1543b8122a678722d5465ae65fc8a4bf2d lines=344-355 title="The frame-rate property must reject an integrator that takes one step per frame"
+
+```
+
+## How to check
+
+- `pnpm --filter @rat-stack/motion test` runs the properties and the planted bugs.
+- `packages/motion/test/vendoring.test.ts` fails if a core module imports anything except another core module, or names a browser global.
+- `pnpm --filter @rat-stack/site typecheck` prints the Mischief startup size against its ceiling.
+- Open [/systems/motion](/systems/motion) with reduced motion turned on. The dots and curves show their end state.

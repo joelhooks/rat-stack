@@ -3,6 +3,7 @@ import { defineMessageUnion } from "foldkit/message";
 
 import { Message as CafeMessage } from "../cafe/message.js";
 import { Message as DocsMessage } from "../docs/message.js";
+import { Message as MotionDemoMessage } from "../motion/message.js";
 import { DetectedClipboardAccess } from "./model.js";
 
 export const Message = defineMessageUnion({
@@ -12,6 +13,7 @@ export const Message = defineMessageUnion({
   FailedCopyReaderText: { id: Schema.String },
   GotCafeMessage: { message: CafeMessage },
   GotDocsMessage: { message: DocsMessage },
+  GotMotionMessage: { message: MotionDemoMessage },
   SucceededCopyReaderText: { id: Schema.String },
 });
 

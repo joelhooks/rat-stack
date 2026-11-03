@@ -7,6 +7,7 @@ import * as Cafe from "../cafe/index.js";
 import type { AppMessage as DocsMessage } from "../docs/message.js";
 import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
+import * as MotionDemo from "../motion/index.js";
 import { CopyReaderText, WaitBeforeCopyReset } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
@@ -50,6 +51,15 @@ const foldDocs = Update.foldChild({
     modifyFields(model, { docs: () => Option.some(docs) }),
 });
 
+const foldMotion = Update.foldChild({
+  read: (model: ReaderModel) => model.motion,
+  toParentMessage: (message: MotionDemo.MotionDemoMessage) =>
+    Message.GotMotionMessage({ message }),
+  update: MotionDemo.update,
+  write: (model: ReaderModel, motion: MotionDemo.MotionDemoModel) =>
+    modifyFields(model, { motion: () => Option.some(motion) }),
+});
+
 export const update = (
   model: ReaderModel,
   message: ReaderMessage
@@ -82,6 +92,8 @@ export const update = (
         foldCafe(model, cafeMessage),
       GotDocsMessage: ({ message: docsMessage }) =>
         foldDocs(model, docsMessage),
+      GotMotionMessage: ({ message: motionMessage }) =>
+        foldMotion(model, motionMessage),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? {

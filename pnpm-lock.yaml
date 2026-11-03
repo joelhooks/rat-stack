@@ -465,6 +465,9 @@ importers:
       '@rat-stack/devtools':
         specifier: workspace:*
         version: link:../../packages/devtools
+      '@rat-stack/motion':
+        specifier: workspace:*
+        version: link:../../packages/motion
       '@rat-stack/site':
         specifier: workspace:*
         version: link:../site
@@ -997,6 +1000,30 @@ importers:
       '@effect/vitest':
         specifier: 4.1.2
         version: 4.1.2(effect@4.1.2)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 5.0.5
+        version: 5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/motion:
+    devDependencies:
+      '@effect/platform-node':
+        specifier: 4.1.2
+        version: 4.1.2(effect@4.1.2)(redis@6.2.1)
+      '@effect/vitest':
+        specifier: 4.1.2
+        version: 4.1.2(effect@4.1.2)(vitest@5.0.5(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@2.4.0))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))
+      '@types/node':
+        specifier: 24.19.2
+        version: 24.19.2
+      effect:
+        specifier: 4.1.2
+        version: 4.1.2
+      foldkit:
+        specifier: 0.170.0
+        version: 0.170.0(@effect/platform-browser@4.1.2(effect@4.1.2))(effect@4.1.2)
       typescript:
         specifier: 7.0.2
         version: 7.0.2

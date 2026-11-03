@@ -9,6 +9,7 @@ import { readerHomeFlags } from "../../site/scripts/reader-home-flags.ts";
 import { ReaderInputError } from "../../site/scripts/reader-input-error.ts";
 import { readerLearnFlags } from "../../site/scripts/reader-learn-flags.ts";
 import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
+import { attachMotionDemo } from "../../site/scripts/reader-motion-flags.ts";
 import { readerPromptFlags } from "../../site/scripts/reader-prompt-flags.ts";
 import { readerSearchFlags } from "../../site/scripts/reader-search-flags.ts";
 import { readerSystemsSkillsFlags } from "../../site/scripts/reader-systems-skills-flags.ts";
@@ -77,7 +78,11 @@ const readerPages = Effect.gen(function* readerPages() {
   const prompts = yield* readerPromptFlags(origin);
   const learn = yield* readerLearnFlags(origin);
   const bodies = yield* Effect.flatMap(readerBodyFlags(origin), encodeFlags);
-  const systemsSkills = yield* readerSystemsSkillsFlags(origin);
+
+  const systemsSkills = yield* Effect.flatMap(
+    readerSystemsSkillsFlags(origin),
+    attachMotionDemo
+  );
 
   const cafe = yield* readerCafeFlags(origin);
   const search = yield* readerSearchFlags(origin);

@@ -47,6 +47,9 @@ Node `24.18.0` and pnpm `11.3.0` are required. The requirement is declared in `.
 - **`packages/crash`**:
   - Package: `@rat-stack/crash`
   - Role: Private crash-trace archive for the Mischief Worker
+- **`packages/motion`**:
+  - Package: `@rat-stack/motion`
+  - Role: Easing, tweens, springs and interpolation as dependency-free TypeScript, with an optional Foldkit adapter
 - **`packages/lore`**:
   - Package: `@rat-stack/lore`
   - Role: Public content graph and traversal service
