@@ -9,7 +9,7 @@ import {
   renderSvxMarkdown,
 } from "./component-registry.ts";
 import type { ComponentInput } from "./component-registry.ts";
-import { buildError, ContentBuildError } from "./content-error.ts";
+import { buildError, ContentBuildError, violation } from "./content-error.ts";
 import {
   contentHeadings,
   contentLinkHrefs,
@@ -30,7 +30,12 @@ const pairedTableHeaders = new Set(["Seen / checked", "XState · bridge"]);
 const tierOfCell = (header: string, text: string) =>
   header === "Tier" && tierLetters.has(text) ? text : undefined;
 
-export { buildError, ContentBuildError } from "./content-error.ts";
+export {
+  buildError,
+  ContentBuildError,
+  ContentRuleViolation,
+  violation,
+} from "./content-error.ts";
 
 export interface ResponsiveTableNode {
   readonly type: string;
@@ -284,9 +289,11 @@ const decodeLoreFrontmatter = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error(
-        "Repair the frontmatter schema. Linked sources require url, title, publisher, note, and accessed. Recorded sources require kind: recording, title, recordedAt (YYYY-MM-DD), and note, with no url.",
-        { cause: error }
+      violation(
+        "The frontmatter does not match the lore page schema.",
+        "Search, cards, and the bibliography read these fields, so the page cannot render.",
+        "repair the YAML against `loreFrontmatterSchema` in `apps/site/scripts/content-lib.ts`; a linked source needs `url`, `title`, `publisher`, `note`, and `accessed`, and a recorded source needs `kind: recording`, `title`, `recordedAt` (YYYY-MM-DD), and `note`, with no `url`.",
+        error
       )
     );
   }
@@ -300,7 +307,11 @@ const validateLoreDescription = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("title and description must not be empty")
+      violation(
+        "title and description must not be empty.",
+        "Search results, page cards, and llms.txt show both.",
+        "fill in `title:` and `description:` in the frontmatter."
+      )
     );
   }
 
@@ -308,7 +319,11 @@ const validateLoreDescription = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("description must be one sentence ending in punctuation")
+      violation(
+        "description must be one sentence ending in punctuation.",
+        "The description is the page's card and meta description, which read as one claim.",
+        "rewrite `description:` as one sentence ending in `.`, `!`, or `?`, and move the rest into the page body."
+      )
     );
   }
 };
@@ -324,8 +339,10 @@ const validateSystemPlacement = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error(
-        `system pages live in ${SYSTEMS_DIRECTORY} with group: system, and nothing else does`
+      violation(
+        `system pages live in ${SYSTEMS_DIRECTORY} with group: system, and nothing else does.`,
+        "The site publishes /systems/ pages from that directory and that group together.",
+        `move the file into \`${SYSTEMS_DIRECTORY}/\` and set \`group: system\`, or move it out and choose another \`group:\`.`
       )
     );
   }
@@ -342,7 +359,11 @@ const validateSystemPlacement = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error(`system pages need sections: ${missing.join(", ")}`)
+      violation(
+        `system pages need sections: ${missing.join(", ")}.`,
+        "Every system page says what it does, the standard it keeps, and how to check it.",
+        `add the missing H2 headings: ${missing.map((section) => `\`## ${section}\``).join(", ")}.`
+      )
     );
   }
 };
@@ -362,7 +383,11 @@ const validateLoreGroup = (sourcePath: string, decoded: LoreFrontmatter) => {
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("source pages require speaker, date, and recording url")
+      violation(
+        "source pages require speaker, date, and recording url.",
+        "A source page cites a recording, and readers need to find it.",
+        "set `speaker:`, `date:` as YYYY-MM-DD, and `url:` to the recording in the frontmatter."
+      )
     );
   }
 };
@@ -374,7 +399,11 @@ const validateLoreTerms = (sourcePath: string, decoded: LoreFrontmatter) => {
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error(`${decoded.group} pages must declare terms`)
+      violation(
+        `${decoded.group} pages must declare terms.`,
+        "Terms feed the glossary, first-use links, and search.",
+        "add `terms:` with at least one term the page teaches."
+      )
     );
   }
 
@@ -382,7 +411,11 @@ const validateLoreTerms = (sourcePath: string, decoded: LoreFrontmatter) => {
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("terms must not contain an empty value")
+      violation(
+        "terms must not contain an empty value.",
+        "An empty term links nothing and breaks the term index.",
+        "delete the empty entry from `terms:`."
+      )
     );
   }
 
@@ -412,7 +445,11 @@ const validateLoreSources = (sourcePath: string, decoded: LoreFrontmatter) => {
       throw buildError(
         "frontmatter",
         sourcePath,
-        new Error(`source must be a public HTTPS URL: ${source}`)
+        violation(
+          `source must be a public HTTPS URL: ${source}.`,
+          "Readers follow these links, and a private or plain-HTTP link fails them.",
+          "replace it with the public `https://` URL, or cite it as `kind: recording`."
+        )
       );
     }
   }
@@ -429,7 +466,11 @@ export const parseLorePage = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("lore filename must be a lowercase kebab-case .svx slug")
+      violation(
+        "lore filename must be a lowercase kebab-case .svx slug.",
+        "The filename becomes the page's URL.",
+        "rename the file, for example `My Page.svx` to `my-page.svx`."
+      )
     );
   }
 
@@ -437,7 +478,11 @@ export const parseLorePage = (
     throw buildError(
       "frontmatter",
       sourcePath,
-      new Error("missing YAML frontmatter")
+      violation(
+        "missing YAML frontmatter.",
+        "Every page declares its title, description, group, and terms there.",
+        "start the file with a `---` fenced YAML block that declares `title:`, `description:`, `group:`, and `terms:`."
+      )
     );
   }
 
@@ -461,8 +506,10 @@ export const parseLorePage = (
         throw buildError(
           "bibliography",
           sourcePath,
-          new Error(
-            "recording sources require a plain title, note, and ISO recordedAt date"
+          violation(
+            "recording sources require a plain title, note, and ISO recordedAt date.",
+            "The bibliography renders a recording as plain text, without a link.",
+            "give the source a one-line `title:` and `note:` with no URL, and `recordedAt:` as YYYY-MM-DD."
           )
         );
       }
@@ -481,8 +528,10 @@ export const parseLorePage = (
       throw buildError(
         "bibliography",
         sourcePath,
-        new Error(
-          "every source requires title, publisher, note, and accessed date; enrich legacy URL strings before building"
+        violation(
+          "every source requires title, publisher, note, and accessed date.",
+          "The bibliography tells readers who published each source and when it was read.",
+          "replace a bare URL string with `{ url, title, publisher, note, accessed: YYYY-MM-DD }`, each value on one line."
         )
       );
     }
@@ -548,7 +597,11 @@ export const assertLoreTerms = (
         throw buildError(
           "lore terms",
           `${page.sourcePath} (previous claimant: ${previousPath})`,
-          new Error(`term "${term}" is claimed by multiple pages`)
+          violation(
+            `term "${term}" is claimed by multiple pages.`,
+            "Each term links to exactly one teaching page.",
+            "keep the term in one page's `terms:` and link to that page from the other."
+          )
         );
       }
 
@@ -1031,7 +1084,11 @@ export const glossaryEntries = (
       throw buildError(
         "glossary definition",
         entry.term,
-        new Error("Declare a term and its own nonempty definition.")
+        violation(
+          "This glossary entry has an empty term or definition.",
+          "The glossary shows the term beside its definition.",
+          "give the entry a `term` and its own `summary` in `glossaryDefinitions` in `apps/site/scripts/content-lib.ts`."
+        )
       );
     }
 
@@ -1039,7 +1096,11 @@ export const glossaryEntries = (
       throw buildError(
         "glossary definition",
         entry.term,
-        new Error(`Missing teaching page: ${entry.routePath}`)
+        violation(
+          `Missing teaching page: ${entry.routePath}.`,
+          "Every glossary term links to the page that teaches it.",
+          "point `routePath` in `glossaryDefinitions` at a published page, or write that page."
+        )
       );
     }
 
@@ -1047,8 +1108,10 @@ export const glossaryEntries = (
       throw buildError(
         "glossary definition",
         entry.term,
-        new Error(
-          "Write a term definition instead of copying the page summary."
+        violation(
+          "This glossary definition copies the page summary.",
+          "A glossary reader needs the term defined, not the page advertised.",
+          "rewrite `summary` in `glossaryDefinitions` as a definition of the term itself."
         )
       );
     }
@@ -1057,7 +1120,11 @@ export const glossaryEntries = (
       throw buildError(
         "glossary definition",
         entry.term,
-        new Error("Declare each glossary term only once.")
+        violation(
+          "This glossary term is declared more than once.",
+          "Each term has one definition.",
+          "delete the duplicate entry from `glossaryDefinitions` in `apps/site/scripts/content-lib.ts`."
+        )
       );
     }
 
@@ -1078,7 +1145,11 @@ export const assertGlossaryLinks = (
       throw buildError(
         "glossary link",
         entry.term,
-        new Error(`Missing page: ${entry.routePath}`)
+        violation(
+          `Missing page: ${entry.routePath}.`,
+          "The glossary would link readers to a page that does not exist.",
+          "point the entry's `routePath` at a published page."
+        )
       );
     }
   }
@@ -1279,7 +1350,11 @@ export const loreLinkTargets = (
       throw buildError(
         "lore link",
         sourcePath,
-        new Error(`linked lore page does not exist: ${route}`)
+        violation(
+          `linked lore page does not exist: ${route}.`,
+          "Readers would follow the link to a 404.",
+          "fix the link to an existing `/lore/` or `/systems/` route, or write the missing page under `.brain/`."
+        )
       );
     }
 
@@ -1352,7 +1427,11 @@ export const assertSkillGroups = (
     throw buildError(
       "skill grouping",
       `skills/${ungrouped}/SKILL.md`,
-      new Error(`Skill ${ungrouped} does not belong to a home-page group`)
+      violation(
+        `Skill ${ungrouped} does not belong to a home-page group.`,
+        "The home page lists every skill under a group, so an ungrouped skill disappears.",
+        `add \`"${ungrouped}"\` to a group in \`skillGroups\` in \`apps/site/scripts/generate-content.ts\`.`
+      )
     );
   }
 };
@@ -1549,7 +1628,11 @@ export const validateInternalLinks = (options: {
       throw buildError(
         `internal link ${href}`,
         options.sourcePath,
-        new Error(`resolves to unserved route ${route}`)
+        violation(
+          `resolves to unserved route ${route}.`,
+          "Readers would follow the link to a 404.",
+          `change the link to a published route, or publish a page at \`${route}\`.`
+        )
       );
     }
   }
@@ -1639,7 +1722,11 @@ export const assertDocumentTitle = (html: string, sourcePath: string) => {
     throw buildError(
       "document title",
       sourcePath,
-      new Error(`Expected exactly one H1, found ${count}`)
+      violation(
+        `Expected exactly one H1, found ${count}.`,
+        "The H1 is the page title for readers, search, and the agent pointer.",
+        "keep one `# Title` heading at the top, and demote any other to `##`."
+      )
     );
   }
 };

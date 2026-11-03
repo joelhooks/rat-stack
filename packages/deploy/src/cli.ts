@@ -7,6 +7,7 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 
 import { capabilities } from "./capabilities.js";
 import { localLayer } from "./local.js";
+import { refusalGuide } from "./refusals.js";
 import { RollbackRunner } from "./rollback-runner.js";
 import { stateStoresLayer } from "./state-stores.js";
 import { WorkerDeployments } from "./worker-deployments.js";
@@ -39,9 +40,12 @@ const program = Command.runWith(root, { version: "0.1.0" })(
         Effect.andThen(Effect.fail(failure))
       ),
     RollbackRefused: (failure) =>
-      Console.log(JSON.stringify({ reason: failure.reason })).pipe(
-        Effect.andThen(Effect.fail(failure))
-      ),
+      Console.log(
+        JSON.stringify({
+          fix: refusalGuide(failure.reason).fix,
+          reason: failure.reason,
+        })
+      ).pipe(Effect.andThen(Effect.fail(failure))),
     StateCopyRefused: (failure) =>
       Console.log(
         JSON.stringify({

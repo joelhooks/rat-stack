@@ -9,7 +9,7 @@ export const NONINTERACTIVE_VCS_ENV =
   "export GIT_EDITOR=: GIT_SEQUENCE_EDITOR=: GIT_MERGE_AUTOEDIT=no JJ_EDITOR=:\n";
 
 export const HOOK_BYPASS_REASON =
-  "Blocked hook bypass. Do not use --no-verify. Fix the hook failure, or ask before changing the hook policy.";
+  "Blocked hook bypass: this git command passes --no-verify. The hooks run `pnpm check` and `pnpm test`, the fence every commit must pass. Fix: drop `--no-verify`, read the hook output, and fix the failure; ask the owner before changing `lefthook.yml`.";
 
 /** @typedef {{ action: "allow"; command: string } | { action: "block"; reason: string }} CommandPolicyResult */
 

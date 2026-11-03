@@ -9,7 +9,7 @@ import { unified } from "unified";
 import type { Node } from "unist";
 import { parse as parseYaml } from "yaml";
 
-import { buildError } from "./content-error.ts";
+import { buildError, violation } from "./content-error.ts";
 
 export interface SvxYaml extends Node {
   type: "yaml";
@@ -33,7 +33,11 @@ const stringifyOptions = {
         throw buildError(
           "frontmatter stringify",
           "<inline>",
-          new Error("Expected a yaml node")
+          violation(
+            "Expected a yaml node.",
+            "The frontmatter parser found a leading fence without YAML inside it.",
+            "write the frontmatter as YAML between two `---` lines at the top of the file."
+          )
         );
       }
 
@@ -102,7 +106,11 @@ export const scanLeadingFrontmatterFence = (
     throw buildError(
       "frontmatter fence",
       sourcePath,
-      new Error("Leading frontmatter must have a closing --- fence")
+      violation(
+        "Leading frontmatter must have a closing --- fence.",
+        "Without it, the whole page parses as frontmatter.",
+        "add a `---` line after the last frontmatter field."
+      )
     );
   }
 

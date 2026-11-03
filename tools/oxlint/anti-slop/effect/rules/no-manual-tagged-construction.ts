@@ -15,7 +15,7 @@ export const noManualTaggedConstructionRule = defineRule({
     },
     messages: {
       manualConstruction:
-        "Use the existing Schema tagged `.make`, tagged class/error constructor, or Data.taggedEnum variant constructor instead of writing a literal `_tag` object.",
+        "This object literal writes `_tag` by hand. A literal skips the constructor's schema and can drift from the type. Fix: use the existing Schema tagged `.make`, the tagged class or error constructor, or the `Data.taggedEnum` variant constructor.",
     },
   },
   createOnce(context) {

@@ -41,7 +41,7 @@ export const noRuntimeTypeofRule = defineRule({
     },
     messages: {
       runtimeTypeof:
-        "A `typeof` check narrows a representation without establishing its contract. Parse input at its I/O boundary, then branch on the domain value.",
+        "A `typeof` check narrows a representation without establishing its contract. The value's real shape stays unchecked past the branch. Fix: parse input at its I/O boundary with an Effect `Schema`, then branch on the domain value.",
     },
     schema: [
       {

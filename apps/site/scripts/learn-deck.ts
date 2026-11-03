@@ -100,7 +100,7 @@ export const buildLearningDeck = Effect.fn("buildLearningDeck")(
 
     if (coverage.missing.length > 0) {
       yield* Effect.logWarning(
-        `Learn teaching coverage: snippet ${coverage.snippet}/${coverage.cards}, diagram ${coverage.diagram}/${coverage.cards}, plain ${coverage.plain}/${coverage.cards}. Add .brain/data/learn-cards/<id>.ts and diagram frontmatter to close it.`
+        `Learn teaching coverage: snippet ${coverage.snippet}/${coverage.cards}, diagram ${coverage.diagram}/${coverage.cards}, plain ${coverage.plain}/${coverage.cards}. A card without a snippet, diagram, or plain line teaches from its summary alone. Fix: add \`.brain/data/learn-cards/<id>.ts\`, \`diagram:\`, or \`plain:\` frontmatter for the missing cards.`
       );
     }
 

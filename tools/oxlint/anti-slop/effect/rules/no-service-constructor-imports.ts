@@ -23,7 +23,7 @@ export const noServiceConstructorImportsRule = defineRule({
     },
     messages: {
       serviceConstructorImport:
-        'Do not import Effect service constructor "{{name}}" into runtime code. Import the owning Layer, yield the contextual service, and allow its requirements to propagate to the composition root.',
+        'Runtime code imports Effect service constructor "{{name}}". Calling the constructor directly hides its requirements from the composition root. Fix: import the owning `Layer`, `yield*` the service from context, and let its requirements propagate to the composition root.',
     },
   },
   create(context) {

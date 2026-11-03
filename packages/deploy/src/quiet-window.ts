@@ -110,7 +110,7 @@ export type QuietWindowDecision =
       readonly deadline: number;
       readonly until: number;
     }
-  | { readonly kind: "refused"; readonly reason: string };
+  | { readonly kind: "refused"; readonly reason: "inside-quiet-window" };
 
 export const decideQuietWindow = (
   policy: QuietWindowPolicy,

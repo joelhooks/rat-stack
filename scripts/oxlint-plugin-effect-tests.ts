@@ -62,7 +62,7 @@ const noManualEffectRuntimeInTests = defineRule({
     },
     messages: {
       manualRunner:
-        "Do not run Effects by hand in tests. Use @effect/vitest: it.effect(...) or it.layer(layer)(...).",
+        "Tests cannot run Effects by hand. Effect.run* and ManagedRuntime.make skip the test runtime's scope, clock, and layer cleanup. Fix: write the test with `it.effect(...)` or `it.layer(layer)(...)` from `@effect/vitest`.",
     },
     type: "problem",
   },

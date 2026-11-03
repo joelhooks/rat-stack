@@ -38,17 +38,18 @@ export interface TeachingCoverage {
 const teachingFields = [
   {
     field: "plain",
-    reason: "Plain line must be one line of at most 160 characters.",
+    reason:
+      "Plain line must be one line of at most 160 characters. The card shows it as a single caption. Fix: shorten `plain:` in the frontmatter to one line of at most 160 characters.",
     schema: PlainLineSchema,
   },
   {
     field: "snippet",
-    reason: `Snippet must be non-empty with at most ${SNIPPET_LINES} lines.`,
+    reason: `Snippet must be non-empty with at most ${SNIPPET_LINES} lines. A card shows the whole snippet without scrolling. Fix: trim \`.brain/data/learn-cards/<id>.ts\` to at most ${SNIPPET_LINES} lines.`,
     schema: SnippetSchema,
   },
   {
     field: "diagram",
-    reason: `Diagram must fit ${DIAGRAM_COLUMNS} columns and ${DIAGRAM_ROWS} rows of one-column characters; replace tabs, emoji, wide CJK and combining marks.`,
+    reason: `Diagram must fit ${DIAGRAM_COLUMNS} columns and ${DIAGRAM_ROWS} rows of one-column characters. Wider characters break the box alignment in terminals and cards. Fix: redraw \`diagram:\` within ${DIAGRAM_COLUMNS} by ${DIAGRAM_ROWS}, and replace tabs, emoji, wide CJK, and combining marks.`,
     schema: DiagramSchema,
   },
 ] as const;
@@ -64,7 +65,7 @@ const teachingDiagnostics = (page: CardSource) => [
   }),
   ...(page.snippetDiagnostics ?? []).map((diagnostic) => ({
     id: page.id,
-    reason: `Snippet does not compile: ${diagnostic}`,
+    reason: `Snippet does not compile: ${diagnostic}. Learners copy snippets, so each one must typecheck. Fix: correct \`.brain/data/learn-cards/<id>.ts\` until \`pnpm --filter @rat-stack/site generate\` reports no diagnostic.`,
   })),
 ];
 
@@ -118,7 +119,8 @@ const metadataWarnings = (page: CardSource) => [
     ? [
         {
           id: page.id,
-          reason: "No terms; coverage needs source-grounded metadata.",
+          reason:
+            "No terms. The deck builds term coverage only from terms the page declares. Fix: add `terms:` to the frontmatter, naming terms the page itself teaches.",
         },
       ]
     : []),
@@ -127,7 +129,7 @@ const metadataWarnings = (page: CardSource) => [
         {
           id: page.id,
           reason:
-            "No explicit prerequisites; graph links are not prerequisites.",
+            "No explicit prerequisites. Links between pages do not tell the deck what to learn first. Fix: add `prerequisites:` to the frontmatter with the routes a reader needs first, such as `/lore/effect-basics`.",
         },
       ]
     : []),
@@ -144,7 +146,7 @@ const snippetFileDiagnostics = (
           {
             id,
             reason:
-              "Snippet file names no concept; rename it to an existing card id.",
+              "Snippet file names no concept. The deck attaches a snippet to the card whose id matches its file name. Fix: rename `.brain/data/learn-cards/<id>.ts` to an existing card id.",
           },
         ]
   );
@@ -155,7 +157,13 @@ const priorityDiagnostics = (
 ) =>
   priority.flatMap((id) =>
     !ids.has(id) || priority.filter((entry) => entry === id).length > 1
-      ? [{ id, reason: "Priority ids must be unique, existing concepts." }]
+      ? [
+          {
+            id,
+            reason:
+              "Priority ids must be unique, existing concepts. The deck orders cards by this list, so an unknown or repeated id has no place. Fix: remove the id from the priority list or correct it to an existing card id, for example `lore.effect-basics`.",
+          },
+        ]
       : []
   );
 
@@ -166,7 +174,7 @@ const optOutWarnings = (candidates: readonly CardSource[]) =>
           {
             id: page.id,
             reason:
-              "Opted out with learn: false; the page is not a learn card.",
+              "Opted out with learn: false. The page is not a learn card. Fix: delete `learn: false` from the frontmatter to make it one.",
           },
         ]
       : []
@@ -190,19 +198,25 @@ export const deriveDeck = (
     if (summary.trim() === "") {
       errors.push({
         id: page.id,
-        reason: "Missing summary; set description or card frontmatter.",
+        reason:
+          "Missing summary. A card needs a summary to show under its claim. Fix: set `description:` or `card:` in the frontmatter.",
       });
     }
 
     if (page.sources.length === 0 && page.kind !== "skill") {
       errors.push({
         id: page.id,
-        reason: "Missing reference; add a public source or page reference.",
+        reason:
+          "Missing reference. Every card claim points to evidence a learner can read. Fix: add a public `sources:` entry or a page reference to the frontmatter.",
       });
     }
 
     if (page.routePath.trim() === "") {
-      errors.push({ id: page.id, reason: "Missing public page route." });
+      errors.push({
+        id: page.id,
+        reason:
+          "Missing public page route. A card links to the page that teaches it. Fix: publish the page under `.brain/` or `skills/` so it gets a route.",
+      });
     }
 
     warnings.push(...metadataWarnings(page));
@@ -214,7 +228,7 @@ export const deriveDeck = (
       if (!ids.has(id) || id === page.id) {
         errors.push({
           id: page.id,
-          reason: `Unresolved or self prerequisite: ${id}`,
+          reason: `Unresolved or self prerequisite: ${id}. A prerequisite must name another published card. Fix: point \`prerequisites:\` at another page's route, such as \`/lore/effect-basics\`.`,
         });
       }
     }
@@ -241,7 +255,7 @@ export const deriveDeck = (
       errors.push({
         id: page.id,
         reason:
-          "Invalid card shape; check id, claim, summary, references, route and teaching fields.",
+          "Invalid card shape. The card failed `CardSchema`, so the deck cannot serve it. Fix: check the page's id, title, summary, references, route, and teaching fields against `CardSchema` in `packages/learn`.",
       });
     } else {
       cards.push(result.value);

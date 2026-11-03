@@ -11,7 +11,7 @@ export const preferEffectMatchRule = defineRule({
     },
     messages: {
       preferMatch:
-        "Use Match from Effect instead of a chained literal ternary.",
+        "This chained ternary compares a value against literals. Nested ternaries hide the case they forgot. Fix: use `Match.value(value).pipe(Match.when(...), Match.exhaustive)` from Effect.",
     },
   },
   createOnce(context) {

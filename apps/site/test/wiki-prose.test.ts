@@ -123,8 +123,8 @@ it("warns once for a long sentence and once for a long paragraph", () => {
     { count: 5, file: "fixture.svx", kind: "paragraph", limit: 4, line: 6 },
   ]);
   expect(warnings.map(wikiProseWarningText)).toEqual([
-    "fixture.svx:4: wiki prose: sentence has 26 words (aim ≤25)",
-    "fixture.svx:6: wiki prose: paragraph has 5 sentences (aim ≤4)",
+    "fixture.svx:4: wiki prose: sentence has 26 words (aim ≤25). Long sentences lose readers and agents alike. Fix: split it into sentences of at most 25 words, for example at an `and` or a `;`.",
+    "fixture.svx:6: wiki prose: paragraph has 5 sentences (aim ≤4). Long paragraphs lose readers and agents alike. Fix: insert a blank line in `fixture.svx` so each paragraph has at most 4 sentences.",
   ]);
 });
 

@@ -598,7 +598,7 @@ const noSharedPendingCache = defineRule({
     },
     messages: {
       pendingCache:
-        "Cache completed values only at module, service, or Worker initialization scope. Effect.cached* shares pending work across requests. Move the cache into the request or store completed values; a scoped exception must name its lifetime with a -- reason.",
+        "Effect.cached* at this scope shares pending work across requests. One request's interruption or failure then reaches every caller waiting on it. Fix: cache completed values only at module, service, or Worker initialization scope, or move the cache into the request; a scoped exception names its lifetime with `-- <reason>`.",
     },
     type: "problem",
   },
@@ -760,7 +760,7 @@ const acquireReleaseConstructsInAcquireBody = defineRule({
     },
     messages: {
       eagerAcquire:
-        "Build the resource inside acquire (Effect.sync, Effect.tryPromise, or another lazy Effect). Effect.succeed(handle) or Effect.sync(() => handle) creates it before acquire runs, so an interruption in between leaks it.",
+        "This acquire returns a resource built before acquire runs. An interruption in between leaks it, because release never sees it. Fix: build the resource inside acquire, for example `Effect.sync(() => new Pool(options))` or `Effect.tryPromise(...)`, not `Effect.succeed(handle)` or `Effect.sync(() => handle)`.",
     },
     type: "problem",
   },
@@ -818,7 +818,7 @@ const noModuleLevelMutableState = defineRule({
     },
     messages: {
       moduleState:
-        "Module-level let and var are shared by every request a Worker isolate or server process handles. Keep state in a Ref inside a Layer, a Durable Object, or the database.",
+        "Module-level let and var hold state that outlives one request. Every request a Worker isolate or server process handles shares it, so one request's state leaks into the next. Fix: keep the state in a `Ref` inside a Layer, a Durable Object, or the database.",
     },
     type: "problem",
   },
@@ -990,7 +990,7 @@ const sharedWaiters = defineRule({
     },
     messages: {
       sharedWaiter:
-        "Module-level waiting primitives and fields outside Durable Object instances can share pending work across Worker request contexts, making another caller hang or receive a 503. Construct the primitive inside a request-owned Effect or a Durable Object instance. For Layers, use Layer.effect(Tag, Ref.make(...)), not Layer.succeed(Tag, Ref.makeUnsafe(...)); do not store the primitive or its Effect-run result in a module const.",
+        "This waiting primitive lives at module level or outside a Durable Object instance. Worker request contexts then share its pending work, so another caller hangs or gets a 503. Fix: construct it inside a request-owned Effect or a Durable Object instance; for Layers use `Layer.effect(Tag, Ref.make(...))`, not `Layer.succeed(Tag, Ref.makeUnsafe(...))`, and never store it or its run result in a module const.",
     },
     type: "problem",
   },
@@ -1105,7 +1105,7 @@ const contractBindingMatchesName = defineRule({
     },
     messages: {
       binding:
-        'Name this binding {{expected}}Contract or {{expected}}, to match the contract name "{{name}}".',
+        'This binding does not match the contract name "{{name}}". Matching names keep imports, search, and the catalog lined up. Fix: rename it to `{{expected}}Contract` or `{{expected}}`.',
     },
     type: "suggestion",
   },
@@ -1371,7 +1371,7 @@ const watchEffectActors = defineRule({
     },
     messages: {
       unwatched:
-        'Call watchActor("<machine>", actor) from @rat-stack/capability/actor-watch after createEffectActor. It is a no-op until devtools provides a watcher, and without it rat_list_actors cannot see this machine.',
+        'This createEffectActor result is never passed to watchActor. Without it, rat_list_actors cannot see this machine. Fix: call `watchActor("<machine>", actor)` from `@rat-stack/capability/actor-watch` after `createEffectActor`; it is a no-op until devtools provides a watcher.',
     },
     type: "suggestion",
   },
@@ -1486,13 +1486,13 @@ const learnSnippetIdiom = defineRule({
     },
     messages: {
       namespacedKey:
-        'Give the service a namespaced key such as "myapp/Greeter", so two services never share an identifier.',
+        'This service key has no namespace. Two services with the same bare key share one identifier. Fix: give the service a namespaced key such as `"myapp/Greeter"`.',
       operations:
-        "Shape the service as operations, for example { readonly greet: (name: string) => Effect.Effect<string> }. A primitive value belongs in Config or a Context.Reference.",
+        "This service holds a primitive value instead of operations. A service is a set of effectful operations, and a primitive belongs in Config or a Context.Reference. Fix: shape the service as operations, for example `{ readonly greet: (name: string) => Effect.Effect<string> }`.",
       provideLayer:
-        "Provide the service's static layer at the edge with Effect.provide(Service.layer). provideService hides how the implementation is built.",
+        "This provides the service with provideService. A provideService call hides how the implementation is built. Fix: provide the service's static layer at the edge with `Effect.provide(Service.layer)`.",
       staticLayer:
-        "Attach static readonly layer to the service and build its value with Service.of, so the implementation sits beside the interface.",
+        "This service has no static layer beside it. The implementation belongs beside the interface, where a reader finds both. Fix: attach `static readonly layer` to the service and build its value with `Service.of(...)`.",
     },
     type: "problem",
   },
@@ -1575,9 +1575,9 @@ const auditedContentRegex = defineRule({
     },
     messages: {
       sourceRegex:
-        "A regular expression over raw svx source is forbidden. Parse the source with svx-ast and match parsed values instead.",
+        "A regular expression over raw svx source is forbidden. A regex over source breaks on the nesting, fences, and quoting the parser handles. Fix: parse the source with `apps/site/scripts/svx-ast.ts` and match parsed values instead.",
       unaudited:
-        "Unaudited regular expression {{expression}}. Match a parsed value, then add the expression and its reason to apps/site/scripts/source-regex-policy.ts.",
+        "Unaudited regular expression {{expression}}. Every content regex carries a recorded reason, so source matching stays reviewable. Fix: match a parsed value, or add the expression and its reason to `apps/site/scripts/source-regex-policy.ts`.",
     },
     type: "problem",
   },
@@ -1634,7 +1634,7 @@ const flagRemovalDate = defineRule({
     },
     messages: {
       removeBy:
-        "Declare removeBy as a YYYY-MM-DD literal in every defineFlag options object.",
+        'This defineFlag options object has no removeBy date literal. A flag without a removal date never gets cleaned up. Fix: add `removeBy: "YYYY-MM-DD"` as a string literal.',
     },
     type: "problem",
   },
@@ -1690,7 +1690,7 @@ const noSleepInLoop = defineRule({
     docs: { description: "Sleeping retry loops belong in lifecycle machines." },
     messages: {
       machine:
-        "Move loops that yield Effect.sleep into an XState lifecycle machine with declared Effect actors.",
+        "This loop yields Effect.sleep. A hand-rolled retry or polling loop hides its states, cancellation, and resumption. Fix: move the loop into an XState lifecycle machine with declared `createEffectLogic` actors.",
     },
     type: "problem",
   },

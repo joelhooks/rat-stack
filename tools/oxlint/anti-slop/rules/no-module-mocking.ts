@@ -79,7 +79,7 @@ export const noModuleMockingRule = defineRule({
     },
     messages: {
       moduleMock:
-        "Replace module mocking with dependency injection through a real interface, service layer, or faithful test implementation.",
+        "This test mocks a module. The mock replaces a dependency the code never declared, so the test passes against a fake no type checks. Fix: inject the dependency as a `Context.Service` and provide a test `Layer`, or use a faithful test implementation.",
     },
   },
   createOnce(context) {

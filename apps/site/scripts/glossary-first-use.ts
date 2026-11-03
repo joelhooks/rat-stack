@@ -113,4 +113,4 @@ export const glossaryFirstUseWarnings = (
 export const glossaryFirstUseWarningText = (
   warning: GlossaryFirstUseWarning
 ): string =>
-  `${warning.file}:${warning.line}: glossary first use: "${warning.term}" needs a definition or link (${warning.target})`;
+  `${warning.file}:${warning.line}: glossary first use: "${warning.term}" needs a definition or link (${warning.target}). A reader meeting the term for the first time needs to know what it means. Fix: link the first use as \`[${warning.term}](${warning.target})\`, or define the term in the same sentence.`;

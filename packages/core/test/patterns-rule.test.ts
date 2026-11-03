@@ -77,13 +77,15 @@ const expectRuleSoft = (result: LintResult, message: string) => {
   expect.soft(result.output).toContain(message);
 };
 
-const eagerAcquire = "Build the resource inside acquire";
+const eagerAcquire =
+  "This acquire returns a resource built before acquire runs";
 
-const moduleState = "Module-level let and var are shared by every request";
+const moduleState =
+  "Module-level let and var hold state that outlives one request";
 
 describe("rat-stack pattern rules", () => {
   it("keeps sleeping loops in machines without flagging unrelated sleep functions", () => {
-    const message = "Move loops that yield Effect.sleep";
+    const message = "This loop yields Effect.sleep";
 
     for (const area of ["apps/site/src", "packages/core/src"]) {
       for (const loop of [
@@ -139,7 +141,7 @@ describe("rat-stack pattern rules", () => {
         "apps/site/src",
         'import { Deferred, Effect } from "effect"; export const pending = Effect.runSync(Deferred.make());'
       ),
-      "Module-level waiting primitives"
+      "This waiting primitive lives at module level"
     );
   });
   it("defers Layer construction instead of sharing an eager or already-run value", () => {
@@ -152,7 +154,7 @@ describe("rat-stack pattern rules", () => {
           "apps/site/src",
           `import { Effect, Layer, Ref } from "effect"; export const layer = ${initializer};`
         ),
-        "Module-level waiting primitives"
+        "This waiting primitive lives at module level"
       );
     }
 
@@ -175,7 +177,7 @@ describe("rat-stack pattern rules", () => {
           "apps/site/src",
           `import { Deferred } from "effect"; import { DurableObject } from "cloudflare:workers"; ${declaration}`
         ),
-        "Module-level waiting primitives"
+        "This waiting primitive lives at module level"
       );
     }
 
@@ -223,7 +225,7 @@ describe("rat-stack pattern rules", () => {
         ]) {
           expectRule(
             lintFixture(area, source),
-            "Module-level waiting primitives"
+            "This waiting primitive lives at module level"
           );
         }
 
@@ -251,7 +253,7 @@ describe("rat-stack pattern rules", () => {
   );
 
   it("rejects missing removal dates through direct, aliased, and namespace declarations", () => {
-    const message = "Declare removeBy as a YYYY-MM-DD literal";
+    const message = "has no removeBy date literal";
 
     for (const source of [
       'defineFlag("test", Schema.Boolean, { default: false, owner: "test" });',
@@ -333,7 +335,7 @@ describe("rat-stack pattern rules", () => {
   it.each(["cached", "cachedWithTTL", "cachedInvalidateWithTTL"])(
     "rejects %s in shared initialization and permits request-local work",
     (name) => {
-      const message = "Cache completed values only";
+      const message = "Effect.cached* at this scope shares pending work";
 
       const module = lintFixture(
         "apps/site/src",
@@ -439,7 +441,7 @@ describe("rat-stack pattern rules", () => {
 
     expectRule(
       result,
-      'Name this binding executeContract or execute, to match the contract name "execute".'
+      'This binding does not match the contract name "execute". Matching names keep imports, search, and the catalog lined up. Fix: rename it to `executeContract` or `execute`.'
     );
   });
 
@@ -459,8 +461,8 @@ describe("rat-stack pattern rules", () => {
       'const defineContract = "other";\nconst source = { other: () => ({}) };\nexport const result = source[defineContract]("search", {});\n'
     );
 
-    expectRuleSoft(alias, 'to match the contract name "search".');
-    expectRuleSoft(assignment, 'to match the contract name "search".');
+    expectRuleSoft(alias, 'does not match the contract name "search".');
+    expectRuleSoft(assignment, 'does not match the contract name "search".');
     expect.soft(computedIdentifier.status).toBe(0);
   });
 
@@ -481,10 +483,13 @@ describe("rat-stack pattern rules", () => {
 
     const runtime = lintFixture("packages/core/src", primitive);
 
-    expectRuleSoft(snippet, "Shape the service as operations");
-    expectRuleSoft(snippet, "Give the service a namespaced key");
-    expectRuleSoft(snippet, "Attach static readonly layer");
-    expectRuleSoft(snippet, "Provide the service's static layer at the edge");
+    expectRuleSoft(
+      snippet,
+      "This service holds a primitive value instead of operations"
+    );
+    expectRuleSoft(snippet, "This service key has no namespace");
+    expectRuleSoft(snippet, "This service has no static layer beside it");
+    expectRuleSoft(snippet, "This provides the service with provideService");
     expect.soft(runtime.status).toBe(0);
   });
 
@@ -513,7 +518,10 @@ describe("rat-stack pattern rules", () => {
       'import { createEffectActor } from "@xstate/effect";\n\nexport const start = (machine: never) => createEffectActor(machine);\n'
     );
 
-    expectRule(result, 'Call watchActor("<machine>", actor)');
+    expectRule(
+      result,
+      "This createEffectActor result is never passed to watchActor"
+    );
   });
 
   it("matches actor bindings instead of unrelated or computed watcher calls", () => {
@@ -527,8 +535,14 @@ describe("rat-stack pattern rules", () => {
       'import { createEffectActor } from "@xstate/effect";\n\nexport const actor = createEffectActor(machine);\nwatcher[watchActor]("other", otherActor);\n'
     );
 
-    expectRuleSoft(unrelated, 'Call watchActor("<machine>", actor)');
-    expectRuleSoft(computed, 'Call watchActor("<machine>", actor)');
+    expectRuleSoft(
+      unrelated,
+      "This createEffectActor result is never passed to watchActor"
+    );
+    expectRuleSoft(
+      computed,
+      "This createEffectActor result is never passed to watchActor"
+    );
   });
 
   it("tracks watched actors by binding and permits tests that start actors", () => {
@@ -552,7 +566,10 @@ describe("rat-stack pattern rules", () => {
       'import { createEffectActor } from "@xstate/effect";\n\nexport const start = (machine: never) => createEffectActor(machine);\n'
     );
 
-    expectRule(partialWatch, 'Call watchActor("<machine>", actor)');
+    expectRule(
+      partialWatch,
+      "This createEffectActor result is never passed to watchActor"
+    );
     expect(called.status).toBe(0);
     expect(watched.status).toBe(0);
     expect(test.status).toBe(0);

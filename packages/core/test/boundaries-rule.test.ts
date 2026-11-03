@@ -177,7 +177,7 @@ describe("architecture boundary rules", () => {
     ]) {
       expectRuleSoft(
         lintFixture("packages/intake-live/src", source),
-        "Import shared Basin infrastructure from @rat-stack/basin"
+        "This imports shared Basin infrastructure from the events cartridge."
       );
       expect(lintFixture("packages/events/src", source).status).toBe(0);
     }
@@ -203,7 +203,7 @@ describe("architecture boundary rules", () => {
       ]) {
         expectRuleSoft(
           lintFixture(area, source),
-          "Reach the events cartridge only through apps/site/src/events.ts"
+          "This module reaches the events cartridge directly."
         );
       }
 
@@ -238,10 +238,7 @@ describe("architecture boundary rules", () => {
       'import * as stack from "../../../infra/alchemy.run.ts";\n\nexport const applicationStack = stack;\n'
     );
 
-    expectRule(
-      result,
-      "apps/infra owns its Stack wiring; import a capability or service contract instead."
-    );
+    expectRule(result, "This module imports Stack wiring from apps/infra.");
   });
 
   it("blocks aliased require, module.require, import-equals, and asserted module strings", () => {
@@ -373,7 +370,7 @@ describe("architecture boundary rules", () => {
 
     expectRule(
       result,
-      "Feature and client modules can import only browser-safe contract entry points; capability handlers and other domain implementation modules stay server-side."
+      "Feature and client modules can import only browser-safe contract entry points."
     );
   });
 
@@ -385,7 +382,7 @@ describe("architecture boundary rules", () => {
 
     expectRule(
       result,
-      "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
   });
 
@@ -399,7 +396,7 @@ describe("architecture boundary rules", () => {
   ])("blocks stable transport entrypoints in features: %s", (source) => {
     expectRule(
       lintFixture("apps/cli/src/features", source),
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expect(lintFixture("apps/cli/src/client", source).status).toBe(0);
   });
@@ -412,7 +409,7 @@ describe("architecture boundary rules", () => {
 
     expectRule(
       result,
-      "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
   });
 
@@ -424,7 +421,7 @@ describe("architecture boundary rules", () => {
 
     expectRule(
       result,
-      "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
   });
 
@@ -436,7 +433,7 @@ describe("architecture boundary rules", () => {
 
     expectRule(
       result,
-      "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
   });
 
@@ -488,35 +485,35 @@ describe("architecture boundary rules", () => {
 
     expectRuleSoft(
       factory,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       fetchCall,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       fetchAlias,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       namespaceClient,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       namespacedConstructor,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       namespaceHttpApi,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       requiredClient,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expectRuleSoft(
       dynamicClient,
-      "do not use fetch or construct transport clients here."
+      "Features cannot use fetch or construct transport clients."
     );
     expect(localFactory.status).toBe(0);
   });
