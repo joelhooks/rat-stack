@@ -55,7 +55,7 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.84",
+    "@alchemy.run/cloudflare": "2.0.0-beta.85",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
@@ -67,20 +67,21 @@
     "@rat-stack/learn": "workspace:*",
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
-    "alchemy": "2.0.0-beta.84",
-    "effect": "4.0.7"
+    "alchemy": "2.0.0-beta.85",
+    "effect": "4.1.2"
   },
   "devDependencies": {
-    "@effect/platform-browser": "4.0.7",
-    "@effect/platform-node": "4.0.7",
-    "@effect/vitest": "4.0.7",
-    "@foldkit/markdown": "0.14.3",
+    "@alchemy.run/test": "2.0.0-beta.85",
+    "@effect/platform-browser": "4.1.2",
+    "@effect/platform-node": "4.1.2",
+    "@effect/vitest": "4.1.2",
+    "@foldkit/markdown": "0.15.0",
     "@rat-stack/code-snippets": "workspace:*",
     "@resvg/resvg-js": "2.6.2",
     "@types/mdast": "4.0.4",
     "@types/node": "24.19.2",
     "@types/unist": "3.0.3",
-    "foldkit": "0.169.0",
+    "foldkit": "0.170.0",
     "htmlparser2": "12.0.0",
     "remark-gfm": "4.0.1",
     "remark-parse": "11.0.0",

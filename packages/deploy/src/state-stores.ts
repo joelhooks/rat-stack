@@ -1,5 +1,5 @@
 import { NodeSocket } from "@effect/platform-node";
-import * as AlchemistState from "alchemy/Alchemist/routes/state";
+import * as Alchemist from "alchemy/Alchemist";
 import type { StateService } from "alchemy/State/State";
 import { Context, Effect, Layer } from "effect";
 import type { Scope } from "effect";
@@ -32,12 +32,11 @@ export const storeAddress = (
 
 const providerSource = (
   address: StateStoreAddress
-): AlchemistState.ProviderSource => {
+): Alchemist.State.ProviderSource => {
   const source = {
-    // oxlint-disable-next-line anti-slop-effect/no-manual-tagged-construction -- Alchemy's StateSource is a plain tagged union with no constructor.
-    _tag: "Provider",
     backend: "cloudflare",
     profile: address.profile,
+    type: "provider",
   } as const;
 
   return address.name === undefined
@@ -52,17 +51,16 @@ export const stateStoresLayer = () =>
       const context =
         yield* Effect.context<
           Exclude<
-            Effect.Services<ReturnType<typeof AlchemistState.store>>,
+            Effect.Services<ReturnType<typeof Alchemist.State.store>>,
             Scope.Scope
           >
         >();
 
       return {
         open: (address) =>
-          // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy builds the provider's state layer from erased contributions; this adapter maps the unknown failure into StateCopyRefused.
-          AlchemistState.store(providerSource(address)).pipe(
+          Alchemist.State.store(providerSource(address)).pipe(
             Effect.mapError((failure) =>
-              refuse("store-unavailable", [], String(failure))
+              refuse("store-unavailable", [], failure.message)
             ),
             withProvisioningFence,
             Effect.provideContext(context)

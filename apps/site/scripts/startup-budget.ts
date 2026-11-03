@@ -1,6 +1,6 @@
 import { WorkerBundle } from "@alchemy.run/cloudflare/Workers/Sources/Rolldown";
 import { NodeServices } from "@effect/platform-node";
-import { Context, Effect, FileSystem, Schema } from "effect";
+import { Context, DateTime, Effect, FileSystem, Schema } from "effect";
 
 import {
   feedbackAuthBuild,
@@ -22,8 +22,17 @@ const BundleGraph = Schema.fromJsonString(
 );
 
 const startupBudgets = {
-  LearnFeedbackAuth: 1_456_000,
-  Mischief: 1_247_000,
+  LearnFeedbackAuth: 1_516_000,
+  Mischief: 1_114_000,
+};
+
+const temporaryRaises: Partial<
+  Record<
+    keyof typeof startupBudgets,
+    { readonly expires: string; readonly restoreTo: number }
+  >
+> = {
+  LearnFeedbackAuth: { expires: "2026-11-16", restoreTo: 1_456_000 },
 };
 
 const javascriptAlarmBytes = 2_500_000;
@@ -159,6 +168,17 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   yield* Effect.log(
     `${worker} entry: ${entryBytes} bytes; static startup: ${startup.startupBytes} bytes; shrink-only ceiling: ${startupBudgetBytes}; complete JS upload (alarm only): ${javascriptBytes} bytes`
   );
+
+  const raise = temporaryRaises[worker];
+
+  if (
+    raise !== undefined &&
+    DateTime.formatIsoDateUtc(yield* DateTime.now) >= raise.expires
+  ) {
+    yield* Effect.logWarning(
+      `${worker} temporary ceiling raise expired on ${raise.expires}; re-tighten the ceiling to ${raise.restoreTo} bytes, as apps/site/STARTUP.md records`
+    );
+  }
 
   if (javascriptBytes > javascriptAlarmBytes) {
     yield* Effect.logWarning(

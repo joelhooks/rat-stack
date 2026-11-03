@@ -28,7 +28,7 @@ Sam Goodwin describes an Effect as a promise with more information: its return v
 
 - **Alchemy Stack** groups one infrastructure program and its outputs. Rat-stack exports `Alchemy.Stack("RatStack", ...)` in `apps/infra/alchemy.run.ts`.
 - **Provider** supplies the cloud API implementation. `Cloudflare.providers()` appears in the Stack options in `apps/infra/alchemy.run.ts`.
-- **State** records the resources that a Stack already owns. Rat-stack keeps its own store, `ratstack-state-store`, which both entrypoints load from `apps/infra/src/state-store.ts`. The excerpt below shows the default store, `Cloudflare.state()`.
+- **State** records the resources that a Stack already owns. Rat-stack keeps its own store, the Worker `alchemy-state-store-ratstack-state-store`, which both entrypoints load from `apps/infra/src/state-store.ts`. The excerpt below shows the default store, `Cloudflare.state()`.
 - **Resource** is a declared cloud object such as a Zone, DNS record, DNSSEC setting, or Worker. Each gets a stable logical name in `apps/infra/alchemy.run.ts`.
 - **Binding** is a typed runtime value attached to a Worker. Rat-stack declares the `CODE_SANDBOX` WorkerLoader and four RateLimit bindings in `apps/site/src/worker.ts`.
 - **Plan** shows differences between declared resources and stored deployment state before a provider changes anything. Read it with the `plan` script in `apps/infra/package.json`.

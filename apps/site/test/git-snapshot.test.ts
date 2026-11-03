@@ -1,22 +1,20 @@
-import { NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import {
-  Crypto,
-  Effect,
-  FileSystem,
-  Layer,
-  Path,
-  Predicate,
-  Schema,
-} from "effect";
-import { Hex } from "effect/encoding";
+import { Effect, FileSystem, Layer, Path, Predicate, Schema } from "effect";
+import * as Digest from "effect/crypto/Digest";
 import { ChildProcessSpawner } from "effect/process";
+import type { CommandLine } from "effect/process";
 
 import { openGitSnapshot } from "../scripts/git-snapshot.ts";
 
 const commit = "a".repeat(40);
 
-it.layer(NodeServices.layer)("snapshot source boundary", (test) => {
+const snapshotServices = Layer.mergeAll(
+  NodeServices.layer,
+  NodeCrypto.layerDigest
+);
+
+it.layer(snapshotServices)("snapshot source boundary", (test) => {
   test.effect.prop(
     "an exported tree preserves pinned blobs and refuses missing or stale inputs",
     { text: Schema.String },
@@ -30,18 +28,16 @@ it.layer(NodeServices.layer)("snapshot source boundary", (test) => {
         });
         yield* fs.writeFileString(path.join(root, "example.ts"), text);
         const base = yield* ChildProcessSpawner.ChildProcessSpawner;
-        const crypto = yield* Crypto.Crypto;
+        const digest = yield* Digest.Digest;
 
-        const blob = Hex.encode(
-          yield* crypto.digest(
-            "SHA-1",
-            new TextEncoder().encode(
-              `blob ${new TextEncoder().encode(text).length}\0${text}`
-            )
+        const blob = yield* digest.digestHex(
+          Digest.sha1,
+          new TextEncoder().encode(
+            `blob ${new TextEncoder().encode(text).length}\0${text}`
           )
         );
 
-        const calls: string[][] = [];
+        const calls: CommandLine.Word[][] = [];
 
         const provider = (checkout: boolean, history = text) =>
           Layer.succeed(

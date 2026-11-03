@@ -10,15 +10,15 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
-- Effect `4.0.7` and `@effect/platform-node` `4.0.7`. Foldkit `0.169.0` peers on exact `4.0.0`; `peerDependencyRules.allowedVersions` admits `4.0.7`, and the `@foldkit/vite-plugin` patch in `vendor/README.md` travels with it. Every Effect package resolves to one runtime.
-- XState `6.0.0-alpha.71` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `1.0.0-alpha.10` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
-- Foldkit `0.169.0` with `@foldkit/ui` and `@foldkit/devtools` `0.169.0` and `@foldkit/vite-plugin` `0.28.0` for the web UI, server-rendered and prerendered by default
-- Alchemy `2.0.0-beta.84` with the `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql` providers (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo
+- Effect `4.1.2` and `@effect/platform-node` `4.1.2`. Foldkit `0.170.0` peers on `effect ~4.1.0`, so no peer allowances or patches remain. Every Effect package resolves to one runtime. Crypto lives in `effect/crypto/*`: `SecureRandom` and `Digest` replace the removed `effect/Crypto`, and `NodeServices` no longer provides them.
+- XState `6.0.0-alpha.73` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `1.0.0-alpha.12` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
+- Foldkit `0.170.0` with `@foldkit/ui` and `@foldkit/devtools` `0.170.0`, `@foldkit/markdown` `0.15.0`, and `@foldkit/vite-plugin` `0.29.0` for the web UI, server-rendered and prerendered by default
+- Alchemy `2.0.0-beta.85` with the `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql` providers (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo. `@alchemy.run/test` `2.0.0-beta.85` runs the Worker runtime tests
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.55.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
 - `@yielded/effect-tsrs` `0.2.3` runs `typecheck` and `check` with `diagnostics --project tsconfig.json --strict --type-check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail. It bundles tsrs revision `8f135f106a63`, contained in plain tsrs `0.20.0`. Keep `ignoreEffectWarningsInTscExitCode` false. Patched TypeScript `7.0.2` with `@effect/tsgo` `0.55.0` runs through `typecheck:tsc` and `typecheck:parity` at the switch and on checker bumps (`pnpm bump:checkers`), not on every CI run. Report any checker disagreement.
 - Plain tsrs `0.20.1-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
-- `@effect/vitest` `4.0.7` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
+- `@effect/vitest` `4.1.2` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
 - `@oxlint/plugins` `1.88.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
 - Oxlint `1.88.0` with Ultracite `8.0.1`, Oxfmt `0.73.0`, and Turborepo `2.11.9`
 - varlock `1.23.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
@@ -72,7 +72,7 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 - **`@rat-stack/site`**:
   - Path: `apps/site`
   - Role: Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface
-  - Startup fence: `scripts/startup-budget.ts` measures Alchemy's actual upload. Follow static imports from each entry; count shared chunks once and exclude dynamic-only chunks. Hard startup ceilings are shrink-only: Mischief **1,250,000 bytes**, LearnFeedbackAuth **1,600,000 bytes**. Never raise them to accept growth. Entry bytes are evidence only; total JavaScript above **2,500,000 bytes** warns without blocking. Growing page data stays in static assets outside the startup code. Measurement and profiling: `apps/site/STARTUP.md`.
+  - Startup fence: `scripts/startup-budget.ts` measures Alchemy's actual upload. Follow static imports from each entry; count shared chunks once and exclude dynamic-only chunks. Hard startup ceilings are shrink-only: Mischief **1,114,000 bytes**, LearnFeedbackAuth **1,516,000 bytes**. Never raise them to accept growth. The one recorded exception is LearnFeedbackAuth's temporary raise from 1,456,000 bytes, authorised by the Switchboard ruling of 2026-11-02. It expires when Alchemy ships the WorkerBridge fix or on 2026-11-16, whichever comes first; `apps/site/STARTUP.md` records the cause. Entry bytes are evidence only; total JavaScript above **2,500,000 bytes** warns without blocking. Growing page data stays in static assets outside the startup code. Measurement and profiling: `apps/site/STARTUP.md`.
 
 ## Nouns
 

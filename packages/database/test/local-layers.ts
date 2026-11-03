@@ -1,6 +1,6 @@
 import { MigrationError } from "@alchemy.run/sql/Migrations/Format";
 import type { SqlExecutor } from "@alchemy.run/sql/Migrations/Format";
-import { NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { PGlite } from "@electric-sql/pglite";
 import { desc, eq } from "drizzle-orm";
 import { drizzle as drizzlePostgres } from "drizzle-orm/pglite";
@@ -230,6 +230,7 @@ export const localD1Layer = Layer.provideMerge(
   d1Layer,
   Layer.mergeAll(
     NodeServices.layer,
+    NodeCrypto.layerSecureRandom,
     Layer.succeed(Clock.Clock, d1Clock.service),
     Layer.succeed(ControlledClock, d1Clock.control)
   )
@@ -239,6 +240,7 @@ export const localPostgresLayer = Layer.provideMerge(
   postgresLayer,
   Layer.mergeAll(
     NodeServices.layer,
+    NodeCrypto.layerSecureRandom,
     Layer.succeed(Clock.Clock, postgresClock.service),
     Layer.succeed(ControlledClock, postgresClock.control)
   )

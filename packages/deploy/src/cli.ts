@@ -1,5 +1,6 @@
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { NodeRuntime } from "@effect/platform-node";
 import { toCommand } from "@rat-stack/capability";
+import { PlatformServices } from "alchemy/Util/PlatformServices";
 import { Console, Effect, Layer } from "effect";
 import { Command } from "effect/cli";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
@@ -66,7 +67,7 @@ const program = Command.runWith(root, { version: "0.1.0" })(
         )
       ),
       Layer.provideMerge(
-        Layer.mergeAll(FetchHttpClient.layer, NodeServices.layer)
+        Layer.mergeAll(FetchHttpClient.layer, PlatformServices)
       )
     )
   ),

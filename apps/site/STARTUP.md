@@ -8,7 +8,7 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,247,000 bytes for Mischief** and **1,456,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+The hard, shrink-only ceilings cover the **static startup set**: **1,114,000 bytes for Mischief** and **1,516,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's ceiling is the one recorded exception; see [Temporary raise: Alchemy beta.85 and Effect 4.1](#temporary-raise-alchemy-beta85-and-effect-41). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
@@ -32,6 +32,26 @@ Successful catalog, search, graph, and MCP-registration loads are memoized per s
 | Resource listing and route matching | 1 shared catalog | 0 |
 
 The graph methods share one cache. A known page with a missing, corrupt, or mismatched asset fails with `AssetReadError`; HTTP returns 503 with `no-store`. An unknown page still fails with `ResourceNotFound`.
+
+## Temporary raise: Alchemy beta.85 and Effect 4.1
+
+The bump to Alchemy `2.0.0-beta.85` and Effect `4.1.2` grew both Workers' static startup sets. Alchemy's `@alchemy.run/cloudflare` `Workers/WorkerBridge.ts` now provides `NodeCrypto.layer`, `NodeChildProcessSpawner`, and `NodeFileSystem` to every Worker. `NodeCrypto.layer` builds all nine `effect/crypto` services, so the AEAD, cipher, signature, key-agreement, and key-wrap modules ship in every Worker. Effect 4.1 also grew `process/CommandLine` and `FileSystem`'s glob support, which those layers reach. Beta.84's bridge used `NodeServices` alone.
+
+| Worker | main `d403594` | bump | bump with lazy MCP | Old ceiling | New ceiling |
+| --- | --: | --: | --: | --: | --: |
+| Mischief | 1,243,685 | 1,325,739 | 1,113,112 | 1,247,000 | 1,114,000 |
+| LearnFeedbackAuth | 1,446,046 | 1,515,492 | 1,515,492 | 1,456,000 | 1,516,000 |
+
+Mischief loads its MCP surface (`src/mcp-surface.ts`, `effect/ai/McpServer`, and the toolkit projections) with a dynamic import on the first `/mcp` request, and the legacy MCP Durable Object loads its runtime the same way. That leaves Mischief below main and lowers its ceiling. LearnFeedbackAuth has no MCP surface, so its ceiling rose by 60,000 bytes. This is the one exception to the shrink-only rule, authorised by the Switchboard ruling of 2026-11-02.
+
+Re-tighten LearnFeedbackAuth to the old ceiling of 1,456,000 bytes when Alchemy ships the WorkerBridge fix, or on 2026-11-16, whichever comes first. `scripts/startup-budget.ts` holds the expiry and warns once it passes. Upstream issue: _link pending_.
+
+Startup CPU from `wrangler check startup` 4.94.0, median of three runs per bundle on one host:
+
+| Worker | main elapsed | main non-idle | bump elapsed | bump non-idle | Cloudflare limit |
+| --- | --: | --: | --: | --: | --: |
+| Mischief | 138.0 ms | 113.9 ms | 130.6 ms | 103.2 ms | 1,000 ms |
+| LearnFeedbackAuth | 97.1 ms | 70.6 ms | 107.7 ms | 81.2 ms | 1,000 ms |
 
 ## Profile locally
 

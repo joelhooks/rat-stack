@@ -1,6 +1,6 @@
-import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
+import { PlatformServices } from "alchemy/Util/PlatformServices";
 import { ConfigProvider, Effect, Layer } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 
@@ -26,7 +26,7 @@ it.effect(
       ).pipe(
         Layer.provideMerge(
           Layer.mergeAll(
-            NodeServices.layer,
+            PlatformServices,
             ConfigProvider.layer(ConfigProvider.fromUnknown({})),
             Layer.succeed(HttpClient.HttpClient, client),
             Approval.denyAll

@@ -4,7 +4,11 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "allowedUnstableApis": ["@effect/vitest", "effect/Arbitrary"]
+        "allowedUnstableApis": [
+          "@effect/vitest",
+          "effect/Arbitrary",
+          "effect/crypto/SecureRandom"
+        ]
       }
     ]
   },

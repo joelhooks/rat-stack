@@ -5,7 +5,7 @@
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
-          "@effect/platform-node/NodeCrypto",
+          "@effect/platform-node-shared/NodeCrypto",
           "@effect/platform-node/NodeRuntime",
           "@effect/vitest",
           "effect/Arbitrary"

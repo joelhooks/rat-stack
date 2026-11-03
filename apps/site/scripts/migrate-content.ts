@@ -1,4 +1,4 @@
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect, FileSystem, Path, Schema } from "effect";
 import type { PlatformError } from "effect";
 import { Command, Flag } from "effect/cli";
@@ -185,6 +185,6 @@ const migrate = Command.make(
 NodeRuntime.runMain(
   migrate.pipe(
     Command.run({ version: "1.0.0" }),
-    Effect.provide(NodeServices.layer)
+    Effect.provide([NodeServices.layer, NodeCrypto.layerDigest])
   )
 );
