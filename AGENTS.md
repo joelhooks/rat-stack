@@ -176,6 +176,8 @@ Mirrors are reference material, not runtime dependencies. Exclude them from type
 
 Preserve existing work. Inspect status before editing, stage only files changed for the current task, and do not commit generated output, secrets, or populated `.agent_sources/github.com/` trees. Use the repository's existing source-control tool; do not initialize or migrate one without approval. Never pass `--no-verify` to git.
 
+`.shitrat/public-allow.json` tells the ShitRat public-push guard that `.brain/` is public content here, because the site is built from it. A child project owns that file: narrow or delete it the day its `.brain` holds anything that isn't meant to be public.
+
 ## Project law
 
 A child project replaces this section on day one with its own product rules. These rules describe the rat-stack template, not the product in a clone. Keep durable product intent in `VISION.md`.
