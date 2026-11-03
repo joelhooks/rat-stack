@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { Effect, Layer, Predicate, Schema, Sink, Stream } from "effect";
-import type { ChildProcess } from "effect/process";
+import type { ChildProcess, CommandLine } from "effect/process";
 import { ChildProcessSpawner } from "effect/process";
 
 import { fetchSources } from "../src/fetch.ts";
@@ -36,7 +36,7 @@ const fixture = (mode: Mode) =>
       Effect.die(new Error("Unexpected spawn in Git fixture"))
     );
 
-    const recorded: string[][] = [];
+    const recorded: CommandLine.Word[][] = [];
     let fetched = false;
     let head = "one\ntwo\n";
 

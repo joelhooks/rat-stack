@@ -1,4 +1,5 @@
-import { Clock, Context, Crypto, Effect, Layer, Match, Schema } from "effect";
+import { Clock, Context, Effect, Layer, Match, Schema } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 
 import { InvalidDatabaseInput } from "./invalid-database-input.js";
 import {
@@ -35,7 +36,10 @@ export class RunLog extends Context.Service<
   }
 >()("@rat-stack/database/RunLog") {}
 
-const makeRunLogService = (store: RunLogRepository, crypto: Crypto.Crypto) =>
+const makeRunLogService = (
+  store: RunLogRepository,
+  crypto: SecureRandom.SecureRandom["Service"]
+) =>
   RunLog.of({
     listRecent: Effect.fn("RunLog.listRecent")(
       function* listRecent(personId, limit) {
@@ -61,7 +65,7 @@ const makeRunLogService = (store: RunLogRepository, crypto: Crypto.Crypto) =>
         )
       );
 
-      const id = yield* crypto.randomUUIDv7().pipe(
+      const id = yield* crypto.uuidV7().pipe(
         Effect.flatMap((value) => Schema.decodeEffect(RunIdSchema)(value)),
         Effect.mapError(
           (cause) => new DatabaseError({ cause, operation: "record" })
@@ -106,7 +110,7 @@ export const runLogLayer = <E, R>(
     Effect.gen(function* buildRunLogLayer() {
       const storeOperations = yield* operations;
       const store = runLogRepository(storeOperations);
-      const crypto = yield* Crypto.Crypto;
+      const crypto = yield* SecureRandom.SecureRandom;
 
       return makeRunLogService(store, crypto);
     })

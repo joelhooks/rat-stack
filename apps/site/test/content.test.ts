@@ -1,8 +1,8 @@
-import { NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { parseCodeRequest, sourceLines } from "@rat-stack/code-snippets";
 import { CafeNewsItem, sortCafeNewsNewest } from "@rat-stack/core/contracts";
-import { Effect, FileSystem, Path, Schema, Stream } from "effect";
+import { Effect, FileSystem, Layer, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { DomUtils, parseDocument } from "htmlparser2";
 
@@ -562,7 +562,12 @@ const tagFreeSources = [
   "skills/learn-rat-stack/SKILL.md",
 ];
 
-it.layer(NodeServices.layer)("generated content", (test) => {
+const contentServices = Layer.mergeAll(
+  NodeServices.layer,
+  NodeCrypto.layerDigest
+);
+
+it.layer(contentServices)("generated content", (test) => {
   test.effect("every generated HTML page has exactly one document title", () =>
     Effect.sync(() => {
       const pages = [

@@ -1,5 +1,4 @@
-import type { ProgressReporter } from "alchemy/Report";
-import { Progress } from "alchemy/Report";
+import * as Alchemist from "alchemy/Alchemist";
 import { Cause, Effect, Exit, Option, Predicate, Ref, Schema } from "effect";
 import type { Tracer } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
@@ -101,7 +100,7 @@ export const applyWithProviderEvidence = Effect.fnUntraced(
   function* applyWithProviderEvidence<A, E, R>(
     apply: (client: HttpClient.HttpClient) => Effect.Effect<A, E, R>,
     client: HttpClient.HttpClient,
-    report: ProgressReporter,
+    report: (event: Alchemist.Event) => Effect.Effect<void>,
     secrets: readonly string[] = []
   ) {
     const failures = yield* Ref.make<readonly FailedResource[]>([]);
@@ -145,9 +144,8 @@ export const applyWithProviderEvidence = Effect.fnUntraced(
     );
 
     const exit = yield* apply(observed).pipe(
-      Effect.provideService(Progress, (event) =>
-        (Predicate.isTagged(event, "apply.resource.status") &&
-        event.status === "fail"
+      Alchemist.onEvent((event) =>
+        (event.type === "apply.resource.status" && event.status === "fail"
           ? Ref.update(failures, (rows) => [
               ...rows,
               { message: event.message ?? "", resource: event.fqn },

@@ -17,18 +17,18 @@ export const joinRequestMiddleware = (options: {
         const request = yield* HttpServerRequest.HttpServerRequest;
         const ip = normalizeClientIp(request.headers["cf-connecting-ip"]);
 
-        const execution = yield* Effect.serviceOption(
-          Cloudflare.WorkerExecutionContext
-        );
+        const execution = yield* Cloudflare.WorkerExecutionContext;
 
         return yield* effect.pipe(
           Effect.provideService(JoinRequest, {
             afterResponse: (work) =>
-              Option.isSome(execution)
-                ? execution.value
+              execution === Cloudflare.deferredExecutionContext
+                ? work
+                : execution
                     .waitUntil(work)
-                    .pipe(Effect.provide(RuntimeContext.RuntimeContext.phantom))
-                : work,
+                    .pipe(
+                      Effect.provide(RuntimeContext.RuntimeContext.phantom)
+                    ),
             allow: Effect.fn("JoinRequest.allow")(function* allow(
               agentRef: string
             ) {

@@ -5,16 +5,8 @@ import {
   parseCodeRequest,
 } from "@rat-stack/code-snippets";
 import type { FenceJob } from "@rat-stack/code-snippets";
-import {
-  Crypto,
-  Effect,
-  FileSystem,
-  Layer,
-  Path,
-  Result,
-  Schema,
-} from "effect";
-import { Hex } from "effect/encoding";
+import { Effect, FileSystem, Layer, Path, Result, Schema } from "effect";
+import * as Digest from "effect/crypto/Digest";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { codeRepositories } from "./code-config.ts";
@@ -39,12 +31,10 @@ export class GitSnapshotError extends Schema.TaggedError<
 export const openGitSnapshot = Effect.fn("openGitSnapshot")(
   function* openSnapshot(root: string, regenerate: boolean) {
     const fs = yield* FileSystem.FileSystem;
-    const crypto = yield* Crypto.Crypto;
+    const digest = yield* Digest.Digest;
 
-    const hash = (algorithm: Crypto.DigestAlgorithm, text: string) =>
-      crypto
-        .digest(algorithm, new TextEncoder().encode(text))
-        .pipe(Effect.map(Hex.encode));
+    const hash = (algorithm: Digest.Algorithm, text: string) =>
+      digest.digestHex(algorithm, new TextEncoder().encode(text));
 
     const path = yield* Path.Path;
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -168,7 +158,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
         )
       );
 
-      const actual = yield* hash("SHA-256", text);
+      const actual = yield* hash(Digest.sha256, text);
 
       if (!regenerate && files.get(sourcePath) !== actual) {
         return yield* new GitSnapshotError({
@@ -209,7 +199,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       if (
         blob.trim() !==
         (yield* hash(
-          "SHA-1",
+          Digest.sha1,
           `blob ${new TextEncoder().encode(text).length}\0${text}`
         ))
       ) {

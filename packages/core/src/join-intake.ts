@@ -1,12 +1,5 @@
-import {
-  Context,
-  Crypto,
-  DateTime,
-  Effect,
-  Layer,
-  Option,
-  Schema,
-} from "effect";
+import { Context, DateTime, Effect, Layer, Option, Schema } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 
 import { AbuseScore, SCORER_UNAVAILABLE } from "./abuse-score.js";
 import { ContactRefSchema, IntakeEvents } from "./intake-events.js";
@@ -71,7 +64,7 @@ export const joinIntakeLayer = Layer.effect(
     const contacts = yield* JoinContactStore;
     const intake = yield* SubscriberIntake;
     const tokens = yield* InterestTokens;
-    const crypto = yield* Crypto.Crypto;
+    const crypto = yield* SecureRandom.SecureRandom;
     const deliveryDeadline = yield* JoinDeliveryDeadline;
 
     const submit = Effect.fn("JoinInterest.submit")(function* submit(
@@ -134,7 +127,7 @@ export const joinIntakeLayer = Layer.effect(
         const held = verdict.hold && !scorerDelayed;
 
         const contactRef = yield* crypto
-          .randomUUIDv4()
+          .uuidV4()
           .pipe(
             Effect.flatMap(Schema.decodeEffect(ContactRefSchema)),
             Effect.orDie
@@ -163,7 +156,7 @@ export const joinIntakeLayer = Layer.effect(
             const recorded: IntakeStatement = {
               actor: contactRef,
               context: { intake: "tokenmaxx", submissionId: statusRef },
-              id: yield* crypto.randomUUIDv7().pipe(Effect.orDie),
+              id: yield* crypto.uuidV7(),
               object,
               timestamp,
               verb,

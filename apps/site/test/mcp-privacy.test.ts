@@ -9,17 +9,17 @@ import { HttpRouter } from "effect/http";
 import { RpcSerialization, RpcServer } from "effect/rpc";
 import { TestConsole } from "effect/testing";
 
-import {
-  legacyMcpProtocols,
-  mcpLayer,
-  mischiefRoutes,
-  modernMcpProtocols,
-} from "../src/app.js";
+import { mischiefRoutes } from "../src/app.js";
 import {
   contentCapabilities,
   executeProjection,
 } from "../src/capabilities/index.js";
 import { memoryEvents } from "../src/events.js";
+import {
+  legacyMcpProtocols,
+  mcpLayer,
+  modernMcpProtocols,
+} from "../src/mcp-surface.js";
 import { nodeContentLayer as contentLayer } from "../src/node-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 

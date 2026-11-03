@@ -1,7 +1,7 @@
 // @effect-diagnostics-next-line nodeBuiltinImport:off -- Build-only hashing uses Node's stable SHA-256 implementation.
 import { createHash } from "node:crypto";
 
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { NodeCrypto, NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Drift, prepareCode } from "@rat-stack/code-snippets";
 import type { Diagnostics } from "@rat-stack/code-snippets";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
@@ -3799,6 +3799,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       .pipe(Effect.mapError((cause) => buildError("rename", output, cause)));
   }).pipe(Effect.scoped);
   yield* snapshot.save;
-}).pipe(Effect.provide([shikiLayer(), NodeServices.layer]));
+}).pipe(
+  Effect.provide([shikiLayer(), NodeServices.layer, NodeCrypto.layerDigest])
+);
 
 NodeRuntime.runMain(program);

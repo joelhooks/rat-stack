@@ -1,8 +1,9 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
-import { webCrypto } from "@rat-stack/core/web-crypto";
+import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
 import { DateTime, Effect, Layer, Schema } from "effect";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 
 import {
   CrashArchive,
@@ -54,7 +55,9 @@ export const R2CrashArchive = Layer.unwrap(
             httpMetadata: { contentType: "application/json" },
           })
           .pipe(Effect.provide(RuntimeContext.RuntimeContext.phantom)),
-      webCrypto.randomUUIDv4()
+      SecureRandom.SecureRandom.use((random) => random.uuidV4()).pipe(
+        Effect.provide(webCryptoLayer)
+      )
     );
   })
 ).pipe(Layer.provide(Cloudflare.R2.WriteBucketBinding));
