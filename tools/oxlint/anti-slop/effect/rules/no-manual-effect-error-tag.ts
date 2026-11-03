@@ -15,9 +15,9 @@ export const noManualEffectErrorTagRule = defineRule({
         "Use Effect tagged error handlers instead of manually branching on `_tag` in a catch handler.",
     },
     messages: {
-      tag: "Use Effect.catchTag or Effect.catchTags instead of manually discriminating a tagged error in a broad Effect catch handler.",
+      tag: "This broad Effect catch handler discriminates a tagged error by hand. A manual `_tag` check leaves the handled error in the error channel type. Fix: use `Effect.catchTag` or `Effect.catchTags`.",
       reason:
-        "Use Effect.catchReason or Effect.catchReasons instead of manually discriminating a tagged `reason` in a broad Effect catch handler.",
+        "This broad Effect catch handler discriminates a tagged `reason` by hand. A manual check leaves the handled reason in the error channel type. Fix: use `Effect.catchReason` or `Effect.catchReasons`.",
     },
   },
   createOnce(context) {

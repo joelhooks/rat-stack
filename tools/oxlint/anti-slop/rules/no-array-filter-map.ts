@@ -16,7 +16,7 @@ export const noArrayFilterMapRule = defineRule({
     },
     messages: {
       arrayFilterMap:
-        "Avoid consecutive array `{{first}}` and `{{second}}` passes. Prefer `.values().{{first}}(...).{{second}}(...).toArray()` where iterator helpers are supported, or a single `flatMap`/mutating reducer. Preserve callback ordering, indexes, and filtering semantics.",
+        "Consecutive array `{{first}}` and `{{second}}` passes build an intermediate array. The extra pass allocates a copy and walks the data twice. Fix: use `.values().{{first}}(...).{{second}}(...).toArray()` where iterator helpers exist, or one `flatMap`, and keep callback order, indexes, and filtering semantics.",
     },
   },
   createOnce(context) {

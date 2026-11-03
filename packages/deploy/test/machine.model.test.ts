@@ -261,7 +261,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
         return Effect.fail(
           new DeployStepError({
             keys: ["EXAMPLE_REQUIRED"],
-            reason: "credential-refused",
+            reason: "profile-credential-unavailable",
             step,
           })
         );

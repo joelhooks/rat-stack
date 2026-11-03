@@ -317,7 +317,7 @@ export const noKnownValueWideningRule = defineRule({
     },
     messages: {
       widening:
-        "The explicit {{target}} type on {{subject}} discards known type evidence. Keep inference, validate with `satisfies`, or use a named owner contract.",
+        "The explicit {{target}} type on {{subject}} discards known type evidence. Callers lose the precise type the compiler already had. Fix: drop the annotation and keep inference, check the value with `satisfies`, or use a named owner contract.",
     },
   },
   createOnce(context) {

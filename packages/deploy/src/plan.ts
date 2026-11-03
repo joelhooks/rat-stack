@@ -1,6 +1,8 @@
 import type { Plan } from "alchemy";
 import { Exit, Schema } from "effect";
 
+import { refusalMessage, RefusalReasonSchema } from "./refusals.js";
+
 export const PlanRowSchema = Schema.Struct({
   action: Schema.Literals([
     "create",
@@ -110,9 +112,18 @@ export class PlanRejected extends Schema.TaggedError<
   PlanRejected,
   { readonly brand: unique symbol }
 >()("PlanRejected", {
-  reason: Schema.String,
+  reason: RefusalReasonSchema,
   resources: Schema.Array(Schema.String),
-}) {}
+}) {
+  override get message() {
+    return refusalMessage(
+      this.reason,
+      this.resources.length === 0
+        ? "Plan"
+        : `Plan for ${this.resources.join(", ")}`
+    );
+  }
+}
 
 export type Classification =
   | { readonly outcome: "pass"; readonly rows: readonly PlanRow[] }

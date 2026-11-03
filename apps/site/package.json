@@ -43,8 +43,9 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
-    "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict --type-check && pnpm run --silent startup:check",
-    "typecheck:tsc": "node scripts/prepare-content.ts && tsc --noEmit -p tsconfig.json && pnpm run --silent startup:check",
+    "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict --type-check && pnpm run --silent typecheck:doc-fences && pnpm run --silent startup:check",
+    "typecheck:doc-fences": "effect-tsrs diagnostics --project tsconfig.doc-fences.json --strict --type-check",
+    "typecheck:tsc": "node scripts/prepare-content.ts && tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.doc-fences.json && pnpm run --silent startup:check",
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "startup:check": "node scripts/startup-budget.ts",
     "startup:profile": "pnpm run --silent generate && pnpm run --silent startup:check && wrangler check startup --worker dist/startup/worker.bundle --outfile dist/startup/worker.cpuprofile",

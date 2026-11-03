@@ -3,7 +3,7 @@ import type { Nodes, RootContent } from "mdast";
 
 import type { ComponentDefinition } from "./component-registry.ts";
 import type { BlockIndex, ContentBlock } from "./content-blocks.ts";
-import { buildError } from "./content-error.ts";
+import { buildError, violation } from "./content-error.ts";
 import {
   contentRoot,
   htmlTokens,
@@ -26,7 +26,11 @@ export const resolveReferencedBlock = (
     throw buildError(
       "block reference",
       sourcePath,
-      new Error(`Missing block reference ${ref.page}#${ref.id}`)
+      violation(
+        `Missing block reference ${ref.page}#${ref.id}.`,
+        "A Ref quotes a block from another page, and that block does not exist.",
+        `add \`{#${ref.id}}\` to the end of the paragraph on ${ref.page}, or point \`id\` at an existing block.`
+      )
     );
   }
 
@@ -128,7 +132,11 @@ const blockNodes = (
     throw buildError(
       "block reference",
       sourcePath,
-      new Error(`Block ${ref.page}#${ref.id} has no source node`)
+      violation(
+        `Block ${ref.page}#${ref.id} has no source node.`,
+        "The Ref cannot quote a block it cannot find in the source.",
+        `put \`{#${ref.id}}\` at the end of a plain paragraph or list item on ${ref.page}.`
+      )
     );
   }
 
@@ -176,7 +184,11 @@ const blockNodes = (
       throw buildError(
         "block reference",
         sourcePath,
-        new Error(`Block ${ref.page}#${ref.id} contains a nested Ref`)
+        violation(
+          `Block ${ref.page}#${ref.id} contains a nested Ref.`,
+          "Quoting a quote hides the original source.",
+          'reference the original block directly with `<Ref page="..." id="..."/>`.'
+        )
       );
     }
   });
@@ -213,7 +225,11 @@ export const createRefComponent = (index: BlockIndex): ComponentDefinition => ({
       throw buildError(
         "block reference",
         context.sourcePath,
-        new Error("Ref requires a standalone block")
+        violation(
+          "Ref requires a standalone block.",
+          "A Ref renders a whole quoted block, which cannot sit inside a sentence.",
+          'put `<Ref page="..." id="..."/>` on its own line with blank lines around it.'
+        )
       );
     }
 
@@ -242,7 +258,11 @@ export const createRefComponent = (index: BlockIndex): ComponentDefinition => ({
       throw buildError(
         "block reference",
         context.sourcePath,
-        new Error("Ref requires a standalone block")
+        violation(
+          "Ref requires a standalone block.",
+          "A Ref renders a whole quoted block, which cannot sit inside a sentence.",
+          'put `<Ref page="..." id="..."/>` on its own line with blank lines around it.'
+        )
       );
     }
 

@@ -28,7 +28,7 @@ Sam Goodwin describes an Effect as a promise with more information: its return v
 
 - **Alchemy Stack** groups one infrastructure program and its outputs. Rat-stack exports `Alchemy.Stack("RatStack", ...)` in `apps/infra/alchemy.run.ts`.
 - **Provider** supplies the cloud API implementation. `Cloudflare.providers()` appears in the Stack options in `apps/infra/alchemy.run.ts`.
-- **State** records the resources that a Stack already owns. Rat-stack keeps its own store, the Worker `alchemy-state-store-ratstack-state-store`, which both entrypoints load from `apps/infra/src/state-store.ts`. The excerpt below shows the default store, `Cloudflare.state()`.
+- **State** records the resources that a Stack already owns. Rat-stack keeps its own store, the Worker `alchemy-state-store-ratstack-state-store`, which both entrypoints load from `apps/infra/src/state-store.ts`. The excerpt below loads it with `ratstackState()`.
 - **Resource** is a declared cloud object such as a Zone, DNS record, DNSSEC setting, or Worker. Each gets a stable logical name in `apps/infra/alchemy.run.ts`.
 - **Binding** is a typed runtime value attached to a Worker. Rat-stack declares the `CODE_SANDBOX` WorkerLoader and four RateLimit bindings in `apps/site/src/worker.ts`.
 - **Plan** shows differences between declared resources and stored deployment state before a provider changes anything. Read it with the `plan` script in `apps/infra/package.json`.
@@ -43,7 +43,7 @@ Read `apps/infra/alchemy.run.ts` from top to bottom.
 
 1. The file imports Alchemy, the Cloudflare provider, Effect, and the `Mischief` Worker from `apps/site/src/worker.ts`.
 2. `Alchemy.Stack` creates the program. `Effect.gen` gives it a place to yield resources and return outputs.
-3. `Cloudflare.providers()` supplies Cloudflare operations. `Cloudflare.state()` lets Alchemy compare this run with prior state.
+3. `Cloudflare.providers()` and `Drizzle.providers()` supply provider operations. `ratstackState()` lets Alchemy compare this run with prior state.
 4. `ALCHEMY_DEV` guards resources that should not be touched by local development.
 5. The Zone is named `RatstackZone` and adopted because `ratstack.sh` already exists. A Zone normally retains on destroy, and this Stack does not opt into deleting it.
 6. The DNS-AID SVCB and TXT records point agent discovery at the deployed site. They use the adopted Zone's `zoneId`.
@@ -55,16 +55,8 @@ Read `apps/infra/alchemy.run.ts` from top to bottom.
 
 The outputs omit the production DNS declarations:
 
-```ts
-export default Alchemy.Stack(
-  "RatStack",
-  { providers: Cloudflare.providers(), state: Cloudflare.state() },
-  Effect.gen(function* stack() {
-    const mischief = yield* Mischief;
-    const website = yield* Website;
-    return { mischiefUrl: mischief.url, websiteUrl: website.url };
-  })
-);
+```ts repo=rat-stack path=apps/infra/alchemy.run.ts at=81a12c4b86cd65bf86e4bdba98eda122d0133844 lines=17-23,119-130
+
 ```
 
 The Stack is an Effect. Importing it describes work. The CLI runs it during a plan or deploy.
@@ -73,19 +65,8 @@ The Stack is an Effect. Importing it describes work. The CLI runs it during a pl
 
 `apps/site/src/worker.ts` exports `class Mischief extends Cloudflare.Worker<Mischief>()(...) {}` with `main: import.meta.url`, so Alchemy bundles the default Worker export. Its construction Effect yields bindings before it returns the `fetch` implementation. Alchemy populates `Cloudflare.WorkerEnvironment` dynamically; this repo keeps the expected binding shape in local types at that boundary.
 
-```ts
-const stageRateLimits = rateLimitDeclarations(yield * Stage);
-yield * Cloudflare.WorkerLoader("CODE_SANDBOX");
-yield * Cloudflare.RateLimit("API_PER_IP", stageRateLimits.API_PER_IP);
-yield * Cloudflare.RateLimit("EXECUTE_GLOBAL", stageRateLimits.EXECUTE_GLOBAL);
-yield * Cloudflare.RateLimit("EXECUTE_PER_IP", stageRateLimits.EXECUTE_PER_IP);
-yield *
-  Cloudflare.RateLimit("INTEREST_PER_IP", stageRateLimits.INTEREST_PER_IP);
-const environment = yield * Cloudflare.WorkerEnvironment;
-// SAFETY: the Worker construction declares every RateLimitBindings member and CODE_SANDBOX before reading this environment.
-const bindings = environment as RateLimitBindings & {
-  readonly CODE_SANDBOX: WorkerLoaderBinding;
-};
+```ts repo=rat-stack path=apps/site/src/worker.ts at=81a12c4b86cd65bf86e4bdba98eda122d0133844 lines=109-122,178-184,381-383
+
 ```
 
 `apps/site/src/rate-limits.ts` keeps the four native binding names and their numeric namespace IDs together. `rateLimitsFrom` calls the native `.limit({ key })` method and turns a failed runtime call into a defect instead of failing open.

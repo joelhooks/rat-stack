@@ -99,6 +99,7 @@ import {
   sectionOf,
   SYSTEMS_DIRECTORY,
   validateInternalLinks,
+  violation,
   withMarkdownTitle,
 } from "./content-lib.ts";
 import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
@@ -112,6 +113,7 @@ import {
 import { lawSpecs } from "./content-specs.ts";
 import type { SourceSpec } from "./content-specs.ts";
 import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
+import { referenceBodies, writeDocFences } from "./doc-fences.ts";
 import { renderCopyPrompt, renderDocumentShell } from "./document-html.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
@@ -618,7 +620,11 @@ const assertWovenLoreRoutes = (
         throw buildError(
           `internal link ${route}`,
           page.sourcePath,
-          new Error(`resolves to unserved route ${route}`)
+          violation(
+            `resolves to unserved route ${route}.`,
+            "Readers would follow the link to a 404.",
+            `change the link to a published route, or publish a page at \`${route}\`.`
+          )
         );
       }
     }
@@ -662,7 +668,11 @@ const renderDocument = Effect.fn("renderDocument")(function* renderDocument(
     ) > 0
   ) {
     return yield* new ContentBuildError({
-      cause: new Error("Static documents must not contain client scripts"),
+      cause: violation(
+        "Static documents must not contain client scripts.",
+        "Static pages ship as plain HTML so they render without JavaScript.",
+        "remove the `<script>` from the page or its component, and put interactive code in `apps/web`."
+      ),
       sourcePath,
       stage: "document render",
     });
@@ -811,7 +821,11 @@ const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
     return yield* buildError(
       "debt lint exit",
       "oxlint",
-      new Error(`Oxlint exited ${process.exitCode}: ${process.stderr}`)
+      violation(
+        `Oxlint exited ${process.exitCode}: ${process.stderr}.`,
+        "The debt ledger counts directives from oxlint's output, so a crashed run has no count.",
+        "rerun `pnpm exec oxlint -c scripts/oxlint-debt-ledger.config.ts` and fix the error it prints."
+      )
     );
   }
 
@@ -819,8 +833,10 @@ const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
     return yield* buildError(
       "debt lint scope",
       "oxlint",
-      new Error(
-        `Expected ${debtSourcePaths.length} files and one rule; oxlint checked ${lint.fileCount} files and ${lint.ruleCount} rules.`
+      violation(
+        `Expected ${debtSourcePaths.length} files and one rule; oxlint checked ${lint.fileCount} files and ${lint.ruleCount} rules.`,
+        "A ledger over the wrong files or rules reports the wrong debt.",
+        "make `scripts/oxlint-debt-ledger.config.ts` enable only `rat-stack-debt/debt-ledger`, and keep `isDebtSourcePath` in `apps/site/scripts/content-lib.ts` matching its ignore patterns."
       )
     );
   }
@@ -1280,8 +1296,10 @@ const program = Effect.gen(function* generateContent() {
 
         if (name !== directoryName) {
           return yield* new ContentBuildError({
-            cause: new Error(
-              `Skill directory ${directoryName} does not match frontmatter name ${name}`
+            cause: violation(
+              `Skill directory ${directoryName} does not match frontmatter name ${name}.`,
+              "The skill's URL comes from its directory and its identity from its name, so they must agree.",
+              `set \`name: ${directoryName}\` in \`skills/${directoryName}/SKILL.md\`, or rename the directory.`
             ),
             sourcePath,
             stage: "frontmatter",
@@ -3517,6 +3535,15 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       buildError("content resources", "apps/site/src/content-data.ts", cause)
     )
   );
+
+  yield* writeDocFences({
+    published: [
+      ...resources,
+      { routePath: "/llms.txt", sourcePath: "", text: llmsSourceMarkdown },
+    ],
+    references: referenceBodies(preparedCode.snippets.values()),
+    root,
+  });
 
   const learnCards = yield* buildLearningDeck(
     loreTexts,

@@ -1,10 +1,10 @@
-import { codeIdentity } from "@rat-stack/code-snippets";
+import { codeIdentity, isConfiguredFence } from "@rat-stack/code-snippets";
 import { Predicate, Schema } from "effect";
 import type { Nodes, Root, RootContent } from "mdast";
 
 import { bibliographySourceSchema, copyPrompts } from "./component-data.ts";
 import type { BibliographySource, CopyPromptSpec } from "./component-data.ts";
-import { buildError } from "./content-error.ts";
+import { buildError, violation } from "./content-error.ts";
 import {
   contentRoot,
   frontmatterData,
@@ -103,16 +103,14 @@ const pointerAgent = (): readonly RootContent[] => [
   },
 ];
 
-const configuredCodeNode = (node: {
-  readonly lang?: string | null | undefined;
-  readonly meta?: string | null | undefined;
-}) =>
-  (node.meta ?? "") !== "" ||
-  (node.lang ?? "").includes("=") ||
-  (node.lang ?? "").startsWith("{");
-
 const codeFenceInput = (node: Nodes): ComponentInput | undefined =>
-  node.type === "code" && configuredCodeNode(node)
+  node.type === "code" &&
+  isConfiguredFence({
+    lang: node.lang,
+    line: node.position?.start.line ?? 1,
+    meta: node.meta,
+    value: node.value,
+  })
     ? {
         attributes: { key: codeIdentity(node) },
         children: contentRoot([]),
@@ -171,7 +169,15 @@ const coreComponents = {
       )?.[1];
 
       if (prompt === undefined) {
-        throw buildError("CopyPrompt", id, new Error("Unknown prompt id"));
+        throw buildError(
+          "CopyPrompt",
+          id,
+          violation(
+            "Unknown prompt id.",
+            "CopyPrompt copies a prompt declared in the component data, and this id has none.",
+            "use an id from `copyPrompts` in `apps/site/scripts/component-data.ts`, or add the prompt there."
+          )
+        );
       }
 
       if (variant === "primary") {
@@ -210,7 +216,15 @@ const coreComponents = {
       )?.[1];
 
       if (prompt === undefined) {
-        throw buildError("CopyPrompt", id, new Error("Unknown prompt id"));
+        throw buildError(
+          "CopyPrompt",
+          id,
+          violation(
+            "Unknown prompt id.",
+            "CopyPrompt copies a prompt declared in the component data, and this id has none.",
+            "use an id from `copyPrompts` in `apps/site/scripts/component-data.ts`, or add the prompt there."
+          )
+        );
       }
 
       if (audience === "agent") {
@@ -316,7 +330,11 @@ export const createComponentRegistry = (
       throw buildError(
         "component registry",
         name,
-        new Error("Every component requires human and agent renderers")
+        violation(
+          "Every component requires human and agent renderers.",
+          "Each page renders twice, as HTML for people and Markdown for agents.",
+          "give the component both `human` and `agent` functions in `apps/site/scripts/component-registry.ts`."
+        )
       );
     }
   }
@@ -348,7 +366,11 @@ export const renderComponent = (
     throw buildError(
       "component registry",
       context.sourcePath,
-      new Error(`No agent renderer registered for ${input.name}`)
+      violation(
+        `No agent renderer registered for ${input.name}.`,
+        "The agent Markdown of this page cannot render the component.",
+        `register \`${input.name}\` with an \`agent\` renderer in \`createComponentRegistry\`, or remove it from the page.`
+      )
     );
   }
 
@@ -361,7 +383,11 @@ export const renderComponent = (
     throw buildError(
       "component placement",
       context.sourcePath,
-      new Error(`${input.name} emits blocks and must be placed on its own line`)
+      violation(
+        `${input.name} emits blocks and must be placed on its own line.`,
+        "Block output inside a sentence breaks the paragraph around it.",
+        `put \`<${input.name} .../>\` on its own line with blank lines around it.`
+      )
     );
   }
 
@@ -419,8 +445,10 @@ const phrasingHtml = (nodes: readonly RootContent[]): string =>
       throw buildError(
         "HTML component placement",
         node.type,
-        new Error(
-          "This component requires a Markdown block, not an inline HTML container"
+        violation(
+          "This component requires a Markdown block, not an inline HTML container.",
+          "Inline HTML containers cannot hold the blocks the component emits.",
+          "move the component out of the HTML element onto its own line, with blank lines around it."
         )
       );
     })
@@ -518,7 +546,11 @@ const componentRanges = (
       throw buildError(
         "component position",
         sourcePath,
-        new Error("HTML token has no source span")
+        violation(
+          "HTML token has no source span.",
+          "The content build cannot place a component it cannot locate in the source.",
+          "this is a content-build defect, so rerun `pnpm --filter @rat-stack/site generate` and, if it repeats, report the page and the component tag."
+        )
       );
     }
 
@@ -553,8 +585,10 @@ const componentRanges = (
         throw buildError(
           "component attributes",
           sourcePath,
-          new Error(
-            `${token.name} accepts only quoted string attributes, not expressions`
+          violation(
+            `${token.name} accepts only quoted string attributes, not expressions.`,
+            "Pages are content, not code, so attributes are plain strings.",
+            'write each attribute as `name="value"`, not `name={value}`.'
           )
         );
       }
@@ -585,7 +619,11 @@ const componentRanges = (
         throw buildError(
           "component nesting",
           sourcePath,
-          new Error(`Unmatched ${token.name} closing tag`)
+          violation(
+            `Unmatched ${token.name} closing tag.`,
+            "The closing tag has no matching opening tag, so the page's structure is ambiguous.",
+            `add the opening \`<${token.name}>\` or delete the stray \`</${token.name}>\`.`
+          )
         );
       }
 
@@ -599,7 +637,11 @@ const componentRanges = (
     throw buildError(
       "component nesting",
       sourcePath,
-      new Error(`Unclosed ${pending.at(-1)?.name}`)
+      violation(
+        `Unclosed ${pending.at(-1)?.name}.`,
+        "Everything after the opening tag would fall inside the component.",
+        `close it with \`</${pending.at(-1)?.name}>\`, or write it self-closing as \`<${pending.at(-1)?.name} />\`.`
+      )
     );
   }
 
@@ -831,8 +873,10 @@ export const assertAgentPointerLayout = (
     throw buildError(
       "agent pointer layout",
       pagePath,
-      new Error(
-        `Expected ${expected} AgentPointer component immediately under the first H1, found ${pointers.length}`
+      violation(
+        `Expected ${expected} AgentPointer component immediately under the first H1, found ${pointers.length}.`,
+        "Agents find the Markdown version of a page through that pointer.",
+        "put exactly one `<AgentPointer />` on the line after the `# Title`, or none on pages that opt out."
       )
     );
   }

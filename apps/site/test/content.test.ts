@@ -541,7 +541,7 @@ it.effect("rejects a lore term claimed by two pages", () =>
 
     expect(thrown).toBeInstanceOf(ContentBuildError);
     expect(thrown?.cause).toMatchObject({
-      message: 'term "Shared term" is claimed by multiple pages',
+      what: 'term "Shared term" is claimed by multiple pages.',
     });
     expect(thrown?.sourcePath).toBe(
       ".brain/resources/lore/two.svx (previous claimant: .brain/resources/lore/one.svx)"

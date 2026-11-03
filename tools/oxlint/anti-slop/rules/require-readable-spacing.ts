@@ -73,6 +73,12 @@ export const requireReadableSpacingRule: CreateRule = {
       description:
         "Require readable spacing between declarations and logical statement groups.",
     },
+    messages: {
+      expectedBlankLine:
+        "Expected blank line before this statement. Blank lines separate declarations and logical statement groups, so a reader can see where one step ends. Fix: insert a blank line, or run `pnpm fix`.",
+      unexpectedBlankLine:
+        "Unexpected blank line before this statement. Short bindings and overloads stay grouped, and a stray blank line splits the group. Fix: delete the blank line, or run `pnpm fix`.",
+    },
     schema: [],
   },
 };

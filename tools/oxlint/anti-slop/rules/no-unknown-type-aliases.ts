@@ -17,7 +17,7 @@ export const noUnknownTypeAliasesRule = defineRule({
     },
     messages: {
       unknownAlias:
-        "Type alias `{{alias}}` hides `unknown`. Keep `unknown` explicit at the parsing boundary or on an allowed `cause` field; otherwise use the parsed owner type.",
+        "Type alias `{{alias}}` hides `unknown`. The alias makes unparsed data look like a domain type. Fix: write `unknown` explicitly at the parsing boundary or on an allowed `cause` field, and use the parsed owner type everywhere else.",
     },
   },
   createOnce(context) {

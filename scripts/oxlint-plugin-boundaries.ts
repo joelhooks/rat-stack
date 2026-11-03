@@ -906,14 +906,15 @@ const noCrossLayerImports = defineRule({
     },
     messages: {
       capabilityDomain:
-        "packages/capability cannot import packages/core domain code.",
+        "packages/capability cannot import packages/core domain code. Core depends on capability, so this import makes a cycle. Fix: move the shared type into `packages/capability`, or pass the value in as a parameter.",
       eventsBasinOwner:
-        "Import shared Basin infrastructure from @rat-stack/basin, not the events cartridge.",
+        "This imports shared Basin infrastructure from the events cartridge. Deleting the cartridge would then break every other Basin user. Fix: import it from `@rat-stack/basin`.",
       eventsSeam:
-        "Reach the events cartridge only through apps/site/src/events.ts, so removing it stays one line.",
+        "This module reaches the events cartridge directly. Removing the cartridge must stay a one-line change. Fix: import from `apps/site/src/events.ts`, the only file that may import `@rat-stack/events/site`.",
       infraOwner:
-        "apps/infra owns its Stack wiring; import a capability or service contract instead.",
-      packageApp: "Packages cannot import application code.",
+        "This module imports Stack wiring from apps/infra. The Stack owns its wiring, and outside imports braid deploy code into runtime code. Fix: import the capability or service contract the Stack provides, for example from `@rat-stack/core/contracts`.",
+      packageApp:
+        "Packages cannot import application code. Dependencies run from apps to packages, so this import makes a cycle. Fix: move the shared code into a package under `packages/`, or have the app pass it in.",
     },
     type: "problem",
   },
@@ -967,7 +968,7 @@ const noCoreAdapters = defineRule({
     },
     messages: {
       coreAdapter:
-        "Core cannot import HTTP clients or adapters. Provide a domain port from the composition root instead.",
+        "Core cannot import HTTP clients or adapters. Core owns job-shaped ports, so a provider inside it cannot be swapped or removed. Fix: declare a port in `packages/core`, implement it in an adapter package such as `packages/subscriber-delivery`, and provide it from the composition root.",
     },
     type: "problem",
   },
@@ -1004,9 +1005,9 @@ const noBrowserServerImports = defineRule({
     },
     messages: {
       capabilityImport:
-        "Feature and client modules can import only browser-safe contract entry points; capability handlers and other domain implementation modules stay server-side.",
+        "Feature and client modules can import only browser-safe contract entry points. Capability handlers and domain implementation would ship server code to the browser. Fix: import from `@rat-stack/core/contracts` or `@rat-stack/capability/rpc-group`, and reach the handler through the `RpcClient`.",
       serverImport:
-        "Feature and client modules cannot import Node, Alchemy, Worker, infra, or server-only modules.",
+        "Feature and client modules cannot import Node, Alchemy, Worker, infra, or server-only modules. The browser bundle would fail to build or leak server code. Fix: put the work behind a capability and call it from a named `Command.define` in `apps/web/src/client`.",
     },
     type: "problem",
   },
@@ -1167,7 +1168,7 @@ const noFeatureTransport = defineRule({
     },
     messages: {
       featureTransport:
-        "Features read atoms and call named commands from apps/web/src/client; do not use fetch or construct transport clients here.",
+        "Features cannot use fetch or construct transport clients. Transport, retries, and failures belong in the client program, where update folds the result into the Model. Fix: send a Message and run a named `Command.define` from `apps/web/src/client/<name>/`.",
     },
     type: "problem",
   },
@@ -1303,7 +1304,7 @@ const noHandRolledSurface = defineRule({
     },
     messages: {
       handRolled:
-        "{{call}} hand-rolls a surface. Define a contract with defineContract, implement it, and project it with toRpcGroup, toRpc, toHttpApi, or toToolkit so every surface shares one definition.",
+        "{{call}} hand-rolls a surface. A hand-built surface drifts from the schemas every other surface shares. Fix: declare the action with `defineContract`, bind it with `implement`, and project it with `toRpcGroup`, `toRpc`, `toHttpApi`, or `toToolkit`.",
     },
     type: "problem",
   },
@@ -1420,7 +1421,7 @@ const noBrowserGlobalsOnServer = defineRule({
     },
     messages: {
       browserGlobal:
-        "{{name}} exists only in a browser. Server, Worker, and package code runs without it; move this into apps/*/src/client or apps/*/src/features.",
+        "{{name}} exists only in a browser. Server, Worker, and package code runs without it, so this throws at runtime. Fix: move the code into `apps/*/src/client` or `apps/*/src/features`, or pass the value in from the browser.",
     },
     type: "problem",
   },
@@ -1480,9 +1481,9 @@ const noDevtoolsInProduction = defineRule({
     },
     messages: {
       devFolder:
-        "Only modules inside {{folder}} may import it. The dev composition is an entry of its own; production code must not reach it.",
+        "Only modules inside {{folder}} may import it. The dev composition is an entry of its own, and production code must not reach it. Fix: move the importing module under `{{folder}}`, or import a production module instead.",
       devtools:
-        "Devtools and test people (@rat-stack/devtools, @rat-stack/auth/devtools) belong in apps/*/src/dev/**, apps/cli, or tests. rat_call and rat_test_person bypass per-request auth and create accounts with a fixed password, so a production composition must never include them.",
+        "Devtools and test people (@rat-stack/devtools, @rat-stack/auth/devtools) belong in apps/*/src/dev/**, apps/cli, or tests. The rat_call and rat_test_person capabilities bypass per-request auth and create accounts with a fixed password, so a production composition must never include them. Fix: move this import into `apps/<app>/src/dev/`, `apps/cli`, or a test file.",
     },
     type: "problem",
   },
@@ -1536,9 +1537,9 @@ const noCodeSnippetsInRuntime = defineRule({
     },
     messages: {
       adapterOnly:
-        "Code-snippets core cannot import Shiki; use the Highlighter port.",
+        "Code-snippets core cannot import Shiki. Core stays adapter-free so the highlighter can be swapped or removed. Fix: depend on the `Highlighter` port and provide the adapter from `@rat-stack/code-snippets/shiki`.",
       buildOnly:
-        "Code snippets and Shiki are build-only; keep them out of runtime src modules.",
+        "Code snippets and Shiki are build-only and cannot reach runtime src modules. They would add megabytes to the Worker startup bundle. Fix: run the import from a build script under `apps/site/scripts` and read its generated output at runtime.",
     },
     type: "problem",
   },

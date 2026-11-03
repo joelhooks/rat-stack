@@ -39,6 +39,7 @@ import { callApprovalContext, capabilityInteraction } from "./interaction.js";
 import { classifyPlan, planRows } from "./plan.js";
 import { applyWithProviderEvidence } from "./provider-errors.js";
 import { ReceiptStore } from "./receipt-store.js";
+import type { RefusalReason } from "./refusals.js";
 import { watchVerdict } from "./watch.js";
 import {
   readWorkerVersionSet,
@@ -115,7 +116,7 @@ export const readCurrentWorkerVersion = Effect.fn("readCurrentWorkerVersion")(
 
 const stepError = (
   step: DeployStepError["step"],
-  reason: string,
+  reason: RefusalReason,
   keys: readonly string[] = []
 ) => new DeployStepError({ keys, reason, step });
 

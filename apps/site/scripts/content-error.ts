@@ -1,5 +1,11 @@
 import { Schema } from "effect";
 
+import { ContentRuleViolation } from "./content-rule-violation.ts";
+
+export { ContentRuleViolation, violation } from "./content-rule-violation.ts";
+
+const isContentRuleViolation = Schema.is(ContentRuleViolation);
+
 export class ContentBuildError extends Schema.TaggedError<
   ContentBuildError,
   { readonly brand: unique symbol }
@@ -9,7 +15,11 @@ export class ContentBuildError extends Schema.TaggedError<
   stage: Schema.String,
 }) {
   override get message() {
-    return `${this.stage} failed for ${this.sourcePath}`;
+    const location = `${this.stage} failed for ${this.sourcePath}`;
+
+    return isContentRuleViolation(this.cause)
+      ? `${location}: ${this.cause.message}`
+      : location;
   }
 }
 

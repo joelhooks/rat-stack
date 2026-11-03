@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "dist/doc-fences/**/*.ts",
+    "dist/doc-fences/**/*.tsx",
+    "dist/doc-fences/**/*.mts",
+    "dist/doc-fences/**/*.cts"
+  ],
+  "compilerOptions": { "noEmit": true }
+}

@@ -23,7 +23,11 @@ export const StartupGraph = Schema.Struct({
 export class StartupGraphInvalid extends Schema.TaggedError<
   StartupGraphInvalid,
   { readonly brand: unique symbol }
->()("StartupGraphInvalid", { detail: Schema.String, entry: Schema.String }) {}
+>()("StartupGraphInvalid", { detail: Schema.String, entry: Schema.String }) {
+  override get message() {
+    return `The startup graph for ${this.entry} is incomplete: ${this.detail}. Without the full static graph the size gate cannot count startup bytes. Fix: inspect \`analysis.json\` in \`apps/site/dist/startup\` or \`apps/site/dist/startup-auth\`, then rerun \`pnpm --filter @rat-stack/site startup:check\`.`;
+  }
+}
 
 export const assertStartupBudget = (
   bytes: number,
@@ -59,7 +63,7 @@ export const measureStartupSet = Effect.fn("measureStartupSet")(
 
       if (!chunk || !file) {
         return yield* new StartupGraphInvalid({
-          detail: `Static chunk ${index} (${chunk?.name ?? "unknown"}) is absent from the graph or upload; inspect analysis.json and rebuild`,
+          detail: `static chunk ${index} (${chunk?.name ?? "unknown"}) is absent from the graph or upload`,
           entry,
         });
       }

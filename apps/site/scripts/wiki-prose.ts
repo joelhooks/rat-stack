@@ -96,20 +96,20 @@ export const wikiProseWarningText = (warning: WikiProseWarning): string => {
 
   switch (warning.kind) {
     case "history": {
-      return `${location} history wording "${warning.match}"; describe the present`;
+      return `${location} history wording "${warning.match}". A page describes what is true now, and history belongs in the commit. Fix: rewrite the sentence in the present tense without \`${warning.match}\`.`;
     }
 
     case "hedge": {
-      return `${location} contrast hedge "${warning.match}"; state the positive claim`;
+      return `${location} contrast hedge "${warning.match}". Defining a thing by what it is not makes the reader do the work. Fix: delete \`${warning.match}\` and state the positive claim.`;
     }
 
     case "em-dash": {
-      return `${location} em dash; use a comma, colon, or full stop`;
+      return `${location} em dash. House style keeps one clause per punctuation mark, and em dashes stack clauses. Fix: replace the \`—\` with a comma, colon, or full stop.`;
     }
 
     case "paragraph":
     case "sentence": {
-      return `${location} ${warning.kind} has ${warning.count} ${warning.kind === "sentence" ? "words" : "sentences"} (aim ≤${warning.limit})`;
+      return `${location} ${warning.kind} has ${warning.count} ${warning.kind === "sentence" ? "words" : "sentences"} (aim ≤${warning.limit}). Long ${warning.kind}s lose readers and agents alike. Fix: ${warning.kind === "sentence" ? `split it into sentences of at most ${warning.limit} words, for example at an \`and\` or a \`;\`` : `insert a blank line in \`${warning.file}\` so each paragraph has at most ${warning.limit} sentences`}.`;
     }
 
     default: {

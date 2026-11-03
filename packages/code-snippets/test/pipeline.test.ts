@@ -108,7 +108,7 @@ const messageCases = [
     tag: "CodeLineCapExceeded",
   },
   {
-    expected: `${prefix("CodeUnknownKey", "rat-stack", "<inline>", "<inline>", "all")}Unknown key bogus; use repo, path, at, lines or title.`,
+    expected: `${prefix("CodeUnknownKey", "rat-stack", "<inline>", "<inline>", "all")}Unknown key bogus; use repo, path, at, lines, title or nocheck.`,
     node: fence("bogus=yes"),
     tag: "CodeUnknownKey",
   },

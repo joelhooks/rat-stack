@@ -38,7 +38,14 @@ const digits = (value: string) => {
   return value !== "";
 };
 
-const allowedKeys = new Set(["repo", "path", "at", "lines", "title"]);
+const allowedKeys = new Set([
+  "repo",
+  "path",
+  "at",
+  "lines",
+  "title",
+  "nocheck",
+]);
 
 const quotedString = Schema.fromJsonString(Schema.String);
 
@@ -112,7 +119,9 @@ const scanPair = Effect.fn("scanPair")(function* scanPair(
 
   if (!allowedKeys.has(key)) {
     return yield* new CodeUnknownKey(
-      context(`Unknown key ${key}; use repo, path, at, lines or title.`)
+      context(
+        `Unknown key ${key}; use repo, path, at, lines, title or nocheck.`
+      )
     );
   }
 
@@ -212,6 +221,14 @@ const validateReference = Effect.fn("validateReference")(
       return false;
     }
 
+    if (fields.nocheck !== undefined) {
+      return yield* new CodeInvalidProps(
+        context(
+          "Remove nocheck; a pinned reference compiles in the file it quotes."
+        )
+      );
+    }
+
     if (body.trim() !== "") {
       return yield* new CodeBodyWithReference(
         context(
@@ -280,6 +297,7 @@ const scannedRequest = Effect.fn("scannedRequest")(function* scannedRequest(
     highlights,
     language: selectedLanguage,
     line: node.line,
+    noCheck: fields.nocheck,
     path: fields.path ?? "<inline>",
     rangeText: fields.lines ?? "all",
     ranges,
@@ -366,7 +384,8 @@ export const parseCodeRequest = Effect.fn("parseCodeRequest")(
       sourcePath,
       fields,
       highlightText,
-      meta !== "",
+      highlightText !== undefined ||
+        Object.keys(fields).some((key) => key !== "nocheck"),
       hasLanguage ? rawLanguage : "",
       context
     );
@@ -388,12 +407,30 @@ export const printCodeRequest = (request: CodeRequest): CodeFence => {
       ? ""
       : `{${request.highlights.map((range) => (range.start === range.end ? String(range.start) : `${range.start}-${range.end}`)).join(",")}} `;
 
+  const noCheck =
+    request.noCheck === undefined
+      ? []
+      : [`nocheck=${JSON.stringify(request.noCheck)}`];
+
+  const meta = [
+    ...(request.configured
+      ? [`${fields}${highlights}title=${JSON.stringify(request.title)}`]
+      : []),
+    ...noCheck,
+  ].join(" ");
+
   return {
     lang: request.language,
     line: request.line,
-    meta: request.configured
-      ? `${fields}${highlights}title=${JSON.stringify(request.title)}`
-      : null,
+    meta: meta === "" ? null : meta,
     value: request.body,
   };
 };
+
+export const isConfiguredFence = (node: CodeFence) =>
+  Effect.runSync(
+    parseCodeRequest(node, "<render>").pipe(
+      Effect.map((request) => request.configured),
+      Effect.orElseSucceed(() => true)
+    )
+  );

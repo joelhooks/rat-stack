@@ -2,6 +2,7 @@ import { VerdictSchema } from "@rat-stack/check-harness";
 import { Schema } from "effect";
 
 import { PlanRowsSchema, PlanRowSchema } from "./plan.js";
+import { refusalFix, refusalMessage, RefusalReasonSchema } from "./refusals.js";
 import { CheckoutStateSchema, CommitShaSchema } from "./source.js";
 
 export const DeployInputSchema = Schema.Struct({
@@ -59,7 +60,7 @@ export class DeployStepError extends Schema.TaggedError<
   { readonly brand: unique symbol }
 >()("DeployStepError", {
   keys: Schema.Array(Schema.String),
-  reason: Schema.String,
+  reason: RefusalReasonSchema,
   step: Schema.Literals([
     "source",
     "preflight",
@@ -68,7 +69,13 @@ export class DeployStepError extends Schema.TaggedError<
     "apply",
     "checks",
   ]),
-}) {}
+}) {
+  override get message() {
+    const keys = this.keys.length === 0 ? "" : ` (${this.keys.join(", ")})`;
+
+    return refusalMessage(this.reason, `Deploy step ${this.step}${keys}`);
+  }
+}
 
 export const DeployVerdictSchema = Schema.Struct({
   checkout: Schema.optionalKey(CheckoutStateSchema),
@@ -102,6 +109,10 @@ export const DeployReportSchema = Schema.Struct({
       reason: Schema.String,
     })
   ),
+  fix: Schema.optionalKey(Schema.String).annotateKey({
+    description:
+      "The next step for a refused deploy. Present only when the outcome is refused for a known reason.",
+  }),
   keys: Schema.Array(Schema.String),
   outcome: DeployVerdictSchema.fields.outcome,
   profile: Schema.String,
@@ -155,7 +166,10 @@ export const deployReport = (
           rollbackReceipt: `.rat/deploy/${encodeURIComponent(verdict.receipt.profile)}/last-apply.json`,
         };
 
-  return verdictPath === undefined
-    ? withReceipt
-    : { ...withReceipt, verdictPath };
+  const fix =
+    verdict.outcome === "refused" ? refusalFix(verdict.reason) : undefined;
+
+  const withFix = fix === undefined ? withReceipt : { ...withReceipt, fix };
+
+  return verdictPath === undefined ? withFix : { ...withFix, verdictPath };
 };

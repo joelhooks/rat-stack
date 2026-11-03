@@ -5,7 +5,7 @@ import { Effect } from "effect";
 import type { Nodes } from "mdast";
 import type { Plugin } from "unified";
 
-import { buildError } from "./content-lib.ts";
+import { buildError, violation } from "./content-lib.ts";
 import { markdownHast } from "./markdown-html.ts";
 import {
   htmlPlainText,
@@ -174,7 +174,11 @@ export const paragraphAnchors =
             throw buildError(
               "block anchor",
               "content",
-              new Error(`Duplicate explicit block ID ${id}`)
+              violation(
+                `Duplicate explicit block ID ${id}.`,
+                "A Ref must resolve to exactly one block.",
+                `rename one \`{#${id}}\` anchor so each ID on the page is unique.`
+              )
             );
           }
 

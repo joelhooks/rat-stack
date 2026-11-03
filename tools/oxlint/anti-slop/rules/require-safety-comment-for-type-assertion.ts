@@ -95,7 +95,7 @@ export const requireSafetyCommentForTypeAssertionRule = defineRule({
     },
     messages: {
       missingSafetyComment:
-        "This type assertion has no `{{marker}}:` justification. State the checked invariant immediately before the assertion or its containing statement.",
+        "This type assertion has no `{{marker}}:` justification. An unexplained assertion trusts a type nobody checked. Fix: state the checked invariant on the line before the assertion or its statement, as `// {{marker}}: <invariant>`.",
     },
     schema: [
       {

@@ -12,7 +12,7 @@ export const noReflectApplyRule = defineRule({
     },
     messages: {
       reflectApply:
-        "Replace `Reflect.apply` with a typed function call. Model dynamic dispatch behind a named interface.",
+        "`Reflect.apply` calls a function without a typed signature. Its arguments and result escape type checking. Fix: call the function directly as `fn(...args)`, and model dynamic dispatch behind a named interface.",
     },
   },
   createOnce(context) {

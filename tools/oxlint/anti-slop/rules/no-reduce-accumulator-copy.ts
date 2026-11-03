@@ -101,7 +101,7 @@ export const noReduceAccumulatorCopyRule = defineRule({
     },
     messages: {
       accumulatorCopy:
-        "Do not copy the reducer accumulator on every iteration; growing copies can cause quadratic work. Mutate a fresh, locally owned accumulator and return it, or use an iterator pipeline/flatMap.",
+        "This reducer copies its accumulator on every iteration. Growing copies make the reduce quadratic. Fix: mutate a fresh, locally owned accumulator and return it, or use an iterator pipeline or `flatMap`.",
     },
   },
   createOnce(context) {

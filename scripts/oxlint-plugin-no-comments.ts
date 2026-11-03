@@ -270,7 +270,7 @@ const noComments = defineRule({
     fixable: "code",
     messages: {
       comment:
-        "Comments are banned. Say it in a name, a type, a test, or the commit. Tool directives carry their reason after --; a type assertion takes a one-line SAFETY: invariant.",
+        "Comments are banned. Agents copy comments, and a comment that explains a workaround spreads the workaround. Fix: say it in a name, a type, a test, or the commit; a tool directive carries `-- <reason>`, and a type assertion takes a one-line `SAFETY:` invariant.",
     },
     type: "problem",
   },
@@ -306,7 +306,7 @@ const directiveReason = defineRule({
     },
     messages: {
       reason:
-        "Lint overrides carry their reason: `// oxlint-disable-next-line <rule> -- <reason>`. Name the invariant or boundary that makes the override safe.",
+        "This lint override has no reason after --. An unexplained override hides the invariant that makes it safe. Fix: write `// oxlint-disable-next-line <rule> -- <reason>` and name the invariant or boundary.",
     },
     type: "problem",
   },

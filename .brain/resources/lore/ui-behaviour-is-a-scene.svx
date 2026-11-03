@@ -64,7 +64,7 @@ The test name is "returns a short swipe to zero while settling".
 
 This paraphrase keeps the steps and drops the setup:
 
-```ts title="toast short swipe (paraphrase)"
+```ts title="toast short swipe (paraphrase)" nocheck="Paraphrase of Foldkit's toast scene test; the setup it drops defines these names."
 scene(
   { update: Toast.update, view },
   given(withEntry()),

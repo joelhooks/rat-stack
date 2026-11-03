@@ -176,13 +176,13 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
     DateTime.formatIsoDateUtc(yield* DateTime.now) >= raise.expires
   ) {
     yield* Effect.logWarning(
-      `${worker} temporary ceiling raise expired on ${raise.expires}; re-tighten the ceiling to ${raise.restoreTo} bytes, as apps/site/STARTUP.md records`
+      `${worker}'s temporary ceiling raise expired on ${raise.expires}. The raise was a one-off exception to the shrink-only rule. Fix: set ${worker} back to ${raise.restoreTo} in \`startupBudgets\` in \`apps/site/scripts/startup-budget.ts\`, delete its \`temporaryRaises\` entry, and update \`apps/site/STARTUP.md\`.`
     );
   }
 
   if (javascriptBytes > javascriptAlarmBytes) {
     yield* Effect.logWarning(
-      `${worker} complete JS upload exceeds ${javascriptAlarmBytes} bytes; inspect dynamic chunks and content growth; startup alone gates code size`
+      `${worker}'s complete JavaScript upload is ${javascriptBytes} bytes, over the ${javascriptAlarmBytes}-byte alarm. Only startup bytes gate code size, but a growing upload usually means content data landed in code. Fix: inspect the dynamic chunks in \`apps/site/${directory}\`, and move growing page data into static assets.`
     );
   }
 

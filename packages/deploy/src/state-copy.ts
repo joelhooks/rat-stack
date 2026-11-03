@@ -38,19 +38,38 @@ export const StateCopyRefusalSchema = Schema.Literals([
 
 export type StateCopyRefusal = typeof StateCopyRefusalSchema.Type;
 
-const fixes: Record<StateCopyRefusal, string> = {
-  "copy-mismatch":
-    "The source is untouched. Inspect the destination with `alchemy state list --backend cloudflare --name <to>`, then copy into a fresh store.",
-  "destination-holds-stack":
-    "Copy only into a store that holds none of the listed stacks; syncState deletes destination records the source lacks.",
-  "empty-allowlist": "Pass --stacks with at least one exact stack name.",
-  "provisioning-refused":
-    "Alchemy tried to deploy, resume or upgrade a state store, which state copy never does. Bootstrap or upgrade the named store with `alchemy state bootstrap`, then copy again.",
-  "same-store": "Pass different --from and --to stores.",
-  "source-missing-stack":
-    "Check the names with `alchemy state list --backend cloudflare`; every listed stack must exist in the source.",
-  "store-unavailable":
-    "Bootstrap or upgrade the named store first; state copy never provisions a store.",
+const guides: Record<
+  StateCopyRefusal,
+  { readonly fix: string; readonly why: string }
+> = {
+  "copy-mismatch": {
+    fix: "inspect the destination with `alchemy state list --backend cloudflare --name <to>`, then copy into a fresh store; the source is untouched.",
+    why: "The destination's records differ from the source after the copy.",
+  },
+  "destination-holds-stack": {
+    fix: "copy only into a store that holds none of the listed stacks, for example a fresh one named with `--to`.",
+    why: "Alchemy's syncState deletes destination records the source lacks.",
+  },
+  "empty-allowlist": {
+    fix: "pass `--stacks` with at least one exact stack name.",
+    why: "State copy moves only stacks you name.",
+  },
+  "provisioning-refused": {
+    fix: "bootstrap or upgrade the named store with `alchemy state bootstrap`, then copy again.",
+    why: "Alchemy tried to deploy, resume, or upgrade a state store, which state copy never does.",
+  },
+  "same-store": {
+    fix: "pass different stores with `--from` and `--to`.",
+    why: "Copying a store onto itself can delete its records.",
+  },
+  "source-missing-stack": {
+    fix: "check the names with `alchemy state list --backend cloudflare`; every listed stack must exist in the source.",
+    why: "State copy will not create an empty stack in the destination.",
+  },
+  "store-unavailable": {
+    fix: "bootstrap or upgrade the named store with `alchemy state bootstrap` first.",
+    why: "State copy never provisions a store.",
+  },
 };
 
 export class StateCopyRefused extends Schema.TaggedError<
@@ -63,7 +82,7 @@ export class StateCopyRefused extends Schema.TaggedError<
   stacks: Schema.Array(Schema.String),
 }) {
   override get message() {
-    return `state copy refused (${this.reason}${this.stacks.length > 0 ? `: ${this.stacks.join(", ")}` : ""}). ${this.fix}`;
+    return `State copy refused: ${this.reason}${this.stacks.length > 0 ? ` (${this.stacks.join(", ")})` : ""}. ${guides[this.reason].why} Fix: ${this.fix}`;
   }
 }
 
@@ -71,19 +90,19 @@ export const refuse = (
   reason: StateCopyRefusal,
   stacks: readonly string[] = [],
   detail = ""
-) => new StateCopyRefused({ detail, fix: fixes[reason], reason, stacks });
+) => new StateCopyRefused({ detail, fix: guides[reason].fix, reason, stacks });
 
 const refusedWrite = (operation: string, label: string) =>
   Effect.fail(
     new StateStoreError({
-      message: `state copy refuses ${operation} on the ${label} store`,
+      message: `state copy refuses ${operation} on the ${label} store. A state copy reads the source and writes only allowlisted stacks. Fix: run the operation with \`alchemy state\` directly, outside \`pnpm state:copy\`.`,
     })
   );
 
 const outsideAllowlist = (stack: string, label: string) =>
   Effect.fail(
     new StateStoreError({
-      message: `state copy refuses stack '${stack}' on the ${label} store: it is not on the allowlist`,
+      message: `state copy refuses stack '${stack}' on the ${label} store: it is not on the allowlist. A copy touches only the stacks you name. Fix: add \`${stack}\` to \`--stacks\` if it belongs in this copy.`,
     })
   );
 

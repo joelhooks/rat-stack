@@ -90,7 +90,7 @@ Metadata accepts:
 - Whitespace-separated `key=value` or `key="quoted value"` pairs.
 - JSON string escaping inside double quotes.
 - At most one highlight set, such as `{3,5-7}`.
-- Only `repo`, `path`, `at`, `lines`, and `title` keys.
+- Only `repo`, `path`, `at`, `lines`, `title`, and `nocheck` keys.
 
 A small authored example may have a body:
 
@@ -102,6 +102,8 @@ export { answer };
 ````
 
 The highlight uses the inline example's line numbers.
+
+Every TypeScript fence without `path` in a published page typechecks in `pnpm check`. The content build writes each one to `apps/site/dist/doc-fences/<source>/L<line>.ts` as its own module, and `apps/site/tsconfig.doc-fences.json` checks the directory. Import everything the example uses. When an example is a fragment or a template, quote the real file with `path`, or add `nocheck="<reason>"`. `.brain/data/doc-fence-baseline.json` records how many fences opt out; that count only shrinks.
 
 A source reference has an empty body. This fence quotes the shipped SHA check:
 
@@ -135,7 +137,7 @@ Generation reads local Git objects offline. A shallow clone must contain each pi
 Diagnostics print source path, line, tag, repository, file, SHA, ranges, and repair text. Example:
 
 ```text
-page.svx:7 [CodeUnknownKey] rat-stack:<inline>@<inline> lines=all; Unknown key bogus; use repo, path, at, lines or title.
+page.svx:7 [CodeUnknownKey] rat-stack:<inline>@<inline> lines=all; Unknown key bogus; use repo, path, at, lines, title or nocheck.
 ```
 
 Fix the fence at the first path and line. The remaining context describes the requested source.
@@ -146,7 +148,7 @@ Read `packages/code-snippets/test/pipeline.test.ts` and `git.test.ts` for these 
   - Real repair message: "Add path for a pinned reference, or remove repo/at/lines."
   - Meaning and fix: Complete the partial reference or use an inline example.
 - **`CodeUnknownKey`**:
-  - Real repair message: "Unknown key bogus; use repo, path, at, lines or title."
+  - Real repair message: "Unknown key bogus; use repo, path, at, lines, title or nocheck."
   - Meaning and fix: Remove the unsupported key.
 - **`CodeDuplicateKey`**:
   - Real repair message: "Remove duplicate title."

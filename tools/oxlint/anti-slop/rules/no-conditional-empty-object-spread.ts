@@ -32,7 +32,7 @@ export const noConditionalEmptyObjectSpreadRule = defineRule({
     },
     messages: {
       avoid:
-        "This conditional spread hides property omission behind an empty object. Build the object in separate statements and add the property only when present.",
+        "This conditional spread hides property omission behind an empty object. A reader cannot tell when the property exists. Fix: branch on the whole object, for example `value === undefined ? base : { ...base, key: value }`, or add the property in a separate statement.",
     },
   },
   createOnce(context) {

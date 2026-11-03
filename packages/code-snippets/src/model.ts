@@ -24,6 +24,7 @@ export class CodeRequest extends Schema.Class<
   highlights: Schema.Array(RangeSchema),
   language: Schema.String,
   line: Schema.Int,
+  noCheck: Schema.optional(Schema.String),
   path: Schema.String,
   rangeText: Schema.String,
   ranges: Schema.Array(RangeSchema),

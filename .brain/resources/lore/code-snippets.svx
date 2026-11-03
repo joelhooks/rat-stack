@@ -121,8 +121,14 @@ It has these parts:
 - At most one highlight set, such as `{3,5-7}`.
 - Unquoted or double-quoted values.
 
-The accepted keys are `repo`, `path`, `at`, `lines`, and `title`.
+The accepted keys are `repo`, `path`, `at`, `lines`, `title`, and `nocheck`.
 Unknown keys, duplicate keys, and malformed metadata are errors.
+
+Every published TypeScript fence without `path` must typecheck.
+The content build writes each one to `apps/site/dist/doc-fences` as its own module.
+`pnpm check` typechecks that directory with `apps/site/tsconfig.doc-fences.json`.
+A fragment that cannot compile takes `nocheck="<reason>"`.
+`.brain/data/doc-fence-baseline.json` records the opt-out count, and the count only shrinks.
 
 The shipped request records content, selection, and source repository, commit, file, and line numbers:
 

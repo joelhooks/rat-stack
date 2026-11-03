@@ -33,6 +33,16 @@ Put cross-process contracts in `packages/core/src/contracts.ts` and import `defi
 5. Set `needsApproval: true` when the action needs approval. `implement` adds the `Approval` requirement and `ApprovalDenied` failure; the handler itself declares only the contract's failures.
 
 ```ts
+import { defineContract } from "@rat-stack/capability/contract";
+import { Schema } from "effect";
+
+class ThingError extends Schema.TaggedError<
+  ThingError,
+  { readonly brand: unique symbol }
+>()("ThingError", { id: Schema.String }) {}
+
+const ThingResult = Schema.Struct({ id: Schema.String, done: Schema.Boolean });
+
 export const doThingContract = defineContract("doThing", {
   annotations: { idempotent: true, readOnly: true },
   description: "Do one concrete thing",
@@ -48,10 +58,8 @@ Schemas must encode and decode without services. Keep server dependencies out of
 
 Import `implement` from `@rat-stack/capability/implement`. Put the handler next to its service or server-side data. Keep it small; put real work in a service or lifecycle machine.
 
-```ts
-export const inspectFile = implement(inspectFileContract, ({ path }) =>
-  runInspectMachine(path)
-);
+```ts repo=rat-stack path=packages/core/src/inspect-file.ts at=81a12c4b86cd65bf86e4bdba98eda122d0133844 lines=14-16
+
 ```
 
 The handler input comes from the contract. Its Effect requirements and expected failures stay typed. `implement` supplies the approval gate when the contract requires it.
@@ -62,7 +70,7 @@ If the action needs a service, copy `packages/core/src/file-inspector.ts`. Use a
 
 Add the implementation to the `capabilities` tuple consumed by its composition root. For the CLI example, that tuple lives in `packages/core/src/inspect-file.ts`:
 
-```ts
+```ts nocheck="Imports the doThing module this skill has the reader write."
 import { doThing } from "./do-thing.js";
 
 export const capabilities = [inspectFile, doThing] as const;
