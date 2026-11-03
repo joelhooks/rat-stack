@@ -2,6 +2,8 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path, Schema } from "effect";
 
+const imageSource = /<img\b[^>]*?\ssrc="(?<source>[^"]*)"/gu;
+
 const SeedAvatars = Schema.fromJsonString(
   Schema.Array(
     Schema.Struct({ avatar: Schema.Struct({ path: Schema.String }) })
@@ -27,22 +29,26 @@ it.layer(NodeServices.layer)((test) => {
 
         const client = paths.resolve(import.meta.dirname, "../dist/client");
 
-        const files = (yield* fs.readDirectory(client, { recursive: true }))
-          .filter((file) => file.endsWith(".html"))
-          .map((file) => paths.join(client, file));
+        const listing = yield* fs.readDirectory(client, { recursive: true });
 
-        const sources = yield* Effect.forEach((file: string) =>
-          fs.readFileString(file).pipe(
-            Effect.map((html) => ({
-              file: paths.relative(client, file),
-              images: [
-                ...new DOMParser()
-                  .parseFromString(html, "text/html")
-                  .querySelectorAll("img"),
-              ].map((image) => image.getAttribute("src") ?? ""),
-            }))
-          )
-        )(files);
+        const shipped = new Set(
+          listing.map((file) => `/${file.split(paths.sep).join("/")}`)
+        );
+
+        const sources = yield* Effect.forEach(
+          listing.filter((file) => file.endsWith(".html")),
+          (file) =>
+            fs.readFileString(paths.join(client, file)).pipe(
+              Effect.map((html) => ({
+                file: file.split(paths.sep).join("/"),
+                images: Array.from(
+                  html.matchAll(imageSource),
+                  (match) => match.groups?.source ?? ""
+                ),
+              }))
+            ),
+          { concurrency: 16 }
+        );
 
         const index = sources.find(
           (page) => page.file === "all-stars/index.html"
@@ -52,20 +58,15 @@ it.layer(NodeServices.layer)((test) => {
           expect.arrayContaining(seed.map((person) => person.avatar.path))
         );
 
-        const missing = yield* Effect.filter(
-          sources.flatMap((page) =>
-            page.images
-              .filter(
-                (source) => source.startsWith("/") && !source.startsWith("//")
-              )
-              .map((source) => ({ file: page.file, source }))
-          ),
-          ({ source }) =>
-            fs
-              .exists(
-                paths.join(client, new URL(source, "https://x.test").pathname)
-              )
-              .pipe(Effect.map((exists) => !exists))
+        const missing = sources.flatMap((page) =>
+          page.images
+            .filter(
+              (source) =>
+                source.startsWith("/") &&
+                !source.startsWith("//") &&
+                !shipped.has(new URL(source, "https://x.test").pathname)
+            )
+            .map((source) => ({ file: page.file, source }))
         );
 
         expect(missing).toEqual([]);
