@@ -89,7 +89,6 @@ const serverRequest = (path: string, accept: string, userAgent = "") =>
   );
 
 const website = {
-  // oxlint-disable-next-line typescript/promise-function-async -- The service binding stub returns Cloudflare's native Promise.
   fetch: (request: Request) =>
     request.text().then(
       (body) =>

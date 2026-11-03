@@ -20,8 +20,7 @@ import { PreviewStage, previewResourcesAllowed } from "../src/preview.js";
 it.effect("loads the preview through Alchemy's entrypoint boundary", () =>
   importStack("alchemy.preview.ts").pipe(
     Effect.provideService(StackModuleLoader, {
-      // @effect-diagnostics-next-line asyncFunction:off -- Alchemy's module loader is a native Promise boundary.
-      import: async () => await Promise.resolve({ default: previewDefinition }),
+      import: () => Promise.resolve({ default: previewDefinition }),
     }),
     Effect.provide(NodeServices.layer)
   )

@@ -23,8 +23,7 @@ const importRuntime = Effect.tryPromise({
       cause,
       message: "Website bindings require the Cloudflare Worker runtime",
     }),
-  // @effect-diagnostics-next-line asyncFunction:off -- Effect.tryPromise owns the lazy Cloudflare module import boundary.
-  try: async () => await import("cloudflare:workers"),
+  try: () => import("cloudflare:workers"),
 });
 
 const runtimeEnvironment = importRuntime.pipe(
@@ -91,8 +90,7 @@ export class WebsiteBindings extends Context.Service<
             message:
               "RpcBackend forwarding failed; inspect the private service binding",
           }),
-        // @effect-diagnostics-next-line asyncFunction:off -- Effect.tryPromise owns the service binding Promise boundary.
-        try: async () => await bindings.BACKEND.fetch(request),
+        try: () => bindings.BACKEND.fetch(request),
       });
     }),
     previewCommit: runtimeEnvironment.pipe(

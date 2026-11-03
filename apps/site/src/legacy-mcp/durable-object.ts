@@ -14,10 +14,7 @@ import type { StoredSession } from "./session.js";
 
 const SESSION_KEY = "session";
 
-const loadLegacyMcpRuntime = Effect.promise(
-  // @effect-diagnostics-next-line asyncFunction:off -- lint requires an awaiting async thunk around the dynamic import that keeps the MCP server out of Mischief's static startup graph
-  async () => await import("./runtime.js")
-);
+const loadLegacyMcpRuntime = Effect.promise(() => import("./runtime.js"));
 
 export default class LegacyMcp extends Cloudflare.DurableObject<LegacyMcp>()(
   "LegacyMcp",

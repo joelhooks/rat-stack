@@ -16,8 +16,7 @@ const decodePage = Schema.decodeUnknownEffect(
   Schema.fromJsonString(ReaderFlags)
 );
 
-// @effect-diagnostics-next-line asyncFunction:off -- the lazy chunk boundary is a dynamic import
-const importSources = async () => await import("virtual:reader-page-sources");
+const importSources = () => import("virtual:reader-page-sources");
 
 const sourceJson = new Map<string, string>();
 

@@ -64,7 +64,6 @@ export default class ColdContentWorker extends Cloudflare.Worker<ColdContentWork
     return {
       fetch: withReaderWebsite(
         {
-          // oxlint-disable-next-line typescript/promise-function-async -- The Website stub implements a native service binding.
           fetch: () =>
             Promise.resolve(
               new Response("Reader", {

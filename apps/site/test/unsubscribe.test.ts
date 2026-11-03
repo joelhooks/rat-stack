@@ -280,27 +280,23 @@ it.effect(
         Effect.provide(
           FetchHttpClient.layer.pipe(
             Layer.provide(
-              Layer.succeed(
-                FetchHttpClient.Fetch,
-                // oxlint-disable-next-line typescript/promise-function-async -- A fake native Fetch boundary returns a Promise, not an Effect.
-                (input, init) => {
-                  const url = Schema.decodeUnknownSync(Schema.instanceOf(URL))(
-                    input
-                  );
+              Layer.succeed(FetchHttpClient.Fetch, (input, init) => {
+                const url = Schema.decodeUnknownSync(Schema.instanceOf(URL))(
+                  input
+                );
 
-                  destinations.push(url.href);
-                  options.push(init ?? {});
+                destinations.push(url.href);
+                options.push(init ?? {});
 
-                  return Promise.resolve(
-                    new Response("redirect", {
-                      headers: {
-                        location: "https://different.example.test/never-fetch",
-                      },
-                      status: 302,
-                    })
-                  );
-                }
-              )
+                return Promise.resolve(
+                  new Response("redirect", {
+                    headers: {
+                      location: "https://different.example.test/never-fetch",
+                    },
+                    status: 302,
+                  })
+                );
+              })
             )
           )
         )

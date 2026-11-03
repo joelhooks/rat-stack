@@ -19,7 +19,6 @@ class FakeLimit {
   constructor(results: readonly boolean[] = []) {
     this.#results = [...results];
   }
-  // oxlint-disable-next-line typescript/promise-function-async -- Matches Cloudflare's Promise-returning binding.
   limit() {
     return Promise.resolve({ success: this.#results.shift() ?? true });
   }

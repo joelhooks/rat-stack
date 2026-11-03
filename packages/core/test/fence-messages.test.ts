@@ -31,10 +31,7 @@ const PluginModule = Schema.Struct({
 });
 
 const importFromRoot = (file: string) =>
-  Effect.promise(
-    // oxlint-disable-next-line promise-function-async -- Effect.promise consumes a Promise factory directly.
-    () => import(new URL(file, repoRoot).href)
-  );
+  Effect.promise(() => import(new URL(file, repoRoot).href));
 
 const loadRegistry = Effect.gen(function* loadRegistry() {
   const config = yield* Schema.decodeUnknownEffect(OxlintConfig)(

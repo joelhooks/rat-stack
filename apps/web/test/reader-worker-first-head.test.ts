@@ -8,10 +8,9 @@ import { isWorkerFirstReaderRoute } from "../src/reader-routes.js";
 
 const BuiltEntry = Schema.Struct({ default: AssetBindingSchema });
 
-// @effect-diagnostics-next-line asyncFunction:off -- The built server entry loads through a dynamic import Promise.
-const builtEntry = async () =>
-  Schema.decodeUnknownSync(BuiltEntry)(
-    await import(new URL("../dist/server/fetch.js", import.meta.url).href)
+const builtEntry = () =>
+  import(new URL("../dist/server/fetch.js", import.meta.url).href).then(
+    Schema.decodeUnknownSync(BuiltEntry)
   );
 
 const voidTagsAsParsed = (html: string) => html.replaceAll(" />", ">");
@@ -43,14 +42,12 @@ it.layer(NodeServices.layer)((test) => {
         expect(routes).toContain("/prompts");
 
         for (const route of routes) {
-          const response = yield* Effect.promise(
-            // @effect-diagnostics-next-line asyncFunction:off -- The Worker fetch handler returns a host Promise.
-            async () =>
-              await worker.fetch(
-                new Request(`https://ratstack.sh${route}`, {
-                  headers: { accept: "text/html" },
-                })
-              )
+          const response = yield* Effect.promise(() =>
+            worker.fetch(
+              new Request(`https://ratstack.sh${route}`, {
+                headers: { accept: "text/html" },
+              })
+            )
           );
 
           const served = yield* Effect.promise(response.text.bind(response));

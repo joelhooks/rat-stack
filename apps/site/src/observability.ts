@@ -159,8 +159,7 @@ export const nativeTracerLayerFor = (runtime: typeof NativeRuntime.Type) =>
 export const privateNativeTracerLayer = Layer.unwrap(
   Effect.tryPromise({
     catch: (cause) => new NativeTracingUnavailable({ cause }),
-    // @effect-diagnostics-next-line asyncFunction:off -- Cloudflare owns this per-request Promise import boundary.
-    try: async () => await import("cloudflare:workers"),
+    try: () => import("cloudflare:workers"),
   }).pipe(
     Effect.flatMap(Schema.decodeUnknownEffect(NativeRuntime)),
     Effect.option,

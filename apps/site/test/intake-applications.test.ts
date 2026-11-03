@@ -36,11 +36,7 @@ import { fakeIntakeLayer } from "./fixtures/fake-intake.js";
 const call = (
   handler: (request: Request) => Promise<Response>,
   request: Request
-) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- The in-memory router owns this Promise boundary.
-    () => handler(request)
-  );
+) => Effect.promise(() => handler(request));
 
 const actor = Schema.decodeSync(ContactRefSchema)("synthetic-contact");
 

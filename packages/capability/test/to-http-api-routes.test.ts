@@ -104,10 +104,8 @@ const fetchJson = (
   request: Request
 ) =>
   Effect.gen(function* fetched() {
-    // oxlint-disable-next-line typescript/promise-function-async -- HttpRouter exposes a Promise API for this in-memory web handler test.
     const response = yield* Effect.promise(() => handler(request));
 
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Response.text returns a Promise at this in-memory transport boundary.
     const text = yield* Effect.promise(() => response.text());
 
     return {
@@ -123,10 +121,8 @@ const fetchText = (
   request: Request
 ) =>
   Effect.gen(function* fetchedText() {
-    // oxlint-disable-next-line typescript/promise-function-async -- HttpRouter exposes a Promise API for this in-memory web handler test.
     const response = yield* Effect.promise(() => handler(request));
 
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Response.text returns a Promise at this in-memory transport boundary.
     const text = yield* Effect.promise(() => response.text());
 
     return [response.status, response.headers.get("content-type"), text];

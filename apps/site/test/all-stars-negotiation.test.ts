@@ -11,7 +11,6 @@ import { withReaderWebsite } from "../src/reader-website.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 const website = {
-  // oxlint-disable-next-line typescript/promise-function-async -- The Website stub implements a native service binding.
   fetch: () =>
     Promise.resolve(
       new Response("<!doctype html><h1>Website</h1>", {

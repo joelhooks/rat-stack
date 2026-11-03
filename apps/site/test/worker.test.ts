@@ -69,7 +69,6 @@ const makeFakeStaticResponseCache = (): FakeStaticResponseCache => {
   const responses = new Map<string, Response>();
 
   return {
-    // oxlint-disable-next-line typescript/promise-function-async -- This fake deliberately matches Cloudflare's Promise-returning Cache API.
     match(request) {
       const key = request.url;
       matchKeys.push(key);
@@ -77,7 +76,6 @@ const makeFakeStaticResponseCache = (): FakeStaticResponseCache => {
       return Promise.resolve(responses.get(key)?.clone());
     },
     matchKeys,
-    // oxlint-disable-next-line typescript/promise-function-async -- This fake deliberately matches Cloudflare's Promise-returning Cache API.
     put(request, response) {
       const key = request.url;
       putKeys.push(key);
@@ -121,7 +119,6 @@ class FakeRateLimitBinding implements NativeRateLimitBinding {
     this.#results = [...results];
   }
 
-  // oxlint-disable-next-line typescript/promise-function-async -- The fake deliberately matches Cloudflare's Promise-returning binding.
   limit(options: { readonly key: string }) {
     this.keys.push(options.key);
 
@@ -139,9 +136,8 @@ const fakeRateLimitBindings = (
 });
 
 const sha256 = (text: string) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns the Promise at this test boundary.
-    () => crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+  Effect.promise(() =>
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
   ).pipe(
     Effect.map((bytes) =>
       Array.from(new Uint8Array(bytes), (byte) =>
@@ -363,18 +359,16 @@ const WebBotKeyDirectory = Schema.Struct({
   ),
 });
 
-const makeTestPrivateJwk = Effect.promise(
-  // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns the Promise at this test boundary.
-  () => crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"])
+const makeTestPrivateJwk = Effect.promise(() =>
+  crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"])
 ).pipe(
   Effect.flatMap((keyPair) => {
     if (!("privateKey" in keyPair)) {
       return Effect.die("Ed25519 key generation did not return a pair");
     }
 
-    return Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns the Promise at this test boundary.
-      () => crypto.subtle.exportKey("jwk", keyPair.privateKey)
+    return Effect.promise(() =>
+      crypto.subtle.exportKey("jwk", keyPair.privateKey)
     );
   }),
   Effect.map(JSON.stringify)
@@ -1635,7 +1629,6 @@ it.effect("returns 429 after API_PER_IP denies a client IP", () => {
   const bindings = fakeRateLimitBindings({ API_PER_IP: apiPerIp });
 
   return withHandler((handler) => {
-    // oxlint-disable-next-line typescript/promise-function-async -- Fetch owns this Promise-returning test boundary.
     const request = () =>
       handler(
         new Request("http://localhost/api/search", {
@@ -1674,7 +1667,6 @@ it.effect("returns 429 before a second execute worker is created", () => {
   });
 
   return withHandler((handler) => {
-    // oxlint-disable-next-line typescript/promise-function-async -- Fetch owns this Promise-returning test boundary.
     const request = () =>
       handler(
         new Request("http://localhost/api/execute", {

@@ -27,7 +27,6 @@ type WebsiteMode = "renders" | "throws" | "wrong status" | "plain text";
 const websiteMarker = '<main data-website-error="true">';
 
 const rateLimit = {
-  // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare's binding returns a native Promise.
   limit: () => Promise.resolve({ success: true }),
 };
 

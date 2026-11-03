@@ -59,10 +59,7 @@ it.effect.prop(
         headers: validIp ? { "cf-connecting-ip": "203.0.113.17" } : {},
       });
 
-      const response = yield* Effect.promise(
-        // oxlint-disable-next-line typescript/promise-function-async -- The in-memory router owns this Promise boundary.
-        () => handler(request)
-      );
+      const response = yield* Effect.promise(() => handler(request));
 
       const body = yield* Effect.promise(response.json.bind(response));
       const bucket = ipAllowed ? "agent" : "ip";

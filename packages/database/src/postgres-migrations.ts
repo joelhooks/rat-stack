@@ -56,10 +56,7 @@ export const registerPostgresMigrations = (options: {
             Effect.gen(function* applyMigrations() {
               const url = Redacted.value(yield* connectionUrl);
 
-              const { Client } = yield* Effect.promise(
-                // oxlint-disable-next-line promise-function-async -- Effect.promise consumes a Promise factory directly.
-                () => import("pg")
-              );
+              const { Client } = yield* Effect.promise(() => import("pg"));
 
               return yield* Effect.acquireUseRelease(
                 Effect.tryPromise({
@@ -83,10 +80,7 @@ export const registerPostgresMigrations = (options: {
                   Effect.tryPromise({
                     catch: (cause) =>
                       new PostgresMigrationConnectionError({ cause }),
-                    // @effect-diagnostics-next-line asyncFunction:off -- The pg client exposes Promise-based shutdown.
-                    try: async () => {
-                      await connection.end();
-                    },
+                    try: () => connection.end(),
                   }).pipe(Effect.orDie)
               );
             })

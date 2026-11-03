@@ -421,10 +421,9 @@ const staticCaching = (cache: StaticResponseCache) =>
 
         const key = staticCacheKey(request, representation);
 
-        const cached = yield* Effect.tryPromise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare's Cache API owns this Promise-returning boundary.
-          () => cache.match(key)
-        ).pipe(Effect.orElseSucceed(() => null));
+        const cached = yield* Effect.tryPromise(() => cache.match(key)).pipe(
+          Effect.orElseSucceed(() => null)
+        );
 
         if (cached !== null && cached !== undefined) {
           const headers = new Headers(cached.headers);
@@ -451,10 +450,9 @@ const staticCaching = (cache: StaticResponseCache) =>
 
         if (response.status === 200) {
           const webResponse = HttpServerResponse.toWeb(response);
-          yield* Effect.tryPromise(
-            // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare's Cache API owns this Promise-returning boundary.
-            () => cache.put(key, webResponse)
-          ).pipe(Effect.orElseSucceed(() => null));
+          yield* Effect.tryPromise(() => cache.put(key, webResponse)).pipe(
+            Effect.orElseSucceed(() => null)
+          );
         }
 
         return response;
@@ -500,10 +498,7 @@ const authenticatedApiRoutes = HttpApiBuilder.layer(
   Layer.provide(AlchemyHttp.Platform)
 );
 
-const loadMcpSurface = Effect.promise(
-  // @effect-diagnostics-next-line asyncFunction:off -- lint requires an awaiting async thunk around the dynamic import that keeps the MCP server out of Mischief's static startup graph
-  async () => await import("./mcp-surface.js")
-);
+const loadMcpSurface = Effect.promise(() => import("./mcp-surface.js"));
 
 const lazyMcpRoutes = (feedback: boolean) =>
   HttpRouter.use(
@@ -771,10 +766,7 @@ const inspectMcpRequest = (request: HttpServerRequest.HttpServerRequest) =>
 
     const body: unknown =
       source instanceof Request
-        ? yield* Effect.tryPromise(
-            // oxlint-disable-next-line typescript/promise-function-async -- The Fetch Request owns this Promise-returning boundary.
-            () => source.clone().json()
-          )
+        ? yield* Effect.tryPromise(() => source.clone().json())
         : yield* request.json;
 
     return yield* Schema.decodeUnknownEffect(JsonRpcEnvelope)(body);

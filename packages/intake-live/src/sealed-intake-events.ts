@@ -39,16 +39,14 @@ const decodeJson = Schema.decodeUnknownEffect(
 type ContactKey = Awaited<ReturnType<typeof crypto.subtle.importKey>>;
 
 const importContactKey = (encodedKey: string) =>
-  Effect.promise(
-    // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-    () =>
-      crypto.subtle.importKey(
-        "raw",
-        Result.getOrThrow(Base64Url.decode(encodedKey)),
-        "AES-GCM",
-        false,
-        ["encrypt", "decrypt"]
-      )
+  Effect.promise(() =>
+    crypto.subtle.importKey(
+      "raw",
+      Result.getOrThrow(Base64Url.decode(encodedKey)),
+      "AES-GCM",
+      false,
+      ["encrypt", "decrypt"]
+    )
   );
 
 const randomContactKey = Effect.sync(() =>
@@ -59,14 +57,12 @@ const seal = (key: ContactKey, plaintext: string) =>
   Effect.gen(function* sealText() {
     const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
 
-    const cipher = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-      () =>
-        crypto.subtle.encrypt(
-          { iv, name: "AES-GCM" },
-          key,
-          new TextEncoder().encode(plaintext)
-        )
+    const cipher = yield* Effect.promise(() =>
+      crypto.subtle.encrypt(
+        { iv, name: "AES-GCM" },
+        key,
+        new TextEncoder().encode(plaintext)
+      )
     );
 
     const sealed = new Uint8Array(IV_BYTES + cipher.byteLength);
@@ -81,14 +77,12 @@ export const unsealResult = (encodedKey: string, sealedResult: string) =>
     const key = yield* importContactKey(encodedKey);
     const sealed = Result.getOrThrow(Base64Url.decode(sealedResult));
 
-    const plain = yield* Effect.promise(
-      // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise-returning boundary.
-      () =>
-        crypto.subtle.decrypt(
-          { iv: sealed.slice(0, IV_BYTES), name: "AES-GCM" },
-          key,
-          sealed.slice(IV_BYTES)
-        )
+    const plain = yield* Effect.promise(() =>
+      crypto.subtle.decrypt(
+        { iv: sealed.slice(0, IV_BYTES), name: "AES-GCM" },
+        key,
+        sealed.slice(IV_BYTES)
+      )
     );
 
     return yield* decodeJson(new TextDecoder().decode(plain));

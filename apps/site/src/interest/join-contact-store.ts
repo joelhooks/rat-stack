@@ -108,18 +108,16 @@ export const joinContactStoreLayer = (
 
         const key = yield* keyFor(submissionId);
 
-        const plaintext = yield* Effect.promise(
-          // oxlint-disable-next-line typescript/promise-function-async -- Web Crypto owns this Promise boundary.
-          () =>
-            crypto.subtle.decrypt(
-              {
-                additionalData: encoder.encode(submissionId),
-                iv: bytesOf(envelope.iv),
-                name: "AES-GCM",
-              },
-              key,
-              bytesOf(envelope.data)
-            )
+        const plaintext = yield* Effect.promise(() =>
+          crypto.subtle.decrypt(
+            {
+              additionalData: encoder.encode(submissionId),
+              iv: bytesOf(envelope.iv),
+              name: "AES-GCM",
+            },
+            key,
+            bytesOf(envelope.data)
+          )
         );
 
         return yield* Schema.decodeEffect(

@@ -68,7 +68,6 @@ export const HyperdrivePostgres = ({
 
       if (globalThis.__ALCHEMY_RUNTIME__ !== true) {
         const { registerPostgresMigrations } = yield* Effect.promise(
-          // oxlint-disable-next-line promise-function-async -- Effect.promise consumes a Promise factory directly.
           () => import("./postgres-migrations.js")
         );
 

@@ -21,7 +21,6 @@ type InitializedMischief = Effect.Effect<
 >;
 
 const rateLimit = {
-  // oxlint-disable-next-line typescript/promise-function-async -- Cloudflare's binding returns a native Promise.
   limit: () => Promise.resolve({ success: true }),
 };
 
@@ -41,7 +40,6 @@ const workerEnvironment = {
     },
   } satisfies WorkerLoaderBinding,
   WEBSITE: {
-    // oxlint-disable-next-line typescript/promise-function-async -- The Website stub implements a native service binding.
     fetch: () =>
       Promise.resolve(
         new Response("Foldkit", {

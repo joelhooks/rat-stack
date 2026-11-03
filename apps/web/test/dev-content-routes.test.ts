@@ -34,16 +34,14 @@ it.effect("serves search over /rpc with no devtools involved", () =>
       tag: "search",
     };
 
-    const response = yield* Effect.promise(
-      // @effect-diagnostics-next-line asyncFunction:off -- The Effect web handler is a Promise boundary.
-      async () =>
-        await handler(
-          new Request("http://dev.test/rpc", {
-            body: JSON.stringify(request),
-            headers: { "content-type": "application/json" },
-            method: "POST",
-          })
-        )
+    const response = yield* Effect.promise(() =>
+      handler(
+        new Request("http://dev.test/rpc", {
+          body: JSON.stringify(request),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        })
+      )
     );
 
     const body = yield* Effect.promise(response.text.bind(response));
