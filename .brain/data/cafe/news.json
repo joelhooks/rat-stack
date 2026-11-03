@@ -13,6 +13,86 @@
     "source": "https://registry.npmjs.org/mutant-cafe"
   },
   {
+    "kind": "release",
+    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.85",
+    "title": "Alchemy 2.0.0-beta.85 moves to Effect 4.1",
+    "summary": "Breaking: Cloudflare.state takes workerName only, DynamoDB becomes the default AWS state, and the state store deploys through direct API calls.",
+    "date": "2026-11-02",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/alchemy-run/alchemy/releases"
+  },
+  {
+    "kind": "post",
+    "url": "https://silklang.org",
+    "title": "Silk: What If Effect Were a Low-Level Language?",
+    "summary": "A low-level language with Effect-style typed failures, service requirements and lazy effects, affine ownership, and LLVM output for native and WebAssembly targets.",
+    "date": "2026-11-02",
+    "repo": "silk-lang/silk",
+    "author": {
+      "github": "julia-script",
+      "x": "JuliaScript"
+    },
+    "source": "https://silklang.org",
+    "engagement": {
+      "stars": 72
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://github.com/Effect-TS/effect/pull/10306",
+    "title": "Effect fixes the type errors TypeScript 7.1 reports",
+    "summary": "Merged: TypeScript 7.1 reports errors at five places 7.0.2 accepts; this fixes them without changing any public type signature.",
+    "date": "2026-11-02",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": "tim-smart",
+      "x": null
+    },
+    "source": "https://github.com/Effect-TS/effect/pull/10306"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/MattiaManzati/status/2117330070842782057",
+    "title": "16 new Effect language service rules, also in tsrs and Oxlint",
+    "summary": "New rules spot Effect boilerplate and rewrite it to builtins such as mapBoth, fromResult and failSync, with quick fixes; they need type-aware linting.",
+    "date": "2026-11-02",
+    "repo": "Effect-TS/language-service",
+    "author": {
+      "github": null,
+      "x": "MattiaManzati"
+    },
+    "source": "https://x.com/MattiaManzati/status/2117330070842782057",
+    "engagement": {
+      "likes": 365,
+      "participants": 13,
+      "replies": 12
+    },
+    "topReplies": [
+      {
+        "likes": 0,
+        "text": "@m_salman_afzal @EffectTS_ Yes, only in oxlint or in our version of typescript or tsrs; they need to be type aware and unfortunately eslint is not fast enough",
+        "url": "https://x.com/MattiaManzati/status/2117512507979964687",
+        "x": "MattiaManzati"
+      },
+      {
+        "likes": 0,
+        "text": "@MattiaManzati A lot of the examples you posted looks like new APIs. Are they? Or is the linter just surfacing them to me?",
+        "url": "https://x.com/HellSatanS/status/2117539974539345943",
+        "x": "HellSatanS"
+      },
+      {
+        "likes": 1,
+        "text": "@HellSatanS Most of the API already existed in v3 as well; for more info check the rules docs or the picture in the right corner reports dimmed if it supports v3/v4 :)",
+        "url": "https://x.com/MattiaManzati/status/2117540582880870584",
+        "x": "MattiaManzati"
+      }
+    ]
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/mattpocockuk/status/2117157362700058671",
     "title": "What is the aha moment for Foldkit?",
@@ -92,7 +172,23 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30403
+      "stars": 30402
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/julia-script/foldkit-serverfn",
+    "title": "foldkit-serverfn",
+    "summary": "Schema-typed server functions and streaming for Foldkit on effect/rpc: Commands call them, Subscriptions consume streams, and server renders run handlers in process.",
+    "date": "2026-11-01",
+    "repo": "julia-script/foldkit-serverfn",
+    "author": {
+      "github": "julia-script",
+      "x": "JuliaScript"
+    },
+    "source": "https://github.com/julia-script/foldkit-serverfn",
+    "engagement": {
+      "stars": 0
     }
   },
   {
@@ -124,7 +220,7 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 11
+      "stars": 14
     }
   },
   {
@@ -140,7 +236,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1152
+      "stars": 1174
     }
   },
   {
@@ -156,7 +252,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 40
+      "stars": 41
     }
   },
   {
@@ -214,21 +310,8 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 451
+      "stars": 452
     }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.84",
-    "title": "Alchemy 2.0.0-beta.84 splits providers into packages",
-    "summary": "Alchemy beta.84 moves Cloudflare, AWS and other providers into their own packages and adds Foldkit SSR and prerendering across website providers.",
-    "date": "2026-10-24",
-    "repo": "alchemy-run/alchemy",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://github.com/alchemy-run/alchemy/releases"
   },
   {
     "kind": "release",
@@ -320,7 +403,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1152
+      "stars": 1174
     }
   },
   {
@@ -340,32 +423,6 @@
     }
   },
   {
-    "kind": "thread",
-    "url": "https://x.com/JuliaScript/status/2112316050322661762",
-    "title": "effect-harness on Cloudflare with Alchemy",
-    "summary": "effect-harness adds a Cloudflare example deployed with Alchemy: the agent loop runs remotely, clients message it from another machine, and each tool runs separately.",
-    "date": "2026-10-19",
-    "repo": "julia-script/effect-harness",
-    "author": {
-      "github": "julia-script",
-      "x": "JuliaScript"
-    },
-    "source": "https://x.com/JuliaScript/status/2112316050322661762",
-    "engagement": {
-      "likes": 34,
-      "participants": 3,
-      "replies": 2
-    },
-    "topReplies": [
-      {
-        "likes": 1,
-        "text": "@JuliaScript @alchemy_run @EffectTS_ Thanks for effect-harness!!\nI really want to bring effect stuff into convex more. I'm going to see if i can combine your work and confect.\nconvex as the runtime and storage and having it init compute on the fly to run the agents would have some nice properties.",
-        "url": "https://x.com/ozyman42/status/2112387497871515928",
-        "x": "ozyman42"
-      }
-    ]
-  },
-  {
     "kind": "launch",
     "url": "https://github.com/acoyfellow/skin",
     "title": "skin",
@@ -378,7 +435,7 @@
     },
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
-      "stars": 12
+      "stars": 13
     }
   },
   {
@@ -410,7 +467,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1941
+      "stars": 1943
     }
   },
   {
@@ -455,7 +512,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1832
+      "stars": 1836
     }
   },
   {
