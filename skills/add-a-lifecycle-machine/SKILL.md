@@ -35,7 +35,7 @@ Use an explicit result union when a known error should move the machine into a f
 
 Define each side effect with `createEffectLogic` outside the machine:
 
-```ts
+```ts nocheck="Template with placeholder Thing names; packages/core/src/inspect-machine.ts is the compiled original."
 const performWork = createEffectLogic({
   effect: ({ input }) => ThingService.use((service) => service.run(input.id)),
   schemas: { input: Schema.Struct({ id: Schema.String }) },
@@ -48,7 +48,7 @@ An actor is a running unit that processes events or performs work for a machine.
 
 Pass the actors and schemas to `setupEffect`, then call `createMachine`:
 
-```ts
+```ts nocheck="Template with placeholder Thing names; packages/core/src/inspect-machine.ts is the compiled original."
 type ThingOutcome =
   | { readonly _tag: "Succeeded"; readonly value: ThingResult }
   | { readonly _tag: "Failed"; readonly error: ThingError };
@@ -100,7 +100,7 @@ XState owns states and moves between them. Effect owns side effects, errors, ser
 
 Start the machine with `createEffectActor`. Do not use XState's `createActor`. Hand the actor to `watchActor` from `@rat-stack/capability/actor-watch`, then wait for it with `join` inside `Effect.scoped`:
 
-```ts
+```ts nocheck="Template with placeholder Thing names; packages/core/src/inspect-machine.ts is the compiled original."
 export const runThingMachine = Effect.fn("runThingMachine")(function* (
   id: string
 ) {
@@ -140,11 +140,13 @@ Copy the complete test template at `skills/add-a-lifecycle-machine/templates/lif
 
 `it.effect.prop` supplies virtual time. For delayed work, add a wait command and use `TestClock.adjust` from `effect/testing`:
 
-```ts
-if (command.kind === "wait") {
-  yield * TestClock.adjust(command.millis);
-}
-assertAgainstModel(actor.getSnapshot(), model);
+```ts nocheck="Step from the model test template; command, actor, and model come from that file."
+Effect.gen(function* step() {
+  if (command.kind === "wait") {
+    yield* TestClock.adjust(command.millis);
+  }
+  assertAgainstModel(actor.getSnapshot(), model);
+});
 ```
 
 Model the deadline independently. Check before, at, and after it. Never use wall-clock sleeps to wait for retries or deadlines.

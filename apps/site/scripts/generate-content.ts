@@ -113,6 +113,7 @@ import {
 import { lawSpecs } from "./content-specs.ts";
 import type { SourceSpec } from "./content-specs.ts";
 import { dailyLogMarkdown, historyArgs } from "./daily-log.ts";
+import { referenceBodies, writeDocFences } from "./doc-fences.ts";
 import { renderCopyPrompt, renderDocumentShell } from "./document-html.ts";
 import { emitAssets } from "./emit-assets.ts";
 import { openGitSnapshot } from "./git-snapshot.ts";
@@ -3534,6 +3535,15 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       buildError("content resources", "apps/site/src/content-data.ts", cause)
     )
   );
+
+  yield* writeDocFences({
+    published: [
+      ...resources,
+      { routePath: "/llms.txt", sourcePath: "", text: llmsSourceMarkdown },
+    ],
+    references: referenceBodies(preparedCode.snippets.values()),
+    root,
+  });
 
   const learnCards = yield* buildLearningDeck(
     loreTexts,

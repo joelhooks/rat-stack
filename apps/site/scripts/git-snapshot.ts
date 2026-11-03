@@ -264,7 +264,13 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
           );
 
           if (Result.isFailure(result)) {
-            failures.push(result.failure.message);
+            const { failure } = result;
+
+            failures.push(
+              Schema.is(GitSnapshotError)(failure)
+                ? `${failure.reason}: ${failure.entry}`
+                : failure.message
+            );
           }
         }
 

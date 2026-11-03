@@ -1,4 +1,4 @@
-import { codeIdentity } from "@rat-stack/code-snippets";
+import { codeIdentity, isConfiguredFence } from "@rat-stack/code-snippets";
 import { Predicate, Schema } from "effect";
 import type { Nodes, Root, RootContent } from "mdast";
 
@@ -103,16 +103,14 @@ const pointerAgent = (): readonly RootContent[] => [
   },
 ];
 
-const configuredCodeNode = (node: {
-  readonly lang?: string | null | undefined;
-  readonly meta?: string | null | undefined;
-}) =>
-  (node.meta ?? "") !== "" ||
-  (node.lang ?? "").includes("=") ||
-  (node.lang ?? "").startsWith("{");
-
 const codeFenceInput = (node: Nodes): ComponentInput | undefined =>
-  node.type === "code" && configuredCodeNode(node)
+  node.type === "code" &&
+  isConfiguredFence({
+    lang: node.lang,
+    line: node.position?.start.line ?? 1,
+    meta: node.meta,
+    value: node.value,
+  })
     ? {
         attributes: { key: codeIdentity(node) },
         children: contentRoot([]),

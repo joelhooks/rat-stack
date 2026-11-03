@@ -18,7 +18,11 @@ export { HighlightedFile } from "./stages/highlighted-file.ts";
 
 export { ResolvedCode } from "./stages/resolved-code.ts";
 
-export { parseCodeRequest, printCodeRequest } from "./scanner.ts";
+export {
+  isConfiguredFence,
+  parseCodeRequest,
+  printCodeRequest,
+} from "./scanner.ts";
 
 export {
   CodeBuildFailed,
