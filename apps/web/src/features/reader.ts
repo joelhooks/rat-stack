@@ -14,6 +14,7 @@ import {
 import type { ReaderModel } from "../client/reader/model.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
+import * as MotionView from "./motion/index.js";
 import { readerFooter, readerNewsCallout } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
@@ -306,6 +307,17 @@ const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
         slotId: "docs",
         toParentMessage: (message) => Message.GotDocsMessage({ message }),
         view: docsView,
+      }),
+    ],
+  }),
+  ...Option.match(model.motion, {
+    onNone: () => [],
+    onSome: (motion) => [
+      h.submodel({
+        model: motion,
+        slotId: "motion",
+        toParentMessage: (message) => Message.GotMotionMessage({ message }),
+        view: MotionView.view,
       }),
     ],
   }),

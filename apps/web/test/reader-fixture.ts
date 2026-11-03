@@ -22,6 +22,7 @@ export const readerFlagsFixture: ReaderPageFlags = {
   copyPrompts: [promptFixture],
   docs: Option.none(),
   heading: "Rat Stack",
+  motion: Option.none(),
   newsTitle: Option.none(),
   origin: "https://ratstack.sh",
   page: {

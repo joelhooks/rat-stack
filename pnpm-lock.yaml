@@ -465,6 +465,9 @@ importers:
       '@rat-stack/devtools':
         specifier: workspace:*
         version: link:../../packages/devtools
+      '@rat-stack/motion':
+        specifier: workspace:*
+        version: link:../../packages/motion
       '@rat-stack/site':
         specifier: workspace:*
         version: link:../site

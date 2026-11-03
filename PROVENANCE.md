@@ -19,15 +19,13 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 
 ## Motion (`packages/motion`)
 
-### Penner's easing equations (BSD)
+### Penner's easing equations (BSD-3-Clause)
 
 `packages/motion/src/easing.pure.ts` implements Robert Penner's easing equations: quad, cubic, quart, quint, sine, expo, circ, back, elastic and bounce, each in, out and in-out. The formulas are rewritten over normalized progress in [0, 1], not Penner's `(t, b, c, d)` signature. They keep his constants: the back overshoot 1.70158 (scaled by 1.525 for in-out), the elastic periods, and the bounce coefficients 7.5625 and 2.75. Because those constants follow his published code closely, his licence text follows.
 
-TERMS OF USE - EASING EQUATIONS
+[Penner's terms of use](https://robertpenner.com/easing_terms_of_use.html), read 2026-11-02, offer the equations under the MIT License and the 3-Clause BSD License. rat-stack uses them under the BSD License:
 
-Open source under the BSD License.
-
-Copyright © 2001 Robert Penner All rights reserved.
+Copyright © 2001 Robert Penner
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
