@@ -24,7 +24,7 @@ export class GitSnapshotError extends Schema.TaggedError<
   { readonly brand: unique symbol }
 >()("GitSnapshotError", { entry: Schema.String, reason: Schema.String }) {
   override get message() {
-    return `${this.reason}: ${this.entry}. Regenerate with pnpm git-snapshot in a full checkout and commit .brain/data/git-snapshot.json.`;
+    return `${this.reason}: ${this.entry}. The content build reads Git history only through this snapshot, so every checkout renders the same pages. Fix: run \`pnpm git-snapshot\` in a full checkout after your last commit, then commit \`.brain/data/git-snapshot.json\` on its own.`;
   }
 }
 
