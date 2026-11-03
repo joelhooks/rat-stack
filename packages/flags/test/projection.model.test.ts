@@ -167,8 +167,15 @@ it.effect.prop(
         if (step === "replicaFailure") {
           yield* Ref.set(double.failure, "values/");
           const before = yield* Ref.get(durable);
-          yield* project.pipe(Effect.exit);
+          const result = yield* project.pipe(Effect.exit);
           expect((yield* Ref.get(durable)).dirty).toStrictEqual(before.dirty);
+          expect(
+            before.dirty.size === 0
+              ? Exit.isSuccess(result)
+              : Exit.findErrorOption(result).pipe(
+                  Option.exists(Schema.is(FlagStorageError))
+                )
+          ).toBe(true);
           yield* Ref.set(double.failure, null);
         }
 
@@ -195,5 +202,98 @@ it.effect.prop(
       expect(
         (yield* Ref.get(double.data)).get(flagValueKey(switchFlag.name))
       ).toBe(JSON.stringify(authoritative));
+    })
+);
+
+const BadMarker = Schema.Literals(["malformedJson", "missingReceipt"]);
+
+const committedPosition = (name: string, value: boolean) => ({
+  evidence: [],
+  receipt: {
+    actor: "agent",
+    approvalRef: null,
+    authority: "agent" as const,
+    evidenceRefs: [],
+    from: "off",
+    name,
+    reason: "test",
+    revision: 1,
+    scope: "global",
+    to: "on",
+    value,
+  },
+  revision: 1,
+  rung: "on",
+  value,
+});
+
+const encodePosition = Schema.encodeEffect(Schema.fromJsonString(FlagPosition));
+
+it.effect.prop(
+  "a projection marker that cannot be projected fails redrive and stays dirty",
+  {
+    bad: BadMarker,
+    badAt: Schema.Int.check(Schema.isBetween({ maximum: 6, minimum: 0 })),
+    goods: Schema.Array(Schema.Boolean).check(Schema.isMaxLength(6)),
+  },
+  ({ bad, badAt, goods }) =>
+    Effect.gen(function* checkBadMarker() {
+      const badKey = "marker/bad";
+      const badName = "bad-flag";
+
+      const committed = yield* encodePosition(
+        committedPosition(badName, true)
+      ).pipe(Effect.orDie);
+
+      const { receipt: _receipt, ...uncommitted } = committedPosition(
+        badName,
+        true
+      );
+
+      const badText =
+        bad === "malformedJson"
+          ? committed.slice(0, -1)
+          : yield* encodePosition(uncommitted).pipe(Effect.orDie);
+
+      const good = yield* Effect.all(
+        goods.map((value, index) =>
+          encodePosition(committedPosition(`flag-${index}`, value)).pipe(
+            Effect.orDie,
+            Effect.map((text) => [`marker/${index}`, text] as const)
+          )
+        )
+      );
+
+      const at = Math.min(badAt, good.length);
+
+      const dirty = yield* Ref.make<ReadonlyMap<string, string>>(
+        new Map([...good.slice(0, at), [badKey, badText], ...good.slice(at)])
+      );
+
+      const writes = yield* Ref.make<readonly string[]>([]);
+
+      const result = yield* redriveFlagProjections({
+        pending: () => Ref.get(dirty),
+        rearm: () => Effect.void,
+        removeIfCurrent: (key, text) =>
+          Ref.update(
+            dirty,
+            (current) =>
+              new Map(
+                [...current].filter(
+                  ([candidate, held]) => candidate !== key || held !== text
+                )
+              )
+          ),
+        writeReplica: (key) => Ref.update(writes, (keys) => [...keys, key]),
+      }).pipe(Effect.exit);
+
+      const error = Exit.findErrorOption(result);
+      expect(Option.exists(error, Schema.is(FlagStorageError))).toBe(true);
+      expect(error.pipe(Option.map((failed) => failed.flag))).toStrictEqual(
+        Option.some(badKey)
+      );
+      expect((yield* Ref.get(dirty)).get(badKey)).toBe(badText);
+      expect(yield* Ref.get(writes)).not.toContain(flagValueKey(badName));
     })
 );
