@@ -8,6 +8,7 @@ import {
 } from "../../page-descriptor.js";
 import { Model as CafeModel } from "../cafe/model.js";
 import { Model as DocsModel } from "../docs/model.js";
+import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
 
@@ -33,6 +34,7 @@ export const ReaderFlags = Schema.Struct({
   copyPrompts: Schema.Array(CopyPrompt),
   docs: Schema.OptionFromOptional(DocsModel),
   heading: Schema.String,
+  motion: Schema.OptionFromOptional(MotionDemoModel),
   newsTitle: Schema.OptionFromOptional(Schema.String),
   origin: Schema.String,
   page: ReaderPageDescriptor,

@@ -7,6 +7,7 @@ import { DocumentQueries } from "./docs/queries.js";
 import { browserInit } from "./reader/init.js";
 import { Message } from "./reader/message.js";
 import { Model, ReaderFlags } from "./reader/model.js";
+import { subscriptions } from "./reader/subscriptions.js";
 import { update } from "./reader/update.js";
 
 import "../../../site/src/rat.css";
@@ -19,6 +20,7 @@ const application = Runtime.makeApplication({
   devTools: import.meta.env.DEV ? { Message } : false,
   init: browserInit,
   resources: DocumentQueries.layer,
+  subscriptions,
   update,
   view,
 });
