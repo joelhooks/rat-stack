@@ -17,6 +17,36 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Motion (`packages/motion`)
+
+### Penner's easing equations (BSD-3-Clause)
+
+`packages/motion/src/easing.pure.ts` implements Robert Penner's easing equations: quad, cubic, quart, quint, sine, expo, circ, back, elastic and bounce, each in, out and in-out. The formulas are rewritten over normalized progress in [0, 1], not Penner's `(t, b, c, d)` signature. They keep his constants: the back overshoot 1.70158 (scaled by 1.525 for in-out), the elastic periods, and the bounce coefficients 7.5625 and 2.75. Because those constants follow his published code closely, his licence text follows.
+
+[Penner's terms of use](https://robertpenner.com/easing_terms_of_use.html), read 2026-11-02, offer the equations under the MIT License and the 3-Clause BSD License. rat-stack uses them under the BSD License:
+
+Copyright © 2001 Robert Penner
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+- Neither the name of the author nor the names of contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+### CSS easing functions
+
+`cubicBezier`, `steps` and the named presets follow the W3C [CSS Easing Functions Level 1](https://www.w3.org/TR/css-easing-1/) definitions of `cubic-bezier()`, `steps()` with its jump positions, `ease`, `ease-in`, `ease-out`, `ease-in-out`, `step-start` and `step-end`. The solver is ours: Newton's method from the input progress, with bisection when the slope flattens or Newton leaves [0, 1]. The golden values in `packages/motion/test/easing.test.ts` come from exact-rational bisection, computed separately with Python's `fractions` module.
+
+### OKLab
+
+`mixColor` in `packages/motion/src/interpolate.pure.ts` uses the OKLab matrices that Björn Ottosson published in [A perceptual color space for image processing](https://bottosson.github.io/posts/oklab/) (2020), which CSS Color 4 also adopts. The sRGB transfer functions follow the sRGB standard as CSS Color 4 states them.
+
+### Spring (idea only)
+
+`packages/motion/src/spring.pure.ts` takes only an idea from effect-motion: a fixed-step semi-implicit Euler integrator, a settle threshold followed by a snap, state held in the Model, and retargeting that keeps position and velocity. effect-motion has no licence, so its code was not opened, copied or paraphrased. The integrator, the substep accounting and the settle rule were written from the physics alone.
+
 ## Raw reader table diagnosis
 
 [AugusDogus, PR #121](https://github.com/joelhooks/rat-stack/pull/121) identified that the Foldkit reader uses plain `remark-parse` without GFM table support. The fix replaces published Markdown tables with lists and checks rendered reader HTML. No renderer code from the pull request is copied.
