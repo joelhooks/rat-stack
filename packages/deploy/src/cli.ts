@@ -7,6 +7,7 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import { capabilities } from "./capabilities.js";
 import { localLayer } from "./local.js";
 import { RollbackRunner } from "./rollback-runner.js";
+import { stateStoresLayer } from "./state-stores.js";
 import { WorkerDeployments } from "./worker-deployments.js";
 
 const root = Command.make("deploy").pipe(
@@ -40,9 +41,19 @@ const program = Command.runWith(root, { version: "0.1.0" })(
       Console.log(JSON.stringify({ reason: failure.reason })).pipe(
         Effect.andThen(Effect.fail(failure))
       ),
+    StateCopyRefused: (failure) =>
+      Console.log(
+        JSON.stringify({
+          detail: failure.detail,
+          fix: failure.fix,
+          reason: failure.reason,
+          stacks: failure.stacks,
+        })
+      ).pipe(Effect.andThen(Effect.fail(failure))),
   }),
   Effect.provide(
     RollbackRunner.layer("https://ratstack.sh").pipe(
+      Layer.merge(stateStoresLayer()),
       Layer.provideMerge(
         WorkerDeployments.layer("alchemy.run.ts").pipe(
           Layer.provideMerge(
