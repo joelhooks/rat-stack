@@ -1,5 +1,18 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/joelhooks/mutant-cafe",
+    "title": "mutant-cafe 0.1.2: mutation testing for Effect TypeScript",
+    "summary": "Type-directed mutants for Effect code, including one per tagged error that swallows just that error; inspired by cargo-mutants. Install with npm i -D mutant-cafe.",
+    "date": "2026-11-03",
+    "repo": "joelhooks/mutant-cafe",
+    "author": {
+      "github": "joelhooks",
+      "x": null
+    },
+    "source": "https://registry.npmjs.org/mutant-cafe"
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/mattpocockuk/status/2117157362700058671",
     "title": "What is the aha moment for Foldkit?",
