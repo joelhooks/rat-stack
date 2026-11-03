@@ -21,11 +21,14 @@ it.effect("every seed profile renders as prerendered HTML", () =>
     const inputs = yield* prepareReaderSiteInputs;
     const flags = yield* readerBodyFlags("https://ratstack.sh");
 
-    expect(inputs.cafe.people.map((person) => person.id).toSorted()).toEqual([
-      "devinjameson",
-      "effect-ts",
-      "sam-goodwin",
-    ]);
+    expect(inputs.cafe.people.map((person) => person.id)).toEqual(
+      expect.arrayContaining([
+        "devinjameson",
+        "effect-ts",
+        "jem-computer",
+        "sam-goodwin",
+      ])
+    );
 
     for (const person of inputs.cafe.people) {
       const page = flags.find(

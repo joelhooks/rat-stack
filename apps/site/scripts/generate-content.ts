@@ -14,6 +14,7 @@ import {
   listPeople,
   readPerson,
 } from "@rat-stack/core";
+import { unlistedAuthors } from "@rat-stack/core/cafe-people";
 import { CafeData } from "@rat-stack/core/contracts";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
@@ -990,6 +991,15 @@ const program = Effect.gen(function* generateContent() {
   }).pipe(Effect.flatMap(decodeCafeData));
 
   const cafeDirectory = CafeDirectory.layer(cafeData);
+
+  yield* Effect.forEach(
+    unlistedAuthors(cafeData.people, cafeData.news),
+    ({ author, rows }) =>
+      Effect.logWarning(
+        `${cafePeopleFile}: ${author} has ${rows} /news rows and no all stars entry; add one with entryRows naming two of them (.brain/areas/all-stars.svx)`
+      ),
+    { discard: true }
+  );
 
   const allStarsList = yield* listPeople.handler({ limit: 100 }).pipe(
     Effect.provide(cafeDirectory),

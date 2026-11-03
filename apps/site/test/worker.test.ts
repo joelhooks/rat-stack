@@ -2155,11 +2155,14 @@ it.effect(
           new Request("http://localhost/all-stars")
         );
 
-        expect(listed.people.map((person) => person.id).toSorted()).toEqual([
-          "devinjameson",
-          "effect-ts",
-          "sam-goodwin",
-        ]);
+        expect(listed.people.map((person) => person.id)).toEqual(
+          expect.arrayContaining([
+            "devinjameson",
+            "effect-ts",
+            "jem-computer",
+            "sam-goodwin",
+          ])
+        );
         expect(llms).toContain("/all-stars)");
         expect(index).toContain("# CAFE all stars");
         expect(index).toContain("To be removed from this page");

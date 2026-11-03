@@ -96,6 +96,9 @@ export const allStarsCopy = {
   channelsHeading: "Channels",
   description:
     "People and channels whose public work builds with Cloudflare, Alchemy, Foldkit and Effect. Every fact links to its source.",
+  entryRowsLabel: "Entered on these /news rows",
+  entryRule:
+    "A person or channel enters when their public work earns a second /news row. There is no per-person preview.",
   feedLabel: "Atom feed",
   heading: "CAFE all stars",
   intro:
@@ -109,11 +112,13 @@ export const allStarsCopy = {
 export const allStarsTools =
   "Agents can call `listPeople`, `readPerson`, `searchPeople`, `listChannels` and `peopleFor` over MCP, HTTP or code mode.";
 
+export const removalPromise = "A removal ships with the next site update.";
+
 export const removalIssueUrl = (id: string | null) =>
   `https://github.com/joelhooks/rat-stack/issues/new?title=${encodeURIComponent(id === null ? "Remove an all stars profile" : `Remove all stars profile: ${id}`)}`;
 
 export const removalLine = (id: string | null) =>
-  `To be removed from this page, [open an issue](${removalIssueUrl(id)}) in joelhooks/rat-stack.`;
+  `To be removed from this page, [open an issue](${removalIssueUrl(id)}) in joelhooks/rat-stack. ${removalPromise}`;
 
 export const handleLabels = {
   blog: "Blog",

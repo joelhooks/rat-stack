@@ -70,6 +70,37 @@ export const profileForNewsRow = <A extends Handled>(
 ): Option.Option<A> =>
   Arr.findFirst(people, (person) => newsRowBelongsTo(person, row));
 
+const authorKey = (row: CafeNewsItemValue) => {
+  const keys = rowKeys(row);
+
+  return [
+    ...keys.github.map((key) => `github:${key}`),
+    ...keys.x.map((key) => `x:${key}`),
+  ][0];
+};
+
+export const unlistedAuthors = (
+  people: readonly Handled[],
+  news: readonly CafeNewsItemValue[]
+): readonly { readonly author: string; readonly rows: number }[] => {
+  const keys = news
+    .filter((row) => Option.isNone(profileForNewsRow(people, row)))
+    .flatMap((row) => Option.toArray(Option.fromNullishOr(authorKey(row))));
+
+  return Arr.sort(
+    Arr.dedupe(keys)
+      .map((author) => ({
+        author,
+        rows: keys.filter((key) => key === author).length,
+      }))
+      .filter((entry) => entry.rows >= 2),
+    Order.mapInput(
+      Order.String,
+      (entry: { readonly author: string }) => entry.author
+    )
+  );
+};
+
 export const personPackages = (person: CafePersonValue) =>
   Arr.sort(
     Arr.dedupe(
@@ -87,6 +118,12 @@ export const personSummary = (
   kind: person.kind,
   name: person.name,
   packages: personPackages(person),
+  repos: person.repos.map(({ repo, source, stars, verified }) => ({
+    repo,
+    source,
+    stars,
+    verified,
+  })),
   route: allStarsRoute(person.id),
   summary: person.bio[0],
   topics: person.topics.map((entry) => entry.topic),
@@ -265,17 +302,23 @@ export const cafePeopleFor = (
       : [];
   });
 
+  type Match = (typeof matching)[number];
+
   const ordered = Arr.sort(
     matching,
-    Order.combine(
+    Order.combineAll([
       Order.flip(
         Order.mapInput(
           Order.Number,
-          (entry: (typeof matching)[number]) => entry.evidence.length
+          (entry: Match) =>
+            entry.evidence.filter((fact) => fact.via === "topic").length
         )
       ),
-      Order.mapInput(byName, (entry: (typeof matching)[number]) => entry.person)
-    )
+      Order.flip(
+        Order.mapInput(Order.Number, (entry: Match) => entry.evidence.length)
+      ),
+      Order.mapInput(byName, (entry: Match) => entry.person),
+    ])
   );
 
   return {

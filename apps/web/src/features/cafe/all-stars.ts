@@ -6,7 +6,7 @@ import type { CafeMessage } from "../../client/cafe/message.js";
 import type { AllStarsModel } from "../../client/cafe/model.js";
 import { allStarsFeedRouter } from "../site-route.js";
 import { cafeStyles } from "./cafe.stylex.js";
-import { allStarsCopy, removalIssueUrl } from "./copy.js";
+import { allStarsCopy, removalIssueUrl, removalPromise } from "./copy.js";
 
 const toolNames = [
   "listPeople",
@@ -36,6 +36,24 @@ const cardView = (
         [
           h.h3([], [h.a([h.Href(person.route)], [person.name])]),
           h.p([], [person.summary.text]),
+          ...(person.repos.length === 0
+            ? []
+            : [
+                h.p(
+                  [],
+                  [
+                    "Built: ",
+                    ...person.repos.flatMap((repo, index) => [
+                      ...(index === 0 ? [] : [", "]),
+                      h.a(
+                        [h.Href(repo.source), h.Rel("noopener noreferrer")],
+                        [repo.repo]
+                      ),
+                      ` (${repo.stars} stars)`,
+                    ]),
+                  ]
+                ),
+              ]),
           h.p(
             [h.Class(stylex.props(cafeStyles.meta).className ?? "")],
             [
@@ -71,6 +89,7 @@ export const view = (model: AllStarsModel, h: HtmlBuilder<CafeMessage>): Html =>
     [],
     [
       h.p([], [allStarsCopy.intro]),
+      h.p([], [allStarsCopy.entryRule]),
       h.p(
         [],
         [
@@ -101,7 +120,7 @@ export const view = (model: AllStarsModel, h: HtmlBuilder<CafeMessage>): Html =>
         [
           "To be removed from this page, ",
           h.a([h.Href(removalIssueUrl(null))], ["open an issue"]),
-          " in joelhooks/rat-stack.",
+          ` in joelhooks/rat-stack. ${removalPromise}`,
         ]
       ),
     ]

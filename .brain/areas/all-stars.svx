@@ -1,7 +1,7 @@
 ---
 title: "CAFE all stars"
 description: "Public profiles of people and channels who build with Cloudflare, Alchemy, Foldkit and Effect, served by five read-only capabilities."
-plain: "One reviewed data file lists each person or channel; agents ask the capabilities, and the pages are built from the same answers."
+plain: "One reviewed data file lists each person or channel with a second /news row; agents ask the capabilities, and the pages are built from the same answers."
 diagram: |-
   people.json
     │ content build
@@ -34,7 +34,7 @@ Five read-only capabilities answer every question about the data:
 - `listPeople` lists every entry, and `listChannels` lists only the channels.
 - `readPerson` reads one profile by its stable id: a GitHub login, or the handle of an org or channel.
 - `searchPeople` matches words against names, handles, topics, packages, repos, bios and videos.
-- `peopleFor` returns the entries whose topics or repo packages cover every term, with the evidence for each term.
+- `peopleFor` returns the entries whose topics or repo packages cover every term, with the evidence for each term. Entries that list a term as a topic rank ahead of entries that only list its package.
 
 The `/all-stars` index and each `/all-stars/<id>` page are built from `listPeople` and `readPerson` answers.
 They are Markdown by default and HTML for a browser.
@@ -46,11 +46,14 @@ The profile lists those rows newest first, and the row on [/news](/news) links b
 
 ## The standard
 
+- A person or channel enters when their public work earns a second row on [/news](/news). The entry's `entryRows` field names those two rows, and the schema rejects an entry with fewer.
+- There is no per-person preview. An entry ships with the next site update like any other content.
+- The content build warns about every author with two rows in the current news file and no profile.
 - Every fact carries its `source` URL and the `verified` date it was checked, so an agent can cite it.
 - A bio holds two or three sentences about CAFE work only, each quoted or linked from its source.
 - An avatar is a file committed under `apps/site/content/avatars`. Pages never load an image from another site.
 - A profile never includes location, employer guesses, family, follower counts, private messages, or anything the person did not post publicly about their work.
-- Each page ends with a removal line that opens an issue in `joelhooks/rat-stack`.
+- Each page ends with a removal line that opens an issue in `joelhooks/rat-stack`. A removal ships with the next site update.
 
 To remove a profile, delete its entry from `people.json` and its avatar file, then rebuild.
 Nothing else stores the profile.
@@ -64,7 +67,8 @@ pnpm --filter @rat-stack/core exec vitest run test/cafe-people.test.ts
 ```
 
 They check that a generated news row lands on exactly the profile that authored it, newest first.
-They also answer three agent questions from the seed data through the capabilities alone.
+They check that topic holders rank first in `peopleFor`, however many repos list a package.
+They also answer three agent questions from the shipped data through the capabilities alone.
 
 Then call a [capability](/systems/capabilities) on a running site:
 

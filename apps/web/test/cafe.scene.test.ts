@@ -83,6 +83,7 @@ const ada = Schema.decodeSync(CafePersonSummary)({
   kind: "person",
   name: "Ada",
   packages: [],
+  repos: [{ repo: "ada/engine", stars: 12, ...fact }],
   route: "/all-stars/ada",
   summary: fact,
   topics: [],
@@ -109,6 +110,7 @@ it("the all stars index shows one card per person, and channels under their own 
     expect(role("heading", { name: "Channels" })).toExist(),
     expect(role("link", { name: "Fold" })).toExist(),
     expect(text("Ada builds CAFE things.")).toExist(),
+    expect(role("link", { name: "ada/engine" })).toExist(),
     expect(role("link", { name: "open an issue" })).toExist()
   );
 });

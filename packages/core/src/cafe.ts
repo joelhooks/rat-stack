@@ -242,6 +242,7 @@ export const CafePerson = Schema.Struct({
     Schema.isMinLength(2),
     Schema.isMaxLength(3)
   ),
+  entryRows: Schema.Array(HttpsUrl).check(Schema.isMinLength(2)),
   handles: Schema.Array(CafeHandle).check(Schema.isMinLength(1)),
   id: PersonId,
   kind: CafePersonKind,
@@ -483,6 +484,12 @@ const Limit = Schema.optional(
   Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
 );
 
+export const CafeRepoStars = Schema.Struct({
+  repo: RepoName,
+  stars: Count,
+  ...verified,
+});
+
 export const CafePersonSummary = Schema.Struct({
   avatar: AvatarPath,
   handles: Schema.Array(CafeHandle),
@@ -490,6 +497,7 @@ export const CafePersonSummary = Schema.Struct({
   kind: CafePersonKind,
   name: OneLine,
   packages: Schema.Array(PackageName),
+  repos: Schema.Array(CafeRepoStars),
   route: Schema.String,
   summary: CafeFact,
   topics: Schema.Array(CafeTopic),

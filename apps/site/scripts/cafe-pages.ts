@@ -159,7 +159,15 @@ const sourced = (fact: {
 }) => `([source](${fact.source}), checked ${fact.verified})`;
 
 const summaryLine = (person: typeof CafePersonSummary.Type) =>
-  `- [${linkText(person.name)}](${person.route}) \`${person.id}\`: ${person.summary.text} ${sourced(person.summary)}`;
+  [
+    `- [${linkText(person.name)}](${person.route}) \`${person.id}\`: ${person.summary.text} ${sourced(person.summary)}`,
+    `  Links: ${person.handles.map((handle) => `[${handleLabels[handle.kind]}](${handle.url})`).join(", ")}`,
+    ...(person.repos.length === 0
+      ? []
+      : [
+          `  Built: ${person.repos.map((repo) => `[${repo.repo}](${repo.source}) (${repo.stars} stars, checked ${repo.verified})`).join(", ")}`,
+        ]),
+  ].join("\n");
 
 export const allStarsIndexMarkdown = (list: typeof CafePeopleList.Type) => {
   const section = (heading: string, kind: "person" | "channel") => {
@@ -174,6 +182,8 @@ export const allStarsIndexMarkdown = (list: typeof CafePeopleList.Type) => {
     `# ${allStarsCopy.heading}`,
     "",
     allStarsCopy.intro,
+    "",
+    allStarsCopy.entryRule,
     "",
     `${allStarsTools} [${allStarsCopy.feedLabel}](/all-stars.xml).`,
     "",
@@ -246,6 +256,8 @@ export const allStarsProfileMarkdown = (profile: CafeProfileValue) =>
     ...(profile.newsRows.length === 0
       ? [allStarsCopy.noNews]
       : profile.newsRows.map(newsRowMarkdown)),
+    "",
+    `${allStarsCopy.entryRowsLabel}: ${profile.entryRows.map((url, index) => `[${index + 1}](${url})`).join(", ")}. ${allStarsCopy.entryRule}`,
     "",
     removalLine(profile.id),
   ].join("\n");

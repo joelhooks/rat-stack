@@ -16,8 +16,13 @@ import {
   readPerson,
   searchPeople,
 } from "../src/cafe-directory.js";
-import { personNewsRows, profileForNewsRow } from "../src/cafe-people.js";
-import { CafePerson, CafeStory } from "../src/contracts.js";
+import {
+  cafePeopleFor,
+  personNewsRows,
+  profileForNewsRow,
+  unlistedAuthors,
+} from "../src/cafe-people.js";
+import { CafePerson, CafeStory, IsoDate } from "../src/contracts.js";
 import type { CafePersonValue } from "../src/contracts.js";
 import { isoDate, stories } from "./cafe-arbitraries.js";
 
@@ -32,6 +37,10 @@ const person = (index: number): CafePersonValue =>
     bio: [
       { text: `Person ${index} builds CAFE things.`, ...verified },
       { text: `Person ${index} posts about them.`, ...verified },
+    ],
+    entryRows: [
+      `https://example.com/p${index}/first`,
+      `https://example.com/p${index}/second`,
     ],
     handles: [
       {
@@ -161,6 +170,113 @@ describe("the news author join", () => {
   );
 });
 
+const termHolder = Arbitrary.all({
+  packages: Arbitrary.schema(
+    Schema.Int.check(Schema.isBetween({ maximum: 4, minimum: 0 }))
+  ),
+  topic: Arbitrary.schema(Schema.Boolean),
+});
+
+const withFoldkit = (
+  index: number,
+  holder: { readonly packages: number; readonly topic: boolean }
+): CafePersonValue =>
+  Schema.decodeSync(CafePerson)({
+    ...Schema.encodeSync(CafePerson)(person(index)),
+    repos: Array.from({ length: holder.packages }, (_unused, repo) => ({
+      description: null,
+      packages: [{ name: "foldkit", ...verified }],
+      repo: `gh${index}/app-${repo}`,
+      stars: 0,
+      ...verified,
+    })),
+    topics: holder.topic ? [{ topic: "foldkit", ...verified }] : [],
+  });
+
+describe("the entry rule warning", () => {
+  it.prop(
+    "names exactly the authors with two or more rows that no profile owns",
+    [
+      authoredRows,
+      Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 9, minimum: 0 }))
+      ),
+    ],
+    ([authored, listed]) => {
+      const people = Array.from({ length: listed }, (_unused, index) =>
+        person(index)
+      );
+
+      const handleOf = (entry: (typeof authored)[number]) =>
+        entry.row.author.x === null
+          ? `github:gh${entry.owner}`
+          : `x:x${entry.owner}`;
+
+      const unowned = authored.filter((entry) => entry.owner >= listed);
+
+      const counts = Arr.dedupe(unowned.map(handleOf))
+        .map((author) => ({
+          author,
+          rows: unowned.filter((entry) => handleOf(entry) === author).length,
+        }))
+        .filter((entry) => entry.rows >= 2);
+
+      const warned = unlistedAuthors(
+        people,
+        authored.map((entry) => entry.row)
+      );
+
+      expect(warned).toStrictEqual(
+        counts.toSorted((left, right) =>
+          left.author.localeCompare(right.author)
+        )
+      );
+    }
+  );
+});
+
+describe("peopleFor ranking", () => {
+  it.prop(
+    "people known for a term rank ahead of people who only list its package, however many repos list it",
+    [Arbitrary.array(termHolder, { maxLength: 6, minLength: 1 })],
+    ([holders]) => {
+      const people = holders.map((holder, index) => withFoldkit(index, holder));
+
+      const answer = cafePeopleFor(
+        {
+          news: [],
+          people,
+          projects: [],
+          rankedAt: Schema.decodeSync(IsoDate)("2026-11-02"),
+        },
+        { terms: ["foldkit"] }
+      );
+
+      const knownFor = answer.people.map((entry) =>
+        entry.evidence.some((fact) => fact.via === "topic")
+      );
+
+      expect(
+        answer.people.map((entry) => entry.person.id).toSorted()
+      ).toStrictEqual(
+        people
+          .filter((_entry, index) => {
+            const holder = holders[index];
+
+            return (
+              holder !== undefined && (holder.topic || holder.packages > 0)
+            );
+          })
+          .map((entry) => entry.id)
+          .toSorted()
+      );
+      expect(knownFor).toStrictEqual(
+        knownFor.toSorted((left, right) => Number(right) - Number(left))
+      );
+    }
+  );
+});
+
 const seedData = Effect.gen(function* readSeedData() {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -186,12 +302,21 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
     Effect.gen(function* learnFoldkit() {
       const answer = yield* ask(peopleFor.handler({ terms: ["Foldkit"] }));
 
-      expect(answer.people.map((entry) => entry.person.id)).toStrictEqual([
-        "devinjameson",
-      ]);
+      const knownFor = (entry: (typeof answer.people)[number]) =>
+        entry.evidence.some((fact) => fact.via === "topic");
+
+      const ranks = answer.people.map(knownFor);
+
+      expect(answer.people.map((entry) => entry.person.id)).toContain(
+        "devinjameson"
+      );
+      expect(ranks[0]).toBe(true);
+      expect(ranks).toStrictEqual(
+        ranks.toSorted((left, right) => Number(right) - Number(left))
+      );
       expect(
-        answer.people[0]?.evidence.every((fact) =>
-          fact.source.startsWith("https://")
+        answer.people.every((entry) =>
+          entry.evidence.every((fact) => fact.source.startsWith("https://"))
         )
       ).toBe(true);
 
@@ -215,8 +340,10 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
       expect(answer.people.map((entry) => entry.person.id)).toStrictEqual([
         "sam-goodwin",
       ]);
-      expect(searched.matches[0]?.person.id).toBe("sam-goodwin");
-      expect(searched.matches[0]?.matched).toContain("topic:durable-objects");
+      expect(
+        searched.matches.find((match) => match.person.id === "sam-goodwin")
+          ?.matched
+      ).toContain("topic:durable-objects");
     })
   );
 
@@ -248,37 +375,47 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
 });
 
 describe("decodeCafeData", () => {
-  it.effect("names every bad people field and every repeated id", () =>
-    Effect.gen(function* reportPeopleErrors() {
-      const good = yield* Schema.encodeEffect(CafePerson)(person(0));
+  it.effect(
+    "names every bad people field, every entry without two /news rows, and every repeated id",
+    () =>
+      Effect.gen(function* reportPeopleErrors() {
+        const good = yield* Schema.encodeEffect(CafePerson)(person(0));
 
-      const story = {
-        author: { github: "gh0", x: null },
-        date: "2026-11-01",
-        kind: "post",
-        repo: null,
-        source: "https://example.com/source",
-        summary: "A row.",
-        title: "A row",
-        url: "https://example.com/row",
-      };
+        const story = {
+          author: { github: "gh0", x: null },
+          date: "2026-11-01",
+          kind: "post",
+          repo: null,
+          source: "https://example.com/source",
+          summary: "A row.",
+          title: "A row",
+          url: "https://example.com/row",
+        };
 
-      const failure = yield* Effect.flip(
-        decodeCafeData({
-          news: JSON.stringify([story]),
-          people: JSON.stringify([{ ...good, bio: [good.bio[0]] }, good, good]),
-          projects: "[]",
-        })
-      );
+        const failure = yield* Effect.flip(
+          decodeCafeData({
+            news: JSON.stringify([story]),
+            people: JSON.stringify([
+              { ...good, bio: [good.bio[0]] },
+              { ...good, entryRows: [good.entryRows[0]], id: "p1" },
+              good,
+              good,
+            ]),
+            projects: "[]",
+          })
+        );
 
-      expect(failure.errors.map(describeCafeDataError)).toStrictEqual([
-        expect.stringMatching(
-          /^\.brain\/data\/cafe\/people\.json\[0\]\.bio: /u
-        ),
-        expect.stringMatching(
-          /^\.brain\/data\/cafe\/people\.json\[2\]\.id: Duplicate id p0/u
-        ),
-      ]);
-    })
+        expect(failure.errors.map(describeCafeDataError)).toStrictEqual([
+          expect.stringMatching(
+            /^\.brain\/data\/cafe\/people\.json\[0\]\.bio: /u
+          ),
+          expect.stringMatching(
+            /^\.brain\/data\/cafe\/people\.json\[1\]\.entryRows: /u
+          ),
+          expect.stringMatching(
+            /^\.brain\/data\/cafe\/people\.json\[3\]\.id: Duplicate id p0/u
+          ),
+        ]);
+      })
   );
 });
