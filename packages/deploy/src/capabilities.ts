@@ -10,6 +10,14 @@ import { PlanRowSchema } from "./plan.js";
 import { ReceiptStore } from "./receipt-store.js";
 import { deployRollback } from "./rollback.js";
 import { CommitShaSchema } from "./source.js";
+import {
+  copyStacks,
+  parseStackList,
+  preflight,
+  StateCopyRefused,
+  StateCopyReportSchema,
+} from "./state-copy.js";
+import { StateStores, storeAddress } from "./state-stores.js";
 
 export class DeployNotHealthy extends Schema.TaggedError<
   DeployNotHealthy,
@@ -89,4 +97,48 @@ export const deployProd = implement(deployProdContract, (value) =>
   )
 );
 
-export const capabilities = [deployPlan, deployProd, deployRollback] as const;
+const stateCopyInput = Schema.Struct({
+  dryRun: Schema.optionalKey(Schema.Boolean),
+  from: Schema.NonEmptyString,
+  profile: Schema.NonEmptyString,
+  stacks: Schema.String,
+  to: Schema.NonEmptyString,
+});
+
+export const stateCopyContract = defineContract("stateCopy", {
+  annotations: { destructive: false, idempotent: false, readOnly: false },
+  description:
+    "Copy allowlisted stacks from one Alchemy state store into a store that holds none of them; --dryRun only counts",
+  failure: StateCopyRefused,
+  input: stateCopyInput,
+  output: StateCopyReportSchema,
+});
+
+export const stateCopy = implement(stateCopyContract, (value) =>
+  Effect.gen(function* runStateCopy() {
+    const request = {
+      dryRun: value.dryRun ?? false,
+      from: value.from,
+      stacks: parseStackList(value.stacks),
+      to: value.to,
+    };
+
+    yield* preflight(request);
+
+    const stores = yield* StateStores;
+    const source = yield* stores.open(storeAddress(value.from, value.profile));
+
+    const destination = yield* stores.open(
+      storeAddress(value.to, value.profile)
+    );
+
+    return yield* copyStacks({ destination, source }, request);
+  }).pipe(Effect.scoped)
+);
+
+export const capabilities = [
+  deployPlan,
+  deployProd,
+  deployRollback,
+  stateCopy,
+] as const;
