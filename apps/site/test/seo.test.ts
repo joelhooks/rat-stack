@@ -142,7 +142,7 @@ it.effect(
 
       expect(
         paths.some((path) =>
-          /(?:\.txt|\.json|\.xml|^\/auth\.md|^\/\.well-known|^\/tokenmaxx\/)/u.test(
+          /(?:\.txt|\.json|\.xml|\.jpe?g|\.png|\.svg|^\/auth\.md|^\/\.well-known)/u.test(
             path ?? ""
           )
         )

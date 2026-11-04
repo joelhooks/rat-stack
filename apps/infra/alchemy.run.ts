@@ -11,6 +11,7 @@ import * as Schema from "effect/Schema";
 
 import privateAuth from "../site/src/auth/private-worker.js";
 import Mischief from "../site/src/worker.js";
+import Workshop from "../site/src/workshop-worker.js";
 import { Website } from "../web/src/website.js";
 import { ratstackState } from "./src/state-store.js";
 
@@ -119,6 +120,8 @@ export default Alchemy.Stack(
     const website = yield* Website;
 
     const mischief = yield* Mischief;
+
+    yield* Workshop;
 
     yield* mischief.bind`${website}`({
       bindings: [

@@ -1,0 +1,214 @@
+{
+  "runs": [
+    {
+      "date": "2026-11-17",
+      "label": "Tuesday, November 17",
+      "start": "2026-11-17T16:00:00Z",
+      "end": "2026-11-17T21:00:00Z",
+      "localNote": "8am to 1pm Pacific",
+      "blocks": [
+        {
+          "id": "arrive",
+          "name": "Arrive and setup check",
+          "start": "2026-11-17T16:00:00Z",
+          "end": "2026-11-17T16:15:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "awakes",
+          "name": "Awakes",
+          "start": "2026-11-17T16:15:00Z",
+          "end": "2026-11-17T17:30:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-1",
+          "name": "Break",
+          "start": "2026-11-17T17:30:00Z",
+          "end": "2026-11-17T17:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "speaks",
+          "name": "Speaks",
+          "start": "2026-11-17T17:45:00Z",
+          "end": "2026-11-17T19:00:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-2",
+          "name": "Long break",
+          "start": "2026-11-17T19:00:00Z",
+          "end": "2026-11-17T19:30:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "remembers",
+          "name": "Remembers",
+          "start": "2026-11-17T19:30:00Z",
+          "end": "2026-11-17T20:40:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "show-and-tell",
+          "name": "Show and tell, where next",
+          "start": "2026-11-17T20:40:00Z",
+          "end": "2026-11-17T21:00:00Z",
+          "kind": "block"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-21",
+      "label": "Saturday, November 21",
+      "start": "2026-11-21T16:00:00Z",
+      "end": "2026-11-21T21:00:00Z",
+      "localNote": "8am to 1pm Pacific",
+      "blocks": [
+        {
+          "id": "arrive",
+          "name": "Arrive and setup check",
+          "start": "2026-11-21T16:00:00Z",
+          "end": "2026-11-21T16:15:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "awakes",
+          "name": "Awakes",
+          "start": "2026-11-21T16:15:00Z",
+          "end": "2026-11-21T17:30:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-1",
+          "name": "Break",
+          "start": "2026-11-21T17:30:00Z",
+          "end": "2026-11-21T17:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "speaks",
+          "name": "Speaks",
+          "start": "2026-11-21T17:45:00Z",
+          "end": "2026-11-21T19:00:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-2",
+          "name": "Long break",
+          "start": "2026-11-21T19:00:00Z",
+          "end": "2026-11-21T19:30:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "remembers",
+          "name": "Remembers",
+          "start": "2026-11-21T19:30:00Z",
+          "end": "2026-11-21T20:40:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "show-and-tell",
+          "name": "Show and tell, where next",
+          "start": "2026-11-21T20:40:00Z",
+          "end": "2026-11-21T21:00:00Z",
+          "kind": "block"
+        }
+      ]
+    }
+  ],
+  "prep": {
+    "status": "draft",
+    "note": "Item wording is a DRAFT for Joel to rewrite; do not render until he flips status.",
+    "items": [
+      {
+        "id": "node-pnpm",
+        "item": "Node and pnpm at the starter's pinned versions",
+        "proof": "node -v and pnpm -v match the starter README"
+      },
+      {
+        "id": "pi-model",
+        "item": "Pi with one model you're allowed to use",
+        "proof": "Pi runs a tool call (for example, lists the files in this folder)"
+      },
+      {
+        "id": "two-sessions",
+        "item": "Two Pi sessions at once (builder and judge)",
+        "proof": "both sessions answer a prompt"
+      },
+      {
+        "id": "starter",
+        "item": "The starter repo cloned and installed",
+        "proof": "pnpm ex 00.1 check",
+        "needs": "starterPublic"
+      },
+      {
+        "id": "herdr",
+        "item": "Herdr, optional; plain terminals are fine",
+        "proof": null,
+        "optional": true
+      },
+      {
+        "id": "own-task",
+        "item": "One small task from your own work for the last hour",
+        "proof": null
+      }
+    ]
+  },
+  "links": {
+    "status": "draft",
+    "note": "'why' lines are DRAFT for Joel. Public checked 2026-11-04 by unauthenticated HTTP to github.com.",
+    "links": [
+      {
+        "repo": "joelhooks/rat-stack",
+        "url": "https://github.com/joelhooks/rat-stack",
+        "public": true,
+        "why": "the base everything builds on"
+      },
+      {
+        "repo": "joelhooks/pi-until",
+        "url": "https://github.com/joelhooks/pi-until",
+        "public": true,
+        "why": "Awakes: wake on a real condition"
+      },
+      {
+        "repo": "joelhooks/rat-king",
+        "url": "https://github.com/joelhooks/rat-king",
+        "public": true,
+        "why": "Speaks, Remembers, Awakes: the kernel"
+      },
+      {
+        "repo": "joelhooks/mischief",
+        "url": "https://github.com/joelhooks/mischief",
+        "public": true,
+        "why": "Claws: durable agent plans"
+      },
+      {
+        "repo": "joelhooks/pi-muster",
+        "url": "https://github.com/joelhooks/pi-muster",
+        "public": true,
+        "why": "running lanes of agents"
+      },
+      {
+        "repo": "joelhooks/pi-bellwether",
+        "url": "https://github.com/joelhooks/pi-bellwether",
+        "public": true,
+        "why": "orchestration"
+      },
+      {
+        "repo": "herdrdev/herdr",
+        "url": "https://github.com/herdrdev/herdr",
+        "public": true,
+        "why": "terminal panes for agents"
+      },
+      {
+        "repo": "joelhooks/herdr-pings",
+        "url": "https://github.com/joelhooks/herdr-pings",
+        "public": true,
+        "why": "waking agents across panes"
+      }
+    ],
+    "never": ["rat-king-infra", "herdr-worktrees"]
+  },
+  "starterPublic": false
+}

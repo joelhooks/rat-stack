@@ -146,6 +146,7 @@ import {
   stripHtmlComments,
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
+import { buildWorkshop } from "./tokenmaxx-workshop.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -999,6 +1000,8 @@ const program = Effect.gen(function* generateContent() {
         peerPins(peerInputs.root, peerInputs.infra, peerInputs.core)
       ),
   });
+
+  const workshop = yield* buildWorkshop(root);
 
   const cafeData = yield* Effect.all({
     news: readText(cafeNewsFile),
@@ -2288,6 +2291,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/llms-full.txt",
     "/openapi.json",
     "/mcp",
+    "/tokenmaxx/mcp",
+    ...workshop.pages.flatMap((page) => [
+      page.routePath,
+      ogImagePath(page.routePath),
+    ]),
     "/api/search",
     "/api/read",
     "/api/execute",
@@ -2931,6 +2939,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       noVerifyBodyHtml,
       tokenmaxxAgentMarkdown,
       tokenmaxxBodyHtml,
+      JSON.stringify(workshop.data),
+      ...workshop.pages.map((page) => page.source),
       interestResultBody,
       interestConfirmBody,
       unsubscribeBody,
@@ -3025,6 +3035,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: tokenmaxxRoutePath,
       title: tokenmaxxMetadata.title,
     },
+    ...workshop.pages.map<OgPage>((page) => ({
+      description: page.title,
+      routePath: page.routePath,
+      title: page.title,
+    })),
     {
       description: tagline,
       routePath: "/",
@@ -3411,6 +3426,37 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const workshopSources = yield* Effect.forEach(
+    (page: (typeof workshop.pages)[number]) =>
+      Effect.gen(function* compileWorkshopPage() {
+        const body = yield* compileMarkdownBody(
+          page.source,
+          page.routePath,
+          highlighter,
+          emptyTargets,
+          [],
+          page.routePath
+        );
+
+        const documentHtml = yield* makeDocument(
+          body.bodyHtml,
+          {
+            description: page.title,
+            path: page.routePath,
+            title: pageTitle(page.title),
+          },
+          page.routePath,
+          contentVersion
+        );
+
+        return {
+          documentHtml,
+          routePath: page.routePath,
+          text: renderAgentPage(page.source, page.routePath, page.title),
+        };
+      })
+  )(workshop.pages);
+
   const cafeNewsBody = yield* compileMarkdownBody(
     cafeNewsSource,
     "cafe-news.md",
@@ -3593,6 +3639,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/directory",
           "/all-stars",
           ...allStarsProfiles.map((profile) => profile.route),
+          ...workshop.pages.map((page) => page.routePath),
           "/search",
         ],
         resources: resources.map(
@@ -3612,6 +3659,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { path: "/_content/graph.json", value: loreGraphSnapshotJson },
     { path: "/_content/prompts.json", value: promptTexts },
     { path: "/_content/cafe.json", value: encodedCafeData },
+    { path: "/_content/workshop.json", value: workshop.data },
+    { path: "/_content/tokenmaxx.json", value: tokenmaxxAgentMarkdown },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),
       value: resource,
@@ -3679,6 +3728,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: allStarsIndexText,
       },
       ...allStarsSources,
+      ...workshopSources,
       {
         documentHtml: searchPageDocument,
         routePath: "/search",

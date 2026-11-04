@@ -1,0 +1,122 @@
+{
+  "status": "draft",
+  "note": "Times are firm (Joel's 5-hour slot). Block names are Joel's. No descriptive copy: Joel writes it.",
+  "runs": [
+    {
+      "date": "2026-11-17",
+      "label": "Tuesday, November 17",
+      "start": "2026-11-17T16:00:00Z",
+      "end": "2026-11-17T21:00:00Z",
+      "localNote": "8am to 1pm Pacific",
+      "blocks": [
+        {
+          "id": "arrive",
+          "name": "Arrive and setup check",
+          "start": "2026-11-17T16:00:00Z",
+          "end": "2026-11-17T16:15:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "awakes",
+          "name": "Awakes",
+          "start": "2026-11-17T16:15:00Z",
+          "end": "2026-11-17T17:30:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-1",
+          "name": "Break",
+          "start": "2026-11-17T17:30:00Z",
+          "end": "2026-11-17T17:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "speaks",
+          "name": "Speaks",
+          "start": "2026-11-17T17:45:00Z",
+          "end": "2026-11-17T19:00:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-2",
+          "name": "Long break",
+          "start": "2026-11-17T19:00:00Z",
+          "end": "2026-11-17T19:30:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "remembers",
+          "name": "Remembers",
+          "start": "2026-11-17T19:30:00Z",
+          "end": "2026-11-17T20:40:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "show-and-tell",
+          "name": "Show and tell, where next",
+          "start": "2026-11-17T20:40:00Z",
+          "end": "2026-11-17T21:00:00Z",
+          "kind": "block"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-21",
+      "label": "Saturday, November 21",
+      "start": "2026-11-21T16:00:00Z",
+      "end": "2026-11-21T21:00:00Z",
+      "localNote": "8am to 1pm Pacific",
+      "blocks": [
+        {
+          "id": "arrive",
+          "name": "Arrive and setup check",
+          "start": "2026-11-21T16:00:00Z",
+          "end": "2026-11-21T16:15:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "awakes",
+          "name": "Awakes",
+          "start": "2026-11-21T16:15:00Z",
+          "end": "2026-11-21T17:30:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-1",
+          "name": "Break",
+          "start": "2026-11-21T17:30:00Z",
+          "end": "2026-11-21T17:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "speaks",
+          "name": "Speaks",
+          "start": "2026-11-21T17:45:00Z",
+          "end": "2026-11-21T19:00:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-2",
+          "name": "Long break",
+          "start": "2026-11-21T19:00:00Z",
+          "end": "2026-11-21T19:30:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "remembers",
+          "name": "Remembers",
+          "start": "2026-11-21T19:30:00Z",
+          "end": "2026-11-21T20:40:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "show-and-tell",
+          "name": "Show and tell, where next",
+          "start": "2026-11-21T20:40:00Z",
+          "end": "2026-11-21T21:00:00Z",
+          "kind": "block"
+        }
+      ]
+    }
+  ]
+}
