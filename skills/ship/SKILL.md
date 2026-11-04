@@ -47,6 +47,7 @@ Continuous deployment is off.
 - Automatic stage deploy: off.
 - Automatic rollback after promotion: off.
 - Automatic rollback before promotion: off.
+- Automatic rollback when the post-deploy watch fails: on in `pnpm deploy:prod` (checked with local test fixtures only; not proven in production).
 - Provisioned canary stage: off.
 - Gradual rollout: off.
 - Deploy runner: local (checked with local test fixtures only; not proven in production).

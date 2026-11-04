@@ -1,10 +1,16 @@
 import { expect, it } from "@effect/vitest";
 import { InMemoryService } from "alchemy/State/InMemoryState";
 import type { ResourceState } from "alchemy/State/ResourceState";
+import { StateStoreError } from "alchemy/State/State";
 import type { StateService } from "alchemy/State/State";
-import { Effect, Result, Schema } from "effect";
+import { Effect, Fiber, Result, Schema } from "effect";
+import { TestClock } from "effect/testing";
 
-import { copyStacks, parseStackList } from "../src/state-copy.js";
+import {
+  copyStacks,
+  maxWritesInFlight,
+  parseStackList,
+} from "../src/state-copy.js";
 
 const StackName = Schema.String.check(Schema.isPattern(/^[A-Z][a-z]{0,3}$/u));
 
@@ -128,6 +134,77 @@ const pick = (contents: Contents, picks: readonly boolean[]) => {
   );
 };
 
+const transientFailuresPerWrite = 2;
+
+const flakyStore = (store: StateService, flips: readonly boolean[]) => {
+  const watch = {
+    calls: 0,
+    failed: new Map<string, number>(),
+    inFlight: 0,
+    peak: 0,
+  };
+
+  const write = <A>(
+    key: string,
+    operation: Effect.Effect<A, StateStoreError>
+  ) =>
+    Effect.gen(function* flakyWrite() {
+      watch.inFlight += 1;
+      watch.peak = Math.max(watch.peak, watch.inFlight);
+      yield* Effect.yieldNow;
+      yield* Effect.yieldNow;
+
+      const call = watch.calls;
+      watch.calls += 1;
+      const failures = watch.failed.get(key) ?? 0;
+
+      if (
+        (flips[call % flips.length] ?? false) &&
+        failures < transientFailuresPerWrite
+      ) {
+        watch.failed.set(key, failures + 1);
+
+        return yield* new StateStoreError({ message: `transient ${key}` });
+      }
+
+      return yield* operation;
+    }).pipe(
+      Effect.ensuring(
+        Effect.sync(() => {
+          watch.inFlight -= 1;
+        })
+      )
+    );
+
+  const flaky: StateService = {
+    ...store,
+    set: (request) =>
+      write(
+        `set ${request.stack}/${request.stage}/${request.fqn}`,
+        store.set(request)
+      ),
+    setOutput: (request) =>
+      write(
+        `setOutput ${request.stack}/${request.stage}`,
+        store.setOutput(request)
+      ),
+  };
+
+  return { store: flaky, watch };
+};
+
+const withAdvancingClock = <A, E>(effect: Effect.Effect<A, E>) =>
+  Effect.gen(function* advanceUntilDone() {
+    const fiber = yield* Effect.forkChild(effect);
+
+    while (fiber.pollUnsafe() === undefined) {
+      yield* TestClock.adjust("1 minute");
+      yield* Effect.yieldNow;
+    }
+
+    return yield* Fiber.join(fiber);
+  });
+
 const NonEmptyEntries = StoreEntries.check(Schema.isMinLength(1));
 
 const Picks = Schema.Array(Schema.Boolean).check(Schema.isMinLength(1));
@@ -212,6 +289,60 @@ it.effect.prop(
           (yield* recordedStore(unrelated)).state[stack]
         );
       }
+    })
+);
+
+it.effect.prop(
+  "a copy through a destination that drops writes transiently still ends with identical FQN sets",
+  { entries: NonEmptyEntries, flips: Picks, picks: Picks },
+  ({ entries, flips, picks }) =>
+    Effect.gen(function* copySurvivesTransientFailures() {
+      const contents = contentsOf(entries);
+      const stacks = pick(contents, picks);
+      const source = yield* recordedStore(contents);
+      const destination = yield* recordedStore({});
+      const flaky = flakyStore(destination.store, flips);
+
+      const report = yield* withAdvancingClock(
+        copyStacks(
+          { destination: flaky.store, source: source.store },
+          { dryRun: false, from: "a", stacks, to: "b" }
+        )
+      );
+
+      expect(report.fqnSetsEqual).toBe(true);
+
+      for (const { fqns, output, stack, stage } of stageKeys(
+        contents,
+        stacks
+      )) {
+        expect(
+          Object.keys(destination.state[stack]?.[stage] ?? {}).toSorted()
+        ).toEqual(fqns);
+        expect(destination.outputs[stack]?.[stage] !== undefined).toBe(output);
+      }
+    })
+);
+
+it.effect.prop(
+  "a copy never has more destination writes in flight than the bound",
+  { entries: NonEmptyEntries, flips: Picks, picks: Picks },
+  ({ entries, flips, picks }) =>
+    Effect.gen(function* copyBoundsWrites() {
+      const contents = contentsOf(entries);
+      const stacks = pick(contents, picks);
+      const source = yield* recordedStore(contents);
+      const destination = yield* recordedStore({});
+      const flaky = flakyStore(destination.store, flips);
+
+      yield* withAdvancingClock(
+        copyStacks(
+          { destination: flaky.store, source: source.store },
+          { dryRun: false, from: "a", stacks, to: "b" }
+        )
+      );
+
+      expect(flaky.watch.peak).toBeLessThanOrEqual(maxWritesInFlight);
     })
 );
 

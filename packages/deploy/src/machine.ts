@@ -1,4 +1,5 @@
 import { watchActor } from "@rat-stack/capability/actor-watch";
+import { Approval } from "@rat-stack/capability/approval";
 import { gateOutcome } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
 import {
@@ -6,8 +7,9 @@ import {
   createEffectLogic,
   join,
   setupEffect,
+  waitFor,
 } from "@xstate/effect";
-import { Cause, Clock, Effect, Schema } from "effect";
+import { Cause, Clock, Deferred, Effect, Option, Schema } from "effect";
 import { types } from "xstate";
 
 import {
@@ -20,8 +22,15 @@ import { DeployRunner } from "./deploy-runner.js";
 import { classifyRows, PlanRowsSchema } from "./plan.js";
 import type { PlanRow } from "./plan.js";
 import { quietWindowKeys, readQuietWindow } from "./quiet-window.js";
+import type { RollbackReceipt } from "./rollback-contracts.js";
+import { RollbackFailed } from "./rollback-failed.js";
+import { RollbackRefused } from "./rollback-refused.js";
+import { runRollback } from "./rollback.js";
 import { decideSource } from "./source.js";
 import type { CheckoutState } from "./source.js";
+import { WatchHost } from "./watch-host.js";
+import { watchReceipt, WatchReceiptSchema } from "./watch-receipt.js";
+import type { WatchReceipt } from "./watch-receipt.js";
 
 type StepResult<A> =
   | { readonly kind: "ok"; readonly value: A }
@@ -57,6 +66,8 @@ interface DeployContext {
   readonly quietDeadline?: number;
   readonly quietUntil: number;
   readonly verdict: DeployVerdict;
+  readonly watch?: WatchReceipt;
+  readonly watchCheck?: Verdict;
 }
 
 type SourceResult =
@@ -169,6 +180,66 @@ const checks = createEffectLogic({
   schemas: { input: ApplyReceiptSchema },
 });
 
+const watch = createEffectLogic({
+  effect: ({ input }) =>
+    stepResult(DeployRunner.use((runner) => runner.watch(input))),
+  schemas: { input: ApplyReceiptSchema },
+});
+
+type RollbackStep =
+  | { readonly kind: "restored"; readonly receipt: RollbackReceipt }
+  | {
+      readonly kind: "failed";
+      readonly reason: string;
+      readonly receipt?: RollbackReceipt;
+    };
+
+const rollback = createEffectLogic({
+  effect: ({ input }) =>
+    Approval.use((approval) =>
+      approval.approve("deployRollback", {
+        profile: input.profile,
+        trigger: "post-deploy-watch",
+      })
+    ).pipe(
+      Effect.andThen(runRollback({ profile: input.profile })),
+      Effect.match({
+        onFailure: (failure): RollbackStep => {
+          if (Schema.is(RollbackFailed)(failure)) {
+            return {
+              kind: "failed",
+              reason: `rollback-${failure.receipt.outcome}`,
+              receipt: failure.receipt,
+            };
+          }
+
+          return {
+            kind: "failed",
+            reason: Schema.is(RollbackRefused)(failure)
+              ? failure.reason
+              : "rollback-approval-denied",
+          };
+        },
+        onSuccess: (receipt): RollbackStep => ({ kind: "restored", receipt }),
+      }),
+      Effect.catchCause((cause) =>
+        Cause.hasInterrupts(cause)
+          ? Effect.interrupt
+          : Effect.succeed<RollbackStep>({
+              kind: "failed",
+              reason: "rollback-crashed",
+            })
+      )
+    ),
+  schemas: { input: Schema.Struct({ profile: Schema.NonEmptyString }) },
+});
+
+const recordWatch = createEffectLogic({
+  effect: ({ input }) =>
+    stepResult(DeployRunner.use((runner) => runner.recordWatch(input))),
+  schemas: { input: WatchReceiptSchema },
+});
+
 const ended = (
   context: DeployContext,
   outcome: DeployVerdict["outcome"],
@@ -211,7 +282,10 @@ export const deployMachine = setupEffect({
     plan,
     preflight,
     quietWindow,
+    recordWatch,
+    rollback,
     source,
+    watch,
   },
   schemas: { context: types<DeployContext>(), input: DeployInputSchema },
 }).createMachine({
@@ -328,16 +402,18 @@ export const deployMachine = setupEffect({
             };
           }
 
+          const outcome = checksOutcome(event.output.value);
+
           return {
             context: {
               verdict: {
                 ...context.verdict,
                 checks: event.output.value,
-                outcome: checksOutcome(event.output.value),
+                outcome,
                 step: "checks",
               },
             },
-            target: "verdict",
+            target: outcome === "healthy" ? "watching" : "verdict",
           };
         },
         onError: {
@@ -549,7 +625,63 @@ export const deployMachine = setupEffect({
       },
     },
     quietWindowCrashed: { type: "final" },
+    recordingWatch: {
+      invoke: {
+        input: ({ context }) =>
+          context.watch ?? watchReceipt(context.input.profile, "crashed"),
+        onDone: { target: "watched" },
+        onError: { target: "watched" },
+        src: "recordWatch",
+      },
+    },
     refused: { type: "final" },
+    rollingBack: {
+      invoke: {
+        input: ({ context }) => ({ profile: context.input.profile }),
+        onDone: ({ context, event }) => {
+          const details =
+            context.watchCheck === undefined
+              ? {}
+              : { check: context.watchCheck };
+
+          if (event.output.kind === "restored") {
+            return {
+              context: {
+                watch: watchReceipt(context.input.profile, "rolled-back", {
+                  ...details,
+                  rollback: event.output.receipt,
+                }),
+              },
+              target: "recordingWatch",
+            };
+          }
+
+          const failed = { ...details, rollbackReason: event.output.reason };
+
+          return {
+            context: {
+              watch: watchReceipt(
+                context.input.profile,
+                "rollback-failed",
+                event.output.receipt === undefined
+                  ? failed
+                  : { ...failed, rollback: event.output.receipt }
+              ),
+            },
+            target: "recordingWatch",
+          };
+        },
+        onError: {
+          context: ({ context }) => ({
+            watch: watchReceipt(context.input.profile, "rollback-failed", {
+              rollbackReason: "rollback-crashed",
+            }),
+          }),
+          target: "recordingWatch",
+        },
+        src: "rollback",
+      },
+    },
     source: {
       invoke: {
         input: ({ context }) =>
@@ -603,15 +735,136 @@ export const deployMachine = setupEffect({
     },
     sourceCrashed: { type: "final" },
     verdict: { type: "final" },
+    watched: { type: "final" },
+    watching: {
+      invoke: {
+        input: ({ context }) =>
+          context.verdict.receipt ?? {
+            notUpdated: [],
+            outcome: "crashed",
+            retainedOrphans: [],
+            updated: [],
+            versions: {},
+          },
+        onDone: ({ context, event }) => {
+          if (event.output.kind !== "ok") {
+            return {
+              context: {
+                watch: watchReceipt(context.input.profile, "crashed"),
+              },
+              target: "recordingWatch",
+            };
+          }
+
+          const observed = gateOutcome(event.output.value);
+
+          if (observed === "pass") {
+            return {
+              context: {
+                watch: watchReceipt(context.input.profile, "passed", {
+                  check: event.output.value,
+                }),
+              },
+              target: "recordingWatch",
+            };
+          }
+
+          if (observed === "fail") {
+            return {
+              context: { watchCheck: event.output.value },
+              target: "rollingBack",
+            };
+          }
+
+          return {
+            context: {
+              watch: watchReceipt(context.input.profile, "crashed", {
+                check: event.output.value,
+              }),
+            },
+            target: "recordingWatch",
+          };
+        },
+        onError: {
+          context: ({ context }) => ({
+            watch: watchReceipt(context.input.profile, "crashed"),
+          }),
+          target: "recordingWatch",
+        },
+        src: "watch",
+      },
+    },
   },
 });
+
+const deployLifecycle = (
+  input: DeployInput,
+  reported: Deferred.Deferred<DeployVerdict>
+) =>
+  Effect.gen(function* runLifecycle() {
+    const actor = yield* createEffectActor(deployMachine, { input });
+    yield* watchActor("deployMachine", actor);
+
+    const verdict = yield* waitFor(
+      actor,
+      (snapshot) =>
+        snapshot.status !== "active" ||
+        snapshot.matches("watching") ||
+        snapshot.matches("rollingBack") ||
+        snapshot.matches("recordingWatch")
+    ).pipe(Effect.orDie);
+
+    yield* Deferred.succeed(reported, verdict.context.verdict);
+
+    // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Step crashes are explicit states; an unexpected machine failure remains a defect.
+    yield* join(actor).pipe(Effect.orDie);
+
+    return Option.fromUndefinedOr(actor.getSnapshot().context.watch);
+  }).pipe(
+    Effect.scoped,
+    Effect.onInterrupt(() =>
+      Effect.gen(function* recordInterruptedWatch() {
+        if (!(yield* Deferred.isDone(reported))) {
+          yield* Deferred.interrupt(reported);
+
+          return;
+        }
+
+        yield* DeployRunner.use((runner) =>
+          runner.recordWatch(watchReceipt(input.profile, "interrupted"))
+        ).pipe(Effect.ignore);
+      })
+    ),
+    Effect.catchCause((cause) =>
+      Effect.gen(function* settleCrashedLifecycle() {
+        if (Cause.hasInterrupts(cause)) {
+          return yield* Effect.failCause(cause);
+        }
+
+        if (!(yield* Deferred.isDone(reported))) {
+          yield* Deferred.failCause(reported, cause);
+
+          return Option.none<WatchReceipt>();
+        }
+
+        const crashed = watchReceipt(input.profile, "crashed");
+
+        yield* DeployRunner.use((runner) => runner.recordWatch(crashed)).pipe(
+          Effect.ignore
+        );
+
+        return Option.some(crashed);
+      })
+    )
+  );
 
 export const runDeploy = Effect.fn("runDeploy")(function* runDeploy(
   input: DeployInput
 ) {
-  const actor = yield* createEffectActor(deployMachine, { input });
-  yield* watchActor("deployMachine", actor);
+  const host = yield* WatchHost;
+  const reported = yield* Deferred.make<DeployVerdict>();
 
-  // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Step crashes are explicit states; an unexpected machine failure remains a defect.
-  return yield* join(actor).pipe(Effect.orDie);
-}, Effect.scoped);
+  yield* host.hold(deployLifecycle(input, reported));
+
+  return yield* Deferred.await(reported);
+});

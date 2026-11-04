@@ -1,9 +1,18 @@
 import { StateStoreError } from "alchemy/State/State";
 import type { StateService } from "alchemy/State/State";
-import { syncState } from "alchemy/State/Sync";
-import { Effect, Schema } from "effect";
+import { Effect, Schedule, Schema } from "effect";
 
 export const defaultStateStoreName = "alchemy-state-store";
+
+export const stagesInFlight = 2;
+
+export const recordsInFlightPerStage = 4;
+
+export const maxWritesInFlight = stagesInFlight * recordsInFlightPerStage;
+
+export const storeRetries = 6;
+
+export const storeRetryBase = "500 millis";
 
 export const StageCensusSchema = Schema.Struct({
   output: Schema.Boolean,
@@ -48,7 +57,7 @@ const guides: Record<
   },
   "destination-holds-stack": {
     fix: "copy only into a store that holds none of the listed stacks, for example a fresh one named with `--to`.",
-    why: "Alchemy's syncState deletes destination records the source lacks.",
+    why: "State copy writes only into stacks the destination lacks, so its readback proves the copy and nothing else.",
   },
   "empty-allowlist": {
     fix: "pass `--stacks` with at least one exact stack name.",
@@ -236,6 +245,63 @@ export const preflight = Effect.fn("stateCopy.preflight")(
 const unavailable = (stacks: readonly string[]) => (error: StateStoreError) =>
   refuse("store-unavailable", stacks, error.message);
 
+const retried = <A>(operation: Effect.Effect<A, StateStoreError>) =>
+  operation.pipe(
+    Effect.retry({
+      schedule: Schedule.exponential(storeRetryBase),
+      times: storeRetries,
+    })
+  );
+
+const copyRecords = (
+  source: StateService,
+  destination: StateService,
+  rows: readonly StageRecords[]
+) =>
+  Effect.forEach(
+    rows,
+    (row) =>
+      Effect.forEach(
+        row.fqns,
+        (fqn) =>
+          retried(source.get({ fqn, stack: row.stack, stage: row.stage })).pipe(
+            Effect.flatMap((value) =>
+              value === undefined
+                ? Effect.void
+                : Effect.asVoid(
+                    retried(
+                      destination.set({
+                        fqn,
+                        stack: row.stack,
+                        stage: row.stage,
+                        value,
+                      })
+                    )
+                  )
+            )
+          ),
+        { concurrency: recordsInFlightPerStage, discard: true }
+      ),
+    { concurrency: stagesInFlight, discard: true }
+  );
+
+const copyOutputs = (
+  destination: StateService,
+  rows: readonly StageRecords[]
+) =>
+  Effect.forEach(
+    rows.filter((row) => row.output !== undefined),
+    (row) =>
+      retried(
+        destination.setOutput({
+          stack: row.stack,
+          stage: row.stage,
+          value: row.output,
+        })
+      ),
+    { concurrency: maxWritesInFlight, discard: true }
+  );
+
 export const copyStacks = Effect.fn("stateCopy.copyStacks")(
   function* copyStacks(
     stores: {
@@ -295,21 +361,13 @@ export const copyStacks = Effect.fn("stateCopy.copyStacks")(
       } satisfies StateCopyReport;
     }
 
-    yield* syncState(source, destination, {
-      concurrency: 8,
-      stacks,
-    }).pipe(Effect.mapError(unavailable(stacks)));
+    yield* copyRecords(source, destination, before).pipe(
+      Effect.mapError(unavailable(stacks))
+    );
 
-    yield* Effect.forEach(
-      before.filter((row) => row.output !== undefined),
-      (row) =>
-        destination.setOutput({
-          stack: row.stack,
-          stage: row.stage,
-          value: row.output,
-        }),
-      { discard: true }
-    ).pipe(Effect.mapError(unavailable(stacks)));
+    yield* copyOutputs(destination, before).pipe(
+      Effect.mapError(unavailable(stacks))
+    );
 
     const listed = yield* records(destination, stacks).pipe(
       Effect.mapError(unavailable(stacks))

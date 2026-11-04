@@ -21,6 +21,10 @@ export const RefusalReasonSchema = Schema.Literals([
   "no-required-production-inputs-declared",
   "owner-sign-off-required",
   "plan-not-approved",
+  "post-deploy-watch-crashed",
+  "post-deploy-watch-failed",
+  "post-deploy-watch-interrupted",
+  "post-deploy-watch-rollback-failed",
   "previous-live-version-not-single-deployment",
   "previous-live-version-readback-invalid",
   "previous-live-version-readback-refused",
@@ -142,6 +146,22 @@ const guides: Record<RefusalReason, RefusalGuide> = {
   "plan-not-approved": {
     fix: "read the verdict's `resources`, then rerun with the matching `--allow` entries or `--ownerApproved`.",
     why: "The plan holds actions the allow-list does not cover.",
+  },
+  "post-deploy-watch-crashed": {
+    fix: "run `pnpm site:smoke`; if it fails, run `pnpm deploy:rollback --profile <profile> --yes`.",
+    why: "The watch stopped on a defect after the healthy verdict, so it proves nothing and the driver does not roll back without evidence.",
+  },
+  "post-deploy-watch-failed": {
+    fix: "read `check` in `.rat/deploy/<profile>/last-watch.json`, fix the failing route, then rerun `pnpm deploy:prod --profile <profile> --yes`.",
+    why: "The watch saw a failing route after the healthy verdict, so the driver restored the prior Worker versions.",
+  },
+  "post-deploy-watch-interrupted": {
+    fix: "run `pnpm site:smoke`; if it fails, run `pnpm deploy:rollback --profile <profile> --yes`.",
+    why: "The process stopped before the watch finished, so nothing rolls back a bad deploy any more.",
+  },
+  "post-deploy-watch-rollback-failed": {
+    fix: "run `pnpm deploy:rollback --profile <profile> --yes`, then read `.rat/deploy/<profile>/last-rollback.json`.",
+    why: "The watch failed after the healthy verdict and the automatic rollback did not restore every prior version.",
   },
   "previous-live-version-not-single-deployment": {
     fix: "finish or roll back the split deployment in Cloudflare so one version serves 100 percent, then rerun `pnpm deploy:prod --profile <profile> --yes`.",

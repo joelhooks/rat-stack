@@ -68,6 +68,7 @@ export class DeployStepError extends Schema.TaggedError<
     "quietWindow",
     "apply",
     "checks",
+    "watch",
   ]),
 }) {
   override get message() {

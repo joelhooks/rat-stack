@@ -17,6 +17,8 @@ import type { ApplyReceipt, DeployVerdict } from "./contracts.js";
 import { RollbackReceiptSchema } from "./rollback-contracts.js";
 import type { RollbackReceipt } from "./rollback-contracts.js";
 import { RollbackRefused } from "./rollback-refused.js";
+import { WatchReceiptSchema } from "./watch-receipt.js";
+import type { WatchReceipt } from "./watch-receipt.js";
 
 const folderIn = (directory: string, profile: string) =>
   `${directory}/${encodeURIComponent(profile)}`;
@@ -41,6 +43,9 @@ export class ReceiptStore extends Context.Service<
     readonly saveVerdict: (
       profile: string,
       verdict: DeployVerdict
+    ) => Effect.Effect<string, DeployStepError>;
+    readonly saveWatch: (
+      receipt: WatchReceipt
     ) => Effect.Effect<string, DeployStepError>;
   }
 >()("@rat-stack/deploy/ReceiptStore") {
@@ -200,6 +205,35 @@ export class ReceiptStore extends Context.Service<
 
               yield* write(
                 `${folderIn(directory, profile)}/last-verdict.json`,
+                text
+              );
+
+              return paths.resolve(path);
+            }),
+          saveWatch: (receipt) =>
+            Effect.gen(function* saveWatch() {
+              const time = yield* Clock.currentTimeMillis;
+
+              const text = yield* Schema.encodeEffect(
+                Schema.fromJsonString(WatchReceiptSchema, { space: 2 })
+              )(receipt).pipe(
+                Effect.mapError(
+                  () =>
+                    new DeployStepError({
+                      keys: [],
+                      reason: "receipt-encoding-refused",
+                      step: "watch",
+                    })
+                )
+              );
+
+              const path = yield* write(
+                `${folderIn(directory, receipt.profile)}/watch-${time}.json`,
+                text
+              );
+
+              yield* write(
+                `${folderIn(directory, receipt.profile)}/last-watch.json`,
                 text
               );
 
