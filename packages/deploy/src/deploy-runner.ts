@@ -10,6 +10,7 @@ import type {
   PreparedPlan,
 } from "./contracts.js";
 import type { CheckoutState } from "./source.js";
+import type { WatchReceipt } from "./watch-receipt.js";
 
 export class DeployRunner extends Context.Service<
   DeployRunner,
@@ -27,5 +28,11 @@ export class DeployRunner extends Context.Service<
     readonly checks: (
       receipt: ApplyReceipt
     ) => Effect.Effect<readonly Verdict[], DeployStepError>;
+    readonly watch: (
+      receipt: ApplyReceipt
+    ) => Effect.Effect<Verdict, DeployStepError>;
+    readonly recordWatch: (
+      receipt: WatchReceipt
+    ) => Effect.Effect<string, DeployStepError>;
   }
 >()("@rat-stack/deploy/DeployRunner") {}
