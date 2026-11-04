@@ -1,4 +1,4 @@
-import { Array, Match, Option } from "effect";
+import { Array, Match, Option, pipe } from "effect";
 
 import type { ReaderNodeValue } from "../client/reader-node.js";
 import type { ReaderModel } from "../client/reader/model.js";
@@ -100,4 +100,33 @@ export const pageOutline = (model: ReaderModel): readonly OutlineEntry[] =>
       ...trailingEntries(model),
     ].filter((entry) => entry.text !== ""),
     (left, right) => left.id === right.id
+  );
+
+export interface OutlineGroup {
+  readonly children: readonly OutlineEntry[];
+  readonly entry: OutlineEntry;
+}
+
+const startsGroup = (entries: readonly OutlineEntry[], index: number) =>
+  entries[index]?.level === 2 ||
+  !entries.slice(0, index).some((entry) => entry.level === 2);
+
+export const outlineTree = (
+  entries: readonly OutlineEntry[]
+): readonly OutlineGroup[] =>
+  entries.flatMap((entry, index) =>
+    startsGroup(entries, index)
+      ? [
+          {
+            children:
+              entry.level === 2
+                ? pipe(
+                    entries.slice(index + 1),
+                    Array.takeWhile((child) => child.level === 3)
+                  )
+                : [],
+            entry,
+          },
+        ]
+      : []
   );

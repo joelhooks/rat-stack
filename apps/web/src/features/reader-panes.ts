@@ -2,7 +2,7 @@ import { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
 import type { SectionIndex } from "../client/reader/model.js";
-import type { OutlineEntry } from "./reader-outline.js";
+import type { OutlineEntry, OutlineGroup } from "./reader-outline.js";
 import { homeRouter, isWithinSection, siteSections } from "./site-route.js";
 
 export type SectionIndexValue = typeof SectionIndex.Type;
@@ -78,36 +78,95 @@ export const sectionIndexPane = <Message>(
     ]
   );
 
+const outlineLink = <Message>(
+  h: HtmlBuilder<Message>,
+  entry: OutlineEntry,
+  active: ReadonlySet<string>,
+  onJump: Option.Option<Message>
+) =>
+  h.a(
+    [
+      h.Href(`#${entry.id}`),
+      ...(active.has(entry.id) ? [h.AriaCurrent("location")] : []),
+      ...Option.match(onJump, {
+        onNone: () => [],
+        onSome: (message) => [h.OnClick(message)],
+      }),
+    ],
+    [entry.text]
+  );
+
+const outlineList = <Message>(
+  h: HtmlBuilder<Message>,
+  groups: readonly OutlineGroup[],
+  active: ReadonlySet<string>,
+  onJump: Option.Option<Message>
+) =>
+  h.ul(
+    [],
+    groups.map((group) =>
+      h.keyed("li")(
+        group.entry.id,
+        [h.Class(group.entry.level === 3 ? "outline-sub" : "outline-top")],
+        [
+          outlineLink(h, group.entry, active, onJump),
+          ...(group.children.length === 0
+            ? []
+            : [
+                h.ul(
+                  [],
+                  group.children.map((child) =>
+                    h.keyed("li")(
+                      child.id,
+                      [h.Class("outline-sub")],
+                      [outlineLink(h, child, active, onJump)]
+                    )
+                  )
+                ),
+              ]),
+        ]
+      )
+    )
+  );
+
 export const outlinePane = <Message>(
   h: HtmlBuilder<Message>,
-  entries: readonly OutlineEntry[],
-  active: Option.Option<string>
+  groups: readonly OutlineGroup[],
+  active: ReadonlySet<string>
 ) =>
   h.nav(
     [h.Class("page-outline"), h.AriaLabel("On this page")],
-    entries.length === 0
+    groups.length === 0
       ? []
       : [
           h.p([h.Class("pane-heading")], ["On this page"]),
-          h.ul(
-            [],
-            entries.map((entry) =>
-              h.keyed("li")(
-                entry.id,
-                [h.Class(entry.level === 3 ? "outline-sub" : "outline-top")],
-                [
-                  h.a(
-                    [
-                      h.Href(`#${entry.id}`),
-                      ...(Option.contains(active, entry.id)
-                        ? [h.AriaCurrent("location")]
-                        : []),
-                    ],
-                    [entry.text]
-                  ),
-                ]
-              )
-            )
-          ),
+          outlineList(h, groups, active, Option.none()),
         ]
   );
+
+export interface PhoneOutlineControl<Message> {
+  readonly onJump: Message;
+  readonly onToggle: (open: boolean) => Message;
+  readonly open: boolean;
+}
+
+export const phoneOutline = <Message>(
+  h: HtmlBuilder<Message>,
+  groups: readonly OutlineGroup[],
+  control: PhoneOutlineControl<Message>
+) =>
+  groups.length === 0
+    ? []
+    : [
+        h.details(
+          [
+            h.Class("phone-outline"),
+            h.Open(control.open),
+            h.OnToggle(control.onToggle),
+          ],
+          [
+            h.summary([], ["On this page"]),
+            outlineList(h, groups, new Set(), Option.some(control.onJump)),
+          ]
+        ),
+      ];

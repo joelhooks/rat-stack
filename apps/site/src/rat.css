@@ -449,6 +449,14 @@ html {
   padding-left: 24px;
 }
 
+.page-outline li > ul {
+  margin-top: 1px;
+}
+
+.phone-outline {
+  display: none;
+}
+
 .page-outline a:hover {
   color: var(--fg);
   text-decoration: none;
@@ -489,6 +497,46 @@ html {
 
   .page-outline {
     display: none;
+  }
+
+  .phone-outline {
+    border-block: 1px solid var(--hair);
+    display: block;
+    margin-block: var(--space-small);
+  }
+
+  .phone-outline summary {
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding-block: 10px;
+    text-transform: uppercase;
+  }
+
+  .phone-outline ul {
+    display: grid;
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 10px;
+  }
+
+  .phone-outline li {
+    margin: 0;
+  }
+
+  .phone-outline a {
+    color: var(--fg);
+    display: block;
+    font-size: 14px;
+    padding: 4px 0;
+  }
+
+  .phone-outline .outline-sub a {
+    color: var(--muted);
+    padding-left: 14px;
   }
 }
 

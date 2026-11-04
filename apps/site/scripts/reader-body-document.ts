@@ -227,7 +227,16 @@ const readBody = (
           },
     heading: DomUtils.textContent(heading),
     nodes: compileReaderNodes(
-      main.children.slice(headingIndex),
+      main.children
+        .slice(headingIndex)
+        .filter(
+          (node) =>
+            !(
+              node.type === ElementType.Tag &&
+              node.name === "details" &&
+              hasClass(node, "phone-outline")
+            )
+        ),
       sourcePath,
       copyPrompts
     ),

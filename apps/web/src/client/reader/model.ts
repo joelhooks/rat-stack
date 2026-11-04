@@ -11,6 +11,7 @@ import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
+import { OutlineRange } from "./outline-range.js";
 import { defaultReaderSettings, ReaderSettings } from "./settings.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
@@ -98,10 +99,11 @@ export const SettingsPanel = defineTaggedUnion({
 
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
-  activeHeading: Schema.Option(Schema.String),
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
   menu: Menu,
+  outlineRange: Schema.Option(OutlineRange),
+  phoneOutlineOpen: Schema.Boolean,
   settings: ReaderSettings,
   settingsPanel: SettingsPanel,
 });
@@ -110,10 +112,11 @@ export type ReaderModel = typeof Model.Type;
 
 export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   ...flags,
-  activeHeading: Option.none(),
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
   menu: Menu.Unavailable(),
+  outlineRange: Option.none(),
+  phoneOutlineOpen: false,
   settings: defaultReaderSettings,
   settingsPanel: SettingsPanel.Unavailable(),
 });

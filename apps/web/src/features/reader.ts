@@ -1,8 +1,9 @@
 import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
-import { Array, Option, pipe } from "effect";
+import { Array, Match, Option, pipe } from "effect";
 import type { Document, Html, HtmlBuilder } from "foldkit/html";
 
+import type { ReaderNodeValue } from "../client/reader-node.js";
 import { Message } from "../client/reader/message.js";
 import type { ReaderMessage } from "../client/reader/message.js";
 import {
@@ -24,9 +25,10 @@ import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import type { SnippetReference } from "./reader-document.js";
 import { renderReaderNode } from "./reader-node.js";
-import { pageOutline } from "./reader-outline.js";
+import { outlineTree, pageOutline } from "./reader-outline.js";
 import {
   outlinePane,
+  phoneOutline,
   sectionIndexPane,
   sectionListing,
 } from "./reader-panes.js";
@@ -276,15 +278,32 @@ const breadcrumbView = (
         ),
       ];
 
-const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
+const isPageHead: (node: ReaderNodeValue) => boolean =
+  Match.type<ReaderNodeValue>().pipe(
+    Match.tag("Element", (element) => element.tag === "h1"),
+    Match.orElse(() => false)
+  );
+
+const bodyView = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>,
+  underHead: readonly Html[]
+) => [
   ...Option.match(model.bodyNodes, {
-    onNone: () => [h.h1([], [model.heading])],
-    onSome: (nodes) =>
-      nodes.map((node) =>
-        renderReaderNode(node, h, (id, primary) =>
-          readerCopyControl(model, h, id, primary)
-        )
-      ),
+    onNone: () => [h.h1([], [model.heading]), ...underHead],
+    onSome: (nodes) => {
+      const head = nodes.findIndex(isPageHead);
+
+      return [
+        ...(head === -1 ? underHead : []),
+        ...nodes.flatMap((node, index) => [
+          renderReaderNode(node, h, (id, primary) =>
+            readerCopyControl(model, h, id, primary)
+          ),
+          ...(index === head ? underHead : []),
+        ]),
+      ];
+    },
   }),
   ...Option.match(model.cafe, {
     onNone: () => [],
@@ -401,7 +420,15 @@ export const view = (
                 [
                   agentPointer(model, h),
                   ...breadcrumbView(model, h),
-                  ...bodyView(model, h),
+                  ...bodyView(
+                    model,
+                    h,
+                    phoneOutline(h, outlineTree(pageOutline(model)), {
+                      onJump: Message.ClickedPhoneOutlineLink(),
+                      onToggle: (open) => Message.ToggledPhoneOutline({ open }),
+                      open: model.phoneOutlineOpen,
+                    })
+                  ),
                   ...bibliographyView(model, h),
                   ...readerReferences(model, h),
                 ]
@@ -420,7 +447,16 @@ export const view = (
               ),
             ]
           ),
-          outlinePane(h, pageOutline(model), model.activeHeading),
+          outlinePane(
+            h,
+            outlineTree(pageOutline(model)),
+            new Set(
+              Option.match(model.outlineRange, {
+                onNone: () => [],
+                onSome: (range) => range.ids,
+              })
+            )
+          ),
         ]
       ),
     ]

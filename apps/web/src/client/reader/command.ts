@@ -44,3 +44,39 @@ export const WaitBeforeCopyReset = Command.define("WaitBeforeCopyReset", {
     ),
   messages: [Message.CompletedWaitBeforeCopyReset],
 });
+
+const outlineRowMargin = 24;
+
+const revealOutlineRow = (id: string) => {
+  const rail = document.querySelector<HTMLElement>(".page-outline");
+  const row = rail?.querySelector<HTMLElement>(`a[href="#${CSS.escape(id)}"]`);
+
+  if (
+    rail === null ||
+    rail === undefined ||
+    row === null ||
+    row === undefined
+  ) {
+    return;
+  }
+
+  const railBox = rail.getBoundingClientRect();
+  const rowBox = row.getBoundingClientRect();
+
+  if (rowBox.top < railBox.top + outlineRowMargin) {
+    rail.scrollBy({ top: rowBox.top - railBox.top - outlineRowMargin });
+  } else if (rowBox.bottom > railBox.bottom - outlineRowMargin) {
+    rail.scrollBy({ top: rowBox.bottom - railBox.bottom + outlineRowMargin });
+  }
+};
+
+export const RevealOutlineRow = Command.define("RevealOutlineRow", {
+  args: { id: Schema.String },
+  execute: ({ id }) =>
+    Effect.sync(() => {
+      revealOutlineRow(id);
+
+      return Message.CompletedRevealOutlineRow();
+    }),
+  messages: [Message.CompletedRevealOutlineRow],
+});

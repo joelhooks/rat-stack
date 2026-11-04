@@ -8,7 +8,11 @@ import type { AppMessage as DocsMessage } from "../docs/message.js";
 import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
 import * as MotionDemo from "../motion/index.js";
-import { CopyReaderText, WaitBeforeCopyReset } from "./command.js";
+import {
+  CopyReaderText,
+  RevealOutlineRow,
+  WaitBeforeCopyReset,
+} from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
 import {
@@ -91,6 +95,9 @@ export const update = (
           }),
         }),
       }),
+      ClickedPhoneOutlineLink: () => ({
+        model: modifyFields(model, { phoneOutlineOpen: () => false }),
+      }),
       ClickedSettings: () => ({
         model: modifyFields(model, {
           settingsPanel: SettingsPanel.match({
@@ -103,6 +110,7 @@ export const update = (
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
+      CompletedRevealOutlineRow: () => ({ model }),
       CompletedSaveSettings: () => ({ model }),
       CompletedWaitBeforeCopyReset: ({ id }) => ({
         model: CopyStatus.guards.Copied(copyStatusOf(model, id))
@@ -130,8 +138,9 @@ export const update = (
             SettingsPanel.guards.Open(panel) ? SettingsPanel.Closed() : panel,
         }),
       }),
-      ScrolledToHeading: ({ id }) => ({
-        model: modifyFields(model, { activeHeading: () => Option.some(id) }),
+      ScrolledOutline: ({ range }) => ({
+        commands: [RevealOutlineRow({ id: range.current })],
+        model: modifyFields(model, { outlineRange: () => Option.some(range) }),
       }),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
@@ -140,5 +149,8 @@ export const update = (
               model: withCopyStatus(model, id, CopyStatus.Copied()),
             }
           : { model },
+      ToggledPhoneOutline: ({ open }) => ({
+        model: modifyFields(model, { phoneOutlineOpen: () => open }),
+      }),
     }
   );
