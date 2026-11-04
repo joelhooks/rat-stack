@@ -16,6 +16,7 @@ export const Message = defineMessageUnion({
   GotDocsMessage: { message: DocsMessage },
   GotMotionMessage: { message: MotionDemoMessage },
   PressedEscape: {},
+  ScrolledToHeading: { id: Schema.String },
   SucceededCopyReaderText: { id: Schema.String },
 });
 

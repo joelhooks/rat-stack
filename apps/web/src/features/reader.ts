@@ -1,6 +1,6 @@
 import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
-import { Array, Option } from "effect";
+import { Array, Option, pipe } from "effect";
 import type { Document, Html, HtmlBuilder } from "foldkit/html";
 
 import { Message } from "../client/reader/message.js";
@@ -26,6 +26,12 @@ import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import type { SnippetReference } from "./reader-document.js";
 import { renderReaderNode } from "./reader-node.js";
+import { pageOutline } from "./reader-outline.js";
+import {
+  outlinePane,
+  sectionIndexPane,
+  sectionListing,
+} from "./reader-panes.js";
 import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
@@ -350,23 +356,42 @@ export const view = (
       readerToolbar(
         h,
         model.page.path,
-        menuControl(model, Message.ClickedMenu())
+        menuControl(model, Message.ClickedMenu()),
+        pipe(
+          model.sectionIndex,
+          Option.map(() => sectionListing(model.sectionIndex, model.page.path))
+        )
       ),
-      h.main(
-        [h.DataAttribute("path", model.page.path)],
+      h.div(
+        [h.Class("reader-layout")],
         [
-          agentPointer(model, h),
-          ...Option.match(model.newsTitle, {
-            onNone: () => [],
-            onSome: (title) => [readerNewsCallout(title, h)],
-          }),
-          ...breadcrumbView(model, h),
-          ...bodyView(model, h),
-          ...bibliographyView(model, h),
-          ...readerReferences(model, h),
+          sectionIndexPane(
+            h,
+            sectionListing(model.sectionIndex, model.page.path)
+          ),
+          h.div(
+            [h.Class("reader-page")],
+            [
+              h.main(
+                [h.DataAttribute("path", model.page.path)],
+                [
+                  agentPointer(model, h),
+                  ...Option.match(model.newsTitle, {
+                    onNone: () => [],
+                    onSome: (title) => [readerNewsCallout(title, h)],
+                  }),
+                  ...breadcrumbView(model, h),
+                  ...bodyView(model, h),
+                  ...bibliographyView(model, h),
+                  ...readerReferences(model, h),
+                ]
+              ),
+              readerFooter(h, footerLinksPrompts(model.page)),
+            ]
+          ),
+          outlinePane(h, pageOutline(model), model.activeHeading),
         ]
       ),
-      readerFooter(h, footerLinksPrompts(model.page)),
     ]
   ),
   canonical: `${model.origin}${model.page.metadata.canonicalPath}`,

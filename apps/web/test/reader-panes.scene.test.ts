@@ -1,0 +1,107 @@
+import { it } from "@effect/vitest";
+import { Option } from "effect";
+import {
+  Subscription,
+  click,
+  expect,
+  given,
+  role,
+  scene,
+  within,
+} from "foldkit/scene";
+
+import { ReaderNode } from "../src/client/reader-node.js";
+import { Message } from "../src/client/reader/message.js";
+import { Menu } from "../src/client/reader/model.js";
+import { update } from "../src/client/reader/update.js";
+import { view } from "../src/features/reader.js";
+import { readerModelFixture } from "./reader-fixture.js";
+
+const heading = (tag: "h2" | "h3", id: string, text: string) =>
+  ReaderNode.Element({
+    attributes: [{ name: "id", value: id }],
+    children: [ReaderNode.Text({ value: text })],
+    tag,
+  });
+
+const fencePage = {
+  ...readerModelFixture,
+  bodyNodes: Option.some([
+    heading("h2", "what-it-does", "What it does"),
+    heading("h3", "lint", "Lint"),
+    heading("h2", "how-to-check", "How to check"),
+  ]),
+  page: { ...readerModelFixture.page, path: "/systems/fence" },
+  sectionIndex: Option.some({
+    href: "/systems",
+    pages: [
+      { path: "/systems", title: "Rat Stack systems" },
+      { path: "/systems/auth", title: "Auth" },
+      { path: "/systems/fence", title: "Fence" },
+    ],
+    title: "Rat Stack systems",
+  }),
+};
+
+const sectionPages = role("navigation", { name: "Section pages" });
+
+const onThisPage = role("navigation", { name: "On this page" });
+
+const siteMenu = role("navigation", { name: "Site menu" });
+
+it("the section index marks the current page and the outline lists the page headings", () => {
+  scene(
+    { update, view },
+    given(fencePage),
+    expect(within(sectionPages, role("link", { name: "Fence" }))).toHaveAttr(
+      "aria-current",
+      "page"
+    ),
+    expect(within(sectionPages, role("link", { name: "Auth" }))).not.toHaveAttr(
+      "aria-current",
+      "page"
+    ),
+    expect(within(onThisPage, role("link", { name: "Lint" }))).toHaveAttr(
+      "href",
+      "#lint"
+    ),
+    expect(
+      within(onThisPage, role("link", { name: "How to check" }))
+    ).not.toHaveAttr("aria-current", "location")
+  );
+});
+
+it("scrolling to a heading marks it as the current location in the outline", () => {
+  scene(
+    { update, view },
+    given(fencePage),
+    Subscription.emit(Message.ScrolledToHeading({ id: "how-to-check" })),
+    expect(
+      within(onThisPage, role("link", { name: "How to check" }))
+    ).toHaveAttr("aria-current", "location"),
+    expect(
+      within(onThisPage, role("link", { name: "What it does" }))
+    ).not.toHaveAttr("aria-current", "location")
+  );
+});
+
+it("the phone menu lists the section's pages with the current one marked", () => {
+  scene(
+    { update, view },
+    given({ ...fencePage, menu: Menu.Closed() }),
+    click(role("button", { name: "Menu" })),
+    expect(within(siteMenu, role("link", { name: "Fence" }))).toHaveAttr(
+      "aria-current",
+      "page"
+    ),
+    expect(within(siteMenu, role("link", { name: "Auth" }))).toBeVisible()
+  );
+});
+
+it("a page outside any section falls back to the site sections", () => {
+  scene(
+    { update, view },
+    given(readerModelFixture),
+    expect(within(sectionPages, role("link", { name: "systems" }))).toExist()
+  );
+});

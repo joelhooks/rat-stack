@@ -109,6 +109,9 @@ export const update = (
           ? modifyFields(model, { menu: () => Menu.Closed() })
           : model,
       }),
+      ScrolledToHeading: ({ id }) => ({
+        model: modifyFields(model, { activeHeading: () => Option.some(id) }),
+      }),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? {

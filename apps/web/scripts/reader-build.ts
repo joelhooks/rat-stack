@@ -23,6 +23,7 @@ import {
 } from "../src/reader-routes.ts";
 import { ReaderErrorTemplate } from "../src/server/reader-error-template.ts";
 import { copyReaderAssets } from "./reader-assets.ts";
+import { withSectionIndexes } from "./reader-section-index.ts";
 
 const encodeFlags = Effect.forEach((page: ReaderPageFlags) =>
   Schema.encodeEffect(ReaderFlags)(page)
@@ -115,7 +116,7 @@ const readerPages = Effect.gen(function* readerPages() {
     })
   )(pages);
 
-  return { error, pages: decoded };
+  return { error, pages: withSectionIndexes(decoded) };
 }).pipe(Effect.provide(NodeServices.layer));
 
 export const prepareReader = Effect.fn("reader.prepare")(

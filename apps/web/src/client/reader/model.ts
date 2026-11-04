@@ -21,6 +21,17 @@ export const CopyPrompt = Schema.Struct({
   text: Schema.String,
 });
 
+export const SectionPage = Schema.Struct({
+  path: Schema.String,
+  title: Schema.String,
+});
+
+export const SectionIndex = Schema.Struct({
+  href: Schema.String,
+  pages: Schema.Array(SectionPage),
+  title: Schema.String,
+});
+
 export const ReaderFlags = Schema.Struct({
   agentMarkdown: Schema.OptionFromOptional(Schema.String),
   bibliography: Schema.Array(bibliographySourceSchema),
@@ -39,6 +50,7 @@ export const ReaderFlags = Schema.Struct({
   origin: Schema.String,
   page: ReaderPageDescriptor,
   references: Schema.OptionFromOptional(ReaderReferences),
+  sectionIndex: Schema.OptionFromOptional(SectionIndex),
   snippets: Schema.Array(
     Schema.Struct({
       at: Schema.String,
@@ -79,6 +91,7 @@ export const Menu = defineTaggedUnion({
 
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
+  activeHeading: Schema.Option(Schema.String),
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
   menu: Menu,
@@ -88,6 +101,7 @@ export type ReaderModel = typeof Model.Type;
 
 export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   ...flags,
+  activeHeading: Option.none(),
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
   menu: Menu.Unavailable(),

@@ -1,3 +1,4 @@
+import { Array, Effect, Option, Stream, pipe } from "effect";
 import { Dom, Subscription } from "foldkit";
 
 import * as MotionDemo from "../motion/index.js";
@@ -27,4 +28,39 @@ const keyboard = Subscription.make<ReaderModel, ReaderMessage>()(() => ({
   ),
 }));
 
-export const subscriptions = { ...motion, ...keyboard };
+const headingSelector = "main h2[id], main h3[id]";
+
+const readingLine = 120;
+
+const currentHeadingId = (): Option.Option<string> => {
+  const headings = Array.fromIterable(
+    document.querySelectorAll<HTMLElement>(headingSelector)
+  );
+
+  return pipe(
+    headings,
+    Array.findLast(
+      (heading) => heading.getBoundingClientRect().top < readingLine
+    ),
+    Option.orElse(() => Array.head(headings)),
+    Option.map((heading) => heading.id)
+  );
+};
+
+const scroll = Subscription.make<ReaderModel, ReaderMessage>()(() => ({
+  headingInView: Subscription.persistentEntry(
+    Stream.concat(
+      Stream.fromEffect(Effect.sync(currentHeadingId)),
+      Stream.fromEventListener(window, "scroll", { passive: true }).pipe(
+        Stream.map(() => currentHeadingId())
+      )
+    ).pipe(
+      Stream.filter(Option.isSome),
+      Stream.map((id) => id.value),
+      Stream.changes,
+      Stream.map((id) => Message.ScrolledToHeading({ id }))
+    )
+  ),
+}));
+
+export const subscriptions = { ...motion, ...keyboard, ...scroll };

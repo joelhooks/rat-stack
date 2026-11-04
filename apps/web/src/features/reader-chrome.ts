@@ -1,8 +1,11 @@
 import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
+import { Option } from "effect";
 import type { HtmlBuilder } from "foldkit/html";
 
 import { ratLogoFill, ratLogoPath } from "./rat-logo.js";
+import { sectionLinks } from "./reader-panes.js";
+import type { SectionListing } from "./reader-panes.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
@@ -99,7 +102,8 @@ const menuButton = <Message>(
 const menuSheet = <Message>(
   h: HtmlBuilder<Message>,
   path: string,
-  open: boolean
+  open: boolean,
+  section: Option.Option<SectionListing>
 ) =>
   h.nav(
     [
@@ -118,13 +122,21 @@ const menuSheet = <Message>(
           h.li([], [h.a([h.Href(agentGuideRouter())], ["agent guide"])]),
         ]
       ),
+      ...Option.match(section, {
+        onNone: () => [],
+        onSome: (listing) => [
+          h.p([h.Class("pane-heading")], [listing.title]),
+          sectionLinks(h, listing.links),
+        ],
+      }),
     ]
   );
 
 export const readerToolbar = <Message>(
   h: HtmlBuilder<Message>,
   path: string,
-  menu: MenuControl<Message>
+  menu: MenuControl<Message>,
+  section: Option.Option<SectionListing>
 ) =>
   h.header(
     [h.Class("toolbar")],
@@ -151,7 +163,9 @@ export const readerToolbar = <Message>(
             : []),
         ]
       ),
-      ...(menu.kind === "available" ? [menuSheet(h, path, menu.open)] : []),
+      ...(menu.kind === "available"
+        ? [menuSheet(h, path, menu.open, section)]
+        : []),
     ]
   );
 
