@@ -1,5 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { FlagScopeMismatch, FlagStorageError } from "@rat-stack/core/flags";
+import { encodeRpcError } from "alchemy/Rpc";
 import { Effect, Schema } from "effect";
 
 import { flagRemoteCall } from "../src/remote.js";
@@ -41,5 +42,47 @@ it.effect.prop(
 
       expect(Schema.is(FlagStorageError)(unavailable)).toBe(true);
       expect(unavailable.repair).toContain("authoritative ledger");
+    })
+);
+
+it.effect.prop(
+  "remote storage failures keep their own flag, operation, and repair after crossing the RPC wire",
+  {
+    caller: Schema.NonEmptyString,
+    fallback: Schema.Json,
+    flag: Schema.NonEmptyString,
+    operation: FlagStorageError.fields.operation,
+    repair: Schema.NonEmptyString,
+  },
+  ({ caller, fallback, flag, operation, repair }) =>
+    Effect.gen(function* checkWireStorageFailure() {
+      const raised = new FlagStorageError({
+        cause: new Error("remote storage detail"),
+        fallback,
+        flag,
+        operation,
+        repair,
+      });
+
+      const wire = yield* Schema.decodeUnknownEffect(
+        Schema.Record(Schema.String, Schema.Unknown)
+      )(structuredClone(encodeRpcError(raised)));
+
+      const failure = yield* flagRemoteCall(
+        caller,
+        "write",
+        FlagStorageError,
+        Effect.fail(wire)
+      ).pipe(Effect.flip);
+
+      expect(Schema.is(FlagStorageError)(failure)).toBe(true);
+      expect(failure).toMatchObject({
+        _tag: raised._tag,
+        fallback: raised.fallback,
+        flag: raised.flag,
+        message: raised.message,
+        operation: raised.operation,
+        repair: raised.repair,
+      });
     })
 );
