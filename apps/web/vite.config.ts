@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { fileURLToPath } from "node:url";
 
 import { foldkit } from "@foldkit/vite-plugin";
 import { Predicate, Schema } from "effect";
@@ -11,6 +12,14 @@ import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
 
 const developmentBuildId = "rat-stack-dev";
+
+const readerStylesheets = [
+  fileURLToPath(new URL("../site/src/rat.css", import.meta.url)),
+  fileURLToPath(new URL("src/client/reader.css", import.meta.url)),
+];
+
+const developmentStylesheetHref = (root: string, file: string) =>
+  file.startsWith(`${root}/`) ? file.slice(root.length) : `/@fs${file}`;
 
 const readerSsr = {
   build: { prerender: { origin: readerPrerenderOrigin } },
@@ -34,6 +43,20 @@ export default defineConfig(({ command }) => ({
         : { ssr: readerSsr }
     ),
     readerFinalizationPlugin(),
+    {
+      apply: "serve",
+      name: "reader-render-blocking-dev-css",
+      transformIndexHtml: (_html, context) =>
+        readerStylesheets.map((file) => ({
+          attrs: {
+            "data-vite-dev-id": file,
+            href: `${developmentStylesheetHref(context.server?.config.root ?? import.meta.dirname, file)}?direct`,
+            rel: "stylesheet",
+          },
+          injectTo: "head",
+          tag: "link",
+        })),
+    },
     {
       apply: "build",
       config: (config, environment) => {
