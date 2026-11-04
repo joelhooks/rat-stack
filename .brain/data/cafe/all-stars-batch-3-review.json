@@ -7,7 +7,7 @@
     "Contributors to packages/xstate-effect at xstate@6.0.0-alpha.73, rather than unrelated XState contributors.",
     "Every currently unprofiled CAFE news author, and the nominees in the who-is-missing thread.",
     "Library and SDK maintainers from the peers list, where public manifests or READMEs establish CAFE work.",
-    "Authors explicitly credited for vendored code in PROVENANCE.md."
+    "Authors explicitly credited for vendored code that itself builds on or teaches the CAFE stack."
   ],
   "sourcesOfTruth": {
     "profiles": ".brain/data/cafe/people.json",
@@ -16,6 +16,9 @@
   "thread": "https://x.com/joelhooks/status/2117770076070068735",
   "decisions": [
     "No /news rows were backfilled to admit nominees.",
+    "Biographies use names or projects, never assumed gendered pronouns. The content decoder rejects those pronouns before generating assets.",
+    "Michael K's example now links the Cloudflare R2 presigned URL signer change, not the GCP AIPlatform change: https://github.com/alchemy-run/alchemy/commit/829d95a6e680ea5ef5dc8205173000b595795eb2.",
+    "Vendored eligibility requires the credited code itself to build on or teach the CAFE stack. General-purpose upstream credits remain in PROVENANCE.md, not All Stars.",
     "The work basis records a public project URL, an evidence URL and its checked date.",
     "Rhys Sullivan qualifies through his original Dynamic Software Cloudflare plugin-runtime demo. His effect-qb, confect and kody repositories are forks and are not attributed to him as original projects.",
     "Sandro Maglione qualifies through @typeonce/effect-machine; its manifest names him as author and declares Effect. The unscoped effect-machine package belongs to a different project.",
@@ -24,6 +27,21 @@
     "Biographies carry their own public evidence URLs and checked dates. Empty repo arrays avoid inventing repository star counts or package claims."
   ],
   "dropped": [
+    {
+      "candidate": "Björn Ottosson (bottosson)",
+      "reason": "OKLab is credited upstream code, not evidence of building on or teaching the CAFE stack. Removed the profile and avatar; retained PROVENANCE.md unchanged.",
+      "sources": ["https://bottosson.github.io/posts/oklab/"]
+    },
+    {
+      "candidate": "Robert Penner (robertpenner)",
+      "reason": "The easing equations are credited upstream code, not evidence of building on or teaching the CAFE stack. Removed the profile and avatar; retained PROVENANCE.md unchanged.",
+      "sources": ["https://robertpenner.com/easing_terms_of_use.html"]
+    },
+    {
+      "candidate": "Titus Wormer (wooorm)",
+      "reason": "The credited typography code is not evidence of building on or teaching the CAFE stack. Removed the profile and avatar; retained PROVENANCE.md unchanged.",
+      "sources": ["https://github.com/wooorm/parse-latin"]
+    },
     {
       "candidate": "Matt Pocock",
       "reason": "His current /news row qualifies for entry, but the checked Foldkit posts are questions rather than two sourceable sentences about his own CAFE work. Keep the missing-profile warning.",

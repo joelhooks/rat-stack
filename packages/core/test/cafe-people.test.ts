@@ -376,6 +376,65 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
 });
 
 describe("decodeCafeData", () => {
+  it.effect.prop(
+    "refuses gendered biography pronouns across casing and punctuation, not substrings",
+    {
+      factIndex: Arbitrary.schema(Schema.Literals([0, 1])),
+      pronoun: Arbitrary.schema(
+        Schema.Literals(["he", "his", "him", "she", "her", "hers"])
+      ),
+      row: authoredRow,
+      shout: Arbitrary.schema(Schema.Boolean),
+    },
+    ({ factIndex, pronoun, row, shout }) =>
+      Effect.gen(function* checkBiographyPronouns() {
+        const good = person(0);
+
+        const bio = good.bio.map((fact) => ({
+          ...fact,
+          text: "This shell and other shims use Effect.",
+        }));
+
+        const files = {
+          news: JSON.stringify([row.row]),
+          people: JSON.stringify([{ ...good, bio }]),
+          projects: "[]",
+        };
+
+        const accepted = yield* decodeCafeData(files);
+
+        expect(accepted.people[0]?.bio).toStrictEqual(bio);
+
+        const token = shout ? pronoun.toUpperCase() : pronoun;
+
+        const failure = yield* Effect.flip(
+          decodeCafeData({
+            ...files,
+            people: JSON.stringify([
+              {
+                ...good,
+                bio: bio.map((fact, index) =>
+                  index === factIndex
+                    ? {
+                        ...fact,
+                        text: `Effect work (${token}) uses typed services.`,
+                      }
+                    : fact
+                ),
+              },
+            ]),
+          })
+        );
+
+        expect(failure.errors.map((error) => error.field)).toStrictEqual([
+          `bio.${factIndex}.text`,
+        ]);
+        expect(failure.errors[0]?.file).toBe(cafePeopleFile);
+        expect(failure.errors[0]?.index).toBe(0);
+        expect(failure.errors[0]?.message).toContain("Fix:");
+      })
+  );
+
   it.effect(
     "names every bad people field, empty news entry, and repeated id",
     () =>

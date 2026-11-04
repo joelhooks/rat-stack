@@ -157,7 +157,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Alchemy changes include letting a streamed response body own the Worker event scope.",
+        "text": "Alex’s Alchemy changes include letting a streamed response body own the Worker event scope.",
         "source": "https://github.com/alchemy-run/alchemy/commit/39850f633a057091ac56c2478914f04cf48b27af",
         "verified": "2026-11-04"
       }
@@ -290,7 +290,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit UI changes include keeping a Popover open while focus stays inside its panel.",
+        "text": "Arman Charan’s Foldkit UI changes include keeping a Popover open while focus stays inside its panel.",
         "source": "https://github.com/foldkit/foldkit/commit/39a055b638a774568baa394ee5b2bf98fa16cd58",
         "verified": "2026-11-04"
       }
@@ -336,7 +336,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit work includes delivering events fired during Submodel teardown.",
+        "text": "Taras Kornichuk’s Foldkit work includes delivering events fired during Submodel teardown.",
         "source": "https://github.com/foldkit/foldkit/commit/4bb393d8dd94ff95600aa3f5670624057919124e",
         "verified": "2026-11-04"
       }
@@ -386,7 +386,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Alchemy changes include fixing requests to Cloudflare-fronted sites during local development.",
+        "text": "Rahul Mishra’s Alchemy changes include fixing requests to Cloudflare-fronted sites during local development.",
         "source": "https://github.com/alchemy-run/alchemy/commit/756bd3b43dacd23fc8f388cc3b9c42e138b0333d",
         "verified": "2026-11-04"
       }
@@ -421,45 +421,6 @@
   },
   {
     "avatar": {
-      "path": "/avatars/bottosson.jpg",
-      "source": "https://github.com/bottosson.png?size=240",
-      "verified": "2026-11-04"
-    },
-    "bio": [
-      {
-        "text": "Björn Ottosson published the OKLab perceptual color space in 2020.",
-        "source": "https://bottosson.github.io/posts/oklab/",
-        "verified": "2026-11-04"
-      },
-      {
-        "text": "Rat-stack’s motion cartridge uses the OKLab matrices from that publication for color interpolation.",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#oklab",
-        "verified": "2026-11-04"
-      }
-    ],
-    "entry": {
-      "kind": "vendored",
-      "source": "https://bottosson.github.io/posts/oklab/"
-    },
-    "handles": [
-      {
-        "handle": "bottosson",
-        "kind": "github",
-        "url": "https://github.com/bottosson",
-        "source": "https://bottosson.github.io/posts/oklab/",
-        "verified": "2026-11-04"
-      }
-    ],
-    "id": "bottosson",
-    "kind": "person",
-    "name": "Björn Ottosson",
-    "repos": [],
-    "topics": [],
-    "updated": "2026-11-04",
-    "videos": []
-  },
-  {
-    "avatar": {
       "path": "/avatars/danieljvdm.jpg",
       "source": "https://github.com/danieljvdm.png?size=240",
       "verified": "2026-11-04"
@@ -471,7 +432,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His effect-cf project supplies Effect-native primitives for Cloudflare Workers and bindings.",
+        "text": "Dan van der Merwe’s effect-cf project supplies Effect-native primitives for Cloudflare Workers and bindings.",
         "source": "https://github.com/danieljvdm/effect-cf",
         "verified": "2026-11-04"
       }
@@ -522,7 +483,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His later work on the integration includes preserving child-event delivery order.",
+        "text": "David Khourshid’s later work on the integration includes preserving child-event delivery order.",
         "source": "https://github.com/statelyai/xstate/pull/5842",
         "verified": "2026-11-04"
       }
@@ -863,7 +824,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit UI work includes Meter and Progress primitives.",
+        "text": "Dicha Zelianivan Arkana’s Foldkit UI work includes Meter and Progress primitives.",
         "source": "https://github.com/foldkit/foldkit/commit/93afb016d72a099d7e4332a29e0dc6db909bdee5",
         "verified": "2026-11-04"
       }
@@ -909,7 +870,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His beginner/intermediate workshop was delivered at Effect Days 2024.",
+        "text": "Ethan Niser’s beginner/intermediate workshop was delivered at Effect Days 2024.",
         "source": "https://github.com/ethanniser/effect-workshop",
         "verified": "2026-11-04"
       }
@@ -956,7 +917,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit work includes isolating DevTools MCP relays and connecting them on demand.",
+        "text": "Filip Falcon’s Foldkit work includes isolating DevTools MCP relays and connecting them on demand.",
         "source": "https://github.com/foldkit/foldkit/commit/2b17b02abfeb530eab689bf2d5a95d34540b7a6a",
         "verified": "2026-11-04"
       }
@@ -1123,7 +1084,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Effect changes include reducing the time and memory needed to construct a TestClock.",
+        "text": "Sebastian Lorenz’s Effect changes include reducing the time and memory needed to construct a TestClock.",
         "source": "https://github.com/Effect-TS/effect/commit/2968901d29649d02c6d7ff27362c48678eee21a1",
         "verified": "2026-11-04"
       }
@@ -1169,7 +1130,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Schema work includes fixing tagged-union matcher inference.",
+        "text": "Giulio Canti’s Schema work includes fixing tagged-union matcher inference.",
         "source": "https://github.com/Effect-TS/effect/commit/c065ed7b2cd9de19cfd5303114908128a70b309f",
         "verified": "2026-11-04"
       }
@@ -1275,7 +1236,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His MCP work includes fixing stdio protocols being shared across servers.",
+        "text": "Maxwell Brown’s MCP work includes fixing stdio protocols being shared across servers.",
         "source": "https://github.com/Effect-TS/effect/commit/1048919d6578d617c38291cfe215454d4eda3529",
         "verified": "2026-11-04"
       }
@@ -1636,7 +1597,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Alchemy work includes the Cloudflare Website.Nextjs resource.",
+        "text": "John Royal’s Alchemy work includes the Cloudflare Website.Nextjs resource.",
         "source": "https://github.com/alchemy-run/alchemy/commit/80cd726c19ac9d8f5a2cf727cbaea1e33664495c",
         "verified": "2026-11-04"
       }
@@ -2299,7 +2260,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His language-service changes include recognizing Effect runners as provide entry points.",
+        "text": "Mattia Manzati’s language-service changes include recognizing Effect runners as provide entry points.",
         "source": "https://github.com/Effect-TS/language-service/commit/8e9cb21fef6d25c9b9f160f290231f0a216a2106",
         "verified": "2026-11-04"
       }
@@ -2438,7 +2399,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Effect work includes hashing, encryption, signing and key management APIs.",
+        "text": "Michael Arnaldi’s Effect work includes hashing, encryption, signing and key management APIs.",
         "source": "https://github.com/Effect-TS/effect/commit/0d92a92ab27bdd867e93e98e5a203113c45fbda4",
         "verified": "2026-11-04"
       }
@@ -2484,8 +2445,8 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Alchemy work includes moving the GCP AIPlatform Agent resource to the v1beta1 API in the global location.",
-        "source": "https://github.com/alchemy-run/alchemy/commit/71830567469004bca0876e99d07e1338ee50d80c",
+        "text": "Michael K’s Cloudflare work in Alchemy includes switching R2 presigned URL signing to @distilled.cloud/aws4signer.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/829d95a6e680ea5ef5dc8205173000b595795eb2",
         "verified": "2026-11-04"
       }
     ],
@@ -2715,45 +2676,6 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
-    "videos": []
-  },
-  {
-    "avatar": {
-      "path": "/avatars/robertpenner.png",
-      "source": "https://github.com/robertpenner.png?size=240",
-      "verified": "2026-11-04"
-    },
-    "bio": [
-      {
-        "text": "Rat-stack’s motion cartridge implements Robert Penner’s easing equations under his BSD license.",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#penners-easing-equations-bsd-3-clause",
-        "verified": "2026-11-04"
-      },
-      {
-        "text": "The port rewrites his time, beginning, change and duration signature over normalized progress while retaining the published easing constants.",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#penners-easing-equations-bsd-3-clause",
-        "verified": "2026-11-04"
-      }
-    ],
-    "entry": {
-      "kind": "vendored",
-      "source": "https://robertpenner.com/easing_terms_of_use.html"
-    },
-    "handles": [
-      {
-        "handle": "robertpenner",
-        "kind": "github",
-        "url": "https://github.com/robertpenner",
-        "source": "https://github.com/robertpenner",
-        "verified": "2026-11-04"
-      }
-    ],
-    "id": "robertpenner",
-    "kind": "person",
-    "name": "Robert Penner",
-    "repos": [],
-    "topics": [],
     "updated": "2026-11-04",
     "videos": []
   },
@@ -3031,7 +2953,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit contributions include a Lazy.expectAllReused testing helper.",
+        "text": "Tanner Scadden’s Foldkit contributions include a Lazy.expectAllReused testing helper.",
         "source": "https://github.com/foldkit/foldkit/commit/76fa0d1ee2a5f9d06333e83a1ee381eab0ed37d5",
         "verified": "2026-11-04"
       }
@@ -3086,7 +3008,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Effect changes include encoding tool results with their JSON codec.",
+        "text": "Tim Smart’s Effect changes include encoding tool results with their JSON codec.",
         "source": "https://github.com/Effect-TS/effect/commit/781f31e2cd486592da5e3179fb814e01daee007f",
         "verified": "2026-11-04"
       }
@@ -3183,7 +3105,7 @@
         "verified": "2026-11-04"
       },
       {
-        "text": "His Foldkit UI changes include portaling anchored panels into their enclosing dialog.",
+        "text": "Wayne Maurer’s Foldkit UI changes include portaling anchored panels into their enclosing dialog.",
         "source": "https://github.com/foldkit/foldkit/commit/c14bbea505466a500cfe3f23d8637c910ae616d1",
         "verified": "2026-11-04"
       }
@@ -3210,51 +3132,6 @@
       {
         "topic": "foldkit",
         "source": "https://github.com/foldkit/foldkit/graphs/contributors",
-        "verified": "2026-11-04"
-      }
-    ],
-    "updated": "2026-11-04",
-    "videos": []
-  },
-  {
-    "avatar": {
-      "path": "/avatars/wooorm.jpg",
-      "source": "https://github.com/wooorm.png?size=240",
-      "verified": "2026-11-04"
-    },
-    "bio": [
-      {
-        "text": "Titus Wormer’s parse-latin code is credited in rat-stack’s typography pipeline.",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
-        "verified": "2026-11-04"
-      },
-      {
-        "text": "Rat-stack also credits his retext-smartypants code for its ported typography transformations.",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
-        "verified": "2026-11-04"
-      }
-    ],
-    "entry": {
-      "kind": "vendored",
-      "source": "https://github.com/wooorm/parse-latin"
-    },
-    "handles": [
-      {
-        "handle": "wooorm",
-        "kind": "github",
-        "url": "https://github.com/wooorm",
-        "source": "https://github.com/wooorm",
-        "verified": "2026-11-04"
-      }
-    ],
-    "id": "wooorm",
-    "kind": "person",
-    "name": "Titus Wormer",
-    "repos": [],
-    "topics": [
-      {
-        "topic": "typography",
-        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
         "verified": "2026-11-04"
       }
     ],
