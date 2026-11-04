@@ -1,5 +1,43 @@
 [
   {
+    "kind": "thread",
+    "url": "https://x.com/MattiaManzati/status/2117933990246232387",
+    "title": "tsrs --lint replaces Oxlint's type-aware linter, now with Effect rules",
+    "summary": "tsrs --lint shipped as a drop-in replacement for Oxlint's type-aware tsgolint, and the Effect rules now run in it through a --tsrs-lint flag.",
+    "date": "2026-11-04",
+    "repo": "Effect-TS/tsgo",
+    "author": {
+      "github": null,
+      "x": "MattiaManzati"
+    },
+    "source": "https://x.com/MattiaManzati/status/2117933990246232387",
+    "engagement": {
+      "likes": 264,
+      "participants": 10,
+      "replies": 9
+    },
+    "topReplies": [
+      {
+        "likes": 3,
+        "text": "@theopomies @MattiaManzati @EffectTS_ They are all semantically equivalent, pick one and stick with it",
+        "url": "https://x.com/MichaelArnaldi/status/2118023572673417479",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 1,
+        "text": "@MattiaManzati @EffectTS_ i’m getting lost in the ecosystem, which tool to use, which is compatible with which, when to update what etc\n\nall the gains are exciting, i just struggle to find the best way to benefit",
+        "url": "https://x.com/theopomies/status/2117947882980696295",
+        "x": "theopomies"
+      },
+      {
+        "likes": 1,
+        "text": "@MattiaManzati @EffectTS_ Was waiting for this!",
+        "url": "https://x.com/rodrigoehlers/status/2117947561960964108",
+        "x": "rodrigoehlers"
+      }
+    ]
+  },
+  {
     "kind": "release",
     "url": "https://github.com/joelhooks/mutant-cafe",
     "title": "mutant-cafe 0.1.2: mutation testing for Effect TypeScript",
@@ -38,7 +76,7 @@
     },
     "source": "https://silklang.org",
     "engagement": {
-      "stars": 72
+      "stars": 80
     }
   },
   {
@@ -67,7 +105,7 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117330070842782057",
     "engagement": {
-      "likes": 365,
+      "likes": 394,
       "participants": 13,
       "replies": 12
     },
@@ -105,9 +143,9 @@
     },
     "source": "https://x.com/mattpocockuk/status/2117157362700058671",
     "engagement": {
-      "likes": 387,
+      "likes": 473,
       "participants": 67,
-      "replies": 55
+      "replies": 65
     },
     "topReplies": [
       {
@@ -172,7 +210,23 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30402
+      "stars": 30405
+    }
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+    "title": "Cause & Effect 10: software engineering in the AI era",
+    "summary": "A clip from Effect's Cause & Effect podcast, episode 10, with John De Goes on software engineering in the AI era.",
+    "date": "2026-11-01",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
+    "engagement": {
+      "views": 1930
     }
   },
   {
@@ -188,7 +242,7 @@
     },
     "source": "https://github.com/julia-script/foldkit-serverfn",
     "engagement": {
-      "stars": 0
+      "stars": 1
     }
   },
   {
@@ -236,7 +290,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1174
+      "stars": 1189
     }
   },
   {
@@ -252,7 +306,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 41
+      "stars": 42
     }
   },
   {
@@ -281,7 +335,7 @@
     },
     "source": "https://github.com/foldkit/foldkit-domains",
     "engagement": {
-      "stars": 28
+      "stars": 29
     }
   },
   {
@@ -296,6 +350,22 @@
       "x": "joelhooks"
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2"
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/codician-team/diffinery",
+    "title": "diffinery",
+    "summary": "An agent-first GitHub and GitHub Actions alternative that runs on your own Cloudflare account: git hosting, pull requests and code review. Apache-2.0.",
+    "date": "2026-10-25",
+    "repo": "codician-team/diffinery",
+    "author": {
+      "github": "codician-team",
+      "x": null
+    },
+    "source": "https://github.com/codician-team/diffinery",
+    "engagement": {
+      "stars": 81
+    }
   },
   {
     "kind": "post",
@@ -378,6 +448,22 @@
     ]
   },
   {
+    "kind": "launch",
+    "url": "https://github.com/doeixd/effect-email",
+    "title": "effect-email",
+    "summary": "Effect-native transactional email: typed messages, durable delivery, providers and policies, SMTP, an HTTP gateway and workflows. MIT.",
+    "date": "2026-10-22",
+    "repo": "doeixd/effect-email",
+    "author": {
+      "github": "doeixd",
+      "x": null
+    },
+    "source": "https://github.com/doeixd/effect-email",
+    "engagement": {
+      "stars": 30
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/Effect-TS/tsgo/releases/tag/%40effect%2Ftsgo%400.56.0",
     "title": "@effect/tsgo 0.56.0 released",
@@ -403,7 +489,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1174
+      "stars": 1189
     }
   },
   {
@@ -419,7 +505,7 @@
     },
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
-      "stars": 30
+      "stars": 51
     }
   },
   {
@@ -451,7 +537,7 @@
     },
     "source": "https://github.com/acoyfellow/hark",
     "engagement": {
-      "stars": 15
+      "stars": 16
     }
   },
   {
@@ -467,7 +553,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1943
+      "stars": 1944
     }
   },
   {
@@ -483,7 +569,7 @@
     },
     "source": "https://github.com/acoyfellow/coil",
     "engagement": {
-      "stars": 42
+      "stars": 43
     }
   },
   {
@@ -512,7 +598,7 @@
     },
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
-      "stars": 1836
+      "stars": 1851
     }
   },
   {
