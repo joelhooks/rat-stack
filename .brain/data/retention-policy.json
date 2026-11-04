@@ -1,0 +1,178 @@
+{
+  "decision": "Retain stage-owned resources only in prod. Keep shared production DNS and mail infrastructure in every stage.",
+  "helper": "Per-cartridge retainInProd decorators; the desk rejected a shared package dependency because cartridges must remain independently removable. Alchemy's runtime phase selects identity so deployment policy does not enter Worker startup.",
+  "source": "alchemy 2.0.0-beta.85 src/Stage.ts, src/RemovalPolicy.ts and src/Phase.ts",
+  "authority": "Alchemy state owns the persisted removal policy. Source declarations are the writer; the next successful deploy updates even noop resource rows. No cloud operation ran for this change.",
+  "lifecycle": {
+    "preview": "scripts/deploy-preview.sh uses pr-N and alchemy.preview.ts. Its allowlist permits only Website and RpcBackend Workers. None of the retention-decorated resources are reachable from this preview Stack today.",
+    "main": "alchemy.run.ts has no stage-name fence. Any explicit main-Stack stage or ALCHEMY_STAGE can create the cartridge resources; Alchemy's default deploy stage is live_USER. Non-dev main-Stack stages also declare the fixed production DNS and email resources. ALCHEMY_DEV skips that shared infrastructure.",
+    "missingNote": "The desk confirmed ship-preview-lifecycle.svx never landed; the preview script, preview Stack and preview allowlist are authoritative.",
+    "inventory": "desk-owned; the worker has no ratstack profile. No orphan absence or presence is claimed here. Delete nothing."
+  },
+  "resources": [
+    {
+      "resource": "FeatureFlags/Store",
+      "file": "packages/flags/src/cloudflare-store.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Each stage owns its KV replica; non-prod replicas are disposable."
+    },
+    {
+      "resource": "MischiefCrashBucket",
+      "file": "packages/crash/src/crash-r2.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Keep production crash history; other stages own independent archives."
+    },
+    {
+      "resource": "${id}VisitorSalt",
+      "file": "packages/events/src/basin.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "The salt belongs to its stage's events data. No non-prod stage reads the prod salt or bucket."
+    },
+    {
+      "resource": "${name}Bucket",
+      "file": "packages/basin/src/index.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Keep production events data; non-prod storage belongs to its own stage."
+    },
+    {
+      "resource": "${name}Stream",
+      "file": "packages/basin/src/index.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "The private ingress belongs to its stage's bucket and can be rebuilt outside prod."
+    },
+    {
+      "resource": "${name}Catalog",
+      "file": "packages/basin/src/index.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Production table metadata protects retained history; non-prod catalogs are disposable."
+    },
+    {
+      "resource": "${name}Sink",
+      "file": "packages/basin/src/index.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Keep the prod delivery graph; non-prod sinks can be rebuilt."
+    },
+    {
+      "resource": "${name}Pipeline",
+      "file": "packages/basin/src/index.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Keep the prod delivery graph; non-prod pipelines can be rebuilt."
+    },
+    {
+      "resource": "LearnFeedbackAuth/LearnFeedback-d1 (and its Drizzle schema declaration)",
+      "file": "apps/site/src/auth/foundation.ts",
+      "before": "always retain scope",
+      "after": "retain scope only in prod",
+      "why": "Keep production feedback and auth data. Other stages own independent databases and rebuildable migrations."
+    },
+    {
+      "resource": "LearnFeedbackAuth/LearnFeedbackSecret",
+      "file": "apps/site/src/auth/foundation.ts",
+      "before": "always retain",
+      "after": "retain only in prod",
+      "why": "Keep the prod auth secret with prod data. Non-prod secrets are not shared with prod."
+    },
+    {
+      "resource": "RatstackZone",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Every non-dev main-Stack stage adopts the same production ratstack.sh zone."
+    },
+    {
+      "resource": "DnsAidIndexSvcb",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Fixed production discovery record shared across main-Stack stages."
+    },
+    {
+      "resource": "DnsAidA2aSvcb",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Fixed production discovery record shared across main-Stack stages."
+    },
+    {
+      "resource": "DnsAidMcpSvcb",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Fixed production discovery record shared across main-Stack stages."
+    },
+    {
+      "resource": "DnsAidIndexTxt",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Fixed production discovery record shared across main-Stack stages."
+    },
+    {
+      "resource": "PostShibaDkimCname",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Production mail uses this fixed DKIM record in every main-Stack stage."
+    },
+    {
+      "resource": "PostShibaReturnPathCname",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Production mail uses this fixed return-path record in every main-Stack stage."
+    },
+    {
+      "resource": "DmarcTxt",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Production mail uses this fixed DMARC record in every main-Stack stage."
+    },
+    {
+      "resource": "RatstackEmailRouting",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Routing is zone-wide; removing it in another main-Stack stage breaks production mail."
+    },
+    {
+      "resource": "WorkshopForwardAddress",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "The configured forwarding destination can be shared with prod and other mail rules."
+    },
+    {
+      "resource": "WorkshopForwardRule",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Every main-Stack stage uses the same workshop address and rule name on ratstack.sh."
+    },
+    {
+      "resource": "RatstackDnssec",
+      "file": "apps/infra/alchemy.run.ts",
+      "before": "always retain",
+      "after": "always retain with reasoned lint directive",
+      "why": "Every non-dev main-Stack stage adopts production DNSSEC on the shared zone."
+    }
+  ],
+  "additionalCleanup": "apps/site/test/fixtures/flag-ledger-worker.ts now uses prod-only retention for its matching KV declaration.",
+  "startup": {
+    "Mischief": { "before": 1113993, "after": 1113711, "delta": -282 },
+    "LearnFeedbackAuth": { "before": 1515481, "after": 1515207, "delta": -274 }
+  },
+  "verification": {
+    "lintViolation": "Before cleanup, real oxlint rejected bare retain() in packages/flags/src/cloudflare-store.ts with retain-needs-stage-policy.",
+    "propertyMutation": "Replacing the flags predicate with Effect.map(() => true), rebuilding flags, and running the Stack retention property failed on Cloudflare.KV.Namespace:FeatureFlags/Store: expected retain to be destroy. The mutation was restored.",
+    "scope": "Declaration tests supply a provider client that dies on every request. They prove persisted policy selection, not a live destroy. No deploy, destroy, plan, push or cloud deletion was run."
+  }
+}
