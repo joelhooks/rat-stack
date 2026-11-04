@@ -6,7 +6,7 @@ The Alchemy/workerd integration test measures the actual `serverBundle.files`, n
 VITEST_MAX_WORKERS=4 pnpm --filter @rat-stack/infra exec vitest run test/website-build.test.ts
 ```
 
-Two shrink-only ceilings **block** code growth: **1,600,000 entry bytes** and **4,500,000 non-content JavaScript bytes**. Lower them when code shrinks; never raise them to accept growth. Desk approved this round headroom over the measured 1,566,139 entry and 4,399,063 non-content bytes.
+Two shrink-only ceilings **block** code growth: **1,100,000 entry bytes** and **2,900,000 non-content JavaScript bytes**. Lower them when code shrinks; never raise them to accept growth. The server bundle is whitespace-minified (`serverWhitespaceOnly` in `apps/web/vite.config.ts`: no mangling, no compression, so names and stack frames stay readable). Turning that on took the measured entry from 1,609,697 to 1,041,171 bytes and non-content JavaScript to 2,767,006 bytes; the ceilings were lowered to round headroom over those.
 
 Content size **alarms only**. Every JavaScript module with the stable `_virtual_reader-page-sources` chunk prefix is reader data; its generated hash does not affect classification. The test requires a content chunk and excludes the entry from that set. It logs content bytes and total JavaScript bytes without a growth ceiling. New lore and system pages must not fail a code-size budget.
 

@@ -18,6 +18,12 @@ import type { ReaderModel } from "../client/reader/model.js";
 import type { ReaderSettingsValue } from "../client/reader/settings.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
+import {
+  graphNodes,
+  localGraphView,
+  outboundLinks,
+  referenceLinks,
+} from "./local-graph.js";
 import * as MotionView from "./motion/index.js";
 import { readerFooter, readerToolbar } from "./reader-chrome.js";
 import type { MenuControl } from "./reader-chrome.js";
@@ -32,6 +38,7 @@ import {
   sectionIndexPane,
   sectionListing,
 } from "./reader-panes.js";
+import { readerPeekView } from "./reader-peek.js";
 import { readerReferences } from "./reader-references.js";
 import { readerSettingsView } from "./reader-settings.js";
 import type { SettingsControl } from "./reader-settings.js";
@@ -278,6 +285,26 @@ const breadcrumbView = (
         ),
       ];
 
+const pageGraph = (model: ReaderModel) =>
+  graphNodes(
+    Option.match(model.bodyNodes, {
+      onNone: () => [],
+      onSome: (nodes) => nodes.flatMap(outboundLinks),
+    }),
+    [
+      ...Option.match(model.bodyNodes, {
+        onNone: () => [],
+        onSome: (nodes) => nodes.flatMap(referenceLinks),
+      }),
+      ...Option.match(model.references, {
+        onNone: () => [],
+        onSome: (references) =>
+          references.backlinks.map(({ route, title }) => ({ route, title })),
+      }),
+    ],
+    model.page.path
+  );
+
 const isPageHead: (node: ReaderNodeValue) => boolean =
   Match.type<ReaderNodeValue>().pipe(
     Match.tag("Element", (element) => element.tag === "h1"),
@@ -447,18 +474,28 @@ export const view = (
               ),
             ]
           ),
-          outlinePane(
-            h,
-            outlineTree(pageOutline(model)),
-            new Set(
-              Option.match(model.outlineRange, {
-                onNone: () => [],
-                onSome: (range) => range.ids,
-              })
-            )
+          h.aside(
+            [h.Class("reader-rail")],
+            [
+              outlinePane(
+                h,
+                outlineTree(pageOutline(model)),
+                new Set(
+                  Option.match(model.outlineRange, {
+                    onNone: () => [],
+                    onSome: (range) => range.ids,
+                  })
+                )
+              ),
+              ...localGraphView(h, pageGraph(model), {
+                onHover: (route) => Message.HoveredGraphNode({ route }),
+                onLeave: Message.LeftGraphNode(),
+              }),
+            ]
           ),
         ]
       ),
+      ...readerPeekView(h, model.peek, model.peekCards),
     ]
   ),
   canonical: `${model.origin}${model.page.metadata.canonicalPath}`,

@@ -24,6 +24,9 @@ import {
   SettingsPanel,
 } from "./model.js";
 import type { ReaderModel } from "./model.js";
+import { LightLinks, ReadPeek, WaitBeforePeek } from "./peek-command.js";
+import { Peek, PeekCard } from "./peek.js";
+import type { PeekAnchorValue } from "./peek.js";
 import { SaveSettings } from "./settings-command.js";
 
 const withCopyStatus = (
@@ -39,6 +42,35 @@ const copyablePrompt = (model: ReaderModel, id: string) =>
   !isCopyInFlight(copyStatusOf(model, id))
     ? findCopyPrompt(model, id)
     : Option.none();
+
+const peekRoute = (peek: typeof Peek.Type) =>
+  Peek.match({
+    Hidden: () => Option.none<string>(),
+    Open: ({ route }) => Option.some(route),
+    Waiting: ({ route }) => Option.some(route),
+  })(peek);
+
+const showPeek = (
+  model: ReaderModel,
+  route: string,
+  anchor: PeekAnchorValue,
+  wait: boolean
+) => {
+  const fetch = !Record.has(model.peekCards, route);
+
+  return {
+    commands: [
+      ...(wait ? [WaitBeforePeek({ route })] : []),
+      ...(fetch ? [ReadPeek({ route })] : []),
+    ],
+    model: modifyFields(model, {
+      peek: () =>
+        wait ? Peek.Waiting({ anchor, route }) : Peek.Open({ anchor, route }),
+      peekCards: (cards) =>
+        fetch ? Record.set(cards, route, PeekCard.Loading()) : cards,
+    }),
+  };
+};
 
 const foldCafe = Update.foldChild({
   read: (model: ReaderModel) => model.cafe,
@@ -110,6 +142,7 @@ export const update = (
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
+      CompletedLightLinks: () => ({ model }),
       CompletedRevealOutlineRow: () => ({ model }),
       CompletedSaveSettings: () => ({ model }),
       CompletedWaitBeforeCopyReset: ({ id }) => ({
@@ -117,23 +150,53 @@ export const update = (
           ? withCopyStatus(model, id, CopyStatus.Idle())
           : model,
       }),
+      ElapsedPeekWait: ({ route }) => ({
+        model: modifyFields(model, {
+          peek: (peek) =>
+            Peek.guards.Waiting(peek) && peek.route === route
+              ? Peek.Open({ anchor: peek.anchor, route })
+              : peek,
+        }),
+      }),
       FailedCopyReaderText: ({ id }) => ({
         model: CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? withCopyStatus(model, id, CopyStatus.Failed())
           : model,
       }),
+      FailedReadPeek: ({ route }) => ({
+        model: modifyFields(model, {
+          peekCards: Record.set(route, PeekCard.Missing()),
+        }),
+      }),
+      FocusedLink: ({ anchor, route }) => showPeek(model, route, anchor, false),
       GotCafeMessage: ({ message: cafeMessage }) =>
         foldCafe(model, cafeMessage),
       GotDocsMessage: ({ message: docsMessage }) =>
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
+      HoveredGraphNode: ({ route }) => ({
+        commands: [LightLinks({ route: Option.some(route) })],
+        model,
+      }),
+      LeftGraphNode: () => ({
+        commands: [LightLinks({ route: Option.none() })],
+        model,
+      }),
+      LeftLink: () => ({
+        model: modifyFields(model, { peek: () => Peek.Hidden() }),
+      }),
       LoadedSettings: ({ settings }) => ({
         model: modifyFields(model, { settings: () => settings }),
       }),
+      PointedAtLink: ({ anchor, route }) =>
+        Option.contains(peekRoute(model.peek), route)
+          ? { model }
+          : showPeek(model, route, anchor, true),
       PressedEscape: () => ({
         model: modifyFields(model, {
           menu: (menu) => (Menu.guards.Open(menu) ? Menu.Closed() : menu),
+          peek: () => Peek.Hidden(),
           settingsPanel: (panel) =>
             SettingsPanel.guards.Open(panel) ? SettingsPanel.Closed() : panel,
         }),
@@ -149,6 +212,11 @@ export const update = (
               model: withCopyStatus(model, id, CopyStatus.Copied()),
             }
           : { model },
+      SucceededReadPeek: ({ route, summary, title }) => ({
+        model: modifyFields(model, {
+          peekCards: Record.set(route, PeekCard.Loaded({ summary, title })),
+        }),
+      }),
       ToggledPhoneOutline: ({ open }) => ({
         model: modifyFields(model, { phoneOutlineOpen: () => open }),
       }),

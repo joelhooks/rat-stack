@@ -16,6 +16,7 @@ const accentSelectors = new Set([
   ".news-dot",
   "sup.inbound-count a",
   ".reference-context",
+  ".graph-me",
   ':root[data-accent="blue"]',
   ':root[data-accent="ink"]',
 ]);

@@ -21,6 +21,12 @@ const readerStylesheets = [
 const developmentStylesheetHref = (root: string, file: string) =>
   file.startsWith(`${root}/`) ? file.slice(root.length) : `/@fs${file}`;
 
+const serverWhitespaceOnly = {
+  codegen: { removeWhitespace: true },
+  compress: false,
+  mangle: false,
+};
+
 const readerSsr = {
   build: { prerender: { origin: readerPrerenderOrigin } },
   clientEntry: "/src/client/entry.ts",
@@ -73,6 +79,9 @@ export default defineConfig(({ command }) => ({
                       clientOutDir === "dist/client"
                         ? "dist/server"
                         : `${clientOutDir}/server`,
+                    rolldownOptions: {
+                      output: { minify: serverWhitespaceOnly },
+                    },
                   },
                 },
               },

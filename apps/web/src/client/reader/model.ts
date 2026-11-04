@@ -12,6 +12,7 @@ import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
 import { OutlineRange } from "./outline-range.js";
+import { Peek, PeekCard } from "./peek.js";
 import { defaultReaderSettings, ReaderSettings } from "./settings.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
@@ -103,6 +104,8 @@ export const Model = Schema.Struct({
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
   menu: Menu,
   outlineRange: Schema.Option(OutlineRange),
+  peek: Peek,
+  peekCards: Schema.Record(Schema.String, PeekCard),
   phoneOutlineOpen: Schema.Boolean,
   settings: ReaderSettings,
   settingsPanel: SettingsPanel,
@@ -116,6 +119,8 @@ export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   copyStatuses: {},
   menu: Menu.Unavailable(),
   outlineRange: Option.none(),
+  peek: Peek.Hidden(),
+  peekCards: {},
   phoneOutlineOpen: false,
   settings: defaultReaderSettings,
   settingsPanel: SettingsPanel.Unavailable(),

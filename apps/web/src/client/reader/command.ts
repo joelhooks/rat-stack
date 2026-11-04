@@ -48,7 +48,7 @@ export const WaitBeforeCopyReset = Command.define("WaitBeforeCopyReset", {
 const outlineRowMargin = 24;
 
 const revealOutlineRow = (id: string) => {
-  const rail = document.querySelector<HTMLElement>(".page-outline");
+  const rail = document.querySelector<HTMLElement>(".reader-rail");
   const row = rail?.querySelector<HTMLElement>(`a[href="#${CSS.escape(id)}"]`);
 
   if (
