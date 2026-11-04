@@ -96,13 +96,12 @@ export const allStarsCopy = {
   channelsHeading: "Channels",
   description:
     "People and channels whose public work builds with Cloudflare, Alchemy, Foldkit and Effect. Every fact links to its source.",
-  entryRowsLabel: "Entered on these /news rows",
   entryRule:
-    "A person or channel enters when their public work earns a second /news row. There is no per-person preview.",
+    "A person or channel enters through a /news row, contributions to a pinned CAFE stack package, CAFE code rat-stack vendors or credits, or sourced public work built on or teaching the CAFE stack.",
   feedLabel: "Atom feed",
   heading: "CAFE all stars",
   intro:
-    "People and channels whose public work builds with Cloudflare, Alchemy, Foldkit and Effect. Every fact links to its source and the date we checked it.",
+    "People and channels with a /news row, pinned CAFE stack contributions, CAFE code rat-stack vendors or credits, or sourced public CAFE work. Every fact links to its source and the date we checked it.",
   newsHeading: "On /news",
   noNews: "No /news rows yet.",
   peopleHeading: "People",

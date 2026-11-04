@@ -19,7 +19,7 @@ export const allStarsRoute = (id: string) => `/all-stars/${id}`;
 
 const lower = (value: string) => value.toLowerCase();
 
-type Handled = Pick<CafePersonValue, "handles">;
+type Handled = Pick<typeof CafePersonSummary.Type, "handles">;
 
 const handlesOf = (person: Handled, kind: "github" | "x") =>
   person.handles
@@ -88,12 +88,10 @@ export const unlistedAuthors = (
     .flatMap((row) => Option.toArray(Option.fromNullishOr(authorKey(row))));
 
   return Arr.sort(
-    Arr.dedupe(keys)
-      .map((author) => ({
-        author,
-        rows: keys.filter((key) => key === author).length,
-      }))
-      .filter((entry) => entry.rows >= 2),
+    Arr.dedupe(keys).map((author) => ({
+      author,
+      rows: keys.filter((key) => key === author).length,
+    })),
     Order.mapInput(
       Order.String,
       (entry: { readonly author: string }) => entry.author

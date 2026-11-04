@@ -1012,7 +1012,7 @@ const program = Effect.gen(function* generateContent() {
     unlistedAuthors(cafeData.people, cafeData.news),
     ({ author, rows }) =>
       Effect.logWarning(
-        `${cafePeopleFile}: ${author} has ${rows} /news rows and no all stars entry; add one with entryRows naming two of them (.brain/areas/all-stars.svx)`
+        `${cafePeopleFile}: ${author} has ${rows} /news rows and no all stars entry; add a profile with entry naming its basis (.brain/areas/all-stars.svx)`
       ),
     { discard: true }
   );
