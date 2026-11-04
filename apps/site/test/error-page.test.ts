@@ -8,28 +8,32 @@ import { errorPages, mischiefRoutes } from "../src/app.js";
 import { renderErrorPage } from "../src/error-page.js";
 import { TestSandbox } from "./test-sandbox.js";
 
-it("escapes an XSS path in the shared error document", () => {
-  const path = '/<script>alert("x")</script>';
+it.effect("escapes an XSS path in the shared error document", () =>
+  Effect.gen(function* escapesErrorPath() {
+    const path = '/<script>alert("x")</script>';
 
-  const html = renderErrorPage(
-    {
-      code: 404,
-      message: "That bin got pulled out.",
-      path,
-      title: "Not found",
-    },
-    "https://ratstack.sh",
-    true
-  );
+    const html = yield* renderErrorPage(
+      {
+        code: 404,
+        message: "That bin got pulled out.",
+        path,
+        title: "Not found",
+      },
+      "https://ratstack.sh",
+      true
+    );
 
-  expect(html).toContain("/&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;");
-  expect(html).not.toContain("<script>");
-  expect(html).toContain("<header>");
-  expect(html).toContain("<footer>");
-  expect(html).toContain("<style>");
-  expect(html).not.toContain('class="house-ad"');
-  expect(html).not.toContain("<ol>");
-});
+    expect(html).toContain(
+      "/&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
+    );
+    expect(html).not.toContain("<script>");
+    expect(html).toContain('<header class="toolbar">');
+    expect(html).toContain("<footer>");
+    expect(html).toContain("<style>");
+    expect(html).not.toContain('class="house-ad"');
+    expect(html).not.toContain("<ol>");
+  })
+);
 
 it.effect("serves a framed 404 and next actions in both representations", () =>
   Effect.acquireUseRelease(
@@ -69,7 +73,7 @@ it.effect("serves a framed 404 and next actions in both representations", () =>
 
           if (accept === "text/html") {
             expect(body).toContain('class="error-code">404</span>');
-            expect(body).toContain("<header>");
+            expect(body).toContain('<header class="toolbar">');
             expect(body).toContain("<footer>");
             expect(body).not.toContain('class="house-ad"');
           } else {
@@ -155,7 +159,7 @@ it.effect(
             expect(body).toContain('class="error-code">500</span>');
             expect(body).toContain("Internal server error");
             expect(body).toContain(path);
-            expect(body).toContain("<header>");
+            expect(body).toContain('<header class="toolbar">');
             expect(body).toContain("<footer>");
             expect(body).not.toContain("private failure details");
             expect(body).not.toContain('class="house-ad"');

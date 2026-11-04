@@ -16,6 +16,7 @@ import {
   copyStatusOf,
   CopyStatus,
   findCopyPrompt,
+  Menu,
 } from "./model.js";
 import type { ReaderModel } from "./model.js";
 
@@ -75,6 +76,15 @@ export const update = (
             model: withCopyStatus(model, id, CopyStatus.Copying()),
           }),
         }),
+      ClickedMenu: () => ({
+        model: modifyFields(model, {
+          menu: Menu.match({
+            Closed: () => Menu.Open(),
+            Open: () => Menu.Closed(),
+            Unavailable: () => Menu.Unavailable(),
+          }),
+        }),
+      }),
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
@@ -94,6 +104,11 @@ export const update = (
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
+      PressedEscape: () => ({
+        model: Menu.guards.Open(model.menu)
+          ? modifyFields(model, { menu: () => Menu.Closed() })
+          : model,
+      }),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? {

@@ -2,10 +2,8 @@ import { Effect, Schema } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
 import { ReaderErrorTemplate } from "../../web/src/server/reader-error-template.js";
-import {
-  errorPageTemplates,
-  staticAssetGeneration,
-} from "../src/bundled-content.generated.ts";
+import { staticAssetGeneration } from "../src/bundled-content.generated.ts";
+import { errorPageTemplates } from "../src/error-page-templates.generated.ts";
 import { renderStaticDocument } from "../src/html.ts";
 import {
   compileReaderBody,

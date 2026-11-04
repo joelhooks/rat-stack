@@ -41,7 +41,7 @@ export const resultPage = Effect.fnUntraced(function* resultPage(
 
   if (result.status >= 400) {
     return page(
-      renderErrorPage(
+      yield* renderErrorPage(
         {
           code: result.status,
           matches:

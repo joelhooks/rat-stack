@@ -11,6 +11,7 @@ const accentSelectors = new Set([
   ".copy-primary",
   ".copy .icon-done",
   ".copy:has(.icon-done:not([hidden]))",
+  '.menu-sheet a[aria-current="page"]',
 ]);
 
 const servedStylesheet = (html: string) =>

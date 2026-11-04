@@ -693,12 +693,15 @@ it.effect(
     )
 );
 
-it("keeps the only rat in the nav brand on the workshop page", () => {
+it("keeps the logo mark as the nav brand and one rat in the colophon on the workshop page", () => {
   const html = generatedTokenmaxxPage;
   const body = html.slice(html.indexOf("<body"));
 
   expect(body.match(/🐀/gu)).toHaveLength(1);
-  expect(body).toContain("<strong>🐀 Rat Stack</strong>");
+  expect(body).toMatch(
+    /<a class="brand" href="\/"><svg class="logo"[^>]*>.*?<\/svg><strong>Rat Stack<\/strong><\/a>/u
+  );
+  expect(body).toContain('<p class="colophon">Ratstack or die 🐀💀</p>');
 });
 
 it.effect("serves the credited screenshot", () =>

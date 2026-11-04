@@ -71,10 +71,17 @@ export const DetectedClipboardAccess = ClipboardAccess.subset([
   "Unavailable",
 ]);
 
+export const Menu = defineTaggedUnion({
+  Closed: {},
+  Open: {},
+  Unavailable: {},
+});
+
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
+  menu: Menu,
 });
 
 export type ReaderModel = typeof Model.Type;
@@ -83,6 +90,7 @@ export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   ...flags,
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
+  menu: Menu.Unavailable(),
 });
 
 export const copyStatusOf = (

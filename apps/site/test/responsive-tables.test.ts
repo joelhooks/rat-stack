@@ -71,7 +71,7 @@ it.effect(
         /main > \.table-wrapper\s*\{[^}]*width: min-content;/u
       );
       expect(css).toMatch(
-        /main > \.table-wrapper\s*\{[^}]*min-width: min\(80ch, 100%\);/u
+        /main > \.table-wrapper\s*\{[^}]*min-width: min\(var\(--measure\), 100%\);/u
       );
       expect(css).toMatch(/\btable\s*\{[^}]*width: auto;/u);
       expect(css).not.toContain("container-type: inline-size");

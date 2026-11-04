@@ -23,7 +23,7 @@ const BundleGraph = Schema.fromJsonString(
 
 const startupBudgets = {
   LearnFeedbackAuth: 1_516_000,
-  Mischief: 1_114_000,
+  Mischief: 1_101_000,
 };
 
 const temporaryRaises: Partial<

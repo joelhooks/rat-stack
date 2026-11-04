@@ -1,6 +1,6 @@
-import { Match } from "effect";
+import { Effect, Match } from "effect";
 
-import { errorPageTemplates } from "./bundled-content.generated.js";
+import type { errorPageTemplates as ErrorPageTemplates } from "./error-page-templates.generated.js";
 import { renderStaticDocument } from "./html.js";
 import type { ReaderErrorPage } from "./reader-error-page.js";
 
@@ -28,7 +28,17 @@ const escapeMarkdown = (value: string) =>
 const fill = (template: string, values: Readonly<Record<string, string>>) =>
   template.replaceAll(/ERROR_[A-Z_]+/gu, (token) => values[token] ?? token);
 
-const errorDetails = (page: ErrorPage, html: boolean) =>
+type Templates = typeof ErrorPageTemplates;
+
+const loadTemplates = Effect.promise(
+  () => import("./error-page-templates.generated.js")
+);
+
+const errorDetails = (
+  errorPageTemplates: Templates,
+  page: ErrorPage,
+  html: boolean
+) =>
   page.details === undefined
     ? ""
     : Match.valueTags(page.details, {
@@ -40,7 +50,8 @@ const errorDetails = (page: ErrorPage, html: boolean) =>
             : errorPageTemplates.noVerifyDetails.markdown,
       });
 
-export const renderErrorPage = (
+const renderWithTemplates = (
+  errorPageTemplates: Templates,
   page: ErrorPage,
   origin: string,
   html: boolean
@@ -81,9 +92,20 @@ export const renderErrorPage = (
   return fill(template, {
     ERROR_ACTIONS: actions,
     ERROR_CODE: String(page.code),
-    ERROR_DETAILS: errorDetails(page, html),
+    ERROR_DETAILS: errorDetails(errorPageTemplates, page, html),
     ERROR_MESSAGE: escape(page.message),
     ERROR_PATH: escape(page.path),
     ERROR_TITLE: escape(page.title),
   });
 };
+
+export const renderErrorPage = (
+  page: ErrorPage,
+  origin: string,
+  html: boolean
+) =>
+  loadTemplates.pipe(
+    Effect.map(({ errorPageTemplates }) =>
+      renderWithTemplates(errorPageTemplates, page, origin, html)
+    )
+  );

@@ -7,7 +7,7 @@ import type { DocumentQueries } from "../docs/queries.js";
 import { DetectClipboard } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
-import { initialModel } from "./model.js";
+import { initialModel, Menu } from "./model.js";
 import type { ReaderModel, ReaderPageFlags } from "./model.js";
 
 export const init: ApplicationInit<
@@ -22,7 +22,7 @@ export const browserInit: ApplicationInit<
   ReaderPageFlags,
   DocumentQueries
 > = (flags) => {
-  const model = initialModel(flags);
+  const model = { ...initialModel(flags), menu: Menu.Closed() };
 
   if (Option.isNone(model.docs)) {
     return { commands: [DetectClipboard()], model };

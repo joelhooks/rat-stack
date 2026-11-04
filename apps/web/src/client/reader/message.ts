@@ -8,12 +8,14 @@ import { DetectedClipboardAccess } from "./model.js";
 
 export const Message = defineMessageUnion({
   ClickedCopy: { id: Schema.String },
+  ClickedMenu: {},
   CompletedDetectClipboard: { access: DetectedClipboardAccess },
   CompletedWaitBeforeCopyReset: { id: Schema.String },
   FailedCopyReaderText: { id: Schema.String },
   GotCafeMessage: { message: CafeMessage },
   GotDocsMessage: { message: DocsMessage },
   GotMotionMessage: { message: MotionDemoMessage },
+  PressedEscape: {},
   SucceededCopyReaderText: { id: Schema.String },
 });
 

@@ -13,6 +13,7 @@ const outputs = [
   "src/bundled-content.generated.ts",
   "src/rat-icons.generated.ts",
   "src/interest-pages.generated.ts",
+  "src/error-page-templates.generated.ts",
   "dist/content",
 ];
 

@@ -1001,7 +1001,7 @@ it.layer(contentServices)("generated content", (test) => {
           ?.css ?? "";
 
       expect(stylesheet).toContain("ui-monospace");
-      expect(stylesheet).toContain("max-width: 80ch");
+      expect(stylesheet).toContain("--measure: 68ch");
       expect(homeDocumentHtml).not.toContain('rel="stylesheet"');
     })
   );

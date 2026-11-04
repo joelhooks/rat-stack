@@ -1,3 +1,8 @@
+import { ratLogoFill, ratLogoPath } from "../../web/src/features/rat-logo.ts";
+import {
+  isWithinSection,
+  siteSections,
+} from "../../web/src/features/site-route.ts";
 import type { CopyPromptSpec } from "./component-data.ts";
 
 export const escapeHtmlText = (value: string) =>
@@ -54,11 +59,20 @@ export const renderCopyPrompt = (spec: CopyPromptSpec) => {
     : copyControl(spec);
 };
 
-const siteNavigation =
-  '<header><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/"><strong>🐀 Rat Stack</strong></a> <div class="site-links"><ul><li><a href="/skills">skills</a></li> <li><a href="/lore">lore</a></li> <li><a href="/systems">systems</a></li> <li><a href="/news">news</a></li> <li><a href="/all-stars">all stars</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/search">search</a></li></ul> <ul><li><a href="/llms.txt">agent guide</a></li></ul></div></nav></header>';
+const ratLogo = `<svg class="logo" viewBox="0 0 65 78" fill="${ratLogoFill}" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="${ratLogoPath}"></path></svg>`;
+
+const siteNavigation = (path: string) =>
+  `<header class="toolbar"><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/">${ratLogo}<strong>Rat Stack</strong></a><ul class="site-sections">${siteSections
+    .map(
+      ([href, name]) =>
+        `<li><a href="${href}"${isWithinSection(href, path) ? ' aria-current="page"' : ""}>${name}</a></li>`
+    )
+    .join(
+      ""
+    )}</ul><a class="agent-guide" href="/llms.txt">agent guide</a></nav></header>`;
 
 const siteFooter =
-  '<footer><hr> <div class="site-reference"><section aria-label="Explore"><h2>Explore</h2> <ul><li><a href="/learn">learn mode</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/log">change log</a></li> <li><a href="/resources/peers">peers</a></li></ul></section> <section aria-label="Reference"><h2>Reference</h2> <ul><li><a href="/llms.txt">agent guide</a></li> <li><a href="/openapi.json">API docs</a></li> <li><a href="https://github.com/joelhooks/rat-stack">source</a></li></ul></section></div> <p>Markdown by default. HTML when you ask for it. <a href="/llms.txt">Agents start here</a>.</p></footer>';
+  '<footer><hr> <div class="site-reference"><section aria-label="Explore"><h2>Explore</h2> <ul><li><a href="/learn">learn mode</a></li> <li><a href="/glossary">glossary</a></li> <li><a href="/log">change log</a></li> <li><a href="/resources/peers">peers</a></li></ul></section> <section aria-label="Reference"><h2>Reference</h2> <ul><li><a href="/llms.txt">agent guide</a></li> <li><a href="/openapi.json">API docs</a></li> <li><a href="https://github.com/joelhooks/rat-stack">source</a></li></ul></section></div> <p>Markdown by default. HTML when you ask for it. <a href="/llms.txt">Agents start here</a>.</p> <p class="colophon">Ratstack or die 🐀💀</p></footer>';
 
 const meta = (key: "name" | "property", name: string, content: string) =>
   `<meta ${key}="${name}" content="${escapeHtmlAttribute(content)}">`;
@@ -111,7 +125,7 @@ export const renderDocumentShell = (shell: DocumentShell) => {
       ? `<nav aria-label="Breadcrumb" class="breadcrumb"><a href="${escapeHtmlAttribute(shell.breadcrumbHref)}">${escapeHtmlText(shell.breadcrumbLabel)}</a> / ${escapeHtmlText(shell.breadcrumbName)}</nav>`
       : "";
 
-  const body = `${siteNavigation} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${shell.newsCalloutHtml ?? ""} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
+  const body = `${siteNavigation(shell.path)} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${shell.newsCalloutHtml ?? ""} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
 
   return { body, head };
 };

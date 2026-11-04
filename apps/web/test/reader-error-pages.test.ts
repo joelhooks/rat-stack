@@ -78,7 +78,7 @@ it.effect.prop(
 
       const built = yield* template;
       const flags = readerErrorFlags(built, page);
-      const mischief = renderErrorPage(page, origin, true);
+      const mischief = yield* renderErrorPage(page, origin, true);
 
       const rendered = yield* renderToString(
         { Flags: ReaderFlags, init, view },

@@ -28,6 +28,7 @@ env.d.ts
 apps/site/src/bundled-content.generated.ts
 apps/site/src/rat-icons.generated.ts
 apps/site/src/interest-pages.generated.ts
+apps/site/src/error-page-templates.generated.ts
 .brain/data/unlinked-mentions.generated.json
 
 # build temp directories left by an interrupted generate

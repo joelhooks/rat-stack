@@ -10,12 +10,18 @@ import {
   copyStatusOf,
   CopyStatus,
   findCopyPrompt,
+  Menu,
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
 import * as MotionView from "./motion/index.js";
-import { readerFooter, readerNewsCallout } from "./reader-chrome.js";
+import {
+  readerFooter,
+  readerNewsCallout,
+  readerToolbar,
+} from "./reader-chrome.js";
+import type { MenuControl } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import type { SnippetReference } from "./reader-document.js";
@@ -24,13 +30,11 @@ import { readerReferences } from "./reader-references.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
-  allStarsRouter,
   glossaryRouter,
   homeRouter,
   isWithinSection,
   learnRouter,
   loreRouter,
-  newsRouter,
   promptsRouter,
   searchRouter,
   skillsRouter,
@@ -44,16 +48,6 @@ const copyStatusText = CopyStatus.match({
   Failed: () => "Copy failed. Select the text and copy it.",
   Idle: () => "",
 });
-
-const siteSections = [
-  [skillsRouter(), "skills"],
-  [loreRouter(), "lore"],
-  [systemsRouter(), "systems"],
-  [newsRouter(), "news"],
-  [allStarsRouter(), "all stars"],
-  [glossaryRouter(), "glossary"],
-  [searchRouter(), "search"],
-] as const;
 
 const sectionIndexes: ReadonlySet<string> = new Set([
   homeRouter(),
@@ -207,40 +201,15 @@ const readerSnippet = (
     }
   );
 
-const siteHeader = (h: HtmlBuilder<ReaderMessage>) =>
-  h.header(
-    [
-      h.Class(
-        stylex.props(readerStyles.bounded, readerStyles.header).className ?? ""
-      ),
-    ],
-    [
-      h.nav(
-        [h.AriaLabel("Primary navigation"), h.Class("site-nav")],
-        [
-          h.a(
-            [h.Class("brand"), h.Href(homeRouter())],
-            [h.strong([], ["🐀 Rat Stack"])]
-          ),
-          h.div(
-            [h.Class("site-links")],
-            [
-              h.ul(
-                [],
-                siteSections.map(([href, name]) =>
-                  h.li([], [h.a([h.Href(href)], [name])])
-                )
-              ),
-              h.ul(
-                [],
-                [h.li([], [h.a([h.Href(agentGuideRouter())], ["agent guide"])])]
-              ),
-            ]
-          ),
-        ]
-      ),
-    ]
-  );
+const menuControl = (
+  model: ReaderModel,
+  onToggle: ReaderMessage
+): MenuControl<ReaderMessage> =>
+  Menu.match(model.menu, {
+    Closed: () => ({ kind: "available" as const, onToggle, open: false }),
+    Open: () => ({ kind: "available" as const, onToggle, open: true }),
+    Unavailable: () => ({ kind: "unavailable" as const }),
+  });
 
 const agentPointer = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) =>
   h.p(
@@ -378,7 +347,11 @@ export const view = (
   body: h.div(
     [h.Class(stylex.props(readerStyles.shell).className ?? "")],
     [
-      siteHeader(h),
+      readerToolbar(
+        h,
+        model.page.path,
+        menuControl(model, Message.ClickedMenu())
+      ),
       h.main(
         [h.DataAttribute("path", model.page.path)],
         [

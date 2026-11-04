@@ -3811,13 +3811,44 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           buildError("rename interest pages", temporaryInterestPages, cause)
         )
       );
-    const temporaryOutput = path.join(temporaryDirectory, "output.ts");
+
+    const temporaryErrorTemplates = path.join(
+      temporaryDirectory,
+      "error-page-templates.ts"
+    );
 
     yield* fileSystem
       .writeFileString(
-        temporaryOutput,
-        `${generated}\nexport const errorPageTemplates = ${sourceLiteral({ actionsHtml: errorActions.bodyHtml, actionsMarkdown: errorActionsMarkdown, documentHtml: errorPageDocumentHtml, markdown: errorPageMarkdown, noVerifyDetails: noVerifyErrorDetails, suggestionHtml: errorSuggestion.bodyHtml, suggestionMarkdown: errorSuggestionMarkdown })} as const;\n`
+        temporaryErrorTemplates,
+        `export const errorPageTemplates = ${sourceLiteral({ actionsHtml: errorActions.bodyHtml, actionsMarkdown: errorActionsMarkdown, documentHtml: errorPageDocumentHtml, markdown: errorPageMarkdown, noVerifyDetails: noVerifyErrorDetails, suggestionHtml: errorSuggestion.bodyHtml, suggestionMarkdown: errorSuggestionMarkdown })} as const;\n`
       )
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError(
+            "write error page templates",
+            temporaryErrorTemplates,
+            cause
+          )
+        )
+      );
+    yield* fileSystem
+      .rename(
+        temporaryErrorTemplates,
+        path.join(path.dirname(output), "error-page-templates.generated.ts")
+      )
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError(
+            "rename error page templates",
+            temporaryErrorTemplates,
+            cause
+          )
+        )
+      );
+    const temporaryOutput = path.join(temporaryDirectory, "output.ts");
+
+    yield* fileSystem
+      .writeFileString(temporaryOutput, generated)
       .pipe(
         Effect.mapError((cause) => buildError("write", temporaryOutput, cause))
       );
