@@ -4,7 +4,6 @@ import * as Arbitrary from "effect/Arbitrary";
 
 import {
   discoverCatalog,
-  namespaceOf,
   searchCatalog,
   toCatalog,
   toTypeScript,
@@ -53,10 +52,23 @@ describe("budgeted discovery", () => {
 
       for (const entry of generated.capabilities) {
         expect(full.declarations).toContain(`readonly "${entry.name}":`);
-        expect(empty.summary).toContain(namespaceOf(entry.name));
       }
+
+      expect(empty.summary.split("\n").slice(1)).toEqual(
+        sizes.map(
+          (size, namespace) =>
+            `namespace${namespace}: PARTIAL (0 of ${size} shown)`
+        )
+      );
     }
   );
+
+  it("groups unqualified capabilities under tools", () => {
+    expect(discoverCatalog(catalog, 0).summary.split("\n")).toEqual([
+      "PARTIAL (0 of 3 shown)",
+      "tools: PARTIAL (0 of 3 shown)",
+    ]);
+  });
 
   it.prop(
     "round robin represents every affordable namespace before repeating one",
@@ -71,11 +83,9 @@ describe("budgeted discovery", () => {
         }).length / 4;
 
       const firstRound = discoverCatalog(generated, oneCost * sizes.length);
-      expect(firstRound.selected).toHaveLength(sizes.length);
-      expect(
-        new Set(firstRound.selected.map((entry) => namespaceOf(entry.name)))
-          .size
-      ).toBe(sizes.length);
+      expect(firstRound.selected.map((entry) => entry.name)).toEqual(
+        sizes.map((_, namespace) => `namespace${namespace}.tool0`)
+      );
     }
   );
 
@@ -290,4 +300,41 @@ describe("searchCatalog", () => {
   it("returns nothing when no token matches", () => {
     expect(searchCatalog(catalog, "zebra")).toHaveLength(0);
   });
+
+  it.prop(
+    "unparseable input metadata contributes no search terms",
+    {
+      word: Schema.String.check(Schema.isPattern(/^[abcgjklquvwxyz]{1,12}$/u)),
+    },
+    ({ word }) => {
+      const [seed] = catalog.capabilities;
+
+      if (seed === undefined) {
+        throw new Error("Catalog fixture must have an entry");
+      }
+
+      const invalidMetadataCatalog = {
+        capabilities: [
+          {
+            ...seed,
+            description: "Reports the 42nd item",
+            input: { type: 7 },
+            name: "root.find",
+          },
+        ],
+        version: "1" as const,
+      };
+
+      for (const query of [word, "xyzzy"]) {
+        expect(searchCatalog(invalidMetadataCatalog, query)).toEqual([]);
+      }
+
+      expect(searchCatalog(invalidMetadataCatalog, "")[0]?.score).toBe(0);
+      expect(
+        searchCatalog(invalidMetadataCatalog, "reports").map(
+          (match) => match.name
+        )
+      ).toEqual(["root.find"]);
+    }
+  );
 });

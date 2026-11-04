@@ -33,7 +33,38 @@ const storage = implement(storageContract, ({ statements }) =>
   })
 );
 
+const primitiveFailureContract = defineContract("primitiveFailure", {
+  description: "Fail with a plain string",
+  failure: Schema.String,
+  input: Schema.Struct({ reason: Schema.String }),
+  output: Schema.String,
+});
+
+const primitiveFailure = implement(primitiveFailureContract, ({ reason }) =>
+  Effect.fail(reason)
+);
+
 describe("code-mode Context", () => {
+  it.effect.prop(
+    "primitive declared failures retain their encoded value and a usable tool diagnostic",
+    { reason: Arbitrary.schema(Schema.String) },
+    ({ reason }) =>
+      Effect.gen(function* invokePrimitiveFailure() {
+        const invoke = yield* invokerFor([primitiveFailure]);
+        const outcome = yield* invoke("primitiveFailure", { reason });
+
+        if (outcome.ok) {
+          return yield* Effect.die(new Error("primitiveFailure must fail."));
+        }
+
+        expect(outcome.error).toBe(reason);
+        expect(outcome.diagnostic?.kind).toBe("ToolFailure");
+        expect(outcome.diagnostic?.message).toMatch(/\S/u);
+
+        return yield* Effect.void;
+      })
+  );
+
   it.effect.prop(
     "each invoker keeps its captured service and declared storage budget failure",
     {

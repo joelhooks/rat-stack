@@ -5,9 +5,11 @@ import {
   FlagJournal,
   FlagLedger,
   FlagTarget,
+  flagPartition,
 } from "@rat-stack/core/flag-control";
 import { flipFeatureFlag } from "@rat-stack/core/flag-write-capabilities";
 import {
+  FlagStorageError,
   Flags,
   eventFlags,
   eventsEnabled,
@@ -326,4 +328,163 @@ it.effect(
         return yield* Effect.void;
       }).pipe(Effect.provide(Layer.merge(layer, Approval.allowAll)));
     }).pipe(Effect.provide(NodeCrypto.layer))
+);
+
+const scopedSwitch = defineFlag("SCOPED_SWITCH", Schema.Boolean, {
+  default: false,
+  owner: "tests",
+  purpose: "Exercise authoritative KV positions per scope.",
+  readScope: Schema.Literals(["alpha", "beta"]),
+  removeBy: "2099-01-01",
+  rungs: binaryLadder(false, true),
+});
+
+const storageFields = (error: { readonly _tag: string }) =>
+  Schema.is(FlagStorageError)(error)
+    ? { flag: error.flag, operation: error.operation }
+    : error._tag;
+
+const acceptedLedger = (
+  kv: Parameters<typeof kvFlagControlLayer>[1],
+  deployOnly: readonly string[] = []
+) =>
+  FlagLedger.pipe(
+    Effect.provide(
+      kvFlagControlLayer([scopedSwitch], kv, {
+        authoritativeWrites: "accept-non-atomic-unserialized",
+        deployOnly,
+      })
+    )
+  );
+
+const scopedEvidence = (scope: "alpha" | "beta") => ({
+  event: "check",
+  name: scopedSwitch.name,
+  observed: 1,
+  read: "acceptance report",
+  ref: "scoped evidence",
+  rung: "off",
+  scope,
+});
+
+const scopedClimb = (scope: "alpha" | "beta") => ({
+  authority: "agent" as const,
+  name: scopedSwitch.name,
+  reason: "Climb after recorded evidence.",
+  scope,
+  target: FlagTarget.cases.rung.make({ name: "on" }),
+});
+
+it.effect.prop(
+  "accepted KV writes report state and replica failures without claiming a clean commit",
+  {
+    phase: Schema.Literals(["state/", "values/"]),
+    scope: Schema.Literals(["alpha", "beta"]),
+  },
+  ({ phase, scope }) =>
+    Effect.gen(function* failAcceptedWrite() {
+      const double = yield* makeKVDouble;
+      const ledger = yield* acceptedLedger(double.kv);
+      yield* Ref.set(double.failure, "state/");
+
+      const evidenceError = yield* ledger
+        .recordEvidence(scopedEvidence(scope))
+        .pipe(Effect.flip);
+
+      expect(storageFields(evidenceError)).toMatchObject({
+        flag: scopedSwitch.name,
+        operation: "write",
+      });
+      yield* Ref.set(double.failure, null);
+      expect((yield* ledger.read(scopedSwitch.name, scope)).evidence).toEqual(
+        []
+      );
+      yield* ledger.recordEvidence(scopedEvidence(scope));
+      yield* Ref.set(double.failure, phase);
+
+      const flipError = yield* ledger
+        .flip(scopedClimb(scope))
+        .pipe(Effect.flip);
+
+      expect(storageFields(flipError)).toMatchObject({
+        flag: scopedSwitch.name,
+        operation: "write",
+      });
+      yield* Ref.set(double.failure, null);
+
+      const values = [...(yield* Ref.get(double.data)).keys()].filter((key) =>
+        key.startsWith("values/")
+      );
+
+      expect(values).toEqual([]);
+      expect((yield* ledger.read(scopedSwitch.name, scope)).revision).toBe(
+        phase === "state/" ? 0 : 1
+      );
+    })
+);
+
+it.effect.prop(
+  "deployment-only flags refuse ledger writes without touching KV",
+  { scope: Schema.Literals(["alpha", "beta"]) },
+  ({ scope }) =>
+    Effect.gen(function* refuseDeployOnlyWrite() {
+      const double = yield* makeKVDouble;
+      const ledger = yield* acceptedLedger(double.kv, [scopedSwitch.name]);
+
+      const error = yield* ledger
+        .recordEvidence(scopedEvidence(scope))
+        .pipe(Effect.flip);
+
+      expect(storageFields(error)).toMatchObject({
+        flag: scopedSwitch.name,
+        operation: "write",
+      });
+      expect(yield* Ref.get(double.writes)).toEqual([]);
+    })
+);
+
+it.effect.prop(
+  "unavailable and malformed authoritative positions fail rather than becoming initial positions",
+  {
+    fault: Schema.Literals(["unavailable", "malformed"]),
+    scope: Schema.Literals(["alpha", "beta"]),
+  },
+  ({ fault, scope }) =>
+    Effect.gen(function* failAuthoritativeRead() {
+      const double = yield* makeKVDouble;
+      const ledger = yield* acceptedLedger(double.kv);
+      expect((yield* ledger.read(scopedSwitch.name, scope)).revision).toBe(0);
+      yield* ledger.recordEvidence(scopedEvidence(scope));
+      yield* ledger.flip(scopedClimb(scope));
+      const key = `state/${flagPartition(scopedSwitch.name, scope)}`;
+
+      yield* fault === "unavailable"
+        ? Ref.set(double.failure, "read")
+        : double.kv.put(key, "invalid-json");
+
+      const before = (yield* Ref.get(double.data)).get(key);
+      yield* Ref.set(double.writes, []);
+
+      const error = yield* ledger
+        .read(scopedSwitch.name, scope)
+        .pipe(Effect.flip);
+
+      expect(storageFields(error)).toMatchObject({
+        flag: flagPartition(scopedSwitch.name, scope),
+        operation: "read",
+      });
+
+      const writeError = yield* ledger
+        .flip({
+          ...scopedClimb(scope),
+          target: FlagTarget.cases.off.make({}),
+        })
+        .pipe(Effect.flip);
+
+      expect(storageFields(writeError)).toMatchObject({
+        operation: "read",
+      });
+      expect(yield* Ref.get(double.writes)).toEqual([]);
+      expect((yield* Ref.get(double.data)).get(key)).toBe(before);
+    })
 );
