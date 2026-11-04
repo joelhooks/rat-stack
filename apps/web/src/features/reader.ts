@@ -11,8 +11,10 @@ import {
   CopyStatus,
   findCopyPrompt,
   Menu,
+  SettingsPanel,
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
+import type { ReaderSettingsValue } from "../client/reader/settings.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
 import * as MotionView from "./motion/index.js";
@@ -29,6 +31,8 @@ import {
   sectionListing,
 } from "./reader-panes.js";
 import { readerReferences } from "./reader-references.js";
+import { readerSettingsView } from "./reader-settings.js";
+import type { SettingsControl } from "./reader-settings.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
@@ -213,6 +217,29 @@ const menuControl = (
     Unavailable: () => ({ kind: "unavailable" as const }),
   });
 
+const settingsControl = (
+  model: ReaderModel,
+  onToggle: ReaderMessage,
+  onChoose: (settings: ReaderSettingsValue) => ReaderMessage
+): SettingsControl<ReaderMessage> =>
+  SettingsPanel.match(model.settingsPanel, {
+    Closed: () => ({
+      kind: "available" as const,
+      onChoose,
+      onToggle,
+      open: false,
+      settings: model.settings,
+    }),
+    Open: () => ({
+      kind: "available" as const,
+      onChoose,
+      onToggle,
+      open: true,
+      settings: model.settings,
+    }),
+    Unavailable: () => ({ kind: "unavailable" as const }),
+  });
+
 const agentPointer = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) =>
   h.p(
     [h.Class("agent-pointer visually-hidden"), h.AriaHidden(true)],
@@ -379,7 +406,18 @@ export const view = (
                   ...readerReferences(model, h),
                 ]
               ),
-              readerFooter(h, footerLinksPrompts(model.page)),
+              readerFooter(
+                h,
+                footerLinksPrompts(model.page),
+                readerSettingsView(
+                  h,
+                  settingsControl(
+                    model,
+                    Message.ClickedSettings(),
+                    (settings) => Message.ChoseSettings({ settings })
+                  )
+                )
+              ),
             ]
           ),
           outlinePane(h, pageOutline(model), model.activeHeading),

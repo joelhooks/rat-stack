@@ -17,8 +17,10 @@ import {
   CopyStatus,
   findCopyPrompt,
   Menu,
+  SettingsPanel,
 } from "./model.js";
 import type { ReaderModel } from "./model.js";
+import { SaveSettings } from "./settings-command.js";
 
 const withCopyStatus = (
   model: ReaderModel,
@@ -68,6 +70,10 @@ export const update = (
   Message.match<Update.Return<ReaderModel, ReaderMessage, DocumentQueries>>(
     message,
     {
+      ChoseSettings: ({ settings }) => ({
+        commands: [SaveSettings({ settings })],
+        model: modifyFields(model, { settings: () => settings }),
+      }),
       ClickedCopy: ({ id }) =>
         Option.match(copyablePrompt(model, id), {
           onNone: () => ({ model }),
@@ -85,9 +91,19 @@ export const update = (
           }),
         }),
       }),
+      ClickedSettings: () => ({
+        model: modifyFields(model, {
+          settingsPanel: SettingsPanel.match({
+            Closed: () => SettingsPanel.Open(),
+            Open: () => SettingsPanel.Closed(),
+            Unavailable: () => SettingsPanel.Unavailable(),
+          }),
+        }),
+      }),
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
+      CompletedSaveSettings: () => ({ model }),
       CompletedWaitBeforeCopyReset: ({ id }) => ({
         model: CopyStatus.guards.Copied(copyStatusOf(model, id))
           ? withCopyStatus(model, id, CopyStatus.Idle())
@@ -104,10 +120,15 @@ export const update = (
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
+      LoadedSettings: ({ settings }) => ({
+        model: modifyFields(model, { settings: () => settings }),
+      }),
       PressedEscape: () => ({
-        model: Menu.guards.Open(model.menu)
-          ? modifyFields(model, { menu: () => Menu.Closed() })
-          : model,
+        model: modifyFields(model, {
+          menu: (menu) => (Menu.guards.Open(menu) ? Menu.Closed() : menu),
+          settingsPanel: (panel) =>
+            SettingsPanel.guards.Open(panel) ? SettingsPanel.Closed() : panel,
+        }),
       }),
       ScrolledToHeading: ({ id }) => ({
         model: modifyFields(model, { activeHeading: () => Option.some(id) }),

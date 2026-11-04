@@ -519,7 +519,7 @@ it.effect(
         expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");
         expect(markdown).not.toContain("<CopyPrompt");
-        expect(html).toContain("prefers-color-scheme: dark");
+        expect(html).toContain("color-scheme: light dark");
         expect(html).toContain(
           '<link rel="icon" href="/favicon.ico" sizes="48x48"'
         );

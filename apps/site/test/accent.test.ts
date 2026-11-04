@@ -16,6 +16,8 @@ const accentSelectors = new Set([
   ".news-dot",
   "sup.inbound-count a",
   ".reference-context",
+  ':root[data-accent="blue"]',
+  ':root[data-accent="ink"]',
 ]);
 
 const servedStylesheet = (html: string) =>

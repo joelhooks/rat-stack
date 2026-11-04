@@ -1,7 +1,7 @@
 import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
 import { Option } from "effect";
-import type { HtmlBuilder } from "foldkit/html";
+import type { Html, HtmlBuilder } from "foldkit/html";
 
 import { ratLogoFill, ratLogoPath } from "./rat-logo.js";
 import { sectionLinks } from "./reader-panes.js";
@@ -237,7 +237,8 @@ export const readerToolbar = <Message>(
 
 export const readerFooter = <Message>(
   h: HtmlBuilder<Message>,
-  includePrompts = true
+  includePrompts: boolean,
+  settings: readonly Html[]
 ) =>
   h.footer(
     [h.Class(stylex.props(readerStyles.bounded).className ?? "")],
@@ -300,5 +301,6 @@ export const readerFooter = <Message>(
         ]
       ),
       h.p([h.Class("colophon")], ["Ratstack or die 🐀💀"]),
+      ...settings,
     ]
   );

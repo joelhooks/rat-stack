@@ -6,6 +6,7 @@ import {
   faviconIcoBase64,
   ratSvg,
 } from "../../../site/src/rat-icons.generated.js";
+import { readerSettingsScript } from "../../../site/src/reader-settings-script.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerMetadataHead } from "../reader-metadata.js";
 
@@ -27,5 +28,5 @@ export const withReaderHead = (
 
 export const renderDocument: Server.DocumentRenderer = (application, assets) =>
   Server.renderDocument(application, assets, {
-    head: `${iconHead}\n${Schema.decodeUnknownSync(ReaderDocumentHead)(application).readerHead}`,
+    head: `<script>${readerSettingsScript}</script>\n${iconHead}\n${Schema.decodeUnknownSync(ReaderDocumentHead)(application).readerHead}`,
   });

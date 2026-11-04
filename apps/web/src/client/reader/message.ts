@@ -5,16 +5,21 @@ import { Message as CafeMessage } from "../cafe/message.js";
 import { Message as DocsMessage } from "../docs/message.js";
 import { Message as MotionDemoMessage } from "../motion/message.js";
 import { DetectedClipboardAccess } from "./model.js";
+import { ReaderSettings } from "./settings.js";
 
 export const Message = defineMessageUnion({
+  ChoseSettings: { settings: ReaderSettings },
   ClickedCopy: { id: Schema.String },
   ClickedMenu: {},
+  ClickedSettings: {},
   CompletedDetectClipboard: { access: DetectedClipboardAccess },
+  CompletedSaveSettings: {},
   CompletedWaitBeforeCopyReset: { id: Schema.String },
   FailedCopyReaderText: { id: Schema.String },
   GotCafeMessage: { message: CafeMessage },
   GotDocsMessage: { message: DocsMessage },
   GotMotionMessage: { message: MotionDemoMessage },
+  LoadedSettings: { settings: ReaderSettings },
   PressedEscape: {},
   ScrolledToHeading: { id: Schema.String },
   SucceededCopyReaderText: { id: Schema.String },

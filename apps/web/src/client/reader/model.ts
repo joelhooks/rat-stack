@@ -11,6 +11,7 @@ import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
+import { defaultReaderSettings, ReaderSettings } from "./settings.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
 
@@ -89,12 +90,20 @@ export const Menu = defineTaggedUnion({
   Unavailable: {},
 });
 
+export const SettingsPanel = defineTaggedUnion({
+  Closed: {},
+  Open: {},
+  Unavailable: {},
+});
+
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
   activeHeading: Schema.Option(Schema.String),
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
   menu: Menu,
+  settings: ReaderSettings,
+  settingsPanel: SettingsPanel,
 });
 
 export type ReaderModel = typeof Model.Type;
@@ -105,6 +114,8 @@ export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
   menu: Menu.Unavailable(),
+  settings: defaultReaderSettings,
+  settingsPanel: SettingsPanel.Unavailable(),
 });
 
 export const copyStatusOf = (

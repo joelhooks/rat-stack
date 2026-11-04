@@ -1,25 +1,22 @@
 import * as stylex from "@stylexjs/stylex";
 
-const DARK = "@media (prefers-color-scheme: dark)";
-
 export const accent = stylex.defineVars({
-  accent: "#ff1493",
-  accentText: { default: "#c8006e", [DARK]: "#ff4fa8" },
+  accent: "var(--accent)",
+  accentText: "var(--accent-text)",
 });
 
 export const reader = stylex.defineVars({
-  codeHighlight: { default: "#e6e9ef", [DARK]: "#414559" },
-  codeInk: { default: "#4c4f69", [DARK]: "#c6d0f5" },
-  codeKeyword: { default: "#303446", [DARK]: "#e5e5ea" },
-  codeLiteral: { default: "#5c5f77", [DARK]: "#b5bfe2" },
-  codeMuted: { default: "#6c6f85", [DARK]: "#949cbb" },
-  contentWidth: "68ch",
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-  fontSize: "17px",
+  codeHighlight: "var(--code-highlight)",
+  codeInk: "var(--code-ink)",
+  codeKeyword: "var(--code-keyword)",
+  codeLiteral: "var(--code-literal)",
+  codeMuted: "var(--code-muted)",
+  contentWidth: "var(--measure)",
+  fontFamily: "var(--prose-font)",
+  fontSize: "var(--text-size)",
   lineHeight: "1.6",
-  monoFamily: 'ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace',
-  spaceSection: "2rem",
-  spaceSmall: "0.75rem",
-  spaceTight: "0.375rem",
+  monoFamily: "var(--mono)",
+  spaceSection: "var(--space-section)",
+  spaceSmall: "var(--space-small)",
+  spaceTight: "var(--space-tight)",
 });

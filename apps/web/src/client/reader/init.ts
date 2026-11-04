@@ -7,8 +7,9 @@ import type { DocumentQueries } from "../docs/queries.js";
 import { DetectClipboard } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
-import { initialModel, Menu } from "./model.js";
+import { initialModel, Menu, SettingsPanel } from "./model.js";
 import type { ReaderModel, ReaderPageFlags } from "./model.js";
+import { LoadSettings } from "./settings-command.js";
 
 export const init: ApplicationInit<
   ReaderModel,
@@ -22,10 +23,14 @@ export const browserInit: ApplicationInit<
   ReaderPageFlags,
   DocumentQueries
 > = (flags) => {
-  const model = { ...initialModel(flags), menu: Menu.Closed() };
+  const model = {
+    ...initialModel(flags),
+    menu: Menu.Closed(),
+    settingsPanel: SettingsPanel.Closed(),
+  };
 
   if (Option.isNone(model.docs)) {
-    return { commands: [DetectClipboard()], model };
+    return { commands: [DetectClipboard(), LoadSettings()], model };
   }
 
   const booted = Update.foldChildInit(
@@ -37,7 +42,7 @@ export const browserInit: ApplicationInit<
   );
 
   return {
-    commands: [DetectClipboard(), ...(booted.commands ?? [])],
+    commands: [DetectClipboard(), LoadSettings(), ...(booted.commands ?? [])],
     model: booted.model,
   };
 };
