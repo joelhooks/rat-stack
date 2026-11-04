@@ -5,7 +5,8 @@ Follow [ship](/skills/ship) for the release procedure. This reference owns rat-s
 ## Commands
 
 - `pnpm deploy:plan --profile <profile>` builds all workspace outputs, then reads and classifies the `prod` plan.
-- `pnpm deploy:prod --profile <profile> --yes` applies the approved plan and runs checks.
+- `pnpm deploy:prod --profile <profile> --yes` applies the approved plan, runs checks, and prints the verdict once the new versions are confirmed. The post-deploy watch keeps running after that line; leave the process running until it prints the watch receipt.
+- Every deploy command builds through `scripts/deploy-build.ts`. On a clean checkout it reuses the last build when `.rat/deploy/build-stamp.json` names the same git tree and the build outputs are unchanged since that build, so `deploy:prod` after `deploy:plan` does not build again. A dirty tree always builds and writes no stamp.
 - `pnpm deploy:rollback --profile <profile> --yes` restores the prior Worker versions from the last apply receipt.
 - `--receipt .rat/deploy/<profile>/last-apply.json` selects an explicit recovery receipt. Relative paths start at the repository root.
 - `--allow '[{"resource":"Example","action":"create"}]'` grants one exact resource-action exception. It grants no other change.
@@ -38,6 +39,8 @@ A refused plan stops before apply. The verdict's `resources` field names each re
 - The watch verdict keeps only rejected probes. Counts hold the totals.
 - Stored bodies escape control characters other than newline and tab as `\uXXXX` text.
 - A failed deploy that has an apply receipt also prints the rollback command.
+- The post-deploy watch writes `.rat/deploy/<profile>/watch-<time>.json` and copies it to `last-watch.json`. Stdout gets the same receipt as one JSON line when the watch ends: `outcome` is `passed`, `rolled-back`, `rollback-failed`, `crashed` or `interrupted`, with `reason` and `fix` for anything but `passed`.
+- The exit code follows the watch: 0 passed, 2 rolled back, 3 interrupted, 4 rollback failed, 5 crashed.
 
 ## Quiet windows
 
@@ -74,9 +77,12 @@ The ten-minute watch probes both HTML and agent Accept headers.
 - For each non-200 response it keeps the route, status, `cf-ray`, incident ID and the first 4 KB of the body. That is enough to tell a Cloudflare error page from an app error.
 - Two consecutive content-500 cycles stop it early. Any observed non-200 disqualifies the watch, even if the route recovers.
 - An empty sitemap or a route the watch never reached also fails it.
-- Automatic rollback stays off. Recover only with `pnpm deploy:rollback`.
+- The watch starts after the healthy verdict. It does not change the verdict; it writes its own receipt.
+- A failed watch rolls back automatically through the same path as `pnpm deploy:rollback`, under the approval given to `deployProd`, and records the rollback receipt inside the watch receipt.
+- A watch that crashes or never finishes proves nothing, so it does not roll back. An interrupted process records `interrupted` and nothing stays armed; run `pnpm site:smoke` and roll back by hand if it fails.
+- A deploy whose checks are not healthy skips the watch and prints the rollback command, as before.
 
-Rollback needs explicit capability approval. Missing, malformed or oversized receipts refuse before mutation. The selected profile must match the receipt. Each restored Worker must read back at its target version. Already restored versions cause no write. Separate rollback receipts preserve progress without replacing the source apply receipt. Missing prior content identity prevents health qualification.
+Rollback needs explicit capability approval. `--yes` on `deployProd` also approves the automatic rollback after a failed watch. Missing, malformed or oversized receipts refuse before mutation. The selected profile must match the receipt. Each restored Worker must read back at its target version. Already restored versions cause no write. Separate rollback receipts preserve progress without replacing the source apply receipt. Missing prior content identity prevents health qualification.
 
 No remote runner, canary, traffic split or release queue is implemented. Keep production smoke checks until the typed checks qualify the deployment.
 

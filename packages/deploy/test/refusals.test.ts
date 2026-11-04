@@ -11,13 +11,14 @@ import { PlanRejected } from "../src/plan.js";
 import { RefusalReasonSchema } from "../src/refusals.js";
 import { RollbackRefused } from "../src/rollback-refused.js";
 import { refuse, StateCopyRefusalSchema } from "../src/state-copy.js";
+import { DeployWatchFailed, watchReceipt } from "../src/watch-receipt.js";
 
 const names = Arbitrary.array(Arbitrary.schema(placeholderValue), {
   maxLength: 3,
 });
 
 it.prop(
-  "every deploy, plan, and rollback refusal names what, why, and the fix",
+  "every deploy, plan, rollback, and post-deploy watch refusal names what, why, and the fix",
   {
     keys: names,
     reason: Arbitrary.schema(RefusalReasonSchema),
@@ -28,6 +29,10 @@ it.prop(
       new DeployStepError({ keys, reason, step }),
       new PlanRejected({ reason, resources: keys }),
       new RollbackRefused({ reason }),
+      new DeployWatchFailed({
+        reason,
+        receipt: watchReceipt("fixture", "rolled-back"),
+      }),
     ];
 
     for (const refusal of refusals) {

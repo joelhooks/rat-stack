@@ -2,7 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
 import type { Verdict } from "@rat-stack/check-harness";
 import { createEffectActor, join, send } from "@xstate/effect";
-import { Clock, ConfigProvider, Effect, Fiber, Schema } from "effect";
+import { Clock, ConfigProvider, Effect, Fiber, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -15,6 +15,7 @@ import type {
 import { DeployRunner } from "../src/deploy-runner.js";
 import { deployMachine } from "../src/machine.js";
 import type { PlanRow } from "../src/plan.js";
+import { passingWatch, unusedRollback } from "./fixtures/watch-fakes.js";
 
 const Signal = Schema.Literals([
   "pass",
@@ -276,6 +277,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
   };
 
   const runner = DeployRunner.of({
+    ...passingWatch,
     apply: () =>
       Clock.currentTimeMillis.pipe(
         Effect.tap((now) =>
@@ -326,7 +328,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
       ConfigProvider.ConfigProvider,
       ConfigProvider.fromEnv({ env: quietWindowEnv(scenario.window) })
     ),
-    Effect.provide(Approval.denyAll)
+    Effect.provide(Layer.mergeAll(Approval.denyAll, unusedRollback))
   );
 
   // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level errors remain defects; the model checks explicit terminal step outcomes.
@@ -432,6 +434,7 @@ describe("plan guard", () => {
         const calls: string[] = [];
 
         const runner = DeployRunner.of({
+          ...passingWatch,
           apply: () =>
             Effect.sync(() => {
               calls.push("apply");
@@ -452,7 +455,7 @@ describe("plan guard", () => {
           input: { allow, mode: "prod", ownerApproved, profile: "test" },
         }).pipe(
           Effect.provideService(DeployRunner, runner),
-          Effect.provide(Approval.denyAll)
+          Effect.provide(Layer.mergeAll(Approval.denyAll, unusedRollback))
         );
 
         // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Machine-level errors remain defects; the property checks the refused verdict.

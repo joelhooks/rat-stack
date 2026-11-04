@@ -2,7 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
 import { gateOutcome } from "@rat-stack/check-harness";
 import { createEffectActor, join } from "@xstate/effect";
-import { Clock, Effect, Fiber, Option, Schema } from "effect";
+import { Clock, Effect, Fiber, Layer, Option, Schema } from "effect";
 import { TestClock } from "effect/testing";
 
 import { summarizeApply } from "../src/apply-receipt.js";
@@ -12,6 +12,7 @@ import {
   readWorkerVersionSet,
   settledWorkerVersion,
 } from "../src/worker-version-readback.js";
+import { passingWatch, unusedRollback } from "./fixtures/watch-fakes.js";
 
 it.effect.prop(
   "full-cutover attributes without a version ID still produce an applied receipt with authoritative live identities",
@@ -151,6 +152,7 @@ it.effect.prop(
       };
 
       const runner = DeployRunner.of({
+        ...passingWatch,
         apply: () => Effect.succeed(receipt),
         checks: (applied) =>
           Effect.succeed([...(applied.versionReadbacks ?? [])]),
@@ -170,7 +172,7 @@ it.effect.prop(
         input: { allow: [], mode: "prod", profile: "fixture" },
       }).pipe(
         Effect.provideService(DeployRunner, runner),
-        Effect.provide(Approval.denyAll)
+        Effect.provide(Layer.mergeAll(Approval.denyAll, unusedRollback))
       );
 
       // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Unexpected actor defects are not a passing qualification.
