@@ -27,7 +27,11 @@ export default Alchemy.Stack(
     if (!dev) {
       const zone = yield* Cloudflare.Zone.Zone("RatstackZone", {
         name: "ratstack.sh",
-      }).pipe(adopt(true), retain());
+      }).pipe(
+        adopt(true),
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Every main Stack stage adopts the same production zone; deleting it destroys shared DNS.
+        retain()
+      );
 
       const dnsAidService = (
         id: string,
@@ -46,7 +50,10 @@ export default Alchemy.Stack(
           ttl: 3600,
           type: "SVCB",
           zoneId: zone.zoneId,
-        }).pipe(retain());
+        }).pipe(
+          // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- This fixed ratstack.sh discovery record is shared with production in every main Stack stage.
+          retain()
+        );
 
       yield* dnsAidService("DnsAidIndexSvcb", "_index._agents.ratstack.sh");
       yield* dnsAidService("DnsAidA2aSvcb", "_a2a._agents.ratstack.sh");
@@ -57,7 +64,10 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "TXT",
         zoneId: zone.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- This fixed ratstack.sh discovery record is shared with production in every main Stack stage.
+        retain()
+      );
 
       yield* Cloudflare.DNS.Record("PostShibaDkimCname", {
         content: "174.customers.postshiba.com",
@@ -66,7 +76,10 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "CNAME",
         zoneId: zone.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Production mail uses this fixed DKIM record across all main Stack stages.
+        retain()
+      );
 
       yield* Cloudflare.DNS.Record("PostShibaReturnPathCname", {
         content: "rp.postshiba.com",
@@ -75,7 +88,10 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "CNAME",
         zoneId: zone.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Production mail uses this fixed return-path record across all main Stack stages.
+        retain()
+      );
 
       yield* Cloudflare.DNS.Record("DmarcTxt", {
         content: '"v=DMARC1; p=none;"',
@@ -83,7 +99,10 @@ export default Alchemy.Stack(
         ttl: 3600,
         type: "TXT",
         zoneId: zone.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Production mail uses this fixed DMARC record across all main Stack stages.
+        retain()
+      );
 
       const forwardTo = yield* Config.schema(
         Schema.Redacted(Schema.NonEmptyString),
@@ -92,14 +111,20 @@ export default Alchemy.Stack(
 
       const routing = yield* Cloudflare.Email.Routing("RatstackEmailRouting", {
         zone: zone.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Disabling routing on the shared ratstack.sh zone breaks production mail in every main Stack stage.
+        retain()
+      );
 
       const address = yield* Cloudflare.Email.Address(
         "WorkshopForwardAddress",
         {
           email: Redacted.value(forwardTo),
         }
-      ).pipe(retain());
+      ).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- This configured production forwarding destination may be shared by other stages and mail rules.
+        retain()
+      );
 
       yield* Cloudflare.Email.Rule("WorkshopForwardRule", {
         actions: [{ type: "forward", value: [address.email] }],
@@ -109,12 +134,19 @@ export default Alchemy.Stack(
         ],
         name: "workshop",
         zone: routing.zoneId,
-      }).pipe(retain());
+      }).pipe(
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Every main Stack stage names the same production workshop forwarding rule on ratstack.sh.
+        retain()
+      );
 
       yield* Cloudflare.DNS.Dnssec("RatstackDnssec", {
         status: "active",
         zoneId: zone.zoneId,
-      }).pipe(adopt(true), retain());
+      }).pipe(
+        adopt(true),
+        // oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- Every main Stack stage adopts production DNSSEC; removing it breaks the shared zone's trust chain.
+        retain()
+      );
     }
 
     const website = yield* Website;

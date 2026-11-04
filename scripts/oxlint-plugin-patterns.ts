@@ -1640,6 +1640,40 @@ const flagRemovalDate = defineRule({
   },
 });
 
+const retainNeedsStagePolicy = defineRule({
+  create(context) {
+    return {
+      CallExpression(node) {
+        if (node.arguments.length !== 0) {
+          return;
+        }
+
+        const identity = importIdentity(
+          node.callee,
+          context.sourceCode.getScope(node),
+          context
+        );
+
+        if (
+          identity?.name === "retain" &&
+          (identity.module === "alchemy/RemovalPolicy" ||
+            identity.module === "alchemy")
+        ) {
+          context.report({ messageId: "policy", node });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: { description: "Resource retention needs an explicit stage policy." },
+    messages: {
+      policy:
+        'This retain call has no stage policy. Unconditional retention leaves destroyed non-production stages orphaned. Fix: pass `Stage.pipe(Effect.map((stage) => stage === "prod"))`, or add a reasoned `rat-stack-patterns/retain-needs-stage-policy` disable directive for shared irreplaceable resources.',
+    },
+    type: "problem",
+  },
+});
+
 const noSleepInLoop = defineRule({
   create(context) {
     if (!isRuntimeSource(workspacePath(context.filename))) {
@@ -1708,6 +1742,7 @@ export default definePlugin({
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "no-shared-pending-cache": noSharedPendingCache,
     "no-sleep-in-loop": noSleepInLoop,
+    "retain-needs-stage-policy": retainNeedsStagePolicy,
     "shared-waiters": sharedWaiters,
     "watch-effect-actors": watchEffectActors,
   },

@@ -152,6 +152,7 @@ export default defineConfig({
     "rat-stack-patterns/no-module-level-mutable-state": "error",
     "rat-stack-patterns/no-shared-pending-cache": "error",
     "rat-stack-patterns/no-sleep-in-loop": "error",
+    "rat-stack-patterns/retain-needs-stage-policy": "error",
     "rat-stack-patterns/shared-waiters": "error",
     "rat-stack-patterns/watch-effect-actors": "error",
     "typescript/promise-function-async": "off",

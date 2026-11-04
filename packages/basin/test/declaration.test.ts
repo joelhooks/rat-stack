@@ -18,9 +18,19 @@ const Name = Schema.String.check(
 afterAll(() => vi.unstubAllEnvs());
 
 it.effect.prop(
-  "each Basin keeps its stream private, retains storage, and isolates its table and maintenance policy",
-  { name: Name, table: Name },
-  ({ name, table }) =>
+  "each Basin isolates its data and retains resources only in prod",
+  {
+    name: Name,
+    stage: Schema.Literals([
+      "prod",
+      "test",
+      "pr-123",
+      "lane-basin",
+      "live_joel",
+    ]),
+    table: Name,
+  },
+  ({ name, stage, table }) =>
     Stack(
       "BasinDeclaration",
       {
@@ -61,11 +71,13 @@ it.effect.prop(
           });
 
           for (const resource of Object.values(stack.resources)) {
-            expect(resource.RemovalPolicy).toBe("retain");
+            expect(resource.RemovalPolicy).toBe(
+              stage === "prod" ? "retain" : "destroy"
+            );
           }
         })
       ),
-      Effect.provideService(Stage, "test"),
+      Effect.provideService(Stage, stage),
       Effect.provideService(AlchemyContext, {
         adopt: false,
         dev: false,
