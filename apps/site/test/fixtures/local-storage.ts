@@ -7,6 +7,8 @@ const localRoot = ".alchemy/local";
 
 const kvRoot = `${localRoot}/kv/cloudflare-runtime-KVNamespaceObject`;
 
+const lockWaitMilliseconds = 15_000;
+
 export class LocalStorageMissing extends Schema.TaggedError<
   LocalStorageMissing,
   { readonly brand: unique symbol }
@@ -32,7 +34,10 @@ const databases = (directory: string) =>
   );
 
 const holding = (table: string, key: string) => (path: string) => {
-  const database = new DatabaseSync(path, { readOnly: true });
+  const database = new DatabaseSync(path, {
+    readOnly: true,
+    timeout: lockWaitMilliseconds,
+  });
 
   try {
     return (
@@ -70,7 +75,10 @@ const openHolding = (
                   "Write the key through the runtime before inspecting local storage.",
               })
             ),
-          onSome: (path) => Effect.sync(() => new DatabaseSync(path)),
+          onSome: (path) =>
+            Effect.sync(
+              () => new DatabaseSync(path, { timeout: lockWaitMilliseconds })
+            ),
         })
       )
     ),
