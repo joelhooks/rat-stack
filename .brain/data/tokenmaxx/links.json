@@ -1,0 +1,62 @@
+{
+  "status": "draft",
+  "note": "'why' lines are DRAFT for Joel. Public checked 2026-11-04 by unauthenticated HTTP to github.com.",
+  "links": [
+    {
+      "repo": "joelhooks/rat-stack",
+      "url": "https://github.com/joelhooks/rat-stack",
+      "public": true,
+      "why": "the base everything builds on"
+    },
+    {
+      "repo": "alchemy-run/alchemy",
+      "url": "https://github.com/alchemy-run/alchemy/tree/main/packages/domain",
+      "public": true,
+      "why": "Alchemy Domain: aggregates, commands, events, policies, sagas",
+      "docs": "https://alchemy.run/domain"
+    },
+    {
+      "repo": "joelhooks/pi-until",
+      "url": "https://github.com/joelhooks/pi-until",
+      "public": true,
+      "why": "Awakes: wake on a real condition"
+    },
+    {
+      "repo": "joelhooks/rat-king",
+      "url": "https://github.com/joelhooks/rat-king",
+      "public": true,
+      "why": "Speaks, Remembers, Awakes: the kernel"
+    },
+    {
+      "repo": "joelhooks/mischief",
+      "url": "https://github.com/joelhooks/mischief",
+      "public": true,
+      "why": "Claws: durable agent plans"
+    },
+    {
+      "repo": "joelhooks/pi-muster",
+      "url": "https://github.com/joelhooks/pi-muster",
+      "public": true,
+      "why": "running lanes of agents"
+    },
+    {
+      "repo": "joelhooks/pi-bellwether",
+      "url": "https://github.com/joelhooks/pi-bellwether",
+      "public": true,
+      "why": "orchestration"
+    },
+    {
+      "repo": "herdrdev/herdr",
+      "url": "https://github.com/herdrdev/herdr",
+      "public": true,
+      "why": "terminal panes for agents"
+    },
+    {
+      "repo": "joelhooks/herdr-pings",
+      "url": "https://github.com/joelhooks/herdr-pings",
+      "public": true,
+      "why": "waking agents across panes"
+    }
+  ],
+  "never": ["rat-king-infra", "herdr-worktrees"]
+}

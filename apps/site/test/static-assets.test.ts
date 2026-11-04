@@ -335,8 +335,10 @@ it.effect(
           );
         }
 
-        expect(calls).toHaveLength(before + 1);
-        expect(calls.at(-1)).toBe("/_content/search.json");
+        expect(calls.slice(before)).toEqual([
+          "/_content/tokenmaxx.json",
+          "/_content/search.json",
+        ]);
       })
     )
 );

@@ -34,6 +34,7 @@ import {
   parseContentMarkdown,
   stringifyContentMarkdown,
 } from "../scripts/svx-ast.ts";
+import { buildWorkshop } from "../scripts/tokenmaxx-workshop.ts";
 import {
   contentResources,
   llmsText,
@@ -1021,7 +1022,13 @@ it.layer(contentServices)("generated content", (test) => {
   );
 
   test.effect("generates a 1200x630 PNG for every public page", () =>
-    Effect.sync(() => {
+    Effect.gen(function* publicPageImages() {
+      const path = yield* Path.Path;
+
+      const workshop = yield* buildWorkshop(
+        path.resolve(import.meta.dirname, "../../..")
+      );
+
       const expected = new Set([
         "/",
         "/skills",
@@ -1035,6 +1042,7 @@ it.layer(contentServices)("generated content", (test) => {
         "/glossary",
         "/--no-verify",
         "/tokenmaxx",
+        ...workshop.pages.map((page) => page.routePath),
         ...lawSources.map((source) => source.routePath),
         ...loreSources.map((lore) => lore.routePath),
         ...skillSources.map((skill) => skill.routePath),

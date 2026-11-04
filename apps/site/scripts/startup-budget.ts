@@ -13,6 +13,7 @@ import {
   measureStartupSet,
   StartupGraph,
 } from "./startup-set.ts";
+import { assertWorkshopIsolation } from "./startup-workshop-isolation.ts";
 
 const BundleGraph = Schema.fromJsonString(
   Schema.Struct({
@@ -24,6 +25,25 @@ const BundleGraph = Schema.fromJsonString(
 const startupBudgets = {
   LearnFeedbackAuth: 1_516_000,
   Mischief: 1_114_000,
+  Workshop: 870_000,
+};
+
+const workerEntries = {
+  LearnFeedbackAuth: {
+    build: feedbackAuthBuild,
+    directory: "dist/startup-auth",
+    main: "../src/auth/private-worker.ts",
+  },
+  Mischief: {
+    build: feedbackGatewayBuild,
+    directory: "dist/startup",
+    main: "../src/worker.ts",
+  },
+  Workshop: {
+    build: {},
+    directory: "dist/startup-workshop",
+    main: "../src/workshop-worker.ts",
+  },
 };
 
 const temporaryRaises: Partial<
@@ -38,7 +58,7 @@ const temporaryRaises: Partial<
 const javascriptAlarmBytes = 2_500_000;
 
 const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
-  worker: "Mischief" | "LearnFeedbackAuth"
+  worker: keyof typeof startupBudgets
 ) {
   const fs = yield* FileSystem.FileSystem;
   const bundler = yield* WorkerBundle;
@@ -49,13 +69,7 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
     services: Context.empty(),
   };
 
-  const directory =
-    worker === "Mischief" ? "dist/startup" : "dist/startup-auth";
-
-  const main =
-    worker === "Mischief"
-      ? "../src/worker.ts"
-      : "../src/auth/private-worker.ts";
+  const { build, directory, main } = workerEntries[worker];
 
   const exports: Record<string, typeof durableObject> = {};
 
@@ -74,7 +88,7 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
       kind: "effect",
     },
     extraOptions: {
-      ...(worker === "Mischief" ? feedbackGatewayBuild : feedbackAuthBuild),
+      ...build,
       bundleAnalyzer: { fileName: "analysis.json", format: "json" },
       output: { dir: directory },
     },
@@ -91,6 +105,8 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   yield* assertBuildOnlyModules(modules);
 
   if (worker === "Mischief") {
+    yield* assertWorkshopIsolation(modules);
+
     const authModules = modules.filter((path) =>
       /(?:^|\/)packages\/auth\/(?:dist|src)\/|(?:^|\/)better-auth(?:@|\/)|(?:^|\/)@better-auth\//u.test(
         path
@@ -196,7 +212,7 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
 });
 
 const program = Effect.validate(
-  ["Mischief", "LearnFeedbackAuth"] as const,
+  ["Mischief", "LearnFeedbackAuth", "Workshop"] as const,
   measureWorker
 );
 

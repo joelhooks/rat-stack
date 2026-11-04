@@ -45,5 +45,7 @@ For a new behavior, start with [one capability, every surface](${origin}/lore/on
 
 [Interest signup](${origin}/systems/interest) is agent-only. Read [${workshopTitle}](${origin}/tokenmaxx#interested), obtain a fresh page ticket, and submit through \`joinInterest\` only after the person approves the exact card and contact permission. A person confirms their email through the email link in a browser; submission is not confirmation. Show the returned message to the person. If it says "Too many requests right now. Try again in a minute.", wait one minute and retry once. If it says the confirmation email could not be sent yet, do not resubmit; the application is saved.
 
+Workshop resources have a separate [MCP server](${origin}/tokenmaxx/mcp). Use it for the schedule, prep, public links and published exercises. Applications still use the main server's \`joinInterest\`.
+
 ${cafeSubmissionGuide(origin)}
 `;

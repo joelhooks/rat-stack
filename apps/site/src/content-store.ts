@@ -18,6 +18,7 @@ import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
 
 interface ContentStoreService {
+  readonly tokenmaxx: Effect.Effect<string, AssetReadError>;
   readonly cafe: Effect.Effect<typeof CafeData.Type, AssetReadError>;
   readonly learnDeck: Effect.Effect<readonly Card[], AssetReadError>;
   readonly catalog: Effect.Effect<typeof ContentCatalog.Type, AssetReadError>;
@@ -108,6 +109,10 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
     readData(assets, "/_content/catalog.json", ContentCatalog, generation)
   );
 
+  const tokenmaxx = yield* cacheCompletedData(
+    readData(assets, "/_content/tokenmaxx.json", Schema.String, generation)
+  );
+
   const cafe = yield* cacheCompletedData(
     readData(assets, "/_content/cafe.json", CafeData, generation)
   );
@@ -179,6 +184,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
       index.pipe(
         Effect.map((resources) => searchContent(resources, query, limit))
       ),
+    tokenmaxx,
   } satisfies ContentStoreService;
 });
 

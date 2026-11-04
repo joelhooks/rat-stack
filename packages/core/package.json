@@ -14,6 +14,21 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./tokenmaxx-workshop": {
+      "types": "./src/tokenmaxx-workshop.ts",
+      "import": "./dist/tokenmaxx-workshop.js",
+      "default": "./dist/tokenmaxx-workshop.js"
+    },
+    "./workshop-contracts": {
+      "types": "./src/workshop-contracts.ts",
+      "import": "./dist/workshop-contracts.js",
+      "default": "./dist/workshop-contracts.js"
+    },
+    "./workshop-directory": {
+      "types": "./src/workshop-directory.ts",
+      "import": "./dist/workshop-directory.js",
+      "default": "./dist/workshop-directory.js"
+    },
     "./cafe-people": {
       "types": "./src/cafe-people.ts",
       "import": "./dist/cafe-people.js",

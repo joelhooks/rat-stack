@@ -9,6 +9,7 @@ import {
   SIGNUP_UNAVAILABLE,
   withAvailablePageTicket,
 } from "../src/interest/page-ticket.js";
+import { nodeContentLayer } from "../src/node-content.js";
 import { generatedTokenmaxxPage } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
@@ -29,7 +30,9 @@ it.effect(
         PAGE_TICKET_SOURCE
       );
 
-      const response = yield* tokenmaxxResponse;
+      const response = yield* tokenmaxxResponse.pipe(
+        Effect.provide(nodeContentLayer)
+      );
 
       expect(response.headers["cache-control"]).toBe("no-store");
 

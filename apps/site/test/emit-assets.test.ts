@@ -4,6 +4,7 @@ import { Effect, FileSystem, Layer, Path, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 
 import { ContentAssetManifest, emitAssets } from "../scripts/emit-assets.ts";
+import { buildWorkshop } from "../scripts/tokenmaxx-workshop.ts";
 import { mischiefRoutes } from "../src/app.js";
 import { contentResources, ogImagePath } from "./content-fixture.js";
 import {
@@ -39,6 +40,11 @@ it.effect(
       const path = yield* Path.Path;
       const directory = path.resolve(import.meta.dirname, "../dist/content");
       const manifest = yield* manifestAt(directory);
+
+      const workshop = yield* buildWorkshop(
+        path.resolve(import.meta.dirname, "../../..")
+      );
+
       expect(manifest.pages.map((page) => page.route).toSorted()).toEqual(
         [
           "/",
@@ -51,6 +57,7 @@ it.effect(
           "/skills",
           "/glossary",
           ...allStarsRoutes,
+          ...workshop.pages.map((page) => page.routePath),
           ...contentResources.map((page) => page.routePath),
         ].toSorted()
       );
@@ -109,6 +116,17 @@ it.effect(
 
               const body = yield* Effect.promise(response.text.bind(response));
 
+              const imageUrl =
+                /property="og:image" content="(?<url>[^"]+)"/u.exec(html)
+                  ?.groups?.url;
+
+              expect(imageUrl, page.route).toBeDefined();
+
+              const imagePath = new URL(
+                (imageUrl ?? "").replaceAll(originToken, "https://ratstack.sh")
+              ).pathname;
+
+              expect(manifest.images, page.route).toContain(imagePath);
               expect(html).not.toMatch(svxLink);
               expect(body).not.toMatch(svxLink);
               expect(response.status).toBe(200);

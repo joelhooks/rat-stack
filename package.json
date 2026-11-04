@@ -43,6 +43,7 @@
     "typecheck:parity": "pnpm --filter @rat-stack/core typecheck:parity",
     "typecheck-scripts": "effect-tsrs diagnostics --project tsconfig.json --strict --type-check",
     "vendor:agent-sources": "./scripts/vendor-agent-sources.sh",
+    "tokenmaxx:sync": "node scripts/tokenmaxx-sync.ts",
     "cafe:import": "node scripts/cafe-import.ts",
     "content:migrate": "node apps/site/scripts/migrate-content.ts",
     "find-peers": "node scripts/find-peers.ts"
