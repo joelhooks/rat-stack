@@ -8,11 +8,11 @@ export const accent = stylex.defineVars({
 });
 
 export const reader = stylex.defineVars({
-  codeHighlight: { default: "#e6e9ef", [DARK]: "#3a3a3c" },
+  codeHighlight: { default: "#e6e9ef", [DARK]: "#414559" },
   codeInk: { default: "#4c4f69", [DARK]: "#c6d0f5" },
   codeKeyword: { default: "#303446", [DARK]: "#e5e5ea" },
   codeLiteral: { default: "#5c5f77", [DARK]: "#b5bfe2" },
-  codeMuted: { default: "#6c6f85", [DARK]: "#98989d" },
+  codeMuted: { default: "#6c6f85", [DARK]: "#949cbb" },
   contentWidth: "68ch",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',

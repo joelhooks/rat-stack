@@ -510,7 +510,9 @@ it.effect(
         expect(skillHtml).toContain("<strong>Rat Stack</strong>");
         expect(skillHtml.match(/<h1\b/gu)).toHaveLength(1);
         expect(html).toContain("<pre><code>");
-        expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
+        expect(skillHtml).toContain(
+          '<pre class="shiki shiki-themes catppuccin-frappe catppuccin-latte"'
+        );
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
         expect(html).toContain("│  defineContract");
         expect(html).toContain('class="copy-label">Copy prompt</span>');

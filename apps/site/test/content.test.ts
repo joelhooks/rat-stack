@@ -951,7 +951,9 @@ it.layer(contentServices)("generated content", (test) => {
 
   test.effect("uses Shiki for code and leaves text diagrams uncoloured", () =>
     Effect.sync(() => {
-      expect(homeDocumentHtml).toContain('class="shiki catppuccin-latte"');
+      expect(homeDocumentHtml).toContain(
+        'class="shiki shiki-themes catppuccin-frappe catppuccin-latte"'
+      );
       expect(homeDocumentHtml).toMatch(
         /<figure role="img"[^>]*>\s*<pre><code>/u
       );

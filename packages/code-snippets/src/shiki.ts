@@ -52,7 +52,12 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-export const shikiLayer = (theme = "catppuccin-latte") =>
+export const shikiThemes = {
+  dark: "catppuccin-frappe",
+  light: "catppuccin-latte",
+} as const;
+
+export const shikiLayer = (themes: typeof shikiThemes = shikiThemes) =>
   Layer.effectContext(
     Effect.gen(function* makeShiki() {
       const engine = yield* Effect.acquireRelease(
@@ -73,7 +78,7 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
               "markdown",
               "http",
             ],
-            themes: [theme],
+            themes: [themes.light, themes.dark],
           }),
         }),
         (resource) =>
@@ -103,7 +108,8 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           key,
           source,
           canonical,
-          theme,
+          themes.light,
+          themes.dark,
           "shiki@3.23.0",
         ]);
 
@@ -127,13 +133,15 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           catch: () => new HighlightFault({ kind: "render" }),
           try: () =>
             engine
-              .codeToTokens(source, { lang: canonical, theme })
-              .tokens.map((line) =>
-                line.map((token) => ({
-                  color: token.color,
-                  fontStyle: token.fontStyle ?? 0,
-                  role: roleFor(token.color),
-                  text: token.content,
+              .codeToTokensWithThemes(source, { lang: canonical, themes })
+              .map((line) =>
+                line.map(({ content, variants }) => ({
+                  color: variants.light?.color,
+                  darkColor: variants.dark?.color,
+                  darkFontStyle: variants.dark?.fontStyle ?? 0,
+                  fontStyle: variants.light?.fontStyle ?? 0,
+                  role: roleFor(variants.light?.color),
+                  text: content,
                 }))
               ),
         });
@@ -145,9 +153,9 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
 
       const port = Highlighter.of({
         aliases: () => aliases,
-        fingerprint: `shiki@3.23.0:${theme}`,
+        fingerprint: `shiki@3.23.0:${themes.light}+${themes.dark}`,
         languages: () => [...Object.keys(bundledLanguages), "text"],
-        themes: () => [theme],
+        themes: () => [themes.light, themes.dark],
         tokens,
       });
 
@@ -162,7 +170,11 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           return `<pre><code>${escapeHtml(source)}</code></pre>`;
         }
 
-        return engine.codeToHtml(source, { lang: canonical, theme });
+        return engine.codeToHtml(source, {
+          defaultColor: "light-dark()",
+          lang: canonical,
+          themes,
+        });
       };
 
       return Context.add(

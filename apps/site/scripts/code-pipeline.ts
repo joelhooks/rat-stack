@@ -51,17 +51,53 @@ const tokenColor = (role: string) => {
   return "var(--code-ink)";
 };
 
+type StyleEntry = readonly [string, string];
+
+const fontStyleEntries = (fontStyle: number): readonly StyleEntry[] => [
+  ...(fontStyle % 2 === 1 ? [["font-style", "italic"] as const] : []),
+  ...(Math.floor(fontStyle / 2) % 2 === 1
+    ? [["font-weight", "bold"] as const]
+    : []),
+  ...(Math.floor(fontStyle / 4) % 2 === 1
+    ? [["text-decoration", "underline"] as const]
+    : []),
+];
+
+const styleRecord = (color: string, fontStyle: number) =>
+  new Map<string, string>([["color", color], ...fontStyleEntries(fontStyle)]);
+
+const themeVariable = (theme: "dark" | "light", key: string) =>
+  key === "color" ? `--shiki-${theme}` : `--shiki-${theme}-${key}`;
+
+const dualThemeStyle = (
+  light: ReadonlyMap<string, string>,
+  dark: ReadonlyMap<string, string>
+) => {
+  const keys = [...new Set([...light.keys(), ...dark.keys()])];
+
+  return [
+    `color:light-dark(${light.get("color") ?? "inherit"}, ${dark.get("color") ?? "inherit"})`,
+    ...keys.map(
+      (key) => `${themeVariable("light", key)}:${light.get(key) ?? "inherit"}`
+    ),
+    ...keys.map(
+      (key) => `${themeVariable("dark", key)}:${dark.get(key) ?? "inherit"}`
+    ),
+  ].join(";");
+};
+
 const tokenStyle = (token: Token) =>
-  [
-    `color:${token.color ?? tokenColor(token.role)}`,
-    token.fontStyle % 2 === 1 ? "font-style:italic" : "",
-    Math.floor(token.fontStyle / 2) % 2 === 1 ? "font-weight:bold" : "",
-    Math.floor(token.fontStyle / 4) % 2 === 1
-      ? "text-decoration:underline"
-      : "",
-  ]
-    .filter(Boolean)
-    .join(";");
+  token.color !== undefined && token.darkColor !== undefined
+    ? dualThemeStyle(
+        styleRecord(token.color, token.fontStyle),
+        styleRecord(token.darkColor, token.darkFontStyle ?? token.fontStyle)
+      )
+    : [
+        `color:${token.color ?? tokenColor(token.role)}`,
+        ...fontStyleEntries(token.fontStyle).map(
+          ([key, value]) => `${key}:${value}`
+        ),
+      ].join(";");
 
 const snippetProvenance = (snippet: CodeSnippet) => {
   const { request } = snippet;

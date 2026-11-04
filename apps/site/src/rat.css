@@ -37,6 +37,12 @@
     --fill: #2c2c2e;
     --link: #2997ff;
     --glass: rgba(28, 28, 30, 0.72);
+    --code-ink: #c6d0f5;
+    --code-keyword: #e5e5ea;
+    --code-literal: #b5bfe2;
+    --code-muted: #949cbb;
+    --code-highlight: #414559;
+    --code-surface: #303446;
   }
 }
 
@@ -377,11 +383,16 @@ pre code {
   font-size: inherit;
 }
 
-.code-snippet pre,
-pre.shiki {
+.code-snippet pre {
   background: var(--code-surface);
   color: var(--code-ink);
-  color-scheme: light;
+}
+
+.shiki span,
+.code-text > span {
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
 }
 
 hr {
