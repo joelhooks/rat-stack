@@ -17,12 +17,26 @@
   --text-size: 17px;
   --measure: 68ch;
   --toolbar-height: 48px;
-  --code-ink: light-dark(#4c4f69, #c6d0f5);
-  --code-keyword: light-dark(#303446, #e5e5ea);
-  --code-literal: light-dark(#5c5f77, #b5bfe2);
-  --code-muted: light-dark(#6c6f85, #949cbb);
-  --code-highlight: light-dark(#e6e9ef, #414559);
-  --code-surface: light-dark(#eff1f5, #303446);
+  --code-ink: var(--fg);
+  --code-keyword: var(--fg);
+  --code-literal: light-dark(#6e5d4e, #c4b5a5);
+  --code-function: light-dark(#4d5f70, #a9b8c6);
+  --code-muted: var(--muted);
+  --code-highlight: light-dark(#ebebf0, #343437);
+  --shiki-foreground: var(--code-ink);
+  --shiki-background: var(--fill);
+  --shiki-token-comment: var(--code-muted);
+  --shiki-token-punctuation: var(--code-muted);
+  --shiki-token-keyword: var(--code-keyword);
+  --shiki-token-parameter: var(--code-ink);
+  --shiki-token-link: var(--code-ink);
+  --shiki-token-string: var(--code-literal);
+  --shiki-token-string-expression: var(--code-literal);
+  --shiki-token-constant: var(--code-literal);
+  --shiki-token-function: var(--code-function);
+  --shiki-token-inserted: var(--code-ink);
+  --shiki-token-deleted: var(--code-muted);
+  --shiki-token-changed: var(--code-ink);
   --space-tight: 0.375rem;
   --space-small: 0.75rem;
   --space-section: 2rem;
@@ -634,16 +648,18 @@ pre code {
   font-size: inherit;
 }
 
+pre.shiki,
 .code-snippet pre {
-  background: var(--code-surface);
+  background: var(--fill);
   color: var(--code-ink);
 }
 
-.shiki span,
-.code-text > span {
-  font-style: var(--shiki-light-font-style);
-  font-weight: var(--shiki-light-font-weight);
-  text-decoration: var(--shiki-light-text-decoration);
+:is(.shiki, .code-text) [style*="--shiki-token-keyword"] {
+  font-weight: 600;
+}
+
+:is(.shiki, .code-text) [style*="--shiki-token-comment"] {
+  font-style: italic;
 }
 
 hr {

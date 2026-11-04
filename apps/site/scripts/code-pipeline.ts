@@ -63,41 +63,13 @@ const fontStyleEntries = (fontStyle: number): readonly StyleEntry[] => [
     : []),
 ];
 
-const styleRecord = (color: string, fontStyle: number) =>
-  new Map<string, string>([["color", color], ...fontStyleEntries(fontStyle)]);
-
-const themeVariable = (theme: "dark" | "light", key: string) =>
-  key === "color" ? `--shiki-${theme}` : `--shiki-${theme}-${key}`;
-
-const dualThemeStyle = (
-  light: ReadonlyMap<string, string>,
-  dark: ReadonlyMap<string, string>
-) => {
-  const keys = [...new Set([...light.keys(), ...dark.keys()])];
-
-  return [
-    `color:light-dark(${light.get("color") ?? "inherit"}, ${dark.get("color") ?? "inherit"})`,
-    ...keys.map(
-      (key) => `${themeVariable("light", key)}:${light.get(key) ?? "inherit"}`
-    ),
-    ...keys.map(
-      (key) => `${themeVariable("dark", key)}:${dark.get(key) ?? "inherit"}`
+const tokenStyle = (token: Token) =>
+  [
+    `color:${token.color ?? tokenColor(token.role)}`,
+    ...fontStyleEntries(token.fontStyle).map(
+      ([key, value]) => `${key}:${value}`
     ),
   ].join(";");
-};
-
-const tokenStyle = (token: Token) =>
-  token.color !== undefined && token.darkColor !== undefined
-    ? dualThemeStyle(
-        styleRecord(token.color, token.fontStyle),
-        styleRecord(token.darkColor, token.darkFontStyle ?? token.fontStyle)
-      )
-    : [
-        `color:${token.color ?? tokenColor(token.role)}`,
-        ...fontStyleEntries(token.fontStyle).map(
-          ([key, value]) => `${key}:${value}`
-        ),
-      ].join(";");
 
 const snippetProvenance = (snippet: CodeSnippet) => {
   const { request } = snippet;
