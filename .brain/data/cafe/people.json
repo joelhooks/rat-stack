@@ -17,10 +17,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://x.com/acoyfellow/status/2107929744029470841",
-      "https://github.com/acoyfellow/coil"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/acoyfellow/status/2107929744029470841",
+        "https://github.com/acoyfellow/coil"
+      ]
+    },
     "handles": [
       {
         "handle": "acoyfellow",
@@ -143,6 +146,52 @@
   },
   {
     "avatar": {
+      "path": "/avatars/agcty.jpg",
+      "source": "https://github.com/agcty.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Alex is one of Alchemy’s top listed contributors.",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Alchemy changes include letting a streamed response body own the Worker event scope.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/39850f633a057091ac56c2478914f04cf48b27af",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "alchemy",
+      "source": "https://github.com/alchemy-run/alchemy/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "agcty",
+        "kind": "github",
+        "url": "https://github.com/agcty",
+        "source": "https://github.com/agcty",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "agcty",
+    "kind": "person",
+    "name": "Alex",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/alchemy-run.png",
       "source": "https://github.com/alchemy-run.png?size=240",
       "verified": "2026-11-02"
@@ -159,10 +208,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.81",
-      "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.82"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.81",
+        "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.82"
+      ]
+    },
     "handles": [
       {
         "handle": "alchemy-run",
@@ -227,6 +279,289 @@
   },
   {
     "avatar": {
+      "path": "/avatars/armancharan.png",
+      "source": "https://github.com/armancharan.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Arman Charan contributes to Foldkit.",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit UI changes include keeping a Popover open while focus stays inside its panel.",
+        "source": "https://github.com/foldkit/foldkit/commit/39a055b638a774568baa394ee5b2bf98fa16cd58",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "foldkit",
+      "source": "https://github.com/foldkit/foldkit/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "armancharan",
+        "kind": "github",
+        "url": "https://github.com/armancharan",
+        "source": "https://github.com/armancharan",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "armancharan",
+    "kind": "person",
+    "name": "Arman Charan",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/artile.jpg",
+      "source": "https://github.com/artile.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Taras Kornichuk contributes to Alchemy’s domain APIs, including typed reads across projection-store keys.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/2e423dd9eadd42ad3bcf4bb439b6bce1e9f724d5",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit work includes delivering events fired during Submodel teardown.",
+        "source": "https://github.com/foldkit/foldkit/commit/4bb393d8dd94ff95600aa3f5670624057919124e",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/alchemy-run/alchemy/pull/2700"]
+    },
+    "handles": [
+      {
+        "handle": "artile",
+        "kind": "github",
+        "url": "https://github.com/artile",
+        "source": "https://github.com/artile",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "artile",
+    "kind": "person",
+    "name": "Taras Kornichuk",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/alchemy-run/alchemy/commit/2e423dd9eadd42ad3bcf4bb439b6bce1e9f724d5",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/alchemy-run/alchemy/commit/2e423dd9eadd42ad3bcf4bb439b6bce1e9f724d5",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/blankparticle.png",
+      "source": "https://github.com/BlankParticle.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Rahul Mishra is one of Alchemy’s top listed contributors.",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Alchemy changes include fixing requests to Cloudflare-fronted sites during local development.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/756bd3b43dacd23fc8f388cc3b9c42e138b0333d",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "alchemy",
+      "source": "https://github.com/alchemy-run/alchemy/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "BlankParticle",
+        "kind": "github",
+        "url": "https://github.com/BlankParticle",
+        "source": "https://github.com/BlankParticle",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "blankparticle",
+    "kind": "person",
+    "name": "Rahul Mishra",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/bottosson.jpg",
+      "source": "https://github.com/bottosson.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Björn Ottosson published the OKLab perceptual color space in 2020.",
+        "source": "https://bottosson.github.io/posts/oklab/",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Rat-stack’s motion cartridge uses the OKLab matrices from that publication for color interpolation.",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#oklab",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "vendored",
+      "source": "https://bottosson.github.io/posts/oklab/"
+    },
+    "handles": [
+      {
+        "handle": "bottosson",
+        "kind": "github",
+        "url": "https://github.com/bottosson",
+        "source": "https://bottosson.github.io/posts/oklab/",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "bottosson",
+    "kind": "person",
+    "name": "Björn Ottosson",
+    "repos": [],
+    "topics": [],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/danieljvdm.jpg",
+      "source": "https://github.com/danieljvdm.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Dan van der Merwe is the leading contributor to @yielded/effect-tsrs.",
+        "source": "https://github.com/yielded-dev/effect-tsrs/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His effect-cf project supplies Effect-native primitives for Cloudflare Workers and bindings.",
+        "source": "https://github.com/danieljvdm/effect-cf",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "@yielded/effect-tsrs",
+      "source": "https://github.com/yielded-dev/effect-tsrs/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "danieljvdm",
+        "kind": "github",
+        "url": "https://github.com/danieljvdm",
+        "source": "https://github.com/danieljvdm",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "danieljvdm",
+    "kind": "person",
+    "name": "Dan van der Merwe",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/yielded-dev/effect-tsrs/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/yielded-dev/effect-tsrs/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/davidkpiano.jpg",
+      "source": "https://github.com/davidkpiano.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "David Khourshid added the experimental @xstate/effect integration to XState.",
+        "source": "https://github.com/statelyai/xstate/pull/5687",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His later work on the integration includes preserving child-event delivery order.",
+        "source": "https://github.com/statelyai/xstate/pull/5842",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "@xstate/effect",
+      "source": "https://github.com/statelyai/xstate/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "davidkpiano",
+        "kind": "github",
+        "url": "https://github.com/davidkpiano",
+        "source": "https://github.com/davidkpiano",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "davidkpiano",
+    "kind": "person",
+    "name": "David Khourshid",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/statelyai/xstate/pull/5687",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "xstate",
+        "source": "https://github.com/statelyai/xstate/pull/5687",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/devinjameson.jpg",
       "source": "https://github.com/devinjameson.png?size=240",
       "verified": "2026-11-02"
@@ -248,10 +583,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://foldkit.dev/blog/foldkit-0-159-0",
-      "https://foldkit.dev/blog/foldkit-0-163-0"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://foldkit.dev/blog/foldkit-0-159-0",
+        "https://foldkit.dev/blog/foldkit-0-163-0"
+      ]
+    },
     "handles": [
       {
         "handle": "devinjameson",
@@ -350,6 +688,56 @@
   },
   {
     "avatar": {
+      "path": "/avatars/dmmulroy.jpg",
+      "source": "https://github.com/dmmulroy.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Dillon Mulroy’s anti-slop supplies Oxlint rules for TypeScript and JavaScript.",
+        "source": "https://github.com/dmmulroy/anti-slop",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its installation skill enables an additional Effect rule group in repositories that depend directly on Effect.",
+        "source": "https://github.com/dmmulroy/anti-slop#install-with-an-agent-skill",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "vendored",
+      "source": "https://github.com/dmmulroy/anti-slop"
+    },
+    "handles": [
+      {
+        "handle": "dmmulroy",
+        "kind": "github",
+        "url": "https://github.com/dmmulroy",
+        "source": "https://github.com/dmmulroy",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "dmmulroy",
+    "kind": "person",
+    "name": "Dillon Mulroy",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/dmmulroy/anti-slop",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "lint",
+        "source": "https://github.com/dmmulroy/anti-slop",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/effect-ts.png",
       "source": "https://github.com/Effect-TS.png?size=240",
       "verified": "2026-11-02"
@@ -371,10 +759,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://effect.website/blog/releases/effect/40",
-      "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.0"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://effect.website/blog/releases/effect/40",
+        "https://github.com/Effect-TS/effect/releases/tag/effect%404.0.0"
+      ]
+    },
     "handles": [
       {
         "handle": "@effect-ts",
@@ -461,6 +852,145 @@
   },
   {
     "avatar": {
+      "path": "/avatars/elianiva.png",
+      "source": "https://github.com/elianiva.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Dicha Zelianivan Arkana contributes to Foldkit.",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit UI work includes Meter and Progress primitives.",
+        "source": "https://github.com/foldkit/foldkit/commit/93afb016d72a099d7e4332a29e0dc6db909bdee5",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "foldkit",
+      "source": "https://github.com/foldkit/foldkit/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "elianiva",
+        "kind": "github",
+        "url": "https://github.com/elianiva",
+        "source": "https://github.com/elianiva",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "elianiva",
+    "kind": "person",
+    "name": "Dicha Zelianivan Arkana",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/ethanniser.jpg",
+      "source": "https://github.com/ethanniser.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Ethan Niser’s Effect by Example collects explained Effect snippets.",
+        "source": "https://github.com/ethanniser/effect-by-example",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His beginner/intermediate workshop was delivered at Effect Days 2024.",
+        "source": "https://github.com/ethanniser/effect-workshop",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/ethanniser/effect-by-example",
+      "source": "https://github.com/ethanniser/effect-by-example#readme",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "ethanniser",
+        "kind": "github",
+        "url": "https://github.com/ethanniser",
+        "source": "https://github.com/ethanniser",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "ethanniser",
+    "kind": "person",
+    "name": "Ethan Niser",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/ethanniser/effect-by-example",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/filipfalcon.jpg",
+      "source": "https://github.com/filipfalcon.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Filip Falcon contributes to Foldkit.",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit work includes isolating DevTools MCP relays and connecting them on demand.",
+        "source": "https://github.com/foldkit/foldkit/commit/2b17b02abfeb530eab689bf2d5a95d34540b7a6a",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "foldkit",
+      "source": "https://github.com/foldkit/foldkit/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "filipfalcon",
+        "kind": "github",
+        "url": "https://github.com/filipfalcon",
+        "source": "https://github.com/filipfalcon",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "filipfalcon",
+    "kind": "person",
+    "name": "Filip Falcon",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/foldkit.png",
       "source": "https://github.com/foldkit.png?size=240",
       "verified": "2026-11-02"
@@ -477,10 +1007,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://github.com/foldkit/foldkit/pull/1655",
-      "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.169.0"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://github.com/foldkit/foldkit/pull/1655",
+        "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.169.0"
+      ]
+    },
     "handles": [
       {
         "handle": "foldkit",
@@ -579,6 +1112,209 @@
   },
   {
     "avatar": {
+      "path": "/avatars/fubhy.jpg",
+      "source": "https://github.com/fubhy.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Sebastian Lorenz is one of Effect’s top listed contributors.",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Effect changes include reducing the time and memory needed to construct a TestClock.",
+        "source": "https://github.com/Effect-TS/effect/commit/2968901d29649d02c6d7ff27362c48678eee21a1",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "effect",
+      "source": "https://github.com/Effect-TS/effect/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "fubhy",
+        "kind": "github",
+        "url": "https://github.com/fubhy",
+        "source": "https://github.com/fubhy",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "fubhy",
+    "kind": "person",
+    "name": "Sebastian Lorenz",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/gcanti.jpg",
+      "source": "https://github.com/gcanti.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Giulio Canti is one of Effect’s top listed contributors.",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Schema work includes fixing tagged-union matcher inference.",
+        "source": "https://github.com/Effect-TS/effect/commit/c065ed7b2cd9de19cfd5303114908128a70b309f",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "effect",
+      "source": "https://github.com/Effect-TS/effect/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "gcanti",
+        "kind": "github",
+        "url": "https://github.com/gcanti",
+        "source": "https://github.com/gcanti",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "gcanti",
+    "kind": "person",
+    "name": "Giulio Canti",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "schema",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/humanlayer.png",
+      "source": "https://github.com/humanlayer.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "HumanLayer’s Channels handles Slack, GitHub and Linear webhooks on Effect v4.",
+        "source": "https://github.com/humanlayer/effect-channels",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its Alchemy Cloudflare adapter stores mailboxes in Durable Objects.",
+        "source": "https://github.com/humanlayer/effect-channels#packages",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/humanlayer/effect-channels"]
+    },
+    "handles": [
+      {
+        "handle": "humanlayer",
+        "kind": "github",
+        "url": "https://github.com/humanlayer",
+        "source": "https://github.com/humanlayer",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "humanlayer",
+    "kind": "channel",
+    "name": "HumanLayer",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/humanlayer/effect-channels",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/humanlayer/effect-channels",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/humanlayer/effect-channels",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/imax153.jpg",
+      "source": "https://github.com/IMax153.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Maxwell Brown is one of Effect’s top listed contributors.",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His MCP work includes fixing stdio protocols being shared across servers.",
+        "source": "https://github.com/Effect-TS/effect/commit/1048919d6578d617c38291cfe215454d4eda3529",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "effect",
+      "source": "https://github.com/Effect-TS/effect/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "IMax153",
+        "kind": "github",
+        "url": "https://github.com/IMax153",
+        "source": "https://github.com/IMax153",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "imax153",
+    "kind": "person",
+    "name": "Maxwell Brown",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "mcp",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/jem-computer.jpg",
       "source": "https://github.com/jem-computer.png?size=240",
       "verified": "2026-11-02"
@@ -600,10 +1336,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://x.com/sheherenow_/status/2107972404643598380",
-      "https://x.com/sheherenow_/status/2108407994136576215"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/sheherenow_/status/2107972404643598380",
+        "https://x.com/sheherenow_/status/2108407994136576215"
+      ]
+    },
     "handles": [
       {
         "handle": "jem-computer",
@@ -764,10 +1503,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://github.com/joelhooks/potion-calendar",
-      "https://blog.cloudflare.com/typescript-rust-port/"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://github.com/joelhooks/potion-calendar",
+        "https://blog.cloudflare.com/typescript-rust-port/"
+      ]
+    },
     "handles": [
       {
         "handle": "joelhooks",
@@ -883,6 +1625,99 @@
   },
   {
     "avatar": {
+      "path": "/avatars/john-royal.jpg",
+      "source": "https://github.com/john-royal.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "John Royal is one of Alchemy’s top listed contributors.",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Alchemy work includes the Cloudflare Website.Nextjs resource.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/80cd726c19ac9d8f5a2cf727cbaea1e33664495c",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "alchemy",
+      "source": "https://github.com/alchemy-run/alchemy/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "john-royal",
+        "kind": "github",
+        "url": "https://github.com/john-royal",
+        "source": "https://github.com/john-royal",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "john-royal",
+    "kind": "person",
+    "name": "John Royal",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/jtbeckman.png",
+      "source": "https://github.com/jtbeckman.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "jtbeckman contributes to c0, an open-source agent platform.",
+        "source": "https://github.com/Consensys/c0/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its agent harness runs on Cloudflare Workers and Durable Objects.",
+        "source": "https://github.com/Consensys/c0#c0-agent-harness",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/Consensys/c0",
+      "source": "https://github.com/Consensys/c0#readme",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "jtbeckman",
+        "kind": "github",
+        "url": "https://github.com/jtbeckman",
+        "source": "https://github.com/jtbeckman",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "jtbeckman",
+    "kind": "person",
+    "name": "jtbeckman",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/Consensys/c0/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/julia-script.jpg",
       "source": "https://github.com/julia-script.png?size=240",
       "verified": "2026-11-02"
@@ -899,10 +1734,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://x.com/JuliaScript/status/2108019487064936678",
-      "https://x.com/JuliaScript/status/2112316050322661762"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/JuliaScript/status/2108019487064936678",
+        "https://x.com/JuliaScript/status/2112316050322661762"
+      ]
+    },
     "handles": [
       {
         "handle": "julia-script",
@@ -1020,10 +1858,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://x.com/just_be_dev/status/2107168256494649828",
-      "https://x.com/just_be_dev/status/2108012090938319192"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/just_be_dev/status/2107168256494649828",
+        "https://x.com/just_be_dev/status/2108012090938319192"
+      ]
+    },
     "handles": [
       {
         "handle": "just-be-dev",
@@ -1136,6 +1977,98 @@
   },
   {
     "avatar": {
+      "path": "/avatars/kitlangton.png",
+      "source": "https://github.com/kitlangton.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Kit Langton’s Effect Solutions collects patterns for error handling, services, layers and testing.",
+        "source": "https://github.com/kitlangton/effect-solutions",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its CLI makes the Effect documentation available offline.",
+        "source": "https://github.com/kitlangton/effect-solutions#usage",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "vendored",
+      "source": "https://github.com/kitlangton/effect-solutions/blob/09f82e6c5c928e7232cd32daf04d7c6a830b63f7/packages/website/docs/04-services-and-layers.md"
+    },
+    "handles": [
+      {
+        "handle": "kitlangton",
+        "kind": "github",
+        "url": "https://github.com/kitlangton",
+        "source": "https://github.com/kitlangton",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "kitlangton",
+    "kind": "person",
+    "name": "Kit Langton",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/kitlangton/effect-solutions",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/letstri.jpg",
+      "source": "https://github.com/letstri.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Valerii Strilets authors Permix, a type-safe permissions library for clients and servers.",
+        "source": "https://github.com/letstri/permix/blob/main/permix/package.json",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Permix exposes Effect integrations at its effect and effect/v3 package entry points.",
+        "source": "https://github.com/letstri/permix/blob/main/permix/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/letstri/permix",
+      "source": "https://github.com/letstri/permix/blob/main/permix/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "letstri",
+        "kind": "github",
+        "url": "https://github.com/letstri",
+        "source": "https://github.com/letstri",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "letstri",
+    "kind": "person",
+    "name": "Valerii Strilets",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/letstri/permix/blob/main/permix/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/makisuo.jpg",
       "source": "https://github.com/Makisuo.png?size=240",
       "verified": "2026-11-03"
@@ -1157,10 +2090,13 @@
         "verified": "2026-11-03"
       }
     ],
-    "entryRows": [
-      "https://x.com/makisuo/status/2113769275194495324",
-      "https://maple.dev/docs/iac/alchemy/"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/makisuo/status/2113769275194495324",
+        "https://maple.dev/docs/iac/alchemy/"
+      ]
+    },
     "handles": [
       {
         "handle": "Makisuo",
@@ -1262,6 +2198,148 @@
   },
   {
     "avatar": {
+      "path": "/avatars/manzanita-research.jpg",
+      "source": "https://github.com/Manzanita-Research.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Manzanita Research’s Terrarium v2 builds deterministic agent simulations on @alchemy.run/domain.",
+        "source": "https://github.com/Manzanita-Research/terrarium-v2",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its run explorer supports replaying an event log and forking a run at an event.",
+        "source": "https://github.com/Manzanita-Research/terrarium-v2#terrarium",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/Manzanita-Research/terrarium-v2"]
+    },
+    "handles": [
+      {
+        "handle": "Manzanita-Research",
+        "kind": "github",
+        "url": "https://github.com/Manzanita-Research",
+        "source": "https://github.com/Manzanita-Research",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "manzanita-research",
+    "kind": "channel",
+    "name": "Manzanita Research",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/Manzanita-Research/terrarium-v2",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/mapletechlabs.png",
+      "source": "https://github.com/MapleTechLabs.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Maple is an OpenTelemetry observability platform.",
+        "source": "https://github.com/MapleTechLabs/maple",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its Alchemy documentation describes deploying Maple with infrastructure as code.",
+        "source": "https://maple.dev/docs/iac/alchemy/",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://maple.dev/docs/iac/alchemy/"]
+    },
+    "handles": [
+      {
+        "handle": "MapleTechLabs",
+        "kind": "github",
+        "url": "https://github.com/MapleTechLabs",
+        "source": "https://github.com/MapleTechLabs",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "mapletechlabs",
+    "kind": "channel",
+    "name": "Maple",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/MapleTechLabs/maple",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/mattiamanzati.jpg",
+      "source": "https://github.com/mattiamanzati.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Mattia Manzati is the leading contributor to the Effect language service.",
+        "source": "https://github.com/Effect-TS/language-service/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His language-service changes include recognizing Effect runners as provide entry points.",
+        "source": "https://github.com/Effect-TS/language-service/commit/8e9cb21fef6d25c9b9f160f290231f0a216a2106",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://x.com/MattiaManzati/status/2117330070842782057"]
+    },
+    "handles": [
+      {
+        "handle": "mattiamanzati",
+        "kind": "github",
+        "url": "https://github.com/mattiamanzati",
+        "source": "https://github.com/mattiamanzati",
+        "verified": "2026-11-04"
+      },
+      {
+        "handle": "MattiaManzati",
+        "kind": "x",
+        "url": "https://x.com/MattiaManzati",
+        "source": "https://github.com/mattiamanzati",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "mattiamanzati",
+    "kind": "person",
+    "name": "Mattia Manzati",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/language-service/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/maxedapps.jpg",
       "source": "https://pbs.twimg.com/profile_images/1745781333400399872/MN7Wm4Ya_400x400.jpg",
       "verified": "2026-11-02"
@@ -1283,10 +2361,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://www.youtube.com/watch?v=tT_JLVgJiyw",
-      "https://www.youtube.com/watch?v=jtGSHwXigIg"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://www.youtube.com/watch?v=tT_JLVgJiyw",
+        "https://www.youtube.com/watch?v=jtGSHwXigIg"
+      ]
+    },
     "handles": [
       {
         "handle": "maxedapps",
@@ -1346,6 +2427,385 @@
   },
   {
     "avatar": {
+      "path": "/avatars/mikearnaldi.jpg",
+      "source": "https://github.com/mikearnaldi.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Michael Arnaldi is one of Effect’s top listed contributors.",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Effect work includes hashing, encryption, signing and key management APIs.",
+        "source": "https://github.com/Effect-TS/effect/commit/0d92a92ab27bdd867e93e98e5a203113c45fbda4",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "effect",
+      "source": "https://github.com/Effect-TS/effect/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "mikearnaldi",
+        "kind": "github",
+        "url": "https://github.com/mikearnaldi",
+        "source": "https://github.com/mikearnaldi",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "mikearnaldi",
+    "kind": "person",
+    "name": "Michael Arnaldi",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/mkassabov.png",
+      "source": "https://github.com/Mkassabov.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Michael K is one of Alchemy’s top listed contributors.",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Alchemy work includes moving the GCP AIPlatform Agent resource to the v1beta1 API in the global location.",
+        "source": "https://github.com/alchemy-run/alchemy/commit/71830567469004bca0876e99d07e1338ee50d80c",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "alchemy",
+      "source": "https://github.com/alchemy-run/alchemy/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "Mkassabov",
+        "kind": "github",
+        "url": "https://github.com/Mkassabov",
+        "source": "https://github.com/Mkassabov",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "mkassabov",
+    "kind": "person",
+    "name": "Michael K",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/alchemy-run/alchemy/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/plannotator.png",
+      "source": "https://github.com/plannotator.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Plannotator’s Artifact Server lets people and agents publish, review, version and share artifacts.",
+        "source": "https://github.com/plannotator/artifact-server",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its Cloudflare deployment package pins Alchemy and Effect.",
+        "source": "https://github.com/plannotator/artifact-server/blob/main/deploy/cloudflare/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/plannotator/artifact-server",
+      "source": "https://github.com/plannotator/artifact-server/blob/main/deploy/cloudflare/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "plannotator",
+        "kind": "github",
+        "url": "https://github.com/plannotator",
+        "source": "https://github.com/plannotator",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "plannotator",
+    "kind": "channel",
+    "name": "Plannotator",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/plannotator/artifact-server",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "effect",
+        "source": "https://github.com/plannotator/artifact-server",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/plannotator/artifact-server",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/rankincodes.jpg",
+      "source": "https://github.com/rankincodes.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Adam Rankin is the leading contributor to effect-mq, an Effect v4 background-job library.",
+        "source": "https://github.com/TeamWarp/effect-mq/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "The library provides schema-first jobs, a worker runtime and Postgres and Redis stores.",
+        "source": "https://github.com/TeamWarp/effect-mq",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/TeamWarp/effect-mq",
+      "source": "https://github.com/TeamWarp/effect-mq#readme",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "rankincodes",
+        "kind": "github",
+        "url": "https://github.com/rankincodes",
+        "source": "https://github.com/rankincodes",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "rankincodes",
+    "kind": "person",
+    "name": "Adam Rankin",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/TeamWarp/effect-mq/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/rhyssullivan.png",
+      "source": "https://github.com/RhysSullivan.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Rhys Sullivan’s Dynamic Software demo runs plugin sessions on Cloudflare Workers.",
+        "source": "https://github.com/RhysSullivan/dynamic-software",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its Worker package connects a Cloudflare plugin runtime to the demo’s runtime and host packages.",
+        "source": "https://github.com/RhysSullivan/dynamic-software/blob/main/dynamic-software-demo/apps/worker/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/RhysSullivan/dynamic-software",
+      "source": "https://github.com/RhysSullivan/dynamic-software/blob/main/dynamic-software-demo/apps/worker/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "RhysSullivan",
+        "kind": "github",
+        "url": "https://github.com/RhysSullivan",
+        "source": "https://github.com/RhysSullivan",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "rhyssullivan",
+    "kind": "person",
+    "name": "Rhys Sullivan",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/RhysSullivan/dynamic-software",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/rivet-dev.png",
+      "source": "https://github.com/rivet-dev.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Rivet’s Durable Object Migrator exports data from SQLite-backed Cloudflare Durable Objects.",
+        "source": "https://github.com/rivet-dev/durable-object-migrator",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "It supports lazy migration and a resumable backfill for objects that receive no requests.",
+        "source": "https://github.com/rivet-dev/durable-object-migrator#what-it-does",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/rivet-dev/durable-object-migrator"]
+    },
+    "handles": [
+      {
+        "handle": "rivet-dev",
+        "kind": "github",
+        "url": "https://github.com/rivet-dev",
+        "source": "https://github.com/rivet-dev",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "rivet-dev",
+    "kind": "channel",
+    "name": "Rivet",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/rivet-dev/durable-object-migrator",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "durable-objects",
+        "source": "https://github.com/rivet-dev/durable-object-migrator",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/robertpenner.png",
+      "source": "https://github.com/robertpenner.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Rat-stack’s motion cartridge implements Robert Penner’s easing equations under his BSD license.",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#penners-easing-equations-bsd-3-clause",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "The port rewrites his time, beginning, change and duration signature over normalized progress while retaining the published easing constants.",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md#penners-easing-equations-bsd-3-clause",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "vendored",
+      "source": "https://robertpenner.com/easing_terms_of_use.html"
+    },
+    "handles": [
+      {
+        "handle": "robertpenner",
+        "kind": "github",
+        "url": "https://github.com/robertpenner",
+        "source": "https://github.com/robertpenner",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "robertpenner",
+    "kind": "person",
+    "name": "Robert Penner",
+    "repos": [],
+    "topics": [],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/roninjin10.jpg",
+      "source": "https://github.com/roninjin10.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "roninjin10 is the leading contributor to Smithers.",
+        "source": "https://github.com/smithersai/smithers/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Smithers aligns its Effect runtime, platform adapters and SQL adapters through workspace overrides.",
+        "source": "https://github.com/smithersai/smithers/blob/main/pnpm-workspace.yaml",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/smithersai/smithers",
+      "source": "https://github.com/smithersai/smithers/blob/main/pnpm-workspace.yaml",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "roninjin10",
+        "kind": "github",
+        "url": "https://github.com/roninjin10",
+        "source": "https://github.com/roninjin10",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "roninjin10",
+    "kind": "person",
+    "name": "roninjin10",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/smithersai/smithers/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/sam-goodwin.png",
       "source": "https://github.com/sam-goodwin.png?size=240",
       "verified": "2026-11-02"
@@ -1367,10 +2827,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://x.com/samgoodwin89/status/2107738774327435760",
-      "https://github.com/alchemy-run/alchemy/pull/2176"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://x.com/samgoodwin89/status/2107738774327435760",
+        "https://github.com/alchemy-run/alchemy/pull/2176"
+      ]
+    },
     "handles": [
       {
         "handle": "sam-goodwin",
@@ -1433,6 +2896,53 @@
   },
   {
     "avatar": {
+      "path": "/avatars/sandromaglione.png",
+      "source": "https://github.com/SandroMaglione.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Sandro Maglione authors TypeOnce Effect Machine, a schema-first state-machine and statechart library for Effect.",
+        "source": "https://github.com/typeonce-dev/effect-machine/blob/main/packages/effect-machine/package.json",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "The project publishes a machine runtime, React integration, devtools and Oxlint rules.",
+        "source": "https://github.com/typeonce-dev/effect-machine#packages",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/typeonce-dev/effect-machine",
+      "source": "https://github.com/typeonce-dev/effect-machine#readme",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "SandroMaglione",
+        "kind": "github",
+        "url": "https://github.com/SandroMaglione",
+        "source": "https://github.com/SandroMaglione",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "sandromaglione",
+    "kind": "person",
+    "name": "Sandro Maglione",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/typeonce-dev/effect-machine/blob/main/packages/effect-machine/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/statelyai.png",
       "source": "https://github.com/statelyai.png?size=240",
       "verified": "2026-11-02"
@@ -1449,10 +2959,13 @@
         "verified": "2026-11-02"
       }
     ],
-    "entryRows": [
-      "https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%400.1.0-alpha.7",
-      "https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-alpha.8"
-    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%400.1.0-alpha.7",
+        "https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-alpha.8"
+      ]
+    },
     "handles": [
       {
         "handle": "statelyai",
@@ -1503,6 +3016,353 @@
       }
     ],
     "updated": "2026-11-02",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/tanner-scadden.jpg",
+      "source": "https://github.com/Tanner-Scadden.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Tanner Scadden’s Munch Manor is a browser zombie shooter built with Foldkit and Effect and running on Cloudflare.",
+        "source": "https://github.com/Tanner-Scadden/munch-manor",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit contributions include a Lazy.expectAllReused testing helper.",
+        "source": "https://github.com/foldkit/foldkit/commit/76fa0d1ee2a5f9d06333e83a1ee381eab0ed37d5",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/Tanner-Scadden/munch-manor"]
+    },
+    "handles": [
+      {
+        "handle": "Tanner-Scadden",
+        "kind": "github",
+        "url": "https://github.com/Tanner-Scadden",
+        "source": "https://github.com/Tanner-Scadden",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "tanner-scadden",
+    "kind": "person",
+    "name": "Tanner Scadden",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/Tanner-Scadden/munch-manor",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "effect",
+        "source": "https://github.com/Tanner-Scadden/munch-manor",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/Tanner-Scadden/munch-manor",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/tim-smart.jpg",
+      "source": "https://github.com/tim-smart.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Tim Smart is a leading contributor to Effect.",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Effect changes include encoding tool results with their JSON codec.",
+        "source": "https://github.com/Effect-TS/effect/commit/781f31e2cd486592da5e3179fb814e01daee007f",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/Effect-TS/effect/pull/10306"]
+    },
+    "handles": [
+      {
+        "handle": "tim-smart",
+        "kind": "github",
+        "url": "https://github.com/tim-smart",
+        "source": "https://github.com/tim-smart",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "tim-smart",
+    "kind": "person",
+    "name": "Tim Smart",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/Effect-TS/effect/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/wking-io.jpg",
+      "source": "https://github.com/wking-io.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Will King’s Lattice provides visual page grids for local Vite development using Effect 4 and Foldkit.",
+        "source": "https://github.com/wking-io/lattice",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its Vite plugin injects the grid only in development and leaves the Lattice runtime out of production builds.",
+        "source": "https://github.com/wking-io/lattice#lattice",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/wking-io/lattice",
+      "source": "https://github.com/wking-io/lattice/blob/main/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "wking-io",
+        "kind": "github",
+        "url": "https://github.com/wking-io",
+        "source": "https://github.com/wking-io",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "wking-io",
+    "kind": "person",
+    "name": "Will King",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/wking-io/lattice",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/wking-io/lattice",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/wmaurer.png",
+      "source": "https://github.com/wmaurer.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Wayne Maurer contributes to Foldkit.",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "His Foldkit UI changes include portaling anchored panels into their enclosing dialog.",
+        "source": "https://github.com/foldkit/foldkit/commit/c14bbea505466a500cfe3f23d8637c910ae616d1",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "stack",
+      "package": "foldkit",
+      "source": "https://github.com/foldkit/foldkit/graphs/contributors"
+    },
+    "handles": [
+      {
+        "handle": "wmaurer",
+        "kind": "github",
+        "url": "https://github.com/wmaurer",
+        "source": "https://github.com/wmaurer",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "wmaurer",
+    "kind": "person",
+    "name": "Wayne Maurer",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/foldkit/foldkit/graphs/contributors",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/wooorm.jpg",
+      "source": "https://github.com/wooorm.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Titus Wormer’s parse-latin code is credited in rat-stack’s typography pipeline.",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Rat-stack also credits his retext-smartypants code for its ported typography transformations.",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "vendored",
+      "source": "https://github.com/wooorm/parse-latin"
+    },
+    "handles": [
+      {
+        "handle": "wooorm",
+        "kind": "github",
+        "url": "https://github.com/wooorm",
+        "source": "https://github.com/wooorm",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "wooorm",
+    "kind": "person",
+    "name": "Titus Wormer",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "typography",
+        "source": "https://github.com/joelhooks/rat-stack/blob/main/PROVENANCE.md",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/yehudacohen.png",
+      "source": "https://github.com/yehudacohen.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "The yehudacohen/typekro repository provides TypeScript definitions for Kubernetes resources with cross-resource references.",
+        "source": "https://github.com/yehudacohen/typekro",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "TypeKro’s manifest includes Alchemy and Effect as runtime dependencies.",
+        "source": "https://github.com/yehudacohen/typekro/blob/master/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/yehudacohen/typekro",
+      "source": "https://github.com/yehudacohen/typekro/blob/master/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "yehudacohen",
+        "kind": "github",
+        "url": "https://github.com/yehudacohen",
+        "source": "https://github.com/yehudacohen",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "yehudacohen",
+    "kind": "person",
+    "name": "yehudacohen",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/yehudacohen/typekro",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "effect",
+        "source": "https://github.com/yehudacohen/typekro",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/zonko-ai.png",
+      "source": "https://github.com/zonko-ai.png?size=240",
+      "verified": "2026-11-04"
+    },
+    "bio": [
+      {
+        "text": "Harbor’s SDK publishes TypeScript and Python clients alongside runtime, plugin and platform building blocks.",
+        "source": "https://github.com/zonko-ai/harbor-sdk",
+        "verified": "2026-11-04"
+      },
+      {
+        "text": "Its TypeScript system SDK declares Effect and Alchemy dependencies.",
+        "source": "https://github.com/zonko-ai/harbor-sdk/blob/main/packages/sdk/package.json",
+        "verified": "2026-11-04"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/zonko-ai/harbor-sdk",
+      "source": "https://github.com/zonko-ai/harbor-sdk/blob/main/packages/sdk/package.json",
+      "verified": "2026-11-04"
+    },
+    "handles": [
+      {
+        "handle": "zonko-ai",
+        "kind": "github",
+        "url": "https://github.com/zonko-ai",
+        "source": "https://github.com/zonko-ai",
+        "verified": "2026-11-04"
+      }
+    ],
+    "id": "zonko-ai",
+    "kind": "channel",
+    "name": "Harbor",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/zonko-ai/harbor-sdk",
+        "verified": "2026-11-04"
+      },
+      {
+        "topic": "alchemy",
+        "source": "https://github.com/zonko-ai/harbor-sdk",
+        "verified": "2026-11-04"
+      }
+    ],
+    "updated": "2026-11-04",
     "videos": []
   }
 ]

@@ -1,0 +1,57 @@
+{
+  "checked": "2026-11-04",
+  "entryPreference": ["news", "stack", "vendored", "work"],
+  "scope": [
+    "The five leading human contributors to Effect-TS/effect, plus the Effect language-service lead.",
+    "Human contributors on the first contributors page for Foldkit and Alchemy, with individual commits backing each biography.",
+    "Contributors to packages/xstate-effect at xstate@6.0.0-alpha.73, rather than unrelated XState contributors.",
+    "Every currently unprofiled CAFE news author, and the nominees in the who-is-missing thread.",
+    "Library and SDK maintainers from the peers list, where public manifests or READMEs establish CAFE work.",
+    "Authors explicitly credited for vendored code in PROVENANCE.md."
+  ],
+  "sourcesOfTruth": {
+    "profiles": ".brain/data/cafe/people.json",
+    "rule": ".brain/areas/all-stars.svx"
+  },
+  "thread": "https://x.com/joelhooks/status/2117770076070068735",
+  "decisions": [
+    "No /news rows were backfilled to admit nominees.",
+    "The work basis records a public project URL, an evidence URL and its checked date.",
+    "Rhys Sullivan qualifies through his original Dynamic Software Cloudflare plugin-runtime demo. His effect-qb, confect and kody repositories are forks and are not attributed to him as original projects.",
+    "Sandro Maglione qualifies through @typeonce/effect-machine; its manifest names him as author and declares Effect. The unscoped effect-machine package belongs to a different project.",
+    "The first five human contributors to Effect exclude automation accounts. The same source lists Sebastian Lorenz and Maxwell Brown alongside Tim Smart, Michael Arnaldi and Giulio Canti.",
+    "GitHub organizations remain channels. Nathan Flurry's personal handle is not assigned to the Rivet organization.",
+    "Biographies carry their own public evidence URLs and checked dates. Empty repo arrays avoid inventing repository star counts or package claims."
+  ],
+  "dropped": [
+    {
+      "candidate": "Matt Pocock",
+      "reason": "His current /news row qualifies for entry, but the checked Foldkit posts are questions rather than two sourceable sentences about his own CAFE work. Keep the missing-profile warning.",
+      "sources": [
+        "https://x.com/mattpocockuk/status/2117157362700058671",
+        "https://x.com/mattpocockuk/status/2117245007447142710",
+        "https://x.com/mattpocockuk/status/2116989261551436046"
+      ]
+    },
+    {
+      "candidate": "Will King's eir project",
+      "reason": "The public GitHub URL returned 404. Will qualifies through lattice instead.",
+      "sources": ["https://github.com/wking-io/eir"]
+    },
+    {
+      "candidate": "Additional @xstate/effect contributors",
+      "reason": "The package-path history at the pinned XState ref names David Khourshid and Joel Hooks, plus release automation. Joel already has a profile; the other leading XState contributors are not attributed work on this package.",
+      "sources": [
+        "https://github.com/statelyai/xstate/commits/xstate%406.0.0-alpha.73/packages/xstate-effect"
+      ]
+    },
+    {
+      "candidate": "Individual maintainers of Harbor SDK and Artifact Server",
+      "reason": "The checked manifests establish CAFE work but do not identify individual maintainers. Add the public organization channels without guessing identities.",
+      "sources": [
+        "https://github.com/zonko-ai/harbor-sdk/blob/main/packages/sdk/package.json",
+        "https://github.com/plannotator/artifact-server/blob/main/deploy/cloudflare/package.json"
+      ]
+    }
+  ]
+}

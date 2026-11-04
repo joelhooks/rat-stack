@@ -38,10 +38,13 @@ const person = (index: number): CafePersonValue =>
       { text: `Person ${index} builds CAFE things.`, ...verified },
       { text: `Person ${index} posts about them.`, ...verified },
     ],
-    entryRows: [
-      `https://example.com/p${index}/first`,
-      `https://example.com/p${index}/second`,
-    ],
+    entry: {
+      kind: "news",
+      rows: [
+        `https://example.com/p${index}/first`,
+        `https://example.com/p${index}/second`,
+      ],
+    },
     handles: [
       {
         handle: `gh${index}`,
@@ -195,7 +198,7 @@ const withFoldkit = (
 
 describe("the entry rule warning", () => {
   it.prop(
-    "names exactly the authors with two or more rows that no profile owns",
+    "names exactly the authors with any rows that no profile owns",
     [
       authoredRows,
       Arbitrary.schema(
@@ -214,12 +217,10 @@ describe("the entry rule warning", () => {
 
       const unowned = authored.filter((entry) => entry.owner >= listed);
 
-      const counts = Arr.dedupe(unowned.map(handleOf))
-        .map((author) => ({
-          author,
-          rows: unowned.filter((entry) => handleOf(entry) === author).length,
-        }))
-        .filter((entry) => entry.rows >= 2);
+      const counts = Arr.dedupe(unowned.map(handleOf)).map((author) => ({
+        author,
+        rows: unowned.filter((entry) => handleOf(entry) === author).length,
+      }));
 
       const warned = unlistedAuthors(
         people,
@@ -376,7 +377,7 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
 
 describe("decodeCafeData", () => {
   it.effect(
-    "names every bad people field, every entry without two /news rows, and every repeated id",
+    "names every bad people field, empty news entry, and repeated id",
     () =>
       Effect.gen(function* reportPeopleErrors() {
         const good = yield* Schema.encodeEffect(CafePerson)(person(0));
@@ -397,7 +398,7 @@ describe("decodeCafeData", () => {
             news: JSON.stringify([story]),
             people: JSON.stringify([
               { ...good, bio: [good.bio[0]] },
-              { ...good, entryRows: [good.entryRows[0]], id: "p1" },
+              { ...good, entry: { kind: "news", rows: [] }, id: "p1" },
               good,
               good,
             ]),
@@ -410,7 +411,7 @@ describe("decodeCafeData", () => {
             /^\.brain\/data\/cafe\/people\.json\[0\]\.bio: /u
           ),
           expect.stringMatching(
-            /^\.brain\/data\/cafe\/people\.json\[1\]\.entryRows: /u
+            /^\.brain\/data\/cafe\/people\.json\[1\]\.entry\.rows\.0: /u
           ),
           expect.stringMatching(
             /^\.brain\/data\/cafe\/people\.json\[3\]\.id: Duplicate id p0/u

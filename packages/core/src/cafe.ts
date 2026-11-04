@@ -236,14 +236,32 @@ export const CafeVideo = Schema.Struct({
 
 export const CafePersonKind = Schema.Literals(["person", "channel"]);
 
+export const CafePersonEntry = Schema.Union([
+  Schema.Struct({
+    kind: Schema.Literal("news"),
+    rows: Schema.NonEmptyArray(HttpsUrl),
+  }),
+  Schema.Struct({
+    kind: Schema.Literal("stack"),
+    package: PackageName,
+    source: HttpsUrl,
+  }),
+  Schema.Struct({ kind: Schema.Literal("vendored"), source: HttpsUrl }),
+  Schema.Struct({
+    kind: Schema.Literal("work"),
+    project: HttpsUrl,
+    ...verified,
+  }),
+]);
+
 export const CafePerson = Schema.Struct({
   avatar: Schema.Struct({ path: AvatarPath, ...verified }),
   bio: Schema.NonEmptyArray(CafeFact).check(
     Schema.isMinLength(2),
     Schema.isMaxLength(3)
   ),
-  entryRows: Schema.Array(HttpsUrl).check(Schema.isMinLength(2)),
-  handles: Schema.Array(CafeHandle).check(Schema.isMinLength(1)),
+  entry: CafePersonEntry,
+  handles: Schema.NonEmptyArray(CafeHandle),
   id: PersonId,
   kind: CafePersonKind,
   name: OneLine,
@@ -452,11 +470,13 @@ export const sortCafeProjects = (
 ): readonly CafeProjectValue[] =>
   Arr.sort(projects, sort === "stars" ? byStars : byUpdated);
 
+const Limit = Schema.optional(
+  Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
+);
+
 export const CafeNewsQuery = Schema.Struct({
   kind: Schema.optional(CafeNewsKind),
-  limit: Schema.optional(
-    Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
-  ),
+  limit: Limit,
   sort: Schema.optional(CafeNewsSort),
 });
 
@@ -469,9 +489,7 @@ export const CafeNewsList = Schema.Struct({
 
 export const CafeProjectQuery = Schema.Struct({
   letters: Schema.optional(Schema.Array(CafeLetter)),
-  limit: Schema.optional(
-    Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
-  ),
+  limit: Limit,
   sort: Schema.optional(CafeProjectSort),
 });
 
@@ -479,10 +497,6 @@ export const CafeProjectList = Schema.Struct({
   projects: Schema.Array(CafeProject),
   total: Schema.Int,
 });
-
-const Limit = Schema.optional(
-  Schema.Int.check(Schema.isBetween({ maximum: 100, minimum: 1 }))
-);
 
 export const CafeRepoStars = Schema.Struct({
   repo: RepoName,
