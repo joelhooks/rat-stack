@@ -166,6 +166,13 @@
         "why": "the base everything builds on"
       },
       {
+        "repo": "alchemy-run/alchemy",
+        "url": "https://github.com/alchemy-run/alchemy/tree/main/packages/domain",
+        "public": true,
+        "why": "Alchemy Domain: aggregates, commands, events, policies, sagas",
+        "docs": "https://alchemy.run/domain"
+      },
+      {
         "repo": "joelhooks/pi-until",
         "url": "https://github.com/joelhooks/pi-until",
         "public": true,

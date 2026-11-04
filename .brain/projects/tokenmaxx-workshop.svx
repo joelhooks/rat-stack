@@ -7,7 +7,7 @@ status: active
 
 ## Source of truth
 
-`.brain/data/tokenmaxx/workshop.json` owns the runs, ordered prep, links and `starterPublic`. Joel owns publication decisions. The sibling `schedule.json`, `prep.json` and `links.json` preserve supplied values and order as import receipts, not parallel editable stores. The desk identified their source as `tmx 96b919f`. Formatting may change whitespace, not values.
+`.brain/data/tokenmaxx/workshop.json` owns the runs, ordered prep, links and `starterPublic`. Joel owns publication decisions. The sibling `schedule.json`, `prep.json` and `links.json` preserve supplied values and order as import receipts, not parallel editable stores. The desk identified the original source as `tmx 96b919f`. The links receipt and canonical links now use `tmx 85f347b`: nine links, adding the Alchemy Domain repository path and docs URL, still draft. Formatting may change whitespace, not values.
 
 The schedule is public even though its original input says draft. The desk confirmed both runs and their times. Prep and links remain drafts. Public answers say `not-yet-published`, and their pages say “Coming soon.”
 
