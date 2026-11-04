@@ -789,8 +789,6 @@ export const localLayer = (
           );
         }
 
-        results.push(yield* watchVerdict(baseUrl));
-
         return results;
       });
 
@@ -869,7 +867,10 @@ export const localLayer = (
         plan: (input) => plan(input).pipe(Effect.provideContext(services)),
         preflight: (input) =>
           preflight(input).pipe(Effect.provideContext(services)),
+        recordWatch: (receipt) => receipts.saveWatch(receipt),
         source,
+        watch: () =>
+          watchVerdict(baseUrl).pipe(Effect.provideContext(services)),
       });
     })
   ).pipe(

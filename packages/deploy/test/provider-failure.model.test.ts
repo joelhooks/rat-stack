@@ -23,6 +23,7 @@ import { DeployRunner } from "../src/deploy-runner.js";
 import { runDeploy } from "../src/machine.js";
 import { applyWithProviderEvidence } from "../src/provider-errors.js";
 import { ReceiptStore } from "../src/receipt-store.js";
+import { passingWatch, unusedRollback } from "./fixtures/watch-fakes.js";
 
 class BadRequest extends Schema.TaggedError<
   BadRequest,
@@ -177,6 +178,7 @@ it.effect.prop(
         });
 
       const runner = DeployRunner.of({
+        ...passingWatch,
         apply: () =>
           Effect.gen(function* applyFakeProvider() {
             const captured = yield* applyWithProviderEvidence(
@@ -226,7 +228,8 @@ it.effect.prop(
         Effect.provide(
           Layer.mergeAll(
             Approval.denyAll,
-            ConfigProvider.layer(ConfigProvider.fromUnknown({}))
+            ConfigProvider.layer(ConfigProvider.fromUnknown({})),
+            unusedRollback
           )
         )
       );

@@ -36,6 +36,7 @@ it.effect.prop(
         saveApply: () => Effect.die("rollback-must-not-overwrite-apply"),
         saveRollback: () => Effect.succeed("rollback.json"),
         saveVerdict: () => Effect.die("rollback-must-not-write-a-verdict"),
+        saveWatch: () => Effect.die("rollback-must-not-write-a-watch"),
       });
 
       const provider = WorkerDeployments.of({

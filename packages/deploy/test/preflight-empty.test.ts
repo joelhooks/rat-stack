@@ -6,6 +6,7 @@ import * as HttpClient from "effect/http/HttpClient";
 
 import { localLayer } from "../src/local.js";
 import { runDeploy } from "../src/machine.js";
+import { unusedRollback } from "./fixtures/watch-fakes.js";
 
 it.effect(
   "empty production configuration stops the real driver before planning and reports names only",
@@ -29,7 +30,8 @@ it.effect(
             PlatformServices,
             ConfigProvider.layer(ConfigProvider.fromUnknown({})),
             Layer.succeed(HttpClient.HttpClient, client),
-            Approval.denyAll
+            Approval.denyAll,
+            unusedRollback
           )
         )
       );
