@@ -1136,6 +1136,132 @@
   },
   {
     "avatar": {
+      "path": "/avatars/makisuo.jpg",
+      "source": "https://github.com/Makisuo.png?size=240",
+      "verified": "2026-11-03"
+    },
+    "bio": [
+      {
+        "source": "https://github.com/MapleTechLabs/maple/graphs/contributors",
+        "text": "Makisuo is the top contributor to MapleTechLabs/maple, which GitHub describes as an \"OpenTelemetry observability platform\".",
+        "verified": "2026-11-03"
+      },
+      {
+        "source": "https://github.com/MapleTechLabs/maple",
+        "text": "The Maple README says its Cloudflare deployments \"run on Alchemy v2 (Effect-based)\", with an \"Effect HTTP API\" and a dashboard built on Foldkit.",
+        "verified": "2026-11-03"
+      },
+      {
+        "source": "https://x.com/makisuo/status/2113769275194495324",
+        "text": "On X: \"Last weekend I moved Maple off React and onto @foldkit\", rewriting 100+ pages and 300k+ lines of React.",
+        "verified": "2026-11-03"
+      }
+    ],
+    "entryRows": [
+      "https://x.com/makisuo/status/2113769275194495324",
+      "https://maple.dev/docs/iac/alchemy/"
+    ],
+    "handles": [
+      {
+        "handle": "Makisuo",
+        "kind": "github",
+        "source": "https://github.com/MapleTechLabs/maple/graphs/contributors",
+        "url": "https://github.com/Makisuo",
+        "verified": "2026-11-03"
+      },
+      {
+        "handle": "makisuo",
+        "kind": "x",
+        "source": "https://x.com/makisuo",
+        "url": "https://x.com/makisuo",
+        "verified": "2026-11-03"
+      },
+      {
+        "handle": "MapleTechLabs",
+        "kind": "github",
+        "source": "https://x.com/makisuo",
+        "url": "https://github.com/MapleTechLabs",
+        "verified": "2026-11-03"
+      },
+      {
+        "handle": "maple.dev",
+        "kind": "site",
+        "source": "https://x.com/makisuo",
+        "url": "https://maple.dev",
+        "verified": "2026-11-03"
+      }
+    ],
+    "id": "makisuo",
+    "kind": "person",
+    "name": "Makisuo",
+    "repos": [
+      {
+        "description": "OpenTelemetry observability platform",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/api/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "alchemy",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/api/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "@alchemy.run/cloudflare",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/api/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "wrangler",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/api/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "foldkit",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/web/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "@foldkit/ui",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/web/package.json",
+            "verified": "2026-11-03"
+          },
+          {
+            "name": "@effect/platform-browser",
+            "source": "https://github.com/MapleTechLabs/maple/blob/main/apps/web/package.json",
+            "verified": "2026-11-03"
+          }
+        ],
+        "repo": "MapleTechLabs/maple",
+        "source": "https://github.com/MapleTechLabs/maple",
+        "stars": 1943,
+        "verified": "2026-11-03"
+      }
+    ],
+    "topics": [
+      {
+        "source": "https://x.com/makisuo/status/2113769275194495324",
+        "topic": "foldkit",
+        "verified": "2026-11-03"
+      },
+      {
+        "source": "https://github.com/MapleTechLabs/maple",
+        "topic": "alchemy",
+        "verified": "2026-11-03"
+      },
+      {
+        "source": "https://github.com/MapleTechLabs/maple",
+        "topic": "effect",
+        "verified": "2026-11-03"
+      }
+    ],
+    "updated": "2026-11-03",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/maxedapps.jpg",
       "source": "https://pbs.twimg.com/profile_images/1745781333400399872/MN7Wm4Ya_400x400.jpg",
       "verified": "2026-11-02"
