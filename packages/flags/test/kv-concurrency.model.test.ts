@@ -1,5 +1,9 @@
 import { expect, it } from "@effect/vitest";
-import { FlagLedger, FlagTarget } from "@rat-stack/core/flag-control";
+import {
+  FlagAtomicityRequired,
+  FlagLedger,
+  FlagTarget,
+} from "@rat-stack/core/flag-control";
 import { defineFlag } from "@rat-stack/core/flags";
 import {
   Cause,
@@ -103,21 +107,26 @@ it.effect.prop(
         { concurrency: "unbounded" }
       );
 
-      const outcomes = results.map((result) =>
-        Exit.isFailure(result)
-          ? Option.getOrUndefined(
-              Option.map(
-                Cause.findErrorOption(result.cause),
-                (failure) => failure._tag
-              )
-            )
-          : "Succeeded"
-      );
+      const isAtomicityRequired = Schema.is(FlagAtomicityRequired);
 
-      expect(outcomes).toEqual([
-        "FlagAtomicityRequired",
-        "FlagAtomicityRequired",
-      ]);
+      const expectRefusal = (
+        refusal: { readonly _tag: string } | undefined
+      ) => {
+        const atomicity = isAtomicityRequired(refusal) ? refusal : undefined;
+
+        expect(atomicity?.flagName).toBe(flag.name);
+        expect(atomicity?.repair).toMatch(/\S/u);
+        expect(atomicity?.message).toContain(flag.name);
+      };
+
+      for (const result of results) {
+        expectRefusal(
+          Exit.isFailure(result)
+            ? Option.getOrUndefined(Cause.findErrorOption(result.cause))
+            : undefined
+        );
+      }
+
       expect((yield* seed.read(flag.name, scope)).revision).toBe(0);
       expect((yield* seed.read(flag.name, scope)).value).toBe(initial);
 
@@ -130,7 +139,7 @@ it.effect.prop(
         .recordEvidence(evidence)
         .pipe(Effect.flip);
 
-      expect(evidenceFailure._tag).toBe("FlagAtomicityRequired");
+      expectRefusal(evidenceFailure);
 
       const accepted = yield* seed.flip(input);
       expect(accepted.revision).toBe(1);

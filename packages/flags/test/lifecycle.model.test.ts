@@ -65,6 +65,8 @@ it.effect.prop(
         expect(yield* journal.entries).toStrictEqual(recorded);
       }
 
+      expect(actor.getSnapshot().output).toBe(name);
+
       return yield* Effect.void;
     }).pipe(Effect.scoped, Effect.provide(FlagLifecycleJournal.memory))
 );
