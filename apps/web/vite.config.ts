@@ -10,7 +10,15 @@ import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
 
-export default defineConfig({
+const developmentBuildId = "rat-stack-dev";
+
+const readerSsr = {
+  build: { prerender: { origin: readerPrerenderOrigin } },
+  clientEntry: "/src/client/entry.ts",
+  serverEntry: "/src/entry.server.ts",
+};
+
+export default defineConfig(({ command }) => ({
   build: {
     rolldownOptions: { external: [/^cloudflare:/u] },
   },
@@ -20,13 +28,11 @@ export default defineConfig({
   plugins: [
     stylexPlugin(),
     readerPagesPlugin(),
-    foldkit({
-      ssr: {
-        build: { prerender: { origin: readerPrerenderOrigin } },
-        clientEntry: "/src/client/entry.ts",
-        serverEntry: "/src/entry.server.ts",
-      },
-    }),
+    foldkit(
+      command === "serve"
+        ? { buildId: developmentBuildId, ssr: readerSsr }
+        : { ssr: readerSsr }
+    ),
     readerFinalizationPlugin(),
     {
       apply: "build",
@@ -147,4 +153,4 @@ export default defineConfig({
       name: "foldkit-devtools-single-instance",
     },
   ],
-});
+}));
