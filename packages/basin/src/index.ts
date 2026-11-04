@@ -2,17 +2,24 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Output from "alchemy/Output";
 import "alchemy/Phase";
 import { retain } from "alchemy/RemovalPolicy";
+import { Stage } from "alchemy/Stage";
 import { Config, ConfigProvider, Effect } from "effect";
+import { identity } from "effect/Function";
+
+const retainInProd =
+  globalThis.__ALCHEMY_RUNTIME__ === true
+    ? identity
+    : retain(Stage.pipe(Effect.map((stage) => stage === "prod")));
 
 export const basinStream = (name: string) =>
   Effect.gen(function* declareBasinStream() {
     const bucket = yield* Cloudflare.R2.Bucket(`${name}Bucket`, {}).pipe(
-      retain()
+      retainInProd
     );
 
     const stream = yield* Cloudflare.Pipelines.Stream(`${name}Stream`, {
       http: { enabled: false },
-    }).pipe(retain());
+    }).pipe(retainInProd);
 
     return { bucket, stream } as const;
   });
@@ -48,7 +55,7 @@ export const icebergSink = ({
       ...maintenance,
       bucketName,
       token,
-    }).pipe(retain());
+    }).pipe(retainInProd);
 
     const sink = yield* Cloudflare.Pipelines.Sink(`${name}Sink`, {
       config: {
@@ -59,9 +66,9 @@ export const icebergSink = ({
       },
       format: { compression: "zstd", type: "parquet" },
       type: "r2_data_catalog",
-    }).pipe(retain());
+    }).pipe(retainInProd);
 
     return yield* Cloudflare.Pipelines.Pipeline(`${name}Pipeline`, {
       sql: Output.interpolate`INSERT INTO ${sink.name} SELECT * FROM ${streamName}`,
-    }).pipe(retain());
+    }).pipe(retainInProd);
   });

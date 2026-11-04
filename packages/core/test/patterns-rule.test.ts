@@ -26,6 +26,7 @@ const rules = [
   "rat-stack-patterns/learn-snippet-idiom",
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/no-shared-pending-cache",
+  "rat-stack-patterns/retain-needs-stage-policy",
   "rat-stack-patterns/shared-waiters",
   "rat-stack-patterns/no-sleep-in-loop",
   "rat-stack-patterns/watch-effect-actors",
@@ -84,6 +85,30 @@ const moduleState =
   "Module-level let and var hold state that outlives one request";
 
 describe("rat-stack pattern rules", () => {
+  it("requires a retention policy through direct, renamed and namespace imports", () => {
+    for (const source of [
+      'import { retain } from "alchemy/RemovalPolicy"; resource.pipe(retain());',
+      'import { retain as keep } from "alchemy/RemovalPolicy"; resource.pipe(keep());',
+      'import * as Policy from "alchemy/RemovalPolicy"; resource.pipe(Policy.retain());',
+      'import { retain } from "alchemy"; resource.pipe(retain());',
+    ]) {
+      expectRule(
+        lintFixture("packages/flags/src", source),
+        "This retain call has no stage policy"
+      );
+    }
+
+    for (const source of [
+      'import { retain } from "alchemy/RemovalPolicy"; resource.pipe(retain(Stage.pipe(Effect.map((stage) => stage === "prod"))));',
+      'import { retainInProd } from "./retention"; resource.pipe(retainInProd);',
+      'import { retain } from "other"; retain();',
+      "const retain = () => {}; retain();",
+      'import { retain } from "alchemy/RemovalPolicy"; function work(retain) { retain(); }',
+      'import { retain } from "alchemy/RemovalPolicy";\n// oxlint-disable-next-line rat-stack-patterns/retain-needs-stage-policy -- This adopted zone belongs to production in every stage.\nresource.pipe(retain());',
+    ]) {
+      expect(lintFixture("apps/infra", source).status).toBe(0);
+    }
+  });
   it("keeps sleeping loops in machines without flagging unrelated sleep functions", () => {
     const message = "This loop yields Effect.sleep";
 

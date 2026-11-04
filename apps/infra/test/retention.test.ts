@@ -9,7 +9,6 @@ import stack from "../alchemy.run.js";
 
 const services = Layer.mergeAll(
   AlchemyContextLive.pipe(Layer.provideMerge(NodeServices.layer)),
-  Layer.succeed(Stage, "prod"),
   Layer.succeed(AuthProviders, {}),
   Layer.succeed(
     HttpClient.HttpClient,
@@ -20,41 +19,55 @@ const services = Layer.mergeAll(
 );
 
 it.effect.prop(
-  "every durable production resource declared by the Stack retains its physical object",
-  { enabled: Schema.Boolean },
-  ({ enabled }) =>
+  "durable stage-owned resources destroy outside prod while shared production infrastructure retains",
+  {
+    enabled: Schema.Boolean,
+    suffix: Schema.String.check(Schema.isPattern(/^[a-z]{1,12}$/u)),
+  },
+  ({ enabled, suffix }) =>
     Effect.gen(function* test() {
-      for (const captureEnabled of [enabled, !enabled]) {
-        const compiled = yield* stack.pipe(
-          Effect.provide(services),
-          Effect.provideService(
-            ConfigProvider.ConfigProvider,
-            ConfigProvider.fromUnknown({
-              EMAIL_FORWARD_TO: "forward@example.test",
-              EVENTS_ENABLED: captureEnabled,
-            })
-          )
-        );
+      for (const stage of ["prod", `lane-${suffix}`, `live_${suffix}`]) {
+        for (const captureEnabled of [enabled, !enabled]) {
+          const compiled = yield* stack.pipe(
+            Effect.provide(services),
+            Effect.provideService(Stage, stage),
+            Effect.provideService(
+              ConfigProvider.ConfigProvider,
+              ConfigProvider.fromUnknown({
+                AUTH_ENABLED: true,
+                EMAIL_FORWARD_TO: "forward@example.test",
+                EVENTS_ENABLED: captureEnabled,
+              })
+            )
+          );
 
-        const resources = Object.values(compiled.resources);
+          const resources = Object.values(compiled.resources);
 
-        const durable = resources.filter(
-          (resource) =>
-            ![
-              "Cloudflare.Worker",
-              "Cloudflare.WorkerLoader",
-              "Cloudflare.RateLimit",
-              "Cloudflare.DurableObjectNamespace",
-            ].includes(resource.Type)
-        );
+          const durable = resources.filter(
+            (resource) =>
+              ![
+                "Cloudflare.Worker",
+                "Cloudflare.WorkerLoader",
+                "Cloudflare.RateLimit",
+                "Cloudflare.DurableObjectNamespace",
+              ].includes(resource.Type)
+          );
 
-        expect(durable.length).toBeGreaterThan(0);
+          expect(durable.length).toBeGreaterThan(0);
 
-        for (const resource of durable) {
-          expect(
-            resource.RemovalPolicy,
-            `${resource.Type}:${resource.FQN}`
-          ).toBe("retain");
+          for (const resource of durable) {
+            expect(
+              resource.RemovalPolicy,
+              `${resource.Type}:${resource.FQN}`
+            ).toBe(
+              resource.Type.startsWith("Cloudflare.DNS.") ||
+                resource.Type.startsWith("Cloudflare.Email.") ||
+                resource.Type === "Cloudflare.Zone.Zone" ||
+                stage === "prod"
+                ? "retain"
+                : "destroy"
+            );
+          }
         }
       }
     }),
