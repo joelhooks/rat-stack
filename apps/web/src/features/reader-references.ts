@@ -52,20 +52,39 @@ const backlinksView = <Message>(
     onEmpty: () => [],
     onNonEmpty: (backlinks) => [
       h.section(
-        [h.Class("bibliography linked-from"), h.AriaLabelledBy("linked-from")],
+        [h.Class("referenced-by"), h.AriaLabelledBy("linked-from")],
         [
-          h.h2([h.Id("linked-from")], ["Linked from"]),
-          h.ol(
-            [],
+          h.h2(
+            [h.Id("linked-from")],
+            [
+              "Referenced by ",
+              h.span([h.Class("reference-count")], [`${backlinks.length}`]),
+            ]
+          ),
+          h.ul(
+            [h.Class("reference-cards")],
             backlinks.map((reference) =>
-              h.li(
+              h.keyed("li")(
+                reference.route,
                 [],
                 [
-                  h.a([h.Href(reference.route)], [reference.title]),
-                  `. ${reference.description}`,
-                  ...(String.isEmpty(reference.context)
-                    ? []
-                    : [h.p([], [reference.context])]),
+                  h.a(
+                    [h.Class("reference-card"), h.Href(reference.route)],
+                    [
+                      h.span([h.Class("reference-route")], [reference.route]),
+                      " ",
+                      h.strong([h.Class("reference-title")], [reference.title]),
+                      " ",
+                      h.span(
+                        [h.Class("reference-context")],
+                        [
+                          String.isEmpty(reference.context)
+                            ? reference.description
+                            : reference.context,
+                        ]
+                      ),
+                    ]
+                  ),
                 ]
               )
             )

@@ -12,20 +12,13 @@ import type { ReaderNodeValue } from "../../web/src/client/reader-node.js";
 import { ReaderInputError } from "./reader-input-error.ts";
 
 export const readerNewsTitle = (html: string) => {
-  const callout = DomUtils.getElementsByTagName(
-    "aside",
-    parseDocument(html).children
-  ).find(
+  const headline = DomUtils.findOne(
     (element) =>
-      element.attribs.class?.split(/\s+/u).includes("news-callout") === true
+      element.attribs.class?.split(/\s+/u).includes("news-headline") === true,
+    parseDocument(html).children
   );
 
-  const link =
-    callout === undefined
-      ? undefined
-      : DomUtils.getElementsByTagName("a", callout.children).at(0);
-
-  return link === undefined ? undefined : DomUtils.textContent(link);
+  return headline === null ? undefined : DomUtils.textContent(headline);
 };
 
 const ReaderBody = Schema.Struct({
@@ -196,7 +189,6 @@ const readBody = (
 
     return !(
       (node.name === "p" && classes.includes("agent-pointer")) ||
-      (node.name === "aside" && classes.includes("news-callout")) ||
       (node.name === "nav" && node.attribs["aria-label"] === "Breadcrumb")
     );
   });

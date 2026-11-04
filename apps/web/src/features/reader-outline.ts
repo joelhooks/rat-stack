@@ -84,7 +84,7 @@ const trailingEntries = (model: ReaderModel): readonly OutlineEntry[] => [
     onNone: () => [],
     onSome: (references) =>
       Array.isReadonlyArrayNonEmpty(references.backlinks)
-        ? [{ id: "linked-from", level: 2 as const, text: "Linked from" }]
+        ? [{ id: "linked-from", level: 2 as const, text: "Referenced by" }]
         : [],
   }),
 ];

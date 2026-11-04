@@ -180,7 +180,7 @@ it.effect(
   () =>
     Effect.gen(function* bodyProjection() {
       const body = yield* compileReaderBody(
-        '<main><p class="agent-pointer">Agents</p><aside class="news-callout">News</aside><nav aria-label="Breadcrumb"><a href="/skills">skills</a> / skill-name</nav><h1 id="heading">Human title</h1><p>Human-only body</p><table><tbody><tr><td data-label="Name">Value</td></tr></tbody></table><section id="linked-from"><h2>Linked from</h2></section></main>',
+        '<main><p class="agent-pointer">Agents</p><nav aria-label="Breadcrumb"><a href="/skills">skills</a> / skill-name</nav><h1 id="heading">Human title</h1><p>Human-only body</p><table><tbody><tr><td data-label="Name">Value</td></tr></tbody></table><section id="linked-from"><h2>Linked from</h2></section></main>',
         "fixture"
       );
 

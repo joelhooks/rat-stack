@@ -43,7 +43,7 @@ it.effect(
       );
 
       expect(offenders).toStrictEqual([]);
-      expect(homeDocumentHtml).toContain('class="news-callout"');
+      expect(homeDocumentHtml).toContain('class="news-latest"');
     })
 );
 

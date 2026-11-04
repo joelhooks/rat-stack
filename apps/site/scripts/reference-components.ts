@@ -43,18 +43,6 @@ const heading = (value: string): RootContent => ({
   type: "heading",
 });
 
-const renderContext = (context: string) => {
-  if (context === "") {
-    return "";
-  }
-
-  const text = `<p>${escapeHtml(context)}</p>`;
-
-  return context.length > 160
-    ? `<details><summary>Link context</summary>${text}</details>`
-    : text;
-};
-
 export const linkedFromComponent = (
   records: ReadonlyMap<string, readonly BacklinkReference[]>
 ): ComponentDefinition => ({
@@ -99,7 +87,7 @@ export const linkedFromComponent = (
       ? []
       : [
           html(
-            `<section class="bibliography linked-from" aria-labelledby="linked-from"><h2 id="linked-from">Linked from</h2><ol>${entries.map((entry) => `<li><a href="${escapeHtml(entry.route)}">${escapeHtml(entry.title)}</a>. ${escapeHtml(entry.description)}${renderContext(entry.context)}</li>`).join("")}</ol></section>`
+            `<section class="referenced-by" aria-labelledby="linked-from"><h2 id="linked-from">Referenced by <span class="reference-count">${entries.length}</span></h2><ul class="reference-cards">${entries.map((entry) => `<li><a class="reference-card" href="${escapeHtml(entry.route)}"><span class="reference-route">${escapeHtml(entry.route)}</span> <strong class="reference-title">${escapeHtml(entry.title)}</strong> <span class="reference-context">${escapeHtml(entry.context === "" ? entry.description : entry.context)}</span></a></li>`).join("")}</ul></section>`
           ),
         ];
   },

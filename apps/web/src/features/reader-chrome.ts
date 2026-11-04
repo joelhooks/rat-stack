@@ -48,6 +48,70 @@ const sectionLink = <Message>(
     [name]
   );
 
+const newsDot = <Message>(h: HtmlBuilder<Message>) =>
+  h.span([h.Class("news-dot"), h.AriaHidden(true)]);
+
+const isNews = (href: string) => href === newsRouter();
+
+const toolbarSection = <Message>(
+  h: HtmlBuilder<Message>,
+  path: string,
+  [href, name]: (typeof siteSections)[number],
+  newsTitle: Option.Option<string>
+) =>
+  Option.match(isNews(href) ? newsTitle : Option.none(), {
+    onNone: () => h.li([], [sectionLink(h, path, href, name)]),
+    onSome: (title) =>
+      h.li(
+        [h.Class("news-item")],
+        [
+          h.a(
+            [
+              h.Href(href),
+              h.AriaDescribedBy("news-latest"),
+              ...(isWithinSection(href, path) ? [h.AriaCurrent("page")] : []),
+            ],
+            [name, newsDot(h)]
+          ),
+          h.span(
+            [h.Class("news-latest"), h.Id("news-latest"), h.Role("tooltip")],
+            [
+              h.span([h.Class("news-kicker")], ["Latest news"]),
+              " ",
+              h.span([h.Class("news-headline")], [title]),
+            ]
+          ),
+        ]
+      ),
+  });
+
+const sheetSection = <Message>(
+  h: HtmlBuilder<Message>,
+  path: string,
+  [href, name]: (typeof siteSections)[number],
+  newsTitle: Option.Option<string>
+) =>
+  Option.match(isNews(href) ? newsTitle : Option.none(), {
+    onNone: () => h.li([], [sectionLink(h, path, href, name)]),
+    onSome: (title) =>
+      h.li(
+        [],
+        [
+          h.a(
+            [
+              h.Href(href),
+              ...(isWithinSection(href, path) ? [h.AriaCurrent("page")] : []),
+            ],
+            [
+              name,
+              newsDot(h),
+              h.small([h.Class("news-sheet-headline")], [title]),
+            ]
+          ),
+        ]
+      ),
+  });
+
 export type MenuControl<Message> =
   | { readonly kind: "unavailable" }
   | {
@@ -103,7 +167,8 @@ const menuSheet = <Message>(
   h: HtmlBuilder<Message>,
   path: string,
   open: boolean,
-  section: Option.Option<SectionListing>
+  section: Option.Option<SectionListing>,
+  newsTitle: Option.Option<string>
 ) =>
   h.nav(
     [
@@ -116,8 +181,8 @@ const menuSheet = <Message>(
       h.ul(
         [],
         [
-          ...siteSections.map(([href, name]) =>
-            h.li([], [sectionLink(h, path, href, name)])
+          ...siteSections.map((entry) =>
+            sheetSection(h, path, entry, newsTitle)
           ),
           h.li([], [h.a([h.Href(agentGuideRouter())], ["agent guide"])]),
         ]
@@ -136,7 +201,8 @@ export const readerToolbar = <Message>(
   h: HtmlBuilder<Message>,
   path: string,
   menu: MenuControl<Message>,
-  section: Option.Option<SectionListing>
+  section: Option.Option<SectionListing>,
+  newsTitle: Option.Option<string>
 ) =>
   h.header(
     [h.Class("toolbar")],
@@ -150,8 +216,8 @@ export const readerToolbar = <Message>(
           ),
           h.ul(
             [h.Class("site-sections")],
-            siteSections.map(([href, name]) =>
-              h.li([], [sectionLink(h, path, href, name)])
+            siteSections.map((entry) =>
+              toolbarSection(h, path, entry, newsTitle)
             )
           ),
           h.a(
@@ -164,18 +230,9 @@ export const readerToolbar = <Message>(
         ]
       ),
       ...(menu.kind === "available"
-        ? [menuSheet(h, path, menu.open, section)]
+        ? [menuSheet(h, path, menu.open, section, newsTitle)]
         : []),
     ]
-  );
-
-export const readerNewsCallout = <Message>(
-  title: string,
-  h: HtmlBuilder<Message>
-) =>
-  h.aside(
-    [h.Class("news-callout"), h.AriaLabel("New on /news")],
-    [h.span([], ["New on /news:"]), " ", h.a([h.Href(newsRouter())], [title])]
   );
 
 export const readerFooter = <Message>(

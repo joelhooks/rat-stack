@@ -593,7 +593,7 @@ it.effect(
           /Last changed \d{4}-\d{2}-\d{2} in <a href="https:\/\/github\.com\/joelhooks\/rat-stack\/commit\/[0-9a-f]{40}">[0-9a-f]{7,}<\/a>/u
         );
         expect(agentsHtml).toContain(
-          '<a href="/skills/learn-rat-stack">learn-rat-stack</a>'
+          '<a class="reference-card" href="/skills/learn-rat-stack"><span class="reference-route">/skills/learn-rat-stack</span> <strong class="reference-title">learn-rat-stack</strong>'
         );
         expect(agentsHtml).not.toContain(
           '<a href="/AGENTS.md"><code>AGENTS.md</code></a>'
@@ -735,7 +735,7 @@ it.effect(
         expect(pageHtml).not.toContain(`>${source}</a>`);
         expect(pageHtml).toContain("Accessed 2026-10-01.");
         expect(pageHtml).toContain(
-          '<li><a href="/lore/an-mcp-your-users-want">An MCP your users want</a>'
+          '<li><a class="reference-card" href="/lore/an-mcp-your-users-want"><span class="reference-route">/lore/an-mcp-your-users-want</span> <strong class="reference-title">An MCP your users want</strong>'
         );
         expect(llms).toContain("## Lore");
         expect(llms).toContain(`[${page.title}](${page.routePath})`);

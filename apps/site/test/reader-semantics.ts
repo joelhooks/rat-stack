@@ -44,9 +44,6 @@ export const mainSemantics = (html: string) => {
     ids: elements.flatMap((element) =>
       element.attribs.id === undefined ? [] : [element.attribs.id]
     ),
-    newsCalloutCount: elements.filter((element) =>
-      (element.attribs.class ?? "").split(/\s+/u).includes("news-callout")
-    ).length,
     prose: elements
       .filter((element) =>
         /^(?:p|li|pre|summary|figcaption)$/u.test(element.name)

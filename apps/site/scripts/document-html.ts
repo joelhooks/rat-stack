@@ -1,6 +1,7 @@
 import { ratLogoFill, ratLogoPath } from "../../web/src/features/rat-logo.ts";
 import {
   isWithinSection,
+  newsRouter,
   siteSections,
 } from "../../web/src/features/site-route.ts";
 import type { CopyPromptSpec } from "./component-data.ts";
@@ -28,7 +29,7 @@ export interface DocumentShell {
   readonly breadcrumbName?: string;
   readonly description: string;
   readonly discoveryLinks: readonly DiscoveryLink[];
-  readonly newsCalloutHtml?: string;
+  readonly newsTitle?: string | undefined;
   readonly noindex?: boolean;
   readonly ogImageUrl: string;
   readonly origin: string;
@@ -61,12 +62,22 @@ export const renderCopyPrompt = (spec: CopyPromptSpec) => {
 
 const ratLogo = `<svg class="logo" viewBox="0 0 65 78" fill="${ratLogoFill}" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="${ratLogoPath}"></path></svg>`;
 
-const siteNavigation = (path: string) =>
+const sectionItem = (
+  path: string,
+  href: string,
+  name: string,
+  newsTitle: string | undefined
+) => {
+  const current = isWithinSection(href, path) ? ' aria-current="page"' : "";
+
+  return href === newsRouter() && newsTitle !== undefined
+    ? `<li class="news-item"><a href="${href}"${current} aria-describedby="news-latest">${name}<span class="news-dot" aria-hidden="true"></span></a><span class="news-latest" id="news-latest" role="tooltip"><span class="news-kicker">Latest news</span> <span class="news-headline">${escapeHtmlText(newsTitle)}</span></span></li>`
+    : `<li><a href="${href}"${current}>${name}</a></li>`;
+};
+
+const siteNavigation = (path: string, newsTitle: string | undefined) =>
   `<header class="toolbar"><nav aria-label="Primary navigation" class="site-nav"><a class="brand" href="/">${ratLogo}<strong>Rat Stack</strong></a><ul class="site-sections">${siteSections
-    .map(
-      ([href, name]) =>
-        `<li><a href="${href}"${isWithinSection(href, path) ? ' aria-current="page"' : ""}>${name}</a></li>`
-    )
+    .map(([href, name]) => sectionItem(path, href, name, newsTitle))
     .join(
       ""
     )}</ul><a class="agent-guide" href="/llms.txt">agent guide</a></nav></header>`;
@@ -125,7 +136,7 @@ export const renderDocumentShell = (shell: DocumentShell) => {
       ? `<nav aria-label="Breadcrumb" class="breadcrumb"><a href="${escapeHtmlAttribute(shell.breadcrumbHref)}">${escapeHtmlText(shell.breadcrumbLabel)}</a> / ${escapeHtmlText(shell.breadcrumbName)}</nav>`
       : "";
 
-  const body = `${siteNavigation(shell.path)} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${shell.newsCalloutHtml ?? ""} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
+  const body = `${siteNavigation(shell.path, shell.newsTitle)} <main data-path="${escapeHtmlAttribute(shell.path)}">${pointer} ${breadcrumb} ${shell.bodyHtml}</main> ${siteFooter}`;
 
   return { body, head };
 };

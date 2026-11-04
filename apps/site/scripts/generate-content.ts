@@ -127,7 +127,6 @@ import { renderMarkdownHtml } from "./markdown-html.ts";
 import {
   hasNewsCallout,
   newestNewsTitle,
-  renderNewsCallout,
   withNewsPointer,
 } from "./news-callout.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
@@ -218,7 +217,7 @@ interface DocumentProps {
   readonly discoveryLinks:
     | ReturnType<typeof markdownDiscoveryLinks>
     | readonly [];
-  readonly newsCalloutHtml?: string;
+  readonly newsTitle?: string | undefined;
   readonly noindex?: boolean;
   readonly stylesheet: string;
   readonly breadcrumbHref?: string;
@@ -1081,7 +1080,6 @@ const program = Effect.gen(function* generateContent() {
   );
 
   const newsTitle = newestNewsTitle(cafeData.news);
-  const newsCalloutHtml = renderNewsCallout(newsTitle);
 
   const withNewsCallout = (markdown: string, routePath: string) =>
     withNewsPointer(markdown, routePath, newsTitle);
@@ -2340,7 +2338,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           bodyHtml: "",
           description: "",
           discoveryLinks: markdownDiscoveryLinks("/"),
-          newsCalloutHtml,
+          newsTitle,
           ogImageUrl: "",
           origin: "https://ratstack.sh",
           path: "/",
@@ -2796,7 +2794,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       {
         bodyHtml: addInboundCounts(bodyHtml, metadata.path, backlinkIndex),
         discoveryLinks: markdownDiscoveryLinks(metadata.path),
-        newsCalloutHtml: hasNewsCallout(metadata.path) ? newsCalloutHtml : "",
+        newsTitle: hasNewsCallout(metadata.path) ? newsTitle : undefined,
         ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
         origin: originToken,
         stylesheet,

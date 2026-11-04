@@ -83,7 +83,7 @@ it.effect(
 );
 
 it.effect(
-  "previews real link context as escaped text with native expansion",
+  "cards cite the real link context as escaped text, or the description without one",
   () =>
     Effect.sync(() => {
       const context = backlinkContext(
@@ -117,6 +117,8 @@ it.effect(
       expect(rendered.html).not.toContain("<script>");
       expect(rendered.markdown).toContain("→ One-line summary → [Read page]");
       expect(rendered.markdown).not.toMatch(/<sup|inbound-count/u);
+      expect(rendered.html).toContain(">Referenced by <span");
+      expect(rendered.html).not.toContain("One-line summary");
       expect(
         renderSvxMarkdown(
           source,
@@ -124,11 +126,11 @@ it.effect(
           {},
           createComponentRegistry({
             LinkedFrom: linkedFromComponent(
-              new Map([["/lore/b", [{ ...entry, context: context.repeat(8) }]]])
+              new Map([["/lore/b", [{ ...entry, context: "" }]]])
             ),
           })
         )
-      ).toContain("<details><summary>Link context</summary>");
+      ).toContain('<span class="reference-context">One-line summary</span>');
     })
 );
 

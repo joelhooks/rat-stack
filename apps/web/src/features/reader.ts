@@ -16,11 +16,7 @@ import type { ReaderModel } from "../client/reader/model.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
 import * as MotionView from "./motion/index.js";
-import {
-  readerFooter,
-  readerNewsCallout,
-  readerToolbar,
-} from "./reader-chrome.js";
+import { readerFooter, readerToolbar } from "./reader-chrome.js";
 import type { MenuControl } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
@@ -360,7 +356,8 @@ export const view = (
         pipe(
           model.sectionIndex,
           Option.map(() => sectionListing(model.sectionIndex, model.page.path))
-        )
+        ),
+        model.newsTitle
       ),
       h.div(
         [h.Class("reader-layout")],
@@ -376,10 +373,6 @@ export const view = (
                 [h.DataAttribute("path", model.page.path)],
                 [
                   agentPointer(model, h),
-                  ...Option.match(model.newsTitle, {
-                    onNone: () => [],
-                    onSome: (title) => [readerNewsCallout(title, h)],
-                  }),
                   ...breadcrumbView(model, h),
                   ...bodyView(model, h),
                   ...bibliographyView(model, h),
