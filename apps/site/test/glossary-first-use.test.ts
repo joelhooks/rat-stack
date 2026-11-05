@@ -6,7 +6,7 @@ import { glossaryFirstUseWarnings } from "../scripts/glossary-first-use.ts";
 
 const glossaryTerm = Arbitrary.array(
   Arbitrary.schema(Schema.Literals(["a", "b", "c", "d"])),
-  { maxLength: 12, minLength: 3 }
+  { maxLength: 12, minLength: 2 }
 ).pipe(Arbitrary.map((letters) => letters.join("")));
 
 it.prop(
@@ -59,6 +59,56 @@ it.prop(
 
     expect(warnings).toHaveLength(1);
     expect(warnings[0]?.line).toBe(source.split("\n").length);
+  }
+);
+
+const ordinaryTerm = Arbitrary.array(
+  Arbitrary.schema(Schema.Literals(["e", "f", "g", "h"])),
+  { maxLength: 12, minLength: 2 }
+).pipe(Arbitrary.map((letters) => letters.join("")));
+
+const prose = Arbitrary.array(
+  Arbitrary.schema(Schema.Literals(["some", "words", "around", "here"])),
+  { maxLength: 12, minLength: 0 }
+).pipe(Arbitrary.map((words) => words.join(" ")));
+
+it.prop(
+  "acronyms require exact case while ordinary terms match every case",
+  {
+    acronym: glossaryTerm,
+    ordinary: ordinaryTerm,
+    prefix: prose,
+    suffix: prose,
+  },
+  ({ acronym, ordinary, prefix, suffix }) => {
+    const upper = acronym.toUpperCase();
+    const mixed = `${acronym[0]?.toUpperCase()}${acronym.slice(1)}`;
+
+    const entries = [upper, ordinary].map((term) => ({
+      routePath: "/glossary",
+      summary: "A job",
+      term,
+    }));
+
+    for (const mention of [acronym, mixed]) {
+      for (const word of [
+        ordinary,
+        ordinary.toUpperCase(),
+        `${ordinary[0]?.toUpperCase()}${ordinary.slice(1)}`,
+      ]) {
+        const source = `${prefix} ${mention} and ${word} ${suffix}.`;
+        expect(
+          glossaryFirstUseWarnings("page.md", source, entries).map(
+            (warning) => warning.term
+          )
+        ).toEqual([ordinary]);
+      }
+    }
+
+    const source = `${prefix} ${acronym} and ${mixed}.\n\n${upper} ${suffix}.`;
+    expect(glossaryFirstUseWarnings("page.md", source, entries)).toEqual([
+      { file: "page.md", line: 3, target: "/glossary", term: upper },
+    ]);
   }
 );
 

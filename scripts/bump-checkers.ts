@@ -5,6 +5,9 @@ import path from "node:path";
 
 import { Schema } from "effect";
 
+import { checkerAgeExceptions } from "./checker-age-exceptions.ts";
+import type { CheckerChange as Change } from "./checker-age-exceptions.ts";
+
 const root = path.resolve(import.meta.dirname, "..");
 
 const checkers = ["tsrs", "@yielded/effect-tsrs"];
@@ -48,12 +51,6 @@ class CheckerBumpError extends Schema.TaggedError<
   override get message() {
     return `${this.step} failed: ${this.detail}. Next command: ${this.command}`;
   }
-}
-
-interface Change {
-  readonly name: string;
-  readonly newVersion: string;
-  readonly oldVersion: string;
 }
 
 const invoke = (command: string, args: readonly string[], step: string) => {
@@ -143,41 +140,7 @@ const alignment = (plainVersion: string) => {
 const updateAgeExceptions = (changes: readonly Change[]) => {
   const file = path.join(root, "pnpm-workspace.yaml");
   const original = readFileSync(file, "utf-8");
-  let updated = original;
-
-  for (const { name, oldVersion, newVersion } of changes) {
-    const names =
-      name === "@yielded/effect-tsrs"
-        ? [
-            name,
-            ...[
-              "linux-x64",
-              "linux-arm64",
-              "darwin-x64",
-              "darwin-arm64",
-              "win32-x64",
-            ].map((platform) => `${name}-${platform}`),
-          ]
-        : [name];
-
-    for (const entry of names) {
-      const oldEntry = `${entry}@${oldVersion}`;
-      const newEntry = `${entry}@${newVersion}`;
-
-      if (updated.includes(oldEntry)) {
-        updated = updated.replaceAll(oldEntry, newEntry);
-      } else if (!updated.includes(newEntry)) {
-        if (!updated.includes("minimumReleaseAgeExclude:\n")) {
-          updated += "\nminimumReleaseAgeExclude:\n";
-        }
-
-        updated = updated.replace(
-          "minimumReleaseAgeExclude:\n",
-          `minimumReleaseAgeExclude:\n  - "${newEntry}"\n`
-        );
-      }
-    }
-  }
+  const updated = checkerAgeExceptions(original, changes);
 
   if (updated !== original) {
     writeFileSync(file, updated);

@@ -41,6 +41,10 @@ const fixture = (scenario: Scenario = {}) => {
     path.join(repoRoot, "scripts/bump-checkers.ts"),
     path.join(scripts, "bump-checkers.ts")
   );
+  copyFileSync(
+    path.join(repoRoot, "scripts/checker-age-exceptions.ts"),
+    path.join(scripts, "checker-age-exceptions.ts")
+  );
   writeFileSync(
     path.join(directory, "package.json"),
     `${JSON.stringify({ devDependencies: { "@yielded/effect-tsrs": "0.2.2", tsrs: "0.20.0-ts7.1.0-beta" }, type: "module" }, null, 2)}\n`
