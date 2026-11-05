@@ -1061,12 +1061,12 @@ importers:
       '@alchemy.run/cloudflare':
         specifier: 2.0.0-beta.85
         version: 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(@effect/sql-pg@4.1.2(effect@4.1.2))(@types/node@24.19.2)(alchemy@2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.2)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@effect/platform-node':
-        specifier: 4.1.2
-        version: 4.1.2(effect@4.1.2)(redis@6.2.1)
       alchemy:
         specifier: 2.0.0-beta.85
         version: 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
+      alchemy-turbo-cache:
+        specifier: github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52
+        version: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/a51a7ba6ea56728f89c4214befe8bf940a946e52(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/sql-pg@4.1.2(effect@4.1.2))(@types/node@24.19.2)(pg@8.23.1)(redis@6.2.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
       effect:
         specifier: 4.1.2
         version: 4.1.2
@@ -3098,6 +3098,12 @@ packages:
   agent-base@9.0.0:
     resolution: {integrity: sha512-TQf59BsZnytt8GdJKLPfUZ54g/iaUL2OWDSFCCvMOhsHduDQxO8xC4PNeyIkVcA5KwL2phPSv0douC0fgWzmnA==}
     engines: {node: '>= 20'}
+
+  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/a51a7ba6ea56728f89c4214befe8bf940a946e52:
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/a51a7ba6ea56728f89c4214befe8bf940a946e52}
+    version: 0.0.0
+    engines: {node: '>=24.18.0'}
+    hasBin: true
 
   alchemy@2.0.0-beta.85:
     resolution: {integrity: sha512-dRSyfVDfU3wevBT0Iam6PUjQTn6PY6Lyd2BOeg9ToE208ifrx0sdmNUag8lLeiHisxlhaJJRyOtqKcWZ7lY0Pw==}
@@ -6750,6 +6756,32 @@ snapshots:
   agent-base@7.1.4: {}
 
   agent-base@9.0.0: {}
+
+  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/a51a7ba6ea56728f89c4214befe8bf940a946e52(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/sql-pg@4.1.2(effect@4.1.2))(@types/node@24.19.2)(pg@8.23.1)(redis@6.2.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1):
+    dependencies:
+      '@alchemy.run/cloudflare': 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(@effect/sql-pg@4.1.2(effect@4.1.2))(@types/node@24.19.2)(alchemy@2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.2)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@effect/platform-node': 4.1.2(effect@4.1.2)(redis@6.2.1)
+      alchemy: 2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
+      effect: 4.1.2
+    transitivePeerDependencies:
+      - '@alchemy.run/domain'
+      - '@alchemy.run/frontend-frameworks'
+      - '@effect/platform-bun'
+      - '@effect/sql-libsql'
+      - '@effect/sql-mysql2'
+      - '@effect/sql-pg'
+      - '@types/node'
+      - '@types/react'
+      - bufferutil
+      - mysql2
+      - pg
+      - proxy-agent
+      - react-devtools-core
+      - redis
+      - typescript
+      - utf-8-validate
+      - vite
+      - ws
 
   alchemy@2.0.0-beta.85(@effect/platform-bun@4.1.2(effect@4.1.2))(@effect/platform-node@4.1.2(effect@4.1.2)(redis@6.2.1))(effect@4.1.2)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1):
     dependencies:

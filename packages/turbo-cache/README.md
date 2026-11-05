@@ -1,65 +1,54 @@
 # Turbo remote cache
 
-This cartridge owns a Turbo-compatible Worker, a dedicated R2 bucket, and one Alchemy-generated bearer token per team. Add it to a Stack with `yield* turboCache` from `@rat-stack/turbo-cache`.
+This package is rat-stack's declaration of [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52), version `0.0.0`. The external package owns the protocol adapter, Worker, R2 bucket, generated team credentials and read-only token handoff. This package keeps only the project configuration and an adoption seam test.
 
-## Protocol boundary
+## Declaration and installation
 
-Turbo sends binary archives through its own versioned HTTP protocol. `defineContract` requires a struct input, and its HTTP projection maps that struct to query or payload fields. Its HTTP method type excludes HEAD. It has no raw upload stream and per-artifact response-header contract. Adapting Turbo through it would change that external protocol or buffer archives into values. This Worker is an external protocol adapter, like a tail consumer or an RPC backend. It adds no application capability or alternate agent surface. No boundary lint exemption is needed.
+`src/index.ts` default-exports the cartridge so Alchemy loads the same declaration inside the Worker runtime. The Stack still includes it with `yield* turboCache` from `@rat-stack/turbo-cache`.
 
-The implementation follows Turbo [v2.11.9's API client](https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs). It supports authenticated artifact GET, HEAD and PUT, status, event acknowledgement, and bulk metadata queries. Other method/path pairs return 404. There is no CORS preflight mode, debug endpoint, count route, populate route, or expiry override.
+The dependency is `github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52`, the commit behind tag `v0.0.0`. It is not on npm. pnpm builds its exports during Git dependency preparation. `allowBuilds.alchemy-turbo-cache` authorizes that reviewed prepare script. No tarball is vendored. A fresh install needs GitHub access as well as the existing registry access.
 
-## Ownership and trust
+The configuration preserves these logical resource identities:
 
-- Turbo's task hash determines reuse. R2 stores a disposable copy of the archive produced by CI.
-- Keys are `<team>/<hash>`. Each configured token authorizes exactly one team slug. A missing or invalid bearer gets 401. A valid bearer with an unknown or different team gets 403.
-- Workers' native `crypto.subtle.timingSafeEqual` compares SHA-256 digests of the bearer and every configured token. Digest lengths are fixed. Ordinary Node does not supply that Workers extension; authentication tests run in workerd.
-- A team's token can read and replace that team's artifacts. Team isolation is not isolation between writers within one team. Share tokens only with trusted CI. Neither task hashes nor this bearer prevent a trusted writer from poisoning its team's cache.
-- CI on main and pull requests reads and writes local and remote artifacts. Fork pull requests receive no repository secret, so they cannot reach the remote cache. The nightly canary runs main with every cache read off, which catches an incomplete task hash.
-- Request and response bodies stream through the native R2 binding. They are not collected into an archive-sized buffer. `x-artifact-duration`, `x-artifact-tag` and the stored byte length survive reads. Turbo owns optional signature generation and verification; the Worker stores the signature tag unchanged.
-- GET responses use `Cache-Control: no-store`. There is no edge-cache copy to invalidate. If edge caching is added, object deletion will not immediately invalidate that copy.
-- R2 lifecycle expiry counts from upload, not last access. The default is seven days. Lifecycle removal is asynchronous, not an exact deletion deadline. The bucket contains cache data only.
+- `TurboCache`
+- `TurboCacheFoundation/TurboCacheBucket`
+- `TurboCacheFoundation/TurboCacheToken-rat-stack`
 
-The Worker, bucket and generated secrets retain only in `prod`. Other stages may remove them normally. A cache can be rebuilt by running tasks again.
+The team is `rat-stack`, retention is seven days from upload, and only stage `prod` retains resources. Reads do not extend retention; R2 lifecycle deletion is asynchronous. Changing the resource prefix or team changes identity, so inspect a production plan before deployment.
 
-## Configuration and credentials
+## Protocol boundary and trust
 
-Edit `src/config.ts` before deployment. Set the project repository, Stack name, state-store name, team slugs and retention days. The template team is `rat-stack`. Team slugs use letters, digits, underscores or hyphens and must be unique. Use a separate token for each team. Adding a team declares another `Alchemy.Random`; removing one revokes it on the next Worker deployment. Production state retains its generated value until the operator removes it through the normal resource workflow.
+Turbo's binary artifact protocol remains an external adapter. A capability projection requires struct inputs, excludes HEAD, and cannot preserve the raw upload stream and per-artifact response headers. The package adds no application capability or alternate agent route.
 
-Alchemy persists each token as a `Redacted` Random attribute and binds that attribute to the Worker as a secret. The handoff reads only completed resource records. It does not evaluate the Stack, create artifact credentials, plan or deploy resources. It overrides Alchemy's state-store provisioning policy: missing or outdated stores fail closed instead of bootstrapping or upgrading during a read. The operator's secret tool must inject `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` into the handoff process. No Cloudflare credentials are loaded from Alchemy profiles. In Alchemy beta.85, the `CI=true` guard both refuses store bootstrap/upgrade and makes environment variables the only credential source. This applies to the read-only handoff, not the Stack's deployment authentication. The CLI preserves a failure's source tag and message without serializing credential fields.
+R2 stores disposable CI outputs under `team/hash`. Each generated bearer authorizes only its team's prefix. A writer can replace artifacts in that team. Turbo owns signature generation and verification; the Worker preserves the signature tag. The [upstream README](https://github.com/joelhooks/alchemy-turbo-cache/blob/a51a7ba6ea56728f89c4214befe8bf940a946e52/README.md) records the routes, authentication, streaming behavior and trust limits.
 
-After the desk deploys and reviews the account, stage and receiving command:
+## Credentials
+
+After the desk deploys and approves the account, stage and receiver:
 
 ```sh
 pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command> [args]
 ```
 
-Run this command through the operator's secret tool with the two Cloudflare variables injected. Do not paste credential values into shell commands, logs or checked-in files.
+The root script invokes the package's executable with `--stack RatStack --state-store alchemy-state-store-ratstack-state-store --prefix TurboCache --teams rat-stack`. Supply `--stage` explicitly.
 
-The receiving command gets the cache token on stdin, without a newline. The token is never passed through argv, environment variables, files, or the parent's stdout. The receiver's stdout and stderr are discarded, even on failure. Only `TURBO_API=<origin>` and `TURBO_TEAM=<slug>` print after a successful handoff. Choose a trusted receiver that consumes stdin and safely writes the GitHub Actions secret `TURBO_TOKEN` through authorized ShitRat tooling. The desk owns that GitHub write. The script does not reach into ShitRat internals or expose installation credentials.
+The operator's secret tool injects `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. This read-only handoff uses completed Alchemy state and refuses state-store bootstrap or upgrade. Deployment authentication remains separate and uses Alchemy profiles.
 
-Set repository variables `TURBO_API` and `TURBO_TEAM` from those non-secret values. `TURBO_API` is the origin without `/v8`. `TURBO_TEAM` is a slug, not a team ID. Remote caching stays off unless both token and team are set. Turbo warns and executes the task when remote caching is unavailable. CI task failures remain failures.
+Only the trusted receiver's stdin gets the token. Receiver output is suppressed. The parent prints the API origin and team slug after success. The desk owns the authorized GitHub secret write. Never paste credentials into commands, files or logs.
 
 ## Checks
 
-Run `pnpm --filter @rat-stack/turbo-cache test`. The local Cloudflare harness checks generated binary round trips, cross-team collisions, HEAD agreement, and auth before any storage operation. The seam test runs the pinned Turbo binary twice with distinct empty local cache directories and proves a REMOTE summary hit. Another local test starts the cartridge itself, reads its generated credential through state, and hands it to a subprocess. The stdin test hashes a synthetic credential and rejects any argv or environment copy; it also tries to echo the credential to prove receiver output is suppressed. Another test prevents state-store bootstrap and upgrade even when the caller enables provisioning. The Turbo seam also proves write-only mode ignores a warm local cache and missing credentials leave tasks executing.
+Run `pnpm --filter @rat-stack/turbo-cache test`. The seam test starts the installed cartridge in local workerd, checks the exact three resource FQNs, and hands the generated credential to a subprocess that authenticates against the Worker. Upstream owns protocol property tests, the real Turbo REMOTE-hit test and token safety tests.
 
-CI uploads `.turbo/runs/*.json` so LOCAL and REMOTE hits can be counted separately. The nightly and manually dispatched main canary disables all cache reads. A red uncached canary alongside green cached checks is a reason to inspect task `inputs` and `env`; runner, network and test failures remain other possible causes.
-
-Local workerd tests are not proof of deployed account access, asynchronous lifecycle expiry, or GitHub secret delivery. The desk must verify those after deployment. No deployment is part of building this package.
+`apps/site/scripts/startup-budget.ts` still bundles this entry through Alchemy and enforces the shrink-only `480_000` byte ceiling. Run `pnpm turbo run check test build` before shipping. Local checks do not prove live lifecycle deletion, account access or GitHub secret delivery.
 
 ## Remove the cartridge
 
-1. Delete the `yield* turboCache` line and its import in `apps/infra/alchemy.run.ts`.
-2. Delete this package.
-3. Delete the `@rat-stack/turbo-cache` workspace dependency in `apps/infra/package.json` and refresh the lockfile.
-4. Remove the `TurboCache` entry, budget and measurement target in `apps/site/scripts/startup-budget.ts`.
+1. Remove `yield* turboCache` and its import from `apps/infra/alchemy.run.ts`.
+2. Remove this package and its workspace dependency from `apps/infra/package.json`.
+3. Remove the `TurboCache` budget and entry from `apps/site/scripts/startup-budget.ts`.
+4. Remove the root `turbo-cache:token` script and `allowBuilds.alchemy-turbo-cache` entry, then refresh the lockfile.
+5. Remove `.brain/areas/turbo-cache.svx` and clear the GitHub cache credentials through the authorized owner.
+6. Run `pnpm turbo run check test build`.
 
-Startup measurement is unconditional. A budget entry pointing at a missing cache Worker fails with a fence message that names this final removal step.
-
-Remove the root `turbo-cache:token` script and `.brain/areas/turbo-cache.svx` as housekeeping. Clear GitHub's Turbo secret and variables. The CI env lines can stay inert, or be removed with the summary upload and nightly workflow. Run `pnpm turbo run check test build` after removal.
-
-Removing the Stack declaration does not destroy retained production resources. The desk owns any later resource deletion. No application data or other cartridge depends on this bucket.
-
-## Credit
-
-The related MIT implementation is [AdiRishi/turborepo-remote-cache-cloudflare at b0aaab5c3063dd5f8d15e38e69398a0c040edcda](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/tree/b0aaab5c3063dd5f8d15e38e69398a0c040edcda). This Effect adapter is independently implemented against the pinned Turbo client. It does not copy the upstream router, cron, or storage layer. See `PROVENANCE.md`.
+Removing a declaration does not destroy retained production resources. The desk owns any later resource deletion. See `PROVENANCE.md` for the implementation's origin.
