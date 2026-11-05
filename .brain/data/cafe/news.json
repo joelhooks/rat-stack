@@ -1,5 +1,21 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/joelhooks/alchemy-turbo-cache",
+    "title": "alchemy-turbo-cache",
+    "summary": "A Turbo remote cache on Cloudflare Workers and R2, declared by an Alchemy Stack: one call declares the Worker, an expiring bucket and per-team tokens.",
+    "date": "2026-11-05",
+    "repo": "joelhooks/alchemy-turbo-cache",
+    "author": {
+      "github": "joelhooks",
+      "x": "joelhooks"
+    },
+    "source": "https://github.com/joelhooks/alchemy-turbo-cache",
+    "engagement": {
+      "stars": 18
+    }
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/MattiaManzati/status/2117933990246232387",
     "title": "tsrs --lint replaces Oxlint's type-aware linter, now with Effect rules",
@@ -12,30 +28,68 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117933990246232387",
     "engagement": {
-      "likes": 264,
-      "participants": 10,
-      "replies": 9
+      "likes": 338,
+      "participants": 15,
+      "replies": 12
     },
     "topReplies": [
       {
-        "likes": 3,
-        "text": "@theopomies @MattiaManzati @EffectTS_ They are all semantically equivalent, pick one and stick with it",
-        "url": "https://x.com/MichaelArnaldi/status/2118023572673417479",
-        "x": "MichaelArnaldi"
+        "likes": 7,
+        "text": "https://t.co/LpppVGHiuc",
+        "url": "https://x.com/MattiaManzati/status/2117934042444386481",
+        "x": "MattiaManzati"
       },
       {
-        "likes": 1,
+        "likes": 4,
         "text": "@MattiaManzati @EffectTS_ i’m getting lost in the ecosystem, which tool to use, which is compatible with which, when to update what etc\n\nall the gains are exciting, i just struggle to find the best way to benefit",
         "url": "https://x.com/theopomies/status/2117947882980696295",
         "x": "theopomies"
       },
       {
-        "likes": 1,
-        "text": "@MattiaManzati @EffectTS_ Was waiting for this!",
-        "url": "https://x.com/rodrigoehlers/status/2117947561960964108",
-        "x": "rodrigoehlers"
+        "likes": 3,
+        "text": "@theopomies @MattiaManzati @EffectTS_ They are all semantically equivalent, pick one and stick with it",
+        "url": "https://x.com/MichaelArnaldi/status/2118023572673417479",
+        "x": "MichaelArnaldi"
       }
     ]
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/pkishorez/status/2118009748310438072",
+    "title": "kabuki brings a Foldkit-style API to React on Effect",
+    "summary": "kabuki 0.0.5 maps React components to actors, useReducer to model, message and update, and useEffect to declarative workers; React still renders.",
+    "date": "2026-11-04",
+    "repo": "pkishorez/monorepo",
+    "author": {
+      "github": "pkishorez",
+      "x": "pkishorez"
+    },
+    "source": "https://docs.kishore.app/kabuki",
+    "topReplies": [
+      {
+        "likes": 3,
+        "text": "I released (v0.0.5). And I am already happy about the results.\nFeedback very welcome.\n\nDocs: https://t.co/dzBm58zw2T\nRepo: https://t.co/Cefmnf8KkH (packages/kabuki)",
+        "url": "https://x.com/pkishorez/status/2118009755612643538",
+        "x": "pkishorez"
+      },
+      {
+        "likes": 3,
+        "text": "Incrementally adoptable.\nCan migrate a single component / whole app with it!\n\nThe entire https://t.co/3A0eJPX02G is built on kabuki start framework!\nEnd to end kabuki.\nWith static rendering!",
+        "url": "https://x.com/pkishorez/status/2118009753020612982",
+        "x": "pkishorez"
+      },
+      {
+        "likes": 2,
+        "text": "@HANGxue257306 Yes!\nEverything in kabuki is declarative.\nA worker can live for the lifetime of entire actor, a state or even a specific condition!\nWe do not start anything imperatively. That is what make it so easy to work with.",
+        "url": "https://x.com/pkishorez/status/2118185493716422659",
+        "x": "pkishorez"
+      }
+    ],
+    "engagement": {
+      "likes": 64,
+      "replies": 6,
+      "participants": 7
+    }
   },
   {
     "kind": "release",
@@ -48,7 +102,10 @@
       "github": "joelhooks",
       "x": null
     },
-    "source": "https://registry.npmjs.org/mutant-cafe"
+    "source": "https://registry.npmjs.org/mutant-cafe",
+    "engagement": {
+      "stars": 62
+    }
   },
   {
     "kind": "release",
@@ -61,7 +118,10 @@
       "github": null,
       "x": null
     },
-    "source": "https://api.github.com/repos/alchemy-run/alchemy/releases"
+    "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
+    "engagement": {
+      "stars": 1866
+    }
   },
   {
     "kind": "post",
@@ -111,21 +171,21 @@
     },
     "topReplies": [
       {
-        "likes": 0,
-        "text": "@m_salman_afzal @EffectTS_ Yes, only in oxlint or in our version of typescript or tsrs; they need to be type aware and unfortunately eslint is not fast enough",
-        "url": "https://x.com/MattiaManzati/status/2117512507979964687",
+        "likes": 12,
+        "text": "https://t.co/gbFouQKEjE",
+        "url": "https://x.com/MattiaManzati/status/2117330174752739551",
         "x": "MattiaManzati"
       },
       {
-        "likes": 0,
-        "text": "@MattiaManzati A lot of the examples you posted looks like new APIs. Are they? Or is the linter just surfacing them to me?",
-        "url": "https://x.com/HellSatanS/status/2117539974539345943",
-        "x": "HellSatanS"
+        "likes": 11,
+        "text": "https://t.co/kqPwXoy8o8",
+        "url": "https://x.com/MattiaManzati/status/2117330119341875326",
+        "x": "MattiaManzati"
       },
       {
-        "likes": 1,
-        "text": "@HellSatanS Most of the API already existed in v3 as well; for more info check the rules docs or the picture in the right corner reports dimmed if it supports v3/v4 :)",
-        "url": "https://x.com/MattiaManzati/status/2117540582880870584",
+        "likes": 7,
+        "text": "https://t.co/G2gS7S5KeV",
+        "url": "https://x.com/MattiaManzati/status/2117330213717545141",
         "x": "MattiaManzati"
       }
     ]
@@ -143,28 +203,28 @@
     },
     "source": "https://x.com/mattpocockuk/status/2117157362700058671",
     "engagement": {
-      "likes": 473,
-      "participants": 67,
+      "likes": 474,
+      "participants": 75,
       "replies": 65
     },
     "topReplies": [
       {
-        "likes": 104,
+        "likes": 120,
         "text": "@mattpocockuk Work on it with agents, connect them to the devtools to inspect state, do scene testing, you won’t have many aha moments but you’ll have no wtf moment",
         "url": "https://x.com/MichaelArnaldi/status/2117158569607098459",
         "x": "MichaelArnaldi"
       },
       {
-        "likes": 20,
+        "likes": 28,
         "text": "@mattpocockuk the elm architecture, but with typescript and effect\nthere's not that many aha moments, for me it's more like damn why didn't i do this sooner\n\nit feels correctly designed for agents end to end, everything is visible to them including state transitions",
         "url": "https://x.com/elianiva_/status/2117166491376165087",
         "x": "elianiva_"
       },
       {
-        "likes": 9,
-        "text": "@mattpocockuk Imagine DDD on the app level. And every state transition is explicit, semantic, traceable. \n\nImagine useReducer was the core of your app/framework. \n\nIt just makes everything more predictable. More domain-shaped. More about the semantics of your application, and less about where",
-        "url": "https://x.com/RelevantElement/status/2117231177580916841",
-        "x": "RelevantElement"
+        "likes": 16,
+        "text": "@mattpocockuk @MattiaManzati Story based testing is awesome for AI and human review. Let’s you pump out working features. https://t.co/ErPYK4Abn4",
+        "url": "https://x.com/samgoodwin89/status/2117279844530835550",
+        "x": "samgoodwin89"
       }
     ]
   },
@@ -195,7 +255,10 @@
       "github": null,
       "x": null
     },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases"
+    "source": "https://api.github.com/repos/Effect-TS/effect/releases",
+    "engagement": {
+      "stars": 17488
+    }
   },
   {
     "kind": "release",
@@ -210,7 +273,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases",
     "engagement": {
-      "stars": 30405
+      "stars": 30413
     }
   },
   {
@@ -290,7 +353,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1189
+      "stars": 1193
     }
   },
   {
@@ -306,7 +369,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 42
+      "stars": 44
     }
   },
   {
@@ -349,7 +412,42 @@
       "github": "joelhooks",
       "x": "joelhooks"
     },
-    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2"
+    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
+    "engagement": {
+      "stars": 153
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/aidenybai/tla-ts",
+    "title": "tla-ts",
+    "summary": "A TLA+ interpreter and model checker in TypeScript that runs in Node or the browser; 0.0.8 shipped on 2026-11-05.",
+    "date": "2026-10-26",
+    "repo": "aidenybai/tla-ts",
+    "author": {
+      "github": "aidenybai",
+      "x": "aidenybai"
+    },
+    "source": "https://tla-ts.aidenybai.com/",
+    "engagement": {
+      "stars": 191
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/me-shaon/mailswitch",
+    "title": "mailswitch",
+    "summary": "A transactional email library for Cloudflare Workers with one API over Resend, Postmark, Amazon SES and SMTP; providers switch without a redeploy.",
+    "date": "2026-10-26",
+    "repo": "me-shaon/mailswitch",
+    "author": {
+      "github": "me-shaon",
+      "x": "me_shaon"
+    },
+    "source": "https://github.com/me-shaon/mailswitch",
+    "engagement": {
+      "stars": 22
+    }
   },
   {
     "kind": "launch",
@@ -364,7 +462,7 @@
     },
     "source": "https://github.com/codician-team/diffinery",
     "engagement": {
-      "stars": 81
+      "stars": 82
     }
   },
   {
@@ -394,7 +492,10 @@
       "github": "joelhooks",
       "x": "joelhooks"
     },
-    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0"
+    "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
+    "engagement": {
+      "stars": 153
+    }
   },
   {
     "kind": "release",
@@ -407,7 +508,10 @@
       "github": "joelhooks",
       "x": "joelhooks"
     },
-    "source": "https://blog.cloudflare.com/typescript-rust-port/"
+    "source": "https://blog.cloudflare.com/typescript-rust-port/",
+    "engagement": {
+      "stars": 153
+    }
   },
   {
     "kind": "thread",
@@ -474,7 +578,10 @@
       "github": null,
       "x": null
     },
-    "source": "https://github.com/Effect-TS/tsgo/releases"
+    "source": "https://github.com/Effect-TS/tsgo/releases",
+    "engagement": {
+      "stars": 329
+    }
   },
   {
     "kind": "release",
@@ -489,7 +596,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1189
+      "stars": 1193
     }
   },
   {
@@ -505,7 +612,7 @@
     },
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
-      "stars": 51
+      "stars": 55
     }
   },
   {
@@ -521,7 +628,7 @@
     },
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
-      "stars": 13
+      "stars": 14
     }
   },
   {
@@ -553,7 +660,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1944
+      "stars": 1945
     }
   },
   {
@@ -569,7 +676,7 @@
     },
     "source": "https://github.com/acoyfellow/coil",
     "engagement": {
-      "stars": 43
+      "stars": 44
     }
   },
   {
@@ -614,7 +721,7 @@
     },
     "source": "https://github.com/humanlayer/effect-channels",
     "engagement": {
-      "stars": 45
+      "stars": 46
     }
   },
   {
