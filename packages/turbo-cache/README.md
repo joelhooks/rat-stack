@@ -25,7 +25,7 @@ The Worker, bucket and generated secrets retain only in `prod`. Other stages may
 
 Edit `src/config.ts` before deployment. Set the project repository, Stack name, state-store name, team slugs and retention days. The template team is `rat-stack`. Team slugs use letters, digits, underscores or hyphens and must be unique. Use a separate token for each team. Adding a team declares another `Alchemy.Random`; removing one revokes it on the next Worker deployment. Production state retains its generated value until the operator removes it through the normal resource workflow.
 
-Alchemy persists each token as a `Redacted` Random attribute and binds that attribute to the Worker as a secret. The handoff reads only completed resource records. It does not evaluate the Stack, create artifact credentials, plan or deploy resources. It overrides Alchemy's state-store provisioning policy: missing or outdated stores fail closed instead of bootstrapping or upgrading during a read. Existing profile authentication remains necessary.
+Alchemy persists each token as a `Redacted` Random attribute and binds that attribute to the Worker as a secret. The handoff reads only completed resource records. It does not evaluate the Stack, create artifact credentials, plan or deploy resources. It overrides Alchemy's state-store provisioning policy: missing or outdated stores fail closed instead of bootstrapping or upgrading during a read. The operator's secret tool must inject `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` into the handoff process. No Cloudflare credentials are loaded from Alchemy profiles. In Alchemy beta.85, the `CI=true` guard both refuses store bootstrap/upgrade and makes environment variables the only credential source. This applies to the read-only handoff, not the Stack's deployment authentication. The CLI preserves a failure's source tag and message without serializing credential fields.
 
 After the desk deploys and reviews the account, stage and receiving command:
 
@@ -33,7 +33,9 @@ After the desk deploys and reviews the account, stage and receiving command:
 pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command> [args]
 ```
 
-The command receives the token on stdin, without a newline. The token is never passed through argv, environment variables, files, or the parent's stdout. The receiver's stdout and stderr are discarded, even on failure. Only `TURBO_API=<origin>` and `TURBO_TEAM=<slug>` print after a successful handoff. Choose a trusted receiver that consumes stdin and safely writes the GitHub Actions secret `TURBO_TOKEN` through authorized ShitRat tooling. The desk owns that GitHub write. The script does not reach into ShitRat internals or expose installation credentials.
+Run this command through the operator's secret tool with the two Cloudflare variables injected. Do not paste credential values into shell commands, logs or checked-in files.
+
+The receiving command gets the cache token on stdin, without a newline. The token is never passed through argv, environment variables, files, or the parent's stdout. The receiver's stdout and stderr are discarded, even on failure. Only `TURBO_API=<origin>` and `TURBO_TEAM=<slug>` print after a successful handoff. Choose a trusted receiver that consumes stdin and safely writes the GitHub Actions secret `TURBO_TOKEN` through authorized ShitRat tooling. The desk owns that GitHub write. The script does not reach into ShitRat internals or expose installation credentials.
 
 Set repository variables `TURBO_API` and `TURBO_TEAM` from those non-secret values. `TURBO_API` is the origin without `/v8`. `TURBO_TEAM` is a slug, not a team ID. Remote caching stays off unless both token and team are set. Turbo warns and executes the task when remote caching is unavailable. CI task failures remain failures.
 

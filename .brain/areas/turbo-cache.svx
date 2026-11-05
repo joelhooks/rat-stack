@@ -101,6 +101,14 @@ Generated runtime checks cover byte-identical reads, team isolation, HEAD agreem
 The real Turbo seam uses two empty local cache directories and requires a REMOTE hit on its second run.
 
 The credential handoff reads completed [Alchemy](/skills/learn-alchemy) state in process.
+The operator's secret tool must inject `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` into that process.
+The handoff does not load Cloudflare credentials from Alchemy profiles.
+
+Its `CI=true` guard refuses state-store bootstrap and upgrade.
+In Alchemy beta.85, that same guard makes environment variables the only credential source.
+A failed handoff keeps the source tag and message without serializing credential fields.
+Stack deployment authentication is separate from this read-only handoff.
+
 Run `pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command>` after the approved deployment.
 Only that command's stdin receives the token.
 

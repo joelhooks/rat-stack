@@ -1,14 +1,105 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { AlchemyContext } from "alchemy/AlchemyContext";
+import { CredentialsUnavailable } from "alchemy/Auth/Resolve";
+import * as Interaction from "alchemy/Interaction";
 import * as Provisioning from "alchemy/State/Provisioning";
-import { ConfigProvider, Effect, Layer, Redacted, Ref, Result } from "effect";
+import {
+  Cause,
+  ConfigProvider,
+  Effect,
+  Layer,
+  Redacted,
+  Ref,
+  Result,
+  Schema,
+} from "effect";
+import * as HttpClient from "effect/http/HttpClient";
 import { vi } from "vitest";
 
-import { withoutStateProvisioning } from "../src/read-state.js";
+import {
+  deployedCacheState,
+  withoutStateProvisioning,
+} from "../src/read-state.js";
+import { stateReadFailure } from "../src/token-failure.js";
 import { handoffToken } from "../src/token.js";
 
 const token = "test-only-handoff-secret";
+
+it.effect(
+  "missing credentials name the required variable without blaming the store",
+  () =>
+    Effect.gen(function* missingCredentials() {
+      const before = { ...process.env };
+
+      const result = yield* deployedCacheState.pipe(
+        Effect.catchCause((cause) => Effect.fail(stateReadFailure(cause))),
+        Effect.result
+      );
+
+      expect(Result.isFailure(result)).toBe(true);
+
+      if (Result.isFailure(result)) {
+        expect(result.failure.message).toContain("CredentialsUnavailable");
+        expect(result.failure.message).toContain(
+          "Missing required env: CLOUDFLARE_ACCOUNT_ID"
+        );
+        expect(result.failure.message).not.toContain(
+          "unavailable or requires an upgrade"
+        );
+      }
+
+      expect(
+        Object.keys({ ...before, ...process.env }).filter(
+          (key) => before[key] !== process.env[key]
+        )
+      ).toEqual([]);
+    }).pipe(
+      Effect.provideService(
+        HttpClient.HttpClient,
+        HttpClient.make(() =>
+          Effect.die("missing-credentials-must-not-reach-network")
+        )
+      ),
+      Effect.provideService(AlchemyContext, {
+        adopt: false,
+        dev: false,
+        dotAlchemy: ".alchemy",
+        updateStateStore: true,
+      }),
+      Effect.provide(
+        Interaction.layerNonInteractive().pipe(
+          Layer.provideMerge(NodeServices.layer)
+        )
+      ),
+      Effect.provideService(
+        ConfigProvider.ConfigProvider,
+        ConfigProvider.fromUnknown({})
+      )
+    )
+);
+
+it.prop(
+  "state failure diagnostics retain source fields without serializing credential data",
+  { value: Schema.String },
+  ({ value }) => {
+    const failure = stateReadFailure(
+      Cause.die(
+        new CredentialsUnavailable({
+          cause: { apiToken: `fixture-only-credential:${value}` },
+          message: "Missing required env: CLOUDFLARE_API_TOKEN",
+          provider: "Cloudflare",
+        })
+      )
+    );
+
+    expect(failure.message).toContain("CredentialsUnavailable");
+    expect(failure.message).toContain(
+      "Missing required env: CLOUDFLARE_API_TOKEN"
+    );
+    expect(JSON.stringify(failure)).not.toContain("fixture-only-credential:");
+  }
+);
 
 const records = (fqn: string) =>
   Effect.succeed(
