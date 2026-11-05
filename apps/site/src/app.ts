@@ -17,7 +17,6 @@ import {
   Predicate,
   Schema,
 } from "effect";
-import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
 import * as HttpHeaders from "effect/http/Headers";
@@ -71,7 +70,13 @@ import { retiredInterestRoutes } from "./interest/retired-routes.js";
 import { interestRoutes } from "./interest/routes.js";
 import type { InterestOptions } from "./interest/routes.js";
 import { UNSUBSCRIBE_PATH, unsubscribeRoutes } from "./interest/unsubscribe.js";
-import { legacySessionNotFound } from "./legacy-mcp/session.js";
+import {
+  inspectMcpRequest,
+  legacySessionOf,
+  MODERN_MCP_VERSION,
+  routeLegacyMcp,
+} from "./legacy-mcp/routing.js";
+import type { LegacyMcpRouter, JsonRpcEnvelope } from "./legacy-mcp/routing.js";
 import type { modernMcpLayer } from "./mcp-surface.js";
 import { acceptedMediaTypes, acceptsHtml } from "./negotiation.js";
 import { promptLibraryLayer } from "./prompt-library.js";
@@ -85,6 +90,8 @@ import {
 } from "./security.js";
 import { StaticAssets } from "./static-assets.js";
 import { decodeEd25519PrivateJwk, publicKeyDirectory } from "./web-bot-auth.js";
+
+export type { LegacyMcpRouter } from "./legacy-mcp/routing.js";
 
 const markdown = (body: string) =>
   HttpServerResponse.text(body, {
@@ -762,28 +769,6 @@ const contentRoutes = () =>
     })
   );
 
-const JsonRpcEnvelope = Schema.Struct({
-  id: Schema.optional(
-    Schema.Union([Schema.String, Schema.Finite, Schema.Null])
-  ),
-  method: Schema.optional(Schema.String),
-  params: Schema.optional(
-    Schema.Struct({ name: Schema.optional(Schema.Unknown) })
-  ),
-});
-
-const inspectMcpRequest = (request: HttpServerRequest.HttpServerRequest) =>
-  Effect.gen(function* inspectRequest() {
-    const { source } = request;
-
-    const body: unknown =
-      source instanceof Request
-        ? yield* Effect.tryPromise(() => source.clone().json())
-        : yield* request.json;
-
-    return yield* Schema.decodeUnknownEffect(JsonRpcEnvelope)(body);
-  }).pipe(Effect.orElseSucceed(() => null));
-
 const exceededMessage = (name: RateLimitName) =>
   `${name} rate limit exceeded; retry after 60 seconds.`;
 
@@ -825,18 +810,6 @@ const rateLimitResponse = (
     )
   );
 };
-
-export interface LegacyMcpRouter {
-  readonly forward: (
-    session: string,
-    request: Request
-  ) => Effect.Effect<Response>;
-}
-
-const MODERN_MCP_VERSION = "2026-07-28";
-
-const sessionIdPattern =
-  /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/u;
 
 interface McpRequestRouting {
   readonly envelope: typeof JsonRpcEnvelope.Type | null;
@@ -900,47 +873,6 @@ const firstExceededLimit = (
     }
 
     return null;
-  });
-
-const legacySessionOf = Effect.fnUntraced(function* legacySessionOf(
-  request: HttpServerRequest.HttpServerRequest,
-  routing: McpRequestRouting
-): Effect.fn.Return<string | null, never, SecureRandom.SecureRandom> {
-  if (!routing.isMcp || routing.modernMcp) {
-    return null;
-  }
-
-  const existing = request.headers["mcp-session-id"];
-
-  if (existing !== undefined) {
-    return existing;
-  }
-
-  if (routing.envelope?.method !== "initialize") {
-    return null;
-  }
-
-  const crypto = yield* SecureRandom.SecureRandom;
-
-  return yield* crypto.uuidV4();
-});
-
-const routeLegacyMcp = (
-  router: LegacyMcpRouter,
-  request: HttpServerRequest.HttpServerRequest,
-  session: string,
-  routing: McpRequestRouting
-) =>
-  Effect.gen(function* routeLegacy() {
-    if (!sessionIdPattern.test(session)) {
-      return HttpServerResponse.fromWeb(
-        legacySessionNotFound(routing.envelope?.id)
-      );
-    }
-
-    const web = yield* HttpServerRequest.toWeb(request).pipe(Effect.orDie);
-
-    return HttpServerResponse.fromWeb(yield* router.forward(session, web));
   });
 
 const needsVersionHelp = (

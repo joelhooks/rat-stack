@@ -1,15 +1,13 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { Flags } from "@rat-stack/core/flags";
 import * as Effect from "effect/Effect";
-import * as HttpServerRequest from "effect/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Layer from "effect/Layer";
 
 import { liveFlagsLayer } from "../flags.js";
 import { layerWorkerLoader, sandboxLimits } from "../sandbox-loader.js";
 import type { WorkerLoaderBinding } from "../sandbox-worker-loader.js";
 import { workerAssetsLayer } from "../worker-content.js";
-import { LEGACY_SESSION_HEADER, openLegacySession } from "./session.js";
+import { legacySessionFetch } from "./session.js";
 import type { StoredSession } from "./session.js";
 
 const SESSION_KEY = "session";
@@ -42,28 +40,12 @@ export default class LegacyMcp extends Cloudflare.DurableObject<LegacyMcp>()(
     );
 
     // @effect-diagnostics-next-line returnEffectInGen:off -- Alchemy's DurableObject contract returns the per-instance Effect.
-    return Effect.gen(function* makeInstance() {
-      const session = yield* openLegacySession({
-        forward,
-        storage: {
-          load: state.storage.get<StoredSession>(SESSION_KEY),
-          save: (stored) => state.storage.put(SESSION_KEY, stored),
-        },
-      });
-
-      return {
-        fetch: Effect.gen(function* serveSession() {
-          const request = yield* HttpServerRequest.HttpServerRequest;
-
-          const web = yield* HttpServerRequest.toWeb(request).pipe(
-            Effect.orDie
-          );
-
-          const id = web.headers.get(LEGACY_SESSION_HEADER) ?? "";
-
-          return HttpServerResponse.fromWeb(yield* session.handle(web, id));
-        }),
-      };
+    return legacySessionFetch({
+      forward,
+      storage: {
+        load: state.storage.get<StoredSession>(SESSION_KEY),
+        save: (stored) => state.storage.put(SESSION_KEY, stored),
+      },
     });
   })
 ) {}
