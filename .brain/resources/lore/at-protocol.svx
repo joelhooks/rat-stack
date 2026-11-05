@@ -1,0 +1,89 @@
+---
+title: "AT Protocol separates identity, data, and application schemas"
+description: "AT Protocol connects persistent account identifiers, signed public repositories, hosting services, and shared schemas."
+group: concept
+prerequisites: ["lore.schemas-define-the-boundary"]
+plain: "DIDs identify accounts. PDS services host signed public repositories. Lexicons define records and calls."
+terms:
+  - "AT Protocol"
+  - "decentralized identifier"
+  - "PDS"
+  - "lexicon"
+sources:
+  - url: https://atproto.com/guides/overview
+    title: "Protocol overview"
+    publisher: "Bluesky Social PBC"
+    note: "Protocol purpose, identity, PDS roles, and application schemas."
+    accessed: "2026-11-05"
+  - url: https://atproto.com/specs/did
+    title: "AT Protocol DIDs"
+    publisher: "Bluesky Social PBC"
+    note: "Persistent account identifiers, supported DID methods, and DID documents."
+    accessed: "2026-11-05"
+  - url: https://atproto.com/specs/repository
+    title: "Repository specification"
+    publisher: "Bluesky Social PBC"
+    note: "Public records, signed commits, repository paths, and PDS authority."
+    accessed: "2026-11-05"
+  - url: https://atproto.com/specs/lexicon
+    title: "Lexicon specification"
+    publisher: "Bluesky Social PBC"
+    note: "Schemas for records, HTTP endpoints, and event streams."
+    accessed: "2026-11-05"
+---
+
+AT Protocol means Authenticated Transfer Protocol.
+It is a decentralized protocol for social web applications.
+The [overview](https://atproto.com/guides/overview) separates account identity, data hosting, and application views.
+
+## A DID identifies the account
+
+A decentralized identifier is a persistent account identifier in AT Protocol, abbreviated DID.
+It supports the `did:plc` and `did:web` methods.
+The [DID specification](https://atproto.com/specs/did) defines their use and the account's DID document.
+
+The [overview](https://atproto.com/guides/overview) distinguishes the DID from the human-readable handle.
+The identity includes cryptographic keys and a reference to the current hosting provider.
+
+## A PDS hosts the repository
+
+A PDS is a Personal Data Server.
+It hosts account data, manages identity, and routes requests to other services, as the [overview](https://atproto.com/guides/overview) describes.
+The [repository specification](https://atproto.com/specs/repository) makes the account's PDS the authoritative repository host.
+The DID document declares its location.
+
+A repository holds the account's public records.
+Its published versions have cryptographically signed commits.
+The [repository specification](https://atproto.com/specs/repository) describes a content-addressed Merkle tree that supports verification of records and the complete repository.
+
+Repository paths have two parts: a collection identifier and a record key.
+The [path rules](https://atproto.com/specs/repository#repository-paths) define the collection as a namespaced identifier, or NSID.
+
+## Lexicons describe records and calls
+
+A lexicon is a [schema](/lore/schemas-define-the-boundary) definition for records, HTTP endpoints, or event stream messages.
+Lexicons are JSON files identified by NSIDs.
+The [Lexicon specification](https://atproto.com/specs/lexicon) distinguishes record definitions from queries, procedures, and subscriptions.
+
+A procedure schema describes an operation. It does not make that operation's input a public repository record.
+
+The [overview](https://atproto.com/guides/overview) shows how DIDs, repositories, and lexicons fit together:
+
+```text
+DID document ── identifies keys and the current PDS
+                                      │
+                                      ▼
+                            signed public repository
+                                      │
+                                      ▼
+                         records described by lexicons
+```
+
+The [repository specification](https://atproto.com/specs/repository) makes repository contents public and verifiable.
+A repository signature establishes verifiability. It does not hide the record's contents.
+
+## Read Rat King next
+
+[Rat King](/lore/rat-king) teaches how the agent-mail project uses these building blocks.
+It distinguishes public profile records, private runtime bindings, and mailbox procedures.
+Its page also separates implemented mail clients from the public-repository roadmap.
