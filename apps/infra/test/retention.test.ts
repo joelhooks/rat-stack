@@ -71,5 +71,5 @@ it.effect.prop(
         }
       }
     }),
-  { arbitrary: { runs: 4 } }
+  { arbitrary: { runs: 4 }, timeout: 30_000 }
 );

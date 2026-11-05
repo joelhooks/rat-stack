@@ -18,6 +18,10 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Turbo remote cache
+
+`packages/turbo-cache` is independently implemented against [Turbo's v2.11.9 API client](https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs). The related MIT Worker implementation is [AdiRishi/turborepo-remote-cache-cloudflare](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/tree/b0aaab5c3063dd5f8d15e38e69398a0c040edcda), pinned at `b0aaab5c3063dd5f8d15e38e69398a0c040edcda`. No upstream router, storage implementation or cron is copied. The protocol adapter, team authorization, lifecycle policy and Effect integration are new here.
+
 ## Motion (`packages/motion`)
 
 ### Penner's easing equations (BSD-3-Clause)
