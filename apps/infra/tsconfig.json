@@ -12,6 +12,7 @@
           "effect/Path",
           "effect/ai/McpProtocol",
           "effect/ai/McpServer",
+          "effect/crypto/Digest",
           "effect/crypto/SecureRandom",
           "effect/http-api/HttpApiBuilder",
           "effect/http-api/HttpApiClient",
