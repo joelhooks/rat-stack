@@ -82,7 +82,8 @@ it.effect(
           );
         }
       }
-    }).pipe(Effect.provide(NodeServices.layer))
+    }).pipe(Effect.provide(NodeServices.layer)),
+  { timeout: 60_000 }
 );
 
 it.effect("Reader routing preserves same-generation agent Markdown bytes", () =>

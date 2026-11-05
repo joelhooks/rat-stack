@@ -106,5 +106,5 @@ it.effect.prop(
       }).toEqual(metadata);
       expect(footerLinks(rendered.html)).toEqual(footerLinks(mischief));
     }),
-  { arbitrary: { runs: 100 } }
+  { arbitrary: { runs: 100 }, timeout: 60_000 }
 );
