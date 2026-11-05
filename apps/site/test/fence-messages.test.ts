@@ -13,6 +13,7 @@ import { PublicAuthBundleLeak } from "../scripts/startup-auth-dependency.ts";
 import { StartupBudgetExceeded } from "../scripts/startup-budget-exceeded.ts";
 import { StartupBuildDependency } from "../scripts/startup-build-dependency.ts";
 import { StartupGraphInvalid } from "../scripts/startup-set.ts";
+import { StartupWorkerEntryMissing } from "../scripts/startup-worker-entry-missing.ts";
 import { wikiProseWarningText } from "../scripts/wiki-prose.ts";
 
 const word = Arbitrary.schema(placeholderValue);
@@ -164,6 +165,8 @@ describe("startup fence messages", () => {
     ({ budget, bytes, module, worker }) => {
       const failures = [
         new StartupBudgetExceeded({ budget, bytes, worker }),
+        new StartupWorkerEntryMissing({ entry: module, worker }),
+        new StartupWorkerEntryMissing({ entry: module, worker: "TurboCache" }),
         new PublicAuthBundleLeak({ modules: [module] }),
         new StartupBuildDependency({ modules: [module] }),
         new StartupGraphInvalid({ detail: module, entry: worker }),

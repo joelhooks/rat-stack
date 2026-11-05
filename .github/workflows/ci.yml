@@ -11,6 +11,12 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    env:
+      TURBO_API: ${{ vars.TURBO_API }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_CACHE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'local:w,remote:w' || 'local:rw,remote:rw' }}
+      TURBO_RUN_SUMMARY: "true"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -29,3 +35,11 @@ jobs:
       - name: Check and test
         # Serialize Turbo tasks so concurrent Vitest pools do not contend on the CI runner.
         run: pnpm turbo run check test build --concurrency=1
+      - name: Upload Turbo run summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo-runs
+          path: .turbo/runs/*.json
+          include-hidden-files: true
+          if-no-files-found: ignore
