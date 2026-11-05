@@ -31,5 +31,5 @@ jobs:
       - name: Fetch pinned source objects
         run: pnpm sources:fetch
       - name: Check and test
-        # Overlap independent tasks; keep the full graph and existing per-suite worker limits.
-        run: pnpm turbo run check test build --concurrency=4
+        # 6882060, 4 cores/16 GB: median N1=479s, N2=265s, N4=271s; N2 worst test=39.13% of budget.
+        run: pnpm turbo run check test build --concurrency=2
