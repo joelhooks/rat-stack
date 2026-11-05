@@ -58,8 +58,10 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
+const shikiThemeName = "rat-css-variables";
+
 export const shikiTheme = createCssVariablesTheme({
-  name: "rat-css-variables",
+  name: shikiThemeName,
   variablePrefix: "--shiki-",
 });
 
@@ -114,7 +116,7 @@ export const shikiLayer = () =>
           key,
           source,
           canonical,
-          shikiTheme.name,
+          shikiThemeName,
           "shiki@4.5.0",
         ]);
 
@@ -156,9 +158,9 @@ export const shikiLayer = () =>
 
       const port = Highlighter.of({
         aliases: () => aliases,
-        fingerprint: `shiki@4.5.0:${shikiTheme.name}`,
+        fingerprint: `shiki@4.5.0:${shikiThemeName}`,
         languages: () => [...Object.keys(bundledLanguages), "text"],
-        themes: () => [shikiTheme.name ?? "rat-css-variables"],
+        themes: () => [shikiThemeName],
         tokens,
       });
 

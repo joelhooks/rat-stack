@@ -51,25 +51,17 @@ const tokenColor = (role: string) => {
   return "var(--code-ink)";
 };
 
-type StyleEntry = readonly [string, string];
-
-const fontStyleEntries = (fontStyle: number): readonly StyleEntry[] => [
-  ...(fontStyle % 2 === 1 ? [["font-style", "italic"] as const] : []),
-  ...(Math.floor(fontStyle / 2) % 2 === 1
-    ? [["font-weight", "bold"] as const]
-    : []),
-  ...(Math.floor(fontStyle / 4) % 2 === 1
-    ? [["text-decoration", "underline"] as const]
-    : []),
-];
-
 const tokenStyle = (token: Token) =>
   [
     `color:${token.color ?? tokenColor(token.role)}`,
-    ...fontStyleEntries(token.fontStyle).map(
-      ([key, value]) => `${key}:${value}`
-    ),
-  ].join(";");
+    token.fontStyle % 2 === 1 ? "font-style:italic" : "",
+    Math.floor(token.fontStyle / 2) % 2 === 1 ? "font-weight:bold" : "",
+    Math.floor(token.fontStyle / 4) % 2 === 1
+      ? "text-decoration:underline"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(";");
 
 const snippetProvenance = (snippet: CodeSnippet) => {
   const { request } = snippet;
