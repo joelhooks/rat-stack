@@ -48,7 +48,7 @@ export const glossaryFirstUseWarnings = (
     entry,
     pattern: new RegExp(
       `(?<![\\p{L}\\p{N}_])${entry.term.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&")}(?![\\p{L}\\p{N}_])`,
-      "iu"
+      /^\p{Lu}{2,}$/u.test(entry.term) ? "u" : "iu"
     ),
   }));
 
