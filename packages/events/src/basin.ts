@@ -9,7 +9,9 @@ import "alchemy/Phase";
 import { Random } from "alchemy/Random";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
+import { Stage } from "alchemy/Stage";
 import { Effect, Layer, Redacted, Schema } from "effect";
+import { identity } from "effect/Function";
 
 import { VisitorSalt } from "./visitor-salt.js";
 
@@ -24,10 +26,15 @@ const encodeRawEvent = Schema.encodeEffect(RawEventSchema);
 export const unstructuredRow = (event: typeof RawEventSchema.Type) =>
   encodeRawEvent(event).pipe(Effect.map((value) => ({ value })));
 
+const retainInProd =
+  globalThis.__ALCHEMY_RUNTIME__ === true
+    ? identity
+    : retain(Stage.pipe(Effect.map((stage) => stage === "prod")));
+
 export const basinFoundation = ({ id }: BasinOptions) =>
   Effect.gen(function* declareBasinFoundation() {
     const { bucket, stream } = yield* basinStream(`${id}Events`);
-    const salt = yield* Random(`${id}VisitorSalt`).pipe(retain());
+    const salt = yield* Random(`${id}VisitorSalt`).pipe(retainInProd);
 
     return { bucket, salt, stream } as const;
   });

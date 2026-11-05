@@ -18,6 +18,7 @@ import type {
   CafeProjectValue,
 } from "@rat-stack/core/contracts";
 import { Option } from "effect";
+import { absurd } from "effect/Function";
 
 import {
   allStarsCopy,
@@ -196,6 +197,30 @@ export const allStarsIndexMarkdown = (list: typeof CafePeopleList.Type) => {
 const newsRowMarkdown = (item: CafeNewsItemValue) =>
   `- ${item.date} [${newsKindLabels[item.kind]}] [${linkText(item.title)}](${item.url}) (${cafeDomain(item.url)})`;
 
+const entryBasisMarkdown = (entry: CafeProfileValue["entry"]) => {
+  switch (entry.kind) {
+    case "news": {
+      return `Entered on these /news rows: ${entry.rows.map((url, index) => `[${index + 1}](${url})`).join(", ")}`;
+    }
+
+    case "stack": {
+      return `Contributes to the pinned stack package [\`${entry.package}\`](${entry.source})`;
+    }
+
+    case "vendored": {
+      return `Their [code is vendored or credited](${entry.source}) in rat-stack`;
+    }
+
+    case "work": {
+      return `Public [CAFE work](${entry.project}), with [stack evidence](${entry.source}) (checked ${entry.verified})`;
+    }
+
+    default: {
+      return absurd<string>(entry);
+    }
+  }
+};
+
 export const allStarsProfileMarkdown = (profile: CafeProfileValue) =>
   [
     `# ${profile.name}`,
@@ -257,7 +282,7 @@ export const allStarsProfileMarkdown = (profile: CafeProfileValue) =>
       ? [allStarsCopy.noNews]
       : profile.newsRows.map(newsRowMarkdown)),
     "",
-    `${allStarsCopy.entryRowsLabel}: ${profile.entryRows.map((url, index) => `[${index + 1}](${url})`).join(", ")}. ${allStarsCopy.entryRule}`,
+    `Why they're here: ${entryBasisMarkdown(profile.entry)}. ${allStarsCopy.entryRule}`,
     "",
     removalLine(profile.id),
   ].join("\n");

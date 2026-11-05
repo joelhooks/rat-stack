@@ -1,0 +1,145 @@
+---
+title: "Turbo remote cache"
+description: "A separate Worker stores streamed Turbo artifacts in R2, with one credential per team and lifecycle expiry."
+plain: "CI can reuse task artifacts from a team-scoped cache. The nightly canary never reads cached artifacts."
+diagram: |-
+  CI + team credential
+    │ Turbo artifact protocol
+    ▼
+  cache Worker
+    │ authorized team/hash
+    ▼
+  dedicated R2 bucket
+    └ expiry after upload
+group: system
+terms:
+  - "Turbo remote cache"
+  - "artifact retention"
+sources:
+  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52
+    title: "alchemy-turbo-cache v0.0.0"
+    publisher: "Joel Hooks"
+    note: "The extracted cartridge owns the Worker, bucket, credentials, protocol tests and read-only handoff."
+    accessed: "2026-11-05"
+  - url: https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs
+    title: "Turbo 2.11.9 API client"
+    publisher: "Vercel"
+    note: "Artifact routes, bearer authentication, team slug queries, lengths and artifact metadata headers."
+    accessed: "2026-11-05"
+  - url: https://developers.cloudflare.com/workers/runtime-apis/web-crypto/
+    title: "Workers Web Crypto"
+    publisher: "Cloudflare"
+    note: "The native timingSafeEqual extension compares buffers without a secret-dependent comparison loop in application code."
+    accessed: "2026-11-05"
+  - url: https://developers.cloudflare.com/r2/buckets/object-lifecycles/
+    title: "R2 object lifecycles"
+    publisher: "Cloudflare"
+    note: "Lifecycle deletion is asynchronous and operates on uploaded objects."
+    accessed: "2026-11-05"
+---
+
+## What it does
+
+[alchemy-turbo-cache v0.0.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
+`packages/turbo-cache` supplies rat-stack's configuration and adoption test.
+The Stack includes the [cartridge](/lore/cartridges) with `yield* turboCache`.
+The local README describes configuration and removal.
+
+The dependency pins Git commit `a51a7ba6ea56728f89c4214befe8bf940a946e52`.
+pnpm prepares its compiled exports during installation through the package-specific `allowBuilds` entry.
+No protocol or credential-handoff implementation remains in rat-stack.
+
+The declaration preserves `TurboCache`, `TurboCacheFoundation/TurboCacheBucket`, and `TurboCacheFoundation/TurboCacheToken-rat-stack`.
+The team remains `rat-stack`, with seven-day expiry and prod-only resource retention.
+
+Turbo sends binary task archives through its own HTTP protocol.
+The Worker streams those bodies to R2 and streams stored bodies back.
+It preserves artifact duration, optional signature tags, and byte lengths.
+
+This is an external protocol [adapter](/lore/hexagonal-architecture).
+The [capability projection](/lore/one-capability-every-surface) requires struct inputs, excludes HEAD, and does not describe raw upload streams with per-artifact response headers.
+The adapter adds no application capability or alternate agent route.
+
+R2 stores disposable copies of CI outputs under `team/hash` keys.
+Turbo's task hash determines reuse.
+CI remains responsible for the task result.
+
+## The standard
+
+Every supported route requires a bearer, including status and event acknowledgement.
+The Worker compares fixed-length SHA-256 digests with Workers' native constant-time comparison.
+It checks every configured credential before selecting a match.
+
+Each token authorizes one team prefix.
+A missing or wrong bearer gets 401.
+A valid bearer with an unknown or different team gets 403.
+
+Other routes return 404.
+There are no internal, debug, populate, count, or expiry-override routes.
+
+A credential holder can replace artifacts within its team.
+Team separation does not protect writers from another writer in the same team.
+Only trusted CI should receive credentials.
+Turbo owns optional signature verification; the Worker preserves the signature tag without verifying archive contents.
+rat-stack CI turns signing on with `remoteCache.signature` in `turbo.json` and the `TURBO_REMOTE_CACHE_SIGNATURE_KEY` secret.
+Turbo signs every upload and rejects an artifact with a missing or wrong signature, so a leaked cache token or bucket access cannot plant one.
+
+Main and pull requests both use `local:rw,remote:rw`, so a merge whose tree a pull request already built replays from the cache.
+A writer able to poison the cache already has push access, and fork pull requests get no token.
+The nightly and manual main canary also disable all cache reads.
+
+A red canary beside green cached checks calls for inspecting task inputs and environment declarations.
+Other test or runner failures still need diagnosis.
+
+Retention starts at upload.
+Reads do not extend an artifact's lifetime.
+The default is seven days, configured through an R2 lifecycle rule.
+Deletion is asynchronous.
+
+There is no listing cron and no application data in this bucket.
+
+GET responses disable edge caching.
+If edge caching is added, deletes will not instantly invalidate those cached responses.
+The Worker, bucket, and generated tokens retain only in production.
+
+`TURBO_API` is the origin without `/v8`.
+`TURBO_TEAM` is the team slug.
+Remote caching stays off unless both token and team are set.
+
+Turbo warns and executes tasks when the cache is unreachable.
+A missing token also leaves tasks running without remote reuse.
+
+## How to check
+
+Run `pnpm --filter @rat-stack/turbo-cache test`.
+The adoption test starts the installed cartridge in local workerd and checks its exact three resource FQNs.
+It hands the generated credential to a subprocess that authenticates against the Worker.
+
+The external package owns generated checks for byte-identical reads, team isolation, HEAD agreement, and auth before storage.
+Its real Turbo seam uses two empty local cache directories and requires a REMOTE hit on its second run.
+
+The credential handoff reads completed [Alchemy](/skills/learn-alchemy) state in process.
+The operator's secret tool must inject `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` into that process.
+The handoff does not load Cloudflare credentials from Alchemy profiles.
+
+Its `CI=true` guard refuses state-store bootstrap and upgrade.
+In Alchemy beta.85, that same guard makes environment variables the only credential source.
+A failed handoff keeps the source tag and message without serializing credential fields.
+Stack deployment authentication is separate from this read-only handoff.
+
+Run `pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command>` after the approved deployment.
+The root script supplies the Stack, state-store, resource prefix and team list to the package's executable.
+Only the trusted command's stdin receives the token.
+
+Its stdout and stderr are suppressed.
+The parent prints only the API origin and team slug after success.
+The desk owns the authorized GitHub secret write.
+
+CI uploads `.turbo/runs/*.json` to separate LOCAL and REMOTE hits.
+Check those summaries alongside task counts and the uncached main canary.
+Run the full gate with `pnpm turbo run check test build` before shipping.
+Alchemy's startup measurement still bundles the thin cache entry under the shrink-only 480,000-byte ceiling.
+
+Local workerd tests do not prove deployed account access, lifecycle deletion, or GitHub credential delivery.
+Those remain live checks for the deployment owner.
+No deployment is claimed by this page.

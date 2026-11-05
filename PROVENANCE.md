@@ -11,11 +11,18 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `packages/capability/src/catalog.ts` | Executor's kernel IR and Cloudflare's Code Mode | Types for the code-mode `tools` object are generated from JSON Schema, never from Effect internals. |
 | `packages/capability/test/mcp-harness.ts` | Effect's own `McpServer` tests | The server layer becomes a web handler; a fetch shim keeps the session headers. |
 | `packages/capability/src/sandbox-subprocess.ts`, `packages/capability/test/sandbox-orphan.test.ts`, VM-timeout cases in `packages/capability/test/sandbox.test.ts` | ported from a downstream fix to the vendored capability package |  |
+| `skills/security-audit/` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8), MIT, Copyright (c) 2025-2026 Cloudflare, Inc. | Upstream files unchanged; `RAT-STACK.md` and `UPSTREAM.md` are local additions. See `LICENSE` and `UPSTREAM.md` there. |
 | `tools/oxlint/anti-slop/` | [dmmulroy/anti-slop](https://github.com/dmmulroy/anti-slop) at `c44ef22`, MIT | Vendored and owned; see `UPSTREAM.md` there. Its files keep upstream's comments. |
 | `apps/site/scripts/smartypants.ts` | [parse-latin](https://github.com/wooorm/parse-latin) and [retext-smartypants](https://github.com/retextjs/retext-smartypants), MIT, Copyright (c) Titus Wormer, as bundled in `mdsvex@0.12.8` | Ported to TypeScript over a reduced node model, without the backtick rule, so doubled backticks and apostrophes stay literal as in GFM. |
 | `apps/site/scripts/markdown-html.ts` | [mdast-util-to-hast](https://github.com/syntax-tree/mdast-util-to-hast) and [mdurl](https://github.com/markdown-it/mdurl) `encode`, MIT, as bundled in `mdsvex@0.12.8`; [Svelte](https://github.com/sveltejs/svelte) `clean_nodes` whitespace rules at `svelte@5.57.1`, MIT | Ported to keep the generated HTML unchanged after Svelte and mdsvex left the workspace. |
 | `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
+
+## Turbo remote cache
+
+`packages/turbo-cache` now configures the MIT [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52) package at `v0.0.0`, pinned as `github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52`. That package was extracted from rat-stack. The duplicated protocol, state reader and credential handoff source and tests have been removed here; a local adoption test exercises the installed cartridge.
+
+The external package's implementation follows [Turbo's v2.11.9 API client](https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs). Its protocol behavior also draws on the MIT [AdiRishi/turborepo-remote-cache-cloudflare](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/tree/b0aaab5c3063dd5f8d15e38e69398a0c040edcda) at `b0aaab5c3063dd5f8d15e38e69398a0c040edcda`. No upstream router, storage implementation or cron was copied. The external package retains those credits in its own `PROVENANCE.md`.
 
 ## Motion (`packages/motion`)
 

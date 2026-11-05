@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["tsconfig.base.json"],
+  "remoteCache": { "signature": true },
   "tasks": {
     "typecheck": {
       "dependsOn": ["^typecheck"],

@@ -1,0 +1,46 @@
+name: Main uncached canary
+
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_API: ${{ vars.TURBO_API }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+      TURBO_CACHE: local:w,remote:w
+      TURBO_RUN_SUMMARY: "true"
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Use Node.js 24.18.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+      - name: Enable corepack pnpm
+        run: corepack enable && corepack prepare pnpm@11.3.0 --activate
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Fetch pinned source objects
+        run: pnpm sources:fetch
+      - name: Check and test without cache reads
+        run: pnpm turbo run check test build --concurrency=1
+      - name: Upload Turbo run summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo-runs-main-uncached
+          path: .turbo/runs/*.json
+          include-hidden-files: true
+          if-no-files-found: ignore

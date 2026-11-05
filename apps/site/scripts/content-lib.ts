@@ -1441,6 +1441,7 @@ export const isDebtSourcePath = (file: string) => {
 
   const excludedSegments = new Set([
     ".agent_sources",
+    ".alchemy",
     ".turbo",
     "build",
     "coverage",

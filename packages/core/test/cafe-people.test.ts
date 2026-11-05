@@ -38,10 +38,13 @@ const person = (index: number): CafePersonValue =>
       { text: `Person ${index} builds CAFE things.`, ...verified },
       { text: `Person ${index} posts about them.`, ...verified },
     ],
-    entryRows: [
-      `https://example.com/p${index}/first`,
-      `https://example.com/p${index}/second`,
-    ],
+    entry: {
+      kind: "news",
+      rows: [
+        `https://example.com/p${index}/first`,
+        `https://example.com/p${index}/second`,
+      ],
+    },
     handles: [
       {
         handle: `gh${index}`,
@@ -195,7 +198,7 @@ const withFoldkit = (
 
 describe("the entry rule warning", () => {
   it.prop(
-    "names exactly the authors with two or more rows that no profile owns",
+    "names exactly the authors with any rows that no profile owns",
     [
       authoredRows,
       Arbitrary.schema(
@@ -214,12 +217,10 @@ describe("the entry rule warning", () => {
 
       const unowned = authored.filter((entry) => entry.owner >= listed);
 
-      const counts = Arr.dedupe(unowned.map(handleOf))
-        .map((author) => ({
-          author,
-          rows: unowned.filter((entry) => handleOf(entry) === author).length,
-        }))
-        .filter((entry) => entry.rows >= 2);
+      const counts = Arr.dedupe(unowned.map(handleOf)).map((author) => ({
+        author,
+        rows: unowned.filter((entry) => handleOf(entry) === author).length,
+      }));
 
       const warned = unlistedAuthors(
         people,
@@ -375,8 +376,67 @@ it.layer(NodeServices.layer)("agent questions over the seed data", (test) => {
 });
 
 describe("decodeCafeData", () => {
+  it.effect.prop(
+    "refuses gendered biography pronouns across casing and punctuation, not substrings",
+    {
+      factIndex: Arbitrary.schema(Schema.Literals([0, 1])),
+      pronoun: Arbitrary.schema(
+        Schema.Literals(["he", "his", "him", "she", "her", "hers"])
+      ),
+      row: authoredRow,
+      shout: Arbitrary.schema(Schema.Boolean),
+    },
+    ({ factIndex, pronoun, row, shout }) =>
+      Effect.gen(function* checkBiographyPronouns() {
+        const good = person(0);
+
+        const bio = good.bio.map((fact) => ({
+          ...fact,
+          text: "This shell and other shims use Effect.",
+        }));
+
+        const files = {
+          news: JSON.stringify([row.row]),
+          people: JSON.stringify([{ ...good, bio }]),
+          projects: "[]",
+        };
+
+        const accepted = yield* decodeCafeData(files);
+
+        expect(accepted.people[0]?.bio).toStrictEqual(bio);
+
+        const token = shout ? pronoun.toUpperCase() : pronoun;
+
+        const failure = yield* Effect.flip(
+          decodeCafeData({
+            ...files,
+            people: JSON.stringify([
+              {
+                ...good,
+                bio: bio.map((fact, index) =>
+                  index === factIndex
+                    ? {
+                        ...fact,
+                        text: `Effect work (${token}) uses typed services.`,
+                      }
+                    : fact
+                ),
+              },
+            ]),
+          })
+        );
+
+        expect(failure.errors.map((error) => error.field)).toStrictEqual([
+          `bio.${factIndex}.text`,
+        ]);
+        expect(failure.errors[0]?.file).toBe(cafePeopleFile);
+        expect(failure.errors[0]?.index).toBe(0);
+        expect(failure.errors[0]?.message).toContain("Fix:");
+      })
+  );
+
   it.effect(
-    "names every bad people field, every entry without two /news rows, and every repeated id",
+    "names every bad people field, empty news entry, and repeated id",
     () =>
       Effect.gen(function* reportPeopleErrors() {
         const good = yield* Schema.encodeEffect(CafePerson)(person(0));
@@ -397,7 +457,7 @@ describe("decodeCafeData", () => {
             news: JSON.stringify([story]),
             people: JSON.stringify([
               { ...good, bio: [good.bio[0]] },
-              { ...good, entryRows: [good.entryRows[0]], id: "p1" },
+              { ...good, entry: { kind: "news", rows: [] }, id: "p1" },
               good,
               good,
             ]),
@@ -410,7 +470,7 @@ describe("decodeCafeData", () => {
             /^\.brain\/data\/cafe\/people\.json\[0\]\.bio: /u
           ),
           expect.stringMatching(
-            /^\.brain\/data\/cafe\/people\.json\[1\]\.entryRows: /u
+            /^\.brain\/data\/cafe\/people\.json\[1\]\.entry\.rows\.0: /u
           ),
           expect.stringMatching(
             /^\.brain\/data\/cafe\/people\.json\[3\]\.id: Duplicate id p0/u

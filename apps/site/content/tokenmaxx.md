@@ -6,6 +6,12 @@ _A four-hour working session with Joel Hooks._
 
 Free, by application.
 
+## Workshop resources
+
+[Schedule](/tokenmaxx/schedule) · [Prep](/tokenmaxx/prep) · [Exercises](/tokenmaxx/exercises) · [Links](/tokenmaxx/links)
+
+For workshop tools, connect your agent to [the workshop MCP server](https://ratstack.sh/tokenmaxx/mcp). Application submissions still use the main site's `joinInterest` capability.
+
 <HumanOnly>
 - Read the [workshop page](https://ratstack.sh/tokenmaxx) with your agent.
 - Answer five questions about your work, availability, and whether you prefer one session or two. You can skip any answer.

@@ -100,6 +100,7 @@ Match every applicable playbook; a capability with new persistence matches capab
 - New persistence: [add-a-store](/skills/add-a-store).
 - Existing email list or sending cutover: [onboard-a-list](/skills/onboard-a-list).
 - Public prose or skill pages: [write-a-wiki-page](/skills/write-a-wiki-page).
+- Security audit: [security-audit](/skills/security-audit), with the [rat-stack boundary map](https://github.com/joelhooks/rat-stack/blob/main/skills/security-audit/RAT-STACK.md).
 - Package or interface choices: [keep-or-cut](/skills/keep-or-cut).
 - Stateful design, replacement, or read-model design: [uncomplect](/skills/uncomplect).
 - Pins, recurring bad patterns, or repository maintenance: [gardener](/skills/gardener).

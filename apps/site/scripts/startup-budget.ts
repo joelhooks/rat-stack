@@ -13,6 +13,8 @@ import {
   measureStartupSet,
   StartupGraph,
 } from "./startup-set.ts";
+import { StartupWorkerEntryMissing } from "./startup-worker-entry-missing.ts";
+import { assertWorkshopIsolation } from "./startup-workshop-isolation.ts";
 
 const BundleGraph = Schema.fromJsonString(
   Schema.Struct({
@@ -24,6 +26,31 @@ const BundleGraph = Schema.fromJsonString(
 const startupBudgets = {
   LearnFeedbackAuth: 1_516_000,
   Mischief: 1_101_000,
+  TurboCache: 480_000,
+  Workshop: 870_000,
+};
+
+const workerEntries = {
+  LearnFeedbackAuth: {
+    build: feedbackAuthBuild,
+    directory: "dist/startup-auth",
+    main: "../src/auth/private-worker.ts",
+  },
+  Mischief: {
+    build: feedbackGatewayBuild,
+    directory: "dist/startup",
+    main: "../src/worker.ts",
+  },
+  TurboCache: {
+    build: {},
+    directory: "dist/startup-turbo-cache",
+    main: "../../../packages/turbo-cache/src/index.ts",
+  },
+  Workshop: {
+    build: {},
+    directory: "dist/startup-workshop",
+    main: "../src/workshop-worker.ts",
+  },
 };
 
 const temporaryRaises: Partial<
@@ -38,7 +65,7 @@ const temporaryRaises: Partial<
 const javascriptAlarmBytes = 2_500_000;
 
 const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
-  worker: "Mischief" | "LearnFeedbackAuth"
+  worker: keyof typeof startupBudgets
 ) {
   const fs = yield* FileSystem.FileSystem;
   const bundler = yield* WorkerBundle;
@@ -49,13 +76,12 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
     services: Context.empty(),
   };
 
-  const directory =
-    worker === "Mischief" ? "dist/startup" : "dist/startup-auth";
+  const { build, directory, main } = workerEntries[worker];
+  const entryPath = new URL(main, import.meta.url).pathname;
 
-  const main =
-    worker === "Mischief"
-      ? "../src/worker.ts"
-      : "../src/auth/private-worker.ts";
+  if (!(yield* fs.exists(entryPath))) {
+    return yield* new StartupWorkerEntryMissing({ entry: entryPath, worker });
+  }
 
   const exports: Record<string, typeof durableObject> = {};
 
@@ -74,12 +100,12 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
       kind: "effect",
     },
     extraOptions: {
-      ...(worker === "Mischief" ? feedbackGatewayBuild : feedbackAuthBuild),
+      ...build,
       bundleAnalyzer: { fileName: "analysis.json", format: "json" },
-      output: { dir: directory },
+      output: { dir: new URL(`../${directory}`, import.meta.url).pathname },
     },
     id: worker,
-    main: new URL(main, import.meta.url).pathname,
+    main: entryPath,
     stack: { name: "RatStack", stage: "prod" },
   });
 
@@ -91,6 +117,8 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   yield* assertBuildOnlyModules(modules);
 
   if (worker === "Mischief") {
+    yield* assertWorkshopIsolation(modules);
+
     const authModules = modules.filter((path) =>
       /(?:^|\/)packages\/auth\/(?:dist|src)\/|(?:^|\/)better-auth(?:@|\/)|(?:^|\/)@better-auth\//u.test(
         path
@@ -196,7 +224,7 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
 });
 
 const program = Effect.validate(
-  ["Mischief", "LearnFeedbackAuth"] as const,
+  ["Mischief", "LearnFeedbackAuth", "Workshop", "TurboCache"] as const,
   measureWorker
 );
 

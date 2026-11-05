@@ -1,0 +1,42 @@
+---
+title: Tokenmaxx workshop pipe
+status: active
+---
+
+# Tokenmaxx workshop pipe
+
+## Source of truth
+
+`.brain/data/tokenmaxx/workshop.json` owns the runs, ordered prep, links and `starterPublic`. Joel owns publication decisions. The sibling `schedule.json`, `prep.json` and `links.json` preserve supplied values and order as import receipts, not parallel editable stores. The desk identified the original source as `tmx 96b919f`. The links receipt and canonical links now use `tmx 85f347b`: nine links, adding the Alchemy Domain repository path and docs URL, still draft. Formatting may change whitespace, not values.
+
+The schedule is public even though its original input says draft. The desk confirmed both runs and their times. Prep and links remain drafts. Public answers say `not-yet-published`, and their pages say “Coming soon.”
+
+## Exercise import and publication
+
+Run `pnpm tokenmaxx:sync <starter path>` from the repository root. It reads `exercises/NN-section/NN.N-name/explainer/readme.md` and writes `.brain/resources/tokenmaxx/exercises/<id>.svx`. A new exercise starts as draft. Resync preserves existing frontmatter, including publication status, while replacing the body. Invalid existing frontmatter fails rather than silently losing its status.
+
+The section drops its numeric prefix: `01-awakes` becomes `awakes`. Use a schedule block id as the section to associate exercises with that block. Exercise ids retain their directory names.
+
+Publish an exercise only after review. Flip `prep.status` and `links.status` in `workshop.json` separately. Starter prep items and links use `needs: starterPublic` and stay hidden until `starterPublic` is true. Links also require `public: true`. The two prohibited repository names never become links.
+
+## Isolated runtime
+
+The desk chose an isolated Workshop Worker after the shared Worker exceeded its startup ceiling. `packages/core/src/workshop-contracts.ts` owns its six read-only contracts, exported through `@rat-stack/core/workshop-contracts`. `WorkshopDirectory` supplies their data. The Workshop Worker has only public static assets, no secrets or production data-store bindings.
+
+Cloudflare zone routes send `/tokenmaxx/mcp`, `/tokenmaxx/rpc`, `/tokenmaxx/api/*` and `/tokenmaxx/openapi.json` to Workshop. They take precedence over Mischief's custom domain. The main MCP and RPC catalogs do not expose workshop contracts. The startup gate rejects workshop modules anywhere in Mischief's static or dynamic graph.
+
+Workshop loads `/_content/workshop.json` on demand, validates its generation, and caches only completed reads. Source validation and publication filtering happen before emission. The content build calls the same capabilities to prerender schedule, prep, links, exercise index and published exercise pages on the main site.
+
+The `/tokenmaxx` page and agent guide discover `https://ratstack.sh/tokenmaxx/mcp`. Applications still use the main site's `joinInterest`. The interest form is unchanged. Its Markdown source now comes from a generation-checked public asset before the existing fresh-ticket substitution, so workshop copy does not grow Mischief's startup code.
+
+`currentExercise` takes a run's ISO date and reads Effect Clock. Blocks include their start and exclude their end. Breaks return their block with no exercises. Outside a block, the answer includes the next block start in that run, or null after the run. An unknown run returns not-running with no next start.
+
+## Evidence and startup
+
+Fully built main at `ae24f6a` measured 1,113,993 Mischief startup bytes. The shared workshop implementation measured 1,118,745 bytes; lazy handlers reduced that to 1,118,313, still over budget. Isolation plus asset-backed Tokenmaxx Markdown measures 1,100,181. LearnFeedbackAuth stays unchanged at 1,515,481. The complete Workshop Worker, including the shared request-metadata privacy policy, measures 862,284, so its initial shrink-only ceiling is 870,000, the next 10,000-byte boundary. Details live in `apps/site/STARTUP.md`.
+
+The clock property generates blocks, breaks and gaps, then probes every boundary and generated instants through the capability and TestClock. An inclusive-end mutation failed on the first generated run and shrank to a one-second block. Correct code passes.
+
+Publication tests place a draft canary in exercise text, prep and links. They check page sources, assets and capability answers. Sync tests verify draft defaults, body replacement and preservation of published status. The Workshop seam initializes MCP and calls `listExercises` against the production routes and asset adapter: a published exercise returns, the draft is absent, and reading its id fails. The same seam exercises HTTP and RPC.
+
+Run `pnpm turbo run check test build --concurrency=4`. Commit implementation as the bot, refresh `pnpm git-snapshot`, then commit the snapshot separately. The desk runs the infrastructure plan before any deployment; this lane does not plan or deploy.

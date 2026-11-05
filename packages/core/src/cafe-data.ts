@@ -10,7 +10,7 @@ import {
 import { CafeDataError } from "./cafe-data-error.js";
 import { CafeDataInvalid } from "./cafe-data-invalid.js";
 import { CafeNewsItem, CafePerson, CafeProject, cafeRankedAt } from "./cafe.js";
-import type { CafeDataValue } from "./cafe.js";
+import type { CafeDataValue, CafePersonValue } from "./cafe.js";
 
 const formatIssues = SchemaIssue.makeFormatterStandardSchemaV1();
 
@@ -119,6 +119,28 @@ export const cafeNewsFile = ".brain/data/cafe/news.json";
 
 export const cafePeopleFile = ".brain/data/cafe/people.json";
 
+const validateBiographies = (people: readonly CafePersonValue[]) => {
+  const errors = people.flatMap((person, index) =>
+    person.bio.flatMap((fact, factIndex) =>
+      /\b(?:he|his|him|she|her|hers)\b/iu.test(fact.text)
+        ? [
+            new CafeDataError({
+              field: `bio.${factIndex}.text`,
+              file: cafePeopleFile,
+              index,
+              message:
+                "Biography assumes gendered pronouns. Public profiles must not infer a person's pronouns. Fix: replace the pronoun with the name or project in `.brain/data/cafe/people.json`.",
+            }),
+          ]
+        : []
+    )
+  );
+
+  return Arr.isReadonlyArrayNonEmpty(errors)
+    ? Effect.fail(errors)
+    : Effect.succeed(people);
+};
+
 const noEntries = new CafeDataError({
   field: "(file)",
   file: cafeNewsFile,
@@ -145,7 +167,7 @@ export const decodeCafeData = Effect.fnUntraced(
       decodeCafeFile(CafePerson, cafePeopleFile, files.people, {
         field: "id",
         key: (person) => person.id,
-      })
+      }).pipe(Effect.flatMap(validateBiographies))
     );
 
     if (

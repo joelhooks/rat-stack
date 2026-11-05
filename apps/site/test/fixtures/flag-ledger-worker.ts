@@ -10,6 +10,7 @@ import { configFlagsLayer } from "@rat-stack/flags/config";
 import * as Namespace from "alchemy/Namespace";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
+import { Stage } from "alchemy/Stage";
 import {
   Cause,
   ConfigProvider,
@@ -37,7 +38,7 @@ import {
 const TestFlagLedger = defineFlagLedger(ledgerRegistry, [deployFlag.name]);
 
 const replicaNamespace = Cloudflare.KV.Namespace("Store").pipe(
-  retain(),
+  retain(Stage.pipe(Effect.map((stage) => stage === "prod"))),
   Namespace.set("FeatureFlags")
 );
 

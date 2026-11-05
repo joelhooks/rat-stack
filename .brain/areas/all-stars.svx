@@ -1,7 +1,7 @@
 ---
 title: "CAFE all stars"
 description: "Public profiles of people and channels who build with Cloudflare, Alchemy, Foldkit and Effect, served by five read-only capabilities."
-plain: "One reviewed data file lists each person or channel with a second /news row; agents ask the capabilities, and the pages are built from the same answers."
+plain: "Profiles enter through news, pinned stack contributions, vendored or credited CAFE code, or sourced public CAFE work; pages and capabilities share one file."
 diagram: |-
   people.json
     │ content build
@@ -46,11 +46,15 @@ The profile lists those rows newest first, and the row on [/news](/news) links b
 
 ## The standard
 
-- A person or channel enters when their public work earns a second row on [/news](/news). The entry's `entryRows` field names those two rows, and the schema rejects an entry with fewer.
+- A person or channel enters through a [/news](/news) row, pinned CAFE stack contributions, vendored or credited CAFE code, or sourced public CAFE work.
+- The typed `entry` field records the basis. A `news` entry names at least one row.
+- A `stack` entry names a pinned package and its contributors or maintainers source. A `vendored` entry links the credited upstream, which must itself build on or teach the CAFE stack.
+- A `work` entry links the project and dated stack evidence.
+- Choose the first qualifying basis in that order. Stack contributors lead or rank among the repository's top listed contributors. Public work builds on or teaches Cloudflare, Alchemy, Foldkit or Effect.
 - There is no per-person preview. An entry ships with the next site update like any other content.
-- The content build warns about every author with two rows in the current news file and no profile.
+- The content build warns about every author with a /news row and no profile.
 - Every fact carries its `source` URL and the `verified` date it was checked, so an agent can cite it.
-- A bio holds two or three sentences about CAFE work only, each quoted or linked from its source.
+- A bio holds two or three sentences about CAFE work only, each quoted or linked from its source. Use names or projects, not gendered pronouns; the content build rejects those pronouns.
 - An avatar is a file committed under `apps/site/content/avatars`. Pages never load an image from another site.
 - A profile never includes location, employer guesses, family, follower counts, private messages, or anything the person did not post publicly about their work.
 - Each page ends with a removal line that opens an issue in `joelhooks/rat-stack`. A removal ships with the next site update.

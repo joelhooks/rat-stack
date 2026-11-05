@@ -60,6 +60,7 @@ export {
   CafePeopleQuery,
   CafePeopleSearchQuery,
   CafePerson,
+  CafePersonEntry,
   CafePersonKind,
   CafePersonRepo,
   CafePersonSummary,

@@ -136,6 +136,7 @@ import {
   linkedFromComponent,
   unlinkedMentionsComponent,
 } from "./reference-components.ts";
+import { securityAuditContent } from "./security-audit-content.ts";
 import { contentDates, pageTitle, structuredData } from "./seo-metadata.ts";
 import {
   contentCodeSpans,
@@ -145,6 +146,7 @@ import {
   stripHtmlComments,
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
+import { buildWorkshop } from "./tokenmaxx-workshop.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -741,7 +743,7 @@ const skillGroups = [
     title: "Learn by building",
   },
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
-  { names: ["gardener"], title: "Keep the fence sharp" },
+  { names: ["gardener", "security-audit"], title: "Keep the fence sharp" },
   {
     names: [
       "ship",
@@ -999,6 +1001,8 @@ const program = Effect.gen(function* generateContent() {
       ),
   });
 
+  const workshop = yield* buildWorkshop(root);
+
   const cafeData = yield* Effect.all({
     news: readText(cafeNewsFile),
     people: readText(cafePeopleFile),
@@ -1011,7 +1015,7 @@ const program = Effect.gen(function* generateContent() {
     unlistedAuthors(cafeData.people, cafeData.news),
     ({ author, rows }) =>
       Effect.logWarning(
-        `${cafePeopleFile}: ${author} has ${rows} /news rows and no all stars entry; add one with entryRows naming two of them (.brain/areas/all-stars.svx)`
+        `${cafePeopleFile}: ${author} has ${rows} /news rows and no all stars entry; add a profile with entry naming its basis (.brain/areas/all-stars.svx)`
       ),
     { discard: true }
   );
@@ -1279,12 +1283,20 @@ const program = Effect.gen(function* generateContent() {
 
   const skillDirectories = yield* directoryNames("skills", skillEntries);
 
+  const { assets: securityAuditAssets, published: publishedSecurityAudit } =
+    yield* securityAuditContent(root);
+
   const skillTexts = yield* Effect.forEach(
     skillDirectories.toSorted(),
     (directoryName) =>
       Effect.gen(function* readSkill() {
         const sourcePath = `skills/${directoryName}/SKILL.md`;
-        const rawText = yield* readText(sourcePath);
+
+        const rawText =
+          directoryName === "security-audit"
+            ? publishedSecurityAudit
+            : yield* readText(sourcePath);
+
         const text = deriveAgentMarkdown(rawText, blockIndexRegistry);
 
         const name = yield* Effect.try({
@@ -2286,6 +2298,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/llms-full.txt",
     "/openapi.json",
     "/mcp",
+    "/tokenmaxx/mcp",
+    ...workshop.pages.flatMap((page) => [
+      page.routePath,
+      ogImagePath(page.routePath),
+    ]),
     "/api/search",
     "/api/read",
     "/api/execute",
@@ -2298,6 +2315,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/.well-known/agent-card.json",
     "/.well-known/agent.json",
     "/.well-known/agent-skills/index.json",
+    ...securityAuditAssets.map((asset) => asset.path),
     "/.well-known/ai-catalog.json",
     "/.well-known/api-catalog",
     "/.well-known/mcp.json",
@@ -2929,6 +2947,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       noVerifyBodyHtml,
       tokenmaxxAgentMarkdown,
       tokenmaxxBodyHtml,
+      JSON.stringify(workshop.data),
+      ...workshop.pages.map((page) => page.source),
       interestResultBody,
       interestConfirmBody,
       unsubscribeBody,
@@ -3023,6 +3043,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: tokenmaxxRoutePath,
       title: tokenmaxxMetadata.title,
     },
+    ...workshop.pages.map<OgPage>((page) => ({
+      description: page.title,
+      routePath: page.routePath,
+      title: page.title,
+    })),
     {
       description: tagline,
       routePath: "/",
@@ -3409,6 +3434,37 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const workshopSources = yield* Effect.forEach(
+    (page: (typeof workshop.pages)[number]) =>
+      Effect.gen(function* compileWorkshopPage() {
+        const body = yield* compileMarkdownBody(
+          page.source,
+          page.routePath,
+          highlighter,
+          emptyTargets,
+          [],
+          page.routePath
+        );
+
+        const documentHtml = yield* makeDocument(
+          body.bodyHtml,
+          {
+            description: page.title,
+            path: page.routePath,
+            title: pageTitle(page.title),
+          },
+          page.routePath,
+          contentVersion
+        );
+
+        return {
+          documentHtml,
+          routePath: page.routePath,
+          text: renderAgentPage(page.source, page.routePath, page.title),
+        };
+      })
+  )(workshop.pages);
+
   const cafeNewsBody = yield* compileMarkdownBody(
     cafeNewsSource,
     "cafe-news.md",
@@ -3566,6 +3622,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         })),
         homeMarkdownTemplate: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
         imagePaths: [
+          ...securityAuditAssets.map((asset) => asset.path),
           ...ogImages.map((image) => ogImagePath(image.routePath)),
           "/favicon.ico",
           "/apple-touch-icon.png",
@@ -3591,6 +3648,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/directory",
           "/all-stars",
           ...allStarsProfiles.map((profile) => profile.route),
+          ...workshop.pages.map((page) => page.routePath),
           "/search",
         ],
         resources: resources.map(
@@ -3610,6 +3668,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { path: "/_content/graph.json", value: loreGraphSnapshotJson },
     { path: "/_content/prompts.json", value: promptTexts },
     { path: "/_content/cafe.json", value: encodedCafeData },
+    { path: "/_content/workshop.json", value: workshop.data },
+    { path: "/_content/tokenmaxx.json", value: tokenmaxxAgentMarkdown },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),
       value: resource,
@@ -3629,6 +3689,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     data,
     directory: path.join(root, "apps/site/dist/content"),
     images: [
+      ...securityAuditAssets,
       { base64: faviconIcoBase64, path: "/favicon.ico" },
       { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
       {
@@ -3677,6 +3738,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: allStarsIndexText,
       },
       ...allStarsSources,
+      ...workshopSources,
       {
         documentHtml: searchPageDocument,
         routePath: "/search",

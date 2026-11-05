@@ -8,13 +8,31 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,101,000 bytes for Mischief** and **1,516,000 bytes for LearnFeedbackAuth**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's ceiling is the one recorded exception; see [Temporary raise: Alchemy beta.85 and Effect 4.1](#temporary-raise-alchemy-beta85-and-effect-41). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+The hard, shrink-only ceilings cover the **static startup set**: **1,101,000 bytes for Mischief** and **1,516,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's ceiling is the one recorded exception; see [Temporary raise: Alchemy beta.85 and Effect 4.1](#temporary-raise-alchemy-beta85-and-effect-41). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
 Entry bytes and total JavaScript bytes remain logged measurements. Total JavaScript above **2,500,000 bytes** emits a warning, never a size failure. Page sources, search records, and graph data are static assets outside the JavaScript upload. Their growth does not block this gate. Fixed document shells remain startup code when statically imported. Do not inline growing content data into startup code.
 
-`dist/startup/metrics.json` and `dist/startup-auth/metrics.json` record entry bytes, startup bytes, the counted filenames, total JavaScript bytes, and ceilings. Metrics are written before the size verdict, including failed measurements.
+`dist/startup/metrics.json`, `dist/startup-auth/metrics.json`, and `dist/startup-workshop/metrics.json` record entry bytes, startup bytes, the counted filenames, total JavaScript bytes, and ceilings. Metrics are written before the size verdict, including failed measurements.
+
+## Isolated Workshop Worker
+
+The `Workshop` Worker serves only the six read-only workshop capabilities. Cloudflare zone routes claim `ratstack.sh/tokenmaxx/mcp*`, `ratstack.sh/tokenmaxx/rpc*`, `ratstack.sh/tokenmaxx/api/*` and `ratstack.sh/tokenmaxx/openapi.json`; routes take precedence over Mischief's custom domain. It binds public static assets only, with no secrets or production data stores. `apps/infra/alchemy.run.ts` declares it as a new resource beside Mischief. The desk reviews its infrastructure plan before deployment.
+
+Workshop contracts live in `packages/core/src/workshop-contracts.ts`, separate from the main core contract catalog. The startup gate checks every module in Mischief's analysis, including dynamic-only modules, and refuses workshop imports. The prerendered workshop pages stay in the main site's assets. Workshop asset reads validate the generation and cache successful reads only.
+
+Adding workshop links grew the formerly bundled Tokenmaxx Markdown. That source now lives in `/_content/tokenmaxx.json`, read through `ContentStore` before the unchanged fresh-ticket substitution. The browser's prerendered page and interest form stay on the main site. Neither source copy nor exercise copy enters Mischief startup.
+
+Measurements on the same fully built workspace:
+
+| Worker | Main at `ae24f6a` | Shared workshop | Lazy shared workshop | Isolated workshop | Ceiling |
+| --- | --: | --: | --: | --: | --: |
+| Mischief | 1,113,993 | 1,118,745 | 1,118,313 | 1,100,181 | 1,114,000 |
+| LearnFeedbackAuth | 1,515,481 | 1,515,481 | 1,515,481 | 1,515,481 | 1,516,000 |
+| Workshop | — | — | — | 862,284 | 870,000 |
+
+Workshop's initial ceiling is its measured static startup rounded up to the next 10,000 bytes. It only shrinks. The other ceilings are unchanged. Early standalone measurements made before all workspace dependencies were built are not valid baselines.
 
 ## Page count no longer sets bundle size
 

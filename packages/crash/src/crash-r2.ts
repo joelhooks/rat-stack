@@ -2,8 +2,10 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { retain } from "alchemy/RemovalPolicy";
 import * as RuntimeContext from "alchemy/RuntimeContext";
+import { Stage } from "alchemy/Stage";
 import { DateTime, Effect, Layer, Schema } from "effect";
 import * as SecureRandom from "effect/crypto/SecureRandom";
+import { identity } from "effect/Function";
 
 import {
   CrashArchive,
@@ -12,8 +14,13 @@ import {
   InvalidCrashTrace,
 } from "./crash.js";
 
+const retainInProd =
+  globalThis.__ALCHEMY_RUNTIME__ === true
+    ? identity
+    : retain(Stage.pipe(Effect.map((stage) => stage === "prod")));
+
 export const CrashBucket = Cloudflare.R2.Bucket("MischiefCrashBucket", {}).pipe(
-  retain()
+  retainInProd
 );
 
 export const crashArchiveLayer = <E, IdError>(

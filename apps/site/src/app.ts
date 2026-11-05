@@ -59,7 +59,6 @@ import {
   sitemapXml,
   staticContentVersion,
   staticAssetGeneration,
-  tokenmaxxMarkdown,
 } from "./content.js";
 import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
@@ -232,6 +231,18 @@ const staticHeaders = (
 };
 
 const assetImageContentType = (path: string) => {
+  if (path.endsWith(".md")) {
+    return "text/markdown; charset=utf-8";
+  }
+
+  if (path.endsWith(".json")) {
+    return "application/json";
+  }
+
+  if (path.endsWith(".cjs") || path.endsWith("/LICENSE")) {
+    return "text/plain; charset=utf-8";
+  }
+
   if (path.endsWith(".jpg")) {
     return "image/jpeg";
   }
@@ -548,7 +559,8 @@ const noVerifyResponse = (request: HttpServerRequest.HttpServerRequest) =>
   });
 
 export const tokenmaxxResponse = Effect.gen(function* tokenmaxxPage() {
-  const body = yield* withAvailablePageTicket(tokenmaxxMarkdown);
+  const source = yield* ContentStore.use((store) => store.tokenmaxx);
+  const body = yield* withAvailablePageTicket(source);
 
   return HttpServerResponse.text(body, {
     contentType: "text/markdown; charset=utf-8",
