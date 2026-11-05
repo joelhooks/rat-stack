@@ -4,6 +4,7 @@ import { Console, Effect } from "effect";
 
 import { turboCacheConfig } from "./config.js";
 import { deployedCacheState } from "./read-state.js";
+import { stateReadFailure } from "./token-failure.js";
 import { handoffToken, TokenHandoffError } from "./token.js";
 
 const main = Effect.gen(function* tokenMain() {
@@ -30,27 +31,16 @@ const main = Effect.gen(function* tokenMain() {
   }
 
   const store = yield* deployedCacheState.pipe(
-    Effect.catchCause(() =>
-      Effect.fail(
-        new TokenHandoffError({
-          message:
-            "The deployed state store is unavailable or requires an upgrade. No credential was sent and provisioning is disabled. Fix: verify the Alchemy profile and configured state store; use the approved deployment workflow for any bootstrap or upgrade.",
-        })
-      )
-    )
+    Effect.catchCause((cause) => Effect.fail(stateReadFailure(cause)))
   );
 
   const values = yield* handoffToken(
     (fqn) =>
-      store.get({ fqn, stack: turboCacheConfig.stack, stage }).pipe(
-        Effect.mapError(
-          () =>
-            new TokenHandoffError({
-              message:
-                "The deployed state record could not be read. No credential was sent. Fix: verify the configured Alchemy state store and stage.",
-            })
-        )
-      ),
+      store
+        .get({ fqn, stack: turboCacheConfig.stack, stage })
+        .pipe(
+          Effect.catchCause((cause) => Effect.fail(stateReadFailure(cause)))
+        ),
     { args: args.slice(separator + 2), command, team }
   );
 
