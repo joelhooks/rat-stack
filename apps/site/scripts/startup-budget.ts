@@ -93,6 +93,10 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
     });
   }
 
+  if (worker === "Workshop") {
+    Object.assign(exports, { WorkshopLegacyMcp: durableObject });
+  }
+
   const bundle = yield* bundler.build({
     compatibility: { date: "2026-05-28", flags: ["nodejs_compat"] },
     entry: {
