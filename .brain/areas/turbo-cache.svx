@@ -81,6 +81,8 @@ A credential holder can replace artifacts within its team.
 Team separation does not protect writers from another writer in the same team.
 Only trusted CI should receive credentials.
 Turbo owns optional signature verification; the Worker preserves the signature tag without verifying archive contents.
+rat-stack CI turns signing on with `remoteCache.signature` in `turbo.json` and the `TURBO_REMOTE_CACHE_SIGNATURE_KEY` secret.
+Turbo signs every upload and rejects an artifact with a missing or wrong signature, so a leaked cache token or bucket access cannot plant one.
 
 Main and pull requests both use `local:rw,remote:rw`, so a merge whose tree a pull request already built replays from the cache.
 A writer able to poison the cache already has push access, and fork pull requests get no token.
