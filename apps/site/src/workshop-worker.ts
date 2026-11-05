@@ -1,12 +1,16 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { Effect } from "effect";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { contentAssetsForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
+import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
+import WorkshopLegacyMcp from "./legacy-mcp/workshop-durable-object.js";
 import { privateObservability } from "./observability.js";
 import { workerAssetsLayer } from "./worker-content.js";
 import { workshopAssets } from "./workshop-assets.js";
-import { workshopRuntime } from "./workshop-runtime.js";
+import { workshopRuntimeFor } from "./workshop-runtime.js";
 
 export default class Workshop extends Cloudflare.Worker<Workshop>()(
   "Workshop",
@@ -34,5 +38,19 @@ export default class Workshop extends Cloudflare.Worker<Workshop>()(
       workersDev: false,
     };
   }),
-  workshopRuntime.pipe(Effect.provide(workerAssetsLayer), Effect.orDie)
+  Effect.gen(function* makeWorkshopWorker() {
+    const sessions = yield* WorkshopLegacyMcp;
+
+    return yield* workshopRuntimeFor({
+      forward: (session, request) => {
+        const headers = new Headers(request.headers);
+        headers.set(LEGACY_SESSION_HEADER, session);
+
+        return sessions
+          .getByName(session)
+          .fetch(HttpServerRequest.fromWeb(new Request(request, { headers })))
+          .pipe(Effect.map(HttpServerResponse.toWeb), Effect.orDie);
+      },
+    });
+  }).pipe(Effect.provide(workerAssetsLayer), Effect.orDie)
 ) {}

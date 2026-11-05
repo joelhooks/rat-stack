@@ -21,7 +21,7 @@ Publish an exercise only after review. Flip `prep.status` and `links.status` in 
 
 ## Isolated runtime
 
-The desk chose an isolated Workshop Worker after the shared Worker exceeded its startup ceiling. `packages/core/src/workshop-contracts.ts` owns its six read-only contracts, exported through `@rat-stack/core/workshop-contracts`. `WorkshopDirectory` supplies their data. The Workshop Worker has only public static assets, no secrets or production data-store bindings.
+The desk chose an isolated Workshop Worker after the shared Worker exceeded its startup ceiling. `packages/core/src/workshop-contracts.ts` owns its six read-only contracts, exported through `@rat-stack/core/workshop-contracts`. `WorkshopDirectory` supplies their data. The Workshop Worker has public static assets and its own `WorkshopLegacyMcp` session namespace. It has no secrets or access to the main site's data stores.
 
 Cloudflare zone routes send `/tokenmaxx/mcp`, `/tokenmaxx/rpc`, `/tokenmaxx/api/*` and `/tokenmaxx/openapi.json` to Workshop. They take precedence over Mischief's custom domain. The main MCP and RPC catalogs do not expose workshop contracts. The startup gate rejects workshop modules anywhere in Mischief's static or dynamic graph.
 
@@ -30,6 +30,31 @@ Workshop loads `/_content/workshop.json` on demand, validates its generation, an
 The `/tokenmaxx` page and agent guide discover `https://ratstack.sh/tokenmaxx/mcp`. Applications still use the main site's `joinInterest`. The interest form is unchanged. Its Markdown source now comes from a generation-checked public asset before the existing fresh-ticket substitution, so workshop copy does not grow Mischief's startup code.
 
 `currentExercise` takes a run's ISO date and reads Effect Clock. Blocks include their start and exclude their end. Breaks return their block with no exercises. Outside a block, the answer includes the next block start in that run, or null after the run. An unknown run returns not-running with no next start.
+
+## MCP session isolation
+
+The 2025-11-25 flow must survive a change of Worker isolate. Effect 4.1.2 does not offer a sessionless mode for that protocol: `McpProtocol.ts:220` declares it Stateful, `internal/mcpRuntime.ts:573–583` always registers an HTTP session and returns its id, and `McpServer.ts:2705` rejects Stateful protocols in the request-scoped layer. The newer 2026-07-28 flow remains stateless.
+
+`legacy-mcp/routing.ts` owns session selection and forwarding for both endpoints. `legacy-mcp/session.ts` owns replay and the shared Durable Object fetch adapter. Main `/mcp` keeps its existing namespace and behavior. Workshop routes older sessions to `WorkshopLegacyMcp`, never the main toolkit.
+
+Each object stores one initialization body and the allowlisted `accept`, `content-type` and `mcp-protocol-version` headers. The object is the sole writer. Its runtime session id is a derived in-memory copy, rebuilt by replaying initialize and initialized after eviction. It stores no tool arguments or results. Effect also tracks negotiated client capabilities, client info, logging level, resource subscriptions and list-change revision per session (`internal/mcpStatefulRuntime.ts:23–46`). The six read-only tools do not need those mutable features; the protocol runtime still requires the session registration.
+
+Both the front Worker and object use `workshop-mcp-loader.ts` to load `workshop-mcp-runtime.ts` dynamically. HTTP, RPC and OpenAPI retain their original constructors. The lazy MCP sub-router gets its own memo map and the enclosing runtime's scope, so the first request neither registers routes in the parent router nor binds the cache to a request scope. The object's forwarding factory uses `HttpEffect.toWebHandler`, which owns the request scope through completion of a streaming body. The property uses that same production factory.
+
+The deterministic reproduction creates a new runtime after initialize. The next initialized notification returns 404 instead of 202 on the original routes. `workshop-mcp-sessions.test.ts` generates call histories, gives every request a fresh front runtime, and rebuilds the object's runtime from its stored initialization on every forwarded request. It exercises all six tools, modern cold-isolate calls and draft refusal. Dropping session routing makes that property fail at the same notification. A temporary comparison against the original route composition found identical statuses, headers and body bytes for all six HTTP responses, all six RPC responses and OpenAPI.
+
+The first DO wiring measured 900,024 startup bytes, 38,772 above the 861,252 baseline. The bundle analysis includes Alchemy's Durable Object bridge, state, storage, alarm storage and transaction context: 44,423 source bytes before bundling, not a claim about rendered byte attribution. Moving MCP behind the shared loader brought startup below the unchanged 870,000 ceiling. No ceiling was raised.
+
+| Worker | Baseline startup bytes | After startup bytes | Ceiling | After total JavaScript |
+| --- | ---: | ---: | ---: | ---: |
+| Workshop | 861,252 | 731,416 | 870,000 | 903,802 |
+| Mischief | 1,098,871 | 1,098,995 | 1,114,000 | 1,382,500 |
+
+The MCP dynamic entry is 171,356 bytes. The bundle graph identifies it as a dynamic entry, lists only a dynamic incoming edge, and excludes it from the measured startup set. Complete JavaScript remains below the 2,500,000-byte warning threshold. These are bundle measurements, not a deployed startup CPU or routing result.
+
+Expected infrastructure delta: create the `WorkshopLegacyMcp` namespace and binding hosted by Workshop, update Workshop's bundle and migration, and update Mischief's bundle for the shared seam refactor. No resource deletion or replacement is intended. A real plan and deployed cross-isolate probe remain the deploying desk's checks.
+
+Reproduction recipe: build workspace dependencies with `TURBO_CONCURRENCY=2 pnpm turbo run build`; run `pnpm --filter @rat-stack/site exec vitest run test/workshop-mcp-sessions.test.ts test/workshop-worker.test.ts test/legacy-mcp-session.test.ts test/legacy-mcp-routing.test.ts`; measure with `pnpm --filter @rat-stack/site startup:check`; finish with `TURBO_CONCURRENCY=2 pnpm turbo run check test build`.
 
 ## Evidence and startup
 

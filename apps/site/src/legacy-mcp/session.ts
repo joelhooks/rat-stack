@@ -1,4 +1,6 @@
 import { Effect, Option, Ref, Schema } from "effect";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 export interface StoredSession {
   readonly body: string;
@@ -200,3 +202,18 @@ export const openLegacySession = <R = never>(
 
     return { handle };
   });
+
+export const legacySessionFetch = <R = never>(
+  options: LegacySessionOptions<R>
+) =>
+  openLegacySession(options).pipe(
+    Effect.map((session) => ({
+      fetch: Effect.gen(function* serveSession() {
+        const request = yield* HttpServerRequest.HttpServerRequest;
+        const web = yield* HttpServerRequest.toWeb(request).pipe(Effect.orDie);
+        const id = web.headers.get(LEGACY_SESSION_HEADER) ?? "";
+
+        return HttpServerResponse.fromWeb(yield* session.handle(web, id));
+      }),
+    }))
+  );
