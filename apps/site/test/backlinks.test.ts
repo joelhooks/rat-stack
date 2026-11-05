@@ -130,7 +130,9 @@ it.effect(
             ),
           })
         )
-      ).toContain('<span class="reference-context">One-line summary</span>');
+      ).toContain(
+        '<span class="reference-description">One-line summary</span>'
+      );
     })
 );
 

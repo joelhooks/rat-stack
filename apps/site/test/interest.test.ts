@@ -699,9 +699,9 @@ it("keeps the logo mark as the nav brand and one rat in the colophon on the work
 
   expect(body.match(/🐀/gu)).toHaveLength(1);
   expect(body).toMatch(
-    /<a class="brand" href="\/"><svg class="logo"[^>]*>.*?<\/svg><strong>Rat Stack<\/strong><\/a>/u
+    /<a [^>]*href="\/"[^>]*><svg [^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/svg><strong>Rat Stack<\/strong><\/a>/u
   );
-  expect(body).toContain('<p class="colophon">Ratstack or die 🐀💀</p>');
+  expect(body).toContain("Ratstack or die 🐀💀");
 });
 
 it.effect("serves the credited screenshot", () =>

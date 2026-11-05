@@ -1,12 +1,13 @@
 import { Effect, Option, Schema } from "effect";
 import { Command } from "foldkit";
 
-import {
-  readerSettingsKeys,
-  readerSettingsStorageKey,
-} from "../../../../site/src/reader-settings-script.js";
 import { Message } from "./message.js";
-import { defaultReaderSettings, ReaderSettings } from "./settings.js";
+import {
+  defaultReaderSettings,
+  readerSettingKeys,
+  ReaderSettings,
+  readerSettingsStorageKey,
+} from "./settings.js";
 import type { ReaderSettingKey, ReaderSettingsValue } from "./settings.js";
 
 class SettingsStorageFailure extends Schema.TaggedError<
@@ -43,7 +44,7 @@ export const SaveSettings = Command.define("SaveSettings", {
   args: { settings: ReaderSettings },
   execute: ({ settings }) =>
     Effect.sync(() => {
-      for (const key of readerSettingsKeys) {
+      for (const key of readerSettingKeys) {
         readerRoot().setAttribute(`data-${key}`, settings[key]);
       }
     }).pipe(

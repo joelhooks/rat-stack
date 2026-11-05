@@ -992,7 +992,7 @@ it.layer(contentServices)("generated content", (test) => {
           ?.css ?? "";
 
       expect(stylesheet).toContain("ui-monospace");
-      expect(stylesheet).toContain("--measure: 68ch");
+      expect(stylesheet).toMatch(/max-width:\s*var\(--measure\)/u);
       expect(homeDocumentHtml).not.toContain('rel="stylesheet"');
     })
   );

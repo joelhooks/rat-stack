@@ -82,14 +82,15 @@ const backlinksView = <Message>(
                       " ",
                       h.strong([h.Class("reference-title")], [reference.title]),
                       " ",
-                      h.span(
-                        [h.Class("reference-context")],
-                        [
-                          String.isEmpty(reference.context)
-                            ? reference.description
-                            : reference.context,
-                        ]
-                      ),
+                      String.isEmpty(reference.context)
+                        ? h.span(
+                            [h.Class("reference-description")],
+                            [reference.description]
+                          )
+                        : h.span(
+                            [h.Class("reference-context")],
+                            [reference.context]
+                          ),
                     ]
                   ),
                 ]

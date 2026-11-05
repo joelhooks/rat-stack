@@ -1133,16 +1133,21 @@ main .reference-cards li {
   font-weight: 600;
 }
 
-.reference-context {
-  border-left: 2px solid var(--accent);
+.reference-context,
+.reference-description {
   display: -webkit-box;
   font-size: 14px;
   line-clamp: 3;
   margin-top: 4px;
   overflow: hidden;
-  padding-left: 10px;
+  padding-left: 12px;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+.reference-context {
+  border-left: 2px solid var(--accent);
+  padding-left: 10px;
 }
 
 .bibliography ol {

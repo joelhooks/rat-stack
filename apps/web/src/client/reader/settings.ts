@@ -12,6 +12,8 @@ export type ReaderSettingsValue = typeof ReaderSettings.Type;
 
 export type ReaderSettingKey = keyof ReaderSettingsValue;
 
+export const readerSettingsStorageKey = "rat-reader-settings";
+
 export const defaultReaderSettings: ReaderSettingsValue = {
   accent: "pink",
   measure: "68",
@@ -73,3 +75,7 @@ export const readerSettingControls = [
     ],
   },
 ] as const satisfies readonly ReaderSettingControl<ReaderSettingKey>[];
+
+export const readerSettingKeys = readerSettingControls.map(
+  (control) => control.key
+);
