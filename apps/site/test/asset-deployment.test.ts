@@ -68,6 +68,71 @@ it.prop(
 );
 
 it.layer(NodeServices.layer)((nodeIt) => {
+  nodeIt.effect.prop(
+    "uploads only selected pages, images and data with their original bytes",
+    {
+      data: Arbitrary.schema(Schema.Boolean),
+      image: Arbitrary.schema(Schema.Boolean),
+      page: Arbitrary.schema(Schema.Boolean),
+    },
+    ({ data, image, page }) =>
+      Effect.gen(function* selectedUpload() {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const directory = yield* fs.makeTempDirectoryScoped();
+
+        const manifest = yield* emitAssets({
+          ...assetContent,
+          data: [{ path: "/_content/data.json", value: { public: true } }],
+          directory,
+        });
+
+        const runtime = {
+          data: data ? ["/_content/data.json"] : [],
+          generation: manifest.generation,
+          images: image ? ["/image.png"] : [],
+          pages: page ? ["/"] : [],
+        };
+
+        const selected = yield* assetDirectoryForBuild(directory, runtime);
+        const original = path.join(directory, "assets", manifest.generation);
+
+        const expected = [
+          ...(data ? ["_content/data.json"] : []),
+          ...(image ? ["image.png"] : []),
+          ...(page ? ["index.md"] : []),
+        ].toSorted();
+
+        const entries = yield* fs.readDirectory(selected, { recursive: true });
+        const uploaded = [];
+
+        for (const entry of entries) {
+          if ((yield* fs.stat(path.join(selected, entry))).type === "File") {
+            uploaded.push(entry);
+          }
+        }
+
+        expect(uploaded.toSorted()).toEqual(expected);
+
+        for (const file of expected) {
+          expect(yield* fs.readFile(path.join(selected, file))).toEqual(
+            yield* fs.readFile(path.join(original, file))
+          );
+        }
+
+        expect(yield* assetDirectoryForBuild(directory, runtime)).toBe(
+          selected
+        );
+
+        const rejected = yield* assetDirectoryForBuild(directory, {
+          ...runtime,
+          data: ["/_content/missing.json"],
+        }).pipe(Effect.flip);
+
+        expect(rejected.reason).toBe("data");
+      })
+  );
+
   nodeIt.layer(AssetCorpus.layer)((corpusIt) => {
     corpusIt.effect.prop(
       "selects the matching manifest and refuses every other generation",

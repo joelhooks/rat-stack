@@ -1,4 +1,5 @@
 import { Effect, FileSystem, Path, Schema } from "effect";
+import * as Digest from "effect/crypto/Digest";
 
 import { ContentAssetManifest } from "./asset-manifest.js";
 
@@ -14,20 +15,23 @@ export class AssetDeploymentError extends Schema.TaggedError<
     "generation",
     "routes",
     "images",
+    "data",
     "directory",
     "file",
   ]),
 }) {}
 
-export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
-  function* assetDirectoryForBuild(
-    directory: string,
-    runtime: {
-      readonly generation: string;
-      readonly pages?: readonly string[];
-      readonly images?: readonly string[];
-    }
-  ) {
+export interface RuntimeAssets {
+  readonly pages?: readonly string[];
+  readonly images?: readonly string[];
+  readonly data?: readonly string[];
+}
+
+export const assetDirectoryForBuild = (
+  directory: string,
+  runtime: RuntimeAssets & { readonly generation: string }
+) =>
+  Effect.gen(function* selectAssetDirectory() {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const manifestPath = path.join(directory, "manifest.json");
@@ -62,21 +66,26 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
     const images = new Set(runtime.images ?? manifest.images);
 
     if (
-      manifest.pages.length !== pages.size ||
+      ![...pages].every((route) =>
+        manifest.pages.some((page) => page.route === route)
+      ) ||
       !manifest.pages.every((page) => {
         const stem = page.route === "/" ? "/index" : page.route;
 
-        return pages.has(page.route) && page.markdown === `${stem}.md`;
+        return page.markdown === `${stem}.md`;
       })
     ) {
       return yield* failure("routes", manifestPath, manifest.pages);
     }
 
-    if (
-      manifest.images.length !== images.size ||
-      !manifest.images.every((image) => images.has(image))
-    ) {
+    if (![...images].every((image) => manifest.images.includes(image))) {
       return yield* failure("images", manifestPath, manifest.images);
+    }
+
+    const data = new Set(runtime.data ?? manifest.data);
+
+    if (![...data].every((file) => manifest.data?.includes(file) === true)) {
+      return yield* failure("data", manifestPath, [...data]);
     }
 
     const assets = path.join(directory, "assets", runtime.generation);
@@ -89,11 +98,15 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
       return yield* failure("directory", assets, stat.type);
     }
 
-    for (const file of [
-      ...manifest.pages.map((page) => page.markdown),
-      ...manifest.images,
-      ...(manifest.data ?? []),
-    ]) {
+    const files = [
+      ...manifest.pages
+        .filter((page) => pages.has(page.route))
+        .map((page) => page.markdown),
+      ...images,
+      ...data,
+    ].toSorted();
+
+    for (const file of files) {
       const target = path.join(assets, file.slice(1));
 
       const info = yield* fs
@@ -105,16 +118,60 @@ export const assetDirectoryForBuild = Effect.fn("assetDirectoryForBuild")(
       }
     }
 
-    return assets;
-  }
-);
+    if (
+      pages.size === manifest.pages.length &&
+      images.size === manifest.images.length &&
+      data.size === (manifest.data?.length ?? 0)
+    ) {
+      return assets;
+    }
 
-export const contentAssetsForBuild = (directory: string, generation: string) =>
+    const digest = yield* Digest.Digest;
+
+    const selection = yield* digest.digestHex(
+      Digest.sha256,
+      new TextEncoder().encode(JSON.stringify(files))
+    );
+
+    const selections = path.join(directory, "selections", runtime.generation);
+    const selected = path.join(selections, selection);
+
+    yield* Effect.gen(function* materializeSelection() {
+      yield* fs.makeDirectory(selections, { recursive: true });
+
+      if (!(yield* fs.exists(selected))) {
+        const temporary = yield* fs.makeTempDirectoryScoped({
+          directory: selections,
+          prefix: ".selection.",
+        });
+
+        for (const file of files) {
+          const target = path.join(temporary, file.slice(1));
+          yield* fs.makeDirectory(path.dirname(target), { recursive: true });
+          yield* fs.copyFile(path.join(assets, file.slice(1)), target);
+        }
+
+        yield* fs.rename(temporary, selected);
+      }
+    }).pipe(Effect.mapError((cause) => failure("directory", selected, cause)));
+
+    return selected;
+  }).pipe(
+    Effect.withSpan("assetDirectoryForBuild"),
+    Effect.provide(Digest.layerWebCrypto),
+    Effect.scoped
+  );
+
+export const contentAssetsForBuild = (
+  directory: string,
+  generation: string,
+  runtime: RuntimeAssets = {}
+) =>
   Effect.gen(function* selectContentAssets() {
     const assets =
       globalThis.__ALCHEMY_RUNTIME__ === true
         ? undefined
-        : yield* assetDirectoryForBuild(directory, { generation });
+        : yield* assetDirectoryForBuild(directory, { ...runtime, generation });
 
     return assets === undefined
       ? assets

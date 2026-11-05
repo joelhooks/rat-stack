@@ -5,8 +5,9 @@ import { Effect, Layer, Option, Ref, Schema } from "effect";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
+import { workshopAssets } from "./workshop-assets.js";
 
-const workshopPath = "/_content/workshop.json";
+const [workshopPath] = workshopAssets.data;
 
 export const workshopDirectoryForGeneration = (generation: string) =>
   Layer.effect(
