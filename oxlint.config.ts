@@ -44,6 +44,7 @@ export default defineConfig({
     ".claude/**",
     "scripts/hooks/**",
     "tools/oxlint/anti-slop/**",
+    "skills/security-audit/**",
   ],
   jsPlugins: [
     { name: "foldkit", specifier: "@foldkit/oxlint-plugin" },

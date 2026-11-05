@@ -137,6 +137,7 @@ import {
   linkedFromComponent,
   unlinkedMentionsComponent,
 } from "./reference-components.ts";
+import { securityAuditContent } from "./security-audit-content.ts";
 import { contentDates, pageTitle, structuredData } from "./seo-metadata.ts";
 import {
   contentCodeSpans,
@@ -743,7 +744,7 @@ const skillGroups = [
     title: "Learn by building",
   },
   { names: ["keep-or-cut", "uncomplect"], title: "Choose what you keep" },
-  { names: ["gardener"], title: "Keep the fence sharp" },
+  { names: ["gardener", "security-audit"], title: "Keep the fence sharp" },
   {
     names: [
       "ship",
@@ -1284,12 +1285,20 @@ const program = Effect.gen(function* generateContent() {
 
   const skillDirectories = yield* directoryNames("skills", skillEntries);
 
+  const { assets: securityAuditAssets, published: publishedSecurityAudit } =
+    yield* securityAuditContent(root);
+
   const skillTexts = yield* Effect.forEach(
     skillDirectories.toSorted(),
     (directoryName) =>
       Effect.gen(function* readSkill() {
         const sourcePath = `skills/${directoryName}/SKILL.md`;
-        const rawText = yield* readText(sourcePath);
+
+        const rawText =
+          directoryName === "security-audit"
+            ? publishedSecurityAudit
+            : yield* readText(sourcePath);
+
         const text = deriveAgentMarkdown(rawText, blockIndexRegistry);
 
         const name = yield* Effect.try({
@@ -2308,6 +2317,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/.well-known/agent-card.json",
     "/.well-known/agent.json",
     "/.well-known/agent-skills/index.json",
+    ...securityAuditAssets.map((asset) => asset.path),
     "/.well-known/ai-catalog.json",
     "/.well-known/api-catalog",
     "/.well-known/mcp.json",
@@ -3614,6 +3624,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         })),
         homeMarkdownTemplate: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
         imagePaths: [
+          ...securityAuditAssets.map((asset) => asset.path),
           ...ogImages.map((image) => ogImagePath(image.routePath)),
           "/favicon.ico",
           "/apple-touch-icon.png",
@@ -3680,6 +3691,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     data,
     directory: path.join(root, "apps/site/dist/content"),
     images: [
+      ...securityAuditAssets,
       { base64: faviconIcoBase64, path: "/favicon.ico" },
       { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
       {
