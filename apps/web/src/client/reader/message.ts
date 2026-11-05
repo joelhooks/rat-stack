@@ -15,8 +15,9 @@ export const Message = defineMessageUnion({
   ClickedMenu: {},
   ClickedPhoneOutlineLink: {},
   ClickedSettings: {},
+  CompletedClosePhoneOutline: {},
   CompletedDetectClipboard: { access: DetectedClipboardAccess },
-  CompletedLightLinks: {},
+  CompletedReturnFocus: {},
   CompletedRevealOutlineRow: {},
   CompletedSaveSettings: {},
   CompletedWaitBeforeCopyReset: { id: Schema.String },
@@ -40,7 +41,6 @@ export const Message = defineMessageUnion({
     summary: Schema.String,
     title: Schema.String,
   },
-  ToggledPhoneOutline: { open: Schema.Boolean },
 });
 
 export type ReaderMessage = typeof Message.Type;

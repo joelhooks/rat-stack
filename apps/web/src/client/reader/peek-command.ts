@@ -1,9 +1,9 @@
-import { Effect, Option, Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { Command } from "foldkit";
 
 import { DocumentQueries } from "../docs/queries.js";
 import { Message } from "./message.js";
-import { peekSummary, routeOfPath } from "./peek.js";
+import { peekSummary } from "./peek.js";
 
 export const peekDelay = "280 millis";
 
@@ -29,27 +29,4 @@ export const ReadPeek = Command.define("ReadPeek", {
       })
     ),
   messages: [Message.SucceededReadPeek, Message.FailedReadPeek],
-});
-
-const lightLinks = (route: Option.Option<string>) => {
-  for (const link of document.querySelectorAll<HTMLAnchorElement>(
-    "main a[href^='/']"
-  )) {
-    link.toggleAttribute(
-      "data-graph-lit",
-      link.closest("sup") === null &&
-        Option.contains(route, routeOfPath(link.pathname))
-    );
-  }
-};
-
-export const LightLinks = Command.define("LightLinks", {
-  args: { route: Schema.Option(Schema.String) },
-  execute: ({ route }) =>
-    Effect.sync(() => {
-      lightLinks(route);
-
-      return Message.CompletedLightLinks();
-    }),
-  messages: [Message.CompletedLightLinks],
 });

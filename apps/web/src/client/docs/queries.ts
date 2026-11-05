@@ -1,6 +1,6 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { readContract, searchContract } from "@rat-stack/core/contracts";
-import { Cache, Context, Effect, Layer } from "effect";
+import { Cache, Context, Duration, Effect, Exit, Layer } from "effect";
 import { FetchHttpClient } from "effect/http";
 import { RpcClient, RpcSerialization } from "effect/rpc";
 
@@ -19,9 +19,10 @@ const make = Effect.gen(function* makeDocumentQueries() {
     timeToLive: "30 seconds",
   });
 
-  const read = yield* Cache.make({
+  const read = yield* Cache.makeWith((id: string) => client.read({ id }), {
     capacity: Number.POSITIVE_INFINITY,
-    lookup: (id: string) => client.read({ id }),
+    timeToLive: (exit) =>
+      Exit.isSuccess(exit) ? Duration.infinity : Duration.zero,
   });
 
   return {

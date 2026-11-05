@@ -9,22 +9,27 @@ import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
 import * as MotionDemo from "../motion/index.js";
 import {
+  ClosePhoneOutline,
   CopyReaderText,
+  menuButtonSelector,
+  ReturnFocus,
   RevealOutlineRow,
+  settingsButtonSelector,
   WaitBeforeCopyReset,
 } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
 import {
   ClipboardAccess,
+  closeDisclosure,
   copyStatusOf,
   CopyStatus,
+  Disclosure,
   findCopyPrompt,
-  Menu,
-  SettingsPanel,
+  toggleDisclosure,
 } from "./model.js";
 import type { ReaderModel } from "./model.js";
-import { LightLinks, ReadPeek, WaitBeforePeek } from "./peek-command.js";
+import { ReadPeek, WaitBeforePeek } from "./peek-command.js";
 import { Peek, PeekCard } from "./peek.js";
 import type { PeekAnchorValue } from "./peek.js";
 import { SaveSettings } from "./settings-command.js";
@@ -119,30 +124,20 @@ export const update = (
           }),
         }),
       ClickedMenu: () => ({
-        model: modifyFields(model, {
-          menu: Menu.match({
-            Closed: () => Menu.Open(),
-            Open: () => Menu.Closed(),
-            Unavailable: () => Menu.Unavailable(),
-          }),
-        }),
+        model: modifyFields(model, { menu: toggleDisclosure }),
       }),
       ClickedPhoneOutlineLink: () => ({
-        model: modifyFields(model, { phoneOutlineOpen: () => false }),
+        commands: [ClosePhoneOutline()],
+        model,
       }),
       ClickedSettings: () => ({
-        model: modifyFields(model, {
-          settingsPanel: SettingsPanel.match({
-            Closed: () => SettingsPanel.Open(),
-            Open: () => SettingsPanel.Closed(),
-            Unavailable: () => SettingsPanel.Unavailable(),
-          }),
-        }),
+        model: modifyFields(model, { settingsPanel: toggleDisclosure }),
       }),
+      CompletedClosePhoneOutline: () => ({ model }),
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
-      CompletedLightLinks: () => ({ model }),
+      CompletedReturnFocus: () => ({ model }),
       CompletedRevealOutlineRow: () => ({ model }),
       CompletedSaveSettings: () => ({ model }),
       CompletedWaitBeforeCopyReset: ({ id }) => ({
@@ -164,9 +159,7 @@ export const update = (
           : model,
       }),
       FailedReadPeek: ({ route }) => ({
-        model: modifyFields(model, {
-          peekCards: Record.set(route, PeekCard.Missing()),
-        }),
+        model: modifyFields(model, { peekCards: Record.remove(route) }),
       }),
       FocusedLink: ({ anchor, route }) => showPeek(model, route, anchor, false),
       GotCafeMessage: ({ message: cafeMessage }) =>
@@ -176,12 +169,10 @@ export const update = (
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
       HoveredGraphNode: ({ route }) => ({
-        commands: [LightLinks({ route: Option.some(route) })],
-        model,
+        model: modifyFields(model, { graphLit: () => Option.some(route) }),
       }),
       LeftGraphNode: () => ({
-        commands: [LightLinks({ route: Option.none() })],
-        model,
+        model: modifyFields(model, { graphLit: () => Option.none() }),
       }),
       LeftLink: () => ({
         model: modifyFields(model, { peek: () => Peek.Hidden() }),
@@ -194,11 +185,18 @@ export const update = (
           ? { model }
           : showPeek(model, route, anchor, true),
       PressedEscape: () => ({
+        commands: [
+          ...(Disclosure.guards.Open(model.menu)
+            ? [ReturnFocus({ selector: menuButtonSelector })]
+            : []),
+          ...(Disclosure.guards.Open(model.settingsPanel)
+            ? [ReturnFocus({ selector: settingsButtonSelector })]
+            : []),
+        ],
         model: modifyFields(model, {
-          menu: (menu) => (Menu.guards.Open(menu) ? Menu.Closed() : menu),
+          menu: closeDisclosure,
           peek: () => Peek.Hidden(),
-          settingsPanel: (panel) =>
-            SettingsPanel.guards.Open(panel) ? SettingsPanel.Closed() : panel,
+          settingsPanel: closeDisclosure,
         }),
       }),
       ScrolledOutline: ({ range }) => ({
@@ -216,9 +214,6 @@ export const update = (
         model: modifyFields(model, {
           peekCards: Record.set(route, PeekCard.Loaded({ summary, title })),
         }),
-      }),
-      ToggledPhoneOutline: ({ open }) => ({
-        model: modifyFields(model, { phoneOutlineOpen: () => open }),
       }),
     }
   );

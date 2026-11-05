@@ -10,8 +10,12 @@ import {
   within,
 } from "foldkit/scene";
 
+import {
+  ReturnFocus,
+  settingsButtonSelector,
+} from "../src/client/reader/command.js";
 import { Message } from "../src/client/reader/message.js";
-import { SettingsPanel } from "../src/client/reader/model.js";
+import { Disclosure } from "../src/client/reader/model.js";
 import { SaveSettings } from "../src/client/reader/settings-command.js";
 import { defaultReaderSettings } from "../src/client/reader/settings.js";
 import { update } from "../src/client/reader/update.js";
@@ -26,7 +30,7 @@ const themeGroup = within(settingsPanel, role("group", { name: "Theme" }));
 
 const withSettings = {
   ...readerModelFixture,
-  settingsPanel: SettingsPanel.Closed(),
+  settingsPanel: Disclosure.Closed(),
 };
 
 it("the server render has no settings control, so the defaults apply without JS", () => {
@@ -61,6 +65,8 @@ it("choosing a setting marks it pressed and saves the whole set", () => {
       "false"
     ),
     Subscription.emit(Message.PressedEscape()),
+    Command.expectExact(ReturnFocus({ selector: settingsButtonSelector })),
+    Command.resolve(ReturnFocus, Message.CompletedReturnFocus()),
     expect(settingsPanel).not.toBeVisible()
   );
 });

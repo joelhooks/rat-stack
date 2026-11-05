@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import { Command } from "foldkit";
+import { Command, Dom } from "foldkit";
 
 import { Message } from "./message.js";
 import { ClipboardAccess } from "./model.js";
@@ -79,4 +79,33 @@ export const RevealOutlineRow = Command.define("RevealOutlineRow", {
       return Message.CompletedRevealOutlineRow();
     }),
   messages: [Message.CompletedRevealOutlineRow],
+});
+
+export const menuButtonSelector = ".menu-button";
+
+export const settingsButtonSelector = ".settings-button";
+
+export const ReturnFocus = Command.define("ReturnFocus", {
+  args: { selector: Schema.String },
+  execute: ({ selector }) =>
+    Dom.focus(selector).pipe(
+      Effect.ignore,
+      Effect.as(Message.CompletedReturnFocus())
+    ),
+  messages: [Message.CompletedReturnFocus],
+});
+
+export const phoneOutlineSelector = "details.phone-outline";
+
+export const ClosePhoneOutline = Command.define("ClosePhoneOutline", {
+  execute: Effect.sync(() => {
+    for (const details of document.querySelectorAll<HTMLDetailsElement>(
+      phoneOutlineSelector
+    )) {
+      details.open = false;
+    }
+
+    return Message.CompletedClosePhoneOutline();
+  }),
+  messages: [Message.CompletedClosePhoneOutline],
 });

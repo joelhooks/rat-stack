@@ -22,7 +22,7 @@
   --code-keyword: var(--fg);
   --code-literal: light-dark(#6e5d4e, #c4b5a5);
   --code-function: light-dark(#4d5f70, #a9b8c6);
-  --code-muted: var(--muted);
+  --code-muted: light-dark(#68686d, #9d9da2);
   --code-highlight: light-dark(#ebebf0, #343437);
   --shiki-foreground: var(--code-ink);
   --shiki-background: var(--fill);
@@ -244,7 +244,7 @@ body > :not(main, .toolbar) {
   z-index: 20;
 }
 
-.news-item:is(:hover, :focus-within) > .news-latest {
+.news-item:is(:hover, :has(:focus-visible)) > .news-latest {
   display: grid;
 }
 
@@ -320,6 +320,7 @@ body > :not(main, .toolbar) {
 .menu-sheet ul {
   display: grid;
   gap: 2px;
+  grid-template-columns: minmax(0, 1fr);
   list-style: none;
   margin: 0;
   padding: 0;

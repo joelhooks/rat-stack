@@ -36,14 +36,13 @@ const keyboard = Subscription.make<ReaderModel, ReaderMessage>()(() => ({
   ),
 }));
 
-const landmarkIds = new Set(["linked-from", "sources"]);
-
 const bandTop = 0.2;
 
 const bandBottom = 0.45;
 
 interface OutlineTarget {
   readonly id: string;
+  readonly landmark: boolean;
   readonly level: 2 | 3;
   readonly target: HTMLElement;
 }
@@ -61,6 +60,7 @@ const outlineTargets = (): readonly OutlineTarget[] =>
       : [
           {
             id,
+            landmark: link.closest("[data-landmark]") !== null,
             level: link.closest(".outline-sub") === null ? 2 : 3,
             target,
           },
@@ -73,9 +73,7 @@ const measureSections = (): readonly OutlineSection[] => {
   const mainBottom =
     document.querySelector("main")?.getBoundingClientRect().bottom ?? 0;
 
-  return targets.map(({ id, level, target }, index) => {
-    const landmark = landmarkIds.has(id);
-
+  return targets.map(({ id, landmark, level, target }, index) => {
     const box = (
       landmark ? (target.closest("section") ?? target) : target
     ).getBoundingClientRect();
@@ -164,6 +162,9 @@ const peekRoom = 200;
 
 const routeOf = (link: HTMLAnchorElement) => routeOfPath(link.pathname);
 
+const hasFileExtension = (pathname: string) =>
+  /\.[\da-z]+$/iu.test(pathname.split("/").at(-1) ?? "");
+
 const peekLink = (target: EventTarget | null) => {
   const link =
     target instanceof Element
@@ -172,7 +173,9 @@ const peekLink = (target: EventTarget | null) => {
 
   return link === null ||
     link.classList.contains("paragraph-link") ||
+    link.classList.contains("reference-card") ||
     link.closest("sup") !== null ||
+    hasFileExtension(link.pathname) ||
     routeOf(link) === routeOfPath(location.pathname)
     ? Option.none()
     : Option.some(link);

@@ -2,7 +2,6 @@ import { describe, expect, it } from "@effect/vitest";
 import { Option, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import {
-  Command,
   expect as expectScene,
   given,
   hover,
@@ -12,8 +11,6 @@ import {
 } from "foldkit/scene";
 
 import { ReaderNode } from "../src/client/reader-node.js";
-import { Message } from "../src/client/reader/message.js";
-import { LightLinks } from "../src/client/reader/peek-command.js";
 import { update } from "../src/client/reader/update.js";
 import { graphNodes } from "../src/features/local-graph.js";
 import { view } from "../src/features/reader.js";
@@ -22,7 +19,7 @@ import { readerModelFixture } from "./reader-fixture.js";
 const route = Arbitrary.schema(Schema.Literals(["/a", "/b", "/c", "/d", "/e"]));
 
 const links = Arbitrary.array(
-  Arbitrary.all([route, Arbitrary.schema(Schema.Literals(["A", "B", "C"]))]),
+  Arbitrary.all([route, Arbitrary.schema(Schema.Literals(["A", "B", ""]))]),
   { maxLength: 8, minLength: 0 }
 ).pipe(
   Arbitrary.map((pairs) =>
@@ -40,7 +37,7 @@ const kindOf = (linked: boolean, linking: boolean) => {
 
 describe("local graph nodes", () => {
   it.prop(
-    "each other page appears once, blue exactly when it is both linked and linking",
+    "each other page appears once with a label, blue exactly when it is both linked and linking",
     { inbound: links, outbound: links, self: route },
     ({ inbound, outbound, self }) => {
       const nodes = graphNodes(outbound, inbound, self);
@@ -60,6 +57,7 @@ describe("local graph nodes", () => {
         );
 
         expect(node.kind).toBe(expected);
+        expect(node.title).not.toBe("");
       }
     }
   );
@@ -123,8 +121,15 @@ it("the server-rendered graph links every neighbour and marks pages that are bot
       "href",
       "/skills/gardener"
     ),
+    expectScene(
+      within(role("main"), role("link", { name: "Auth" }))
+    ).not.toHaveAttr("data-graph-lit"),
     hover(within(graph, role("link", { name: /Auth/u }))),
-    Command.expectExact(LightLinks({ route: Option.some("/systems/auth") })),
-    Command.resolve(LightLinks, Message.CompletedLightLinks())
+    expectScene(
+      within(role("main"), role("link", { name: "Auth" }))
+    ).toHaveAttr("data-graph-lit", ""),
+    expectScene(
+      within(role("main"), role("link", { name: "Effect basics" }))
+    ).not.toHaveAttr("data-graph-lit")
   );
 });

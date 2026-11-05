@@ -16,7 +16,7 @@ export interface GraphNode extends GraphLink {
 
 export const graphSideLimit = 12;
 
-const routeOfHref = (href: string) =>
+export const routeOfHref = (href: string) =>
   (href.split("#").at(0) ?? "").replace(/\/$/u, "") || "/";
 
 const attribute = (
@@ -103,32 +103,32 @@ export const referenceLinks: (node: ReaderNodeValue) => readonly GraphLink[] =
     Match.orElse(() => [])
   );
 
+const graphKind = (outbound: boolean, inbound: boolean): GraphKind => {
+  if (outbound && inbound) {
+    return "both";
+  }
+
+  return outbound ? "out" : "in";
+};
+
 export const graphNodes = (
   outbound: readonly GraphLink[],
   inbound: readonly GraphLink[],
   self: string
 ): readonly GraphNode[] => {
+  const links = [...outbound, ...inbound];
+  const outboundRoutes = new Set(outbound.map((link) => link.route));
   const inboundRoutes = new Set(inbound.map((link) => link.route));
 
-  const outboundNodes = Array.dedupeWith(
-    outbound.filter((link) => link.route !== self && link.title !== ""),
-    (left, right) => left.route === right.route
-  ).map((link): GraphNode => ({
-    ...link,
-    kind: inboundRoutes.has(link.route) ? "both" : "out",
-  }));
-
-  const outboundRoutes = new Set(outboundNodes.map((node) => node.route));
-
-  return [
-    ...outboundNodes,
-    ...Array.dedupeWith(
-      inbound.filter(
-        (link) => link.route !== self && !outboundRoutes.has(link.route)
-      ),
-      (left, right) => left.route === right.route
-    ).map((link): GraphNode => ({ ...link, kind: "in" })),
-  ];
+  return Array.dedupe(links.map((link) => link.route))
+    .filter((route) => route !== self)
+    .map((route) => ({
+      kind: graphKind(outboundRoutes.has(route), inboundRoutes.has(route)),
+      route,
+      title:
+        links.find((link) => link.route === route && link.title !== "")
+          ?.title ?? route,
+    }));
 };
 
 interface PlacedNode extends GraphNode {

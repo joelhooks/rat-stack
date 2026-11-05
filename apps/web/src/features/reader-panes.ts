@@ -107,7 +107,10 @@ const outlineList = <Message>(
     groups.map((group) =>
       h.keyed("li")(
         group.entry.id,
-        [h.Class(group.entry.level === 3 ? "outline-sub" : "outline-top")],
+        [
+          h.Class(group.entry.level === 3 ? "outline-sub" : "outline-top"),
+          ...(group.entry.landmark ? [h.DataAttribute("landmark", "")] : []),
+        ],
         [
           outlineLink(h, group.entry, active, onJump),
           ...(group.children.length === 0
@@ -144,29 +147,19 @@ export const outlinePane = <Message>(
         ]
   );
 
-export interface PhoneOutlineControl<Message> {
-  readonly onJump: Message;
-  readonly onToggle: (open: boolean) => Message;
-  readonly open: boolean;
-}
-
 export const phoneOutline = <Message>(
   h: HtmlBuilder<Message>,
   groups: readonly OutlineGroup[],
-  control: PhoneOutlineControl<Message>
+  onJump: Message
 ) =>
   groups.length === 0
     ? []
     : [
         h.details(
-          [
-            h.Class("phone-outline"),
-            h.Open(control.open),
-            h.OnToggle(control.onToggle),
-          ],
+          [h.Class("phone-outline")],
           [
             h.summary([], ["On this page"]),
-            outlineList(h, groups, new Set(), Option.some(control.onJump)),
+            outlineList(h, groups, new Set(), Option.some(onJump)),
           ]
         ),
       ];

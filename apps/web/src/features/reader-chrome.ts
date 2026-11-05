@@ -203,7 +203,7 @@ export const readerToolbar = <Message>(
   menu: MenuControl<Message>,
   section: Option.Option<SectionListing>,
   newsTitle: Option.Option<string>
-) =>
+): readonly Html[] => [
   h.header(
     [h.Class("toolbar")],
     [
@@ -229,11 +229,12 @@ export const readerToolbar = <Message>(
             : []),
         ]
       ),
-      ...(menu.kind === "available"
-        ? [menuSheet(h, path, menu.open, section, newsTitle)]
-        : []),
     ]
-  );
+  ),
+  ...(menu.kind === "available"
+    ? [menuSheet(h, path, menu.open, section, newsTitle)]
+    : []),
+];
 
 export const readerFooter = <Message>(
   h: HtmlBuilder<Message>,

@@ -3,6 +3,7 @@ import type { Html, HtmlBuilder } from "foldkit/html";
 
 import { Peek, PeekCard } from "../client/reader/peek.js";
 import type { PeekAnchorValue } from "../client/reader/peek.js";
+import { readerPeekId } from "./reader-node.js";
 
 const sectionOf = (route: string) => {
   const section = route.split("/").at(1) ?? "";
@@ -22,6 +23,7 @@ const card = <Message>(
 ) =>
   h.div(
     [
+      h.Id(readerPeekId),
       h.Class(anchor.above ? "peek peek-above" : "peek"),
       h.Role("tooltip"),
       h.Style({ left: `${anchor.left}px`, top: `${anchor.top}px` }),
@@ -59,8 +61,18 @@ export const readerPeekView = <Message>(
             card(h, route, anchor, title, summary),
           ],
           Loading: () => [],
-          Missing: () => [],
         }),
       }),
     Waiting: (): readonly Html[] => [],
   })(peek);
+
+export const describedRoute = (model: {
+  readonly peek: typeof Peek.Type;
+  readonly peekCards: Readonly<Record<string, typeof PeekCard.Type>>;
+}): Option.Option<string> =>
+  Peek.guards.Open(model.peek) &&
+  Option.exists(Record.get(model.peekCards, model.peek.route), (cached) =>
+    PeekCard.guards.Loaded(cached)
+  )
+    ? Option.some(model.peek.route)
+    : Option.none();

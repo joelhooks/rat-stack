@@ -1,5 +1,6 @@
 import { it } from "@effect/vitest";
 import {
+  Command,
   Subscription,
   click,
   expect,
@@ -9,8 +10,12 @@ import {
   within,
 } from "foldkit/scene";
 
+import {
+  menuButtonSelector,
+  ReturnFocus,
+} from "../src/client/reader/command.js";
 import { Message } from "../src/client/reader/message.js";
-import { Menu } from "../src/client/reader/model.js";
+import { Disclosure } from "../src/client/reader/model.js";
 import { update } from "../src/client/reader/update.js";
 import { view } from "../src/features/reader.js";
 import { readerModelFixture } from "./reader-fixture.js";
@@ -44,7 +49,7 @@ it("the server render keeps every section link in the toolbar and offers no menu
 it("the menu opens a sheet with the current section marked, and Escape or Close shuts it", () => {
   scene(
     { update, view },
-    given({ ...onSystemsPage, menu: Menu.Closed() }),
+    given({ ...onSystemsPage, menu: Disclosure.Closed() }),
     expect(menuButton).toHaveAttr("aria-expanded", "false"),
     expect(siteMenu).not.toBeVisible(),
     click(menuButton),
@@ -57,6 +62,8 @@ it("the menu opens a sheet with the current section marked, and Escape or Close 
       within(siteMenu, role("link", { name: "agent guide" }))
     ).toBeVisible(),
     Subscription.emit(Message.PressedEscape()),
+    Command.expectExact(ReturnFocus({ selector: menuButtonSelector })),
+    Command.resolve(ReturnFocus, Message.CompletedReturnFocus()),
     expect(siteMenu).not.toBeVisible(),
     expect(menuButton).toExist(),
     click(menuButton),

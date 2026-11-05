@@ -20,7 +20,6 @@ export const Peek = defineTaggedUnion({
 export const PeekCard = defineTaggedUnion({
   Loaded: { summary: Schema.String, title: Schema.String },
   Loading: {},
-  Missing: {},
 });
 
 const firstParagraph = (text: string) =>

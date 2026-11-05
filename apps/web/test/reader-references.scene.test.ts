@@ -2,7 +2,7 @@ import { it } from "@effect/vitest";
 import { Option } from "effect";
 import { click, expect, given, role, scene, text, within } from "foldkit/scene";
 
-import { Menu } from "../src/client/reader/model.js";
+import { Disclosure } from "../src/client/reader/model.js";
 import { update } from "../src/client/reader/update.js";
 import { view } from "../src/features/reader.js";
 import { readerModelFixture } from "./reader-fixture.js";
@@ -34,7 +34,7 @@ it("the news link carries the latest headline in the toolbar and leaves the page
 it("the phone menu shows the latest headline under news", () => {
   scene(
     { update, view },
-    given({ ...withNews, menu: Menu.Closed() }),
+    given({ ...withNews, menu: Disclosure.Closed() }),
     click(role("button", { name: "Menu" })),
     expect(within(siteMenu, text(headline))).toBeVisible()
   );

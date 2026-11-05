@@ -78,8 +78,10 @@ const codeColors = (tokens: ReadonlyMap<string, string>) =>
       (name.startsWith("--code-") && name !== "--code-highlight")
   );
 
+const surfaces = ["--fill", "--code-highlight"] as const;
+
 it.effect(
-  "every code token reaches 4.5:1 on the code fill in both themes",
+  "every code token reaches 4.5:1 on the code fill and on highlighted lines in both themes",
   () =>
     Effect.sync(() => {
       const tokens = rootDeclarations(servedStylesheet(homeDocumentHtml));
@@ -87,15 +89,22 @@ it.effect(
       expect(names).toContain("--shiki-token-keyword");
       expect(tokens.get("--shiki-background")).toBe("var(--fill)");
 
-      const failing = (["light", "dark"] as const).flatMap((theme) => {
-        const fill = resolve(tokens, "var(--fill)", theme);
+      const failing = (["light", "dark"] as const).flatMap((theme) =>
+        surfaces.flatMap((surface) => {
+          const background = resolve(tokens, `var(${surface})`, theme);
 
-        return names.flatMap((name) => {
-          const ratio = contrast(resolve(tokens, `var(${name})`, theme), fill);
+          return names.flatMap((name) => {
+            const ratio = contrast(
+              resolve(tokens, `var(${name})`, theme),
+              background
+            );
 
-          return ratio < 4.5 ? [`${theme} ${name} ${ratio.toFixed(2)}:1`] : [];
-        });
-      });
+            return ratio < 4.5
+              ? [`${theme} ${name} on ${surface} ${ratio.toFixed(2)}:1`]
+              : [];
+          });
+        })
+      );
 
       expect(failing).toStrictEqual([]);
     })

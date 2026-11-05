@@ -7,7 +7,7 @@ import type { DocumentQueries } from "../docs/queries.js";
 import { DetectClipboard } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
-import { initialModel, Menu, SettingsPanel } from "./model.js";
+import { Disclosure, initialModel } from "./model.js";
 import type { ReaderModel, ReaderPageFlags } from "./model.js";
 import { LoadSettings } from "./settings-command.js";
 
@@ -25,8 +25,8 @@ export const browserInit: ApplicationInit<
 > = (flags) => {
   const model = {
     ...initialModel(flags),
-    menu: Menu.Closed(),
-    settingsPanel: SettingsPanel.Closed(),
+    menu: Disclosure.Closed(),
+    settingsPanel: Disclosure.Closed(),
   };
 
   if (Option.isNone(model.docs)) {

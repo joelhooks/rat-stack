@@ -15,7 +15,7 @@ import { ReaderNode, ReaderNodeSchema } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import type { ReaderMessage } from "../src/client/reader/message.js";
 import { ClipboardAccess } from "../src/client/reader/model.js";
-import { renderReaderNode } from "../src/features/reader-node.js";
+import { noLinkMarks, renderReaderNode } from "../src/features/reader-node.js";
 import { readerCopyControl } from "../src/features/reader.js";
 
 const prompts = readerCopyPrompts("https://ratstack.sh");
@@ -109,17 +109,21 @@ it.effect.prop(
               [
                 h.h1([], ["Round trip"]),
                 ...model.nodes.map((node) =>
-                  renderReaderNode(node, h, (id, primary) =>
-                    readerCopyControl(
-                      {
-                        clipboardAccess: ClipboardAccess.Available(),
-                        copyPrompts: prompts,
-                        copyStatuses: {},
-                      },
-                      h,
-                      id,
-                      primary
-                    )
+                  renderReaderNode(
+                    node,
+                    h,
+                    (id, primary) =>
+                      readerCopyControl(
+                        {
+                          clipboardAccess: ClipboardAccess.Available(),
+                          copyPrompts: prompts,
+                          copyStatuses: {},
+                        },
+                        h,
+                        id,
+                        primary
+                      ),
+                    noLinkMarks
                   )
                 ),
               ]
@@ -157,7 +161,7 @@ it.effect(
             body: h.main(
               [],
               model.nodes.map((node) =>
-                renderReaderNode(node, h, () => h.span([], []))
+                renderReaderNode(node, h, () => h.span([], []), noLinkMarks)
               )
             ),
             title: "Hero",

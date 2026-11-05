@@ -12,9 +12,12 @@ import {
 } from "foldkit/scene";
 
 import { ReaderNode } from "../src/client/reader-node.js";
-import { RevealOutlineRow } from "../src/client/reader/command.js";
+import {
+  ClosePhoneOutline,
+  RevealOutlineRow,
+} from "../src/client/reader/command.js";
 import { Message } from "../src/client/reader/message.js";
-import { Menu } from "../src/client/reader/model.js";
+import { Disclosure } from "../src/client/reader/model.js";
 import { update } from "../src/client/reader/update.js";
 import { view } from "../src/features/reader.js";
 import { readerModelFixture } from "./reader-fixture.js";
@@ -118,22 +121,22 @@ it("the outline nests each h3 under its h2", () => {
   );
 });
 
-it("the phone outline is a closed disclosure that closes again after a jump", () => {
+it("the phone outline is a native disclosure the view never controls, closed after a jump", () => {
   scene(
     { update, view },
     given(fencePage),
-    expect(phoneOutline).toHaveAttr("open", "false"),
-    Subscription.emit(Message.ToggledPhoneOutline({ open: true })),
-    expect(phoneOutline).toHaveAttr("open", "true"),
+    expect(phoneOutline).not.toHaveAttr("open"),
     click(within(phoneOutline, role("link", { name: "How to check" }))),
-    expect(phoneOutline).toHaveAttr("open", "false")
+    Command.expectExact(ClosePhoneOutline()),
+    Command.resolve(ClosePhoneOutline, Message.CompletedClosePhoneOutline()),
+    expect(phoneOutline).not.toHaveAttr("open")
   );
 });
 
 it("the phone menu lists the section's pages with the current one marked", () => {
   scene(
     { update, view },
-    given({ ...fencePage, menu: Menu.Closed() }),
+    given({ ...fencePage, menu: Disclosure.Closed() }),
     click(role("button", { name: "Menu" })),
     expect(within(siteMenu, role("link", { name: "Fence" }))).toHaveAttr(
       "aria-current",

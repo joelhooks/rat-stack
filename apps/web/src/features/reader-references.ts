@@ -46,7 +46,8 @@ const lastChangeView = <Message>(
 
 const backlinksView = <Message>(
   references: References,
-  h: HtmlBuilder<Message>
+  h: HtmlBuilder<Message>,
+  lit: Option.Option<string>
 ): readonly Html[] =>
   Array.match(references.backlinks, {
     onEmpty: () => [],
@@ -69,7 +70,13 @@ const backlinksView = <Message>(
                 [],
                 [
                   h.a(
-                    [h.Class("reference-card"), h.Href(reference.route)],
+                    [
+                      h.Class("reference-card"),
+                      h.Href(reference.route),
+                      ...(Option.contains(lit, reference.route)
+                        ? [h.DataAttribute("graph-lit", "")]
+                        : []),
+                    ],
                     [
                       h.span([h.Class("reference-route")], [reference.route]),
                       " ",
@@ -102,6 +109,6 @@ export const readerReferences = <Message>(
     onNone: () => [],
     onSome: (references) => [
       ...lastChangeView(model, references, h),
-      ...backlinksView(references, h),
+      ...backlinksView(references, h, model.graphLit),
     ],
   });

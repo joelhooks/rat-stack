@@ -5,6 +5,7 @@ import type { ReaderModel } from "../client/reader/model.js";
 
 export interface OutlineEntry {
   readonly id: string;
+  readonly landmark: boolean;
   readonly level: 2 | 3;
   readonly text: string;
 }
@@ -40,6 +41,7 @@ const headingEntry = (
     : [
         {
           id: id.value,
+          landmark: false,
           level: element.tag === "h2" ? 2 : 3,
           text: nodeText(element).trim(),
         },
@@ -64,6 +66,7 @@ const blockEntry: (
       ? [
           {
             id: heading.id,
+            landmark: false,
             level: heading.level === 3 ? 3 : 2,
             text: heading.title,
           },
@@ -78,13 +81,20 @@ const blockEntries = (model: ReaderModel): readonly OutlineEntry[] =>
 
 const trailingEntries = (model: ReaderModel): readonly OutlineEntry[] => [
   ...(Array.isReadonlyArrayNonEmpty(model.bibliography)
-    ? [{ id: "sources", level: 2 as const, text: "Sources" }]
+    ? [{ id: "sources", landmark: true, level: 2 as const, text: "Sources" }]
     : []),
   ...Option.match(model.references, {
     onNone: () => [],
     onSome: (references) =>
       Array.isReadonlyArrayNonEmpty(references.backlinks)
-        ? [{ id: "linked-from", level: 2 as const, text: "Referenced by" }]
+        ? [
+            {
+              id: "linked-from",
+              landmark: true,
+              level: 2 as const,
+              text: "Referenced by",
+            },
+          ]
         : [],
   }),
 ];

@@ -86,29 +86,34 @@ export const DetectedClipboardAccess = ClipboardAccess.subset([
   "Unavailable",
 ]);
 
-export const Menu = defineTaggedUnion({
+export const Disclosure = defineTaggedUnion({
   Closed: {},
   Open: {},
   Unavailable: {},
 });
 
-export const SettingsPanel = defineTaggedUnion({
-  Closed: {},
-  Open: {},
-  Unavailable: {},
+export type DisclosureValue = typeof Disclosure.Type;
+
+export const toggleDisclosure = Disclosure.match({
+  Closed: () => Disclosure.Open(),
+  Open: () => Disclosure.Closed(),
+  Unavailable: () => Disclosure.Unavailable(),
 });
+
+export const closeDisclosure = (disclosure: DisclosureValue) =>
+  Disclosure.guards.Open(disclosure) ? Disclosure.Closed() : disclosure;
 
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
-  menu: Menu,
+  graphLit: Schema.Option(Schema.String),
+  menu: Disclosure,
   outlineRange: Schema.Option(OutlineRange),
   peek: Peek,
   peekCards: Schema.Record(Schema.String, PeekCard),
-  phoneOutlineOpen: Schema.Boolean,
   settings: ReaderSettings,
-  settingsPanel: SettingsPanel,
+  settingsPanel: Disclosure,
 });
 
 export type ReaderModel = typeof Model.Type;
@@ -117,13 +122,13 @@ export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   ...flags,
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
-  menu: Menu.Unavailable(),
+  graphLit: Option.none(),
+  menu: Disclosure.Unavailable(),
   outlineRange: Option.none(),
   peek: Peek.Hidden(),
   peekCards: {},
-  phoneOutlineOpen: false,
   settings: defaultReaderSettings,
-  settingsPanel: SettingsPanel.Unavailable(),
+  settingsPanel: Disclosure.Unavailable(),
 });
 
 export const copyStatusOf = (
