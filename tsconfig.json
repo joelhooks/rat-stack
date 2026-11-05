@@ -9,7 +9,8 @@
         "allowedUnstableApis": [
           "@effect/platform-node/NodeRuntime",
           "@effect/platform-node/NodeServices",
-          "effect/FileSystem"
+          "effect/FileSystem",
+          "effect/Path"
         ]
       }
     ]
