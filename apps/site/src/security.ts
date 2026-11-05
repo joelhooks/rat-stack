@@ -1,5 +1,7 @@
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
+import { readerSettingsScriptHash } from "./reader-settings-script.js";
+
 const policy = (sources: {
   readonly base: string;
   readonly formAction: string;
@@ -19,7 +21,7 @@ export const contentSecurityPolicy = (formAction: "'none'" | "'self'") =>
 export const readerContentSecurityPolicy = policy({
   base: "'self'",
   formAction: "'none'",
-  scripts: "'self' https://static.cloudflareinsights.com",
+  scripts: `'self' ${readerSettingsScriptHash} https://static.cloudflareinsights.com`,
   styles: "'self' 'unsafe-inline'",
 });
 

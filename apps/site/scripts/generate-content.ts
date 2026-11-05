@@ -127,7 +127,6 @@ import { renderMarkdownHtml } from "./markdown-html.ts";
 import {
   hasNewsCallout,
   newestNewsTitle,
-  renderNewsCallout,
   withNewsPointer,
 } from "./news-callout.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
@@ -220,7 +219,7 @@ interface DocumentProps {
   readonly discoveryLinks:
     | ReturnType<typeof markdownDiscoveryLinks>
     | readonly [];
-  readonly newsCalloutHtml?: string;
+  readonly newsTitle?: string | undefined;
   readonly noindex?: boolean;
   readonly stylesheet: string;
   readonly breadcrumbHref?: string;
@@ -1085,7 +1084,6 @@ const program = Effect.gen(function* generateContent() {
   );
 
   const newsTitle = newestNewsTitle(cafeData.news);
-  const newsCalloutHtml = renderNewsCallout(newsTitle);
 
   const withNewsCallout = (markdown: string, routePath: string) =>
     withNewsPointer(markdown, routePath, newsTitle);
@@ -2358,7 +2356,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           bodyHtml: "",
           description: "",
           discoveryLinks: markdownDiscoveryLinks("/"),
-          newsCalloutHtml,
+          newsTitle,
           ogImageUrl: "",
           origin: "https://ratstack.sh",
           path: "/",
@@ -2814,7 +2812,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       {
         bodyHtml: addInboundCounts(bodyHtml, metadata.path, backlinkIndex),
         discoveryLinks: markdownDiscoveryLinks(metadata.path),
-        newsCalloutHtml: hasNewsCallout(metadata.path) ? newsCalloutHtml : "",
+        newsTitle: hasNewsCallout(metadata.path) ? newsTitle : undefined,
         ogImageUrl: `${originToken}${ogImagePath(metadata.path)}?v=${contentVersion}`,
         origin: originToken,
         stylesheet,
@@ -3873,13 +3871,44 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           buildError("rename interest pages", temporaryInterestPages, cause)
         )
       );
-    const temporaryOutput = path.join(temporaryDirectory, "output.ts");
+
+    const temporaryErrorTemplates = path.join(
+      temporaryDirectory,
+      "error-page-templates.ts"
+    );
 
     yield* fileSystem
       .writeFileString(
-        temporaryOutput,
-        `${generated}\nexport const errorPageTemplates = ${sourceLiteral({ actionsHtml: errorActions.bodyHtml, actionsMarkdown: errorActionsMarkdown, documentHtml: errorPageDocumentHtml, markdown: errorPageMarkdown, noVerifyDetails: noVerifyErrorDetails, suggestionHtml: errorSuggestion.bodyHtml, suggestionMarkdown: errorSuggestionMarkdown })} as const;\n`
+        temporaryErrorTemplates,
+        `export const errorPageTemplates = ${sourceLiteral({ actionsHtml: errorActions.bodyHtml, actionsMarkdown: errorActionsMarkdown, documentHtml: errorPageDocumentHtml, markdown: errorPageMarkdown, noVerifyDetails: noVerifyErrorDetails, suggestionHtml: errorSuggestion.bodyHtml, suggestionMarkdown: errorSuggestionMarkdown })} as const;\n`
       )
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError(
+            "write error page templates",
+            temporaryErrorTemplates,
+            cause
+          )
+        )
+      );
+    yield* fileSystem
+      .rename(
+        temporaryErrorTemplates,
+        path.join(path.dirname(output), "error-page-templates.generated.ts")
+      )
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError(
+            "rename error page templates",
+            temporaryErrorTemplates,
+            cause
+          )
+        )
+      );
+    const temporaryOutput = path.join(temporaryDirectory, "output.ts");
+
+    yield* fileSystem
+      .writeFileString(temporaryOutput, generated)
       .pipe(
         Effect.mapError((cause) => buildError("write", temporaryOutput, cause))
       );

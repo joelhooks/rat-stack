@@ -46,26 +46,53 @@ const lastChangeView = <Message>(
 
 const backlinksView = <Message>(
   references: References,
-  h: HtmlBuilder<Message>
+  h: HtmlBuilder<Message>,
+  lit: Option.Option<string>
 ): readonly Html[] =>
   Array.match(references.backlinks, {
     onEmpty: () => [],
     onNonEmpty: (backlinks) => [
       h.section(
-        [h.Class("bibliography linked-from"), h.AriaLabelledBy("linked-from")],
+        [h.Class("referenced-by"), h.AriaLabelledBy("linked-from")],
         [
-          h.h2([h.Id("linked-from")], ["Linked from"]),
-          h.ol(
-            [],
+          h.h2(
+            [h.Id("linked-from")],
+            [
+              "Referenced by ",
+              h.span([h.Class("reference-count")], [`${backlinks.length}`]),
+            ]
+          ),
+          h.ul(
+            [h.Class("reference-cards")],
             backlinks.map((reference) =>
-              h.li(
+              h.keyed("li")(
+                reference.route,
                 [],
                 [
-                  h.a([h.Href(reference.route)], [reference.title]),
-                  `. ${reference.description}`,
-                  ...(String.isEmpty(reference.context)
-                    ? []
-                    : [h.p([], [reference.context])]),
+                  h.a(
+                    [
+                      h.Class("reference-card"),
+                      h.Href(reference.route),
+                      ...(Option.contains(lit, reference.route)
+                        ? [h.DataAttribute("graph-lit", "")]
+                        : []),
+                    ],
+                    [
+                      h.span([h.Class("reference-route")], [reference.route]),
+                      " ",
+                      h.strong([h.Class("reference-title")], [reference.title]),
+                      " ",
+                      String.isEmpty(reference.context)
+                        ? h.span(
+                            [h.Class("reference-description")],
+                            [reference.description]
+                          )
+                        : h.span(
+                            [h.Class("reference-context")],
+                            [reference.context]
+                          ),
+                    ]
+                  ),
                 ]
               )
             )
@@ -83,6 +110,6 @@ export const readerReferences = <Message>(
     onNone: () => [],
     onSome: (references) => [
       ...lastChangeView(model, references, h),
-      ...backlinksView(references, h),
+      ...backlinksView(references, h, model.graphLit),
     ],
   });

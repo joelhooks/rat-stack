@@ -25,6 +25,15 @@ export const mainSemantics = (html: string) => {
     throw new Error("Reader page has no main element");
   }
 
+  for (const outline of DomUtils.findAll(
+    (element) =>
+      element.name === "details" &&
+      (element.attribs.class ?? "").split(/\s+/u).includes("phone-outline"),
+    main.children
+  )) {
+    DomUtils.removeElement(outline);
+  }
+
   const elements = DomUtils.getElementsByTagName("*", main.children);
 
   return {
@@ -44,9 +53,6 @@ export const mainSemantics = (html: string) => {
     ids: elements.flatMap((element) =>
       element.attribs.id === undefined ? [] : [element.attribs.id]
     ),
-    newsCalloutCount: elements.filter((element) =>
-      (element.attribs.class ?? "").split(/\s+/u).includes("news-callout")
-    ).length,
     prose: elements
       .filter((element) =>
         /^(?:p|li|pre|summary|figcaption)$/u.test(element.name)

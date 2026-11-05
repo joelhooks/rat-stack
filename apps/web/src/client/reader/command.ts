@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import { Command } from "foldkit";
+import { Command, Dom } from "foldkit";
 
 import { Message } from "./message.js";
 import { ClipboardAccess } from "./model.js";
@@ -43,4 +43,69 @@ export const WaitBeforeCopyReset = Command.define("WaitBeforeCopyReset", {
       Effect.as(Message.CompletedWaitBeforeCopyReset({ id }))
     ),
   messages: [Message.CompletedWaitBeforeCopyReset],
+});
+
+const outlineRowMargin = 24;
+
+const revealOutlineRow = (id: string) => {
+  const rail = document.querySelector<HTMLElement>(".reader-rail");
+  const row = rail?.querySelector<HTMLElement>(`a[href="#${CSS.escape(id)}"]`);
+
+  if (
+    rail === null ||
+    rail === undefined ||
+    row === null ||
+    row === undefined
+  ) {
+    return;
+  }
+
+  const railBox = rail.getBoundingClientRect();
+  const rowBox = row.getBoundingClientRect();
+
+  if (rowBox.top < railBox.top + outlineRowMargin) {
+    rail.scrollBy({ top: rowBox.top - railBox.top - outlineRowMargin });
+  } else if (rowBox.bottom > railBox.bottom - outlineRowMargin) {
+    rail.scrollBy({ top: rowBox.bottom - railBox.bottom + outlineRowMargin });
+  }
+};
+
+export const RevealOutlineRow = Command.define("RevealOutlineRow", {
+  args: { id: Schema.String },
+  execute: ({ id }) =>
+    Effect.sync(() => {
+      revealOutlineRow(id);
+
+      return Message.CompletedRevealOutlineRow();
+    }),
+  messages: [Message.CompletedRevealOutlineRow],
+});
+
+export const menuButtonSelector = ".menu-button";
+
+export const settingsButtonSelector = ".settings-button";
+
+export const ReturnFocus = Command.define("ReturnFocus", {
+  args: { selector: Schema.String },
+  execute: ({ selector }) =>
+    Dom.focus(selector).pipe(
+      Effect.ignore,
+      Effect.as(Message.CompletedReturnFocus())
+    ),
+  messages: [Message.CompletedReturnFocus],
+});
+
+export const phoneOutlineSelector = "details.phone-outline";
+
+export const ClosePhoneOutline = Command.define("ClosePhoneOutline", {
+  execute: Effect.sync(() => {
+    for (const details of document.querySelectorAll<HTMLDetailsElement>(
+      phoneOutlineSelector
+    )) {
+      details.open = false;
+    }
+
+    return Message.CompletedClosePhoneOutline();
+  }),
+  messages: [Message.CompletedClosePhoneOutline],
 });

@@ -1,36 +1,54 @@
 import { Button } from "@foldkit/ui";
 import * as stylex from "@stylexjs/stylex";
-import { Array, Option } from "effect";
+import { Array, Match, Option, pipe } from "effect";
 import type { Document, Html, HtmlBuilder } from "foldkit/html";
 
+import type { ReaderNodeValue } from "../client/reader-node.js";
 import { Message } from "../client/reader/message.js";
 import type { ReaderMessage } from "../client/reader/message.js";
 import {
   ClipboardAccess,
   copyStatusOf,
   CopyStatus,
+  Disclosure,
   findCopyPrompt,
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
+import type { ReaderSettingsValue } from "../client/reader/settings.js";
 import { view as docsView } from "./app.js";
 import * as CafeView from "./cafe/index.js";
+import {
+  graphNodes,
+  localGraphView,
+  outboundLinks,
+  referenceLinks,
+} from "./local-graph.js";
 import * as MotionView from "./motion/index.js";
-import { readerFooter, readerNewsCallout } from "./reader-chrome.js";
+import { readerFooter, readerToolbar } from "./reader-chrome.js";
+import type { MenuControl } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
 import { renderReaderBlock } from "./reader-document.js";
 import type { SnippetReference } from "./reader-document.js";
 import { renderReaderNode } from "./reader-node.js";
+import { outlineTree, pageOutline } from "./reader-outline.js";
+import {
+  outlinePane,
+  phoneOutline,
+  sectionIndexPane,
+  sectionListing,
+} from "./reader-panes.js";
+import { describedRoute, readerPeekView } from "./reader-peek.js";
 import { readerReferences } from "./reader-references.js";
+import { readerSettingsView } from "./reader-settings.js";
+import type { SettingsControl } from "./reader-settings.js";
 import { readerStyles } from "./reader.stylex.js";
 import {
   agentGuideRouter,
-  allStarsRouter,
   glossaryRouter,
   homeRouter,
   isWithinSection,
   learnRouter,
   loreRouter,
-  newsRouter,
   promptsRouter,
   searchRouter,
   skillsRouter,
@@ -44,16 +62,6 @@ const copyStatusText = CopyStatus.match({
   Failed: () => "Copy failed. Select the text and copy it.",
   Idle: () => "",
 });
-
-const siteSections = [
-  [skillsRouter(), "skills"],
-  [loreRouter(), "lore"],
-  [systemsRouter(), "systems"],
-  [newsRouter(), "news"],
-  [allStarsRouter(), "all stars"],
-  [glossaryRouter(), "glossary"],
-  [searchRouter(), "search"],
-] as const;
 
 const sectionIndexes: ReadonlySet<string> = new Set([
   homeRouter(),
@@ -207,40 +215,38 @@ const readerSnippet = (
     }
   );
 
-const siteHeader = (h: HtmlBuilder<ReaderMessage>) =>
-  h.header(
-    [
-      h.Class(
-        stylex.props(readerStyles.bounded, readerStyles.header).className ?? ""
-      ),
-    ],
-    [
-      h.nav(
-        [h.AriaLabel("Primary navigation"), h.Class("site-nav")],
-        [
-          h.a(
-            [h.Class("brand"), h.Href(homeRouter())],
-            [h.strong([], ["🐀 Rat Stack"])]
-          ),
-          h.div(
-            [h.Class("site-links")],
-            [
-              h.ul(
-                [],
-                siteSections.map(([href, name]) =>
-                  h.li([], [h.a([h.Href(href)], [name])])
-                )
-              ),
-              h.ul(
-                [],
-                [h.li([], [h.a([h.Href(agentGuideRouter())], ["agent guide"])])]
-              ),
-            ]
-          ),
-        ]
-      ),
-    ]
-  );
+const menuControl = (
+  model: ReaderModel,
+  onToggle: ReaderMessage
+): MenuControl<ReaderMessage> =>
+  Disclosure.match(model.menu, {
+    Closed: () => ({ kind: "available" as const, onToggle, open: false }),
+    Open: () => ({ kind: "available" as const, onToggle, open: true }),
+    Unavailable: () => ({ kind: "unavailable" as const }),
+  });
+
+const settingsControl = (
+  model: ReaderModel,
+  onToggle: ReaderMessage,
+  onChoose: (settings: ReaderSettingsValue) => ReaderMessage
+): SettingsControl<ReaderMessage> =>
+  Disclosure.match(model.settingsPanel, {
+    Closed: () => ({
+      kind: "available" as const,
+      onChoose,
+      onToggle,
+      open: false,
+      settings: model.settings,
+    }),
+    Open: () => ({
+      kind: "available" as const,
+      onChoose,
+      onToggle,
+      open: true,
+      settings: model.settings,
+    }),
+    Unavailable: () => ({ kind: "unavailable" as const }),
+  });
 
 const agentPointer = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) =>
   h.p(
@@ -278,15 +284,55 @@ const breadcrumbView = (
         ),
       ];
 
-const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
+const pageGraph = (model: ReaderModel) =>
+  graphNodes(
+    Option.match(model.bodyNodes, {
+      onNone: () => [],
+      onSome: (nodes) => nodes.flatMap(outboundLinks),
+    }),
+    [
+      ...Option.match(model.bodyNodes, {
+        onNone: () => [],
+        onSome: (nodes) => nodes.flatMap(referenceLinks),
+      }),
+      ...Option.match(model.references, {
+        onNone: () => [],
+        onSome: (references) =>
+          references.backlinks.map(({ route, title }) => ({ route, title })),
+      }),
+    ],
+    model.page.path
+  );
+
+const isPageHead: (node: ReaderNodeValue) => boolean =
+  Match.type<ReaderNodeValue>().pipe(
+    Match.tag("Element", (element) => element.tag === "h1"),
+    Match.orElse(() => false)
+  );
+
+const bodyView = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>,
+  underHead: readonly Html[]
+) => [
   ...Option.match(model.bodyNodes, {
-    onNone: () => [h.h1([], [model.heading])],
-    onSome: (nodes) =>
-      nodes.map((node) =>
-        renderReaderNode(node, h, (id, primary) =>
-          readerCopyControl(model, h, id, primary)
-        )
-      ),
+    onNone: () => [h.h1([], [model.heading]), ...underHead],
+    onSome: (nodes) => {
+      const head = nodes.findIndex(isPageHead);
+
+      return [
+        ...(head === -1 ? underHead : []),
+        ...nodes.flatMap((node, index) => [
+          renderReaderNode(
+            node,
+            h,
+            (id, primary) => readerCopyControl(model, h, id, primary),
+            { described: describedRoute(model), lit: model.graphLit }
+          ),
+          ...(index === head ? underHead : []),
+        ]),
+      ];
+    },
   }),
   ...Option.match(model.cafe, {
     onNone: () => [],
@@ -374,29 +420,93 @@ const bibliographyView = (
 export const view = (
   model: ReaderModel,
   h: HtmlBuilder<ReaderMessage>
-): Document => ({
-  body: h.div(
-    [h.Class(stylex.props(readerStyles.shell).className ?? "")],
-    [
-      siteHeader(h),
-      h.main(
-        [h.DataAttribute("path", model.page.path)],
-        [
-          agentPointer(model, h),
-          ...Option.match(model.newsTitle, {
-            onNone: () => [],
-            onSome: (title) => [readerNewsCallout(title, h)],
-          }),
-          ...breadcrumbView(model, h),
-          ...bodyView(model, h),
-          ...bibliographyView(model, h),
-          ...readerReferences(model, h),
-        ]
-      ),
-      readerFooter(h, footerLinksPrompts(model.page)),
-    ]
-  ),
-  canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
-  ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
-  title: model.page.metadata.title,
-});
+): Document => {
+  const outline = outlineTree(pageOutline(model));
+
+  return {
+    body: h.div(
+      [h.Class(stylex.props(readerStyles.shell).className ?? "")],
+      [
+        ...readerToolbar(
+          h,
+          model.page.path,
+          menuControl(model, Message.ClickedMenu()),
+          pipe(
+            model.sectionIndex,
+            Option.map(() =>
+              sectionListing(model.sectionIndex, model.page.path)
+            )
+          ),
+          model.newsTitle
+        ),
+        h.div(
+          [h.Class("reader-layout")],
+          [
+            sectionIndexPane(
+              h,
+              sectionListing(model.sectionIndex, model.page.path)
+            ),
+            h.div(
+              [h.Class("reader-page")],
+              [
+                h.main(
+                  [h.DataAttribute("path", model.page.path)],
+                  [
+                    agentPointer(model, h),
+                    ...breadcrumbView(model, h),
+                    ...bodyView(
+                      model,
+                      h,
+                      phoneOutline(
+                        h,
+                        outline,
+                        Message.ClickedPhoneOutlineLink()
+                      )
+                    ),
+                    ...bibliographyView(model, h),
+                    ...readerReferences(model, h),
+                  ]
+                ),
+                readerFooter(
+                  h,
+                  footerLinksPrompts(model.page),
+                  readerSettingsView(
+                    h,
+                    settingsControl(
+                      model,
+                      Message.ClickedSettings(),
+                      (settings) => Message.ChoseSettings({ settings })
+                    )
+                  )
+                ),
+              ]
+            ),
+            h.aside(
+              [h.Class("reader-rail")],
+              [
+                outlinePane(
+                  h,
+                  outline,
+                  new Set(
+                    Option.match(model.outlineRange, {
+                      onNone: () => [],
+                      onSome: (range) => range.ids,
+                    })
+                  )
+                ),
+                ...localGraphView(h, pageGraph(model), {
+                  onHover: (route) => Message.HoveredGraphNode({ route }),
+                  onLeave: Message.LeftGraphNode(),
+                }),
+              ]
+            ),
+          ]
+        ),
+        ...readerPeekView(h, model.peek, model.peekCards),
+      ]
+    ),
+    canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
+    ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
+    title: model.page.metadata.title,
+  };
+};

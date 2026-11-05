@@ -30,13 +30,15 @@ const htmlPage = (body: string, status: number, headers?: Headers) =>
   });
 
 export const mischiefErrorPage = (page: ErrorPage, origin: string) =>
-  htmlPage(renderErrorPage(page, origin, true), page.code);
+  renderErrorPage(page, origin, true).pipe(
+    Effect.map((body) => htmlPage(body, page.code))
+  );
 
 export const ErrorPageRenderer = Context.Reference<ErrorPageRendererService>(
   "@rat-stack/site/ErrorPageRenderer",
   {
     defaultValue: () => ({
-      html: (page, origin) => Effect.succeed(mischiefErrorPage(page, origin)),
+      html: mischiefErrorPage,
     }),
   }
 );
@@ -131,7 +133,7 @@ export const websiteErrorPages = <E>(
         Effect.logWarning(
           "Website error page fell back to Mischief",
           failure
-        ).pipe(Effect.as(mischiefErrorPage(page, origin)))
+        ).pipe(Effect.andThen(mischiefErrorPage(page, origin)))
       )
     ),
 });

@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { fileURLToPath } from "node:url";
 
 import { foldkit } from "@foldkit/vite-plugin";
 import { Predicate, Schema } from "effect";
@@ -10,7 +11,29 @@ import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
 
-export default defineConfig({
+const developmentBuildId = "rat-stack-dev";
+
+const readerStylesheets = [
+  fileURLToPath(new URL("../site/src/rat.css", import.meta.url)),
+  fileURLToPath(new URL("src/client/reader.css", import.meta.url)),
+];
+
+const developmentStylesheetHref = (root: string, file: string) =>
+  file.startsWith(`${root}/`) ? file.slice(root.length) : `/@fs${file}`;
+
+const serverWhitespaceOnly = {
+  codegen: { removeWhitespace: true },
+  compress: false,
+  mangle: false,
+};
+
+const readerSsr = {
+  build: { prerender: { origin: readerPrerenderOrigin } },
+  clientEntry: "/src/client/entry.ts",
+  serverEntry: "/src/entry.server.ts",
+};
+
+export default defineConfig(({ command }) => ({
   build: {
     rolldownOptions: { external: [/^cloudflare:/u] },
   },
@@ -20,14 +43,26 @@ export default defineConfig({
   plugins: [
     stylexPlugin(),
     readerPagesPlugin(),
-    foldkit({
-      ssr: {
-        build: { prerender: { origin: readerPrerenderOrigin } },
-        clientEntry: "/src/client/entry.ts",
-        serverEntry: "/src/entry.server.ts",
-      },
-    }),
+    foldkit(
+      command === "serve"
+        ? { buildId: developmentBuildId, ssr: readerSsr }
+        : { ssr: readerSsr }
+    ),
     readerFinalizationPlugin(),
+    {
+      apply: "serve",
+      name: "reader-render-blocking-dev-css",
+      transformIndexHtml: (_html, context) =>
+        readerStylesheets.map((file) => ({
+          attrs: {
+            "data-vite-dev-id": file,
+            href: `${developmentStylesheetHref(context.server?.config.root ?? import.meta.dirname, file)}?direct`,
+            rel: "stylesheet",
+          },
+          injectTo: "head",
+          tag: "link",
+        })),
+    },
     {
       apply: "build",
       config: (config, environment) => {
@@ -44,6 +79,9 @@ export default defineConfig({
                       clientOutDir === "dist/client"
                         ? "dist/server"
                         : `${clientOutDir}/server`,
+                    rolldownOptions: {
+                      output: { minify: serverWhitespaceOnly },
+                    },
                   },
                 },
               },
@@ -147,4 +185,4 @@ export default defineConfig({
       name: "foldkit-devtools-single-instance",
     },
   ],
-});
+}));

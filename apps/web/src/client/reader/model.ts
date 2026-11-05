@@ -11,6 +11,9 @@ import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
+import { OutlineRange } from "./outline-range.js";
+import { Peek, PeekCard } from "./peek.js";
+import { defaultReaderSettings, ReaderSettings } from "./settings.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
 
@@ -19,6 +22,17 @@ export const CopyPrompt = Schema.Struct({
   label: Schema.String,
   showText: Schema.Boolean,
   text: Schema.String,
+});
+
+export const SectionPage = Schema.Struct({
+  path: Schema.String,
+  title: Schema.String,
+});
+
+export const SectionIndex = Schema.Struct({
+  href: Schema.String,
+  pages: Schema.Array(SectionPage),
+  title: Schema.String,
 });
 
 export const ReaderFlags = Schema.Struct({
@@ -39,6 +53,7 @@ export const ReaderFlags = Schema.Struct({
   origin: Schema.String,
   page: ReaderPageDescriptor,
   references: Schema.OptionFromOptional(ReaderReferences),
+  sectionIndex: Schema.OptionFromOptional(SectionIndex),
   snippets: Schema.Array(
     Schema.Struct({
       at: Schema.String,
@@ -71,10 +86,34 @@ export const DetectedClipboardAccess = ClipboardAccess.subset([
   "Unavailable",
 ]);
 
+export const Disclosure = defineTaggedUnion({
+  Closed: {},
+  Open: {},
+  Unavailable: {},
+});
+
+export type DisclosureValue = typeof Disclosure.Type;
+
+export const toggleDisclosure = Disclosure.match({
+  Closed: () => Disclosure.Open(),
+  Open: () => Disclosure.Closed(),
+  Unavailable: () => Disclosure.Unavailable(),
+});
+
+export const closeDisclosure = (disclosure: DisclosureValue) =>
+  Disclosure.guards.Open(disclosure) ? Disclosure.Closed() : disclosure;
+
 export const Model = Schema.Struct({
   ...ReaderFlags.fields,
   clipboardAccess: ClipboardAccess,
   copyStatuses: Schema.Record(Schema.String, CopyStatus),
+  graphLit: Schema.Option(Schema.String),
+  menu: Disclosure,
+  outlineRange: Schema.Option(OutlineRange),
+  peek: Peek,
+  peekCards: Schema.Record(Schema.String, PeekCard),
+  settings: ReaderSettings,
+  settingsPanel: Disclosure,
 });
 
 export type ReaderModel = typeof Model.Type;
@@ -83,6 +122,13 @@ export const initialModel = (flags: ReaderPageFlags): ReaderModel => ({
   ...flags,
   clipboardAccess: ClipboardAccess.Unknown(),
   copyStatuses: {},
+  graphLit: Option.none(),
+  menu: Disclosure.Unavailable(),
+  outlineRange: Option.none(),
+  peek: Peek.Hidden(),
+  peekCards: {},
+  settings: defaultReaderSettings,
+  settingsPanel: Disclosure.Unavailable(),
 });
 
 export const copyStatusOf = (

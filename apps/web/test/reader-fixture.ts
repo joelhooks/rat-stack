@@ -41,6 +41,7 @@ export const readerFlagsFixture: ReaderPageFlags = {
     status: 200,
   },
   references: Option.none(),
+  sectionIndex: Option.none(),
   snippets: [],
   terms: [],
 };

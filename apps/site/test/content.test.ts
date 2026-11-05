@@ -92,26 +92,16 @@ it.effect("links promoted pages to the newest CAFE news headline", () =>
     for (const page of pages) {
       const document = parseDocument(page);
 
-      const callouts = DomUtils.getElementsByTagName(
-        "aside",
+      const headlines = DomUtils.findAll(
+        (element) => element.attribs.class === "news-headline",
         document.children
-      ).filter((element) => element.attribs.class === "news-callout");
-
-      expect(callouts).toHaveLength(1);
-
-      const links = DomUtils.getElementsByTagName(
-        "a",
-        callouts.flatMap((element) => element.children)
       );
 
       expect(
-        links.map((link) => ({
-          href: link.attribs.href,
-          title: DomUtils.textContent(link),
-        }))
-      ).toStrictEqual([{ href: "/news", title: newest?.title }]);
-      expect(page.indexOf('<aside class="news-callout"')).toBeLessThan(
-        page.search(/<h1\b/u)
+        headlines.map((element) => DomUtils.textContent(element))
+      ).toStrictEqual([newest?.title]);
+      expect(page.indexOf('class="news-headline"')).toBeLessThan(
+        page.indexOf("<main")
       );
 
       const nav = DomUtils.getElementsByTagName("nav", document.children).find(
@@ -155,7 +145,7 @@ it.effect("keeps news chrome off the workshop and confirmation flow", () =>
       interestResultDocumentHtml,
       tokenmaxxMarkdown,
     ]) {
-      expect(page).not.toContain('class="news-callout"');
+      expect(page).not.toContain('class="news-headline"');
       expect(page).not.toContain("New on /news:");
     }
   })
@@ -952,7 +942,7 @@ it.layer(contentServices)("generated content", (test) => {
 
   test.effect("uses Shiki for code and leaves text diagrams uncoloured", () =>
     Effect.sync(() => {
-      expect(homeDocumentHtml).toContain('class="shiki catppuccin-latte"');
+      expect(homeDocumentHtml).toContain('class="shiki rat-css-variables"');
       expect(homeDocumentHtml).toMatch(
         /<figure role="img"[^>]*>\s*<pre><code>/u
       );
@@ -1002,7 +992,7 @@ it.layer(contentServices)("generated content", (test) => {
           ?.css ?? "";
 
       expect(stylesheet).toContain("ui-monospace");
-      expect(stylesheet).toContain("max-width: 80ch");
+      expect(stylesheet).toMatch(/max-width:\s*var\(--measure\)/u);
       expect(homeDocumentHtml).not.toContain('rel="stylesheet"');
     })
   );

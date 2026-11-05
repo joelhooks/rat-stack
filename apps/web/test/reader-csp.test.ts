@@ -1,6 +1,8 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
+import * as Digest from "effect/crypto/Digest";
+import * as Base64 from "effect/encoding/Base64";
 
 import { readerContentSecurityPolicy } from "../../site/src/security.js";
 
@@ -63,12 +65,24 @@ it.layer(NodeServices.layer)((test) => {
           (document) => document.querySelector("style, [style]") !== null
         );
 
+        const digest = yield* Digest.Digest;
+
+        const inlineScriptHashes = new Set<string>();
+
         for (const document of pages) {
           for (const script of document.querySelectorAll("script")) {
             const source = script.getAttribute("src");
+            const type = script.getAttribute("type");
 
-            if (source === null) {
-              expect(dataSchemes).toContain(script.getAttribute("type"));
+            if (source === null && type === null) {
+              const bytes = yield* digest.digest(
+                Digest.sha256,
+                new TextEncoder().encode(script.textContent)
+              );
+
+              inlineScriptHashes.add(`'sha256-${Base64.encode(bytes)}'`);
+            } else if (source === null) {
+              expect(dataSchemes).toContain(type);
             } else {
               expect(allows("script-src", source)).toBe(true);
             }
@@ -126,13 +140,18 @@ it.layer(NodeServices.layer)((test) => {
           probesWithBase ? "'self'" : "'none'",
         ]);
 
+        expect(
+          sourcesFor("script-src").filter((source) =>
+            source.startsWith("'sha256-")
+          )
+        ).toEqual([...inlineScriptHashes]);
         expect(sourcesFor("script-src")).not.toContain("'unsafe-inline'");
         expect(sourcesFor("script-src")).not.toContain("'unsafe-eval'");
         expect(sourcesFor("style-src").includes("'unsafe-inline'")).toBe(
           inlineStyles
         );
         expect(sourcesFor("form-action")).toEqual(["'none'"]);
-      }),
+      }).pipe(Effect.provide(Digest.layerWebCrypto)),
     { timeout: 60_000 }
   );
 });

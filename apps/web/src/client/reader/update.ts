@@ -8,16 +8,31 @@ import type { AppMessage as DocsMessage } from "../docs/message.js";
 import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
 import * as MotionDemo from "../motion/index.js";
-import { CopyReaderText, WaitBeforeCopyReset } from "./command.js";
+import {
+  ClosePhoneOutline,
+  CopyReaderText,
+  menuButtonSelector,
+  ReturnFocus,
+  RevealOutlineRow,
+  settingsButtonSelector,
+  WaitBeforeCopyReset,
+} from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
 import {
   ClipboardAccess,
+  closeDisclosure,
   copyStatusOf,
   CopyStatus,
+  Disclosure,
   findCopyPrompt,
+  toggleDisclosure,
 } from "./model.js";
 import type { ReaderModel } from "./model.js";
+import { ReadPeek, WaitBeforePeek } from "./peek-command.js";
+import { Peek, PeekCard } from "./peek.js";
+import type { PeekAnchorValue } from "./peek.js";
+import { SaveSettings } from "./settings-command.js";
 
 const withCopyStatus = (
   model: ReaderModel,
@@ -32,6 +47,35 @@ const copyablePrompt = (model: ReaderModel, id: string) =>
   !isCopyInFlight(copyStatusOf(model, id))
     ? findCopyPrompt(model, id)
     : Option.none();
+
+const peekRoute = (peek: typeof Peek.Type) =>
+  Peek.match({
+    Hidden: () => Option.none<string>(),
+    Open: ({ route }) => Option.some(route),
+    Waiting: ({ route }) => Option.some(route),
+  })(peek);
+
+const showPeek = (
+  model: ReaderModel,
+  route: string,
+  anchor: PeekAnchorValue,
+  wait: boolean
+) => {
+  const fetch = !Record.has(model.peekCards, route);
+
+  return {
+    commands: [
+      ...(wait ? [WaitBeforePeek({ route })] : []),
+      ...(fetch ? [ReadPeek({ route })] : []),
+    ],
+    model: modifyFields(model, {
+      peek: () =>
+        wait ? Peek.Waiting({ anchor, route }) : Peek.Open({ anchor, route }),
+      peekCards: (cards) =>
+        fetch ? Record.set(cards, route, PeekCard.Loading()) : cards,
+    }),
+  };
+};
 
 const foldCafe = Update.foldChild({
   read: (model: ReaderModel) => model.cafe,
@@ -67,6 +111,10 @@ export const update = (
   Message.match<Update.Return<ReaderModel, ReaderMessage, DocumentQueries>>(
     message,
     {
+      ChoseSettings: ({ settings }) => ({
+        commands: [SaveSettings({ settings })],
+        model: modifyFields(model, { settings: () => settings }),
+      }),
       ClickedCopy: ({ id }) =>
         Option.match(copyablePrompt(model, id), {
           onNone: () => ({ model }),
@@ -75,25 +123,86 @@ export const update = (
             model: withCopyStatus(model, id, CopyStatus.Copying()),
           }),
         }),
+      ClickedMenu: () => ({
+        model: modifyFields(model, { menu: toggleDisclosure }),
+      }),
+      ClickedPhoneOutlineLink: () => ({
+        commands: [ClosePhoneOutline()],
+        model,
+      }),
+      ClickedSettings: () => ({
+        model: modifyFields(model, { settingsPanel: toggleDisclosure }),
+      }),
+      CompletedClosePhoneOutline: () => ({ model }),
       CompletedDetectClipboard: ({ access }) => ({
         model: modifyFields(model, { clipboardAccess: () => access }),
       }),
+      CompletedReturnFocus: () => ({ model }),
+      CompletedRevealOutlineRow: () => ({ model }),
+      CompletedSaveSettings: () => ({ model }),
       CompletedWaitBeforeCopyReset: ({ id }) => ({
         model: CopyStatus.guards.Copied(copyStatusOf(model, id))
           ? withCopyStatus(model, id, CopyStatus.Idle())
           : model,
+      }),
+      ElapsedPeekWait: ({ route }) => ({
+        model: modifyFields(model, {
+          peek: (peek) =>
+            Peek.guards.Waiting(peek) && peek.route === route
+              ? Peek.Open({ anchor: peek.anchor, route })
+              : peek,
+        }),
       }),
       FailedCopyReaderText: ({ id }) => ({
         model: CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? withCopyStatus(model, id, CopyStatus.Failed())
           : model,
       }),
+      FailedReadPeek: ({ route }) => ({
+        model: modifyFields(model, { peekCards: Record.remove(route) }),
+      }),
+      FocusedLink: ({ anchor, route }) => showPeek(model, route, anchor, false),
       GotCafeMessage: ({ message: cafeMessage }) =>
         foldCafe(model, cafeMessage),
       GotDocsMessage: ({ message: docsMessage }) =>
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
+      HoveredGraphNode: ({ route }) => ({
+        model: modifyFields(model, { graphLit: () => Option.some(route) }),
+      }),
+      LeftGraphNode: () => ({
+        model: modifyFields(model, { graphLit: () => Option.none() }),
+      }),
+      LeftLink: () => ({
+        model: modifyFields(model, { peek: () => Peek.Hidden() }),
+      }),
+      LoadedSettings: ({ settings }) => ({
+        model: modifyFields(model, { settings: () => settings }),
+      }),
+      PointedAtLink: ({ anchor, route }) =>
+        Option.contains(peekRoute(model.peek), route)
+          ? { model }
+          : showPeek(model, route, anchor, true),
+      PressedEscape: () => ({
+        commands: [
+          ...(Disclosure.guards.Open(model.menu)
+            ? [ReturnFocus({ selector: menuButtonSelector })]
+            : []),
+          ...(Disclosure.guards.Open(model.settingsPanel)
+            ? [ReturnFocus({ selector: settingsButtonSelector })]
+            : []),
+        ],
+        model: modifyFields(model, {
+          menu: closeDisclosure,
+          peek: () => Peek.Hidden(),
+          settingsPanel: closeDisclosure,
+        }),
+      }),
+      ScrolledOutline: ({ range }) => ({
+        commands: [RevealOutlineRow({ id: range.current })],
+        model: modifyFields(model, { outlineRange: () => Option.some(range) }),
+      }),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? {
@@ -101,5 +210,10 @@ export const update = (
               model: withCopyStatus(model, id, CopyStatus.Copied()),
             }
           : { model },
+      SucceededReadPeek: ({ route, summary, title }) => ({
+        model: modifyFields(model, {
+          peekCards: Record.set(route, PeekCard.Loaded({ summary, title })),
+        }),
+      }),
     }
   );

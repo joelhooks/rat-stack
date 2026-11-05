@@ -11,6 +11,14 @@ const accentSelectors = new Set([
   ".copy-primary",
   ".copy .icon-done",
   ".copy:has(.icon-done:not([hidden]))",
+  '.menu-sheet a[aria-current="page"]',
+  '.section-index a[aria-current="page"]',
+  ".news-dot",
+  "sup.inbound-count a",
+  ".reference-context",
+  ".graph-me",
+  ':root[data-accent="blue"]',
+  ':root[data-accent="ink"]',
 ]);
 
 const servedStylesheet = (html: string) =>

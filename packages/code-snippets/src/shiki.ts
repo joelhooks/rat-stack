@@ -3,6 +3,7 @@ import type { BundledLanguage } from "shiki";
 import {
   bundledLanguages,
   bundledLanguagesInfo,
+  createCssVariablesTheme,
   createHighlighter,
 } from "shiki";
 
@@ -16,18 +17,23 @@ const Language = Schema.declare<BundledLanguage | "text">(
     (value === "text" || Object.hasOwn(bundledLanguages, value))
 );
 
-const roleFor = (rawColor: string | undefined): Token["role"] => {
-  const color = rawColor?.toLowerCase();
-
-  if (color === "#9ca0b0" || color === "#7c7f93") {
+const roleFor = (color: string | undefined): Token["role"] => {
+  if (
+    color === "var(--shiki-token-comment)" ||
+    color === "var(--shiki-token-punctuation)"
+  ) {
     return "muted";
   }
 
-  if (color === "#8839ef" || color === "#d20f39" || color === "#ea76cb") {
+  if (color === "var(--shiki-token-keyword)") {
     return "keyword";
   }
 
-  if (color === "#40a02b" || color === "#df8e1d") {
+  if (
+    color === "var(--shiki-token-string)" ||
+    color === "var(--shiki-token-string-expression)" ||
+    color === "var(--shiki-token-constant)"
+  ) {
     return "literal";
   }
 
@@ -52,7 +58,14 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-export const shikiLayer = (theme = "catppuccin-latte") =>
+const shikiThemeName = "rat-css-variables";
+
+export const shikiTheme = createCssVariablesTheme({
+  name: shikiThemeName,
+  variablePrefix: "--shiki-",
+});
+
+export const shikiLayer = () =>
   Layer.effectContext(
     Effect.gen(function* makeShiki() {
       const engine = yield* Effect.acquireRelease(
@@ -73,7 +86,7 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
               "markdown",
               "http",
             ],
-            themes: [theme],
+            themes: [shikiTheme],
           }),
         }),
         (resource) =>
@@ -103,8 +116,8 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           key,
           source,
           canonical,
-          theme,
-          "shiki@3.23.0",
+          shikiThemeName,
+          "shiki@4.5.0",
         ]);
 
         const cached = cache.get(contentKey);
@@ -127,13 +140,13 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           catch: () => new HighlightFault({ kind: "render" }),
           try: () =>
             engine
-              .codeToTokens(source, { lang: canonical, theme })
-              .tokens.map((line) =>
-                line.map((token) => ({
-                  color: token.color,
-                  fontStyle: token.fontStyle ?? 0,
-                  role: roleFor(token.color),
-                  text: token.content,
+              .codeToTokensBase(source, { lang: canonical, theme: shikiTheme })
+              .map((line) =>
+                line.map(({ color, content, fontStyle }) => ({
+                  color,
+                  fontStyle: fontStyle ?? 0,
+                  role: roleFor(color),
+                  text: content,
                 }))
               ),
         });
@@ -145,9 +158,9 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
 
       const port = Highlighter.of({
         aliases: () => aliases,
-        fingerprint: `shiki@3.23.0:${theme}`,
+        fingerprint: `shiki@4.5.0:${shikiThemeName}`,
         languages: () => [...Object.keys(bundledLanguages), "text"],
-        themes: () => [theme],
+        themes: () => [shikiThemeName],
         tokens,
       });
 
@@ -162,7 +175,10 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
           return `<pre><code>${escapeHtml(source)}</code></pre>`;
         }
 
-        return engine.codeToHtml(source, { lang: canonical, theme });
+        return engine.codeToHtml(source, {
+          lang: canonical,
+          theme: shikiTheme,
+        });
       };
 
       return Context.add(

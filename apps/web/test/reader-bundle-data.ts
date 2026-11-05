@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Option, Schema, flow } from "effect";
 import { parseSync } from "vite";
 
 import { ReaderFlags } from "../src/client/reader/model.js";
@@ -10,7 +10,23 @@ const decodePage = Schema.decodeSync(Schema.fromJsonString(ReaderFlags), {
 
 const samePages = Schema.toEquivalence(Schema.Array(ReaderFlags));
 
-const isString = Schema.is(Schema.String);
+const StaticString = Schema.Union([
+  Schema.Struct({ type: Schema.Literal("Literal"), value: Schema.String }),
+  Schema.Struct({
+    expressions: Schema.Tuple([]),
+    quasis: Schema.Tuple([
+      Schema.Struct({ value: Schema.Struct({ cooked: Schema.String }) }),
+    ]),
+    type: Schema.Literal("TemplateLiteral"),
+  }),
+]);
+
+const staticString = flow(
+  Schema.decodeUnknownOption(StaticString),
+  Option.map((literal) =>
+    literal.type === "Literal" ? literal.value : literal.quasis[0].value.cooked
+  )
+);
 
 export const readerCodeWithoutPageData = (
   code: string,
@@ -46,13 +62,13 @@ export const readerCodeWithoutPageData = (
         }
 
         const [path, json, ...rest] = element.elements;
+        const pathValue = staticString(path);
+        const jsonValue = staticString(json);
 
         return rest.length === 0 &&
-          path?.type === "Literal" &&
-          json?.type === "Literal" &&
-          isString(path.value) &&
-          isString(json.value)
-          ? [{ json: json.value, path: path.value }]
+          Option.isSome(pathValue) &&
+          Option.isSome(jsonValue)
+          ? [{ json: jsonValue.value, path: pathValue.value }]
           : [];
       });
 

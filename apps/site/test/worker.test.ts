@@ -506,25 +506,24 @@ it.effect(
         expect(html).toContain('<h1 id="rat-stack">Rat Stack</h1>');
         expect(html.match(/🐀/gu)).toHaveLength(1);
         expect(html.match(/<h1\b/gu)).toHaveLength(1);
-        expect(html).toContain("<strong>🐀 Rat Stack</strong>");
-        expect(skillHtml).toContain("<strong>🐀 Rat Stack</strong>");
+        expect(html).toContain("<strong>Rat Stack</strong>");
+        expect(skillHtml).toContain("<strong>Rat Stack</strong>");
         expect(skillHtml.match(/<h1\b/gu)).toHaveLength(1);
         expect(html).toContain("<pre><code>");
-        expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
+        expect(skillHtml).toContain('<pre class="shiki rat-css-variables"');
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
         expect(html).toContain("│  defineContract");
         expect(html).toContain('class="copy-label">Copy prompt</span>');
         expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");
         expect(markdown).not.toContain("<CopyPrompt");
-        expect(html).not.toContain("prefers-color-scheme");
-        expect(html).not.toMatch(/(?:html|body)\s*\{[^}]*background/u);
+        expect(html).toContain("color-scheme: light dark");
         expect(html).toContain(
           '<link rel="icon" href="/favicon.ico" sizes="48x48"'
         );
         expect(html).toContain('href="/apple-touch-icon.png"');
         expect(html).toMatch(/<style(?: id="[^"]+")?>/u);
-        expect(html).toMatch(/max-width:\s*80ch/u);
+        expect(html).toMatch(/max-width:\s*var\(--measure\)/u);
         expect(html).toContain("ui-monospace");
         expect(html).toMatch(/pre\s*\{[^}]*overflow-x:\s*auto;/u);
         expect(html).toMatch(/figure pre[^{]*\{[^}]*font-size:\s*clamp\(/u);
@@ -591,8 +590,8 @@ it.effect(
         expect(agentsHtml).toMatch(
           /Last changed \d{4}-\d{2}-\d{2} in <a href="https:\/\/github\.com\/joelhooks\/rat-stack\/commit\/[0-9a-f]{40}">[0-9a-f]{7,}<\/a>/u
         );
-        expect(agentsHtml).toContain(
-          '<a href="/skills/learn-rat-stack">learn-rat-stack</a>'
+        expect(agentsHtml).toMatch(
+          /aria-labelledby="linked-from"[\s\S]*?<a [^>]*href="\/skills\/learn-rat-stack"[^>]*>[\s\S]*?learn-rat-stack/u
         );
         expect(agentsHtml).not.toContain(
           '<a href="/AGENTS.md"><code>AGENTS.md</code></a>'
@@ -723,7 +722,9 @@ it.effect(
         expect(loreIndexMarkdown).toContain(
           `[${page.title}](${page.routePath})`
         );
-        expect(loreIndexHtml).toContain('<a href="/lore">lore</a>');
+        expect(loreIndexHtml).toContain(
+          '<a href="/lore" aria-current="page">lore</a>'
+        );
         expect(loreIndexHtml).toContain("Rat Stack lore | rat-stack");
         expect(pageMarkdown).toBe(page.text);
         expect(pageHtml).toContain(`<title>${page.title} | rat-stack</title>`);
@@ -731,8 +732,8 @@ it.effect(
         expect(pageHtml).toContain(`<a href="${source}">`);
         expect(pageHtml).not.toContain(`>${source}</a>`);
         expect(pageHtml).toContain("Accessed 2026-10-01.");
-        expect(pageHtml).toContain(
-          '<li><a href="/lore/an-mcp-your-users-want">An MCP your users want</a>'
+        expect(pageHtml).toMatch(
+          /aria-labelledby="linked-from"[\s\S]*?<a [^>]*href="\/lore\/an-mcp-your-users-want"[^>]*>[\s\S]*?An MCP your users want/u
         );
         expect(llms).toContain("## Lore");
         expect(llms).toContain(`[${page.title}](${page.routePath})`);
@@ -1085,7 +1086,7 @@ it.effect(
         expect(markdown).toContain("That bin got pulled out.");
         expect(markdown).toContain("/add-a-lifecycle-machine.md");
         expect(markdown).toContain("/skills/add-a-lifecycle-machine");
-        expect(page).toContain("<header>");
+        expect(page).toContain('<nav aria-label="Primary navigation"');
         expect(page).toContain("<footer>");
         expect(page).toContain('class="error-code">404</span>');
         expect(page).not.toContain('class="house-ad"');

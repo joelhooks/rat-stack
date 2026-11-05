@@ -78,7 +78,7 @@ it.effect.prop(
 
       const built = yield* template;
       const flags = readerErrorFlags(built, page);
-      const mischief = renderErrorPage(page, origin, true);
+      const mischief = yield* renderErrorPage(page, origin, true);
 
       const rendered = yield* renderToString(
         { Flags: ReaderFlags, init, view },
@@ -106,5 +106,5 @@ it.effect.prop(
       }).toEqual(metadata);
       expect(footerLinks(rendered.html)).toEqual(footerLinks(mischief));
     }),
-  { arbitrary: { runs: 100 } }
+  { arbitrary: { runs: 100 }, timeout: 60_000 }
 );

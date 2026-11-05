@@ -114,3 +114,13 @@ export const allStarsFeedRouter = pipe(
   Route.literal("all-stars.xml"),
   Route.mapTo(SiteRoute.AllStarsFeed)
 );
+
+export const siteSections = [
+  [skillsRouter(), "skills"],
+  [loreRouter(), "lore"],
+  [systemsRouter(), "systems"],
+  [newsRouter(), "news"],
+  [allStarsRouter(), "all stars"],
+  [glossaryRouter(), "glossary"],
+  [searchRouter(), "search"],
+] as const;

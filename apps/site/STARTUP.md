@@ -8,7 +8,7 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,114,000 bytes for Mischief** and **1,516,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's ceiling is the one recorded exception; see [Temporary raise: Alchemy beta.85 and Effect 4.1](#temporary-raise-alchemy-beta85-and-effect-41). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+The hard, shrink-only ceilings cover the **static startup set**: **1,101,000 bytes for Mischief** and **1,516,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's ceiling is the one recorded exception; see [Temporary raise: Alchemy beta.85 and Effect 4.1](#temporary-raise-alchemy-beta85-and-effect-41). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
@@ -50,6 +50,14 @@ Successful catalog, search, graph, and MCP-registration loads are memoized per s
 | Resource listing and route matching | 1 shared catalog | 0 |
 
 The graph methods share one cache. A known page with a missing, corrupt, or mismatched asset fails with `AssetReadError`; HTTP returns 503 with `no-store`. An unknown page still fails with `ResourceNotFound`.
+
+## Lazy error-page templates
+
+The reader redesign grew `rat.css` from 9,175 to 13,564 bytes. The static error-page document inlines that stylesheet, and Mischief imported it at startup through `bundled-content.generated.ts`, so startup reached 1,118,442 bytes. The error-page templates now live in `src/error-page-templates.generated.ts`, and `src/error-page.ts` loads them with a dynamic import on the first error response.
+
+| Worker | Before | With the redesign | With lazy templates | Old ceiling | New ceiling |
+| --- | --: | --: | --: | --: | --: |
+| Mischief | below 1,114,000 | 1,118,442 | 1,100,350 | 1,114,000 | 1,101,000 |
 
 ## Temporary raise: Alchemy beta.85 and Effect 4.1
 

@@ -120,13 +120,12 @@ const errorResponse = (
     ? ErrorPageRenderer.pipe(
         Effect.flatMap((renderer) => renderer.html(page, originOf(request)))
       )
-    : Effect.succeed(
-        HttpServerResponse.text(
-          renderErrorPage(page, originOf(request), false),
-          {
+    : renderErrorPage(page, originOf(request), false).pipe(
+        Effect.map((body) =>
+          HttpServerResponse.text(body, {
             contentType: "text/markdown; charset=utf-8",
             status: page.code,
-          }
+          })
         )
       );
 

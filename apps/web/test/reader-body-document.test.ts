@@ -15,7 +15,7 @@ import { ReaderNode, ReaderNodeSchema } from "../src/client/reader-node.js";
 import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import type { ReaderMessage } from "../src/client/reader/message.js";
 import { ClipboardAccess } from "../src/client/reader/model.js";
-import { renderReaderNode } from "../src/features/reader-node.js";
+import { noLinkMarks, renderReaderNode } from "../src/features/reader-node.js";
 import { readerCopyControl } from "../src/features/reader.js";
 
 const prompts = readerCopyPrompts("https://ratstack.sh");
@@ -109,17 +109,21 @@ it.effect.prop(
               [
                 h.h1([], ["Round trip"]),
                 ...model.nodes.map((node) =>
-                  renderReaderNode(node, h, (id, primary) =>
-                    readerCopyControl(
-                      {
-                        clipboardAccess: ClipboardAccess.Available(),
-                        copyPrompts: prompts,
-                        copyStatuses: {},
-                      },
-                      h,
-                      id,
-                      primary
-                    )
+                  renderReaderNode(
+                    node,
+                    h,
+                    (id, primary) =>
+                      readerCopyControl(
+                        {
+                          clipboardAccess: ClipboardAccess.Available(),
+                          copyPrompts: prompts,
+                          copyStatuses: {},
+                        },
+                        h,
+                        id,
+                        primary
+                      ),
+                    noLinkMarks
                   )
                 ),
               ]
@@ -157,7 +161,7 @@ it.effect(
             body: h.main(
               [],
               model.nodes.map((node) =>
-                renderReaderNode(node, h, () => h.span([], []))
+                renderReaderNode(node, h, () => h.span([], []), noLinkMarks)
               )
             ),
             title: "Hero",
@@ -180,7 +184,7 @@ it.effect(
   () =>
     Effect.gen(function* bodyProjection() {
       const body = yield* compileReaderBody(
-        '<main><p class="agent-pointer">Agents</p><aside class="news-callout">News</aside><nav aria-label="Breadcrumb"><a href="/skills">skills</a> / skill-name</nav><h1 id="heading">Human title</h1><p>Human-only body</p><table><tbody><tr><td data-label="Name">Value</td></tr></tbody></table><section id="linked-from"><h2>Linked from</h2></section></main>',
+        '<main><p class="agent-pointer">Agents</p><nav aria-label="Breadcrumb"><a href="/skills">skills</a> / skill-name</nav><h1 id="heading">Human title</h1><p>Human-only body</p><table><tbody><tr><td data-label="Name">Value</td></tr></tbody></table><section id="linked-from"><h2>Linked from</h2></section></main>',
         "fixture"
       );
 

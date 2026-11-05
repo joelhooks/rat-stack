@@ -1,21 +1,22 @@
 import * as stylex from "@stylexjs/stylex";
 
 export const accent = stylex.defineVars({
-  accent: "#ff1493",
-  accentText: "#c8006e",
+  accent: "var(--accent)",
+  accentText: "var(--accent-text)",
 });
 
 export const reader = stylex.defineVars({
-  codeHighlight: "#e6e9ef",
-  codeInk: "#4c4f69",
-  codeKeyword: "#303446",
-  codeLiteral: "#5c5f77",
-  codeMuted: "#6c6f85",
-  contentWidth: "80ch",
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-  fontSize: "16px",
-  lineHeight: "1.5",
-  spaceSection: "2rem",
-  spaceSmall: "0.75rem",
-  spaceTight: "0.375rem",
+  codeHighlight: "var(--code-highlight)",
+  codeInk: "var(--code-ink)",
+  codeKeyword: "var(--code-keyword)",
+  codeLiteral: "var(--code-literal)",
+  codeMuted: "var(--code-muted)",
+  contentWidth: "var(--measure)",
+  fontFamily: "var(--prose-font)",
+  fontSize: "var(--text-size)",
+  lineHeight: "1.6",
+  monoFamily: "var(--mono)",
+  spaceSection: "var(--space-section)",
+  spaceSmall: "var(--space-small)",
+  spaceTight: "var(--space-tight)",
 });

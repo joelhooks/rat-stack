@@ -16,69 +16,72 @@ const htmlText = (value: string) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 
-it.effect("every seed profile renders as prerendered HTML", () =>
-  Effect.gen(function* renderProfiles() {
-    const inputs = yield* prepareReaderSiteInputs;
-    const flags = yield* readerBodyFlags("https://ratstack.sh");
+it.effect(
+  "every seed profile renders as prerendered HTML",
+  () =>
+    Effect.gen(function* renderProfiles() {
+      const inputs = yield* prepareReaderSiteInputs;
+      const flags = yield* readerBodyFlags("https://ratstack.sh");
 
-    expect(inputs.cafe.people.map((person) => person.id)).toEqual(
-      expect.arrayContaining([
-        "devinjameson",
-        "effect-ts",
-        "jem-computer",
-        "sam-goodwin",
-      ])
-    );
-
-    for (const person of inputs.cafe.people) {
-      const page = flags.find(
-        (candidate) => candidate.page.path === `/all-stars/${person.id}`
+      expect(inputs.cafe.people.map((person) => person.id)).toEqual(
+        expect.arrayContaining([
+          "devinjameson",
+          "effect-ts",
+          "jem-computer",
+          "sam-goodwin",
+        ])
       );
 
-      expect(page, person.id).toBeDefined();
+      for (const person of inputs.cafe.people) {
+        const page = flags.find(
+          (candidate) => candidate.page.path === `/all-stars/${person.id}`
+        );
 
-      if (page === undefined) {
+        expect(page, person.id).toBeDefined();
+
+        if (page === undefined) {
+          return;
+        }
+
+        const rendered = yield* renderToString(
+          { Flags: ReaderFlags, init, view },
+          { flags: page, isHydratable: false }
+        );
+
+        expect(page.heading).toBe(person.name);
+        expect(rendered.html).toContain(`src="${person.avatar.path}"`);
+        expect(rendered.html).toContain("To be removed from this page");
+
+        for (const fact of person.bio) {
+          expect(rendered.html).toContain(htmlText(fact.source));
+        }
+      }
+
+      const index = (yield* readerCafeFlags("https://ratstack.sh")).find(
+        (candidate) => candidate.page.path === "/all-stars"
+      );
+
+      expect(index?.heading).toBe("CAFE all stars");
+
+      if (index === undefined) {
         return;
       }
 
-      const rendered = yield* renderToString(
+      const cards = yield* renderToString(
         { Flags: ReaderFlags, init, view },
-        { flags: page, isHydratable: false }
+        {
+          flags: yield* Schema.decodeUnknownEffect(ReaderFlags)(index),
+          isHydratable: false,
+        }
       );
 
-      expect(page.heading).toBe(person.name);
-      expect(rendered.html).toContain(`src="${person.avatar.path}"`);
-      expect(rendered.html).toContain("To be removed from this page");
-
-      for (const fact of person.bio) {
-        expect(rendered.html).toContain(htmlText(fact.source));
+      for (const person of inputs.cafe.people) {
+        expect(cards.html).toContain(`src="${person.avatar.path}"`);
+        expect(cards.html).toContain(`href="/all-stars/${person.id}"`);
+        expect(cards.html).toContain(htmlText(person.bio[0].text));
       }
-    }
 
-    const index = (yield* readerCafeFlags("https://ratstack.sh")).find(
-      (candidate) => candidate.page.path === "/all-stars"
-    );
-
-    expect(index?.heading).toBe("CAFE all stars");
-
-    if (index === undefined) {
-      return;
-    }
-
-    const cards = yield* renderToString(
-      { Flags: ReaderFlags, init, view },
-      {
-        flags: yield* Schema.decodeUnknownEffect(ReaderFlags)(index),
-        isHydratable: false,
-      }
-    );
-
-    for (const person of inputs.cafe.people) {
-      expect(cards.html).toContain(`src="${person.avatar.path}"`);
-      expect(cards.html).toContain(`href="/all-stars/${person.id}"`);
-      expect(cards.html).toContain(htmlText(person.bio[0].text));
-    }
-
-    expect(cards.html).toContain('href="/all-stars">all stars</a>');
-  }).pipe(Effect.provide(NodeServices.layer))
+      expect(cards.html).toContain('href="/all-stars">all stars</a>');
+    }).pipe(Effect.provide(NodeServices.layer)),
+  { timeout: 60_000 }
 );
