@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -27,5 +31,5 @@ jobs:
       - name: Fetch pinned source objects
         run: pnpm sources:fetch
       - name: Check and test
-        # Serialize Turbo tasks so concurrent Vitest pools do not contend on the CI runner.
-        run: pnpm turbo run check test build --concurrency=1
+        # Overlap independent tasks; keep the full graph and existing per-suite worker limits.
+        run: pnpm turbo run check test build --concurrency=4

@@ -1,0 +1,162 @@
+---
+title: CI wall-time audit, 2026-11-05
+description: Twenty measured checks jobs, cache misses, and a bounded concurrency experiment.
+---
+
+# CI wall-time audit, 2026-11-05
+
+The last 20 `checks` jobs took **900 seconds median** and **968.2 seconds p90**. The gate accounts for nearly all that time. Installing dependencies is not the bottleneck.
+
+## Sample and method
+
+The sample is the latest 20 completed CI runs when this audit started, all created on 2026-11-04. It contains 11 pull-request runs and nine main pushes. All succeeded. All used GitHub-hosted `ubuntu-latest` runners in this public repository.
+
+GitHub Actions is the authority for job results and step timestamps. The auditor reads its API and streams each job log through a parser. Only task names, cache outcomes, durations, run identifiers, commit hashes, and timestamps survive. Raw remote logs are not retained. This note is a derived report, not another CI verdict.
+
+Step seconds come from `completed_at - started_at`. Quantiles use linear interpolation at `(n - 1) × p`. Zero-second setup and cleanup steps reflect GitHub's timestamp resolution. Job duration excludes queue time.
+
+The generic `optimise-ci` script could not run with the installed GitHub CLI: `gh api --slurp` is unsupported. A bounded substitute fetched exactly 20 run-job responses and 20 job logs, with four readers. It retained no raw log text. Every job reports 87 tasks and zero cached tasks.
+
+Reproduce the sample selection with `gh run list -R joelhooks/rat-stack --workflow ci.yml --limit 20 --json databaseId,event,conclusion,createdAt,headSha,status,url`. Read each selected run with `gh api repos/joelhooks/rat-stack/actions/runs/RUN_ID/jobs`, then stream the matching `checks` job's logs through a numeric parser. The identifiers below freeze this sample even after new runs arrive.
+
+## Step timings
+
+Each step has 20 observations. Times are seconds.
+
+| Step | Median | p90 |
+| --- | ---: | ---: |
+| Set up job | 0 | 2 |
+| Check out repository | 2 | 3.4 |
+| Use Node.js 24.18.0 | 5 | 5 |
+| Enable corepack pnpm | 1 | 1 |
+| Install dependencies | 13 | 14 |
+| Fetch pinned source objects | 2 | 3 |
+| Check and test | 871.5 | 942.2 |
+| Post Use Node.js 24.18.0 | 0 | 0 |
+| Post Check out repository | 0 | 1 |
+| Complete job | 0 | 0 |
+| Entire checks job | 900 | 968.2 |
+
+Pull-request job duration is 795 seconds median and 964 seconds p90. Main pushes take 950 seconds median and 968.4 seconds p90. The 20 jobs consume 279.53 runner-minutes. Their hosted-runner charge is $0 because the repository is public. Minutes remain useful as a measure of waiting and resource use.
+
+The largest test suites report these median Vitest durations directly in their logs:
+
+| Task | Median seconds |
+| --- | ---: |
+| `@rat-stack/site:test` | 199.18 |
+| `@rat-stack/web:test` | 133.51 |
+| `@rat-stack/core:test` | 108.22 |
+| `@rat-stack/infra:test` | 68.86 |
+
+These four test processes account for about 8.5 minutes of serial work before their surrounding build and process-start costs. Turbo currently schedules the whole graph with one task at a time.
+
+## Cache outcomes, task by task
+
+Every cell below names a task by combining its package and column: for example, `@rat-stack/core#test`. `M` means **zero hits and 20 misses**. `B` means **20 explicit cache bypasses**. A dash means there is no task. These outcomes are identical for all 11 PR runs and all nine main runs.
+
+| Package | build | typecheck | check | test | generate |
+| --- | --- | --- | --- | --- | --- |
+| `@rat-stack/auth` | M | M | M | M | — |
+| `@rat-stack/basin` | M | M | M | M | — |
+| `@rat-stack/capability` | M | M | M | M | — |
+| `@rat-stack/check-harness` | M | M | M | M | — |
+| `@rat-stack/cli` | M | M | M | M | — |
+| `@rat-stack/code-snippets` | M | M | M | M | — |
+| `@rat-stack/core` | M | M | M | M | — |
+| `@rat-stack/crash` | M | M | M | M | — |
+| `@rat-stack/database` | M | M | M | M | — |
+| `@rat-stack/deploy` | M | M | M | M | — |
+| `@rat-stack/devtools` | M | M | M | M | — |
+| `@rat-stack/events` | M | M | M | M | — |
+| `@rat-stack/flags` | B | M | M | M | — |
+| `@rat-stack/infra` | — | M | M | M | — |
+| `@rat-stack/intake-live` | M | M | M | M | — |
+| `@rat-stack/learn` | M | M | M | M | — |
+| `@rat-stack/lore` | M | M | M | M | — |
+| `@rat-stack/motion` | M | M | M | M | — |
+| `@rat-stack/site` | M | M | M | M | B |
+| `@rat-stack/subscriber-delivery` | M | M | M | M | — |
+| `@rat-stack/web` | M | M | M | M | — |
+
+Root `//#lint` and `//#typecheck-scripts` also have zero hits and 20 misses each. Root `//#lockfile:check` bypasses all 20 times. Total: **1,680 misses, 60 bypasses, zero hits across 1,740 tasks**. The bypasses are intentional and remain unchanged.
+
+The workflow restores neither `.turbo` nor the pnpm store. GitHub's cache API reports zero cache entries at audit time. A unique commit key without a restore prefix would still miss on every new tree. A literal fixed key would stop updating after its first immutable cache save. A future local-cache design needs a unique save key and a compatible default-branch restore prefix.
+
+## Ranked changes
+
+These are estimates, not measurements of the changed workflow on GitHub. Monthly figures use an explicit scenario of 600 runs: 30 repetitions of this 20-run sample. They are not a forecast of team activity. All dollar savings are $0 on the current free public hosted runner.
+
+| Rank | Change | Expected wall saving | Sample / scenario-month minutes saved | Risk and decision |
+| --- | --- | --- | --- | --- |
+| 1 | Four concurrent Turbo tasks in the existing job | Plan for 4 minutes per run; validate in CI | 80 / 2,400, estimated | More CPU and memory contention. Implemented for a PR experiment; no check is removed. |
+| 2 | Cancel an older run of the same PR | No speedup to an isolated run | 7.95 / 238.5, counterfactual | Two overlapping superseded runs in this sample. Implemented; main pushes never cancel one another. |
+| 3 | Restore a branch-scoped local Turbo cache | Unmeasured; theoretical ceiling below the 14.5-minute gate | Not safely estimable before input/output and restore-cost audit | Strong potential because every eligible task misses. A new cache action needs Joel's approval. Never let main consume PR-writable remote artifacts. |
+| 4 | Reuse GitHub's green verdict for an identical main tree | Roughly the full main job on a verified match | At most 137.38 / 4,121.5 in this sample | Nine main trees equal earlier green PR-head trees. This is a candidate count, not complete proof of the PR checkout tree. Joel must approve moving main's proof to the PR verdict. Not implemented. |
+| 5 | Split check, test, and build into jobs | Unmeasured; may overlap work like rank 1 | Not estimated | Each job repeats checkout/install. Tests already depend on builds; infra tests depend on web tests. Preserve the required `checks` aggregate if pursued. Not implemented. |
+| 6 | Shard site tests in two | Ideal ceiling about 1.66 minutes before repeated setup | At most 33.2 / 996, idealized | Assumes perfect division of 199.18 seconds; not a measured result. Requires proving complete test coverage and accounting for repeated setup. Not implemented. |
+| 7 | Cache the pnpm store | Less than 13 seconds before restore/save overhead | Less than 4.33 / 130 | Too small to justify a new action. Existing setup-node caching needs pnpm available before its cache lookup; do not silently assume the runner's bootstrap corepack. Not implemented. |
+| 8 | Larger runner | Unmeasured | Not estimated | Same work, unknown speedup, changed cost. Requires Joel's sign-off. Not implemented. |
+| Rejected | Skip `.brain` or news-only changes | No safe saving established | 0 credited | `.brain/**` feeds content generation, typecheck, build, and tests. Code excerpts and snapshots also read repository content. No skip path is proven safe. |
+| Rejected | Shared PR-writable Turbo remote cache | No saving credited | 0 credited | A PR could plant an artifact later consumed on main. Signing does not remove same-repository PR write authority. |
+
+The concurrency estimate starts with the actual task graph from `pnpm turbo run check test build --dry=json`. Grouped serial CI logs are buffered, so gaps between successive completed groups provide approximate task costs, not exact timings. Scheduling those costs on four ideal workers gives a 362.3-second median versus 871.4 seconds on one worker. This ignores resource contention and is an optimistic bound. The plan credits only four minutes of that potential 8.5-minute saving.
+
+The superseded-run estimate credits only time after the next run of the same PR begins. Runs `41904984907` and `41776246059` overlap their replacements. Cancellation latency and work before the replacement arrives reduce actual savings. Savings from different rows overlap and must not be added together.
+
+## Local experiment
+
+The serial baseline and four-way replay each use a distinct, initially empty Turbo cache directory. Both run the complete graph with `CI=true`, `--summarize`, and `/usr/bin/time -p`. Dependency installation and pinned-object fetching happen before the timed runs. Existing installed dependencies and source objects remain warm; this is a cold **Turbo-cache** replay, not a clean-machine install benchmark.
+
+| Configuration | Successful tasks | Cached tasks | Exit | Elapsed seconds |
+| --- | ---: | ---: | ---: | ---: |
+| `--concurrency=1` | 87 / 87 | 0 / 87 | 0 | 452.94 |
+| `--concurrency=4` | 87 / 87 | 0 / 87 | 0 | 182.88 |
+
+Four-way execution saves **270.06 seconds locally**, a **59.6% reduction** in elapsed time. Aggregate user CPU time rises from 797.04 to 820.07 seconds, consistent with overlapping work rather than removing it. There is one observation per configuration, not a reliability study.
+
+Both runs use pnpm 11.3.0 and local Node 24.22.1; CI pins Node 24.18.0. The local worker environment caps Vitest at four workers, while site and infra retain their explicit single-worker settings. The host differs from the GitHub runner. The serial run starts before this audit note exists; the parallel run includes it. Product sources and task definitions are unchanged. Do not extrapolate this local ratio directly to CI.
+
+The step measurements rule out dependency installation as the main bottleneck. The replay supports overlapping the graph. It does not rule out hosted-runner memory pressure or sandbox contention. The first real PR run remains the deciding experiment.
+
+## Fence and rollback
+
+The active main ruleset requires the exact `checks` name and an up-to-date branch. This change preserves that job name, both event triggers, all 87 tasks, dependency ordering, strict checking, tests, and builds. It changes no dependency, runner label, permission, timeout, diagnostic, or hook. No path or main-tree skip is introduced.
+
+The workflow's concurrency group uses the PR number when present and the unique run id otherwise. Only pull-request events cancel an earlier run. A later push must still complete the full required check before merging. Main pushes remain independent.
+
+Rollback consists of returning the gate to `--concurrency=1`; the PR cancellation can remain or be reverted separately. No deployment or flag change is involved.
+
+## Follow-up proof
+
+The desk opens the PR; this worker does not push. The first PR run must complete all 87 tasks successfully on `ubuntu-latest`. Compare its gate step with the 871.5-second baseline and inspect sandbox failures, pool contention, and memory pressure. A green local run does not establish performance on the hosted runner.
+
+Measure again after merge, keeping PR and main runs separate. Do not describe the estimate as a shipped speedup before those measurements exist.
+
+## Frozen run identifiers
+
+All rows use `ubuntu-latest` and report zero cached tasks out of 87.
+
+| Run | Event |
+| --- | --- |
+| 41926469214 | push |
+| 41924152071 | pull_request |
+| 41919428315 | push |
+| 41916468929 | pull_request |
+| 41907514350 | push |
+| 41905518911 | pull_request |
+| 41905463515 | push |
+| 41904984907 | pull_request |
+| 41903455141 | pull_request |
+| 41783879663 | push |
+| 41782147778 | pull_request |
+| 41778786680 | push |
+| 41777670932 | pull_request |
+| 41777607057 | push |
+| 41776246059 | pull_request |
+| 41775944124 | pull_request |
+| 41767951900 | push |
+| 41766635926 | pull_request |
+| 41759264550 | push |
+| 41757418052 | pull_request |
+
+Read any run at `https://github.com/joelhooks/rat-stack/actions/runs/RUN_ID`. Source configuration at audit start is commit `52bf4d6809fca811bb627c2c24f5ed6c28f7d730`.
