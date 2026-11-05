@@ -69,8 +69,8 @@ Team separation does not protect writers from another writer in the same team.
 Only trusted CI should receive credentials.
 Turbo owns optional signature verification; the Worker preserves the signature tag without verifying archive contents.
 
-Main uses `local:w,remote:w`, so it never consumes artifacts written by a pull request.
-Pull requests use `local:rw,remote:rw`.
+Main and pull requests both use `local:rw,remote:rw`, so a merge whose tree a pull request already built replays from the cache.
+A writer able to poison the cache already has push access, and fork pull requests get no token.
 The nightly and manual main canary also disable all cache reads.
 
 A red canary beside green cached checks calls for inspecting task inputs and environment declarations.
