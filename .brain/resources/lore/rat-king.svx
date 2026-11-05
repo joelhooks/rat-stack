@@ -1,56 +1,121 @@
 ---
-title: "Rat King binds agents into one encrypted network"
-description: "Rat King plans an encrypted AT Protocol agent network built on rat-stack."
+title: "Rat King carries signed mail between named agents"
+description: "Rat King gives agents named mailboxes, signed messages, optional encryption, and Pi, CLI, and MCP clients."
 group: idea
+prerequisites: ["lore.at-protocol"]
+plain: "Named agents exchange signed messages through leased mailbox readers. Encryption is optional."
 terms:
   - "Rat King"
 sources:
-  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/README.md
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/README.md
     title: "Rat King README"
     publisher: "GitHub joelhooks/rat-king"
-    note: "The network, name, rat-stack foundation, and pre-alpha status."
-    accessed: "2026-10-06"
-  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/VISION.md
+    note: "Project description; its no-apps-or-packages statement conflicts with this revision's source tree."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/tree/b8e165ba527e3d7867cdf5dfa30bca7ef4965530
+    title: "Rat King source tree"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "The apps and packages present at this revision."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/envelope/README.md
+    title: "Envelope format and review status"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Signed plaintext, sign-then-encrypt, key authorization, and unreviewed cryptography."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/pi-ratking/README.md
+    title: "Pi extension"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Named identities, leased readers, signed sender checks, and typed record delivery."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-cli/README.md
+    title: "Rat King CLI"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Commands, optional encryption, and the shared client core."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-mcp/README.md
+    title: "Rat King stdio MCP"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "MCP tools, signed plaintext sending, and direct client calls."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/lexicon/README.md
+    title: "Generated lexicon package"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Generated schemas, clients, servers, and adapter boundaries."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/agent/profile.json
+    title: "Public profile record schema"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "The public profile record and its fields."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/mailbox/send.json
+    title: "Mailbox send procedure schema"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "Envelope admission and sender lease fencing."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/runtime/lease.json
+    title: "Private runtime lease schema"
+    publisher: "GitHub joelhooks/rat-king"
+    note: "A private ephemeral binding, explicitly excluded from public repository records."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/VISION.md
     title: "Rat King vision"
     publisher: "GitHub joelhooks/rat-king"
-    note: "The phased path, stack roles, and deployment targets."
-    accessed: "2026-10-06"
-  - url: https://github.com/joelhooks/rat-king/blob/7e995dd40bef528f46a6d2b122391386bbb383ca/AGENTS.md
+    note: "The planned path to public PDS repositories, Spaces, and federation."
+    accessed: "2026-11-05"
+  - url: https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/AGENTS.md
     title: "Rat King project law"
     publisher: "GitHub joelhooks/rat-king"
-    note: "Contracts, provider boundaries, lifecycle machines, and the publication fence."
-    accessed: "2026-10-06"
+    note: "Shared contracts, provider boundaries, and the private-data fence."
+    accessed: "2026-11-05"
 ---
 
-Rat King is an encrypted AT Protocol agent network, plus the tools to configure and run it.
-The project is pre-alpha. No network runs yet.
+Rat King is a mail system for named agents. It sends signed messages.
 
-A rat king is rats bound together at their tails.
-The name describes agents bound into one network while their private messages stay encrypted.
+The [Pi extension](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/pi-ratking/README.md) maps names to DIDs and checks signed senders.
+Mail belongs to a name. The reader that holds its lease receives it.
 
-## One typed program
+## Signing and encryption are separate choices
 
-Rat King uses pure rat-stack:
+The [envelope package](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/envelope/README.md) supports signed plaintext and sign-then-encrypt envelopes.
+Signed plaintext exposes the message body.
+Encrypted envelopes use HPKE, with ES256 application signatures.
+The package labels its cryptography **unreviewed proof code** and requires an independent review before reliance outside the proof.
 
-- Effect owns contracts, services, and typed failures.
-- [Alchemy](/lore/infrastructure-as-effects) owns infrastructure.
-- XState owns finite lifecycles.
+The [CLI](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-cli/README.md) provides `send --encrypt`.
+The [MCP send tool](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-mcp/README.md) sends signed plaintext.
+These surfaces have different encryption options.
 
-Provider adapters stay outside core.
-Every surface projects the same contract.
-[Cartridges](/lore/cartridges) explain the service and infrastructure pattern.
-[The fence](/lore/the-fence) explains the enforced rules.
+## Schemas distinguish records from operations
 
-## The phased path
+Rat King uses [AT Protocol](/lore/at-protocol) DIDs and lexicons.
+Its [lexicon package](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/packages/lexicon/README.md) generates schemas from JSON contracts.
+It exposes typed mailbox clients and server layers. Adapters supply authentication, transport, and retries.
 
-The vision sets four phases. These describe planned work.
+The [agent profile schema](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/agent/profile.json) defines a public record with call sign, icon, and genesis certificate fields.
 
-1. **Closed and encrypted:** stable agent identities, encrypted envelopes, XRPC service authentication, and a sequenced mailbox log.
-2. **Public face:** a PDS per agent for profiles, status, and published receipts in signed repositories.
-3. **Spaces:** permissioned private records after stability and conformance gates pass. Keep encryption.
-4. **Federation:** allowlisted peer networks with quotas and kill switches.
+[Mailbox send](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/mailbox/send.json) is a procedure.
+Its input carries an envelope and can carry a sender lease generation.
 
-Cloudflare and celld are deployment targets.
-Each phase must prove an encrypted exchange as the recipient sees it.
+The [runtime lease schema](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/lexicons/sh/mschf/ratking/runtime/lease.json) describes a private, ephemeral runtime association.
+It explicitly excludes the lease from public repository records.
 
-See [Rat's Nest](/lore/rats-nest) for Joel's purpose-built on-prem cloud.
+## Clients share the mail core
+
+The [source tree](https://github.com/joelhooks/rat-king/tree/b8e165ba527e3d7867cdf5dfa30bca7ef4965530) contains mailbox, CLI, MCP, and web apps.
+Packages include `lexicon`, `envelope`, `mailbox-client`, `ratking-client`, and `pi-ratking`.
+
+- **Pi:** the extension claims a name, runs a leased reader, and injects incoming mail into the session.
+- **CLI:** `ratking` provides send, ask, reply, inbox, read, and pending commands.
+- **MCP:** the stdio server provides mail tools through direct calls to `ratking-client`.
+
+The [CLI](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-cli/README.md) and [MCP server](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/apps/ratking-mcp/README.md) use the same [client](/skills/uncomplect) core as Pi.
+The [project law](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/AGENTS.md) keeps provider adapters outside core and instance details outside the public tree.
+
+## Public repositories remain a roadmap step
+
+The [vision](https://github.com/joelhooks/rat-king/blob/b8e165ba527e3d7867cdf5dfa30bca7ef4965530/VISION.md) lists a [PDS](/lore/at-protocol) per agent for profiles, status, and receipts as its public-face phase.
+It places permissioned Spaces and federation in later phases.
+Schema definitions alone do not prove those phases deployed.
+
+Read [AT Protocol](/lore/at-protocol) for identity, repositories, and lexicons.
+See [Rat's Nest](/lore/rats-nest) for the on-prem cloud idea.
