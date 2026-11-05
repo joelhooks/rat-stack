@@ -19,7 +19,7 @@ jobs:
       TURBO_API: ${{ vars.TURBO_API }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_CACHE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'local:w,remote:w' || 'local:rw,remote:rw' }}
+      TURBO_CACHE: local:rw,remote:rw
       TURBO_RUN_SUMMARY: "true"
     steps:
       - name: Check out repository
