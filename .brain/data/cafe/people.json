@@ -421,6 +421,65 @@
   },
   {
     "avatar": {
+      "path": "/avatars/codician-team.png",
+      "source": "https://github.com/codician-team.png?size=240",
+      "verified": "2026-11-05"
+    },
+    "bio": [
+      {
+        "text": "Codician's Diffinery provides Git hosting, pull requests, code review and GitHub Actions-compatible CI on Cloudflare.",
+        "source": "https://github.com/codician-team/diffinery/blob/5b38a5f6657a08be7a02b45006d324d4121b9c7d/README.md",
+        "verified": "2026-11-05"
+      },
+      {
+        "text": "Diffinery uses Cloudflare Workers, Durable Objects, D1, R2, Queues, Workflows and Containers.",
+        "source": "https://github.com/codician-team/diffinery/blob/5b38a5f6657a08be7a02b45006d324d4121b9c7d/README.md",
+        "verified": "2026-11-05"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/codician-team/diffinery"]
+    },
+    "handles": [
+      {
+        "handle": "codician-team",
+        "kind": "github",
+        "url": "https://github.com/codician-team",
+        "source": "https://github.com/codician-team",
+        "verified": "2026-11-05"
+      }
+    ],
+    "id": "codician-team",
+    "kind": "channel",
+    "name": "Codician",
+    "repos": [
+      {
+        "description": "Git hosting, pull requests, code review and GitHub Actions-compatible CI on Cloudflare.",
+        "packages": [],
+        "repo": "codician-team/diffinery",
+        "source": "https://github.com/codician-team/diffinery",
+        "stars": 82,
+        "verified": "2026-11-05"
+      }
+    ],
+    "topics": [
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/codician-team/diffinery/blob/5b38a5f6657a08be7a02b45006d324d4121b9c7d/README.md",
+        "verified": "2026-11-05"
+      },
+      {
+        "topic": "durable-objects",
+        "source": "https://github.com/codician-team/diffinery/blob/5b38a5f6657a08be7a02b45006d324d4121b9c7d/README.md",
+        "verified": "2026-11-05"
+      }
+    ],
+    "updated": "2026-11-05",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/danieljvdm.jpg",
       "source": "https://github.com/danieljvdm.png?size=240",
       "verified": "2026-11-04"
@@ -695,6 +754,80 @@
       }
     ],
     "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/doeixd.jpg",
+      "source": "https://github.com/doeixd.png?size=240",
+      "verified": "2026-11-05"
+    },
+    "bio": [
+      {
+        "text": "Patrick G's effect-email provides Effect-native transactional email with typed messages, durable delivery, provider adapters and retry policies.",
+        "source": "https://github.com/doeixd/effect-email/blob/5885e633040b1845410695f7d23c8b75290342e5/README.md",
+        "verified": "2026-11-05"
+      },
+      {
+        "text": "Patrick G's foldkit-plus extends Foldkit applications with agent access, server data, synchronization and model mirrors for URLs and local storage.",
+        "source": "https://github.com/doeixd/foldkit-plus/blob/2f03efe9a270b0fa41de74966f3a8467379653d1/README.md",
+        "verified": "2026-11-05"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://github.com/doeixd/effect-email"]
+    },
+    "handles": [
+      {
+        "handle": "doeixd",
+        "kind": "github",
+        "url": "https://github.com/doeixd",
+        "source": "https://github.com/doeixd",
+        "verified": "2026-11-05"
+      },
+      {
+        "handle": "RelevantElement",
+        "kind": "x",
+        "url": "https://x.com/RelevantElement",
+        "source": "https://github.com/doeixd",
+        "verified": "2026-11-05"
+      }
+    ],
+    "id": "doeixd",
+    "kind": "person",
+    "name": "Patrick G",
+    "repos": [
+      {
+        "description": "Effect-native transactional email for TypeScript.",
+        "packages": [],
+        "repo": "doeixd/effect-email",
+        "source": "https://github.com/doeixd/effect-email",
+        "stars": 30,
+        "verified": "2026-11-05"
+      },
+      {
+        "description": "Packages that extend Foldkit applications to agents, servers, other devices, URLs and design systems.",
+        "packages": [],
+        "repo": "doeixd/foldkit-plus",
+        "source": "https://github.com/doeixd/foldkit-plus",
+        "stars": 32,
+        "verified": "2026-11-05"
+      }
+    ],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/doeixd/effect-email/blob/5885e633040b1845410695f7d23c8b75290342e5/README.md",
+        "verified": "2026-11-05"
+      },
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/doeixd/foldkit-plus/blob/2f03efe9a270b0fa41de74966f3a8467379653d1/README.md",
+        "verified": "2026-11-05"
+      }
+    ],
+    "updated": "2026-11-05",
     "videos": []
   },
   {
@@ -2297,6 +2430,58 @@
       }
     ],
     "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/mattpocock.png",
+      "source": "https://github.com/mattpocock.png?size=240",
+      "verified": "2026-11-05"
+    },
+    "bio": [
+      {
+        "text": "Matt Pocock asked developers for Foldkit's \"aha\" moment on 2 November 2026.",
+        "source": "https://x.com/mattpocockuk/status/2117157362700058671",
+        "verified": "2026-11-05"
+      },
+      {
+        "text": "The question asks developers to explain what made Foldkit click for them.",
+        "source": "https://x.com/mattpocockuk/status/2117157362700058671",
+        "verified": "2026-11-05"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": ["https://x.com/mattpocockuk/status/2117157362700058671"]
+    },
+    "handles": [
+      {
+        "handle": "mattpocock",
+        "kind": "github",
+        "url": "https://github.com/mattpocock",
+        "source": "https://github.com/mattpocock",
+        "verified": "2026-11-05"
+      },
+      {
+        "handle": "mattpocockuk",
+        "kind": "x",
+        "url": "https://x.com/mattpocockuk",
+        "source": "https://github.com/mattpocock",
+        "verified": "2026-11-05"
+      }
+    ],
+    "id": "mattpocock",
+    "kind": "person",
+    "name": "Matt Pocock",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://x.com/mattpocockuk/status/2117157362700058671",
+        "verified": "2026-11-05"
+      }
+    ],
+    "updated": "2026-11-05",
     "videos": []
   },
   {
