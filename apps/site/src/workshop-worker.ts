@@ -5,6 +5,7 @@ import { contentAssetsForBuild } from "./asset-deployment.js";
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import { privateObservability } from "./observability.js";
 import { workerAssetsLayer } from "./worker-content.js";
+import { workshopAssets } from "./workshop-assets.js";
 import { workshopRuntime } from "./workshop-runtime.js";
 
 export default class Workshop extends Cloudflare.Worker<Workshop>()(
@@ -12,7 +13,8 @@ export default class Workshop extends Cloudflare.Worker<Workshop>()(
   Effect.gen(function* workshopProps() {
     const assets = yield* contentAssetsForBuild(
       new URL("../dist/content", import.meta.url).pathname,
-      staticAssetGeneration
+      staticAssetGeneration,
+      workshopAssets
     ).pipe(Effect.orDie);
 
     return {
