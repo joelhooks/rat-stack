@@ -29,4 +29,4 @@ The design rule is **public code, private inventory**.
 [The fence](/lore/the-fence) explains how rules become enforced checks.
 [Cartridges](/lore/cartridges) explain rat-stack's service and infrastructure pattern.
 
-See [Rat King](/lore/rat-king) for the encrypted AT Protocol agent network.
+See [Rat King](/lore/rat-king) for the encrypted [AT Protocol](/lore/at-protocol) agent network.

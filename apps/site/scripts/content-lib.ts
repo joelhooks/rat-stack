@@ -623,6 +623,36 @@ interface GlossaryPage {
 
 const glossaryDefinitions: readonly GlossaryEntry[] = [
   {
+    routePath: "/lore/at-protocol",
+    summary:
+      "The Authenticated Transfer Protocol, a decentralized protocol for social web applications with persistent account identities and signed public data repositories.",
+    term: "AT Protocol",
+  },
+  {
+    routePath: "/lore/at-protocol",
+    summary:
+      "A DID (decentralized identifier) gives an AT Protocol account a persistent identity linked to keys and a hosting provider.",
+    term: "decentralized identifier",
+  },
+  {
+    routePath: "/lore/at-protocol",
+    summary:
+      "A Personal Data Server that hosts account data and serves as the authoritative host for the account's repository.",
+    term: "PDS",
+  },
+  {
+    routePath: "/lore/at-protocol",
+    summary:
+      "An AT Protocol schema definition for records, HTTP endpoints, or event stream messages, identified by a namespaced identifier.",
+    term: "lexicon",
+  },
+  {
+    routePath: "/lore/rat-king",
+    summary:
+      "An agent-mail system with named mailboxes, signed messages, optional encryption, and Pi, CLI, and MCP clients.",
+    term: "Rat King",
+  },
+  {
     routePath: "/lore/effect-basics",
     summary:
       "A TypeScript library for describing work with typed failures and required services. A runtime executes the description.",
