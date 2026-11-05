@@ -33,6 +33,7 @@ const forbiddenStrings = [
   "rat_call",
   "rat_test_person",
   "rat-test-person-password",
+  ...['"', "`"].map((quote) => `${quote}rat-stack-dev${quote}`),
 ];
 
 const forbiddenModules = [

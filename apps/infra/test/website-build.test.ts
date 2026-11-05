@@ -95,8 +95,8 @@ it.layer(NodeServices.layer)((test) => {
 
         expect(entry).toBeDefined();
 
-        const entryBudgetBytes = 1_100_000;
-        const nonContentBudgetBytes = 2_900_000;
+        const entryBudgetBytes = 1_076_000;
+        const nonContentBudgetBytes = 2_869_000;
         const entryBytes = new Blob([entry.content]).size;
 
         const javascript = result.serverBundle.files.filter((file) =>

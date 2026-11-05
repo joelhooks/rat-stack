@@ -61,6 +61,16 @@ One `vite build` makes three outputs:
 
 The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands call capabilities through that path.
 
+Each reader page has three panes:
+
+- The section index lists the pages in the current section and marks the current page.
+- The page holds the body, its "Referenced by" cards, and the phone outline.
+- The rail holds the outline of the page headings and the local graph of linked pages.
+
+Hovering or focusing an internal link opens a peek card with the target's title and summary. The card reads the page through the `read` capability and caches the result.
+
+The settings panel changes theme, prose font, size, measure, and accent. A small head script applies the saved settings before the first paint, so the page does not flash.
+
 ## The standard
 
 - `vite.config.ts` turns on rendering with one `foldkit({ ssr })` call. It uses the default `dist/client` and `dist/server` directories.
@@ -69,10 +79,18 @@ The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands ca
 - Readable content and links work before browser JavaScript runs.
 - A missing page returns a real 404. It never falls back to the home page.
 - Production builds contain no development modules, devtools code, or test people.
+- Without JavaScript, the reader still works. Links are plain anchors, the phone outline is a native `details` element, and graph nodes are SVG links.
+- Peek cards, graph hover, and the menu need JavaScript. They add to the page and never replace a link.
+- Pink accent marks wiki structure only. `AGENTS.md` lists the allowed uses.
+- The content security policy allows one inline script: the settings head script, by its hash.
+- Remote state lives in the Model. Views read the Model and send Messages; they never fetch.
+- Escape closes the menu and the settings panel and returns focus to the button that opened them.
 
 ## How to check
 
 - Run `pnpm --filter @rat-stack/web build`. Read `apps/web/dist/server/foldkit.build.json`. It names `fetch.js` as the server entry and lists the prerendered paths.
-- Run `pnpm --filter @rat-stack/web test` for page parity and the production-bundle exclusion test.
+- Run `pnpm --filter @rat-stack/web test` for page parity and the production-bundle exclusion test. The `*.scene.test.ts` files drive the reader panes, peek, menu, settings, and references through Messages.
+- `apps/web/test/reader-csp.test.ts` checks that the policy hash matches the settings head script.
+- Run `pnpm --filter @rat-stack/site test`. `accent.test.ts` holds the allowed accent selectors. `code-contrast.test.ts` checks code token contrast on each code surface in both themes.
 - Run `pnpm --filter @rat-stack/infra test`. The Website build test builds through [Alchemy](/skills/learn-alchemy), reads prerendered pages, and serves them, `/rpc`, and a 404 from the server bundle in workerd.
 - On a preview, request a prerendered page and an unknown path with `curl`. The page returns complete HTML with `X-Preview-Commit`. The unknown path returns 404.
