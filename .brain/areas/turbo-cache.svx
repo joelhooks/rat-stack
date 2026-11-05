@@ -1,7 +1,7 @@
 ---
 title: "Turbo remote cache"
 description: "A separate Worker stores streamed Turbo artifacts in R2, with one credential per team and lifecycle expiry."
-plain: "CI can reuse task artifacts from a team-scoped cache. Main and the nightly canary never read cached artifacts."
+plain: "CI can reuse task artifacts from a team-scoped cache. The nightly canary never reads cached artifacts."
 diagram: |-
   CI + team credential
     │ Turbo artifact protocol
@@ -16,6 +16,11 @@ terms:
   - "Turbo remote cache"
   - "artifact retention"
 sources:
+  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52
+    title: "alchemy-turbo-cache v0.0.0"
+    publisher: "Joel Hooks"
+    note: "The extracted cartridge owns the Worker, bucket, credentials, protocol tests and read-only handoff."
+    accessed: "2026-11-05"
   - url: https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs
     title: "Turbo 2.11.9 API client"
     publisher: "Vercel"
@@ -35,9 +40,17 @@ sources:
 
 ## What it does
 
-`packages/turbo-cache` owns a separate Worker, a dedicated R2 bucket, and one generated credential per configured team.
+[alchemy-turbo-cache v0.0.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
+`packages/turbo-cache` supplies rat-stack's configuration and adoption test.
 The Stack includes the [cartridge](/lore/cartridges) with `yield* turboCache`.
-The package README describes configuration and removal.
+The local README describes configuration and removal.
+
+The dependency pins Git commit `a51a7ba6ea56728f89c4214befe8bf940a946e52`.
+pnpm prepares its compiled exports during installation through the package-specific `allowBuilds` entry.
+No protocol or credential-handoff implementation remains in rat-stack.
+
+The declaration preserves `TurboCache`, `TurboCacheFoundation/TurboCacheBucket`, and `TurboCacheFoundation/TurboCacheToken-rat-stack`.
+The team remains `rat-stack`, with seven-day expiry and prod-only resource retention.
 
 Turbo sends binary task archives through its own HTTP protocol.
 The Worker streams those bodies to R2 and streams stored bodies back.
@@ -99,8 +112,11 @@ A missing token also leaves tasks running without remote reuse.
 ## How to check
 
 Run `pnpm --filter @rat-stack/turbo-cache test`.
-Generated runtime checks cover byte-identical reads, team isolation, HEAD agreement, and auth before storage.
-The real Turbo seam uses two empty local cache directories and requires a REMOTE hit on its second run.
+The adoption test starts the installed cartridge in local workerd and checks its exact three resource FQNs.
+It hands the generated credential to a subprocess that authenticates against the Worker.
+
+The external package owns generated checks for byte-identical reads, team isolation, HEAD agreement, and auth before storage.
+Its real Turbo seam uses two empty local cache directories and requires a REMOTE hit on its second run.
 
 The credential handoff reads completed [Alchemy](/skills/learn-alchemy) state in process.
 The operator's secret tool must inject `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` into that process.
@@ -112,7 +128,8 @@ A failed handoff keeps the source tag and message without serializing credential
 Stack deployment authentication is separate from this read-only handoff.
 
 Run `pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command>` after the approved deployment.
-Only that command's stdin receives the token.
+The root script supplies the Stack, state-store, resource prefix and team list to the package's executable.
+Only the trusted command's stdin receives the token.
 
 Its stdout and stderr are suppressed.
 The parent prints only the API origin and team slug after success.
@@ -120,7 +137,8 @@ The desk owns the authorized GitHub secret write.
 
 CI uploads `.turbo/runs/*.json` to separate LOCAL and REMOTE hits.
 Check those summaries alongside task counts and the uncached main canary.
-Run the full gate with `pnpm turbo run check test build --concurrency=4` before shipping.
+Run the full gate with `pnpm turbo run check test build` before shipping.
+Alchemy's startup measurement still bundles the thin cache entry under the shrink-only 480,000-byte ceiling.
 
 Local workerd tests do not prove deployed account access, lifecycle deletion, or GitHub credential delivery.
 Those remain live checks for the deployment owner.

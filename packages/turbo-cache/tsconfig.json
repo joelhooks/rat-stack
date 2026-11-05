@@ -5,21 +5,7 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "allowedUnstableApis": [
-          "@effect/vitest",
-          "@effect/platform-node",
-          "effect/FileSystem",
-          "effect/process/ChildProcess",
-          "effect/process/ChildProcessSpawner",
-          "effect/http/HttpClient",
-          "effect/http/HttpClientRequest",
-          "effect/http/HttpClientResponse",
-          "effect/Arbitrary",
-          "effect/crypto/Digest",
-          "effect/crypto/SecureRandom",
-          "effect/http/HttpServerRequest",
-          "effect/http/HttpServerResponse"
-        ]
+        "allowedUnstableApis": ["@effect/vitest"]
       }
     ]
   },

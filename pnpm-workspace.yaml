@@ -8,6 +8,7 @@ packages:
   - "packages/*"
 
 allowBuilds:
+  alchemy-turbo-cache: true
   "@google/genai": true
   esbuild: true
   lefthook: true

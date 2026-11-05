@@ -20,7 +20,9 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 
 ## Turbo remote cache
 
-`packages/turbo-cache` is independently implemented against [Turbo's v2.11.9 API client](https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs). The related MIT Worker implementation is [AdiRishi/turborepo-remote-cache-cloudflare](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/tree/b0aaab5c3063dd5f8d15e38e69398a0c040edcda), pinned at `b0aaab5c3063dd5f8d15e38e69398a0c040edcda`. No upstream router, storage implementation or cron is copied. The protocol adapter, team authorization, lifecycle policy and Effect integration are new here.
+`packages/turbo-cache` now configures the MIT [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52) package at `v0.0.0`, pinned as `github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52`. That package was extracted from rat-stack. The duplicated protocol, state reader and credential handoff source and tests have been removed here; a local adoption test exercises the installed cartridge.
+
+The external package's implementation follows [Turbo's v2.11.9 API client](https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs). Its protocol behavior also draws on the MIT [AdiRishi/turborepo-remote-cache-cloudflare](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/tree/b0aaab5c3063dd5f8d15e38e69398a0c040edcda) at `b0aaab5c3063dd5f8d15e38e69398a0c040edcda`. No upstream router, storage implementation or cron was copied. The external package retains those credits in its own `PROVENANCE.md`.
 
 ## Motion (`packages/motion`)
 
