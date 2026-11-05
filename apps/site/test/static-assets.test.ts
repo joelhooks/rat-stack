@@ -8,14 +8,18 @@ import { mischiefRoutes } from "../src/app.js";
 import { staticAssetGeneration } from "../src/bundled-content.generated.js";
 import { linkHeaderForPage } from "../src/content.js";
 import { StaticAssets } from "../src/static-assets.js";
-import { fixtureBytes } from "./generated-content.js";
+import { fixtureBytes, generatedReaderPage } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
 const fetchFixture = (calls: string[], request: Request): Promise<Response> => {
   const path = new URL(request.url).pathname;
   calls.push(path);
 
-  if (path.startsWith("/_content/")) {
+  if (
+    path.startsWith("/_content/") ||
+    path === "/skills/security-audit.md" ||
+    path.startsWith("/skills/security-audit/")
+  ) {
     return Promise.resolve(new Response(new Uint8Array(fixtureBytes(path))));
   }
 
@@ -339,6 +343,66 @@ it.effect(
           "/_content/tokenmaxx.json",
           "/_content/search.json",
         ]);
+      })
+    )
+);
+
+it.effect(
+  "publishes the audit page credit and usable companion downloads",
+  () =>
+    withAssetHandler((handler) =>
+      Effect.gen(function* auditSkillDownloads() {
+        const html = generatedReaderPage("/skills/security-audit");
+
+        const markdown = new TextDecoder().decode(
+          fixtureBytes("/skills/security-audit.md")
+        );
+
+        for (const view of [html, markdown]) {
+          expect(view).toContain("2025-2026 Cloudflare, Inc.");
+          expect(view).toContain("c1c8a8c1471069fb0e188eeaff69b8e8db6564a8");
+          expect(view).toContain("rat-stack audit boundaries");
+          expect(view).toContain("/skills/security-audit/HUNTING.md");
+        }
+
+        expect(html.match(/<h1[ >]/gu)).toHaveLength(1);
+
+        const discovery = yield* Effect.promise(() =>
+          handler(
+            new Request(
+              "https://ratstack.sh/.well-known/agent-skills/security-audit/SKILL.md"
+            )
+          )
+        );
+
+        expect(discovery.status).toBe(200);
+        const discovered = yield* Effect.promise(() => discovery.text());
+        expect(discovered).toContain("2025-2026 Cloudflare, Inc.");
+        expect(discovered).toContain("/skills/security-audit/HUNTING.md");
+
+        for (const [name, contentType] of [
+          ["HUNTING.md", "text/markdown"],
+          ["RAT-STACK.md", "text/markdown"],
+          ["LICENSE", "text/plain"],
+          ["report-schema.json", "application/json"],
+          ["validate-findings.cjs", "text/plain"],
+          ["validate-coverage-ledger.cjs", "text/plain"],
+        ]) {
+          const path = `/skills/security-audit/${name}`;
+
+          const response = yield* Effect.promise(() =>
+            handler(new Request(`https://ratstack.sh${path}`))
+          );
+
+          expect(response.status, path).toBe(200);
+          expect(response.headers.get("content-type"), path).toContain(
+            contentType
+          );
+          const bytes = yield* Effect.promise(() => response.arrayBuffer());
+          expect(new Uint8Array(bytes), path).toEqual(
+            new Uint8Array(fixtureBytes(path))
+          );
+        }
       })
     )
 );

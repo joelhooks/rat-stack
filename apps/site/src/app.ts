@@ -232,6 +232,18 @@ const staticHeaders = (
 };
 
 const assetImageContentType = (path: string) => {
+  if (path.endsWith(".md")) {
+    return "text/markdown; charset=utf-8";
+  }
+
+  if (path.endsWith(".json")) {
+    return "application/json";
+  }
+
+  if (path.endsWith(".cjs") || path.endsWith("/LICENSE")) {
+    return "text/plain; charset=utf-8";
+  }
+
   if (path.endsWith(".jpg")) {
     return "image/jpeg";
   }
