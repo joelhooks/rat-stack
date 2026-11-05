@@ -70,6 +70,23 @@ it.effect(
 
       const deployedRoot = `${directory}/assets/${manifest.generation}`;
 
+      const auditDirectory = path.resolve(
+        import.meta.dirname,
+        "../../../skills/security-audit"
+      );
+
+      const auditFiles = yield* fs.readDirectory(auditDirectory);
+
+      for (const name of auditFiles) {
+        const source = yield* fs.readFile(path.join(auditDirectory, name));
+
+        const published = yield* fs.readFile(
+          `${deployedRoot}/skills/security-audit/${name}`
+        );
+
+        expect(published, name).toEqual(source);
+      }
+
       const deployed = yield* fs.readDirectory(deployedRoot, {
         recursive: true,
       });
@@ -233,6 +250,7 @@ it.effect(
         [
           ...images.map((image) => image.path),
           ...allStarsAvatarPaths,
+          ...auditFiles.map((name) => `/skills/security-audit/${name}`),
         ].toSorted()
       );
     }).pipe(Effect.provide(NodeServices.layer))
