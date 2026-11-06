@@ -779,6 +779,12 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
     term: "Alchemy Stack",
   },
   {
+    routePath: "/lore/alchemy-domain",
+    summary:
+      "Alchemy's domain-driven design framework for Effect: commands, aggregates and events, tested in memory and hosted on Cloudflare Durable Objects.",
+    term: "Alchemy Domain",
+  },
+  {
     routePath: "/lore/bindings",
     summary:
       "A declared connection that gives a Cloudflare Worker a typed runtime value or access to a resource.",
