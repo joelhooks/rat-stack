@@ -17,7 +17,7 @@ diagram: |-
 
 # Maintain rat-stack
 
-Rat-stack runs on Effect 4 stable, Alchemy 2 betas, and XState 6 alphas. Effect describes work with typed failures and required dependencies. Alchemy declares and deploys cloud resources through Effect programs. Keep copied code compatible with the current dependency versions. Simplify it as these dependencies change.
+Rat-stack runs on Effect 4 stable, Alchemy 2 betas, and XState 6 betas. Effect describes work with typed failures and required dependencies. Alchemy declares and deploys cloud resources through Effect programs. Keep copied code compatible with the current dependency versions. Simplify it as these dependencies change.
 
 Follow Lauren Tan's gardener loop from her Dune talk: remove technical debt, keep one supported implementation pattern, and reject prohibited patterns with lint. In her words: "whenever you see tech debt or bad patterns, your instinct should be, I need to write a lint rule against it." She ranks where to put corrections by enforcement strength: codebase, static analysis, rules, skills, style guide. Use the strongest applicable option for each finding.
 
@@ -34,7 +34,7 @@ for p in effect @effect/platform-node @effect/vitest @effect/tsgo alchemy xstate
 done
 ```
 
-Read the returned versions, not only the tag names. Effect 4 and its adapters now use `latest`; `rc` points to the older release candidate. Alchemy 2 and `@effect/tsgo` use `latest`. XState 6 uses `alpha`; its `latest` still points to XState 5. For `@xstate/effect`, compare both `alpha` and `latest` across alpha versions: `latest` can be newer. Check the bridge's peer ranges before choosing the matching XState pin.
+Read the returned versions, not only the tag names. Effect 4 and its adapters now use `latest`; `rc` points to the older release candidate. Alchemy 2 and `@effect/tsgo` use `latest`. Compare XState 6 prerelease versions across dist-tags; do not assume `latest` selects v6. For `@xstate/effect`, compare all returned prerelease versions too. Check the bridge's peer ranges before choosing the matching XState pin.
 
 ## 2. Update one dependency family at a time
 

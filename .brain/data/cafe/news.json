@@ -1,5 +1,53 @@
 [
   {
+    "kind": "release",
+    "url": "https://stately.ai/blog/2026-11-05-xstate-v6-beta",
+    "title": "XState 6 beta and @xstate/effect 1.0 beta",
+    "summary": "XState v6 enters beta: no more breaking changes planned for @public APIs; snapshot restore moves to restoreActor in xstate/persist.",
+    "date": "2026-11-06",
+    "repo": "statelyai/xstate",
+    "author": {
+      "github": "statelyai",
+      "x": "DavidKPiano"
+    },
+    "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
+    "engagement": {
+      "stars": 30412
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/RhysSullivan/effect-discord-perms",
+    "title": "effect-discord-perms",
+    "summary": "A typed layer over dfx on Effect v4: missing permissions, payload rules and intents become compile errors, each rule checked against live Discord.",
+    "date": "2026-11-06",
+    "repo": "RhysSullivan/effect-discord-perms",
+    "author": {
+      "github": "RhysSullivan",
+      "x": "RhysSullivan"
+    },
+    "source": "https://github.com/RhysSullivan/effect-discord-perms",
+    "engagement": {
+      "stars": 16
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/nstudio/ns-foldkit",
+    "title": "ns-foldkit runs Foldkit on iOS and Android",
+    "summary": "Runs Foldkit apps unmodified on iOS and Android with real native views through NativeScript, replacing only the DOM layer with a native bridge.",
+    "date": "2026-11-06",
+    "repo": "nstudio/ns-foldkit",
+    "author": {
+      "github": "nstudio",
+      "x": null
+    },
+    "source": "https://github.com/nstudio/ns-foldkit",
+    "engagement": {
+      "stars": 1
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/joelhooks/alchemy-turbo-cache",
     "title": "alchemy-turbo-cache",
@@ -12,7 +60,23 @@
     },
     "source": "https://github.com/joelhooks/alchemy-turbo-cache",
     "engagement": {
-      "stars": 18
+      "stars": 23
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/UsefulSoftwareCo/executor",
+    "title": "Executor 2 beta",
+    "summary": "Lets agents call OpenAPI, MCP, GraphQL and custom JavaScript functions in a secure environment; built on Effect, MIT licensed.",
+    "date": "2026-11-05",
+    "repo": "UsefulSoftwareCo/executor",
+    "author": {
+      "github": "UsefulSoftwareCo",
+      "x": "RhysSullivan"
+    },
+    "source": "https://executor.sh",
+    "engagement": {
+      "stars": 4349
     }
   },
   {
@@ -28,7 +92,7 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117933990246232387",
     "engagement": {
-      "likes": 338,
+      "likes": 340,
       "participants": 15,
       "replies": 12
     },
@@ -86,9 +150,25 @@
       }
     ],
     "engagement": {
-      "likes": 64,
+      "likes": 66,
       "replies": 6,
       "participants": 7
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/smithersai/vibelang",
+    "title": "VibeLang alpha spec",
+    "summary": "A v0 language for writing Effect programs in TypeScript syntax, with typed errors and services the compiler checks; alpha spec final, release pending.",
+    "date": "2026-11-04",
+    "repo": "smithersai/vibelang",
+    "author": {
+      "github": "smithersai",
+      "x": "FUCORY"
+    },
+    "source": "https://vibelang.sh/spec",
+    "engagement": {
+      "stars": 19
     }
   },
   {
@@ -104,7 +184,7 @@
     },
     "source": "https://registry.npmjs.org/mutant-cafe",
     "engagement": {
-      "stars": 62
+      "stars": 64
     }
   },
   {
@@ -120,7 +200,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1866
+      "stars": 1881
     }
   },
   {
@@ -257,23 +337,7 @@
     },
     "source": "https://api.github.com/repos/Effect-TS/effect/releases",
     "engagement": {
-      "stars": 17488
-    }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.73",
-    "title": "xstate 6.0.0-alpha.73 and @xstate/effect 1.0.0-alpha.12",
-    "summary": "Child-to-parent events under createEffectActor keep send order; async logic resolving null reports null; public exports carry stability tags.",
-    "date": "2026-11-02",
-    "repo": "statelyai/xstate",
-    "author": {
-      "github": "statelyai",
-      "x": null
-    },
-    "source": "https://github.com/statelyai/xstate/releases",
-    "engagement": {
-      "stars": 30413
+      "stars": 17496
     }
   },
   {
@@ -353,7 +417,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1193
+      "stars": 1200
     }
   },
   {
@@ -430,7 +494,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 191
+      "stars": 232
     }
   },
   {
@@ -446,7 +510,7 @@
     },
     "source": "https://github.com/me-shaon/mailswitch",
     "engagement": {
-      "stars": 22
+      "stars": 23
     }
   },
   {
@@ -526,7 +590,7 @@
     },
     "source": "https://x.com/makisuo/status/2113769275194495324",
     "engagement": {
-      "likes": 129,
+      "likes": 128,
       "participants": 19,
       "replies": 19
     },
@@ -596,7 +660,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1193
+      "stars": 1200
     }
   },
   {
@@ -612,7 +676,7 @@
     },
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
-      "stars": 55
+      "stars": 56
     }
   },
   {
@@ -660,7 +724,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1945
+      "stars": 1946
     }
   },
   {
@@ -721,7 +785,7 @@
     },
     "source": "https://github.com/humanlayer/effect-channels",
     "engagement": {
-      "stars": 46
+      "stars": 47
     }
   },
   {
@@ -754,21 +818,5 @@
       "x": null
     },
     "source": "https://github.com/foldkit/foldkit/pull/1634"
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-06",
-    "kind": "video",
-    "repo": null,
-    "source": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
-    "summary": "Better Stack video on Effect 4.0's rewritten runtime, smaller bundles and faster task throughput.",
-    "title": "Effect 4.0 Just Got a Lot Harder to Ignore",
-    "url": "https://www.youtube.com/watch?v=OsL9EJWz9UY",
-    "engagement": {
-      "seen": 1
-    }
   }
 ]

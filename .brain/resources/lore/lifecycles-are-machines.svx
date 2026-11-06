@@ -39,6 +39,9 @@ An actor is a running unit that performs declared work.
 A side effect is work outside the state description, such as reading a file.
 A scope owns cleanup when that work ends.
 
+The stack pins XState `6.0.0-beta.1` and `@xstate/effect` `1.0.0-beta.0` together.
+The [migration note](https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/xstate-alpha69-migration.svx#beta1-and-bridge-beta0) records the beta API changes and persistence audit.
+
 `setupEffect` declares actors. `createEffectLogic` defines an Effect-backed side effect with an input schema. `createEffectActor` starts the machine inside Effect's scope.
 
 The machine chooses transitions and records its outcome. The invoked actor performs the file read.

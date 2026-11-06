@@ -11,8 +11,8 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
 - Effect `4.1.2` and `@effect/platform-node` `4.1.2`. Foldkit `0.170.0` peers on `effect ~4.1.0`, so no peer allowances or patches remain. Every Effect package resolves to one runtime. Crypto lives in `effect/crypto/*`: `SecureRandom` and `Digest` replace the removed `effect/Crypto`, and `NodeServices` no longer provides them.
-- XState `6.0.0-alpha.73` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `1.0.0-alpha.12` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
+- XState `6.0.0-beta.1` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `1.0.0-beta.0` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
 - Foldkit `0.170.0` with `@foldkit/ui` and `@foldkit/devtools` `0.170.0`, `@foldkit/markdown` `0.15.0`, and `@foldkit/vite-plugin` `0.29.0` for the web UI, server-rendered and prerendered by default
 - Alchemy `2.0.0-beta.85` with the `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql` providers (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo. `@alchemy.run/test` `2.0.0-beta.85` runs the Worker runtime tests
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.55.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
