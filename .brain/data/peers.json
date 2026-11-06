@@ -438,14 +438,14 @@
     "versions": {
       "effect": "—",
       "alchemy": "—",
-      "xstate": "6.0.0-alpha.69 (development and peer pin)",
+      "xstate": "6.0.0-beta.0 (development and peer pin)",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-27",
+    "checked": "2026-11-06",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "next",
-    "commit": "b72a4c86d9767d64f5ce4d4d7eb87cee1c78f905",
+    "commit": "cd6148c01d45a547bed9df5b7601e8a871f9a412",
     "sources": [
       {
         "label": "package.json",
@@ -854,18 +854,18 @@
   {
     "repo": "beep-effect/beep-effect",
     "tier": "A",
-    "reason": "Active Oct 27; scoped inspector and model-test bridge studied. Its catalogs now match our Effect, XState and bridge pins.",
+    "reason": "Active Nov 6; scoped inspector and model-test bridge studied. Catalogs match our Effect and Alchemy pins but retain XState and bridge alphas.",
     "versions": {
-      "effect": "4.0.6 (catalog)",
-      "alchemy": "—",
-      "xstate": "6.0.0-alpha.70 (catalog)",
-      "xstateEffect": "1.0.0-alpha.9 (catalog)"
+      "effect": "4.1.2 (catalog)",
+      "alchemy": "2.0.0-beta.85 (catalog)",
+      "xstate": "6.0.0-alpha.73 (catalog)",
+      "xstateEffect": "1.0.0-alpha.12 (catalog)"
     },
-    "checked": "2026-10-27",
+    "checked": "2026-11-06",
     "firstSeen": "2026-10-02",
     "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
-    "commit": "8c46952567aabbc4c003d8c7aba5795ff1934559",
+    "commit": "ff3970ddf0c0848d65830d60af080ad903ed4b6a",
     "sources": [
       {
         "label": "stable Effect and XState catalogs",
@@ -1994,18 +1994,18 @@
   {
     "repo": "cill-i-am/durable-pi",
     "tier": "A",
-    "reason": "Active Oct 26; studied local preparation cancellation and deadlines, plus its documented durable boundary on bridge alpha.8.",
+    "reason": "Active Nov 4; studied local preparation cancellation and deadlines, plus its documented durable boundary. Current manifest retains XState alpha.71 and bridge alpha.10.",
     "versions": {
-      "effect": "4.0.5",
-      "alchemy": "2.0.0-beta.83",
-      "xstate": "6.0.0-alpha.68",
-      "xstateEffect": "1.0.0-alpha.8"
+      "effect": "4.1.1",
+      "alchemy": "2.0.0-beta.84",
+      "xstate": "6.0.0-alpha.71",
+      "xstateEffect": "1.0.0-alpha.10"
     },
-    "checked": "2026-10-27",
+    "checked": "2026-11-06",
     "firstSeen": "2026-10-27",
     "studied": "[same-version-repos](same-version-repos#weekly-peers-oct-27)",
     "branch": "main",
-    "commit": "b426e6928b5d7fecf787d8e4eac9a9bfaa85e7f3",
+    "commit": "2b29c599e5b0683f605ac088a8727ba86f10c59c",
     "sources": [
       {
         "label": "docs/decisions/xstate-effect-state-machines.md",

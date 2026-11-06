@@ -54,7 +54,8 @@ sources:
 The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. [The fence](/lore/the-fence) explains the idea.
 Effect describes work with typed failures and required services. A service is a named interface for one job.
 
-XState defines state machines: named states and the events that permit movement between them.
+XState `6.0.0-beta.1` defines state machines: named states and the events that permit movement between them.
+`@xstate/effect` `1.0.0-beta.0` runs them as scoped Effects and supplies the compiled inline-Effect lint rule.
 These checks enforce it today:
 
 - Type-aware Oxlint runs Ultracite's core rules and the repo's plugins in `scripts/oxlint-plugin-*.ts`. The plugins cover boundaries, patterns, no comments, Effect tests, and XState with Effect. Vendored anti-slop rules also run. All use `error` severity in `oxlint.config.ts`.
