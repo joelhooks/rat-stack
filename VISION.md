@@ -24,7 +24,7 @@ Scope: `joelhooks/rat-stack`, the reference repo, and the shape a project inheri
 
 Audience: The agents that work from this reference, engineers who work through agents and want to trust what an agent built, and people watching the series who want the working code. This is not a support queue, compatibility promise, ghostwriting service, growth automation, thin npm init, or TypeScript tutorial dressed up as a template excited to go out on a Saturday night.
 
-Status: `ratstack.sh` is deployed. Effect 4 is stable. XState and `@xstate/effect` are pinned to alphas, and Alchemy to a beta, so their APIs can drift.
+Status: `ratstack.sh` is deployed. Effect 4 is stable. XState, `@xstate/effect`, and Alchemy are pinned to betas, so their APIs can drift.
 
 Some of it's still fuckin' pre-release. It's fine. Keep track 🙏
 

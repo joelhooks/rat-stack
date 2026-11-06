@@ -6,8 +6,8 @@ summary: Exact pins, upstream compatibility checks, and the source mirror choice
 # XState alpha.69 migration
 
 This page started at `xstate@6.0.0-alpha.69` and `@xstate/effect@1.0.0-alpha.8`.
-The current pins are `xstate@6.0.0-alpha.71` and `@xstate/effect@1.0.0-alpha.10`; see the alpha.71 section.
-Effect stays at `4.0.0`. The bridge peers accept Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
+The current pins are `xstate@6.0.0-beta.1` and `@xstate/effect@1.0.0-beta.0`; see the beta section.
+At alpha.69, Effect stayed at `4.0.0`. The bridge peers accepted Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
 
 ## Upstream changes
 
@@ -81,3 +81,37 @@ The bridge peers accept XState `^6.0.0-alpha.71`, Effect `^4.0.0`, and optional 
 The source mirror uses `xstate@6.0.0-alpha.71`; both release tags resolve to the same commit and match both package versions. Exact release-age exclusions move in place. Historical peer observations above retain their original versions.
 
 Consumers must move both pins, preserve Causes in invoked-child error handling, wrap synthetic Effect errors with `EffectFailure`, and rerun lifecycle tests. Do not turn defects or interruption into expected domain errors.
+
+## Beta.1 and bridge beta.0
+
+The 2026-11-06 update moves core from alpha.73 to beta.1 and the bridge from alpha.12 to beta.0.
+Effect stays at `4.1.2`. The bridge accepts Effect `^4.0.0`, XState `^6.0.0-beta.0`, and optional `@oxlint/plugins` `^1.76.0`.
+
+The release sequence contains core beta.0, core beta.1, and bridge beta.0, with no intervening alphas.
+
+- [Core beta.0](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.0) moves snapshot restoration to `restoreActor` from `xstate/persist`. `createActor` rejects `snapshot`, and `machine.restoreSnapshot` is removed.
+- Schema helpers become `snapshotSchema(machine)` from `xstate/persist` and `eventSchema(machine)` from `xstate`.
+- Leftover v5 configuration and unused actor options throw in every build. Suffixed v5 lifecycle-event keys also throw.
+- Macrosteps become unbounded by default. An explicit `maxIterations` still bounds them. Production diagnostics use short codes; error classes stay the same.
+- `self` gains machine actor-ref types. Delay functions receive the machine's emitted event type.
+- [Core beta.1](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1) rejects unknown literal targets in `setup().createMachine`, including transition-function returns.
+- [Bridge beta.0](https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%401.0.0-beta.0) announces beta. No further breaking changes are planned for APIs tagged `@public`; experimental APIs may change.
+
+### Repository impact
+
+No application or test restores XState snapshots or uses the removed schema-helper properties.
+There is no hand-written actor restore path to replace.
+Flags keep domain values and receipts in the ledger; deploy keeps apply, watch, and rollback receipts.
+Those stores do not restore actor snapshots, so this upgrade does not change their persistence guarantees.
+
+The bridge's `createEffectActor` remains the scoped machine runner. Its experimental snapshot option is separate from core `createActor`.
+Existing model tests exercise machine completion, failure, retries, and cancellation.
+No compatibility wrappers or new dependencies are needed.
+
+Registry checks verify SHA-512 integrity, provenance records, tarball paths, empty lifecycle scripts, and no runtime dependencies for both releases.
+Both exact release-age exclusions move in place. The source mirror selects `xstate@6.0.0-beta.1` and verifies both package versions.
+Historical peer observations retain their original versions; refreshed peer data records checked commits separately.
+
+Consumers must move both pins and rerun their lifecycle tests.
+Apps that restore core actor snapshots must use `restoreActor`, migrate schema helpers, and audit child restoration and timers.
+Audit v5 configuration and literal transition targets before upgrading.
