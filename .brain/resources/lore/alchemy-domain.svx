@@ -1,0 +1,75 @@
+---
+title: "Alchemy Domain models a business as commands, aggregates, and events"
+description: "Alchemy Domain is a domain-driven design framework for Effect whose one model runs in memory for tests and on Cloudflare Durable Objects in production."
+group: concept
+prerequisites: ["lore.infrastructure-as-effects"]
+plain: "Commands ask for a change. An aggregate decides it. Events record what happened. The same model runs in a test or on Cloudflare."
+terms:
+  - "Alchemy Domain"
+sources:
+  - url: https://alchemy.run/domain/
+    title: "Domain"
+    publisher: "Alchemy"
+    note: "What the package models, where it runs, and the bank account example."
+    accessed: "2026-11-06"
+  - url: https://alchemy.run/domain/cloudflare/
+    title: "Cloudflare Durable Objects"
+    publisher: "Alchemy"
+    note: "Hosting a model on Durable Objects behind a Worker."
+    accessed: "2026-11-06"
+  - url: https://alchemy.run/domain/story/
+    title: "Story"
+    publisher: "Alchemy"
+    note: "Given, when, then tests that run the real model in memory."
+    accessed: "2026-11-06"
+  - url: https://github.com/alchemy-run/alchemy/tree/d0b4a3326718309793459160e94b35abee517b23/packages/domain
+    title: "packages/domain at v2.0.0-beta.85"
+    publisher: "alchemy-run/alchemy"
+    note: "Source of @alchemy.run/domain at the Alchemy version rat-stack pins."
+    accessed: "2026-11-06"
+---
+
+Alchemy Domain is the `@alchemy.run/domain` package, shipped with [Alchemy](/skills/learn-alchemy) `2.0.0-beta.85`.
+The [Domain docs](https://alchemy.run/domain/) call it a domain-driven design framework for [Effect](/lore/effect-basics).
+It models a business in its own terms: commands, aggregates, events, views, projections, and policies.
+
+## Commands, aggregates, and events
+
+A command asks for a change.
+An aggregate decides whether the change happens, using its current state.
+An event records what happened.
+Views, projections, and policies then answer reads, feed other stores, and react to events.
+
+## The example: deposit money into an account
+
+The [Domain docs](https://alchemy.run/domain/) build a bank, and its first example deposits money into an account.
+
+The [`DepositMoney` command](https://github.com/alchemy-run/alchemy/blob/d0b4a3326718309793459160e94b35abee517b23/website/src/content/docs/domain/index.mdx#L32-L45) names its target, an account id.
+It takes an amount as input.
+
+It declares the one event it can record, `MoneyDeposited`, with the amount and the balance after.
+It declares the one way it can be refused, `NotOpen`.
+It replies with the new balance.
+
+The [account aggregate](https://github.com/alchemy-run/alchemy/blob/d0b4a3326718309793459160e94b35abee517b23/website/src/content/docs/domain/index.mdx#L49-L54) decides the command against the account's state.
+A closed account refuses it with `NotOpen`.
+An open account records `MoneyDeposited` with the balance plus the amount.
+
+A [story](https://github.com/alchemy-run/alchemy/blob/d0b4a3326718309793459160e94b35abee517b23/website/src/content/docs/domain/index.mdx#L58-L67) tests it in the business's own words.
+Given an account opened for an owner, when 100 is deposited, then `MoneyDeposited` records 100 with a balance of 100.
+The reply is a balance of 100.
+
+The links point at the docs page at the commit tagged `v2.0.0-beta.85`, so the example matches the version rat-stack pins.
+
+## One model, two places to run it
+
+The same model runs in memory for tests and on Cloudflare Durable Objects in production, with one ordered partition per key.
+[Story](https://alchemy.run/domain/story/) runs the real model in memory, so a story describes what the model does.
+On [Cloudflare](https://alchemy.run/domain/cloudflare/), every aggregate instance, view key, and policy gets its own Durable Object, and the app declares none of them.
+Swapping `DomainCloudflare.layerDurableObjects()` for `Domain.InMemory` changes nothing else in the program.
+
+## Where it meets rat-stack
+
+rat-stack pins Alchemy `2.0.0-beta.85`, the release that ships this package.
+rat-stack's own Workers do not run on Alchemy Domain yet.
+An optional `@alchemy.run/domain/Foldkit` [adapter](/lore/hexagonal-architecture) connects a Domain Api to a Foldkit app, as the [Foldkit chapter](https://github.com/alchemy-run/alchemy/blob/d0b4a3326718309793459160e94b35abee517b23/website/src/content/docs/domain/foldkit.mdx) describes.
