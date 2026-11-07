@@ -14,7 +14,7 @@ Follow [ship](/skills/ship) for the release procedure. This reference owns rat-s
 - `--expectSha <full sha>` names the commit you mean to ship. The driver refuses to plan or apply unless `HEAD` is that commit and the tree has no changes or untracked files. The verdict records the head it saw and the changed paths.
 - Run `pnpm turbo run check test build --concurrency=1` first.
 - Keep `pnpm site:smoke` until typed checks pass in production. `pnpm mischief:smoke` is an alias for one release.
-- Sandbox checks decode the execute diagnostic from the capability schema. HTTP 200 alone does not establish success. Timeout requires `TimeoutExceeded` and a null result. Network refusal requires `ExecutionFailure`, a refused-fetch message, and a null result. Consumers that parsed `SandboxError` response bodies must migrate to `diagnostic`.
+- Sandbox failure checks require HTTP 422 and decode `ExecuteError` from the capability schema. Timeout requires `kind: "TimeoutExceeded"`. Network refusal requires `kind: "ExecutionFailure"` and a refused-fetch message. Failure bodies include logs, tool calls, and truncation but no result. Successful programs return HTTP 200 without a `diagnostic` field. Consumers of the old success-envelope `diagnostic` field must migrate to the typed failure response.
 
 ## Authority
 

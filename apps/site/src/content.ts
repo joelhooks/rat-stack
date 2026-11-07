@@ -117,7 +117,7 @@ Use \`POST /api/execute\` or the MCP \`execute\` tool to call content capabiliti
 
 \`execute\` runs the \`code\` value as the body of an async function. \`return\` sets \`result\`, and \`console.log\` output appears in \`logs\`; imports, exports, and \`fetch\` are unavailable.
 
-HTTP 200 can contain an execution failure. Check \`diagnostic\` before \`result\`: success has a null diagnostic; failures have a typed diagnostic and a null result. Timeouts use \`TimeoutExceeded\`. Blocked fetch calls use \`ExecutionFailure\` with a refusal message. Consumers that parsed \`SandboxError\` bodies must switch to \`diagnostic\`.
+A successful program returns HTTP 200 with \`result\`, \`logs\`, \`toolCalls\`, and \`truncated\`. A failed program returns HTTP 422 with \`_tag: "ExecuteError"\`, \`kind\`, \`message\`, optional \`tag\`, and the same logs, call history, and truncation fields. Failures have no \`result\`. Timeouts use \`TimeoutExceeded\`. Blocked fetch calls use \`ExecutionFailure\` with a refusal message. MCP reports a tool error; CLI exits non-zero; RPC returns the typed failure. Consumers of the old \`diagnostic\` field must use the failure response instead.
 
 \`\`\`js
 const found = await tools.search({ query: "cartridges", limit: 1 });
@@ -129,7 +129,7 @@ return { title: page.title, id: page.id };
 curl --request POST '${origin}/api/execute' \\
   --header 'content-type: application/json' \\
   --data '{"code":"return 1 + 1"}'
-# {"diagnostic":null,"logs":[],"result":2,"toolCalls":[],"truncated":false}
+# {"logs":[],"result":2,"toolCalls":[],"truncated":false}
 \`\`\`
 
 ${agentNextActions(origin, tokenmaxxTitle)}

@@ -301,14 +301,17 @@ describe("devtools", () => {
       });
 
       return Effect.gen(function* recordsCodeModeDuration() {
-        const result = yield* projection.capability.handler({
-          code: "observed program",
-        });
+        const result = yield* projection.capability
+          .handler({
+            code: "observed program",
+          })
+          .pipe(Effect.flip);
 
         const { entries } = yield* (yield* CallLog).snapshot;
 
         expect(result).toMatchObject({
-          diagnostic: { kind: "ToolFailure", tag: "NotFound" },
+          kind: "ToolFailure",
+          tag: "NotFound",
           toolCalls: ["timed", "lookup"],
         });
         expect(
@@ -320,7 +323,7 @@ describe("devtools", () => {
         ).toEqual([
           ["timed", 25, "Succeeded"],
           ["lookup", 0, "Failed"],
-          ["execute", 25, "Succeeded"],
+          ["execute", 25, "Failed"],
         ]);
       }).pipe(Effect.provide(Layer.merge(withLog(), sandbox)));
     }

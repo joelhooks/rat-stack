@@ -1,78 +1,87 @@
 import { expect } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 
+import { ExecuteError } from "../../src/execute-error.js";
 import type { ExecuteResult } from "../../src/to-code-mode.js";
 
-export const checkSandboxConformance = <R>(
-  execute: (code: string) => Effect.Effect<typeof ExecuteResult.Type, never, R>
-) =>
+type Execute<R, E> = (
+  code: string
+) => Effect.Effect<typeof ExecuteResult.Type, E, R>;
+
+export const checkSandboxConformance = <R, E>(execute: Execute<R, E>) =>
   Effect.gen(function* sandboxConformance() {
     const success = yield* execute(
       'console.log("start"); return await tools.probe({ value: 7 });'
     );
 
     expect(success).toMatchObject({
-      diagnostic: null,
       logs: ["log: start"],
       result: 7,
       toolCalls: ["probe"],
     });
+    expect(success).not.toHaveProperty("diagnostic");
 
     const failure = yield* execute(
       "await tools.probe({ value: 1 }); return await tools.probe({ value: 2, fail: true });"
-    );
+    ).pipe(Effect.flip);
 
     expect(failure).toMatchObject({
-      diagnostic: {
-        kind: "ToolFailure",
-        message: "The storage statement budget is exhausted",
-        tag: "StorageBudgetExceeded",
-      },
-      result: null,
+      kind: "ToolFailure",
+      message: "The storage statement budget is exhausted",
+      tag: "StorageBudgetExceeded",
       toolCalls: ["probe", "probe"],
     });
 
     const invalid = yield* execute(
       'return await tools.probe({ value: "private-input" });'
-    );
+    ).pipe(Effect.flip);
 
     expect(invalid).toMatchObject({
-      diagnostic: { kind: "InvalidToolInput", tag: "InvalidInput" },
-      result: null,
+      kind: "InvalidToolInput",
+      tag: "InvalidInput",
       toolCalls: ["probe"],
     });
-    expect(invalid.diagnostic?.message).not.toContain("private-input");
+
+    const invalidError =
+      yield* Schema.decodeUnknownEffect(ExecuteError)(invalid);
+
+    expect(invalidError.message).not.toContain("private-input");
 
     const program = yield* execute(
       'await tools.probe({ value: 1 }); console.log("before"); throw new Error("program failure");'
-    );
+    ).pipe(Effect.flip);
 
     expect(program).toMatchObject({
-      diagnostic: { kind: "ExecutionFailure", message: "program failure" },
+      kind: "ExecutionFailure",
       logs: ["log: before"],
-      result: null,
+      message: "program failure",
       toolCalls: ["probe"],
     });
 
-    const parse = yield* execute("return (");
+    const parse = yield* execute("return (").pipe(Effect.flip);
     expect(parse).toMatchObject({
-      diagnostic: { kind: "ParseError" },
-      result: null,
+      kind: "ParseError",
+      toolCalls: [],
+    });
+
+    const network = yield* execute(
+      'return await fetch("https://example.com");'
+    ).pipe(Effect.flip);
+
+    expect(network).toMatchObject({
+      kind: "ExecutionFailure",
       toolCalls: [],
     });
   });
 
-export const checkSandboxLimits = <R>(
-  execute: (code: string) => Effect.Effect<typeof ExecuteResult.Type, never, R>
-) =>
+export const checkSandboxLimits = <R, E>(execute: Execute<R, E>) =>
   Effect.gen(function* sandboxLimitConformance() {
     const calls = yield* execute(
       "await tools.probe({ value: 1 }); await tools.probe({ value: 2 }); return await tools.probe({ value: 3 });"
-    );
+    ).pipe(Effect.flip);
 
     expect(calls).toMatchObject({
-      diagnostic: { kind: "ToolCallLimitExceeded" },
-      result: null,
+      kind: "ToolCallLimitExceeded",
       toolCalls: ["probe", "probe"],
     });
 
@@ -90,26 +99,23 @@ export const checkSandboxLimits = <R>(
 
     expect(contentBytes).toBeLessThanOrEqual(128);
     expect(output).toMatchObject({
-      diagnostic: null,
       toolCalls: [],
       truncated: true,
     });
 
     const failure = yield* execute(
       'console.log("before".repeat(100)); return await tools.probe({ value: 1, fail: true });'
-    );
+    ).pipe(Effect.flip);
 
     expect(failure).toMatchObject({
-      diagnostic: { kind: "ToolFailure", tag: "StorageBudgetExceeded" },
-      result: null,
+      kind: "ToolFailure",
+      tag: "StorageBudgetExceeded",
       toolCalls: ["probe"],
       truncated: true,
     });
   });
 
-export const checkSandboxConcurrency = <R>(
-  execute: (code: string) => Effect.Effect<typeof ExecuteResult.Type, never, R>
-) =>
+export const checkSandboxConcurrency = <R, E>(execute: Execute<R, E>) =>
   Effect.gen(function* sandboxConcurrencyConformance() {
     yield* execute("return await tools.probeMetrics({ reset: true });");
 
@@ -118,7 +124,6 @@ export const checkSandboxConcurrency = <R>(
     );
 
     expect(parallel).toMatchObject({
-      diagnostic: null,
       result: Array.from({ length: 24 }, (_, value) => value),
       toolCalls: Array.from({ length: 24 }, () => "probe"),
     });
