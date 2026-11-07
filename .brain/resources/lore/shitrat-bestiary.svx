@@ -1,0 +1,136 @@
+---
+title: "The rat-stack bestiary eats excuses"
+description: "A field guide to eight documented rat-stack creatures, with real habitats, enforceable behaviour, and strictly imaginary temperaments."
+group: idea
+prerequisites: ["lore.shitrat", "lore.the-fence"]
+plain: "The checks and procedures are real. Their teeth, diets, moods, and tiny accessories are legend."
+terms:
+  - "ShitRat bestiary"
+  - "doc-fence"
+  - "Git snapshot"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/AGENTS.md
+    title: "Repo law at 81e9a31"
+    publisher: "rat-stack"
+    note: "The fence, comment policy, gardener rule, and required validation."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/gardener/SKILL.md
+    title: "Gardener"
+    publisher: "rat-stack"
+    note: "Write and break the rule before cleanup; baselines only shrink."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/write-a-wiki-page/SKILL.md
+    title: "Write a wiki page"
+    publisher: "rat-stack"
+    note: "Published TypeScript examples, pinned references, explicit opt-outs, and their shrinking baseline."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/STARTUP.md
+    title: "Startup budget"
+    publisher: "rat-stack"
+    note: "Static startup set, shared-module counting, Mischief ceiling, and total-upload warning."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/commit/246600bd53978883a6a4c1f5a6ff45e3f1ff2f0c
+    title: "Move apps/mischief to apps/site"
+    publisher: "rat-stack"
+    note: "Mechanical directory and package rename; resource IDs, Worker names and symbols remain unchanged."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/scripts/git-snapshot.ts
+    title: "Git snapshot implementation"
+    publisher: "rat-stack"
+    note: "Stored Git query results, source fingerprints, and stale-snapshot failures."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/keep-or-cut/SKILL.md
+    title: "Keep or cut"
+    publisher: "rat-stack"
+    note: "Deletion recipes, import checks, and the dependency from code mode to MCP."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](/lore/shitrat)'s field guide keeps two labels on each specimen.
+**Habitat** points to its real rule or implementation.
+**Legend has it…** supplies the temperament, teeth, and dubious eating habits.
+
+## The fence
+
+**Habitat:** [the fence](/lore/the-fence), with checks in `oxlint.config.ts` and hooks in `lefthook.yml`.
+It uses compiler checks, lint, tests, and hooks to enforce repo rules.
+It rejects prohibited shortcuts; the [reference page](/lore/the-fence) also documents limits to what lint can prove.
+
+**Legend has it…** the fence is a kelpie made of semicolons.
+It cannot understand your startup pitch.
+It can smell “just this once” through a closed laptop.
+
+## The comment ban
+
+**Habitat:** [No comments](/lore/no-comments), enforced by `scripts/oxlint-plugin-no-comments.ts`.
+Prose comments are banned because agents copy explanations of workarounds.
+The [policy](/lore/no-comments) keeps reasoned tool directives, safety invariants, and JavaScript type tags.
+
+**Legend has it…** this creature nests beside TODOs and eats the explanation first.
+If the workaround survives, it comes back for you.
+It has never once accepted “self-documenting” as a snack.
+
+## The gardener
+
+**Habitat:** [Gardener](/skills/gardener), in `skills/gardener/SKILL.md`.
+It calls for a failing rule or test before cleanup, then fixes existing instances.
+The [procedure](/skills/gardener#4-remove-prohibited-patterns) also requires breaking the rule once to check the test, and keeps baselines shrink-only.
+
+**Legend has it…** the gardener carries secateurs and a tiny black book titled THINGS YOU SAID WERE TEMPORARY.
+The book has wheels now.
+
+## The doc-fence
+
+A doc-fence is a published TypeScript code block that the content build checks.
+**Habitat:** [the wiki authoring rules](/skills/write-a-wiki-page#4-quote-code-from-its-source), backed by `apps/site/scripts/doc-fences.ts`.
+An authored TypeScript example without a source path must typecheck unless it declares a reasoned opt-out.
+The [opt-out count](/lore/code-snippets#the-authoring-syntax) lives in `.brain/data/doc-fence-baseline.json` and only shrinks.
+
+**Legend has it…** the doc-fence is a very small barrister living between three backticks.
+It has cross-examined your illustrative snippet.
+Your illustrative snippet has requested a solicitor.
+
+## The startup ceiling
+
+**Habitat:** [`apps/site/STARTUP.md`](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/STARTUP.md).
+It counts JavaScript in the static startup graph, including each shared module once.
+At this revision, Mischief's shrink-only ceiling is **1,114,000 bytes**.
+A [total upload above 2,500,000 bytes](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/STARTUP.md) warns; that measurement does not itself fail the size gate.
+
+**Legend has it…** the ceiling is a python that swallowed a tape measure.
+It knows exactly how large your “small helper” is.
+Do not offer it a larger building.
+
+## Mischief
+
+**Habitat:** [the site's Worker](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/src/worker.ts), in `apps/site/src/worker.ts`.
+The [rename commit](https://github.com/joelhooks/rat-stack/commit/246600bd53978883a6a4c1f5a6ff45e3f1ff2f0c) moves `apps/mischief` to `apps/site` and renames the package to `@rat-stack/site`.
+Worker names, resource IDs, and TypeScript symbols retain their names.
+Mischief therefore survives the directory rename.
+
+**Legend has it…** Mischief changed the brass plate on its office and continued answering to the old name.
+The forwarding address is a technicality.
+The rat inside is still eating the stationery.
+
+## The Git snapshot
+
+The Git snapshot is the content build's stored Git query results and source fingerprints.
+**Habitat:** [`apps/site/scripts/git-snapshot.ts`](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/scripts/git-snapshot.ts), with data in `.brain/data/git-snapshot.json`.
+Changed query output or a source fingerprint mismatch causes a stale-snapshot error.
+[The snapshot dance](/lore/shitrat-rituals#the-snapshot-dance) gives the repair sequence.
+
+**Legend has it…** the snapshot is a possum holding yesterday's newspaper.
+You may have changed the world.
+It would like you to update the bloody newspaper.
+
+## Keep or cut
+
+**Habitat:** [Keep or cut](/skills/keep-or-cut), in `skills/keep-or-cut/SKILL.md`.
+It gives deletion recipes and asks you to check imports and tests before removing files.
+One [dependency it names](/skills/keep-or-cut#cut-mcp): cutting [MCP](/lore/mcp-is-another-surface) also cuts [code mode](/lore/one-program-can-replace-several-tool-calls), which imports its toolkit code.
+
+**Legend has it…** Keep or cut is a wheelie bin with excellent taste.
+It has heard that you might need this someday.
+It has opened its lid.
+
+Learn [the rituals](/lore/shitrat-rituals), visit [the letterbox](/lore/shitrat-rat-king), or return to [the hub](/lore/shitrat).

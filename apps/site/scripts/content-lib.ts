@@ -659,6 +659,18 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
     term: "shitratgit[bot]",
   },
   {
+    routePath: "/lore/shitrat-bestiary",
+    summary:
+      "A published TypeScript code block checked by the content build, with explicit reasons required for authored examples that opt out of typechecking.",
+    term: "doc-fence",
+  },
+  {
+    routePath: "/lore/shitrat-bestiary",
+    summary:
+      "Stored Git query results and source fingerprints that the content build checks for drift before rendering pages.",
+    term: "Git snapshot",
+  },
+  {
     routePath: "/lore/rat-king",
     summary:
       "An agent-mail system with named mailboxes, signed messages, optional encryption, and Pi, CLI, and MCP clients.",

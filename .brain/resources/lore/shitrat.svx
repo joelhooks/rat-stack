@@ -33,6 +33,9 @@ The [public log](https://shitrat.ai/log/) records what happened, what it cost, a
 - [Character and creed](/lore/shitrat-creed): the rules, the dislikes, and the forbidden robust solution.
 - [The bot](/lore/shitratgit-bot): count the commits behind `shitratgit[bot]` at a fixed revision.
 - [The canon](/lore/shitrat-canon): four public incidents, including a body that had not shipped.
+- [A name with a mailbox](/lore/shitrat-rat-king): the postal rules are real; the high-vis vest is legend.
+- [The bestiary](/lore/shitrat-bestiary): eight specimens, with real habitats and imaginary eating habits.
+- [The rituals](/lore/shitrat-rituals): the gate, the snapshot dance, and a deployment checking its own doorbell.
 
 ## Nearby rats and rules
 
