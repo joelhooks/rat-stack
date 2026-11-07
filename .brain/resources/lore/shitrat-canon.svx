@@ -69,6 +69,7 @@ The [origin page](/lore/shitrat-origin) follows that house story in full.
 
 ## Keep the receipt attached
 
+The [war stories](/lore/shitrat-war-stories) collect seven repo-side incidents from public PRs and commits.
 The [creed](/lore/shitrat-creed) records the rules behind these stories.
 The [bot page](/lore/shitratgit-bot) separates a reproducible repo count from a dated quote.
 Return to [the hub](/lore/shitrat) for the full set.
