@@ -236,7 +236,7 @@ it.effect(
 );
 
 it.effect(
-  "two failing cycles stop early and retain first incident and bounded body",
+  "a real HTTP failure stops after one cycle and retains first incident and bounded body",
   () =>
     Effect.gen(function* testWatch() {
       const requests: { readonly accept: string; readonly path: string }[] = [];
@@ -259,8 +259,8 @@ it.effect(
       expect(result._tag).toBe("Failure");
 
       if (Result.isFailure(result)) {
-        expect(result.failure.reason).toBe("consecutive-content-500-cycles");
-        expect(result.failure.evidence.cycles).toBe(2);
+        expect(result.failure.reason).toBe("non-200-or-incomplete-watch");
+        expect(result.failure.evidence.cycles).toBe(1);
 
         const failure = result.failure.evidence.observations.find(
           (row) => row.status === 500
@@ -271,7 +271,7 @@ it.effect(
         expect(failure?.body).toHaveLength(4096);
       }
 
-      expect(requests.filter((row) => row.path === "/")).toHaveLength(4);
+      expect(requests.filter((row) => row.path === "/")).toHaveLength(2);
       expect(new Set(requests.map((row) => row.accept))).toStrictEqual(
         new Set(["application/xml", "*/*", "text/html"])
       );

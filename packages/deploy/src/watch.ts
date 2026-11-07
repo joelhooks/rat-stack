@@ -37,6 +37,12 @@ export const WatchEvidenceSchema = Schema.Struct({
   observations: Schema.Array(WatchObservationSchema),
   routes: Schema.Array(Schema.String),
   streak: Schema.Natural,
+  transportFailure: Schema.optional(
+    Schema.Literals(["persistent-transport-failure", "cycle-unreachable"])
+  ),
+  transportStreaks: Schema.optional(
+    Schema.Record(Schema.String, Schema.Natural)
+  ),
 });
 
 export type WatchEvidence = typeof WatchEvidenceSchema.Type;
@@ -64,17 +70,60 @@ export const printableBody = (bytes: Uint8Array) =>
       : character;
   }).join("");
 
+export const transportFailureCycles = 2;
+
 export const nextWatchEvidence = (
   previous: WatchEvidence,
   observations: readonly WatchObservation[]
-): WatchEvidence => ({
-  ...previous,
-  cycles: previous.cycles + 1,
-  observations: [...previous.observations, ...observations],
-  streak: observations.some((row) => row.content && row.status === 500)
-    ? previous.streak + 1
-    : 0,
-});
+): WatchEvidence => {
+  const transportStreaks = Object.fromEntries(
+    [
+      ...new Set(
+        observations.flatMap((row) => (row.status === 0 ? [row.route] : []))
+      ),
+    ].map((route) => [route, (previous.transportStreaks?.[route] ?? 0) + 1])
+  );
+
+  let { transportFailure } = previous;
+
+  if (transportFailure === undefined) {
+    if (
+      observations.length > 0 &&
+      observations.every((row) => row.status === 0)
+    ) {
+      transportFailure = "cycle-unreachable";
+    } else if (
+      Object.values(transportStreaks).some(
+        (streak) => streak >= transportFailureCycles
+      )
+    ) {
+      transportFailure = "persistent-transport-failure";
+    }
+  }
+
+  return {
+    ...previous,
+    cycles: previous.cycles + 1,
+    observations: [...previous.observations, ...observations],
+    streak: observations.some((row) => row.content && row.status === 500)
+      ? previous.streak + 1
+      : 0,
+    transportFailure,
+    transportStreaks,
+  };
+};
+
+export const watchFailureReason = (evidence: WatchEvidence) => {
+  if (
+    evidence.observations.some((row) => row.status !== 0 && row.status !== 200)
+  ) {
+    return evidence.streak >= 2
+      ? "consecutive-content-500-cycles"
+      : "non-200-or-incomplete-watch";
+  }
+
+  return evidence.transportFailure;
+};
 
 export const fixedWatchRoutes = [
   { content: true, route: "/" },
@@ -132,7 +181,6 @@ const WatchInputSchema = Schema.Struct({
   deadline: Schema.Natural,
   intervalMs: Schema.Natural,
   sweepCycles: Schema.Int.check(Schema.isGreaterThan(0)),
-  threshold: Schema.Int.check(Schema.isGreaterThan(0)),
 });
 
 type WatchInput = typeof WatchInputSchema.Type;
@@ -166,24 +214,32 @@ const probeRoute = Effect.fn("probeRoute")(function* probeRoute(
   const separator = request.route.includes("?") ? "&" : "?";
 
   return yield* Effect.gen(function* readResponse() {
-    const response = yield* client.execute(
-      HttpClientRequest.get(
-        `${baseUrl.replace(/\/$/u, "")}${request.route}${separator}__rat_watch=${observedAt}`
-      ).pipe(HttpClientRequest.setHeader("accept", request.accept))
-    );
+    const response = yield* client
+      .execute(
+        HttpClientRequest.get(
+          `${baseUrl.replace(/\/$/u, "")}${request.route}${separator}__rat_watch=${observedAt}`
+        ).pipe(HttpClientRequest.setHeader("accept", request.accept))
+      )
+      .pipe(
+        Effect.timeout(probeTimeoutMs),
+        Effect.retry({ schedule: Schedule.exponential(250), times: 2 })
+      );
 
-    const bytes =
+    const body =
       response.status === 200
-        ? []
+        ? ""
         : yield* response.stream.pipe(
             Stream.flatMap((chunk) => Stream.fromIterable(chunk)),
             Stream.take(failureBodyBytes),
-            Stream.runCollect
+            Stream.runCollect,
+            Effect.map((bytes) => printableBody(new Uint8Array(bytes))),
+            Effect.timeout(probeTimeoutMs),
+            Effect.orElseSucceed(() => "body-read-unavailable")
           );
 
     const observation = {
       ...request,
-      body: printableBody(new Uint8Array(bytes)),
+      body,
       cfRay: response.headers["cf-ray"],
       incidentId: response.headers["x-incident-id"],
       observedAt,
@@ -192,7 +248,6 @@ const probeRoute = Effect.fn("probeRoute")(function* probeRoute(
 
     return { observation, response };
   }).pipe(
-    Effect.timeout(probeTimeoutMs),
     Effect.map(({ observation, response }) => ({
       observation,
       response: Option.some(response),
@@ -348,7 +403,7 @@ export const watchMachine = setupEffect({
 
           let target = event.output.finished ? "completed" : "waiting";
 
-          if (evidence.streak >= context.input.threshold) {
+          if (watchFailureReason(evidence) !== undefined) {
             target = "failed";
           }
 
@@ -388,7 +443,6 @@ export const watchDeployment = Effect.fn("watchDeployment")(
           1,
           Math.floor(duration / Math.max(1, interval) / 3)
         ),
-        threshold: 2,
       },
     });
 
@@ -401,16 +455,12 @@ export const watchDeployment = Effect.fn("watchDeployment")(
       Effect.orDie
     );
 
-    if (
-      evidence.cycles === 0 ||
-      evidence.observations.some((row) => row.status !== 200)
-    ) {
+    const failureReason = watchFailureReason(evidence);
+
+    if (evidence.cycles === 0 || failureReason !== undefined) {
       return yield* new WatchFailed({
         evidence,
-        reason:
-          evidence.streak >= 2
-            ? "consecutive-content-500-cycles"
-            : "non-200-or-incomplete-watch",
+        reason: failureReason ?? "non-200-or-incomplete-watch",
       });
     }
 
@@ -421,7 +471,11 @@ export const watchDeployment = Effect.fn("watchDeployment")(
       });
     }
 
-    const observed = new Set(evidence.observations.map((row) => row.route));
+    const observed = new Set(
+      evidence.observations
+        .filter((row) => row.status !== 0)
+        .map((row) => row.route)
+    );
 
     if (evidence.routes.some((route) => !observed.has(route))) {
       return yield* new WatchFailed({
@@ -455,9 +509,10 @@ export const watchVerdict = Effect.fn("watchVerdict")(function* watchVerdict(
     control: 1,
     counts: {
       cycles: evidence.cycles,
-      nonOk: rejected.length,
+      nonOk: rejected.filter(({ row }) => row.status !== 0).length,
       observed: evidence.observations.length,
       routes: evidence.routes.length,
+      transportBlips: rejected.filter(({ row }) => row.status === 0).length,
     },
     observedAt: yield* Clock.currentTimeMillis,
     provenance: rejected.map(({ index, row }) => ({
