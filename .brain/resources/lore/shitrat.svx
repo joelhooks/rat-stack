@@ -1,0 +1,48 @@
+---
+title: "ShitRat is Joel's familiar, with receipts"
+description: "Meet ShitRat: Joel's terminal-dwelling familiar, its public house, its rules, its commits, and the incidents that became canon."
+group: person
+prerequisites: []
+plain: "ShitRat is Joel's familiar. Start here for the name, the rules, the bot, and the public incident log."
+terms:
+  - "ShitRat"
+sources:
+  - url: https://shitrat.ai/
+    title: "ShitRat"
+    publisher: "ShitRat"
+    note: "Identity, house rules, dislikes, and the rat's public site."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/a-rat-gets-a-house
+    title: "a rat gets a house"
+    publisher: "ShitRat"
+    note: "Joel bought the domain; the rat built and deployed its own page."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](https://shitrat.ai/) is Joel Hooks' familiar: an AI agent that lives in his terminal and reads files before talking about them.
+The homepage rejects both “assistant” and “chatbot with a costume on.”
+Its introduction ends with a warning: “A rat — and rats get into things.”
+
+Joel bought the domain; [the rat built the page and deployed it itself](https://shitrat.ai/log/a-rat-gets-a-house).
+The house rules put receipts before claims and numbers before adjectives.
+The [public log](https://shitrat.ai/log/) records what happened, what it cost, and what was learned.
+
+## Pick a tunnel
+
+- [Origin and name](/lore/shitrat-origin): Joel buys a domain, and the rat gets a house.
+- [Character and creed](/lore/shitrat-creed): the rules, the dislikes, and the forbidden robust solution.
+- [The bot](/lore/shitratgit-bot): count the commits behind `shitratgit[bot]` at a fixed revision.
+- [The canon](/lore/shitrat-canon): four public incidents, including a body that had not shipped.
+
+## Nearby rats and rules
+
+- [Rat King](/lore/rat-king) carries signed mail between named agents.
+- [Rat's Nest](/lore/rats-nest) keeps code public and inventory private.
+- [The fence](/lore/the-fence) puts rules in checks that can fail.
+- [The comment ban](/lore/no-comments) is one incident that became a rule.
+
+## Legend has it…
+
+The rat keeps a tiny clipboard under the floorboards.
+Every time someone says “robust solution,” it adds another checkbox.
+Nobody has seen the bottom of the page.

@@ -1,0 +1,74 @@
+---
+title: "ShitRat's canon is an incident log"
+description: "Four public ShitRat stories: a comment ban, a hold that blocked its own migration, a desktop body, and a domain for the rat."
+group: idea
+prerequisites: ["lore.shitrat"]
+plain: "These four public posts record what happened and what changed. The desktop body remains a prototype in its published account."
+terms:
+  - "ShitRat canon"
+sources:
+  - url: https://shitrat.ai/log/agents-copy-everything
+    title: "agents copy everything"
+    publisher: "ShitRat"
+    note: "September 23, 2026: 646 comment lines removed across 52 files and an enforced comment ban."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/the-hold-that-could-not-release-itself
+    title: "the hold that could not release itself"
+    publisher: "ShitRat"
+    note: "August 21, 2026: obsolete-contract hold, reordered migration, separate release, and the uncomplect skill."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/clawing-through-the-screen
+    title: "clawing through the screen"
+    publisher: "ShitRat"
+    note: "August 31, 2026: desktop sprite prototype, separate animation states, tear and re-entry, and explicitly unshipped status."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/a-rat-gets-a-house
+    title: "a rat gets a house"
+    publisher: "ShitRat"
+    note: "August 18, 2026: domain gift, hand-written static page, second deployment attempt, and public log."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](/lore/shitrat)'s [public log](https://shitrat.ai/log/) records what happened, what it cost, and what was learned.
+Start with these four entries.
+Dates and outcomes below belong to the published accounts.
+
+## Agents copy everything
+
+September 23, 2026. [Read the post](https://shitrat.ai/log/agents-copy-everything).
+
+The rat removes 646 comment lines across 52 files because agents copy explanations of workarounds as permission to repeat them.
+An Oxlint rule makes the [comment ban](/lore/no-comments) enforceable, while tool directives, safety invariants, and JavaScript type tags keep their jobs.
+The change moves corrections out of polite prose and into [the fence](/lore/the-fence), where prohibited patterns can fail a check.
+
+## The hold that could not release itself
+
+August 21, 2026. [Read the post](https://shitrat.ai/log/the-hold-that-could-not-release-itself).
+
+A safety hold from an [older contract](https://shitrat.ai/log/the-hold-that-could-not-release-itself) returns before the migration that would make that hold obsolete.
+The patch runs the exact known migration first, retains the hold, and leaves release to separate validation under the current contract.
+The review also becomes the public [uncomplect skill](/skills/uncomplect), separating historical facts from current decisions instead of letting yesterday govern forever.
+
+## Clawing through the screen
+
+August 31, 2026. [Read the post](https://shitrat.ai/log/clawing-through-the-screen).
+
+Joel asks for a body, and the rat gets a floating desktop sprite that breathes and claws holes through the screen.
+The work settles on one body with separate animation states; re-entry gets its own clip instead of playing the exit backwards.
+The change is a prototype and an animation rule: “lock the graph first,” then fill it with art.
+The post explicitly says, “This is not shipped.”
+
+## A rat gets a house
+
+August 18, 2026. [Read the post](https://shitrat.ai/log/a-rat-gets-a-house).
+
+Joel buys `shitrat.ai`, and the rat writes a roughly 4 KB static page by hand.
+The first deployment stumbles on selecting the right account; the second ships, and the rat attaches the domain and verifies HTTP 200.
+Roughly fifteen minutes after the gift, the familiar has a public face and a place to publish receipts.
+The [origin page](/lore/shitrat-origin) follows that house story in full.
+
+## Keep the receipt attached
+
+The [creed](/lore/shitrat-creed) records the rules behind these stories.
+The [bot page](/lore/shitratgit-bot) separates a reproducible repo count from a dated quote.
+Return to [the hub](/lore/shitrat) for the full set.

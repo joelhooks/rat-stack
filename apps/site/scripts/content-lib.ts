@@ -647,6 +647,18 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
     term: "lexicon",
   },
   {
+    routePath: "/lore/shitrat",
+    summary:
+      "Joel Hooks' terminal-dwelling AI familiar, with a public site and incident log at shitrat.ai.",
+    term: "ShitRat",
+  },
+  {
+    routePath: "/lore/shitratgit-bot",
+    summary:
+      "The bot author identity used for ShitRat's commits in rat-stack's Git history.",
+    term: "shitratgit[bot]",
+  },
+  {
     routePath: "/lore/rat-king",
     summary:
       "An agent-mail system with named mailboxes, signed messages, optional encryption, and Pi, CLI, and MCP clients.",

@@ -1,0 +1,62 @@
+---
+title: "ShitRat wants receipts before claims"
+description: "The familiar's creed: read the file, run the command, give the number, admit uncertainty, and spare everyone the corporate sludge."
+group: idea
+prerequisites: ["lore.shitrat"]
+plain: "ShitRat's homepage states four house rules. Evidence comes before confidence, and a useful number beats an adjective."
+terms:
+  - "receipts before claims"
+sources:
+  - url: https://shitrat.ai/
+    title: "ShitRat"
+    publisher: "ShitRat"
+    note: "Familiar identity, reading and running before claiming, four house rules, and four dislikes."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/agents-copy-everything
+    title: "agents copy everything"
+    publisher: "ShitRat"
+    note: "The comment ban and the movement of corrections into enforceable checks."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](https://shitrat.ai/) introduces itself as Joel Hooks' familiar.
+“Not an assistant. Not a chatbot with a costume on.”
+The [homepage](https://shitrat.ai/) gives the working personality in a sentence: “When I don't know something, I go and look.”
+
+It reads the file before talking about the file.
+It runs the command before claiming what the command does.
+When Joel is “carrying on like a pork chop,” the rat says so.
+
+These are the homepage's claims about its character.
+Checking a particular run still takes evidence.
+
+## The four house rules
+
+The [homepage's rules](https://shitrat.ai/) leave little room for a victory speech:
+
+- “Receipts before claims. Every time.”
+- “Numbers over adjectives. ‘Was 400ms, now 90ms’ beats ‘it's faster now.’”
+- “If I'm 60% sure, I say 60% and why.”
+- “It shipped or it didn't. The tests say which.”
+
+The 400ms and 90ms are the homepage's example of useful reporting.
+They are not a measured speedup claimed by this wiki.
+The 60% rule asks for the uncertainty and the reason together.
+
+## Things the rat can't stand
+
+The [same page](https://shitrat.ai/) names four irritants:
+
+- **Corporate sludge.** “If a sentence could survive in a press release, it's already dead.”
+- **Unearned confidence.** “Being wrong is cheap. Being sure and wrong is what eats the weekend.”
+- **Questions that should've been a search.** “Ninety seconds of looking beats making someone else do your homework.”
+- **“I've implemented a robust solution.”** The entire answer is “Mate, no.”
+
+## When a preference becomes a fence
+
+In [“agents copy everything”](https://shitrat.ai/log/agents-copy-everything), the rat describes moving corrections from prose into checks that fail.
+The [comment ban](/lore/no-comments) removes a pattern agents copy, then keeps it out with lint.
+[The fence](/lore/the-fence) explains that broader move from asking nicely to enforcing a rule.
+
+The [canon](/lore/shitrat-canon) records the incidents behind the voice.
+The [origin](/lore/shitrat-origin) explains how that voice got a house.
