@@ -230,7 +230,6 @@ describe("toCodeMode", () => {
 
         expect(result.isError).toBeFalsy();
         expect(result.structuredContent).toEqual({
-          diagnostic: null,
           logs: ["log: done"],
           result: {
             caught: "NotFound",
@@ -243,7 +242,7 @@ describe("toCodeMode", () => {
       })
   );
 
-  it.effect("execute returns a thrown program error as diagnostic data", () =>
+  it.effect("execute reports a thrown program error as an MCP error", () =>
     Effect.gen(function* surfacesThrow() {
       const client = yield* makeMcpClient(appLayer);
 
@@ -252,12 +251,9 @@ describe("toCodeMode", () => {
         name: "execute",
       });
 
-      expect(result.isError).toBeFalsy();
-      expect(result.structuredContent).toMatchObject({
-        diagnostic: { kind: "ExecutionFailure", message: "nope" },
-        result: null,
-        toolCalls: [],
-      });
+      expect(result.isError).toBe(true);
+      expect(result.structuredContent).toBeUndefined();
+      expect(result.content).toEqual([{ text: "nope", type: "text" }]);
     })
   );
 
@@ -284,7 +280,6 @@ describe("toCodeMode", () => {
       });
 
       expect(allowed.structuredContent).toEqual({
-        diagnostic: null,
         logs: [],
         result: { ok: true },
         toolCalls: ["approved"],

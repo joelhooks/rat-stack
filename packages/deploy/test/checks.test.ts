@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { SandboxDiagnostic } from "@rat-stack/capability";
+import { ExecuteError } from "@rat-stack/capability";
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { gateOutcome } from "@rat-stack/check-harness";
 import { searchContract } from "@rat-stack/core/contracts";
@@ -69,6 +69,9 @@ const answerRpc = (
     )
   );
 
+const sandboxStatus = (body: string) =>
+  body.includes("while(true)") || body.includes("fetch") ? 422 : 200;
+
 const bodyFor = (url: string, body: string) => {
   if (["/news", "/directory", "/llms.txt"].includes(new URL(url).pathname)) {
     return "cafe-news.yml cafe-project.yml File only after the person approves that exact issue. Listing is not guaranteed.";
@@ -107,24 +110,24 @@ const bodyFor = (url: string, body: string) => {
   }
 
   if (body.includes("while(true)")) {
-    return {
-      diagnostic: SandboxDiagnostic.make({
-        kind: "TimeoutExceeded",
-        message: "The program exceeded its time limit",
-      }),
-      result: null,
-    };
+    return new ExecuteError({
+      kind: "TimeoutExceeded",
+      logs: [],
+      message: "The program exceeded its time limit",
+      toolCalls: [],
+      truncated: false,
+    });
   }
 
   if (body.includes("fetch")) {
-    return {
-      diagnostic: SandboxDiagnostic.make({
-        kind: "ExecutionFailure",
-        message:
-          "This worker is not permitted to access the internet via global functions",
-      }),
-      result: null,
-    };
+    return new ExecuteError({
+      kind: "ExecutionFailure",
+      logs: [],
+      message:
+        "This worker is not permitted to access the internet via global functions",
+      toolCalls: [],
+      truncated: false,
+    });
   }
 
   return {
@@ -204,7 +207,7 @@ it.effect.prop(
               })
             : Response.json(broken ? {} : value, {
                 headers,
-                status: broken ? 503 : 200,
+                status: broken ? 503 : sandboxStatus(body),
               });
 
         return Effect.succeed(HttpClientResponse.fromWeb(request, response));
@@ -232,15 +235,15 @@ it.effect.prop(
 );
 
 it.effect.prop(
-  "sandbox health requires HTTP success, matching diagnostics, refused fetch, and null results",
+  "sandbox health requires HTTP 422, a complete typed failure, matching kind, and refused fetch",
   {
-    httpSuccess: Schema.Boolean,
+    completeFailure: Schema.Boolean,
     networkKind: Schema.Literals(["ExecutionFailure", "TimeoutExceeded"]),
-    nullResult: Schema.Boolean,
     refusedFetch: Schema.Boolean,
+    status: Schema.Literals([200, 422, 500]),
     timeoutKind: Schema.Literals(["TimeoutExceeded", "ExecutionFailure"]),
   },
-  ({ httpSuccess, nullResult, timeoutKind, networkKind, refusedFetch }) =>
+  ({ status, completeFailure, timeoutKind, networkKind, refusedFetch }) =>
     Effect.gen(function* qualifiesSandboxDiagnostics() {
       const rpc = yield* searchServer(1);
 
@@ -257,25 +260,29 @@ it.effect.prop(
         const network = body.includes("fetch");
         const sandbox = timeout || network;
 
-        const value = sandbox
-          ? {
-              diagnostic: SandboxDiagnostic.make({
-                kind: timeout ? timeoutKind : networkKind,
-                message:
-                  network && refusedFetch
-                    ? "This worker is not permitted to access the internet"
-                    : "Unrelated execution failure",
-              }),
-              result: nullResult ? null : 1,
-            }
-          : bodyFor(request.url, body);
+        const failure = new ExecuteError({
+          kind: timeout ? timeoutKind : networkKind,
+          logs: [],
+          message:
+            network && refusedFetch
+              ? "This worker is not permitted to access the internet"
+              : "Unrelated execution failure",
+          toolCalls: [],
+          truncated: false,
+        });
+
+        const document = completeFailure
+          ? failure
+          : { kind: failure.kind, message: failure.message };
+
+        const value = sandbox ? document : bodyFor(request.url, body);
 
         return Effect.succeed(
           HttpClientResponse.fromWeb(
             request,
             Response.json(value, {
               headers: { etag: 'W/"test-generation:default:route"' },
-              status: sandbox && !httpSuccess ? 500 : 200,
+              status: sandbox ? status : 200,
             })
           )
         );
@@ -294,19 +301,21 @@ it.effect.prop(
         (row) => row.check === "sandbox-network-refused"
       );
 
-      expect(timeout?.outcome).toBe(
-        httpSuccess && nullResult && timeoutKind === "TimeoutExceeded"
-          ? "passed"
-          : "failed"
-      );
-      expect(network?.outcome).toBe(
-        httpSuccess &&
-          nullResult &&
-          networkKind === "ExecutionFailure" &&
-          refusedFetch
-          ? "passed"
-          : "failed"
-      );
+      if (completeFailure) {
+        expect(timeout?.outcome).toBe(
+          status === 422 && timeoutKind === "TimeoutExceeded"
+            ? "passed"
+            : "failed"
+        );
+        expect(network?.outcome).toBe(
+          status === 422 && networkKind === "ExecutionFailure" && refusedFetch
+            ? "passed"
+            : "failed"
+        );
+      } else {
+        expect(timeout?.outcome).toBe("errored");
+        expect(network?.outcome).toBe("errored");
+      }
     }).pipe(Effect.scoped),
   { arbitrary: { runs: 100 } }
 );

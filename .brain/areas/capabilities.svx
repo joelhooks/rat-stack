@@ -103,17 +103,19 @@ Other queries rank path segments, path substrings, descriptions, then input fiel
 `next` holds the next offset; `remaining` counts matching tools after this page.
 `total` keeps its meaning as the full catalog size.
 
-Execution returns `result`, `logs`, `diagnostic`, `toolCalls`, and `truncated`.
-Check `diagnostic` before using `result`.
+Successful execution returns `result`, `logs`, `toolCalls`, and `truncated`.
+Failed execution raises the typed `ExecuteError` with `kind`, `message`, optional `tag`, `logs`, `toolCalls`, and `truncated`.
 A declared tool failure retains its tag and a safe message.
-Parse errors, invalid data, timeouts, and program failures also return diagnostics.
+Parse errors, invalid data, timeouts, and program failures all use this failure channel.
 
 Host cancellation still interrupts execution.
 
-The HTTP execute response uses status 200 for execution diagnostics.
-Failure diagnostics have a null result.
-Consumers that parsed `SandboxError` bodies must read `diagnostic` instead.
-A health check must reject a non-null result when it expects failure.
+The HTTP execute response uses status 200 for success and 422 for `ExecuteError`.
+Failure bodies carry `_tag: "ExecuteError"` and have no `result`.
+MCP reports `isError: true`, CLI exits non-zero, and RPC returns the typed failure.
+
+Consumers of the old success-envelope `diagnostic` field must read the failure response instead.
+Health checks require HTTP 422 and decode the complete failure schema.
 
 `toolCalls` lists admitted calls in dispatch order, including failed calls.
 `maxToolCalls` rejects extra calls before their handlers run.

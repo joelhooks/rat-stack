@@ -10,6 +10,8 @@ export {
 
 export { SandboxDiagnostic } from "./sandbox-diagnostic-schema.js";
 
+export { ExecuteError, ExecuteFailure } from "./execute-error.js";
+
 export {
   ExecuteInput,
   ExecuteResult,

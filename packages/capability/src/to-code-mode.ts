@@ -12,9 +12,8 @@ import type {
   ContractOf,
   FailureSchemaOf,
 } from "./contract.js";
+import { ExecuteError, ExecuteFailure } from "./execute-error.js";
 import { implement } from "./implement.js";
-import { SandboxDiagnostic } from "./sandbox-diagnostic-schema.js";
-import { SandboxError } from "./sandbox-error.js";
 import { resolveLimits } from "./sandbox-limits-schema.js";
 import { Sandbox } from "./sandbox-port.js";
 import type {
@@ -46,7 +45,6 @@ export const ExecuteInput = Schema.Struct({
 });
 
 export const ExecuteResult = Schema.Struct({
-  diagnostic: Schema.optionalKey(Schema.NullOr(SandboxDiagnostic)),
   logs: Schema.Array(Schema.String),
   result: Schema.Json,
   toolCalls: Schema.optionalKey(Schema.Array(Schema.String)),
@@ -94,7 +92,7 @@ const searchPage = Effect.fnUntraced(function* searchCatalogPage(
 });
 
 const executeIntro =
-  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure. Execution problems return a typed `diagnostic`; inspect it before using `result`. `toolCalls` lists admitted calls in order. `truncated` marks output cuts. At most 8 tool calls run concurrently. Only host cancellation interrupts execution.";
+  "Run a JavaScript program against the capabilities. The program is the body of an async function with `tools` in scope; `return` a JSON value to get it back, and `console.log` is captured into `logs`. Each `tools.<name>(input)` call is validated against that capability's input schema, runs on the host, and resolves with its output or rejects with its declared failure. Execution problems fail with a typed `ExecuteError` carrying kind, message, optional tag, logs, toolCalls, and truncated. `toolCalls` lists admitted calls in order. `truncated` marks output cuts. At most 8 tool calls run concurrently. Only host cancellation interrupts execution.";
 
 const executeDescription = (
   discovery: ReturnType<typeof discoverCatalog>
@@ -145,7 +143,7 @@ export interface CodeModeProjection<Caps extends readonly AnyCapability[]> {
         readonly parameters: Schema.Struct<{ readonly code: Schema.String }>;
         readonly success: typeof ExecuteResult;
         readonly failure: FailureSchemaOf<
-          typeof SandboxError,
+          typeof ExecuteFailure,
           NeedsApprovalOf<Caps>
         >;
         readonly failureMode: "error";
@@ -304,7 +302,7 @@ export const toExecuteCapability = <
       ),
     },
     description: executeDescription(discovery),
-    failure: SandboxError,
+    failure: ExecuteFailure,
     input: ExecuteInput,
     needsApproval,
     output: ExecuteResult,
@@ -329,8 +327,16 @@ export const toExecuteCapability = <
         catalog.capabilities.map((entry) => entry.name)
       );
 
+      if (run.diagnostic !== null && run.diagnostic !== undefined) {
+        return yield* new ExecuteError({
+          ...run.diagnostic,
+          logs: run.logs,
+          toolCalls: run.toolCalls ?? [],
+          truncated: run.truncated ?? false,
+        });
+      }
+
       return {
-        diagnostic: run.diagnostic ?? null,
         logs: run.logs,
         // SAFETY: every Sandbox implementation must JSON-round-trip a successful result before crossing this boundary.
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- every Sandbox JSON-round-trips a successful result before this boundary.
