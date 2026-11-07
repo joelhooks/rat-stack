@@ -1,5 +1,37 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/littledivy/tailnet-do",
+    "title": "tailnet-do",
+    "summary": "Puts a Cloudflare Durable Object on a Tailscale tailnet as a device with its own address, using Tailscale's userspace client compiled to WebAssembly.",
+    "date": "2026-11-07",
+    "repo": "littledivy/tailnet-do",
+    "author": {
+      "github": "littledivy",
+      "x": null
+    },
+    "source": "https://github.com/littledivy/tailnet-do",
+    "engagement": {
+      "stars": 30
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/clavia-labs/tardigrade/releases/tag/v0.55.0",
+    "title": "Tardigrade 0.55 on Effect 4.1",
+    "summary": "Durable, event-driven actors for TypeScript; v0.54 moved to Effect 4.1 stable and v0.55 adds remote methods to the client.",
+    "date": "2026-11-07",
+    "repo": "clavia-labs/tardigrade",
+    "author": {
+      "github": "clavia-labs",
+      "x": "arjunkmrm"
+    },
+    "source": "https://github.com/clavia-labs/tardigrade/releases",
+    "engagement": {
+      "stars": 460
+    }
+  },
+  {
     "kind": "release",
     "url": "https://stately.ai/blog/2026-11-05-xstate-v6-beta",
     "title": "XState 6 beta and @xstate/effect 1.0 beta",
@@ -12,7 +44,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30412
+      "stars": 30422
     }
   },
   {
@@ -28,7 +60,7 @@
     },
     "source": "https://github.com/RhysSullivan/effect-discord-perms",
     "engagement": {
-      "stars": 16
+      "stars": 17
     }
   },
   {
@@ -44,7 +76,7 @@
     },
     "source": "https://github.com/nstudio/ns-foldkit",
     "engagement": {
-      "stars": 1
+      "stars": 2
     }
   },
   {
@@ -60,7 +92,7 @@
     },
     "source": "https://github.com/joelhooks/alchemy-turbo-cache",
     "engagement": {
-      "stars": 23
+      "stars": 25
     }
   },
   {
@@ -76,7 +108,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4349
+      "stars": 4363
     }
   },
   {
@@ -92,7 +124,7 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117933990246232387",
     "engagement": {
-      "likes": 340,
+      "likes": 341,
       "participants": 15,
       "replies": 12
     },
@@ -168,7 +200,7 @@
     },
     "source": "https://vibelang.sh/spec",
     "engagement": {
-      "stars": 19
+      "stars": 20
     }
   },
   {
@@ -200,7 +232,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1881
+      "stars": 1890
     }
   },
   {
@@ -283,7 +315,7 @@
     },
     "source": "https://x.com/mattpocockuk/status/2117157362700058671",
     "engagement": {
-      "likes": 474,
+      "likes": 475,
       "participants": 75,
       "replies": 65
     },
@@ -337,7 +369,7 @@
     },
     "source": "https://api.github.com/repos/Effect-TS/effect/releases",
     "engagement": {
-      "stars": 17496
+      "stars": 17501
     }
   },
   {
@@ -417,7 +449,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1200
+      "stars": 1203
     }
   },
   {
@@ -478,7 +510,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 153
+      "stars": 157
     }
   },
   {
@@ -494,7 +526,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 232
+      "stars": 237
     }
   },
   {
@@ -558,7 +590,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 153
+      "stars": 157
     }
   },
   {
@@ -574,46 +606,8 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 153
+      "stars": 157
     }
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/makisuo/status/2113769275194495324",
-    "title": "Maple moves 300k lines of React to Foldkit",
-    "summary": "Maple moved 100+ pages off React onto Foldkit in about three days, using a validation harness to keep every interaction and animation identical.",
-    "date": "2026-10-23",
-    "repo": "MapleTechLabs/maple",
-    "author": {
-      "github": null,
-      "x": "makisuo"
-    },
-    "source": "https://x.com/makisuo/status/2113769275194495324",
-    "engagement": {
-      "likes": 128,
-      "participants": 19,
-      "replies": 19
-    },
-    "topReplies": [
-      {
-        "likes": 11,
-        "text": "@natebirdman @foldkit Oh yeah for sure would be 10x faster, was even surprised foldkit was faster at all. \n\nMostly wanted to do this migration since Foldkit fits my philosophy of building software and my stack a lot better and already build some other things on it and just knew it would make building",
-        "url": "https://x.com/makisuo/status/2113773685320634634",
-        "x": "makisuo"
-      },
-      {
-        "likes": 5,
-        "text": "@makisuo @foldkit If you spent 3 days with Claude optimizing React don’t you think you’d be a lot faster than this?",
-        "url": "https://x.com/natebirdman/status/2113772384759214497",
-        "x": "natebirdman"
-      },
-      {
-        "likes": 2,
-        "text": "@makisuo @foldkit I’m doing the same",
-        "url": "https://x.com/jsep_do/status/2113790298937610416",
-        "x": "jsep_do"
-      }
-    ]
   },
   {
     "kind": "launch",
@@ -644,7 +638,7 @@
     },
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
-      "stars": 329
+      "stars": 331
     }
   },
   {
@@ -660,7 +654,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/pulls",
     "engagement": {
-      "stars": 1200
+      "stars": 1203
     }
   },
   {
@@ -724,7 +718,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1946
+      "stars": 1948
     }
   },
   {
