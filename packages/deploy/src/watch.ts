@@ -36,13 +36,13 @@ export const WatchEvidenceSchema = Schema.Struct({
   cycles: Schema.Natural,
   observations: Schema.Array(WatchObservationSchema),
   routes: Schema.Array(Schema.String),
-  streak: Schema.Natural,
   transportFailure: Schema.optional(
     Schema.Literals(["persistent-transport-failure", "cycle-unreachable"])
   ),
   transportStreaks: Schema.optional(
     Schema.Record(Schema.String, Schema.Natural)
   ),
+  unreachableStreak: Schema.optional(Schema.Natural),
 });
 
 export type WatchEvidence = typeof WatchEvidenceSchema.Type;
@@ -72,6 +72,29 @@ export const printableBody = (bytes: Uint8Array) =>
 
 export const transportFailureCycles = 2;
 
+export const transportBlipRatioLimit = 0.05;
+
+type TransportFailureReason = NonNullable<WatchEvidence["transportFailure"]>;
+
+const transportCycleFailure = (
+  unreachableStreak: number,
+  transportStreaks: Readonly<Record<string, number>>
+): TransportFailureReason | undefined => {
+  if (unreachableStreak >= transportFailureCycles) {
+    return "cycle-unreachable";
+  }
+
+  if (
+    Object.values(transportStreaks).some(
+      (streak) => streak >= transportFailureCycles
+    )
+  ) {
+    return "persistent-transport-failure";
+  }
+
+  return undefined;
+};
+
 export const nextWatchEvidence = (
   previous: WatchEvidence,
   observations: readonly WatchObservation[]
@@ -84,32 +107,22 @@ export const nextWatchEvidence = (
     ].map((route) => [route, (previous.transportStreaks?.[route] ?? 0) + 1])
   );
 
-  let { transportFailure } = previous;
+  const unreachableStreak =
+    observations.length > 0 && observations.every((row) => row.status === 0)
+      ? (previous.unreachableStreak ?? 0) + 1
+      : 0;
 
-  if (transportFailure === undefined) {
-    if (
-      observations.length > 0 &&
-      observations.every((row) => row.status === 0)
-    ) {
-      transportFailure = "cycle-unreachable";
-    } else if (
-      Object.values(transportStreaks).some(
-        (streak) => streak >= transportFailureCycles
-      )
-    ) {
-      transportFailure = "persistent-transport-failure";
-    }
-  }
+  const transportFailure =
+    previous.transportFailure ??
+    transportCycleFailure(unreachableStreak, transportStreaks);
 
   return {
     ...previous,
     cycles: previous.cycles + 1,
     observations: [...previous.observations, ...observations],
-    streak: observations.some((row) => row.content && row.status === 500)
-      ? previous.streak + 1
-      : 0,
     transportFailure,
     transportStreaks,
+    unreachableStreak,
   };
 };
 
@@ -117,12 +130,26 @@ export const watchFailureReason = (evidence: WatchEvidence) => {
   if (
     evidence.observations.some((row) => row.status !== 0 && row.status !== 200)
   ) {
-    return evidence.streak >= 2
-      ? "consecutive-content-500-cycles"
-      : "non-200-or-incomplete-watch";
+    return "non-200-or-incomplete-watch";
   }
 
   return evidence.transportFailure;
+};
+
+export const watchCompletionFailureReason = (evidence: WatchEvidence) => {
+  const cycleFailure = watchFailureReason(evidence);
+
+  if (cycleFailure !== undefined) {
+    return cycleFailure;
+  }
+
+  const transportBlips = evidence.observations.filter(
+    (row) => row.status === 0
+  ).length;
+
+  return transportBlips > evidence.observations.length * transportBlipRatioLimit
+    ? "transport-blip-ratio"
+    : undefined;
 };
 
 export const fixedWatchRoutes = [
@@ -362,7 +389,7 @@ export const watchMachine = setupEffect({
   schemas: { context: types<WatchContext>(), input: WatchInputSchema },
 }).createMachine({
   context: ({ input }) => ({
-    evidence: { cycles: 0, observations: [], routes: [], streak: 0 },
+    evidence: { cycles: 0, observations: [], routes: [] },
     input,
   }),
   initial: "discovering",
@@ -455,7 +482,7 @@ export const watchDeployment = Effect.fn("watchDeployment")(
       Effect.orDie
     );
 
-    const failureReason = watchFailureReason(evidence);
+    const failureReason = watchCompletionFailureReason(evidence);
 
     if (evidence.cycles === 0 || failureReason !== undefined) {
       return yield* new WatchFailed({

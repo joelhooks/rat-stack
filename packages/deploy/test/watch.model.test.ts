@@ -6,62 +6,12 @@ import { TestClock } from "effect/testing";
 
 import {
   fixedWatchRoutes,
-  nextWatchEvidence,
   printableBody,
   sitemapRoutes,
   sweepSlice,
   watchDeployment,
   watchVerdict,
 } from "../src/watch.js";
-import type { WatchEvidence } from "../src/watch.js";
-
-it.effect.prop(
-  "only adjacent content 500 cycles accumulate the failure threshold",
-  {
-    history: Schema.Array(Schema.Literals([200, 500, 503])).check(
-      Schema.isMaxLength(30)
-    ),
-  },
-  ({ history }) =>
-    Effect.sync(() => {
-      let evidence: WatchEvidence = {
-        cycles: 0,
-        observations: [],
-        routes: [],
-        streak: 0,
-      };
-
-      let expected = 0;
-
-      for (const [index, status] of history.entries()) {
-        expected = status === 500 ? expected + 1 : 0;
-        evidence = nextWatchEvidence(evidence, [
-          {
-            accept: "text/html",
-            body: `failure-${index}`,
-            content: true,
-            observedAt: index,
-            route: "/",
-            status,
-          },
-          {
-            accept: "*/*",
-            body: "agent failure",
-            content: false,
-            observedAt: index,
-            route: "/.well-known/mcp.json",
-            status: 500,
-          },
-        ]);
-
-        expect(evidence.streak).toBe(expected);
-        expect(evidence.cycles).toBe(index + 1);
-        expect(evidence.observations[0]?.body).toBe("failure-0");
-        expect(evidence.observations).toHaveLength((index + 1) * 2);
-      }
-    }),
-  { arbitrary: { runs: 100 } }
-);
 
 it.prop(
   "one sweep of cycles probes every sitemap route",
