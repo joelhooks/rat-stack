@@ -1,4 +1,4 @@
-import { SandboxDiagnostic } from "@rat-stack/capability";
+import { ExecuteError } from "@rat-stack/capability";
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { gateOutcome, runCheck } from "@rat-stack/check-harness";
 import type { Verdict } from "@rat-stack/check-harness";
@@ -31,10 +31,7 @@ const SearchResponse = Schema.Struct({
   }),
 });
 
-const SandboxResponse = Schema.Struct({
-  diagnostic: Schema.NullOr(SandboxDiagnostic),
-  result: Schema.Json,
-});
+const SandboxResponse = ExecuteError;
 
 const ReadyResponse = Schema.Struct({
   cacheHit: Schema.optionalKey(Schema.Boolean),
@@ -633,10 +630,9 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
             yield* HttpClientResponse.schemaBodyJson(SandboxResponse)(response);
 
           return (
-            response.status === 200 &&
-            document.result === null &&
-            document.diagnostic?.kind === "ExecutionFailure" &&
-            document.diagnostic.message
+            response.status === 422 &&
+            document.kind === "ExecutionFailure" &&
+            document.message
               .toLowerCase()
               .includes("not permitted to access the internet")
           );
@@ -653,11 +649,7 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
           const document =
             yield* HttpClientResponse.schemaBodyJson(SandboxResponse)(response);
 
-          return (
-            response.status === 200 &&
-            document.result === null &&
-            document.diagnostic?.kind === "TimeoutExceeded"
-          );
+          return response.status === 422 && document.kind === "TimeoutExceeded";
         })
       ),
       yield* measuredCheck(

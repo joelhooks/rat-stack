@@ -2,12 +2,12 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import {
   ExecuteInput,
   ExecuteResult,
+  ExecuteFailure,
   toExecuteCapability,
 } from "@rat-stack/capability/code-mode";
 import { defineContract } from "@rat-stack/capability/contract";
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { implement } from "@rat-stack/capability/implement";
-import { SandboxError } from "@rat-stack/capability/sandbox";
 import { AssetReadError } from "@rat-stack/core/contracts";
 import * as AlchemyHttp from "alchemy/Http";
 import { Effect, Layer, Schema } from "effect";
@@ -54,7 +54,7 @@ const limitedExecute = toExecuteCapability([probe, probeMetrics], {
 
 const sandboxProbeContract = defineContract("sandboxProbe", {
   description: "Run the shared sandbox conformance programs",
-  failure: SandboxError,
+  failure: ExecuteFailure,
   input: ExecuteInput,
   output: ExecuteResult,
 });
@@ -66,7 +66,7 @@ const sandboxProbe = implement(
 
 const sandboxLimitedContract = defineContract("sandboxLimited", {
   description: "Run the shared sandbox limit conformance programs",
-  failure: SandboxError,
+  failure: ExecuteFailure,
   input: ExecuteInput,
   output: ExecuteResult,
 });

@@ -18,11 +18,11 @@ post_json() {
 assert_json() {
   (cd "$(dirname "${BASH_SOURCE[0]}")/.." && node --input-type=module - "$1" "$2" "${3:-}" <<'NODE'
 import { readFile } from "node:fs/promises";
-import { SandboxDiagnostic } from "@rat-stack/capability";
+import { ExecuteError } from "@rat-stack/capability";
 import { Schema } from "effect";
 const [file, kind, status] = process.argv.slice(2);
 const response = JSON.parse(await readFile(file, "utf8"));
-const SandboxResponse = Schema.Struct({ diagnostic: Schema.NullOr(SandboxDiagnostic), result: Schema.Json });
+const SandboxResponse = ExecuteError;
 const fail = (message) => { throw new Error(message); };
 switch (kind) {
   case "tools": {
@@ -37,12 +37,12 @@ switch (kind) {
   }
   case "network": {
     const document = Schema.decodeUnknownSync(SandboxResponse)(response);
-    if (status !== "200" || document.result !== null || document.diagnostic?.kind !== "ExecutionFailure" || !document.diagnostic.message.toLowerCase().includes("not permitted to access the internet")) fail("network access did not return a refused-fetch diagnostic with a null result");
+    if (status !== "422" || document.kind !== "ExecutionFailure" || !document.message.toLowerCase().includes("not permitted to access the internet")) fail("network access did not return HTTP 422 with a refused-fetch ExecuteError");
     console.log(`execute network blocked: HTTP ${status}`); break;
   }
   case "timeout": {
     const document = Schema.decodeUnknownSync(SandboxResponse)(response);
-    if (status !== "200" || document.result !== null || document.diagnostic?.kind !== "TimeoutExceeded") fail("infinite program did not return a timeout diagnostic with a null result");
+    if (status !== "422" || document.kind !== "TimeoutExceeded") fail("infinite program did not return HTTP 422 with a timeout ExecuteError");
     console.log("execute timeout: TimeoutExceeded diagnostic"); break;
   }
   case "mcp": {

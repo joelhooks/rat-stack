@@ -33,7 +33,7 @@ const TestLayer = Layer.merge(
 describe("sandbox conformance", () => {
   it.live("runs independent calls with a peak concurrency of eight", () =>
     checkSandboxConcurrency((code) =>
-      projection.capability.handler({ code }).pipe(Effect.orDie)
+      projection.capability.handler({ code })
     ).pipe(Effect.provide(TestLayer))
   );
 
@@ -41,12 +41,14 @@ describe("sandbox conformance", () => {
     "adapter call budgets retain their admitted prefix under projection normalization",
     () =>
       Effect.gen(function* preservesAdapterAdmission() {
-        const response = yield* projection.capability.handler({
-          code: "await tools.probe({ value: 1 }); return await tools.probe({ value: 2 });",
-        });
+        const response = yield* projection.capability
+          .handler({
+            code: "await tools.probe({ value: 1 }); return await tools.probe({ value: 2 });",
+          })
+          .pipe(Effect.flip);
 
         expect(response).toMatchObject({
-          diagnostic: { kind: "ToolCallLimitExceeded" },
+          kind: "ToolCallLimitExceeded",
           toolCalls: ["probe"],
         });
       }).pipe(
@@ -63,15 +65,11 @@ describe("sandbox conformance", () => {
 
   it.layer(TestLayer)("subprocess", (test) => {
     test.effect("returns the shared success, diagnostic and audit shapes", () =>
-      checkSandboxConformance((code) =>
-        projection.capability.handler({ code }).pipe(Effect.orDie)
-      )
+      checkSandboxConformance((code) => projection.capability.handler({ code }))
     );
 
     test.effect("enforces the shared call and output limits", () =>
-      checkSandboxLimits((code) =>
-        limited.capability.handler({ code }).pipe(Effect.orDie)
-      )
+      checkSandboxLimits((code) => limited.capability.handler({ code }))
     );
 
     test.effect("sanitizes host defects while retaining admitted calls", () =>

@@ -78,6 +78,8 @@ export {
   type ExecuteOptions,
 } from "./to-code-mode.js";
 
+export { ExecuteError, ExecuteFailure } from "./execute-error.js";
+
 export { toCommand, type ToCommandOptions } from "./to-command.js";
 
 export {

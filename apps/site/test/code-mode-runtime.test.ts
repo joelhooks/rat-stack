@@ -1,7 +1,7 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Test from "@alchemy.run/test/Vitest";
 import { expect } from "@effect/vitest";
-import { ExecuteResult } from "@rat-stack/capability/code-mode";
+import { ExecuteError, ExecuteResult } from "@rat-stack/capability/code-mode";
 import { Clock, Effect, FileSystem, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
@@ -68,17 +68,23 @@ test.provider(
             Effect.flatMap(HttpClient.execute)
           );
 
+          const body = yield* response.json;
+
+          if (response.status === 422) {
+            const failure =
+              yield* Schema.decodeUnknownEffect(ExecuteError)(body);
+
+            return yield* failure;
+          }
+
           expect(response.status).toBe(200);
 
-          return yield* response.json.pipe(
-            Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult))
-          );
-        },
-        Effect.orDie
+          return yield* Schema.decodeUnknownEffect(ExecuteResult)(body);
+        }
       );
 
       const arithmeticProbe = yield* executeProgram("return 1+1", "execute");
-      expect(arithmeticProbe).toMatchObject({ diagnostic: null, result: 2 });
+      expect(arithmeticProbe).toMatchObject({ result: 2 });
 
       yield* checkSandboxConformance((code) => executeProgram(code));
       yield* checkSandboxLimits((code) =>
@@ -180,8 +186,8 @@ test.provider(
       const body = yield* response.json;
 
       expect({ body, status: response.status }).toMatchObject({ status: 200 });
+      expect(body).not.toHaveProperty("diagnostic");
       expect(body).toMatchObject({
-        diagnostic: null,
         logs: [],
         result: {
           links: expectedLinks,

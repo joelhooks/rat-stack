@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { layerSubprocess } from "@rat-stack/capability";
-import { ExecuteResult } from "@rat-stack/capability/code-mode";
+import { ExecuteError, ExecuteResult } from "@rat-stack/capability/code-mode";
 import { Effect, FileSystem, Layer, Schema } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
@@ -26,7 +26,7 @@ it.effect("execute HTTP recovers after a synchronous infinite loop", () =>
       ({ dispose }) => Effect.promise(dispose)
     );
 
-    const execute = (code: string) =>
+    const execute = (code: string, fails = false) =>
       Effect.promise(
         handler.bind(
           undefined,
@@ -39,21 +39,26 @@ it.effect("execute HTTP recovers after a synchronous infinite loop", () =>
         )
       ).pipe(
         Effect.flatMap((response) => {
-          expect(response.status).toBe(200);
+          expect(response.status).toBe(fails ? 422 : 200);
 
           return Effect.promise(response.json.bind(response));
         }),
-        Effect.flatMap(Schema.decodeUnknownEffect(ExecuteResult))
+        Effect.flatMap(
+          Schema.decodeUnknownEffect(
+            Schema.Union([ExecuteError, ExecuteResult])
+          )
+        )
       );
 
-    const timeout = yield* execute("while(true){}");
+    const timeout = yield* execute("while(true){}", true);
     expect(timeout).toMatchObject({
-      diagnostic: { kind: "TimeoutExceeded" },
-      result: null,
+      kind: "TimeoutExceeded",
     });
+    expect(timeout).not.toHaveProperty("result");
 
     const arithmetic = yield* execute("return 1+1");
-    expect(arithmetic).toMatchObject({ diagnostic: null, result: 2 });
+    expect(arithmetic).toMatchObject({ result: 2 });
+    expect(arithmetic).not.toHaveProperty("diagnostic");
 
     const fs = yield* FileSystem.FileSystem;
     yield* fs.makeDirectory("dist/startup", { recursive: true });
