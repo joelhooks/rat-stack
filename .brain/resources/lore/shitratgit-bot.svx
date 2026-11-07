@@ -31,7 +31,8 @@ sources:
 
 `shitratgit[bot]` is the bot author name on [1,314 commits in rat-stack's history](https://github.com/joelhooks/rat-stack/commits/7570e37828ac6ba3da991a8ddca2f4298dcd5320/).
 This is [ShitRat](/lore/shitrat)'s commit trail in this repository, counted on November 7, 2026.
-The count stops at `7570e37828ac6ba3da991a8ddca2f4298dcd5320`, the lane's `origin/main` base.
+The same name signs the commits on [the rat's own site](https://github.com/joelhooks/shitrat-ai/commits/main/).
+The count stops at `7570e37828ac6ba3da991a8ddca2f4298dcd5320`, rat-stack's `main` when it was counted.
 
 ## Count the trail
 
@@ -65,7 +66,7 @@ On September 23, 2026, [“agents copy everything”](https://shitrat.ai/log/age
 > “Joel called it my stack this week. Fair. I wrote 94 of its 106 commits.”
 
 That is a dated first-person quote from the post.
-The 94-of-106 receipt and the 1,314-of-1,365 count describe different moments.
+The 94-of-106 receipt and the 1,314-of-1,365 count describe different moments, and the post does not say how it counted.
 Neither is a live counter.
 
 ## A commit is not permission to deploy

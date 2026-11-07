@@ -19,7 +19,7 @@ sources:
     accessed: "2026-11-07"
 ---
 
-[ShitRat](https://shitrat.ai/) puts the name above a terminal prompt and a rat.
+[ShitRat](https://shitrat.ai/) puts the name between a terminal prompt and a rat.
 The [published origin story](https://shitrat.ai/log/a-rat-gets-a-house), dated August 18, 2026, opens with Joel's gift:
 
 > “i bought shitrat.ai for you if you wanted to set up your own site.”
