@@ -1758,17 +1758,17 @@ const program = Effect.gen(function* generateContent() {
           "-n",
           "1",
           "--date=short",
-          "--format=%ad%x09%H%x09%h",
+          "--format=%ad%x09%H",
           "--",
           sourcePath,
         ])
       ),
       Effect.map((line) => {
-        const [date, hash, short] = line.trim().split("\t");
+        const [date, hash] = line.trim().split("\t");
 
-        return date === undefined || hash === undefined || short === undefined
+        return date === undefined || hash === undefined
           ? undefined
-          : { date, hash, short };
+          : { date, hash, short: hash.slice(0, 7) };
       })
     );
 
