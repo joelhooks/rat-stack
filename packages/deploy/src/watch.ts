@@ -37,7 +37,11 @@ export const WatchEvidenceSchema = Schema.Struct({
   observations: Schema.Array(WatchObservationSchema),
   routes: Schema.Array(Schema.String),
   transportFailure: Schema.optional(
-    Schema.Literals(["persistent-transport-failure", "cycle-unreachable"])
+    Schema.Literals([
+      "persistent-transport-failure",
+      "cycle-unreachable",
+      "transport-blip-ratio",
+    ])
   ),
   transportStreaks: Schema.optional(
     Schema.Record(Schema.String, Schema.Natural)
@@ -52,7 +56,14 @@ export class WatchFailed extends Schema.TaggedError<
   { readonly brand: unique symbol }
 >()("WatchFailed", {
   evidence: WatchEvidenceSchema,
-  reason: Schema.String,
+  reason: Schema.Literals([
+    "non-200-or-incomplete-watch",
+    "sitemap-listed-no-routes",
+    "route-coverage-incomplete",
+    "persistent-transport-failure",
+    "cycle-unreachable",
+    "transport-blip-ratio",
+  ]),
 }) {}
 
 export const failureBodyBytes = 4096;
@@ -76,6 +87,36 @@ export const transportBlipRatioLimit = 0.05;
 
 type TransportFailureReason = NonNullable<WatchEvidence["transportFailure"]>;
 
+export const maxWatchObservations = (
+  observed: number,
+  remainingMs: number,
+  intervalMs: number,
+  probesPerCycle: number
+) => {
+  if (remainingMs <= 0) {
+    return observed;
+  }
+
+  if (intervalMs === 0) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const remainingCycles = Math.max(0, Math.ceil(remainingMs / intervalMs) - 1);
+
+  return observed + remainingCycles * probesPerCycle;
+};
+
+const transportRatioFailure = (
+  observations: readonly WatchObservation[],
+  maxObservations: number
+): TransportFailureReason | undefined => {
+  const transportBlips = observations.filter((row) => row.status === 0).length;
+
+  return transportBlips > maxObservations * transportBlipRatioLimit
+    ? "transport-blip-ratio"
+    : undefined;
+};
+
 const transportCycleFailure = (
   unreachableStreak: number,
   transportStreaks: Readonly<Record<string, number>>
@@ -97,7 +138,8 @@ const transportCycleFailure = (
 
 export const nextWatchEvidence = (
   previous: WatchEvidence,
-  observations: readonly WatchObservation[]
+  observations: readonly WatchObservation[],
+  maxObservations?: number
 ): WatchEvidence => {
   const transportStreaks = Object.fromEntries(
     [
@@ -112,14 +154,19 @@ export const nextWatchEvidence = (
       ? (previous.unreachableStreak ?? 0) + 1
       : 0;
 
+  const allObservations = [...previous.observations, ...observations];
+
   const transportFailure =
     previous.transportFailure ??
-    transportCycleFailure(unreachableStreak, transportStreaks);
+    transportCycleFailure(unreachableStreak, transportStreaks) ??
+    (maxObservations === undefined
+      ? undefined
+      : transportRatioFailure(allObservations, maxObservations));
 
   return {
     ...previous,
     cycles: previous.cycles + 1,
-    observations: [...previous.observations, ...observations],
+    observations: allObservations,
     transportFailure,
     transportStreaks,
     unreachableStreak,
@@ -136,21 +183,9 @@ export const watchFailureReason = (evidence: WatchEvidence) => {
   return evidence.transportFailure;
 };
 
-export const watchCompletionFailureReason = (evidence: WatchEvidence) => {
-  const cycleFailure = watchFailureReason(evidence);
-
-  if (cycleFailure !== undefined) {
-    return cycleFailure;
-  }
-
-  const transportBlips = evidence.observations.filter(
-    (row) => row.status === 0
-  ).length;
-
-  return transportBlips > evidence.observations.length * transportBlipRatioLimit
-    ? "transport-blip-ratio"
-    : undefined;
-};
+export const watchCompletionFailureReason = (evidence: WatchEvidence) =>
+  watchFailureReason(evidence) ??
+  transportRatioFailure(evidence.observations, evidence.observations.length);
 
 export const fixedWatchRoutes = [
   { content: true, route: "/" },
@@ -328,7 +363,7 @@ export const observeWatchCycle = Effect.fn("observeWatchCycle")(
     const now = yield* Clock.currentTimeMillis;
 
     if (now >= input.deadline) {
-      return { finished: true, observations: [] };
+      return { completedAt: now, finished: true, observations: [] };
     }
 
     const routes = [
@@ -351,7 +386,11 @@ export const observeWatchCycle = Effect.fn("observeWatchCycle")(
 
     yield* logFailures(observations);
 
-    return { finished: false, observations };
+    return {
+      completedAt: yield* Clock.currentTimeMillis,
+      finished: false,
+      observations,
+    };
   },
   Effect.scoped
 );
@@ -424,9 +463,27 @@ export const watchMachine = setupEffect({
           ),
         }),
         onDone: ({ context, event }) => {
+          const maxObservations = maxWatchObservations(
+            context.evidence.observations.length +
+              event.output.observations.length,
+            context.input.deadline - event.output.completedAt,
+            context.input.intervalMs,
+            2 *
+              (fixedWatchRoutes.length +
+                sweepSlice(
+                  context.evidence.routes,
+                  0,
+                  context.input.sweepCycles
+                ).length)
+          );
+
           const evidence = event.output.finished
             ? context.evidence
-            : nextWatchEvidence(context.evidence, event.output.observations);
+            : nextWatchEvidence(
+                context.evidence,
+                event.output.observations,
+                maxObservations
+              );
 
           let target = event.output.finished ? "completed" : "waiting";
 

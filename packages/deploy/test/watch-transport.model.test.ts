@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Fiber, Layer, Result, Schema } from "effect";
+import { Clock, Effect, Fiber, Layer, Result, Schema } from "effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import type * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -416,6 +416,24 @@ it.effect(
     })
 );
 
+it.effect("the dead-site policy is pinned to exactly two failed cycles", () =>
+  Effect.gen(function* literalThreshold() {
+    const result = yield* runWatch(
+      transportSite(() => true),
+      { durationMs: 10_000, intervalMs: 10 }
+    );
+
+    expect(Result.isFailure(result)).toBe(true);
+
+    if (Result.isFailure(result)) {
+      expect(result.failure.evidence.cycles).toBe(2);
+      expect(["persistent-transport-failure", "cycle-unreachable"]).toContain(
+        result.failure.reason
+      );
+    }
+  })
+);
+
 it.effect("the running watch requires consecutive unreachable cycles", () =>
   Effect.gen(function* unreachable() {
     const result = yield* runWatch(transportSite(() => true));
@@ -483,21 +501,86 @@ it.effect(
     })
 );
 
-it.effect(
-  "a completed watch rejects frequent alternating transport blips",
-  () =>
-    Effect.gen(function* ratio() {
-      const result = yield* runWatch(
-        transportSite((path, attempt) => path === "/" && attempt % 4 !== 0)
+it.effect("the watch rejects frequent alternating transport blips", () =>
+  Effect.gen(function* ratio() {
+    const result = yield* runWatch(
+      transportSite((path, attempt) => path === "/" && attempt % 4 !== 0)
+    );
+
+    expect(Result.isFailure(result)).toBe(true);
+
+    if (Result.isFailure(result)) {
+      expect(result.failure.reason).toBe("transport-blip-ratio");
+      expect(result.failure.evidence.transportFailure).not.toBe(
+        "persistent-transport-failure"
+      );
+    }
+  })
+);
+
+it.effect.prop(
+  "alternating full outages fail the running watch before its deadline",
+  {
+    durationMs: Schema.Int.check(
+      Schema.isBetween({ maximum: 60_000, minimum: 20_000 })
+    ),
+    intervalMs: Schema.Int.check(
+      Schema.isBetween({ maximum: 500, minimum: 100 })
+    ),
+  },
+  ({ durationMs, intervalMs }) =>
+    Effect.gen(function* alternatingOutage() {
+      const startedAt = yield* Clock.currentTimeMillis;
+
+      const client = transportSite(
+        (_, attempt, accept) =>
+          accept !== "application/xml" && attempt % 4 !== 0
       );
 
+      const fiber = yield* watchDeployment(
+        "https://example.test",
+        durationMs,
+        intervalMs
+      ).pipe(
+        Effect.provideService(HttpClient.HttpClient, client),
+        Effect.result,
+        Effect.flatMap((result) =>
+          Clock.currentTimeMillis.pipe(
+            Effect.map((settledAt) => ({ result, settledAt }))
+          )
+        ),
+        Effect.forkChild
+      );
+
+      yield* TestClock.adjust(durationMs + 10_000);
+      const { result, settledAt } = yield* Fiber.join(fiber);
+
       expect(Result.isFailure(result)).toBe(true);
+      expect(settledAt).toBeLessThan(startedAt + durationMs);
 
       if (Result.isFailure(result)) {
         expect(result.failure.reason).toBe("transport-blip-ratio");
-        expect(watchFailureReason(result.failure.evidence)).toBeUndefined();
+        expect(result.failure.evidence.cycles).toBeGreaterThan(1);
+
+        const probes = 2 * (fixedWatchRoutes.length + 1);
+
+        for (
+          let cycle = 0;
+          cycle < result.failure.evidence.cycles;
+          cycle += 1
+        ) {
+          const rows = result.failure.evidence.observations.slice(
+            1 + cycle * probes,
+            1 + (cycle + 1) * probes
+          );
+
+          expect(rows.map((row) => row.status)).toStrictEqual(
+            Array.from({ length: probes }, () => (cycle % 2 === 0 ? 0 : 200))
+          );
+        }
       }
-    })
+    }),
+  { arbitrary: { runs: 20 } }
 );
 
 it.effect(
