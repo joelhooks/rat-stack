@@ -1926,24 +1926,24 @@ See the [vision](${originToken}/VISION.md) for the reasoning and sources.
 
 ## Packages and their jobs
 
-rat-stack ships these packages and apps. Remove the ones you don't need with the [removal checklists](${originToken}/README.md#keep-or-cut). Trace their imports and run the checks after each cut.
+rat-stack ships these packages and apps. The [removal checklists](${originToken}/README.md#keep-or-cut) give tested feature cuts and conditional Keep entries. Some packages share the hosted content build; they are not independent cartridges. Run the checks after each cut.
 
 - **capability**: shared data definitions and command-line, web and agent interfaces. Keep the interfaces you use.
 - **core**: shared operations and service interfaces. Keep what your app uses.
-- **database**: run logs with D1 or Hyperdrive Postgres. Remove dependent services too.
-- **auth**: identity and access through [Better Auth](${originToken}/systems/auth). Remove dependent services too.
+- **database**: run logs with D1 or Hyperdrive Postgres. Cut with auth, protected feedback, and browser dev identity.
+- **auth**: identity and access through [Better Auth](${originToken}/systems/auth). Cut with database and those dependent features.
 - **devtools**: record, replay and compare operation calls. Optional development tools.
 - **events**: capture [request analytics](${originToken}/systems/analytics). Optional.
-- **lore**: query the public content graph. Remove dependent content operations too.
-- **subscriber-delivery**: handle signup and email confirmation. Remove dependent signup operations too.
-- **intake-live**: validate signup applications and protect stored answers. Remove dependent signup operations too.
-- **code-snippets**: build highlighted code examples from source files. Remove dependent content features too.
-- **check-harness**: run checks and report their results. Remove dependent deployment checks too.
-- **deploy**: plan, apply, check and roll back deployments. Remove dependent deployment commands too.
-- **web**: browser UI built with Foldkit. Optional.
-- **cli**: command-line interface. Optional.
-- **mischief**: hosted site, agent interfaces and code sandbox. Optional.
-- **infra**: Alchemy cloud resource declarations. Keep resources your app uses.
+- **lore**: query the public content graph. Keep with the hosted graph and content build.
+- **subscriber-delivery**: handle signup and email confirmation. Cut with intake-live and the live signup feature.
+- **intake-live**: validate signup applications and protect stored answers. Cut with subscriber-delivery and the live signup feature.
+- **code-snippets**: build highlighted code examples from source files. Keep with the teaching-content and source-snapshot build.
+- **check-harness**: run checks and report their results. Cut with the deployment driver.
+- **deploy**: plan, apply, check and roll back deployments. Cut with check-harness; the cloud Stack can stay.
+- **web**: shared reader models and browser UI built with Foldkit. Keep with the hosted content build.
+- **cli**: command-line interface. Optional; hosted interfaces and browser devtools can stay.
+- **mischief**: hosted site, agent interfaces and code sandbox in apps/site. Keep with the reader's shared content build and backend.
+- **infra**: Alchemy cloud resource declarations. Cut with deployment tooling after moving its Alchemy-version metadata input.
 
 A [cartridge](${originToken}/lore/cartridges) is a package for one job, including its implementation and cloud resources. Add it with one package and one line that provides the implementation. Removing it must leave unrelated packages working.
 
