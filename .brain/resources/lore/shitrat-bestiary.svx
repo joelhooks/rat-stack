@@ -81,7 +81,7 @@ The book has wheels now.
 
 ## The doc-fence
 
-A doc-fence is a published TypeScript code block that the content build checks.
+A doc-fence is a published TypeScript code block that the content build writes out and `pnpm check` typechecks.
 **Habitat:** [the wiki authoring rules](/skills/write-a-wiki-page#4-quote-code-from-its-source), backed by `apps/site/scripts/doc-fences.ts`.
 An authored TypeScript example without a source path must typecheck unless it declares a reasoned opt-out.
 The [opt-out count](/lore/code-snippets#the-authoring-syntax) lives in `.brain/data/doc-fence-baseline.json` and only shrinks.

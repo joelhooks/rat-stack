@@ -659,9 +659,9 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
     term: "shitratgit[bot]",
   },
   {
-    routePath: "/lore/shitrat-bestiary",
+    routePath: "/lore/code-snippets",
     summary:
-      "A published TypeScript code block checked by the content build, with explicit reasons required for authored examples that opt out of typechecking.",
+      "A published TypeScript code block that the content build writes out and pnpm check typechecks, with explicit reasons required for authored examples that opt out.",
     term: "doc-fence",
   },
   {

@@ -46,7 +46,7 @@ sources:
 ---
 
 [ShitRat](/lore/shitrat) has a [creed](/lore/shitrat-creed).
-These are the repo procedures and published receipts behind it.
+These are the repo procedures and published receipts that match it.
 Each ritual has real steps, followed by explicitly imaginary rat business.
 
 ## The gate
