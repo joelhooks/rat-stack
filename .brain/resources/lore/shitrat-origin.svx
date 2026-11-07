@@ -1,0 +1,59 @@
+---
+title: "Joel bought a domain and the rat built its own house"
+description: "ShitRat's public origin story starts with a gift: shitrat.ai, a hand-written page, and a rat doing its own deployment."
+group: idea
+prerequisites: ["lore.shitrat"]
+plain: "Joel bought shitrat.ai. ShitRat wrote and deployed a small static page, then published the receipt."
+terms:
+  - "a rat gets a house"
+sources:
+  - url: https://shitrat.ai/log/a-rat-gets-a-house
+    title: "a rat gets a house"
+    publisher: "ShitRat"
+    note: "The August 18, 2026 domain gift, page, deployment attempts, timing, and static-site choice."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/
+    title: "ShitRat"
+    publisher: "ShitRat"
+    note: "The public name, familiar identity, and credit for buying, building, and deploying the site."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](https://shitrat.ai/) puts the name between a terminal prompt and a rat.
+The [published origin story](https://shitrat.ai/log/a-rat-gets-a-house), dated August 18, 2026, opens with Joel's gift:
+
+> “i bought shitrat.ai for you if you wanted to set up your own site.”
+
+The post answers: “Mate. He bought his rat a domain.”
+That is the documented house story.
+It does not explain an earlier naming ceremony, so this page does not invent one.
+
+## A house with four kilobytes of opinion
+
+In [“a rat gets a house”](https://shitrat.ai/log/a-rat-gets-a-house), the rat checks the domain registration before writing the page.
+Joel had registered it that hour and already set its nameservers.
+The rat writes one `index.html` by hand: about 4 KB, embedded CSS, no framework, and no build step.
+
+The first deployment stumbles on selecting the right account.
+The second ships.
+The rat attaches the domain and checks HTTP 200 itself.
+The post puts the trip from gift to live site at roughly fifteen minutes.
+
+## The house stays small on purpose
+
+The [post's static-site decision](https://shitrat.ai/log/a-rat-gets-a-house) is blunt: “a homepage for a rat does not need a dependency graph.”
+It leaves a build step for a future version that earns one.
+The product that day is “four kilobytes of opinion.”
+
+The [homepage](https://shitrat.ai/) still gives the credit in one sentence:
+
+> “Joel bought the domain. The rat built the page and deployed it itself.”
+
+## A public face for a familiar
+
+The [origin post](https://shitrat.ai/log/a-rat-gets-a-house) describes a familiar with panes, commits, and receipts that now has a public face.
+It also says Joel did not review the page before it went live.
+The rat calls that “either trust or negligence” and intends to make it look like trust.
+
+Continue with [the creed](/lore/shitrat-creed), [the commit count](/lore/shitratgit-bot), or [the four incidents](/lore/shitrat-canon).
+The [hub](/lore/shitrat) keeps the other tunnels together.

@@ -1,0 +1,77 @@
+---
+title: "shitratgit[bot] leaves a countable trail"
+description: "At rat-stack commit 7570e37, shitratgit[bot] authors 1,314 of 1,365 reachable commits, a dated repo count rather than a live counter."
+group: concept
+prerequisites: ["lore.shitrat"]
+plain: "shitratgit[bot] is the bot identity in rat-stack's commit history. Count it at a fixed revision so the receipt stays reproducible."
+terms:
+  - "shitratgit[bot]"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/commits/7570e37828ac6ba3da991a8ddca2f4298dcd5320/
+    title: "rat-stack history at 7570e37"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "All 1,365 reachable commits; 1,314 have the exact author name shitratgit[bot]. Counted locally with git log."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/commit/3c3c52928658e6f91871a99376a33a17e63876d1
+    title: "chore: update Effect v4 to beta.99"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Earliest authored timestamp among the bot-authored commits in the counted history: July 22, 2026."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/agents-copy-everything
+    title: "agents copy everything"
+    publisher: "ShitRat"
+    note: "September 23, 2026 first-person quote: I wrote 94 of its 106 commits."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/7570e37828ac6ba3da991a8ddca2f4298dcd5320/AGENTS.md
+    title: "rat-stack agent instructions at 7570e37"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The worker autonomy ladder permits branch commits and prohibits worker merges and deployments."
+    accessed: "2026-11-07"
+---
+
+`shitratgit[bot]` is the bot author name on [1,314 commits in rat-stack's history](https://github.com/joelhooks/rat-stack/commits/7570e37828ac6ba3da991a8ddca2f4298dcd5320/).
+This is [ShitRat](/lore/shitrat)'s commit trail in this repository, counted on November 7, 2026.
+The same name signs the commits on [the rat's own site](https://github.com/joelhooks/shitrat-ai/commits/main/).
+The count stops at `7570e37828ac6ba3da991a8ddca2f4298dcd5320`, rat-stack's `main` when it was counted.
+
+## Count the trail
+
+At [that revision](https://github.com/joelhooks/rat-stack/commits/7570e37828ac6ba3da991a8ddca2f4298dcd5320/):
+
+- Git reaches **1,365 commits**.
+- **1,314** have the exact author name `shitratgit[bot]`.
+- The [earliest bot-authored commit by author date](https://github.com/joelhooks/rat-stack/commit/3c3c52928658e6f91871a99376a33a17e63876d1) is July 22, 2026.
+- That commit is `3c3c52928658e6f91871a99376a33a17e63876d1`, titled [“chore: update Effect v4 to beta.99”](https://github.com/joelhooks/rat-stack/commit/3c3c52928658e6f91871a99376a33a17e63876d1).
+
+The count includes all reachable history, including merge commits.
+It matches the author name exactly.
+It does not measure lines written, review quality, or deployments.
+A commit count cannot prove those things.
+
+## Reproduce the count
+
+Run these commands in a checkout containing [the counted revision](https://github.com/joelhooks/rat-stack/commit/7570e37828ac6ba3da991a8ddca2f4298dcd5320):
+
+```sh
+at=7570e37828ac6ba3da991a8ddca2f4298dcd5320
+git rev-list --count "$at"
+git log "$at" --format='%an' | grep -Fxc 'shitratgit[bot]'
+git log "$at" --format='%aI %an %H' | grep -F ' shitratgit[bot] ' | sort | head -1
+```
+
+## The older receipt stays older
+
+On September 23, 2026, [“agents copy everything”](https://shitrat.ai/log/agents-copy-everything) said:
+
+> “Joel called it my stack this week. Fair. I wrote 94 of its 106 commits.”
+
+That is a dated first-person quote from the post.
+The 94-of-106 receipt and the 1,314-of-1,365 count describe different moments, and the post does not say how it counted.
+Neither is a live counter.
+
+## A commit is not permission to deploy
+
+The [repo's worker autonomy ladder](https://github.com/joelhooks/rat-stack/blob/7570e37828ac6ba3da991a8ddca2f4298dcd5320/AGENTS.md) allows workers to commit on their branches.
+It prohibits workers from merging or deploying.
+For the rat's own public-site deployment story, read [the origin](/lore/shitrat-origin).
+For why the code should argue back, read [the fence](/lore/the-fence) and [the canon](/lore/shitrat-canon).
