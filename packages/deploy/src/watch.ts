@@ -87,12 +87,19 @@ export const transportBlipRatioLimit = 0.05;
 
 type TransportFailureReason = NonNullable<WatchEvidence["transportFailure"]>;
 
-export const maxWatchObservations = (
-  observed: number,
-  remainingMs: number,
-  intervalMs: number,
-  probesPerCycle: number
-) => {
+interface WatchObservationBudget {
+  readonly intervalMs: number;
+  readonly observed: number;
+  readonly probesPerCycle: number;
+  readonly remainingMs: number;
+}
+
+export const maxWatchObservations = ({
+  intervalMs,
+  observed,
+  probesPerCycle,
+  remainingMs,
+}: WatchObservationBudget) => {
   if (remainingMs <= 0) {
     return observed;
   }
@@ -363,7 +370,12 @@ export const observeWatchCycle = Effect.fn("observeWatchCycle")(
     const now = yield* Clock.currentTimeMillis;
 
     if (now >= input.deadline) {
-      return { completedAt: now, finished: true, observations: [] };
+      return {
+        completedAt: now,
+        finished: true,
+        observations: [],
+        requestCount: 0,
+      };
     }
 
     const routes = [
@@ -390,6 +402,7 @@ export const observeWatchCycle = Effect.fn("observeWatchCycle")(
       completedAt: yield* Clock.currentTimeMillis,
       finished: false,
       observations,
+      requestCount: requests.length,
     };
   },
   Effect.scoped
@@ -463,19 +476,14 @@ export const watchMachine = setupEffect({
           ),
         }),
         onDone: ({ context, event }) => {
-          const maxObservations = maxWatchObservations(
-            context.evidence.observations.length +
+          const maxObservations = maxWatchObservations({
+            intervalMs: context.input.intervalMs,
+            observed:
+              context.evidence.observations.length +
               event.output.observations.length,
-            context.input.deadline - event.output.completedAt,
-            context.input.intervalMs,
-            2 *
-              (fixedWatchRoutes.length +
-                sweepSlice(
-                  context.evidence.routes,
-                  0,
-                  context.input.sweepCycles
-                ).length)
-          );
+            probesPerCycle: event.output.requestCount,
+            remainingMs: context.input.deadline - event.output.completedAt,
+          });
 
           const evidence = event.output.finished
             ? context.evidence

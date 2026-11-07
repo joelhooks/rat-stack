@@ -43,6 +43,8 @@ Transport errors and timeouts get three request attempts, with 250 ms and 500 ms
 
 A transport-blip ratio above 5% fails with `transport-blip-ratio`. The limit is about five times the November 7 incident's 15 blips in 1,445 observations, or 1.04%. During the watch, failure waits until even an entirely healthy continuation cannot bring the ratio back to 5%. The observation ceiling includes recorded rows and every remaining cycle that could start before the deadline, assuming probes take no time. A zero cycle interval leaves that future ceiling unbounded until the deadline.
 
+The observer reports the actual number of requests it built for each cycle. The remaining-cycle ceiling uses that count, so Accept classes and sitemap slices do not have a second counting formula.
+
 At completion, the ratio uses the actual observation count. Passing watches retain every blip in evidence and count them separately from real non-200 responses. Route coverage requires a real response.
 
 ## Provider failure evidence

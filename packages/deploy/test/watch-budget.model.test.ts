@@ -38,15 +38,34 @@ it.prop(
     }
 
     expect(
-      maxWatchObservations(observed, remainingMs, intervalMs, probes)
+      maxWatchObservations({
+        intervalMs,
+        observed,
+        probesPerCycle: probes,
+        remainingMs,
+      })
     ).toBe(expected);
   },
   { arbitrary: { runs: 1000 } }
 );
 
 it("an unpaced watch has no finite future ceiling until its deadline", () => {
-  expect(maxWatchObservations(100, 1, 0, 12)).toBe(Number.POSITIVE_INFINITY);
-  expect(maxWatchObservations(100, 0, 0, 12)).toBe(100);
+  expect(
+    maxWatchObservations({
+      intervalMs: 0,
+      observed: 100,
+      probesPerCycle: 12,
+      remainingMs: 1,
+    })
+  ).toBe(Number.POSITIVE_INFINITY);
+  expect(
+    maxWatchObservations({
+      intervalMs: 0,
+      observed: 100,
+      probesPerCycle: 12,
+      remainingMs: 0,
+    })
+  ).toBe(100);
 });
 
 const completed = (blips: number) =>
@@ -92,12 +111,12 @@ it.prop(
         observation(route, cycle % 2 === 0 ? 0 : 200, now)
       );
 
-      const maximum = maxWatchObservations(
-        evidence.observations.length + rows.length,
-        deadline - now,
+      const maximum = maxWatchObservations({
         intervalMs,
-        probes
-      );
+        observed: evidence.observations.length + rows.length,
+        probesPerCycle: probes,
+        remainingMs: deadline - now,
+      });
 
       evidence = nextWatchEvidence(evidence, rows, maximum);
       const blips = Math.ceil((cycle + 1) / 2) * probes;

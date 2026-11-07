@@ -288,6 +288,7 @@ it.effect(
       const result = yield* Fiber.join(fiber);
 
       expect(result.observations).toHaveLength(12);
+      expect(result.requestCount).toBe(result.observations.length);
       expect(result.observations.every((row) => row.status === 200)).toBe(true);
       expect([...attempts.values()]).toStrictEqual(
         Array.from({ length: 12 }, () => 2)
@@ -516,6 +517,48 @@ it.effect("the watch rejects frequent alternating transport blips", () =>
       );
     }
   })
+);
+
+it.effect(
+  "a recoverable early forty-blip burst passes even when its recorded prefix exceeds five percent",
+  () =>
+    Effect.gen(function* recoverableBurst() {
+      const routes = Array.from({ length: 238 }, (_, index) => `/r/${index}`);
+      const burstRoutes = new Set(routes.slice(0, 20));
+
+      const client = transportSite(
+        (path, attempt) => burstRoutes.has(path) && attempt <= 3,
+        routes
+      );
+
+      const fiber = yield* watchDeployment(
+        "https://example.test",
+        30_000,
+        1000
+      ).pipe(
+        Effect.provideService(HttpClient.HttpClient, client),
+        Effect.result,
+        Effect.forkChild
+      );
+
+      yield* TestClock.adjust(40_000);
+      const result = yield* Fiber.join(fiber);
+
+      expect(Result.isSuccess(result)).toBe(true);
+
+      if (Result.isSuccess(result)) {
+        const { observations } = result.success;
+        const prefix = observations.slice(0, 61);
+        const firstCycleBlips = prefix.filter((row) => row.status === 0).length;
+        const allBlips = observations.filter((row) => row.status === 0).length;
+
+        expect(firstCycleBlips).toBe(40);
+        expect(allBlips).toBe(40);
+        expect(firstCycleBlips / prefix.length).toBeGreaterThan(0.05);
+        expect(allBlips / observations.length).toBeLessThan(0.05);
+        expect(result.success.cycles).toBeGreaterThan(10);
+      }
+    })
 );
 
 it.effect.prop(
