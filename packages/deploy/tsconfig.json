@@ -15,6 +15,7 @@
           "effect/cli/Command",
           "effect/http/FetchHttpClient",
           "effect/http/HttpClient",
+          "effect/http/HttpClientError",
           "effect/http/HttpClientRequest",
           "effect/http/HttpClientResponse",
           "effect/http/HttpServerRequest",

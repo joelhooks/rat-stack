@@ -48,10 +48,8 @@ const observation = (
 });
 
 const transportError = (request: HttpClientRequest.HttpClientRequest) => {
-  // @effect-diagnostics-next-line unstableApiUsage:off -- The supplied client models the pinned HTTP transport failure without using a network.
   const reason = new HttpClientError.TransportError({ request });
 
-  // @effect-diagnostics-next-line unstableApiUsage:off -- The pinned client requires its typed error wrapper at this test boundary.
   return new HttpClientError.HttpClientError({ reason });
 };
 
