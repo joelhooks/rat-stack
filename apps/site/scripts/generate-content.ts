@@ -756,7 +756,7 @@ const skillGroups = [
   },
 ] as const;
 
-const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
+export const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
   root: string,
   debtSourcePaths: readonly string[]
 ) {
@@ -811,6 +811,21 @@ const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
     })
   );
 
+  if (
+    (process.exitCode !== 0 && process.exitCode !== 1) ||
+    process.json.trim().length === 0
+  ) {
+    return yield* buildError(
+      "debt lint exit",
+      "oxlint",
+      violation(
+        `Oxlint exited ${process.exitCode} for ${debtSourcePaths.length} debt source paths; stdout ${process.json.trim().length === 0 ? "was empty" : "was nonempty"}; stderr: ${JSON.stringify(process.stderr.slice(0, 400))}.`,
+        "The debt ledger needs JSON from a completed lint run, so a failed or empty run has no count.",
+        "rerun `pnpm exec oxlint -c scripts/oxlint-debt-ledger.config.ts` and fix the error it prints."
+      )
+    );
+  }
+
   const lint = yield* Effect.try({
     catch: (cause) =>
       Schema.is(ContentBuildError)(cause)
@@ -818,18 +833,6 @@ const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
         : buildError("debt lint JSON", "oxlint", cause),
     try: () => parseDebtLintOutput(process.json),
   });
-
-  if (process.exitCode !== 0 && process.exitCode !== 1) {
-    return yield* buildError(
-      "debt lint exit",
-      "oxlint",
-      violation(
-        `Oxlint exited ${process.exitCode}: ${process.stderr}.`,
-        "The debt ledger counts directives from oxlint's output, so a crashed run has no count.",
-        "rerun `pnpm exec oxlint -c scripts/oxlint-debt-ledger.config.ts` and fix the error it prints."
-      )
-    );
-  }
 
   if (lint.fileCount !== debtSourcePaths.length || lint.ruleCount !== 1) {
     return yield* buildError(
@@ -3892,4 +3895,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   Effect.provide([shikiLayer(), NodeServices.layer, NodeCrypto.layerDigest])
 );
 
-NodeRuntime.runMain(program);
+if (import.meta.main) {
+  NodeRuntime.runMain(program);
+}
