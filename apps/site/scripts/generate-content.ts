@@ -1,5 +1,6 @@
 // @effect-diagnostics-next-line nodeBuiltinImport:off -- Build-only hashing uses Node's stable SHA-256 implementation.
 import { createHash } from "node:crypto";
+import { fileURLToPath } from "node:url";
 
 import { NodeCrypto, NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Drift, prepareCode } from "@rat-stack/code-snippets";
@@ -20,6 +21,7 @@ import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
 import { Resvg } from "@resvg/resvg-js";
 import {
+  Array as Arr,
   Effect,
   FileSystem,
   Layer,
@@ -102,7 +104,11 @@ import {
   violation,
   withMarkdownTitle,
 } from "./content-lib.ts";
-import type { CopyPromptSpec, LoreTermTarget } from "./content-lib.ts";
+import type {
+  CopyPromptSpec,
+  DebtLintResult,
+  LoreTermTarget,
+} from "./content-lib.ts";
 import { linkStackEntities } from "./content-links.ts";
 import {
   createRefComponent,
@@ -756,97 +762,190 @@ const skillGroups = [
   },
 ] as const;
 
-export const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
-  root: string,
-  debtSourcePaths: readonly string[]
-) {
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+const runDebtLintChunk = Effect.fn("runDebtLintChunk")(
+  function* runDebtLintChunk(
+    root: string,
+    debtSourcePaths: readonly string[],
+    chunkIndex: number,
+    chunkCount: number,
+    totalPathCount: number
+  ) {
+    const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-  const command = ChildProcess.make(
-    "pnpm",
-    [
-      "exec",
-      "oxlint",
-      "--config",
-      "scripts/oxlint-debt-ledger.config.ts",
-      "-A",
-      "all",
-      "-D",
-      "rat-stack-debt/debt-ledger",
-      "--format",
-      "json",
-      "--no-ignore",
-      ...debtSourcePaths,
-    ],
-    { cwd: root }
-  );
+    const command = ChildProcess.make(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL("bin/oxlint", import.meta.resolve("oxlint/package.json"))
+        ),
+        "--config",
+        "scripts/oxlint-debt-ledger.config.ts",
+        "-A",
+        "all",
+        "-D",
+        "rat-stack-debt/debt-ledger",
+        "--format",
+        "json",
+        "--no-ignore",
+        ...debtSourcePaths,
+      ],
+      { cwd: root }
+    );
 
-  const process = yield* Effect.scoped(
-    Effect.gen(function* runDebtLintProcess() {
-      const handle = yield* spawner
-        .spawn(command)
-        .pipe(
-          Effect.mapError((cause) => buildError("debt lint", "oxlint", cause))
+    const output = yield* Effect.scoped(
+      Effect.gen(function* runDebtLintProcess() {
+        const handle = yield* spawner
+          .spawn(command)
+          .pipe(
+            Effect.mapError((cause) => buildError("debt lint", "oxlint", cause))
+          );
+
+        const [json, stderr] = yield* Effect.all(
+          [
+            Stream.mkString(Stream.decodeText(handle.stdout)),
+            Stream.mkString(Stream.decodeText(handle.stderr)),
+          ],
+          { concurrency: "unbounded" }
+        ).pipe(
+          Effect.mapError((cause) =>
+            buildError("debt lint output", "oxlint", cause)
+          )
         );
 
-      const [json, stderr] = yield* Effect.all(
-        [
-          Stream.mkString(Stream.decodeText(handle.stdout)),
-          Stream.mkString(Stream.decodeText(handle.stderr)),
-        ],
-        { concurrency: "unbounded" }
-      ).pipe(
-        Effect.mapError((cause) =>
-          buildError("debt lint output", "oxlint", cause)
-        )
-      );
+        const exitCode = yield* handle.exitCode.pipe(
+          Effect.mapError((cause) =>
+            buildError("debt lint exit", "oxlint", cause)
+          )
+        );
 
-      const exitCode = yield* handle.exitCode.pipe(
-        Effect.mapError((cause) =>
-          buildError("debt lint exit", "oxlint", cause)
-        )
-      );
-
-      return { exitCode, json, stderr };
-    })
-  );
-
-  if (
-    (process.exitCode !== 0 && process.exitCode !== 1) ||
-    process.json.trim().length === 0
-  ) {
-    return yield* buildError(
-      "debt lint exit",
-      "oxlint",
-      violation(
-        `Oxlint exited ${process.exitCode} for ${debtSourcePaths.length} debt source paths; stdout ${process.json.trim().length === 0 ? "was empty" : "was nonempty"}; stderr: ${JSON.stringify(process.stderr.slice(0, 400))}.`,
-        "The debt ledger needs JSON from a completed lint run, so a failed or empty run has no count.",
-        "rerun `pnpm exec oxlint -c scripts/oxlint-debt-ledger.config.ts` and fix the error it prints."
-      )
+        return { exitCode, json, stderr };
+      })
     );
+
+    const stderrPreview = JSON.stringify(
+      output.stderr.slice(0, 400)
+    ).replaceAll("Fix:", "Fix\\u003a");
+
+    const processContext = `Oxlint exited ${output.exitCode} for ${debtSourcePaths.length} debt source paths; chunk ${chunkIndex + 1}/${chunkCount} of ${totalPathCount} total paths; stdout ${output.json.trim().length === 0 ? "was empty" : "was nonempty"}; stderr: ${stderrPreview}.`;
+
+    const processFix =
+      "read the stderr preview, check the reported path count and generated directory segments excluded by `isDebtSourcePath` in `apps/site/scripts/content-lib.ts`, then reproduce with the affected chunk's paths using `node node_modules/oxlint/bin/oxlint --config scripts/oxlint-debt-ledger.config.ts -A all -D rat-stack-debt/debt-ledger --format json --no-ignore <paths>`.";
+
+    if (
+      (output.exitCode !== 0 && output.exitCode !== 1) ||
+      output.json.trim().length === 0
+    ) {
+      return yield* buildError(
+        "debt lint exit",
+        "oxlint",
+        violation(
+          processContext,
+          "The debt ledger needs JSON from a completed lint run, so a failed or empty run has no count.",
+          processFix
+        )
+      );
+    }
+
+    const lint = yield* Effect.try({
+      catch: (cause) =>
+        Schema.is(ContentBuildError)(cause)
+          ? cause
+          : buildError("debt lint JSON", "oxlint", cause),
+      try: () => parseDebtLintOutput(output.json),
+    });
+
+    if (lint.fileCount !== debtSourcePaths.length || lint.ruleCount !== 1) {
+      return yield* buildError(
+        "debt lint scope",
+        "oxlint",
+        violation(
+          `Expected ${debtSourcePaths.length} files and one rule; oxlint checked ${lint.fileCount} files and ${lint.ruleCount} rules.`,
+          "A ledger over the wrong files or rules reports the wrong debt.",
+          "make `scripts/oxlint-debt-ledger.config.ts` enable only `rat-stack-debt/debt-ledger`, and keep `isDebtSourcePath` in `apps/site/scripts/content-lib.ts` matching its ignore patterns."
+        )
+      );
+    }
+
+    return lint;
   }
+);
 
-  const lint = yield* Effect.try({
-    catch: (cause) =>
-      Schema.is(ContentBuildError)(cause)
-        ? cause
-        : buildError("debt lint JSON", "oxlint", cause),
-    try: () => parseDebtLintOutput(process.json),
-  });
+export const mergeDebtLintResults = Effect.fn("mergeDebtLintResults")(
+  function* mergeDebtLintResults(
+    results: readonly DebtLintResult[],
+    expectedFileCount: number
+  ) {
+    const fileCount = results.reduce(
+      (count, result) => count + result.fileCount,
+      0
+    );
 
-  if (lint.fileCount !== debtSourcePaths.length || lint.ruleCount !== 1) {
+    const ruleCount = results[0]?.ruleCount;
+
+    if (
+      fileCount !== expectedFileCount ||
+      ruleCount !== 1 ||
+      results.some((result) => result.ruleCount !== ruleCount)
+    ) {
+      return yield* buildError(
+        "debt lint scope",
+        "oxlint",
+        violation(
+          `Expected ${expectedFileCount} files and one rule across all chunks; merged ${fileCount} files with chunk rule counts ${JSON.stringify(results.map((result) => result.ruleCount))}.`,
+          "An incomplete or inconsistent merge would publish the wrong debt count.",
+          "check the chunk loop and result merge in `runDebtLint` in `apps/site/scripts/generate-content.ts` so every source path and the single debt rule are accounted for."
+        )
+      );
+    }
+
+    return {
+      entries: results
+        .flatMap((result) => result.entries)
+        .toSorted(
+          (left, right) =>
+            left.file.localeCompare(right.file) ||
+            left.line - right.line ||
+            left.directive.localeCompare(right.directive)
+        ),
+      fileCount,
+      ruleCount,
+    } satisfies DebtLintResult;
+  }
+);
+
+export const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
+  root: string,
+  debtSourcePaths: readonly string[],
+  chunkSize?: number
+) {
+  if (debtSourcePaths.length === 0) {
     return yield* buildError(
       "debt lint scope",
       "oxlint",
       violation(
-        `Expected ${debtSourcePaths.length} files and one rule; oxlint checked ${lint.fileCount} files and ${lint.ruleCount} rules.`,
-        "A ledger over the wrong files or rules reports the wrong debt.",
-        "make `scripts/oxlint-debt-ledger.config.ts` enable only `rat-stack-debt/debt-ledger`, and keep `isDebtSourcePath` in `apps/site/scripts/content-lib.ts` matching its ignore patterns."
+        "No debt source paths were found.",
+        "An empty scan would publish a ledger that falsely reports no debt.",
+        "check `isDebtSourcePath` in `apps/site/scripts/content-lib.ts` and the walk roots `apps`, `packages`, `scripts`, and `tools` in `apps/site/scripts/generate-content.ts`, then rerun `pnpm --filter @rat-stack/site run generate`."
       )
     );
   }
 
-  return lint;
+  const chunks = Arr.chunksOf(debtSourcePaths, chunkSize ?? 500);
+  const results: DebtLintResult[] = [];
+
+  for (const [index, chunk] of chunks.entries()) {
+    results.push(
+      yield* runDebtLintChunk(
+        root,
+        chunk,
+        index,
+        chunks.length,
+        debtSourcePaths.length
+      )
+    );
+  }
+
+  return yield* mergeDebtLintResults(results, debtSourcePaths.length);
 });
 
 const reportCodeDiagnostics = (diagnostics: readonly Diagnostics[]) =>
