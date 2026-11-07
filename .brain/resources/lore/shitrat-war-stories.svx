@@ -1,0 +1,161 @@
+---
+title: "The war stories"
+description: "Seven public repo incidents: a deploy undoes itself, failure says 200, sessions forget their guests, and the rat tests the demolition instructions."
+group: idea
+prerequisites: ["lore.shitrat", "lore.shitrat-canon"]
+plain: "Seven repo incidents record what broke and what changed. Each has a public PR or commit; invented details stay labelled as legend."
+terms:
+  - "ShitRat war stories"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/pull/223
+    title: "The watch rolls back a good deploy"
+    publisher: "rat-stack"
+    note: "November 7, 2026: client-side transport errors trigger a rollback; retries and separate transport evidence follow."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/pull/226
+    title: "Bound transport uncertainty across watch cycles"
+    publisher: "rat-stack"
+    note: "November 7, 2026: consecutive unreachable cycles and a 5% transport-blip limit."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/pull/220
+    title: "A failed program becomes a typed execute failure"
+    publisher: "rat-stack"
+    note: "November 7, 2026: false HTTP success becomes ExecuteError at 422; deployment checks change with it."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/commit/246600bd53978883a6a4c1f5a6ff45e3f1ff2f0c
+    title: "Move apps/mischief to apps/site"
+    publisher: "rat-stack"
+    note: "October 10, 2026: mechanical directory and package rename; resource IDs, Worker names and symbols stay unchanged."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/pull/221
+    title: "Tested removal checklists for every package"
+    publisher: "rat-stack"
+    note: "November 7, 2026: seven existing cuts expand into tested cuts and conditional Keep entries; scratch removals do not land."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/7511fdd2c7f2fa607cff1a22a1cba6f0bdeb3220/apps/site/STARTUP.md
+    title: "Startup budget and its temporary exception"
+    publisher: "rat-stack"
+    note: "The November 2 dependency bump, lazy MCP loading, the 60,000-byte exception, and its expiry."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/7511fdd2c7f2fa607cff1a22a1cba6f0bdeb3220/AGENTS.md
+    title: "The shrink-only rule"
+    publisher: "rat-stack"
+    note: "The startup ceilings must not rise to accept growth; the one recorded exception has an expiry."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/pull/212
+    title: "Restore checker parity"
+    publisher: "rat-stack"
+    note: "November 5, 2026: imported-file coverage differs between checkers; exact module allowances restore 29 passing checks."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/pull/209
+    title: "MCP sessions survive isolate changes"
+    publisher: "rat-stack"
+    note: "November 5, 2026: session memory causes 404s; stored initialization records let another runtime rebuild the session."
+    accessed: "2026-11-07"
+---
+
+A [deploy rolls itself back](https://github.com/joelhooks/rat-stack/pull/223) while the site is serving 200.
+Five freshly published pages return to 404.
+That is one of [ShitRat](/lore/shitrat)'s repo-side war stories.
+The dates below belong to the public records; the passages marked **Legend has it…** belong to the rat.
+
+## The deploy that mugged itself
+
+November 7, 2026. [PR #223](https://github.com/joelhooks/rat-stack/pull/223) and [PR #226](https://github.com/joelhooks/rat-stack/pull/226).
+
+The site serves 200, but [the deploying machine records 15 client-side transport errors among 1,445 observations](https://github.com/joelhooks/rat-stack/pull/223).
+The watch treats those status-0 results as failed routes, restores the old Cloudflare Worker versions, and sends five new pages back to 404.
+The first fix retries transport errors and records them separately; real non-200 responses fail after the first cycle that sees them.
+
+The follow-up requires two consecutive unreachable cycles and fails a completed watch when transport errors exceed 5% of observations.
+It also fails early if even a healthy continuation leaves the final ratio above the limit.
+
+**Legend has it…** the smoke alarm ate five rooms and invoiced the kettle.
+The rat now asks whether the house is burning before giving the alarm a sledgehammer.
+
+## Congratulations, your program exploded
+
+November 7, 2026. [PR #220](https://github.com/joelhooks/rat-stack/pull/220).
+
+A failed [code mode](/lore/one-program-can-replace-several-tool-calls) program returns HTTP 200 with a `diagnostic` field.
+A client trusting the status therefore reads failure as success.
+The fix returns HTTP 422 with a typed `ExecuteError`; successful programs keep 200 and lose `diagnostic: null`.
+
+The deployment checks change alongside the response, because an old check would reject the new shape and roll it back.
+A generated-program test checks failure reporting across HTTP, [MCP](/lore/mcp-is-another-surface), [RPC](/skills/learn-rat-stack), and the CLI; restoring the false 200 makes it fail.
+
+**Legend has it…** the rat arrives at casualty wearing a badge that says 200 OK.
+The nurse changes it to 422 and keeps the scissors.
+
+## Mischief changes the brass plate
+
+October 10, 2026. [Rename commit](https://github.com/joelhooks/rat-stack/commit/246600bd53978883a6a4c1f5a6ff45e3f1ff2f0c).
+
+The code moves from `apps/mischief` to `apps/site`, and the package becomes `@rat-stack/site`.
+The commit calls this “Mechanical path updates only.”
+[Alchemy](/skills/learn-alchemy) resource IDs, Worker names, and TypeScript symbols keep their names, so Mischief survives the move.
+
+**Legend has it…** Mischief orders new business cards, eats the box, and answers to the old name when the bailiff calls.
+
+## The demolition manual gets demolished
+
+November 7, 2026. [PR #221](https://github.com/joelhooks/rat-stack/pull/221).
+
+The homepage promises removal checklists, but the README covers only seven cuts.
+The fix carries out each new tested cut in a scratch branch until `pnpm turbo run check test build` passes.
+The checklists record the edits that worked; none of those scratch removals land.
+
+Four parts of the content build get conditional Keep entries explaining their callers and what removal would lose.
+The homepage also starts naming which packages go together.
+
+**Legend has it…** the rat follows the flat-pack instructions backwards to establish which screws are structural.
+The wardrobe has requested a witness.
+
+## The ceiling gets an expiry date
+
+November 2, 2026. [Dependency-bump commit](https://github.com/joelhooks/rat-stack/commit/2623f8fd0192fa1e4d0462f27bde8f4e9341cdf4) and [the startup record](https://github.com/joelhooks/rat-stack/blob/7511fdd2c7f2fa607cff1a22a1cba6f0bdeb3220/apps/site/STARTUP.md#temporary-raise-alchemy-beta85-and-effect-41).
+
+[Repo law](https://github.com/joelhooks/rat-stack/blob/7511fdd2c7f2fa607cff1a22a1cba6f0bdeb3220/AGENTS.md) says of startup ceilings: “Never raise them to accept growth.”
+The dependency bump grows both startup sets, but loading [MCP](/lore/mcp-is-another-surface) on demand brings Mischief below its previous size.
+Its ceiling drops from 1,247,000 to 1,114,000 bytes.
+
+LearnFeedbackAuth has no MCP endpoint; its one recorded exception raises the ceiling by 60,000 bytes to 1,516,000.
+The exception expires when Alchemy ships the bridge fix or on November 16, 2026, whichever comes first.
+
+**Legend has it…** the building inspector finds a rat holding the ceiling up with a broom.
+The broom has a removal date.
+The rat has read it several times.
+
+## Two accountants disagree about the shed
+
+November 5, 2026. [PR #212](https://github.com/joelhooks/rat-stack/pull/212).
+
+Two typecheckers disagree about which imported files receive [Effect](/lore/effect-basics) diagnostics.
+Patched `tsc` reports those diagnostics throughout the program; `effect-tsrs` reports them only in each project's included files.
+The root and infrastructure projects therefore get different pass/fail answers.
+
+The fix allows exactly the reported modules in those two scopes, leaving the severity map and base configuration unchanged.
+The parity run goes from two failures to 29 passing checks.
+
+**Legend has it…** one accountant counts the shed.
+The other calls it a lifestyle choice.
+The rat receives two invoices for one lawnmower.
+
+## The bouncer eats the guest list
+
+November 5, 2026. [PR #209](https://github.com/joelhooks/rat-stack/pull/209).
+
+[MCP](/lore/mcp-is-another-surface) clients using protocol 2025-11-25 get empty-body 404s when a call after initialization reaches another running copy of the server.
+The session lives in one copy's memory; about one in three multi-call production probes fails.
+The fix stores one initialization record per session and replays it to rebuild the runtime.
+
+That record contains the initialization body and three allowlisted headers, with no tool arguments or results.
+A test reproduces the old 404 and checks requests through fresh front runtimes.
+
+**Legend has it…** the doorman issues wristbands, eats his guest list, and charges the same rat admission again.
+The rat is still standing in the doorway.
+
+The [comment purge already has its canon entry](/lore/shitrat-canon#agents-copy-everything).
+Meet the creatures in [the bestiary](/lore/shitrat-bestiary), or return to [the hub](/lore/shitrat).
+
+SR 🐀

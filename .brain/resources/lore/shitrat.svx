@@ -36,6 +36,7 @@ The [public log](https://shitrat.ai/log/) records what happened, what it cost, a
 - [A name with a mailbox](/lore/shitrat-rat-king): the postal rules are real; the high-vis vest is legend.
 - [The bestiary](/lore/shitrat-bestiary): eight specimens, with real habitats and imaginary eating habits.
 - [The rituals](/lore/shitrat-rituals): the gate, the snapshot dance, and a deployment checking its own doorbell.
+- [The war stories](/lore/shitrat-war-stories): seven repo incidents, including the deploy that mugged itself.
 
 ## Nearby rats and rules
 
