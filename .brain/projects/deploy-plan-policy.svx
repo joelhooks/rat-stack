@@ -37,7 +37,15 @@ Updated Workers wait for a single fully deployed version different from the reco
 
 Content propagation can lag a successful Worker apply. Mismatches retry with exponential backoff under an exported 120-second deadline. A declared environment override can shorten or extend that deadline. Verdicts retain each attempt and failed attempt. Deadline exhaustion stays red.
 
-The watch uses an XState lifecycle and declared Effect actors. It checks both Accept classes for ten minutes. Two consecutive content-500 cycles stop early. A recovered non-200 still disqualifies the watch. Automatic rollback stays off.
+The watch uses an XState lifecycle and declared Effect actors. It checks both Accept classes for ten minutes. Any real non-200 response fails after one observed cycle, even if its error body cannot be read. Real HTTP responses are never retried.
+
+Transport errors and timeouts get three request attempts, with 250 ms and 500 ms backoffs. Exhausted attempts record status 0 as inconclusive client evidence. Two consecutive cycles with transport failures on the same route fail with `persistent-transport-failure`. Two consecutive entirely unreachable cycles fail with `cycle-unreachable`. A healthy or unsampled cycle resets that route's transport streak.
+
+A transport-blip ratio above 5% fails with `transport-blip-ratio`. The limit is about five times the November 7 incident's 15 blips in 1,445 observations, or 1.04%. During the watch, failure waits until even an entirely healthy continuation cannot bring the ratio back to 5%. The observation ceiling includes recorded rows and every remaining cycle that could start before the deadline, assuming probes take no time. A zero cycle interval leaves that future ceiling unbounded until the deadline.
+
+The observer reports the actual number of requests it built for each cycle. The remaining-cycle ceiling uses that count, so Accept classes and sitemap slices do not have a second counting formula.
+
+At completion, the ratio uses the actual observation count. Passing watches retain every blip in evidence and count them separately from real non-200 responses. Route coverage requires a real response.
 
 ## Provider failure evidence
 
@@ -89,7 +97,8 @@ Local apply receipts are recovery evidence, not a second infrastructure state st
 - `packages/deploy/test/version-readiness.test.ts` checks stale, missing and fresh version evidence and bounded scan histories.
 - `packages/deploy/test/worker-version-readback.model.test.ts` models missing state IDs, delayed live listings and the complete production lifecycle. Restoring state-ID extraction or removing retry breaks it.
 - `packages/deploy/test/content-propagation.model.test.ts` models convergence and deadline exhaustion under virtual time. Removing retry makes it fail.
-- `packages/deploy/test/watch.model.test.ts` models adjacent failure cycles and preserves bounded incident evidence. Raising the threshold breaks it.
+- `packages/deploy/test/watch.model.test.ts` checks one-cycle HTTP failure, bounded incident evidence, and route sweeps.
+- `packages/deploy/test/watch-transport.model.test.ts` models transport streaks, route-specific resets, consecutive unreachable cycles, and the completed-watch blip ratio. It replays the November 7 incident and supplies an HTTP client layer to prove retries, the literal two-cycle threshold, early failure for alternating outages, and real-response-only coverage. `packages/deploy/test/watch-budget.model.test.ts` enumerates possible future probe cycles, models recoverable and irrecoverable prefixes, and pins the 4% passing and 6% failing examples.
 - `packages/deploy/test/rollback.test.ts` checks receipt refusal, idempotent restore and source preservation. Overwriting the apply receipt breaks it.
 - `packages/deploy/test/provider-pin.test.ts` checks the approved provider pin against Alchemy. A mismatched pin breaks it.
 - `packages/deploy/test/provider-failure.model.test.ts` generates concurrent fake upload failures and partial applies. It checks persisted receipts, verdicts, compact reports and credential redaction.
