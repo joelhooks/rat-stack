@@ -8,7 +8,10 @@ import {
   isDebtSourcePath,
   parseDebtLintOutput,
 } from "../scripts/content-lib.ts";
-import { runDebtLint } from "../scripts/generate-content.ts";
+import {
+  mergeDebtLintResults,
+  runDebtLint,
+} from "../scripts/generate-content.ts";
 
 const pathName = Arbitrary.array(
   Arbitrary.schema(Schema.Literals(["a", "b", "c", "-", "_"])),
@@ -311,20 +314,84 @@ it.effect(
     })
 );
 
-it.effect("empty source lists never start oxlint without explicit paths", () =>
+it.effect("empty source lists fail closed before oxlint starts", () =>
   Effect.gen(function* emptyLint() {
     const seen: string[][] = [];
 
-    const result = yield* runDebtLint("/repo", []).pipe(
+    const error = yield* runDebtLint("/repo", []).pipe(
       Effect.provideService(
         ChildProcessSpawner.ChildProcessSpawner,
         scopedLintSpawner(seen)
-      )
+      ),
+      Effect.flip
     );
 
+    const message = fenceMessage(error.message);
+
     expect(seen).toEqual([]);
-    expect(result).toEqual({ entries: [], fileCount: 0, ruleCount: 1 });
+    expect(error.stage).toBe("debt lint scope");
+    expect(error.message).toContain("No debt source paths were found.");
+    expect(message).toBeDefined();
+    expect(message?.fix).toContain("`isDebtSourcePath`");
+    expect(message?.fix).toContain(
+      "`apps`, `packages`, `scripts`, and `tools`"
+    );
   })
+);
+
+it.effect.prop(
+  "a merged total that differs from the source list fails closed",
+  {
+    counts: Arbitrary.array(
+      Arbitrary.schema(
+        Schema.Int.check(Schema.isBetween({ maximum: 20, minimum: 2 }))
+      ),
+      { maxLength: 6, minLength: 1 }
+    ),
+    delta: Arbitrary.schema(Schema.Literals([-1, 1, 2])),
+  },
+  ({ counts, delta }) =>
+    Effect.gen(function* mismatchedMerge() {
+      const results = counts.map((fileCount) => ({
+        entries: [],
+        fileCount,
+        ruleCount: 1,
+      }));
+
+      const fileCount = counts.reduce((sum, count) => sum + count, 0);
+
+      const error = yield* mergeDebtLintResults(
+        results,
+        fileCount + delta
+      ).pipe(Effect.flip);
+
+      expect(error.stage).toBe("debt lint scope");
+      expect(error.message).toContain(`merged ${fileCount} files`);
+      expect(fenceMessage(error.message)).toBeDefined();
+    })
+);
+
+it.effect.prop(
+  "every merged chunk must carry the single debt rule",
+  {
+    badFirst: Arbitrary.schema(Schema.Boolean),
+    badRuleCount: Arbitrary.schema(Schema.Literals([0, 2, 5])),
+  },
+  ({ badFirst, badRuleCount }) =>
+    Effect.gen(function* inconsistentMergeRules() {
+      const results = [
+        { entries: [], fileCount: 1, ruleCount: 1 },
+        { entries: [], fileCount: 1, ruleCount: badRuleCount },
+      ];
+
+      const error = yield* mergeDebtLintResults(
+        badFirst ? results.toReversed() : results,
+        2
+      ).pipe(Effect.flip);
+
+      expect(error.stage).toBe("debt lint scope");
+      expect(fenceMessage(error.message)).toBeDefined();
+    })
 );
 
 it.effect.prop(

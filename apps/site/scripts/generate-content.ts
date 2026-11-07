@@ -829,7 +829,7 @@ const runDebtLintChunk = Effect.fn("runDebtLintChunk")(
     const processContext = `Oxlint exited ${output.exitCode} for ${debtSourcePaths.length} debt source paths; chunk ${chunkIndex + 1}/${chunkCount} of ${totalPathCount} total paths; stdout ${output.json.trim().length === 0 ? "was empty" : "was nonempty"}; stderr: ${stderrPreview}.`;
 
     const processFix =
-      "check the reported path count and generated directory segments excluded by `isDebtSourcePath` in `apps/site/scripts/content-lib.ts`, then rerun `pnpm --filter @rat-stack/site run generate`.";
+      "read the stderr preview, check the reported path count and generated directory segments excluded by `isDebtSourcePath` in `apps/site/scripts/content-lib.ts`, then reproduce with the affected chunk's paths using `node node_modules/oxlint/bin/oxlint --config scripts/oxlint-debt-ledger.config.ts -A all -D rat-stack-debt/debt-ledger --format json --no-ignore <paths>`.";
 
     if (
       (output.exitCode !== 0 && output.exitCode !== 1) ||
@@ -870,11 +870,66 @@ const runDebtLintChunk = Effect.fn("runDebtLintChunk")(
   }
 );
 
+export const mergeDebtLintResults = Effect.fn("mergeDebtLintResults")(
+  function* mergeDebtLintResults(
+    results: readonly DebtLintResult[],
+    expectedFileCount: number
+  ) {
+    const fileCount = results.reduce(
+      (count, result) => count + result.fileCount,
+      0
+    );
+
+    const ruleCount = results[0]?.ruleCount;
+
+    if (
+      fileCount !== expectedFileCount ||
+      ruleCount !== 1 ||
+      results.some((result) => result.ruleCount !== ruleCount)
+    ) {
+      return yield* buildError(
+        "debt lint scope",
+        "oxlint",
+        violation(
+          `Expected ${expectedFileCount} files and one rule across all chunks; merged ${fileCount} files with chunk rule counts ${JSON.stringify(results.map((result) => result.ruleCount))}.`,
+          "An incomplete or inconsistent merge would publish the wrong debt count.",
+          "check the chunk loop and result merge in `runDebtLint` in `apps/site/scripts/generate-content.ts` so every source path and the single debt rule are accounted for."
+        )
+      );
+    }
+
+    return {
+      entries: results
+        .flatMap((result) => result.entries)
+        .toSorted(
+          (left, right) =>
+            left.file.localeCompare(right.file) ||
+            left.line - right.line ||
+            left.directive.localeCompare(right.directive)
+        ),
+      fileCount,
+      ruleCount,
+    } satisfies DebtLintResult;
+  }
+);
+
 export const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
   root: string,
   debtSourcePaths: readonly string[],
   chunkSize?: number
 ) {
+  if (debtSourcePaths.length === 0) {
+    return yield* buildError(
+      "debt lint scope",
+      "oxlint",
+      violation(
+        "No debt source paths were found.",
+        "An empty scan would publish a ledger that falsely reports no debt.",
+        "check `isDebtSourcePath` in `apps/site/scripts/content-lib.ts` and the walk roots `apps`, `packages`, `scripts`, and `tools` in `apps/site/scripts/generate-content.ts`, then rerun `pnpm --filter @rat-stack/site run generate`."
+      )
+    );
+  }
+
   const chunks = Arr.chunksOf(debtSourcePaths, chunkSize ?? 500);
   const results: DebtLintResult[] = [];
 
@@ -890,18 +945,7 @@ export const runDebtLint = Effect.fn("runDebtLint")(function* runDebtLint(
     );
   }
 
-  return {
-    entries: results
-      .flatMap((result) => result.entries)
-      .toSorted(
-        (left, right) =>
-          left.file.localeCompare(right.file) ||
-          left.line - right.line ||
-          left.directive.localeCompare(right.directive)
-      ),
-    fileCount: results.reduce((count, result) => count + result.fileCount, 0),
-    ruleCount: 1,
-  } satisfies DebtLintResult;
+  return yield* mergeDebtLintResults(results, debtSourcePaths.length);
 });
 
 const reportCodeDiagnostics = (diagnostics: readonly Diagnostics[]) =>
