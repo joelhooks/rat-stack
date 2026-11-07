@@ -82,7 +82,7 @@ A client trusting the status therefore reads failure as success.
 The fix returns HTTP 422 with a typed `ExecuteError`; successful programs keep 200 and lose `diagnostic: null`.
 
 The deployment checks change alongside the response, because an old check would reject the new shape and roll it back.
-A generated-program test checks failure reporting across HTTP, [MCP](/lore/mcp-is-another-surface), [RPC](/skills/learn-rat-stack), and the CLI; restoring the false 200 makes it fail.
+A generated-program test checks failure reporting across HTTP, [MCP](/lore/mcp-is-another-surface), [RPC](/lore/one-capability-every-surface), and the CLI; restoring the false 200 makes it fail.
 
 **Legend has it…** the rat arrives at casualty wearing a badge that says 200 OK.
 The nurse changes it to 422 and keeps the scissors.
@@ -97,7 +97,7 @@ The commit calls this “Mechanical path updates only.”
 
 **Legend has it…** Mischief orders new business cards, eats the box, and answers to the old name when the bailiff calls.
 
-## The demolition manual gets demolished
+## The demolition manual gets road-tested
 
 November 7, 2026. [PR #221](https://github.com/joelhooks/rat-stack/pull/221).
 
@@ -145,7 +145,7 @@ The rat receives two invoices for one lawnmower.
 
 November 5, 2026. [PR #209](https://github.com/joelhooks/rat-stack/pull/209).
 
-[MCP](/lore/mcp-is-another-surface) clients using protocol 2025-11-25 get empty-body 404s when a call after initialization reaches another running copy of the server.
+The workshop's [MCP](/lore/mcp-is-another-surface) clients using protocol 2025-11-25 get empty-body 404s when a call after initialization reaches another running copy of the server.
 The session lives in one copy's memory; about one in three multi-call production probes fails.
 The fix stores one initialization record per session and replays it to rebuild the runtime.
 
@@ -157,5 +157,3 @@ The rat is still standing in the doorway.
 
 The [comment purge already has its canon entry](/lore/shitrat-canon#agents-copy-everything).
 Meet the creatures in [the bestiary](/lore/shitrat-bestiary), or return to [the hub](/lore/shitrat).
-
-SR 🐀
