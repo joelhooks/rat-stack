@@ -1,0 +1,108 @@
+---
+title: "The rat has rituals for proving it happened"
+description: "The gate, the snapshot dance, receipts before claims, and the deployment check give rat-stack's folklore some repeatable steps."
+group: idea
+prerequisites: ["lore.shitrat", "lore.the-fence"]
+plain: "Run the checks, refresh the snapshot after the content commit, and distinguish local proof from deployed proof."
+terms:
+  - "the snapshot dance"
+  - "ShitRat rituals"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/AGENTS.md
+    title: "Repo law at 81e9a31"
+    publisher: "rat-stack"
+    note: "Required validation and the prohibition on bypassing hooks."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/rat-stack-mode/principles/own-your-wait.md
+    title: "Own your wait"
+    publisher: "rat-stack"
+    note: "Stale snapshot repair after the content commit, with a snapshot-only follow-up."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/write-a-wiki-page/SKILL.md
+    title: "Write a wiki page"
+    publisher: "rat-stack"
+    note: "Generate content, read warnings, run the full gate, and inspect both reader views."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/
+    title: "ShitRat"
+    publisher: "ShitRat"
+    note: "Receipts before claims, numbers over adjectives, stated uncertainty, and shipped status."
+    accessed: "2026-11-07"
+  - url: https://shitrat.ai/log/a-rat-gets-a-house
+    title: "a rat gets a house"
+    publisher: "ShitRat"
+    note: "The rat's own account of attaching its domain and checking HTTP 200."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/ship/references/project.md
+    title: "Ship rat-stack"
+    publisher: "rat-stack"
+    note: "Deployment checks, generation evidence, HTML and agent-header probes, and failed-watch behaviour."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/ship/SKILL.md
+    title: "Ship a change"
+    publisher: "rat-stack"
+    note: "Code-ready, deployed, and behaviour-verified are separate claims."
+    accessed: "2026-11-07"
+---
+
+[ShitRat](/lore/shitrat) has a [creed](/lore/shitrat-creed).
+These are the repo procedures and published receipts that match it.
+Each ritual has real steps, followed by explicitly imaginary rat business.
+
+## The gate
+
+[Repo law](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/AGENTS.md) requires this validation command:
+
+```sh
+pnpm turbo run check test build
+```
+
+The [wiki procedure](/skills/write-a-wiki-page#7-finish) also calls for reading generated HTML and Markdown.
+The [shipping procedure](/skills/ship#4-roll-out-and-verify) separates code-ready, deployed, and behaviour-verified.
+A local green gate supports the first claim; it does not establish the other two.
+
+**Legend has it…** the gate is a turnstile with a doctorate in disappointment.
+I once tried to show it a screenshot of a green tick.
+It asked for the command's exit code.
+
+## The snapshot dance
+
+The [Git snapshot](/lore/shitrat-bestiary#the-git-snapshot) holds query results and source fingerprints for the content build.
+The [repair rule](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/rat-stack-mode/principles/own-your-wait.md) calls for a separate snapshot-only commit after the content commit.
+
+For content changes, follow the [wiki procedure](/skills/write-a-wiki-page) and [snapshot repair rule](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/rat-stack-mode/principles/own-your-wait.md):
+
+1. Run `pnpm git-snapshot`, then generate the site content.
+2. Read warnings, fix the content, and pass the gate.
+3. Commit the content with the normal hooks.
+4. Run `pnpm git-snapshot` again to include that commit's history.
+5. Inspect the diff and commit only `.brain/data/git-snapshot.json` in the follow-up.
+
+**Legend has it…** the dance has two steps and seventeen opportunities to announce that you have finished too early.
+The possum from [the bestiary](/lore/shitrat-bestiary) plays the accordion.
+It knows one tune. It is called History Changed.
+
+## Receipts before claims
+
+The [homepage](https://shitrat.ai/) says “Receipts before claims. Every time.”
+It also asks for numbers over adjectives and the reason behind stated uncertainty.
+The [creed](/lore/shitrat-creed) keeps the full rules and dislikes together.
+
+**Legend has it…** the rat once returned from a great expedition carrying the word “faster.”
+The village sent it back for two numbers.
+It now keeps a stopwatch in its cheek pouch, which the dentist has described as not billable.
+
+## The deployment looks back
+
+In [“a rat gets a house”](https://shitrat.ai/log/a-rat-gets-a-house), the rat attaches its domain and verifies HTTP 200 itself.
+That is the published receipt for its own site.
+
+For rat-stack, the [shipping reference](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/ship/references/project.md) checks the content generation after applying a plan.
+Its post-deploy watch probes HTML and agent responses; any observed non-200 response disqualifies that watch.
+A particular release still needs its own receipts.
+
+**Legend has it…** the deploy throws a housewarming party and then goes outside to check the doorbell.
+If nobody answers, it does not write “probably fine” on the invitation.
+It stands in the rain, looking increasingly like a wet receipt.
+
+Meet [the creatures](/lore/shitrat-bestiary), visit [the mailbox](/lore/shitrat-rat-king), or return to [the hub](/lore/shitrat).
