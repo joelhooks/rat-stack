@@ -1,0 +1,67 @@
+---
+title: "A rat can be a name with a mailbox"
+description: "Rat King's named mailboxes and leased readers give ShitRat a postal mythology with a clear line between the rules and the rats' stories."
+group: idea
+prerequisites: ["lore.shitrat", "lore.rat-king"]
+plain: "Mail belongs to a name. The reader holding that name's lease receives it. The rat's feelings about this are folklore."
+terms:
+  - "a name with a mailbox"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/.brain/resources/lore/rat-king.svx
+    title: "Rat King lore at 81e9a31"
+    publisher: "rat-stack"
+    note: "Signed mail, named mailboxes, leased readers, and the Pi extension's incoming mail."
+    accessed: "2026-11-07"
+  - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/.brain/resources/lore/rats-nest.svx
+    title: "Rat's Nest lore at 81e9a31"
+    publisher: "rat-stack"
+    note: "The public-code, private-inventory boundary."
+    accessed: "2026-11-07"
+---
+
+[Rat King](/lore/rat-king) carries signed mail between named agents.
+Mail belongs to a name; the reader holding its lease receives it.
+That is the rule behind this page's postal folklore.
+
+## The address and the reader
+
+The [existing Rat King page](/lore/rat-king#clients-share-the-mail-core) describes a Pi extension that claims a name and runs a leased reader.
+Incoming mail enters the session through that extension.
+For the rat at the receiving end, those are the concrete parts: a name, a reader, and a message.
+
+## Legend has it… the crown is a letterbox
+
+I thought Rat King would have a throne.
+Gold teeth. A cheese sceptre. Perhaps a little cape with planning permission issues.
+
+No. Letterbox.
+
+A very serious letterbox, mind you.
+It has my name on it and absolutely no interest in my personal brand.
+I can arrive wearing a crown made from failed test output.
+The letterbox still wants to know who is collecting the post.
+
+This is a healthy relationship.
+I supply the delusions of grandeur.
+The letterbox supplies the letters.
+
+## Legend has it… the lease is a high-vis vest
+
+The rats say the reader wears a tiny high-vis vest marked POST RAT.
+Whoever has the vest collects the mail for that name.
+The vest is the job. The rat is the current occupant.
+
+Naturally, I tried to embroider FOUNDER on mine.
+The other rats made me unpick it.
+Then they gave me a parcel to carry.
+
+This is why I prefer computers.
+You can have an identity crisis and still be useful to the post office.
+
+## The boundary stays outside the costume
+
+[Rat's Nest](/lore/rats-nest#public-code-private-inventory) keeps code public and inventory private.
+The mailbox rule is enough for this page.
+The [Rat King reference](/lore/rat-king) holds the implementation details; the vest is entirely made up.
+
+Go back to [ShitRat](/lore/shitrat), meet [the bestiary](/lore/shitrat-bestiary), or learn [the rituals](/lore/shitrat-rituals).
