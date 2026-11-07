@@ -235,7 +235,7 @@ One send follows one path: feature → Message → `update` → named Command �
 
 A worker acts at the lowest rung that applies. Climb only when the rung below does not cover the step.
 
-- **0 — Do it**: Fix your own red CI, failing hook, or stale [Git snapshot](/lore/shitrat-bestiary). Arm a wait watch. Read, edit, and test inside your write scope.
+- **0 — Do it**: Fix your own red CI, failing hook, or stale git snapshot. Arm a wait watch. Read, edit, and test inside your write scope.
 - **1 — Do it and report**: Commit on your branch. Tighten a test. Edit docs or the Brain. Report what changed and which checks ran.
 - **2 — Ask the desk or owner**: A choice that changes scope, a guarantee, or the design, where the repo does not decide.
 - **3 — Owner sign-off**: Everything in "Needs owner sign-off" below.
