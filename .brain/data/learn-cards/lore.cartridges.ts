@@ -1,25 +1,19 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 
-export class RunLog extends Context.Service<
-  RunLog,
-  { readonly record: (run: string) => Effect.Effect<void> }
->()("myapp/RunLog") {
-  static readonly layer = Layer.succeed(
-    RunLog,
-    RunLog.of({ record: (run) => Effect.log(`d1 stores ${run}`) })
-  );
+import { D1 } from "../../../packages/database/src/d1.js";
+import type { D1Options } from "../../../packages/database/src/d1.js";
+import { HyperdrivePostgres } from "../../../packages/database/src/hyperdrive-postgres.js";
+import type { HyperdrivePostgresOptions } from "../../../packages/database/src/hyperdrive-postgres.js";
+import type { RecordRunInput } from "../../../packages/database/src/model.js";
+import { RunLog } from "../../../packages/database/src/run-log.js";
 
-  static readonly postgres = Layer.succeed(
-    RunLog,
-    RunLog.of({ record: (run) => Effect.log(`postgres stores ${run}`) })
-  );
-}
+const recordRun = (input: RecordRunInput) =>
+  RunLog.use((log) => log.record(input));
 
-const inspect = Effect.gen(function* recordRun() {
-  const log = yield* RunLog;
-  yield* log.record("inspect README.md");
-});
+export const onD1 = (input: RecordRunInput, options: D1Options) =>
+  recordRun(input).pipe(Effect.provide(D1(options)));
 
-export const onD1 = inspect.pipe(Effect.provide(RunLog.layer));
-
-export const onPostgres = inspect.pipe(Effect.provide(RunLog.postgres));
+export const onPostgres = (
+  input: RecordRunInput,
+  options: HyperdrivePostgresOptions
+) => recordRun(input).pipe(Effect.provide(HyperdrivePostgres(options)));
