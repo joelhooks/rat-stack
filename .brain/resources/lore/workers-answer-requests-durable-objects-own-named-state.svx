@@ -1,0 +1,117 @@
+---
+title: "Workers answer requests; Durable Objects own named state"
+description: "A Worker handles each request without keeping state between requests, so state that must persist lives in a Durable Object addressed by name."
+plain: "A Worker forgets between requests; a Durable Object is one named place that remembers."
+diagram: |-
+  request
+    │ any isolate
+    ▼
+  Worker
+    │ getByName("join:42")
+    ▼
+  Durable Object "join:42"
+    storage: one record
+group: concept
+terms:
+  - "Worker"
+  - "Durable Object"
+prerequisites: ["lore.bindings"]
+sources:
+  - url: https://developers.cloudflare.com/workers/reference/how-workers-works/
+    title: "How Workers works"
+    publisher: "Cloudflare"
+    note: "Isolates can be evicted; requests may reach any instance; do not use or mutate global state."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/
+    title: "What are Durable Objects?"
+    publisher: "Cloudflare"
+    note: "A Worker with a globally unique name and private, strongly consistent storage; single-threaded; in-memory state resets on hibernation; alarms."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/scripts/oxlint-plugin-patterns.ts
+    title: "rat-stack pattern lint rules"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "no-module-level-mutable-state and its fix message."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/interest-durable-object.ts
+    title: "Interest Durable Object"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Loads and saves one record in its own storage."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/worker.ts
+    title: "Mischief Worker composition"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Binds the Interest and InterestIndex namespaces and addresses objects with getByName."
+    accessed: "2026-11-08"
+---
+
+**Goal:** decide where a piece of state lives on Cloudflare, and address it by name.
+
+A Worker is Cloudflare's program that answers requests. It runs your code in an isolate, a lightweight sandbox inside the Workers runtime.
+A Durable Object is a Worker with a globally unique name and its own storage. [What are Durable Objects?](https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/)
+
+## Why a Worker cannot hold state
+
+Cloudflare gives two reasons. [How Workers works](https://developers.cloudflare.com/workers/reference/how-workers-works/)
+
+- An isolate can be evicted, for example when the host runs short of resources.
+- Nothing guarantees that two requests reach the same instance of your Worker.
+
+So Cloudflare recommends that you do not use or mutate global state.
+rat-stack turns that advice into a lint error:
+
+```ts repo=rat-stack path=scripts/oxlint-plugin-patterns.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=820-821 title="no-module-level-mutable-state"
+
+```
+
+The fix names three homes for state. This page covers the Durable Object.
+
+## What a Durable Object adds
+
+Cloudflare lists these properties. [What are Durable Objects?](https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/)
+
+- **A name:** you send a request to one specific object from anywhere.
+- **Private storage:** transactional and strongly consistent, and no other object can read it.
+- **One thread:** each object handles its work single-threaded, like code in a browser.
+- **Created on first use:** you never create or destroy an object yourself.
+- **In-memory state resets:** an idle object hibernates and loses memory. Persist anything you need later.
+- **Alarms:** an object can schedule itself to wake up at a future time.
+
+## Worked example: one object per join submission
+
+The join intake keeps each submission's contact in its own `Interest` object.
+The object keeps one record in its storage:
+
+```ts repo=rat-stack path=apps/site/src/interest/interest-durable-object.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=23-40 {26,33-39} title="The object loads and saves its own record"
+
+```
+
+The Worker binds the namespaces once, in its init phase:
+
+```ts repo=rat-stack path=apps/site/src/worker.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=386-388 title="Bind the Durable Object namespaces"
+
+```
+
+Then it picks an object by name for each request:
+
+```ts repo=rat-stack path=apps/site/src/worker.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=403-407 {407} title="One object per submission; one object for the index"
+
+```
+
+- ``interests.getByName(`join:${submissionId}`)`` reaches the object for one submission. Every request about that submission reaches the same object.
+- `interestIndex.getByName("index")` reaches a single index object that lists applications.
+
+The name is the design decision. One name per submission keeps each record apart. One fixed name makes a single place that every request shares.
+
+## Choose the home
+
+The lint fix names three homes: a `Ref` inside a [Layer](/lore/layers-make-dependencies-explicit), a Durable Object, or the database.
+Pick a Durable Object when several clients must work through one named place. Cloudflare describes that use as coordination. [What are Durable Objects?](https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/)
+
+Work that must finish after the response needs a recovery record too. See [Request lifetime is not durability](/lore/request-lifetime-is-not-durability).
+
+## Next
+
+Read [Queues, Pipelines, Workflows and K2 do different jobs](/lore/queues-pipelines-workflows-and-k2-do-different-jobs) for work that leaves the request.
+Then read [Worker init runs twice](/lore/init-runs-twice) for a boundary inside the Worker's own startup.
+
+[Interest signup](/systems/interest) describes the whole join flow.

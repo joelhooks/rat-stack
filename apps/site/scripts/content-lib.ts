@@ -1149,6 +1149,24 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "Cloudflare's durable event log. Every subscription reads every record, and records stay until retention ends.",
     term: "K2",
   },
+  {
+    routePath: "/lore/workers-answer-requests-durable-objects-own-named-state",
+    summary:
+      "Cloudflare's request handler. It runs code in an isolate that can be evicted, so it keeps no state between requests.",
+    term: "Worker",
+  },
+  {
+    routePath: "/lore/workers-answer-requests-durable-objects-own-named-state",
+    summary:
+      "A Cloudflare Worker with a globally unique name and private, strongly consistent storage. Requests reach it by name.",
+    term: "Durable Object",
+  },
+  {
+    routePath: "/lore/request-lifetime-is-not-durability",
+    summary:
+      "A Worker call that keeps work running after the response, within a shared post-response time allowance.",
+    term: "waitUntil",
+  },
 ];
 
 export const glossaryEntries = (
