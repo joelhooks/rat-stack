@@ -805,6 +805,20 @@
       "corpusUsed": false
     },
     {
+      "note": ".brain/areas/tube.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Ratstack Tube is an ongoing system responsibility with a maintained source list, public pages and validation standards.",
+      "missingFields": [
+        "frontmatter type",
+        "frontmatter status",
+        "frontmatter created_at"
+      ],
+      "nextActionOrReview": "Maintain video evidence and editorial rankings; use the documented tests and live readback when changing the collection.",
+      "sourcePointers": [".brain/areas/tube.svx:23"],
+      "corpusUsed": false
+    },
+    {
       "note": ".brain/areas/turbo-cache.svx",
       "bucket": "Area",
       "confidence": "high",
