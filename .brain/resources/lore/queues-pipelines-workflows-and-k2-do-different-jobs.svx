@@ -88,7 +88,17 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/intake-sweep.ts
     title: "Join intake sweep"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "A five-minute cron redrives contacts marked for delivery."
+    note: "A five-minute cron redrives the pending ids it reads from the sweep index."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/join-contact-store.ts
+    title: "Join contact store"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "joinSave writes the contact, then markPending writes the sweep index in a separate call."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/spec/README.md?plain=1#L105-L111
+    title: "Join intake spec: JoinIntakeIndexAfterRecord"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "A failed index write leaves a marked contact the sweep never finds; redeliver and erase re-drive it by id."
     accessed: "2026-11-08"
 ---
 
@@ -180,8 +190,12 @@ Three of the four deliver at least once. Make every consumer and step safe to re
 
 ## Where rat-stack does without them
 
-Join intake must deliver each contact after the response. It uses no queue. It saves the contact with a pending-delivery marker, and a [cron every five minutes](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/intake-sweep.ts#L13) redrives every marked contact. [Durability](/systems/durability) shows the model tests that check it.
+Join intake must deliver each contact after the response. It uses no queue. It saves the contact with a pending-delivery marker, then adds its id to a sweep index in a separate call. A [cron every five minutes](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/intake-sweep.ts#L13) redrives each pending id in that index.
 
-The marker is the recovery record. Cloudflare lists this job, offloading work from a request, as a Queues use. [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/) [Request lifetime is not durability](/lore/request-lifetime-is-not-durability) explains why a record is needed at all.
+That recovery has a documented gap. If the index write fails, the contact keeps its marker, but the sweep never finds it. [Join intake spec](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/spec/README.md?plain=1#L105-L111) The backstop works by id: `rat-stack intake redeliver` re-drives a delivery, and `rat-stack intake erase` re-drives an erase.
+
+[Durability](/systems/durability) shows the model tests that check it.
+
+The marker plus its index entry is the recovery record. Cloudflare lists this job, offloading work from a request, as a Queues use. [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/) [Request lifetime is not durability](/lore/request-lifetime-is-not-durability) explains why a record is needed at all.
 
 Next, read [Durable work needs storage](/lore/durable-work-needs-storage), then [the durability index](/lore/durability).

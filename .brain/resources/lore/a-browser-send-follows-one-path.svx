@@ -1,7 +1,7 @@
 ---
 title: "A browser send follows one path to the capability"
-description: "In the Foldkit docs browser, a search is a Message, then an update, then a named Command that calls the search capability over RPC and returns a result Message."
-plain: "Click sends a Message; update returns a Command; the Command calls RPC and sends back a result Message."
+description: "In the Foldkit docs browser, a search is a Message, then an update, then a named Command that calls the search capability over RPC on a cache miss and returns a result Message."
+plain: "Click sends a Message; update returns a Command; the Command calls RPC on a cache miss and sends back a result Message."
 diagram: |-
   click
     │ SubmittedSearch
@@ -96,6 +96,12 @@ Every Message the program accepts is declared in one union:
 `DocumentQueries` builds its [RPC](/skills/learn-rat-stack) [client](/skills/uncomplect) from the shared contracts. The `rat-stack-boundaries/no-browser-server-imports` lint rule lets browser modules import `@rat-stack/core/contracts` and `@rat-stack/capability/rpc-group`, never a [handler](/systems/capabilities). [AGENTS.md](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/AGENTS.md)
 
 ```ts repo=rat-stack path=apps/web/src/client/docs/queries.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=7-11 title="The client group comes from the contracts"
+
+```
+
+`DocumentQueries` keeps each search result for 30 seconds. A repeated query in that window is answered from the cache, with no fresh RPC. The RPC call runs on a cache miss:
+
+```ts repo=rat-stack path=apps/web/src/client/docs/queries.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=16-20 {18-19} title="A 30-second cache in front of the search RPC"
 
 ```
 

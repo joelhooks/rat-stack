@@ -15,6 +15,11 @@ terms:
   - "lifecycles are machines"
   - "lifecycle machine"
 sources:
+  - url: https://unpkg.com/@xstate/effect@1.0.0-beta.0/dist/xstate-effect-oxlint.js
+    title: "@xstate/effect 1.0.0-beta.0 oxlint plugin"
+    publisher: "unpkg"
+    note: "no-inline-effect reports Effects returned from inline enq callbacks and inline Effect logic passed to enq.spawn."
+    accessed: "2026-11-08"
   - url: https://github.com/joelhooks/rat-stack/blob/main/AGENTS.md
     title: "rat-stack/AGENTS.md at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
@@ -89,7 +94,9 @@ A read failure lands in `unreadable` with its cause. The failure is a state you 
 Two booleans, `loading` and `failed`, allow four combinations. Only three of them mean anything here.
 This machine has exactly three states: `reading`, `inspected`, and `unreadable`.
 
-The [fence](/lore/the-fence) keeps side effects in declared actors. `oxlint.config.ts` loads the lint plugin that `@xstate/effect` ships and sets `xstate-effect/no-inline-effect` to `error`. That rule catches inline Effects in machine actions and actors.
+The [fence](/lore/the-fence) keeps side effects in declared actors. `oxlint.config.ts` loads the lint plugin that `@xstate/effect` ships and sets `xstate-effect/no-inline-effect` to `error`.
+
+That rule matches two cases. It flags an Effect returned from an inline `enq` or `enqueue` callback. It flags inline Effect logic passed to `enq.spawn`. [Rule source](https://unpkg.com/@xstate/effect@1.0.0-beta.0/dist/xstate-effect-oxlint.js)
 
 The stack pins XState `6.0.0-beta.1` and `@xstate/effect` `1.0.0-beta.0` together.
 The [migration note](https://github.com/joelhooks/rat-stack/blob/main/.brain/archives/resources/xstate-alpha69-migration.svx#beta1-and-bridge-beta0) records the beta API changes and persistence audit.
