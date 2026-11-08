@@ -50,7 +50,7 @@ For ordinary pure functions, use [uncomplect](/skills/uncomplect). For finite mo
 2. **Answer at commit; dispatch off the request**
    - Principle: `principles/answer-at-commit.md`
    - Example: `packages/core/src/join-intake.ts`, `packages/core/src/intake-sweep.ts`
-   - Fence: `packages/core/test/join-answer-at-commit.model.test.ts`, `packages/core/test/intake-sweep.model.test.ts`
+   - Fence: `packages/core/test/join-answer-at-commit.model.test.ts`, `packages/core/test/intake-sweep.model.test.ts`, `packages/core/test/join-intake-spec.test.ts`
 3. **Set a provider timeout once**
    - Principle: `principles/one-timeout-at-the-boundary.md`
    - Example: `packages/subscriber-delivery/src/drovr-intake.ts`, `packages/core/src/join-delivery-machine.ts`
@@ -235,6 +235,7 @@ The [durability bibliography](/lore/durability-bibliography) lists the books and
 
 - [uncomplect](/skills/uncomplect): a held resource and a provider call in one scope are a braid to separate.
 - [add-a-lifecycle-machine](/skills/add-a-lifecycle-machine): retries, backoff modes, breakers, and a degraded provider are lifecycles.
+- [model-a-protocol](/skills/model-a-protocol): before a design whose steps can crash, retry, or race goes to review, check it with a small TLA+ model.
 - [investigate-a-failure](/skills/investigate-a-failure): before raising a timeout, join the failure to the calls in flight.
 - [ship](/skills/ship): the deploy driver's typed refusals and bounded waits hold pattern 7.
 

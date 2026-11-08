@@ -153,6 +153,8 @@ Model the deadline independently. Check before, at, and after it. Never use wall
 
 Before trusting the property, temporarily break a lifecycle rule in the machine. Run the new tests and record the failing shrunk input and replay token. Restore the machine, then prove the tests pass. Keep mutation evidence in the packet or review report. Keep it out of production code.
 
+When the machine's steps share state with other writers, such as a sweep, an alarm, or a second request, also [model the protocol](/skills/model-a-protocol). A model test checks one machine's histories; a TLA+ model checks every interleaving across writers.
+
 The `xstate-effect/no-inline-effect` rule blocks inline Effect logic. Fix the code instead of disabling the rule.
 
 ## 6. Finish
