@@ -1,0 +1,187 @@
+---
+title: "Queues, Pipelines, Workflows and K2 do different jobs"
+description: "Pick a Cloudflare product for work outside a request by the unit you track: a message, a row, a step, or a record in a log."
+plain: "Queues track jobs, Pipelines load rows into R2, Workflows run durable steps, and K2 keeps a log many readers replay."
+diagram: |-
+  Queues     one job, retried
+  Pipelines  rows into R2
+  Workflows  steps that resume
+  K2         log, many readers
+group: concept
+terms:
+  - "Cloudflare Queues"
+  - "Basin Pipelines"
+  - "Cloudflare Workflows"
+  - "K2"
+prerequisites: ["lore.request-lifetime-is-not-durability", "lore.retry-needs-idempotency"]
+sources:
+  - url: https://developers.cloudflare.com/workers/platform/storage-options/
+    title: "Choose a data or storage product"
+    publisher: "Cloudflare"
+    note: "Compares Queues, K2 and Basin Pipelines by use case. Says when to use Queues and when to use K2."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/queues/
+    title: "Cloudflare Queues"
+    publisher: "Cloudflare"
+    note: "Guaranteed delivery, offloading work from a request, Worker-to-Worker messages, batching."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/queues/reference/delivery-guarantees/
+    title: "Queues delivery guarantees"
+    publisher: "Cloudflare"
+    note: "At-least-once delivery by default; use a unique id as an idempotency key."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/queues/configuration/batching-retries/
+    title: "Queues batching, retries and delays"
+    publisher: "Cloudflare"
+    note: "Per-message ack() and retry(); batch-level ackAll() and retryAll()."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/queues/configuration/dead-letter-queues/
+    title: "Queues dead letter queues"
+    publisher: "Cloudflare"
+    note: "Messages move to a DLQ after max_retries, three by default. Without a DLQ they are deleted."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/basin-pipelines/
+    title: "Basin Pipelines"
+    publisher: "Cloudflare"
+    note: "Formerly Cloudflare Pipelines. Ingests events, transforms them with SQL, delivers Iceberg tables or Parquet and JSON files to R2."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/basin-pipelines/sinks/
+    title: "Basin Pipelines sinks"
+    publisher: "Cloudflare"
+    note: "Sinks provide exactly-once delivery to Basin Catalog or R2."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/workflows/
+    title: "Cloudflare Workflows"
+    publisher: "Cloudflare"
+    note: "Durable multi-step execution, retries, sleeping, and waiting for external events."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/workflows/build/rules-of-workflows/
+    title: "Rules of Workflows"
+    publisher: "Cloudflare"
+    note: "Each step is individually retryable, so steps should be idempotent."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/k2/concepts/
+    title: "K2 concepts"
+    publisher: "Cloudflare"
+    note: "Streams, records, subscriptions with earliest or latest start, and five-minute leases."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/k2/reference/delivery-guarantees/
+    title: "K2 delivery guarantees"
+    publisher: "Cloudflare"
+    note: "At least once per subscription, batch-level acks, no deduplication, no ordering across workers."
+    accessed: "2026-11-08"
+  - url: https://developers.cloudflare.com/k2/
+    title: "K2"
+    publisher: "Cloudflare"
+    note: "Public beta on the Workers Paid plan; retention up to 30 days, longer by request."
+    accessed: "2026-11-08"
+  - url: https://github.com/alchemy-run/alchemy/tree/v2.0.0-beta.85/packages/cloudflare/src
+    title: "Alchemy Cloudflare provider at v2.0.0-beta.85"
+    publisher: "GitHub alchemy-run/alchemy"
+    note: "Declares Cloudflare.Queues, Cloudflare.Pipelines, Cloudflare.Workflows and Cloudflare.K2 resources and bindings."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/basin/src/index.ts
+    title: "Shared Basin declarations"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "basinStream and icebergSink declare the stream, sink and SELECT * pipeline used by events and intake."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/intake-sweep.ts
+    title: "Join intake sweep"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "A five-minute cron redrives contacts marked for delivery."
+    accessed: "2026-11-08"
+---
+
+Each of these products moves work or data out of the request that started it.
+They differ in the unit they track.
+Choose by that unit, then check the delivery promise.
+
+```text
+request ──┬─▶ Queue ──────▶ consumer: one job, ack or retry
+          ├─▶ Pipeline ───▶ SQL ──▶ R2 table or files
+          ├─▶ Workflow ───▶ step ─▶ step ─▶ sleep ─▶ step
+          └─▶ K2 stream ──▶ subscription A (reads every record)
+                       └──▶ subscription B (reads every record)
+```
+
+## Queues track one job at a time
+
+A queue holds messages for a consumer Worker. Cloudflare lists three uses: offload work from a request, send data from Worker to Worker, and buffer or batch writes. [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/)
+
+- **Delivery:** at least once by default. Give each message a unique id and use it as an [idempotency](/lore/http-responses-need-validation) key. [Delivery guarantees](https://developers.cloudflare.com/queues/reference/delivery-guarantees/)
+- **Per message:** a consumer can `ack()` or `retry()` each message in a batch. [Batching and retries](https://developers.cloudflare.com/queues/configuration/batching-retries/)
+- **After retries:** a message moves to a dead letter queue after `max_retries`, three by default. Without a dead letter queue, Cloudflare deletes it. [Dead letter queues](https://developers.cloudflare.com/queues/configuration/dead-letter-queues/)
+
+Cloudflare's rule: "Use Queues when each message is a unit of work that needs to be completed, retried, and tracked individually." [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/)
+
+In [Alchemy](/skills/learn-alchemy), `Cloudflare.Queues.Queue` declares the queue and `Cloudflare.Queues.Consumer` attaches a Worker, with `deadLetterQueue` and `settings.maxRetries`. A Worker sends through `Cloudflare.Queues.WriteQueue`. [Queue.ts](https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/Queues/Queue.ts) [Consumer.ts](https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/Queues/Consumer.ts)
+
+See [Dead letters need a return path](/lore/dead-letters-need-a-return-path) for what the dead letter queue still needs: an owner and a redrive.
+
+## Pipelines load rows into R2
+
+Basin Pipelines is Cloudflare's streaming ingestion product, and it has three parts. Alchemy names it `Cloudflare.Pipelines`. [Basin Pipelines](https://developers.cloudflare.com/basin-pipelines/)
+
+1. A **stream** receives events over HTTP or a Worker [binding](/lore/bindings).
+2. A **pipeline** runs SQL over the stream.
+3. A **sink** writes Iceberg tables to Basin Catalog, or Parquet and JSON files to R2.
+
+Sinks deliver exactly once. [Sinks](https://developers.cloudflare.com/basin-pipelines/sinks/) Cloudflare lists clickstream analytics, [telemetry](/lore/trace-meaningful-operations) and logs as uses. [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/)
+
+The output is a table or a set of files in R2 that you query later.
+
+### How rat-stack uses it
+
+Pipelines is the only one of the four that rat-stack declares. `@rat-stack/basin` builds the stream for both [request analytics](/systems/analytics) and join intake. The stream accepts no HTTP input, so only the Worker binding writes to it.
+
+```ts repo=rat-stack path=packages/basin/src/index.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=14-25 {20-22} title="A private stream beside its bucket"
+
+```
+
+`icebergSink` then copies every row unchanged into one table:
+
+```ts repo=rat-stack path=packages/basin/src/index.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=71-73 title="SELECT * keeps the raw row"
+
+```
+
+[Capture first](/lore/capture-first) explains why the copy stays raw.
+
+## Workflows run steps that resume
+
+A Workflow chains steps, retries failed steps, and persists state for minutes, hours or weeks. It can sleep, and it can wait for an external event such as an approval. [Workflows](https://developers.cloudflare.com/workflows/)
+
+Each step retries on its own, so make each step idempotent. [Rules of Workflows](https://developers.cloudflare.com/workflows/build/rules-of-workflows/) A step that charges a card must first check whether the charge already happened.
+
+In Alchemy, a Workflow body is an [Effect](/lore/effect-basics). `Cloudflare.Workflows.task` runs one named durable step. Its result is persisted and replayed on retries. `sleep`, `sleepUntil` and `waitForEvent` pause the run. The same source describes Workflows as at-least-once. [Workflow.ts](https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/Workflows/Workflow.ts)
+
+Choose a Workflow when the unit is a process with ordered steps and waits. Each instance has a unique ID and runs many steps. [Rules of Workflows](https://developers.cloudflare.com/workflows/build/rules-of-workflows/)
+
+## K2 keeps a log that many readers replay
+
+K2 is a durable log. Producers append records. Consumers read through subscriptions, and each subscription receives every record. [K2 concepts](https://developers.cloudflare.com/k2/concepts/)
+
+- **Reading does not delete:** records stay until retention ends. Retention goes up to 30 days, and longer by request. [K2](https://developers.cloudflare.com/k2/)
+- **Replay:** a new subscription can start at `earliest` and read records produced before it existed. [Delivery guarantees](https://developers.cloudflare.com/k2/reference/delivery-guarantees/)
+- **Leases:** a consumer holds a batch for five minutes, then acks, nacks, or loses it to redelivery. [K2 concepts](https://developers.cloudflare.com/k2/concepts/)
+- **Limits of the promise:** delivery is at least once per subscription. K2 acks whole batches, does not deduplicate, and does not order records across workers. [Delivery guarantees](https://developers.cloudflare.com/k2/reference/delivery-guarantees/)
+
+Cloudflare says to use K2 when what matters is "that every record is processed rather than the state of any one record." [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/)
+
+K2 is in public beta on the Workers Paid plan. [K2](https://developers.cloudflare.com/k2/) Alchemy declares it as `Cloudflare.K2.Stream` and `Cloudflare.K2.Subscription`. A stream can take an Effect [Schema](/lore/schemas-define-the-boundary), so consumers receive decoded values. [K2/Stream.ts](https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/K2/Stream.ts)
+
+## Choose by the unit you track
+
+- **One job that must finish:** Queues. Track and retry each message.
+- **Rows you query later:** Pipelines. Load them into R2 as a table.
+- **A process with steps and waits:** Workflows. Resume from the last finished step.
+- **Events for several independent readers:** K2. Replay them from the log.
+
+Three of the four deliver at least once. Make every consumer and step safe to repeat. [Retry needs idempotent effects](/lore/retry-needs-idempotency) shows how.
+
+## Where rat-stack does without them
+
+Join intake must deliver each contact after the response. It uses no queue. It saves the contact with a pending-delivery marker, and a [cron every five minutes](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/intake-sweep.ts#L13) redrives every marked contact. [Durability](/systems/durability) shows the model tests that check it.
+
+The marker is the recovery record. Cloudflare lists this job, offloading work from a request, as a Queues use. [Storage options](https://developers.cloudflare.com/workers/platform/storage-options/) [Request lifetime is not durability](/lore/request-lifetime-is-not-durability) explains why a record is needed at all.
+
+Next, read [Durable work needs storage](/lore/durable-work-needs-storage), then [the durability index](/lore/durability).

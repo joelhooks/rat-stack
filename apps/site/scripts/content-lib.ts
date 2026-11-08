@@ -1125,6 +1125,30 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "A limit on the total retry attempts that one owner allows across a call path.",
     term: "retry budget",
   },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "A Cloudflare message queue. A consumer Worker acknowledges or retries each message, and delivery is at least once.",
+    term: "Cloudflare Queues",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's streaming ingestion product, named Cloudflare.Pipelines in Alchemy. A stream receives events, SQL transforms them, and a sink writes them to R2.",
+    term: "Basin Pipelines",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's durable multi-step execution. Each step retries on its own, and a run can sleep or wait for an external event.",
+    term: "Cloudflare Workflows",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's durable event log. Every subscription reads every record, and records stay until retention ends.",
+    term: "K2",
+  },
 ];
 
 export const glossaryEntries = (

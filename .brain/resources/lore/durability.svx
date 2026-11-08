@@ -62,6 +62,7 @@ The template pins Effect 4.0.0. Each named API and each absence claim was checke
 - [Scopes release resources when work ends](/lore/scopes-own-resources).
 - [Concurrent work needs an owner](/lore/concurrent-work-needs-an-owner).
 - [Lifecycles are machines](/lore/lifecycles-are-machines).
+- [Queues, Pipelines, Workflows and K2 do different jobs](/lore/queues-pipelines-workflows-and-k2-do-different-jobs).
 - [The error model](/lore/error-model).
 - [Schemas define the boundary](/lore/schemas-define-the-boundary).
 - [Accumulate independent errors](/lore/accumulate-independent-errors).
