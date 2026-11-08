@@ -30,6 +30,11 @@ sources:
     publisher: "devtools.fm"
     note: "Plan model and cloud as a library discussions."
     accessed: "2026-10-11"
+  - url: https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts
+    title: "rat-stack D1 resource and service Layer."
+    publisher: "rat-stack"
+    note: "The D1 constructor declares migrations and a database, combines service Layers, and supplies the query binding."
+    accessed: "2026-11-08"
 ---
 
 <picture>
@@ -52,6 +57,26 @@ A client operation can imply a policy requirement supplied when the function is 
 Sam describes [bindings](/lore/bindings) as permissions and environment variables together at [37:09](https://youtu.be/YEn4A7XxgF4?t=2229).
 An Alchemy Layer can declare the cloud resources behind a service.
 The [Stack](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects) declares cloud resources.
+
+## Worked example: a D1 Layer
+
+In the database [cartridge](/lore/cartridges), `makeD1Vendor` declares SQLite migrations and a D1 database.
+The database declaration receives those migrations through its `migrations` option.
+
+```ts repo=rat-stack path=packages/database/src/d1.ts at=c5e4fc13d7740952fcb1646b29a5cdd1b43001a8 lines=17-29 title="Declare the schema and database"
+
+```
+
+`D1(options)` builds the Layer below.
+It combines `RunLogLayer(vendor)` with the `DatabaseVendor` service and provides `QueryDatabaseBinding`.
+The package keeps its database declaration and service construction together.
+
+```ts repo=rat-stack path=packages/database/src/d1.ts at=c5e4fc13d7740952fcb1646b29a5cdd1b43001a8 lines=34-44 title="Compose services and supply the query binding"
+
+```
+
+Trace the declaration first, then the returned Layer.
+Read [Database](/systems/database) for its current callers and local verification commands.
 
 ## Plan → review → deploy
 

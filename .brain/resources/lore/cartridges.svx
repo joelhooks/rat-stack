@@ -39,7 +39,7 @@ An Alchemy Layer can also declare the cloud resources behind a service.
 Replacing that Layer changes the implementation and its dependencies without changing callers.
 
 The database cartridge makes this concrete. `DatabaseVendor` represents either D1 or Hyperdrive Postgres.
-`packages/database/src/d1.ts` declares the D1 schema and database.
+`packages/database/src/d1.ts` [declares the D1 schema and database](/lore/infrastructure-as-effects#worked-example-a-d1-layer).
 
 `packages/database/src/hyperdrive-postgres.ts` declares the Postgres schema, Hyperdrive connection, and migration registration.
 Both provide the same `RunLog` service. The auth cartridge consumes `DatabaseVendor`.
