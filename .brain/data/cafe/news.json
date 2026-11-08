@@ -1,5 +1,21 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.9",
+    "title": "tla-ts 0.0.9 adds TLC's -continue",
+    "summary": "The TypeScript TLA+ checker now keeps exploring after a violation with -continue, compiles and parses specs faster, and fixes mixed tuple and string unions.",
+    "date": "2026-11-08",
+    "repo": "aidenybai/tla-ts",
+    "author": {
+      "github": "aidenybai",
+      "x": "aidenybai"
+    },
+    "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.9",
+    "engagement": {
+      "stars": 238
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/littledivy/tailnet-do",
     "title": "tailnet-do",
@@ -12,7 +28,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 30
+      "stars": 113
     }
   },
   {
@@ -28,7 +44,23 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 460
+      "stars": 464
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/foldkit/foldkit/pull/1655",
+    "title": "Foldkit Blocks and Effect Layers preview",
+    "summary": "A new preview: Blocks are built through Layers, take InMessages and compose their updates, with less child initialization wiring. APIs may change before stable.",
+    "date": "2026-11-07",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": "foldkit",
+      "x": "devinjameson"
+    },
+    "source": "https://x.com/devinjameson/status/2119175626066104745",
+    "engagement": {
+      "stars": 1211
     }
   },
   {
@@ -44,7 +76,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30422
+      "stars": 30426
     }
   },
   {
@@ -60,7 +92,7 @@
     },
     "source": "https://github.com/RhysSullivan/effect-discord-perms",
     "engagement": {
-      "stars": 17
+      "stars": 18
     }
   },
   {
@@ -108,7 +140,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4363
+      "stars": 4372
     }
   },
   {
@@ -232,7 +264,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1890
+      "stars": 1900
     }
   },
   {
@@ -277,7 +309,7 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117330070842782057",
     "engagement": {
-      "likes": 394,
+      "likes": 393,
       "participants": 13,
       "replies": 12
     },
@@ -369,7 +401,7 @@
     },
     "source": "https://api.github.com/repos/Effect-TS/effect/releases",
     "engagement": {
-      "stars": 17501
+      "stars": 17511
     }
   },
   {
@@ -433,7 +465,7 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 14
+      "stars": 15
     }
   },
   {
@@ -449,7 +481,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1203
+      "stars": 1211
     }
   },
   {
@@ -510,7 +542,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 157
+      "stars": 158
     }
   },
   {
@@ -526,7 +558,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 237
+      "stars": 238
     }
   },
   {
@@ -558,7 +590,7 @@
     },
     "source": "https://github.com/codician-team/diffinery",
     "engagement": {
-      "stars": 82
+      "stars": 81
     }
   },
   {
@@ -590,7 +622,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 157
+      "stars": 158
     }
   },
   {
@@ -606,7 +638,7 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 157
+      "stars": 158
     }
   },
   {
@@ -639,22 +671,6 @@
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
       "stars": 331
-    }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/foldkit/foldkit/pull/1655",
-    "title": "Foldkit Blocks and Effect Layers preview",
-    "summary": "Canary packages preview Block composition and handler Layers: apps compose Blocks and pass the root ApplicationBlock to Program.make. APIs may change before stable.",
-    "date": "2026-10-20",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": "foldkit",
-      "x": null
-    },
-    "source": "https://github.com/foldkit/foldkit/pulls",
-    "engagement": {
-      "stars": 1203
     }
   },
   {
@@ -718,7 +734,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1948
+      "stars": 1952
     }
   },
   {
@@ -799,18 +815,5 @@
       "replies": 5,
       "views": 1950
     }
-  },
-  {
-    "kind": "post",
-    "url": "https://github.com/foldkit/foldkit/pull/1634",
-    "title": "Foldkit proposes Layer-backed effects and typed application assembly",
-    "summary": "Open PR: Commands, Subscriptions and Queries get implementations from Layers, and the app graph is built once per runtime start.",
-    "date": "2026-10-09",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": "devinjameson",
-      "x": null
-    },
-    "source": "https://github.com/foldkit/foldkit/pull/1634"
   }
 ]
