@@ -1,0 +1,132 @@
+---
+title: "A browser send follows one path to the capability"
+description: "In the Foldkit docs browser, a search is a Message, then an update, then a named Command that calls the search capability over RPC and returns a result Message."
+plain: "Click sends a Message; update returns a Command; the Command calls RPC and sends back a result Message."
+diagram: |-
+  click
+    │ SubmittedSearch
+    ▼
+  update ─▶ SearchDocs
+              │ RPC search
+              ▼
+  update ◀─ SucceededSearch
+    │
+  Model.search = Loaded
+group: idea
+terms:
+  - "Foldkit Message"
+  - "Foldkit Command"
+prerequisites: ["lore.one-capability-every-surface"]
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/AGENTS.md
+    title: "rat-stack AGENTS.md at a3f5a14"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Web feature blueprint and the no-browser-server-imports boundary."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/client/docs/message.ts
+    title: "Docs browser Messages"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "defineMessageUnion lists every event the docs browser handles."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/client/docs/model.ts
+    title: "Docs browser Model"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "SearchState is Idle, Loading, Loaded or Failed; the Model holds a generation counter."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/client/docs/command.ts
+    title: "Docs browser Commands"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "SearchDocs calls DocumentQueries and maps the result to SucceededSearch or FailedSearch."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/client/docs/queries.ts
+    title: "Docs browser RPC client"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "toRpcGroup builds the client group from searchContract and readContract; the protocol posts to /rpc."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/features/app.ts
+    title: "Docs browser update and view"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "SubmittedSearch returns SearchDocs; SucceededSearch applies only when its generation matches."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/capabilities/search.ts
+    title: "search capability"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "implement binds searchContract to the content store on the server."
+    accessed: "2026-11-08"
+---
+
+**Goal:** trace one user action from a click to the server and back, and know which file owns each step.
+
+Foldkit is the browser UI framework in rat-stack. A Foldkit program keeps its state in a Model. Events arrive as Messages.
+
+An `update` function takes the Model and a Message, and returns a new Model plus any Commands. A Command is a named task that runs outside `update` and ends by sending another Message.
+
+The docs browser at `/search` is the worked example. Its search box calls the [search capability](/lore/one-capability-every-surface).
+
+## 1. The view sends a Message
+
+The Search button sends `SubmittedSearch`. The view does no fetching.
+
+```ts repo=rat-stack path=apps/web/src/features/app.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=224-229 {226} title="A click is a Message"
+
+```
+
+Every Message the program accepts is declared in one union:
+
+```ts repo=rat-stack path=apps/web/src/client/docs/message.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=7-22 {17-18,20} title="SubmittedSearch, SucceededSearch, FailedSearch"
+
+```
+
+## 2. update returns a Command
+
+`update` sets the search to `Loading`, increases a generation counter, and returns the `SearchDocs` Command:
+
+```ts repo=rat-stack path=apps/web/src/features/app.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=35-42 {39-40} title="Loading now; the search runs as a Command"
+
+```
+
+`update` does no I/O. It describes the next Model and the work to run.
+
+## 3. The Command calls the capability over RPC
+
+```ts repo=rat-stack path=apps/web/src/client/docs/command.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=10-18 {13-15} title="SearchDocs ends in a result Message"
+
+```
+
+`DocumentQueries` builds its [RPC](/skills/learn-rat-stack) [client](/skills/uncomplect) from the shared contracts. The `rat-stack-boundaries/no-browser-server-imports` lint rule lets browser modules import `@rat-stack/core/contracts` and `@rat-stack/capability/rpc-group`, never a [handler](/systems/capabilities). [AGENTS.md](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/AGENTS.md)
+
+```ts repo=rat-stack path=apps/web/src/client/docs/queries.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=7-11 title="The client group comes from the contracts"
+
+```
+
+On the server, `implement` binds the same `searchContract` to the content store:
+
+```ts repo=rat-stack path=apps/site/src/capabilities/search.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=7-11 title="The server stays authoritative"
+
+```
+
+## 4. update folds the result into the Model
+
+```ts repo=rat-stack path=apps/web/src/features/app.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=141-146 {143} title="Only the latest search may land"
+
+```
+
+The generation check drops a stale reply. If the user searches twice, the first reply carries an old generation, and `update` keeps the Model unchanged.
+
+## Why one path
+
+Each step has one owner, so each step can be tested alone.
+
+- The Model is data. The view reads it and sends Messages.
+- `update` is a function of the Model and a Message. It runs without a network.
+- In this program, only Commands call `DocumentQueries`, the RPC client. Each Command ends in a Message.
+- The contract is the one [Schema](/lore/schemas-define-the-boundary) set that the browser and the server share.
+
+`SearchState` names four states: `Idle`, `Loading`, `Loaded`, and `Failed`. The view matches on all four, so no flag combination can show a spinner and an error at once. [model.ts](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/web/src/client/docs/model.ts)
+
+## Next
+
+Read [UI behaviour is a scene](/lore/ui-behaviour-is-a-scene) to test this program without a browser.
+Then read [One capability, every surface](/lore/one-capability-every-surface) for the server half of the contract.
+
+[CAFE](/lore/cafe-stack) names where Foldkit sits in the stack.

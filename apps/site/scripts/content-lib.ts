@@ -1167,6 +1167,12 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "A Worker call that keeps work running after the response, within a shared post-response time allowance.",
     term: "waitUntil",
   },
+  {
+    routePath: "/lore/a-browser-send-follows-one-path",
+    summary:
+      "The browser UI framework in rat-stack. A program keeps a Model, handles Messages in update, and runs side effects as named Commands.",
+    term: "Foldkit",
+  },
 ];
 
 export const glossaryEntries = (
