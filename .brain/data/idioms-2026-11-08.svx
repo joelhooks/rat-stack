@@ -8,7 +8,7 @@ status: "open"
 
 Measured against Effect `4.1.2` (`effect/AGENTS.md` as installed, and the source at tag `effect@4.1.2`), `@xstate/effect` `1.0.0-beta.0` (its `docs/`), Alchemy `2.0.0-beta.85` (including `@alchemy.run/domain`), and the Architecture and Project law sections of `AGENTS.md`.
 
-Items are ranked by value over cost. Line numbers are taken at the base commit `a3f5a14`, except where an entry says it has landed.
+Items are ranked by value over cost. Line numbers in the open items were checked at `bda6a11`, which is main at `74303f9` with this change merged in. The two landed items cite the lines they replaced, at `a3f5a14`.
 
 ## Landed in this pass
 
@@ -29,12 +29,12 @@ Items are ranked by value over cost. Line numbers are taken at the base commit `
 - **Byte identity:** the old map and `Hex.encode` agree on all 256 byte values and on 2,000 random buffers. Interest digests and the config fingerprint keep their values.
 - **Cost:** small. **Risk:** none observed.
 
-## Left for the desk
+## Left for the maintainers
 
 ### 3. Devtools dot paths cannot address a key that contains a dot
 
 - **Problem:** `diff` joins keys with `.` and `readPath` splits on `.`. For a key such as `"a.b"`, the reported change path cannot be read back. The property in `packages/devtools/test/json.test.ts` shrank this to `[{}, {".":""}]`. The read-back property is restricted to dot-free keys, and its name says so.
-- **Location:** `packages/devtools/src/json.ts:125` (split), `:146` and `:175` (join). The contract documents the format in `packages/devtools/src/contracts.ts:59`.
+- **Location:** `packages/devtools/src/json.ts:127` (split), `:148` and `:177` (join). The contract documents the format in `packages/devtools/src/contracts.ts:59`.
 - **Idiom:** an escaped path format such as JSON Pointer (RFC 6901: `~1` for `/`, `~0` for `~`), or path segments sent as an array.
 - **Fix:** pick an escape scheme, update `PathField` and every `rat_*` description that shows an example path, then lift the dot-free restriction in the property.
 - **Cost:** medium. It changes a capability contract's input format. **Risk:** agents and the overlay that send paths today need the new format.
@@ -43,7 +43,7 @@ Items are ranked by value over cost. Line numbers are taken at the base commit `
 
 - **Problem:** HMAC, HKDF, AES-GCM and SHA-256 call `crypto.subtle` through `Effect.promise`. A rejection becomes a defect with no typed failure, and tests cannot swap the implementation.
 - **Location:** `packages/core/src/interest-token.ts:20,57,92,122`; `packages/core/src/interest-services.ts:9`; `packages/intake-live/src/hmac-tickets.ts:33,43,109,130`; `packages/intake-live/src/sealed-intake-events.ts:42,60,80`; `packages/auth/src/feedback.ts:71,199,245`; `apps/site/src/interest/join-contact-store.ts:55,76,115`; `apps/site/src/config-fingerprint.ts:30`.
-- **Idiom:** `AGENTS.md` (stack contract): "Crypto lives in `effect/crypto/*`". Effect ships `Mac` (`effect/crypto/Mac.ts:152`, with `timingSafeEqual` at `:381`), `Digest`, `Aead` (AES-GCM), and `Kdf` (HKDF), each with a `layerWebCrypto` and a typed `CryptoError`. `packages/events/src/visitor.ts` already uses `Digest`.
+- **Idiom:** `AGENTS.md` (stack contract): "Crypto lives in `effect/crypto/*`". Effect ships `Mac` (`effect/crypto/Mac.ts:152`, with `timingSafeEqual` at `:381`), `Digest`, `Aead` (AES-GCM), and `Kdf` (HKDF), each with a `layerWebCrypto`. Their failure channels differ. `Mac` (`Mac.ts:157-166`), `Aead` (`Aead.ts:240-262`) and `Kdf` (`Kdf.ts:221-229`) fail with a typed `CryptoError`. `Digest` does not: `digest` and `digestHex` return `Effect.Effect<Uint8Array>` and `Effect.Effect<string>` with no error channel (`Digest.ts:139-143`), and its layer's SHA digests die when `crypto.subtle` is missing (`Digest.ts:151-153`). Moving the SHA-256 sites to `Digest` therefore makes them swappable in tests, but not typed failures. `packages/events/src/visitor.ts` already uses `Digest`.
 - **Fix:** one package at a time, move to the `effect/crypto` services, and add exact `allowedUnstableApis` entries (these modules warn as unstable). Prove that tokens and ciphertexts produced before the move still verify and decrypt afterwards.
 - **Cost:** medium. **Risk:** high if the key derivation or encoding drifts, because existing tickets, tokens and sealed contacts would stop verifying. Prove compatibility before swapping.
 
@@ -59,7 +59,7 @@ Items are ranked by value over cost. Line numbers are taken at the base commit `
 
 - **Problem:** adapter reads and writes run through `Effect.promise`, so a database failure is a defect. The feedback identity service has no storage failure in its interface, and several paths then add `Effect.orDie`.
 - **Location:** `packages/auth/src/feedback.ts:64,86,146,286,310`, plus `orDie` at `:96,104,195,305,322`.
-- **Idiom:** Effect's `AGENTS.md` ("Error handling"): a `Schema.TaggedError` with `cause: Schema.Defect()`, raised from `Effect.tryPromise`. Repo law: "Errors are part of the interface."
+- **Idiom:** Effect's `AGENTS.md`, in the `Context.Service` example under "Writing Effect services", declares `DatabaseError` as a `Schema.TaggedError` with `cause: Schema.Defect()`. This repo already maps Better Auth rejections to a typed failure with `Effect.tryPromise` in `packages/auth/src/devtools.ts:52-64`. Repo law: "Errors are part of the interface."
 - **Fix:** add a `FeedbackStoreUnavailable` tagged error, use `Effect.tryPromise` at each adapter call, and decide at the capability boundary whether callers see it.
 - **Cost:** medium. It changes a service interface. **Risk:** low.
 
@@ -83,16 +83,16 @@ Items are ranked by value over cost. Line numbers are taken at the base commit `
 
 - **Problem:** `Effect.die("rollback-receipt-missing")` and similar strings name no type, give no fix step, and do not follow the fence grammar.
 - **Location:** `packages/deploy/src/checks.ts:203,378`; `packages/deploy/src/rollback.ts:43,53,61,138`; `packages/deploy/src/worker-version-readback.ts:48`.
-- **Idiom:** repo law, "Errors are part of the interface"; Effect `AGENTS.md`, `Schema.TaggedError` with `Schema.Defect()`.
+- **Idiom:** repo law, "Errors are part of the interface"; Effect `AGENTS.md`, the `Context.Service` example under "Writing Effect services", which declares a `Schema.TaggedError` with `cause: Schema.Defect()`.
 - **Fix:** add a lint rule against a string literal passed to `Effect.die` (the gardener rule), then add one tagged defect type for the deploy driver. Items 7 and 8 remove most of these sites anyway.
 - **Cost:** small after 7 and 8. **Risk:** none.
 
 ### 10. Deploy run memory lives in the runner, beside the machine
 
-- **Problem:** `localLayer` keeps one run's plan, credential, content generations, previous versions, completed and pending resources, and retained orphans in eight `Ref`s. The deploy machine also owns that run's lifecycle and seeds `retainedOrphans: []` in its own context. Two places hold the run's state.
-- **Location:** `packages/deploy/src/local.ts:241-258` (the Refs) and their reads at `:677,740,835`; `packages/deploy/src/machine.ts:380,745`.
+- **Problem:** `localLayer` keeps one run's plan, credential, content generations, previous versions, completed and pending resources, and retained orphans in eight `Ref`s. The deploy machine owns that run's lifecycle, but it sees those facts only through the apply receipt the runner builds from the Refs. When `context.verdict.receipt` is missing, the machine's invoke input falls back to a crashed receipt with `retainedOrphans: []`. The run's facts live in the runner, outside the machine that owns the run.
+- **Location:** `packages/deploy/src/local.ts:241-258` (the Refs) and their reads at `:677,740,835`; the invoke-input fallbacks at `packages/deploy/src/machine.ts:376-383` and `:741-748`.
 - **Idiom:** `AGENTS.md`: "Lifecycles are machines." The principle in `skills/rat-stack-mode/principles/name-the-system-of-record.md` asks for one owner of each fact.
-- **Fix:** first name the store. Either the machine context carries the run state and passes it to runner calls, or the runner becomes a per-run scoped resource whose state the machine reads. This is a design question for the desk, not a refactor.
+- **Fix:** first name the store. Either the machine context carries the run state and passes it to runner calls, or the runner becomes a per-run scoped resource whose state the machine reads. This is a design question for the maintainers, not a refactor.
 - **Cost:** large. **Risk:** medium. The deploy driver gates production.
 
 ### 11. `@alchemy.run/domain` fits the flag ledger, but rat-stack does not use it
@@ -109,27 +109,27 @@ Items are ranked by value over cost. Line numbers are taken at the base commit `
 - **Location:** `packages/code-snippets/src/scanner.ts:430-436`; caller `apps/site/scripts/component-registry.ts:108`.
 - **Idiom:** Effect `AGENTS.md`, "Running Effect programs": run Effects at entry points, or bridge them with `ManagedRuntime`.
 - **Fix:** have the script call `parseCodeRequest` inside its own Effect program, then delete the wrapper.
-- **Cost:** small. **Risk:** none. It is outside this lane's write scope (`apps/site/scripts`).
+- **Cost:** small. **Risk:** none. The caller in `apps/site/scripts` was outside this change's scope.
 
 ### 13. `Data.TaggedError` where the rest of the repo uses `Schema.TaggedError`
 
 - **Problem:** this is the only `Data.TaggedError` in runtime source. Its `cause: unknown` cannot be encoded.
 - **Location:** `packages/capability/src/to-http-api.ts:93`.
 - **Idiom:** Effect `AGENTS.md` (services example): `Schema.TaggedError` with `cause: Schema.Defect()`.
-- **Fix:** switch it to the schema form, with a lint rule first if the desk wants the pattern held.
+- **Fix:** switch it to the schema form, with a lint rule first if the maintainers want the pattern held.
 - **Cost:** small. **Risk:** none. The value is low, because the error only ever travels as a defect.
 
 ### 14. Packages with no property or model tests
 
-- **Problem:** `packages/auth` (3 test files), `packages/lore` (1), `apps/cli` (7) and `packages/turbo-cache` (1) have no `it.prop` or `it.effect.prop`. Feedback token signing in `packages/auth/src/feedback.ts:190-260` is a round-trip property waiting to be written: a signed token verifies, and any changed byte fails.
+- **Problem:** `packages/lore` (1 test file), `apps/cli` (7) and `packages/turbo-cache` (1) have no property or model tests. The check looked for `.prop(` (which covers `it.prop`, `it.effect.prop` and `test.effect.prop` inside `it.layer`), `Arbitrary`, fast-check and `.model.test` files in every package and app; these three are the only ones without any.
 - **Idiom:** repo law, "Prefer property and model tests over example tests"; the reference is `packages/events/test/`.
-- **Fix:** start with the feedback token round trip, then lore traversal.
+- **Fix:** start with lore traversal.
 - **Cost:** small to medium. **Risk:** none.
 
 ## Checked and found idiomatic
 
 - No `createActor` outside `createEffectActor`. No `Effect.run*` outside entry points, apart from item 12 and the sandbox RPC boundary in `apps/site/src/sandbox-worker-loader.ts:106`, which Cloudflare RPC requires.
-- No `process.env` reads in runtime source, and no `setTimeout` outside generated guest-sandbox source.
-- No services written as functions that only return `Effect.gen`. 178 source lines call `Effect.fn` or `Effect.fnUntraced`.
+- No `process.env` reads in runtime source. No `setTimeout` outside the sandbox runtime: the only two calls are the guest deadline in `packages/capability/src/sandbox-subprocess.ts:134` and the run timeout in `apps/site/src/sandbox-worker-loader.ts:193`.
+- No services written as functions that only return `Effect.gen`. At `bda6a11`, runtime source has 180 calls to `Effect.fn` (156) or `Effect.fnUntraced` (24).
 - The `Context.Service` classes without a `static layer` are ports that core owns and adapters implement, as the Architecture section requires.
 - The Cloudflare API calls in `packages/deploy/src/local.ts:179,266` are read-only preflight and version readbacks inside the deploy driver. They declare no resources.
