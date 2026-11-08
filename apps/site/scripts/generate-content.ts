@@ -2365,6 +2365,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
+    "- [Ratstack Tube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
     "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken, tokenmaxxTitle),
