@@ -1037,6 +1037,7 @@ it.layer(contentServices)("generated content", (test) => {
         "/news",
         "/directory",
         ...allStarsRoutes,
+        "/tube",
         "/search",
         "/systems",
         "/glossary",

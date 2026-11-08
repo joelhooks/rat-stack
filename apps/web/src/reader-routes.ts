@@ -6,6 +6,7 @@ export const readerRoutePaths: readonly string[] = [
   "/directory",
   "/all-stars",
   "/search",
+  "/tube",
 ];
 
 export const readerBodyRoutePaths: readonly string[] = [

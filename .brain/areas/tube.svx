@@ -1,0 +1,70 @@
+---
+title: "Ratstack Tube"
+description: "Curated videos for learning the stack, ranked S to F, with a short take on each, built from one data file."
+plain: "One JSON file lists the videos; the content build checks every entry, and /tube shows them grouped by theme with a player that loads only on request."
+diagram: |-
+  tube.json
+    │ content build checks
+    ▼
+  ranked videos
+    ├ /tube page
+    ├ /tube.md
+    └ sitemap
+group: system
+terms: ["Ratstack Tube"]
+sources:
+  - url: https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=PxIBWjiv3og
+    title: "YouTube oEmbed response for one listed video"
+    publisher: "YouTube"
+    note: "The endpoint that supplies each entry's title and channel."
+    accessed: "2026-11-08"
+---
+
+## What it does
+
+[Ratstack Tube](/tube) lists videos worth watching while learning this stack.
+Most are by the people who build the tools: Effect, Alchemy, XState and Cloudflare engineers.
+Each entry has a tier from S to F, a theme, and a take of one to three sentences that names what the viewer learns.
+
+The list lives in `.brain/data/tube.json`.
+The `TubeVideo` [schema](/lore/schemas-define-the-boundary) in `apps/web/src/client/tube/data.ts` defines an entry.
+The content build reads the file through `apps/site/scripts/tube-pages.ts` and fails on any bad entry.
+
+The page groups videos by theme and orders each theme from S to F.
+Inside a tier, the file's order is the editorial order.
+The S tier also appears as a numbered "Start here" list at the top.
+
+A thumbnail loads from YouTube's image host.
+The player loads from `youtube-nocookie.com`, and only after the reader presses play.
+The built page holds no player at all.
+Every title links to the video on youtube.com, so a card still works when an image or the player fails.
+
+## The standard
+
+- Titles and channels come from YouTube's oEmbed endpoint. Durations and publish dates come from the video page. Each entry records the date it was checked in `checked`.
+- A take must match what the video covers, checked against its description, chapters or transcript. A video whose content cannot be confirmed stays off the list.
+- The list links and embeds only. It never rehosts a video or a thumbnail.
+- `/tube` is the only reader page whose content security policy allows images from `https://i.ytimg.com` and frames from `https://www.youtube-nocookie.com`. Every other page keeps the reader policy unchanged.
+- The page says that thumbnails and played videos load from YouTube.
+- The content build rejects a missing or long take, an unknown theme, and a duplicate id. It also rejects a URL that is not https or does not point at its own video. Each failure is a fence message that names the entry and the field.
+
+To add a video, append an entry to `.brain/data/tube.json` with facts from YouTube and the date you checked them, then rebuild.
+To remove one, delete its entry.
+
+## How to check
+
+Run the tube tests:
+
+```sh
+pnpm --filter @rat-stack/web exec vitest run test/tube.data.test.ts test/tube.story.test.ts test/tube.scene.test.ts test/tube.seam.test.ts test/reader-csp.test.ts
+```
+
+They check that ranking orders tiers from S to F and keeps the file's order inside a tier.
+They check that one planted fault in a generated list yields one fence message naming its entry and field.
+They check that the built page holds no player, that a press loads the `youtube-nocookie.com` player, and that only `/tube` gets the wider policy.
+
+Then read the live page as Markdown:
+
+```sh
+curl --silent 'https://ratstack.sh/tube.md' | head -20
+```
