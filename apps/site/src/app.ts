@@ -959,13 +959,14 @@ const discoveryPath = (pagePath: string, catalog: ContentCatalog) => {
 const discoveryLink = (
   store: ContentStore["Service"],
   pagePath: string,
-  status: number
+  status: number,
+  origin: string
 ) =>
   status >= 500 || machinePath(pagePath)
-    ? Effect.succeed(linkHeaderForPage("/"))
+    ? Effect.succeed(linkHeaderForPage("/", origin))
     : store.catalog.pipe(
         Effect.map((catalog) =>
-          linkHeaderForPage(discoveryPath(pagePath, catalog))
+          linkHeaderForPage(discoveryPath(pagePath, catalog), origin)
         )
       );
 
@@ -980,7 +981,12 @@ const linkHeaders = (store: ContentStore["Service"]) =>
         return HttpServerResponse.setHeader(
           response,
           "Link",
-          yield* discoveryLink(store, pagePath, response.status)
+          yield* discoveryLink(
+            store,
+            pagePath,
+            response.status,
+            originOf(request)
+          )
         );
       }),
     { global: true }
@@ -988,10 +994,14 @@ const linkHeaders = (store: ContentStore["Service"]) =>
 
 export const readerResponseHeaders =
   (store: ContentStore["Service"]) =>
-  (pagePath: string, response: HttpServerResponse.HttpServerResponse) =>
-    discoveryLink(store, pagePath, response.status).pipe(
+  (
+    pagePath: string,
+    response: HttpServerResponse.HttpServerResponse,
+    origin: string
+  ) =>
+    discoveryLink(store, pagePath, response.status, origin).pipe(
       Effect.catchTag("AssetReadError", () =>
-        Effect.succeed(linkHeaderForPage("/"))
+        Effect.succeed(linkHeaderForPage("/", origin))
       ),
       Effect.map((link) =>
         secureResponse(

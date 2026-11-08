@@ -2334,7 +2334,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const llmsSourceMarkdown = [
     "# ratstack.sh",
     "",
-    "Build an app and its cloud infrastructure in one TypeScript program.",
+    "> Build an app and its cloud infrastructure in one TypeScript program.",
     "",
     "Effect describes work with typed failures and required services. A service is a named interface for one job. Alchemy declares cloud resources and plans changes before applying them.",
     "",

@@ -150,7 +150,8 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
           linkHeaderForPage(
             upstream.status < 500 && catalog.pageRoutes.includes(path)
               ? path
-              : "/"
+              : "/",
+            "https://ratstack.sh"
           )
         );
 
