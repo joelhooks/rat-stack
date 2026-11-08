@@ -532,7 +532,7 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
                     (response) =>
                       response.status === 200 &&
                       response.headers.link?.includes(
-                        `<${route === "/log.md" ? "/log" : route}>; rel="canonical"`
+                        `<${url}${route === "/log.md" ? "/log" : route}>; rel="canonical"`
                       ) === true
                   )
                 )

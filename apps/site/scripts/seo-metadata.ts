@@ -83,11 +83,10 @@ export const structuredData = (input: {
   readonly origin: string;
   readonly dates?: ContentDates;
 }) => {
-  if (
-    input.path !== "/" &&
-    !input.path.startsWith("/lore/") &&
-    !input.path.startsWith("/systems/")
-  ) {
+  const articlePath =
+    input.path.startsWith("/lore/") || input.path.startsWith("/systems/");
+
+  if (input.path !== "/" && !articlePath) {
     return "";
   }
 
@@ -148,7 +147,7 @@ export const structuredData = (input: {
     ],
   };
 
-  return [data, ...(input.path === "/" ? [] : [breadcrumbs])]
+  return [data, ...(articlePath ? [breadcrumbs] : [])]
     .map(
       (entry) =>
         `<script type="application/ld+json">${JSON.stringify(entry).replaceAll("<", "\\u003c")}</script>`

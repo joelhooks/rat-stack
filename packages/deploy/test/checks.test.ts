@@ -138,8 +138,8 @@ const bodyFor = (url: string, body: string) => {
   };
 };
 
-const markdownCanonicalHeader = (path: string, enabled: boolean) =>
-  enabled ? `<${path === "/log.md" ? "/log" : path}>; rel="canonical"` : "";
+const markdownCanonicalHeader = (path: string, absolute: boolean) =>
+  `<${absolute ? "https://example.com" : ""}${path === "/log.md" ? "/log" : path}>; rel="canonical"`;
 
 it.effect.prop(
   "health requires valid protocols, matching content, workshop indexing, and submission instructions",

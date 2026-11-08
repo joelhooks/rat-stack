@@ -96,7 +96,8 @@ export const forwardsToReaderWebsite = (
 
 export type ReaderResponseHeaders = (
   pagePath: string,
-  response: HttpServerResponse.HttpServerResponse
+  response: HttpServerResponse.HttpServerResponse,
+  origin: string
 ) => Effect.Effect<HttpServerResponse.HttpServerResponse>;
 
 export const withReaderWebsite =
@@ -173,6 +174,7 @@ export const withReaderWebsite =
             status: response.status,
             statusText: response.statusText,
           })
-        )
+        ),
+        new URL(original.url).origin
       );
     });

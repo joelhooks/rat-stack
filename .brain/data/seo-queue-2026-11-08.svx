@@ -34,7 +34,7 @@ Measured on 2026-11-08, before the changes in this packet. HTML requests sent `A
 
 Exclude these endpoints from ordinary broken-page counts, while continuing to test their intended contracts:
 
-- `/--no-verify`: a deliberate 403 refusal page. `.brain/resources/lore/the-fence.svx:44` contains the flag in a code span; `apps/site/scripts/generate-content.ts:366` turns it into the trap link. Keep the link and refusal.
+- `/--no-verify`: a deliberate 403 refusal page. The generated fence article links it from the “Linked from” list, not from its inline code span. `apps/site/scripts/reference-components.ts:102` renders that backlink as an anchor; `apps/site/scripts/generate-content.ts:2936` installs the component. Keep the link and refusal.
 - `/tokenmaxx/mcp`: an MCP endpoint that returns 405 to an ordinary GET. Test it with the MCP protocol rather than treating it as an HTML page.
 - `/api/execute`: a POST endpoint described as such in the agent guide. A GET returning 404 is not evidence that the documented POST capability is broken. Do not put it in a GET-only page liveness denominator.
 
@@ -53,10 +53,10 @@ The lore/system titles are authored in frontmatter; profile titles describe the 
 
 - Exclude every `/tokenmaxx/` child route from the sitemap, matching the existing response-header noindex rule. Keep the workshop landing page `/tokenmaxx`. Deduplicate sitemap paths before serialization.
 - Extend the existing deployment sitemap check so it rejects workshop children in the public sitemap. Keep the landing-page and response-header checks.
-- Add HTTP `Link: rel="canonical"` to Markdown documents. `/AGENTS.md`, `/README.md` and `/VISION.md` retain self-canonicals and remain indexable: their repository instruction, overview and intent documents are distinct resources, not duplicate homepage URLs. `/log.md` canonicalizes to `/log`, whose HTML already owns the change-log intent. Both representations stay readable, and no agent access is blocked. Deployment checks exercise all four headers.
+- Add absolute HTTP `Link: rel="canonical"` to Markdown documents, using the request origin. `/AGENTS.md`, `/README.md` and `/VISION.md` retain self-canonicals and remain indexable: their repository instruction, overview and intent documents are distinct resources, not duplicate homepage URLs. `/log.md` canonicalizes to `/log`, whose HTML already owns the change-log intent. Both representations stay readable, and no agent access is blocked. Deployment checks exercise all four headers.
 - Keep existing `WebSite`, nested `Organization`, and `TechArticle` schema. Add the public repository as the publisher's `sameAs` and describe the homepage's subject as `SoftwareSourceCode` with its real code repository and TypeScript language.
 - Add `BreadcrumbList` to lore and system articles, using their visible collection and page title. Preserve script-safe serialization for arbitrary titles.
-- Name current OpenAI, Anthropic and Perplexity agents explicitly in `robots.txt`. Keep wildcard access and the existing content-signal policy unchanged. This is explicit policy documentation, not an unblock: all tested agents were already allowed.
+- Name current OpenAI, Anthropic and Perplexity agents explicitly in `robots.txt`. Repeat `Content-Signal: ai-train=no, search=yes, ai-input=yes` in both wildcard and named groups: a named crawler selects its specific group. Keep wildcard access unchanged. Council caught and corrected the initial patch's missing signal in the named group. This is explicit policy documentation, not an unblock: all tested agents were already allowed.
 - Format the existing opening sentence of `/llms.txt` as a blockquote, in both runtime output and the generated source. No factual wording was changed.
 
 The schema changes apply to both generated documents and the reader's served head. They add static head data, not a content corpus in Worker startup code. No pricing, rating, review, release version, support promise, founding date or invented author was added.
@@ -132,7 +132,13 @@ These lack enough demand or fit evidence to displace the ranked refreshes. Exist
 | `Effect Layer constructor dependencies` | Choose a service construction pattern | Unknown / unknown | Refresh `/lore/layer-constructor-pattern` | Existing service and Layer documentation. GSC page: two impressions, position 29.5, zero clicks. No keyword-level demand measured yet. |
 | `best stack for building AI agents with Effect TypeScript` | Compare agent application stacks | Unknown / unknown | Evaluate `/skills/learn-rat-stack`; no new comparison page yet | Broad search sample omitted ratstack.sh. Confirm audience fit first: rat-stack is a reference, not a supported general-purpose agent framework. |
 
-## Verification before commit
+## Council follow-up
+
+Council requested an explicit content-use signal in every robots group, absolute canonical header URLs, and article-only breadcrumb scope. The robots test first failed against the missing named-group directive before the production fix. The deployment property now rejects a relative canonical header. Breadcrumb eligibility explicitly matches only `/lore/` and `/systems/`, with a generated-path property covering other collections and the homepage. The fence-link explanation above now cites the real backlink renderer rather than a route constant.
+
+The follow-up passed `pnpm turbo run check test build --concurrency=1`: 91 of 91 tasks, including 732 site tests, 95 reader tests and 92 deployment tests. A breadcrumb mutation admitting `/skills/` failed the new eligibility property before restoration. Static startup is now 1,095,669 bytes for Mischief, 130 bytes above the initial patch and 407 bytes above the prepared baseline. Other workers and all ceilings remain unchanged. The added runtime bytes implement the council-requested absolute headers and repeated policy directive; page data stays static.
+
+## Verification before initial commit
 
 - `pnpm turbo run check test build`: passed, 91 of 91 tasks; site suite 90 files and 730 tests. This was the completed working-tree gate before commit, not a deployment check.
 - Property mutation: removing JSON-LD `<` escaping made the reader metadata test fail. The safe serializer was restored.

@@ -7,7 +7,7 @@ import {
   pageTitle,
   structuredData,
 } from "../scripts/seo-metadata.ts";
-import { sitemapXml } from "../src/content.ts";
+import { robotsText, sitemapXml } from "../src/content.ts";
 import {
   catalog,
   homeDocumentHtml,
@@ -15,6 +15,20 @@ import {
   loreSources,
   skillSources,
 } from "./generated-content.ts";
+
+it("every robots group declares the same content-use policy", () => {
+  const groups = robotsText
+    .split(/\n\n/u)
+    .filter((group) => group.startsWith("User-agent:"));
+
+  expect(groups.length).toBeGreaterThan(0);
+
+  for (const group of groups) {
+    expect(group).toContain(
+      "Content-Signal: ai-train=no, search=yes, ai-input=yes"
+    );
+  }
+});
 
 const Publisher = Schema.Struct({
   "@type": Schema.Literal("Organization"),
@@ -276,6 +290,28 @@ it.prop(
     expect(data.headline).toBe(title);
     expect(data.description).toBe(text);
     expect(html.match(/<script/gu)).toHaveLength(2);
+  }
+);
+
+it.prop(
+  "only lore and systems articles receive breadcrumb structured data",
+  {
+    prefix: Arbitrary.schema(
+      Schema.Literals(["/lore/", "/systems/", "/skills/", "/resources/", "/"])
+    ),
+    text: Arbitrary.schema(Schema.String),
+  },
+  ({ prefix, text }) => {
+    const html = structuredData({
+      description: text,
+      origin: "https://ratstack.sh",
+      path: `${prefix}${encodeURIComponent(JSON.stringify(text))}`,
+      title: text,
+    });
+
+    expect(html.includes('"@type":"BreadcrumbList"')).toBe(
+      prefix === "/lore/" || prefix === "/systems/"
+    );
   }
 );
 

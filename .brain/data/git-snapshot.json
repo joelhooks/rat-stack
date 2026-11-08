@@ -187,7 +187,7 @@
     "packages/core/test/scoped-resource.test.ts": "b0c4ac286dc08e7df92a79ddd843bd570d8706a055babc8089c6b5bcd45c24a4",
     "packages/core/test/trace-export.test.ts": "1bf31a6930efabf5e596157fbade40fe6524b95c678d4c49e9bda0105ec2d1b3",
     "packages/database/src/postgres-migrations.ts": "e510eea1a4866d7f34107000b6b22c1f7932426a67dee4322a249564edaeac6a",
-    "packages/deploy/src/checks.ts": "83bc92fc5721af8dacbf8ef95dad7adfd101b59e50e971534c43cbd82aa18c88",
+    "packages/deploy/src/checks.ts": "bd9cd171b0f828a7d22779e539eca4c7a16c4af615c8f70914b2d9c4780640fe",
     "packages/deploy/test/fixtures/validated-http-response.ts": "4c979b68d980a34f424fd5ed9dd2e7001e9a0de26b79e8b4c03214ce4bfc4892",
     "packages/deploy/test/http-response.test.ts": "904a99c1ad1b49f11e8b2dd498fdf9ea2c5925d05da0491ac1d631c1fffc9e98",
     "packages/motion/src/foldkit.ts": "365fa4f47182a707d0672bb9d640d3aa734ed29d9f487d706e786d8419d5bcc9",

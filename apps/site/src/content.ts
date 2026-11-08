@@ -211,6 +211,7 @@ User-agent: Bytespider
 User-agent: CCBot
 User-agent: Applebot-Extended
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://ratstack.sh/sitemap.xml
 `;
@@ -276,18 +277,20 @@ const serviceLinkHeaders = [
   `</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
 ];
 
-export const linkHeaderForPage = (pagePath: string) =>
+export const linkHeaderForPage = (pagePath: string, origin: string) =>
   [
     ...serviceLinkHeaders,
     ...(pagePath.endsWith(".md") || pagePath === "/log"
-      ? [`<${pagePath === "/log.md" ? "/log" : pagePath}>; rel="canonical"`]
+      ? [
+          `<${origin}${pagePath === "/log.md" ? "/log" : pagePath}>; rel="canonical"`,
+        ]
       : []),
     ...markdownDiscoveryLinks(pagePath).map(
       (link) => `<${link.href}>; rel="${link.rel}"; type="${link.type}"`
     ),
   ].join(", ");
 
-export const linkHeader = linkHeaderForPage("/");
+export const linkHeader = linkHeaderForPage("/", "https://ratstack.sh");
 
 export const agentSkillsIndex = (catalog: ContentCatalog) => ({
   $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",

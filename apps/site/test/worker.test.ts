@@ -1344,7 +1344,7 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
           "noindex"
         );
         expect(response.headers.get("link")).toContain(
-          `<${route === "/log.md" ? "/log" : route}>; rel="canonical"`
+          `<https://ratstack.sh${route === "/log.md" ? "/log" : route}>; rel="canonical"`
         );
       }
 
