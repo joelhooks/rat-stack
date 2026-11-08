@@ -1,0 +1,43 @@
+---
+title: "Join intake: an erase inside the request's commit"
+type: "project"
+status: "open"
+created_at: "2026-11-07"
+privacy: "public"
+---
+
+# Join intake: an erase inside the request's commit
+
+`JoinIntakeEarlyErase.cfg` in `packages/core/spec/` fails `EraseWins` in 93 distinct states. This card records the gap and the trade-off any fix has to choose. It is not fixed.
+
+## The gap
+
+`joinIntakeLayer` reads the contact, then commits it as `ready` with a delivery marker. An operator erase that marks the contact between those two calls is overwritten by the commit. The model assumes an erase starts after the request ends, and nothing in code enforces that.
+
+The window is a few milliseconds of a submission's first request. The operator has to erase an id that is that new.
+
+## Harm
+
+- The erase marker is lost. If Basin is down, the erase stays `pending` and never finishes, so the contact's data stays stored.
+- A delivery the person asked to undo can still go out.
+
+## Backstop today
+
+Rerun `rat-stack intake erase` for the id.
+
+## What the Durable Object guard already does
+
+The Durable Object's `joinSave` now refuses a save without the erase flag once the stored contact carries one. With that guard, `EraseWins` holds for this case in the Durable Object store. `AnswerAtCommit` fails instead: the request tells the person "check your email" after a commit that never landed. That answer is wrong, but the person asked for the erase, so the harm is small. `JoinContactStore.testLayer` and any other store without the guard keep the original gap.
+
+## Choices
+
+1. **Accept the trade-off.** Weaken `AnswerAtCommit` to also allow an answer when the commit was refused because an erase won, and make the guard part of the `JoinContactStore` contract so every store refuses the same save.
+2. **Order the writers.** Make the operator's erase wait for the request's commit, for example by refusing an erase while the contact is `held`. The operator then retries.
+3. **Leave it.** The window is milliseconds and the backstop exists.
+
+Recommendation: choice 1, because it turns the Durable Object's existing behaviour into the contract instead of adding a second rule.
+
+## Done when
+
+- The chosen rule is in the spec. A safety cfg with `EraseDuringRequest = TRUE` passes every invariant, with `AnswerAtCommit` reworded if choice 1 wins.
+- `JoinContactStore.testLayer` follows the same rule, and a real-code test fails without it.

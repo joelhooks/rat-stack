@@ -77,4 +77,13 @@ No rule forces a model onto every protocol yet. Reviewers ask for one when a cha
 
 On its first run, the join-intake model found three ways to lose owed work or an erase marker. The Durable Object store writes a record and its sweep index in two calls. Its `setState` reads and writes in two calls. And an erase can land inside the request's commit. Each is a weaker config with its harm and backstop in the README.
 
+Then it checked the fixes before anyone wrote them. Making the erase marker sticky in the Durable Object passed every invariant, and that fix shipped with a twin. The obvious fix for the index was to mark it before saving the record. The model refused it in four steps:
+
+1. The request saves the contact as `held` and dies.
+2. The eraser marks the sweep index, ahead of its save.
+3. The sweep reads the record, finds no marker, and clears the index entry.
+4. The eraser writes the erase marker. The work is owed, and the sweep cannot find it.
+
+The record and the index live in two Durable Objects, and no transaction spans them, so no ordering of the two calls holds the invariant. The fix that would hold keeps an outbox beside the record: the record, an index-owed entry with a sequence number, and an alarm are written in one transaction, and the invariant becomes "owed implies indexed, or the outbox is armed". That fix is still open, and `JoinIntakeMarkBeforeSave.cfg` records why the reorder was not enough. The reorder would have passed review, and the trace stopped it before it shipped.
+
 Read [durability](/skills/durability) for the patterns these models check, and [add a lifecycle machine](/skills/add-a-lifecycle-machine) for the machines that run them.

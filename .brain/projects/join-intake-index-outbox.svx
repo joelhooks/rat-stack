@@ -1,0 +1,50 @@
+---
+title: "Join intake: keep the sweep index in step with an outbox"
+type: "project"
+status: "open"
+created_at: "2026-11-07"
+privacy: "public"
+---
+
+# Join intake: keep the sweep index in step with an outbox
+
+The Durable Object store can lose owed work. `JoinIntakeIndexAfterRecord.cfg` and `JoinIntakeMarkBeforeSave.cfg` in `packages/core/spec/` both fail `OwedIsFindable`. This card holds the fix that the model accepts. It is not built yet.
+
+## The gap
+
+`joinContactStoreLayer` writes the contact with `joinSave`, in the contact's own Durable Object. It then writes the sweep index with `markPending`, in the index Durable Object. A crash or a failed call between the two leaves a contact with a delivery or erase marker that the sweep never lists.
+
+Marking the index before the save does not fix it. The model's counterexample has four steps:
+
+1. The request saves the contact as `held` and dies.
+2. The eraser marks the sweep index, ahead of its save.
+3. The sweep reads the record, finds no marker, and clears the index entry.
+4. The eraser writes the erase marker. The work is owed, and the sweep cannot find it.
+
+`sweepPendingIntake` does step 3 in code: it reads the contact, then calls `markPending(false)`. Marking again after the save still loses to a crash between the save and the second mark. No transaction spans the two Durable Objects, so no order of calls keeps the index right at every step.
+
+## Harm
+
+- A person told "check your email" never gets the email.
+- An erase reported as `pending` never finishes while Basin is down.
+
+## Backstop today
+
+`rat-stack intake list` shows each contact's state. `rat-stack intake redeliver` and `rat-stack intake erase` re-drive one id.
+
+## The fix the model should accept
+
+Keep an outbox beside the record, in the contact's Durable Object:
+
+1. `joinSave` writes the sealed contact, an `index-owed` entry with a new sequence number, and `setAlarm` in one storage transaction.
+2. The alarm calls the index with the contact's pending state and that sequence number. The index stores the highest sequence number per id and ignores anything older.
+3. After the index call succeeds, the alarm deletes `index-owed` if its sequence number is unchanged. If the call fails, the platform retries the alarm.
+4. The sweep stops clearing entries itself. A clear arrives only through the outbox, carrying the sequence number of the write that cleared the marker.
+
+The invariant changes from "owed implies indexed" to "owed implies indexed, or the outbox is armed". It holds at every step because the outbox is written in the same transaction as the record.
+
+## Done when
+
+- The spec models the outbox: `joinSave`, the alarm, and the index's sequence check are separate steps, and a crash can land between any two.
+- A safety cfg with the outbox passes `OwedIsFindable`, rewritten as above, along with every other invariant. `JoinIntakeIndexAfterRecord.cfg` and `JoinIntakeMarkBeforeSave.cfg` stay as expected-fail environments.
+- A real-code test fails when the outbox write is moved out of the transaction, and when the index applies an older sequence number.

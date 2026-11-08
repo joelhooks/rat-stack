@@ -16,8 +16,10 @@ Measured on 2026-11-07 with `tla-ts` 0.0.8:
 | Config | Kind | Result | Distinct states | Time |
 | --- | --- | --- | --- | --- |
 | `JoinIntake.cfg` | safety | pass | 151,783 | ~1.6 s |
+| `JoinIntakeEraseSticky.cfg` | safety | pass | 134,085 | ~1.4 s |
 | `JoinIntakeSettles.cfg` | liveness | pass | 151,783 | ~5 s |
 | `JoinIntakeIndexAfterRecord.cfg` | weaker | `OwedIsFindable` violated, as expected | 19 | <1 s |
+| `JoinIntakeMarkBeforeSave.cfg` | weaker | `OwedIsFindable` violated, as expected | 43 | <1 s |
 | `JoinIntakeSetStateRace.cfg` | weaker | `EraseWins` violated, as expected | 1,068 | <1 s |
 | `JoinIntakeEarlyErase.cfg` | weaker | `EraseWins` violated, as expected | 93 | <1 s |
 
@@ -31,6 +33,7 @@ Bounds: one submission, at most one crash, one provider retry, and one Basin out
 - `packages/core/src/intake-erase.ts`: `settleErase`
 - `packages/core/src/join-contact-store.ts`: `withState`, `withPending`
 - `apps/site/src/interest/join-contact-store.ts`: `joinContactStoreLayer`
+- `apps/site/src/interest/join-contact-cell.ts`: the Durable Object's `joinSave`, `joinRead` and `joinErase`
 - `apps/site/src/interest/intake-sweep.ts`: `sweepPendingIntake`
 
 ## Action map
@@ -50,12 +53,14 @@ Each await in the code is a separate step, and a crash can land between any two 
 | `Tombstone` | `settleErase`: `events.erase(contact.contactRef)` with bounded retry; Basin down → `pending` |
 | `Remove` | `contacts.erase`; the Durable Object's `joinErase` sets the erased key and deletes the record |
 | `FlushIndex` | `markPending` in `joinContactStoreLayer`, when the index write is a separate step |
+| `PreMark` | a `markPending(true)` before `joinSave`; no code does this, see `JoinIntakeMarkBeforeSave.cfg` |
+| `Refused` in `Save` | `joinContactCell`'s `joinSave`: the erased key, and with `EraseSticky` a stored erase marker |
 | `Crash` | a request, `waitUntil`, sweep run, or operator call that dies between two awaits |
 | `BasinDown`, `BasinBack` | the event store's outage starts or ends |
 
 ## Assumptions
 
-- **The store writes atomically.** One save writes the record and its sweep-index entry together, and `setState` reads and writes in one step. `JoinContactStore.testLayer` does both. The Durable Object adapter does neither; see the weaker environments below.
+- **The store writes atomically.** One save writes the record and its sweep-index entry together, and `setState` reads and writes in one step. `JoinContactStore.testLayer` does both. The Durable Object adapter does neither. `JoinIntakeEraseSticky.cfg` checks the adapter's split `setState` against its sticky erase guard; the split index write is still open, see the weaker environments below.
 - **An erase starts after the request ends.** An operator erases a submission only after its request has answered or died. Nothing enforces this. `JoinIntakeEarlyErase.cfg` checks the case where the assumption fails.
 - **Erased stays erased.** A save after `Remove` is dropped. The Durable Object checks its erased key; the test store keeps an `erased` set.
 - **The sweep keeps running,** and Basin comes back. These are the fairness conditions in `Spec`.
@@ -87,6 +92,9 @@ Each flip replaces one line of the spec. Checked against only its own invariant,
 | `TombstoneBeforeRemove` | the contact is removed before its tombstone | `test/intake-sweep.model.test.ts` | `intake-erase.ts`: `contacts.erase` before `events.erase` | the erased contact is still stored |
 | `EraseWins` | a delivery result drops the erase marker | `test/intake-sweep.model.test.ts` | `join-contact-store.ts`: `withState` drops `pending === "erase"` | the erase marker gone after a step |
 | `OwedIsFindable` | the store indexes only pending deliveries | `apps/site/test/join-contact-erase.test.ts` | `apps/site/.../join-contact-store.ts`: `markPending` only for `"delivery"` | `expected Set{} to deeply equal Set{ … }` |
+| `EraseWins`, in `JoinIntakeEraseSticky.cfg` | a late delivery result overwrites the erase marker | `apps/site/test/join-contact-cell.test.ts` | `join-contact-cell.ts`: the stored-marker refusal disabled; separately, `join-contact-store.ts`: `false` passed for `erase` | `expected undefined to be 'erase'`, both times |
+
+The sticky-erase row was mutated on 2026-11-07 at commit `1cf8040`. Disabling the refusal also fails the cell's property, `expected 'sealed-1' to be 'sealed-0'`.
 
 The test checks that each flip's guard occurs once in the spec, that each twin's title is still in its file, and that each code guard is still in its source. That ties the model to the code. It does not prove the twin still fails without the guard; only another hand mutation proves that.
 
@@ -100,20 +108,39 @@ The Durable Object adapter's `save` writes the record (`joinSave`) and then the 
 
 - **Harm:** a person told "check your email" never gets the email, or an erase reported as `pending` never completes.
 - **Backstop:** `rat-stack intake list` shows the contact's state, and `rat-stack intake redeliver` or `rat-stack intake erase` re-drives it by id.
+- **Open:** [join intake index outbox](../../../.brain/projects/join-intake-index-outbox.svx).
+
+### `JoinIntakeMarkBeforeSave.cfg`: `OwedIsFindable`
+
+The obvious fix for the gap above is to call `markPending(true)` before `joinSave`. The model refuses it in four steps:
+
+1. The request saves the contact as `held` and dies.
+2. The eraser marks the sweep index, ahead of its save.
+3. The sweep reads the record, finds no marker, and clears the index entry.
+4. The eraser writes the erase marker. The work is owed, and the sweep cannot find it.
+
+`sweepPendingIntake` does exactly step 3: it reads the contact, then calls `markPending(false)`. Marking again after the save still loses to a crash between the save and the second mark. The record and the index live in two Durable Objects, and no transaction spans them, so no ordering of the two calls keeps `OwedIsFindable` true at every step. The fix that holds keeps an outbox beside the record; the card above has its shape.
+
+- **Harm and backstop:** as above.
 
 ### `JoinIntakeSetStateRace.cfg`: `EraseWins`
 
-The adapter's `setState` reads the record and then writes it back in two calls. A background delivery that reads before an erase marks the contact, and writes after the mark, overwrites the erase marker.
+The adapter's `setState` reads the record and then writes it back in two calls. A background delivery that reads before an erase marks the contact, and writes after the mark, would overwrite the erase marker.
 
-- **Harm:** if Basin is down at that moment, the erase stays `pending` with no marker and is never finished, so the contact's data stays stored.
+The Durable Object now refuses that write. `joinSave` takes an `erase` flag, stores it in the same value as the sealed contact, and drops any save without the flag once a stored contact carries it. `JoinIntakeEraseSticky.cfg` checks the same split `setState` with that guard and passes every invariant. This config keeps the environment without the guard, so the test shows what the guard prevents.
+
+- **Harm without the guard:** if Basin is down at that moment, the erase stays `pending` with no marker and is never finished, so the contact's data stays stored.
 - **Backstop:** rerunning `rat-stack intake erase` for the id marks and erases it again.
 
 ### `JoinIntakeEarlyErase.cfg`: `EraseWins`
 
 The request reads the contact and then commits it. An erase that marks the contact between those two calls is overwritten by the commit's delivery marker. The window is a few milliseconds of a submission's first request, and an operator has to erase an id that new.
 
+With the sticky erase guard, the Durable Object refuses the commit instead, and `EraseWins` holds. `AnswerAtCommit` then fails, because the request answers after a commit that never landed. The memory store has no guard.
+
 - **Harm:** the same as above, plus a delivery the person asked to undo.
 - **Backstop:** rerunning `rat-stack intake erase` for the id.
+- **Open:** [join intake early erase](../../../.brain/projects/join-intake-early-erase.svx).
 
 ## Not modelled
 

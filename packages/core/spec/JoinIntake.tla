@@ -2,7 +2,7 @@
 EXTENDS Naturals
 
 CONSTANTS MaxCrashes, MaxRetries, MaxOutages, EraseDuringRequest, IndexAfterRecord,
-          SetStateReadsThenWrites
+          SetStateReadsThenWrites, MarkBeforeSave, EraseSticky
 
 Writers == {"request", "background", "sweep", "eraser"}
 Deliverers == {"background", "sweep"}
@@ -48,7 +48,7 @@ TypeOK ==
   /\ marked \in BOOLEAN
   /\ tombstoned \in BOOLEAN
   /\ removed \in BOOLEAN
-  /\ idx \in [Writers -> {"none", "mark", "clear"}]
+  /\ idx \in [Writers -> {"none", "armed", "mark", "clear"}]
   /\ crashes \in 0..MaxCrashes
   /\ retries \in 0..MaxRetries
   /\ outages \in 0..MaxOutages
@@ -71,16 +71,39 @@ Settles == Owed ~> ~Owed
 
 Flushed(w) == idx[w] = "none"
 
+Armed(w, p) == IndexAfterRecord /\ MarkBeforeSave /\ p # "none"
+
+Refused(p) == erasedKey \/ (EraseSticky /\ pend = "erase" /\ p # "erase")
+
 Save(w, r, p) ==
-  IF erasedKey
-    THEN UNCHANGED << rec, pend, indexed, idx >>
-    ELSE /\ rec' = r
-         /\ pend' = p
-         /\ IF IndexAfterRecord
-              THEN /\ idx' = [idx EXCEPT ![w] = IF p = "none" THEN "clear" ELSE "mark"]
-                   /\ UNCHANGED indexed
-              ELSE /\ indexed' = (p # "none")
-                   /\ UNCHANGED idx
+  /\ Armed(w, p) => idx[w] = "armed"
+  /\ IF Refused(p)
+       THEN /\ idx' = [idx EXCEPT ![w] = "none"]
+            /\ UNCHANGED << rec, pend, indexed >>
+       ELSE /\ rec' = r
+            /\ pend' = p
+            /\ IF IndexAfterRecord
+                 THEN /\ idx' = [idx EXCEPT ![w] = CASE Armed(w, p) -> "none"
+                                                      [] p = "none" -> "clear"
+                                                      [] OTHER -> "mark"]
+                      /\ UNCHANGED indexed
+                 ELSE /\ indexed' = (p # "none")
+                      /\ UNCHANGED idx
+
+AtSave(w) ==
+  CASE w = "request" -> req = "read"
+    [] w = "eraser" -> epc = "marking"
+    [] OTHER -> dpc[w] = "settling"
+
+PreMark(w) ==
+  /\ IndexAfterRecord /\ MarkBeforeSave
+  /\ idx[w] = "none"
+  /\ AtSave(w)
+  /\ indexed' = TRUE
+  /\ idx' = [idx EXCEPT ![w] = "armed"]
+  /\ UNCHANGED << rec, pend, erasedKey, events, basinUp, req, reqSeen, answered,
+                  dpc, dseen, sawErase, result, keys, sentAfterErase,
+                  epc, eseen, marked, tombstoned, removed, crashes, retries, outages >>
 
 KeepMark(p, state) ==
   IF p = "erase" THEN "erase"
@@ -90,7 +113,7 @@ KeepMark(p, state) ==
 StateFor(r) == IF r = "retry" THEN "ready" ELSE r
 
 FlushIndex(w) ==
-  /\ idx[w] # "none"
+  /\ idx[w] \in {"mark", "clear"}
   /\ indexed' = (idx[w] = "mark")
   /\ idx' = [idx EXCEPT ![w] = "none"]
   /\ UNCHANGED << rec, pend, erasedKey, events, basinUp, req, reqSeen, answered,
@@ -351,6 +374,7 @@ Next ==
   \/ EraseRead
   \/ EraseStep
   \/ \E w \in Writers : FlushIndex(w)
+  \/ \E w \in Writers : PreMark(w)
   \/ BasinDown
   \/ BasinBack
   \/ \E w \in Writers : Crash(w)
@@ -365,6 +389,7 @@ Fairness ==
   /\ WF_vars(FlushIndex("background"))
   /\ WF_vars(FlushIndex("sweep"))
   /\ WF_vars(FlushIndex("eraser"))
+  /\ \A w \in Writers : WF_vars(PreMark(w))
   /\ WF_vars(BasinBack)
 
 Spec == Init /\ [][Next]_vars /\ Fairness
