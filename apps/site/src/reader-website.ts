@@ -49,6 +49,7 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/systems/*",
   "/skills",
   "/skills/*",
+  "/tube",
   "/rpc",
   "/rpc/*",
 ];
