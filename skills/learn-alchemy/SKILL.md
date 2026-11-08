@@ -126,7 +126,7 @@ Keep an existing tool when it already owns the state and the team knows its revi
 5. Read `apps/site/src/worker.ts` for Worker construction and binding consumers.
 6. Read `apps/site/src/rate-limits.ts` for native rate-limit types and limits.
 7. Read `apps/site/src/sandbox-worker-loader.ts` for the fresh-isolate sandbox boundary.
-8. Read `.brain/projects/ratstack-sh/deploy-ratstack-sh.svx` for real deployment history and failures.
-9. Read `.brain/projects/ratstack-sh/research-alchemy-effect-worker.svx` for the Worker shape and local-dev research.
+8. Read `.brain/archives/projects/ratstack-sh/deploy-ratstack-sh.svx` for real deployment history and failures.
+9. Read `.brain/archives/projects/ratstack-sh/research-alchemy-effect-worker.svx` for the Worker shape and local-dev research.
 
 Name the resource, request a plan, and check the diff.

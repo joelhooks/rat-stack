@@ -1,0 +1,164 @@
+---
+title: Dependency refresh keeps one Effect runtime
+summary: October 20 dependency decisions, compatibility evidence, and the remaining gardener work.
+status: archived
+---
+
+superseded by completed dependency migration; current pins are owned by package manifests and AGENTS.md, 2026-11-08.
+
+Historical record. Paths, versions, measurements and instructions below describe that work, not the current application.
+
+
+# Dependency refresh keeps one Effect runtime
+
+Effect and its platform, SQL, and test adapters stay at `4.0.0`.
+Foldkit still requires that runtime family.
+Node stays on version 24, with `@types/node` at `24.19.2`.
+
+## Compatibility evidence
+
+- Shiki `4.5.0` preserves the captured highlighting artifact for all 134 fence jobs.
+- That artifact covers 64 configured snippets and 66 ordinary rendered fences.
+- htmlparser2 `12.0.0` preserves reader bodies and metadata for all 146 generated pages.
+- PGlite `0.5.10` passes the database model and migration tests with fresh, in-memory databases.
+- Pi `1.3.0` requires a Promise from the project-status command handler. The handler is now async.
+- Both Pi extensions pass a dedicated strict SDK typecheck. The command also passes a Promise and notification smoke check.
+
+PGlite re-resolution separated the Alchemy peer contexts for auth and its adapter.
+Auth now declares the existing `drizzle-kit` pin as a development dependency.
+Both resolve the same Alchemy instance. No runtime dependency or auth type workaround was added.
+
+## Held updates
+
+| Package | Kept | Reviewed target | Reason |
+| --- | --- | --- | --- |
+| Satori | `0.33.5` | `0.62.0` | The target replaces Yoga with Taffy and changes layout defaults. Asset-generation tests do not establish visual parity. |
+| Oxfmt | `0.73.0` | `0.74.0` | Version 0.74 appeared during the run. The owner kept the brief's fixed version set and deferred it to the next sweep. |
+
+Use a separate visual review for Satori.
+
+## Better Auth preserves the existing schema
+
+Better Auth moves from `1.6.2` to `1.7.11`.
+Its core, adapters, and telemetry packages resolve to `1.7.11`; utils moves from `0.4.0` to `0.5.0`.
+Kysely moves from `0.28.17` to `0.29.4`, which satisfies the Alchemy auth adapter's peer range.
+The workspace override keeps auth and its adapters on one Kysely version.
+
+The [1.7.3 release](https://github.com/better-auth/better-auth/releases/tag/v1.7.3) restores the 1.6 account schema.
+The issuer column exists only in 1.7.0 through 1.7.2.
+This upgrade skips those versions and requires no account backfill.
+
+### Schema proof
+
+The proof uses `getSchema` and `getMigrations` from Better Auth, as Alchemy's migration layer does.
+Both versions receive the cartridge's `authOptions`, including its device and feedback storage plugins.
+D1 uses the native D1 dialect through a local SQLite facade.
+Postgres uses the native Postgres dialect through a local PGlite pool facade.
+These checks establish local schema compatibility, not deployed database health.
+
+| Vendor | SQL diff from 1.6.2 to 1.7.11 | Upgrade plan against the 1.6.2 schema |
+| --- | --- | --- |
+| D1 | Empty; both outputs contain 1,737 bytes | No tables, columns, or indexes added |
+| Postgres | Empty; both outputs contain 1,998 bytes | No tables, columns, or indexes added |
+
+The schema metadata adds empty `indexes` arrays on all six tables. No field changes.
+The cartridge keeps column-level uniqueness for `deviceCode` and `userCode`.
+Its explicit empty table-index list avoids duplicate indexes over those existing constraints.
+The [schema evidence](../../data/better-auth-1711.json) holds both SQL outputs and their hashes.
+
+### Breaking-change review
+
+The review covers [1.7.0](https://github.com/better-auth/better-auth/releases/tag/v1.7.0) through [1.7.11](https://github.com/better-auth/better-auth/releases/tag/v1.7.11).
+Only 1.7.0 labels breaking changes; later releases include fixes and the account-schema reversal.
+
+| Change | Effect on this cartridge |
+| --- | --- |
+| Joins move to `advanced.database.joins` | No joins option is configured. |
+| Account issuer and identity backfill | Reverted in 1.7.3. SQL remains unchanged. |
+| Captcha full paths and wildcards | No captcha plugin. `disabledPaths` is a separate option and stays unchanged. |
+| MCP plugin moves to `@better-auth/mcp` | No Better Auth MCP plugin. Our MCP projection belongs to the capability package. |
+| OIDC back-channel logout | No OAuth provider plugin or connected OAuth clients. |
+| Protected resources and required MCP resource | No OAuth provider, CIMD, or Better Auth MCP plugin. |
+| SCIM decoupling, connections, and reprovisioning | No SCIM, SSO, or organization plugin. |
+| Two-factor response discriminator | No two-factor plugin. |
+| Dynamic origin trusts `Host` | Production supplies the fixed `https://ratstack.sh` base URL. No proxy-header opt-in is needed. |
+| Unique device-code lookups | Already enforced by the cartridge's two column-level unique constraints. Keep them. |
+| Device codes must be claimed before approval or denial | The approval page first calls authenticated `GET /auth/device?user_code=...`. Existing behavior tests cover rejection before claiming and approval after claiming. |
+| Electron PKCE and custom schemes | No Electron integration. |
+| Microsoft account identity uses `oid` | No Microsoft provider. |
+| Google One Tap requires a client ID | No One Tap plugin or Google provider. |
+| Deprecated `oidcProvider` removed | Not used. |
+| Generic OAuth becomes a social provider | No generic OAuth or social provider. |
+| OAuth device grant moves to `oauthDeviceAuthorization` | We use standalone `deviceAuthorization`, without OAuth grant integration or resource fields. |
+| Shared ID-token verifier | No custom upstream provider, PayPal sign-in, or ID-token sign-in. |
+| OAuth client registration and metadata | No OAuth provider, CIMD, or Better Auth MCP plugin. |
+| OAuth `max_age`, reserved claims, grant authentication, resources, and errors | No OAuth authorization server or custom claim hooks. |
+| SSO certificates, validation source, SAML responses, and ACS path | No SSO plugin. |
+| Expo async secure storage | No Expo integration. |
+| Stripe cancellation callback requires `event` | No Stripe plugin. |
+| Auth CLI `grantedScopes` array | The `auth` CLI is not installed or used. |
+| API-key atomic adapter operations | No API-key plugin, custom auth adapter, or secondary storage. |
+
+Later releases enable initialization-time schema validation and fix D1 behavior with Kysely 0.29.
+The old-schema runtime check exercises signup, sign-in, session cookies, device-code issuance, claiming, and approval with schema validation enabled.
+Magic Link and OAuth Proxy require coordinated upgrades in 1.7.7; neither plugin is configured here.
+The 1.7.6 password-length check applies to email/password authentication and needs no configuration change.
+The [device ownership change](https://github.com/better-auth/better-auth/pull/9995) requires claiming before approval or denial.
+
+### Bundle budget
+
+The rebuilt 1.6.2 auth Worker contains 2,418,776 bytes of JavaScript.
+The first 1.7.11 build with aligned Kysely contains 2,526,940 bytes and exceeds the unchanged 2,500,000-byte budget.
+The auth build adds Vite to Alchemy's existing pure-call annotation list.
+This removes unused initializer code from the bundled build-tool dependency graph.
+The resulting auth Worker contains 2,358,811 bytes, with 141,189 bytes of headroom.
+The public Worker moves from 2,176,768 to 2,176,968 bytes.
+Both final measurements include the approval script's new claim request.
+No budget is raised, and no schema validation is disabled.
+
+### Consumer steps
+
+1. Take the auth manifest, workspace policy, lockfile, device schema, approval script, and auth build option together.
+2. Refresh sources with `pnpm vendor:agent-sources`. Better Auth now uses its available `v1.7.11` tag.
+3. Run a non-optimistic frozen install and the full gate.
+4. Keep the existing D1 and Postgres auth tables. This configuration needs no migration or backfill.
+   - The identical schema holds only for this plugin set: email and password plus device authorization.
+   - With the `jwt` and `oauth-provider` plugins, 1.7.11 adds three tables: `oauthResource`, `oauthClientResource` and `oauthClientAssertion`.
+   - It also adds 24 columns and 4 indexes, and removes `validAudiences`.
+   - Generate the schema for your own plugins, diff it against production, and apply that migration before you deploy.
+5. Review the upgrade guide separately if your app adds any plugin listed as unused above.
+6. Check the actual target database before a separately approved deployment. This packet deploys nothing.
+
+## The fence stays strict
+
+- The compiler diagnostic severity map is unchanged.
+- Ultracite `8.0.1` adds `typescript/no-generated-empty-object-type` at error severity.
+- Its broader test-extension exemptions are not adopted.
+- Explicit overrides keep `no-empty-function` and `promise/prefer-await-to-then` at error severity for the newly exempted extensions.
+- Those extensions are `.mts`, `.cts`, `.mjs`, and `.cjs`.
+- Oxfmt `0.73.0` produces no formatting-only changes when `pnpm fix` runs.
+- Worker size limits remain 900,000 bytes per entry and 2,500,000 bytes for total JavaScript.
+
+The compiler plugin `0.54.0` adds advisory diagnostics without changing the gate.
+The owner approved leaving these suggestions for a gardener pass.
+
+| Newly observed rule | Unique package/file/line locations |
+| --- | ---: |
+| `schemaClassMissingBrand` | 111 |
+| `errorPayloadShadowsName` | 6 |
+| `flatMapToTap` | 1 |
+
+`preferTypedSchemaDecoder` already reports 62 unique locations before the update.
+Repeated build and test logs must not be counted as separate source findings.
+
+## Consumer checks
+
+1. Take each dependency family with its lockfile changes.
+2. Keep all workspace occurrences of Node types and Vitest aligned.
+3. Keep auth's development-only `drizzle-kit` pin with the PGlite update.
+4. Run a non-optimistic frozen install, then `pnpm turbo run check test build`.
+5. Refresh missing source mirrors with `pnpm vendor:agent-sources`.
+6. Keep production deployment outside this maintenance packet.
+
+The [source mirror migration note](./xstate-alpha69-migration.svx) documents the held XState family.
+The [code snippets system](../../resources/lore/code-snippets.svx) owns the highlighting boundary.

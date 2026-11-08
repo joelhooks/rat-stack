@@ -53,7 +53,8 @@ A capability is one named action with shared input, output, and failure definiti
 - Discovery cards describe how to connect with each protocol.
 - [OpenAPI](/openapi.json) describes the HTTP API for the registered capabilities, including inputs, outputs, and errors.
 - The [agent guide](/llms.txt) explains connection, search, read, and following links between documentation pages.
-- The hosted registry exposes `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`.
+- The hosted registry includes search, graph traversal, flags, prompts, CAFE news and profiles, learning, code mode, and `joinInterest`.
+- [Live OpenAPI](/openapi.json) lists the current HTTP operations. Optional feedback operations depend on the auth configuration.
 
 ### Run a program instead of several calls
 
