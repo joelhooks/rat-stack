@@ -1,7 +1,7 @@
 ---
 title: "Workers answer requests; Durable Objects own named state"
-description: "A Worker handles each request without keeping state between requests, so state that must persist lives in a Durable Object addressed by name."
-plain: "A Worker forgets between requests; a Durable Object is one named place that remembers."
+description: "A Worker must not rely on module state between requests, so state that must persist lives in a Durable Object addressed by name."
+plain: "A Worker's module state can leak or vanish; a Durable Object is one named place that remembers."
 diagram: |-
   request
     │ any isolate
@@ -20,7 +20,7 @@ sources:
   - url: https://developers.cloudflare.com/workers/reference/how-workers-works/
     title: "How Workers works"
     publisher: "Cloudflare"
-    note: "Isolates can be evicted; requests may reach any instance; do not use or mutate global state."
+    note: "One instance may handle many requests, including concurrent ones; isolates can be evicted; requests may reach any instance; do not use or mutate global state."
     accessed: "2026-11-08"
   - url: https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/
     title: "What are Durable Objects?"
@@ -35,7 +35,12 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/interest-durable-object.ts
     title: "Interest Durable Object"
     publisher: "GitHub joelhooks/rat-stack"
-    note: "Loads and saves one record in its own storage."
+    note: "Backs the join contact cell with the object's own storage."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/interest/join-contact-cell.ts
+    title: "Join contact cell"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Stores one sealed contact under the join-contact key."
     accessed: "2026-11-08"
   - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/site/src/worker.ts
     title: "Mischief Worker composition"
@@ -49,15 +54,16 @@ sources:
 A Worker is Cloudflare's program that answers requests. It runs your code in an isolate, a lightweight sandbox inside the Workers runtime.
 A Durable Object is a Worker with a globally unique name and its own storage. [What are Durable Objects?](https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/)
 
-## Why a Worker cannot hold state
+## Why a Worker must not rely on module state
 
-Cloudflare gives two reasons. [How Workers works](https://developers.cloudflare.com/workers/reference/how-workers-works/)
+Module state can outlive a request, and that is the problem. Cloudflare lists three facts. [How Workers works](https://developers.cloudflare.com/workers/reference/how-workers-works/)
 
-- An isolate can be evicted, for example when the host runs short of resources.
+- One instance may handle many requests, including concurrent ones. State one request writes, another request can read.
+- An isolate can be evicted, for example when the host runs short of resources. Its state goes with it.
 - Nothing guarantees that two requests reach the same instance of your Worker.
 
 So Cloudflare recommends that you do not use or mutate global state.
-rat-stack turns that advice into a lint error:
+rat-stack fences that advice with the [`rat-stack-patterns/no-module-level-mutable-state`](https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/scripts/oxlint-plugin-patterns.ts) lint rule:
 
 ```ts repo=rat-stack path=scripts/oxlint-plugin-patterns.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=820-821 title="no-module-level-mutable-state"
 
@@ -79,9 +85,19 @@ Cloudflare lists these properties. [What are Durable Objects?](https://developer
 ## Worked example: one object per join submission
 
 The join intake keeps each submission's contact in its own `Interest` object.
-The object keeps one record in its storage:
+The contact lives under one storage key:
 
-```ts repo=rat-stack path=apps/site/src/interest/interest-durable-object.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=23-40 {26,33-39} title="The object loads and saves its own record"
+```ts repo=rat-stack path=apps/site/src/interest/join-contact-cell.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=3-3 title="One key per object"
+
+```
+
+```ts repo=rat-stack path=apps/site/src/interest/join-contact-cell.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=24-25 title="The cell reads that key from the storage it is given"
+
+```
+
+The `Interest` object hands the cell its own storage:
+
+```ts repo=rat-stack path=apps/site/src/interest/interest-durable-object.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=118-122 title="The cell is backed by the object's storage"
 
 ```
 

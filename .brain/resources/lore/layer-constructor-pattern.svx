@@ -38,7 +38,7 @@ A service is the named [interface](/lore/one-schema-three-surfaces) callers use 
 
 ## Worked example: a journal with private state
 
-`FlagJournal` records every change to a flag.
+`FlagJournal` records flag changes.
 Its `memory` Layer is a constructor:
 
 ```ts repo=rat-stack path=packages/core/src/flag-journal.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=34-41 {38,40} title="Ref.make is a field; FlagJournal.of is the method table"

@@ -1152,7 +1152,7 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
   {
     routePath: "/lore/workers-answer-requests-durable-objects-own-named-state",
     summary:
-      "Cloudflare's request handler. It runs code in an isolate that can be evicted, so it keeps no state between requests.",
+      "Cloudflare's request handler. One isolate may serve many requests and can be evicted, so code must not rely on module state.",
     term: "Worker",
   },
   {

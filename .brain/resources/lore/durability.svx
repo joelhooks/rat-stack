@@ -24,9 +24,9 @@ sources:
 
 **Effect is not BEAM.** Fibers do not provide private process heaps or OTP restart strategies. A durable operation needs storage and a recovery owner.
 
-Use [the durability skill](/skills/durability) to review a design. [The durability system page](/systems/durability) shows the patterns rat-stack ships. These pages separate the book principles from our Effect 4.0.0 mappings.
+Use [the durability skill](/skills/durability) to review a design. [The durability system page](/systems/durability) shows the patterns rat-stack ships. These pages separate the book principles from our Effect API mappings.
 
-The template pins Effect 4.0.0. Each named API and each absence claim was checked against that release. Check your own Effect [pin](/skills/gardener) before you apply a mapping.
+The mappings were written and checked against Effect 4.0.0. The template now pins Effect 4.1.2, and the mappings have not been re-audited against it. Check your own Effect [pin](/skills/gardener) before you apply a mapping.
 
 ## Reading order
 
@@ -55,7 +55,7 @@ The template pins Effect 4.0.0. Each named API and each absence claim was checke
 - [Golden signals expose overload](/lore/golden-signals-expose-overload): Measure latency, traffic, errors, and saturation, including failed work.
 - [Shared schemas need a transition period](/lore/schema-changes-need-a-transition): Keep old and new representations usable while consumers migrate.
 - [Durable timers need recovery](/lore/durable-timers-need-recovery): Persist scheduled intent when losing a worker must not lose its deadlines.
-- [Request lifetime is not durability](/lore/request-lifetime-is-not-durability): Worker waitUntil has a shared post-response allowance; required work needs a durable marker and redrive.
+- [Request lifetime is not durability](/lore/request-lifetime-is-not-durability): Worker `waitUntil` has a shared post-response allowance; required work needs a durable marker and redrive.
 
 ## Existing rat-stack paths
 

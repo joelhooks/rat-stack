@@ -53,7 +53,7 @@ sources:
     accessed: "2026-10-01"
 ---
 
-**Goal:** add one action and get a command, an HTTP route, an [MCP](/lore/mcp-is-another-surface) tool, an [RPC](/skills/learn-rat-stack) call, and a code-mode function from it.
+**Goal:** add one action and get a command, an HTTP route, an [MCP](/lore/mcp-is-another-surface) tool, and a code-mode function from it. Browser [RPC](/skills/learn-rat-stack) uses the same contracts; `search` and `read` show that side.
 
 A capability is one named action with a [contract](/systems/capabilities) and a server-side [handler](/systems/capabilities).
 A contract defines the shared input, output, failures, and metadata.
@@ -109,7 +109,8 @@ To add a capability, define its contract and implement it beside the data or inf
 
 Use [the add-a-capability skill](/skills/add-a-capability) for the steps.
 
+Read [A browser send follows one path to the capability](/lore/a-browser-send-follows-one-path) to see `search` called over RPC.
+
 [Analytics](/systems/analytics) shows a separate infrastructure [cartridge](/lore/cartridges); [interest signup](/systems/interest) shows core ports with a delivery [adapter](/lore/hexagonal-architecture) outside core. Neither turns static pages or protocol discovery into domain capabilities.
 
 See [lifecycles are machines](/lore/lifecycles-are-machines) for stateful handlers and [cartridges](/lore/cartridges) for the infrastructure boundary. [HATEOAS](/lore/hateoas) covers links that guide an agent's next action; [hexagonal architecture](/lore/hexagonal-architecture) names the ports-and-adapters principle.
-

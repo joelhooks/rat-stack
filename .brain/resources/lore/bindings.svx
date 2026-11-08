@@ -38,7 +38,7 @@ sources:
     accessed: "2026-11-08"
 ---
 
-**Goal:** connect a Worker to a resource it declares, and see what it gets back.
+**Goal:** connect a [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) to a resource it declares, and see what it gets back.
 
 A binding is a declared connection. On Cloudflare, it lets a Worker use a platform resource such as a bucket, a queue, or a stream. [Cloudflare bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)
 In [Alchemy](/skills/learn-alchemy), the binding is declared in the same [Effect](/lore/effect-basics) program as the resource.
@@ -71,6 +71,7 @@ He also describes deriving least-privilege policies: permissions limited to the 
 ## Next
 
 Read [Queues, Pipelines, Workflows and K2 do different jobs](/lore/queues-pipelines-workflows-and-k2-do-different-jobs) to choose what to bind.
+Read [Workers answer requests; Durable Objects own named state](/lore/workers-answer-requests-durable-objects-own-named-state) to choose where state lives.
 Then read [cartridges](/lore/cartridges) for how a package owns its resources and bindings.
 
 See [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin) and [Effect Office Hours 27](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects).
