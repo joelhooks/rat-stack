@@ -1,5 +1,6 @@
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as Hex from "effect/encoding/Hex";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
 
@@ -35,13 +36,7 @@ export const fingerprintOf = (
           .join("\n")
       )
     )
-  ).pipe(
-    Effect.map((digest) =>
-      [...new Uint8Array(digest)]
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join("")
-    )
-  );
+  ).pipe(Effect.map((digest) => Hex.encode(new Uint8Array(digest))));
 
 export const mischiefConfigFingerprint = Config.all(
   MISCHIEF_CONFIG_NAMES.map((name) =>

@@ -107,7 +107,9 @@ const childOf = (
     return /^\d+$/u.test(segment) ? value.at(Number(segment)) : undefined;
   }
 
-  return isJsonObject(value) ? value[segment] : undefined;
+  return isJsonObject(value) && Object.hasOwn(value, segment)
+    ? value[segment]
+    : undefined;
 };
 
 const keysOf = (value: Schema.Json): readonly string[] => {
