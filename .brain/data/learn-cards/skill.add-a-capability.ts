@@ -15,10 +15,8 @@ export const archiveNoteContract = Capability.defineContract("archiveNote", {
   output: Schema.Struct({ archived: Schema.Boolean }),
 });
 
-export const archiveNote = Capability.implement(
-  archiveNoteContract,
-  ({ id }) =>
-    id === ""
-      ? Effect.fail(new NoteMissing({ id }))
-      : Effect.succeed({ archived: true })
+export const archiveNote = Capability.implement(archiveNoteContract, ({ id }) =>
+  id === ""
+    ? Effect.fail(new NoteMissing({ id }))
+    : Effect.succeed({ archived: true })
 );
