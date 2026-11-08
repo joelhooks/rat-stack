@@ -449,6 +449,7 @@ const makeOgElement = (page: OgPage, emojiDataUrl: string) => ({
     ],
     style: {
       backgroundColor: "#ffffff",
+      boxSizing: "border-box",
       color: "#000000",
       display: "flex",
       flexDirection: "column",
@@ -474,7 +475,7 @@ const renderOgImage = (
       const svg = await satori(
         makeOgElement(
           page,
-          `data:image/svg+xml;base64,${Buffer.from(emojiSvg).toString("base64")}`
+          `data:image/png;base64,${Buffer.from(new Resvg(emojiSvg, { fitTo: { mode: "width", value: 96 } }).render().asPng()).toString("base64")}`
         ),
         {
           embedFont: true,

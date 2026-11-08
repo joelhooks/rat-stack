@@ -36,7 +36,7 @@
     "effect": "4.1.2",
     "foldkit": "0.170.0",
     "typescript": "7.0.2",
-    "vitest": "5.0.5"
+    "vitest": "5.1.0"
   },
   "peerDependencies": {
     "effect": "4.1.2",

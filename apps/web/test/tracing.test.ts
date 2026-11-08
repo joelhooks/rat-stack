@@ -104,9 +104,9 @@ it.effect.prop(
         email: secret,
         "http.request.body": secret,
         "http.request.header.authorization": secret,
+        [key]: secret,
         token: secret,
         "url.full": `https://example.com/?secret=${secret}`,
-        [key]: secret,
       }).pipe(
         Effect.andThen(failure ? Effect.fail(secret) : Effect.void),
         Effect.withSpan("request", { attributes: { secret } }),

@@ -19,7 +19,7 @@ allowBuilds:
 # Exact fresh pins that pnpm's release-age check would otherwise hold back.
 # One entry per version; a bump replaces its entry rather than adding one.
 minimumReleaseAgeExclude:
-  - "tsrs@0.20.1-ts7.1.0-beta"
+  - "tsrs@0.23.0-ts7.1.0-beta"
   - "@yielded/effect-tsrs@0.2.3"
   - "@yielded/effect-tsrs-linux-x64@0.2.3"
   - "@yielded/effect-tsrs-linux-arm64@0.2.3"
@@ -46,7 +46,6 @@ minimumReleaseAgeExclude:
   - xstate@6.0.0-beta.1
   - "@xstate/effect@1.0.0-beta.0"
   - better-auth@1.7.11
-  - satori@0.33.5
   - "@alchemy.run/cloudflare-runtime@2.0.0-beta.85"
   - "@alchemy.run/node-utils@2.0.0-beta.85"
   - "@alchemy.run/acme@2.0.0-beta.85"
@@ -63,23 +62,20 @@ minimumReleaseAgeExclude:
   - "@distilled.cloud/cloudflare@1.0.0-rc.18"
   - "@distilled.cloud/core@1.0.0-rc.18"
   - "@distilled.cloud/iceberg@1.0.0-rc.18"
-  - "@varlock/native-helper-darwin@1.23.0"
-  - "@varlock/native-helper-linux-arm64@1.23.0"
-  - "@varlock/native-helper-linux-x64@1.23.0"
-  - "@varlock/native-helper-win32-x64@1.23.0"
-  - varlock@1.23.0
-  - "@effect/tsgo-darwin-arm64@0.55.0"
-  - "@effect/tsgo-darwin-x64@0.55.0"
-  - "@effect/tsgo-linux-arm64@0.55.0"
-  - "@effect/tsgo-linux-arm@0.55.0"
-  - "@effect/tsgo-linux-x64@0.55.0"
-  - "@effect/tsgo-win32-arm64@0.55.0"
-  - "@effect/tsgo-win32-x64@0.55.0"
-  - "@effect/tsgo@0.55.0"
-  - "@tsrs/darwin-arm64@0.20.1-ts7.1.0-beta"
-  - "@tsrs/darwin-x64@0.20.1-ts7.1.0-beta"
-  - "@tsrs/linux-arm64-gnu@0.20.1-ts7.1.0-beta"
-  - "@tsrs/linux-arm64-musl@0.20.1-ts7.1.0-beta"
-  - "@tsrs/linux-x64-gnu@0.20.1-ts7.1.0-beta"
-  - "@tsrs/linux-x64-musl@0.20.1-ts7.1.0-beta"
-  - "@tsrs/win32-x64@0.20.1-ts7.1.0-beta"
+  - "@effect/tsgo-darwin-arm64@0.67.5"
+  - "@effect/tsgo-darwin-x64@0.67.5"
+  - "@effect/tsgo-linux-arm64@0.67.5"
+  - "@effect/tsgo-linux-arm@0.67.5"
+  - "@effect/tsgo-linux-x64@0.67.5"
+  - "@effect/tsgo-win32-arm64@0.67.5"
+  - "@effect/tsgo-win32-x64@0.67.5"
+  - "@effect/tsgo@0.67.5"
+  - "@tsrs/darwin-arm64@0.23.0-ts7.1.0-beta"
+  - "@tsrs/darwin-x64@0.23.0-ts7.1.0-beta"
+  - "@tsrs/linux-arm64-gnu@0.23.0-ts7.1.0-beta"
+  - "@tsrs/linux-arm64-musl@0.23.0-ts7.1.0-beta"
+  - "@tsrs/linux-x64-gnu@0.23.0-ts7.1.0-beta"
+  - "@tsrs/linux-x64-musl@0.23.0-ts7.1.0-beta"
+  - "@tsrs/win32-x64@0.23.0-ts7.1.0-beta"
+  - "@cloudflare/workers-types@5.20261108.1"
+  - tla-ts@0.0.9
