@@ -24,16 +24,72 @@ sources:
     publisher: "Michael Arnaldi"
     note: "Effect type explanation; used for output, failure, and service requirements."
     accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/src/inspect-machine.ts
+    title: "Inspection machine actor"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "readStats asks for FileInspector, so its Effect carries that requirement."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/apps/cli/src/cli.ts
+    title: "CLI composition root"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The CLI provides FileInspector.layer and NodeServices.layer before it runs."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/test/inspect-machine.test.ts
+    title: "Inspection machine tests"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The tests supply the same requirement through their own TestLayer."
+    accessed: "2026-11-08"
 ---
 
-# Context and requirements
+**Goal:** read an [Effect](/lore/effect-basics) type and say which services the work still needs.
 
-The requirements part of an Effect type names the services that the work needs.
-Sam describes this requirements channel as a way to model permissions before execution, which he calls a static effect.
-He connects that idea to Alchemy inferring which identity and access management (IAM) policy a program needs. [Happy Path 116, 11:54](https://youtu.be/YEn4A7XxgF4?t=714).
+An Effect type has three parts: what the work returns, how it can fail, and which services it needs.
+The third part is the requirements.
+A context is the set of services that running work receives.
 
-Michael describes an Effect by its output, predictable failures, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955).
+## Worked example: inspecting a file
 
-See [Effect basics](/lore/effect-basics) and [infrastructure as effects](/lore/infrastructure-as-effects).
+rat-stack's file inspection reads a file through a `FileInspector` [service](/lore/services-capture-dependencies).
+The [actor](/lore/lifecycles-are-machines) that does the read asks for that service by name:
 
-Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).
+```ts repo=rat-stack path=packages/core/src/inspect-machine.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=27-31 {29} title="The read asks for FileInspector"
+
+```
+
+`FileInspector.use` returns an Effect whose requirements include `FileInspector`.
+Nothing runs yet.
+The type now records a debt: some caller must supply a `FileInspector`.
+
+The CLI pays that debt once, at startup:
+
+```ts repo=rat-stack path=apps/cli/src/cli.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=22-24 {24} title="The composition root supplies it"
+
+```
+
+`Effect.provide` removes `FileInspector` from the requirements.
+`FileInspector.layer` itself needs a file system, and `NodeServices.layer` supplies it.
+
+The tests pay the same debt with their own Layer:
+
+```ts repo=rat-stack path=packages/core/test/inspect-machine.test.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=14 title="A test supplies the same requirement"
+
+```
+
+The diagram above shows the same move on a small `Greeter` service: `provide` turns `Greeter` into `never`.
+
+## Why the type carries it
+
+The compiler rejects execution while a required service remains unsupplied. [Dependency injection](/lore/dependency-injection-is-the-reason-to-choose-effect) shows that rule.
+A forgotten service fails the typecheck before the program runs.
+
+Sam Goodwin describes this requirements channel as a way to model permissions before execution, which he calls a static effect.
+He connects that idea to [Alchemy](/skills/learn-alchemy) inferring which identity and access management (IAM) policy a program needs. [Happy Path 116, 11:54](https://youtu.be/YEn4A7XxgF4?t=714)
+
+Michael Arnaldi describes an Effect by its output, predictable failures, and requirements. [Happy Path 81, 49:15](https://youtu.be/gc5P36t6kD0?t=2955)
+
+## Next
+
+Read [how a service captures its dependencies](/lore/services-capture-dependencies) to see what `FileInspector` keeps inside itself.
+Then read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).
+
+See [Effect basics](/lore/effect-basics) for the whole type, and [infrastructure as effects](/lore/infrastructure-as-effects) for Sam's infrastructure reading.
