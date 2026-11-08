@@ -825,6 +825,16 @@
       "corpusUsed": false
     },
     {
+      "note": ".brain/data/seo-queue-2026-11-08.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Dated search audit and ranked recommendations support later content planning and deployment checks.",
+      "missingFields": ["frontmatter created_at"],
+      "nextActionOrReview": "Consult for the next content update; remeasure after deployment before claiming improved search or answer-engine results.",
+      "sourcePointers": [".brain/data/seo-queue-2026-11-08.svx:7"],
+      "corpusUsed": false
+    },
+    {
       "note": ".brain/data/truth-1108/audit.svx",
       "bucket": "Resource",
       "confidence": "high",

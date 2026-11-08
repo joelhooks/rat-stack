@@ -12,7 +12,7 @@ This receipt separates source evidence, live observations and work that still ne
 
 Read the requested PARA skill explicitly. Its private corpus was absent. Classifications use “Where will this be useful next?” They are Joel/pi-notes adaptations, not quotations from Forte.
 
-`para.json` classifies all 223 SVX notes, including this receipt: 56 Archives, 18 Areas, 145 Resources and four Projects. Each entry has a confidence, reason, missing fields, next action and source pointer. Two ongoing responsibility notes remain at their existing project paths; the scope authorizes archive moves, not a new system-page registration.
+`para.json` classifies all 224 SVX notes, including this receipt and the integrated search audit: 56 Archives, 18 Areas, 146 Resources and four Projects. Each entry has a confidence, reason, missing fields, next action and source pointer. Two ongoing responsibility notes remain at their existing project paths; the scope authorizes archive moves, not a new system-page registration.
 
 The 56 moved notes have `status: archived`, a dated superseded line and a historical-use warning. Historical source studies remain Resources when their dated evidence is reusable. All 16 system pages stay in `.brain/areas/`.
 
@@ -78,7 +78,7 @@ Keep boundary words honest removed blanket durability guarantees. Version conten
 
 ## Validation
 
-`pnpm turbo run check test build` passed all 91 tasks, with 18 cache hits. The site suite passed 90 files and 730 tests. Both Brain validators passed all 223 pages. A separate assertion checked every classification, all 56 archive destinations and superseded lines, relative SVX links and the required sections of all 16 system pages.
+`pnpm turbo run check test build` passed all 91 tasks, with 18 cache hits. The site suite passed 90 files and 730 tests. Both Brain validators passed the initial 223 pages. The integrated search audit adds one Resource; the final checks cover all 224 pages. A separate assertion checked every classification, all 56 archive destinations and superseded lines, relative SVX links and the required sections of all 16 system pages.
 
 Generated HTML and Markdown for 11 changed system, lore and skill routes each contain one H1. Rendered interest text includes the split-index and early-erase limits. This receipt is an evidence inventory, not a deployment receipt. Final snapshot and uncached-generation checks are recorded in the completion report.
 
@@ -96,4 +96,4 @@ Generated HTML and Markdown for 11 changed system, lore and skill routes each co
 | Archived vision steer | Public content cites only public evidence. | fixed | Restored the original historical claim, “content cites both”, while keeping the host name redacted. |
 | Request budget | The provider receives an idempotency key. | fixed | The adapter serializes `submissionId` in the JSON body without an idempotency header. Provider deduplication on that field is unverified. |
 
-A Markdown-parser check scanned all 223 notes and resolved 113 relative references without a miss. That total includes 30 frontmatter parents and seven asset-parent examples; 99 references are in archives. Seven extensionless page links resolve to existing SVX source pages. The check covers Markdown links, images, definitions, quoted HTML links and actual frontmatter parents. It does not claim to validate external URLs or dynamic expressions.
+A Markdown-parser check scanned all 224 notes and resolved 113 relative references without a miss. That total includes 30 frontmatter parents and seven asset-parent examples; 99 references are in archives. Seven extensionless page links resolve to existing SVX source pages. The check covers Markdown links, images, definitions, quoted HTML links and actual frontmatter parents. It does not claim to validate external URLs or dynamic expressions.
