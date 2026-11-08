@@ -11,7 +11,7 @@ import type {
 import { Effect, Layer, Schema } from "effect";
 
 export interface JoinContactStub {
-  readonly joinSave: (sealed: string) => Effect.Effect<void>;
+  readonly joinSave: (sealed: string, erase: boolean) => Effect.Effect<void>;
   readonly joinRead: () => Effect.Effect<string | undefined>;
   readonly joinErase: () => Effect.Effect<void>;
 }
@@ -88,7 +88,11 @@ export const joinContactStoreLayer = (
 
         yield* note(contact.submissionId);
         yield* stub(contact.submissionId).joinSave(
-          JSON.stringify({ data: base64(new Uint8Array(data)), iv: base64(iv) })
+          JSON.stringify({
+            data: base64(new Uint8Array(data)),
+            iv: base64(iv),
+          }),
+          contact.pending === "erase"
         );
         yield* markPending(contact.submissionId, contact.pending !== undefined);
       });
