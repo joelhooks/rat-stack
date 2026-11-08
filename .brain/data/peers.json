@@ -4,16 +4,16 @@
     "tier": "S",
     "reason": "Upstream infrastructure reference; the study cites its RPC and Better Auth patterns.",
     "versions": {
-      "effect": "4.0.5 (workspace override; catalog ^4.0.5)",
-      "alchemy": "2.0.0-beta.84 (workspace package)",
+      "effect": "4.1.0 (workspace override; catalog ^4.1.0)",
+      "alchemy": "2.0.0-beta.85 (workspace package)",
       "xstate": "—",
       "xstateEffect": "—"
     },
-    "checked": "2026-10-27",
+    "checked": "2026-11-08",
     "firstSeen": "2026-09-23",
     "studied": "[same-version-repos](same-version-repos)",
     "branch": "main",
-    "commit": "9f185a395aad8db1f5f03d0655719eae17d93714",
+    "commit": "94c0efad0c69be3cbdae0cb0afe2d1555477c79c",
     "sources": [
       {
         "label": "workspace catalog and overrides",

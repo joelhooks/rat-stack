@@ -78,8 +78,11 @@ See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separ
 - Agent application refusals receive a neutral answer rather than revealing whether an address is on file. Expired confirmation links have deliberate refusal responses. Retired submission endpoints return 410 without capturing or delivering an application.
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
 - An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact application data. A ticket works once.
-- The answer leaves after the contact is saved as ready. Delivery to drovr runs after the response through the Worker's `waitUntil`, within one 25-second budget. A drovr retry, an outage, or a cancelled `waitUntil` leaves the contact marked for delivery. The five-minute intake sweep redelivers it with the same submission ID.
-- Erase writes the event tombstone before it removes the contact. When Basin is down, the contact stays marked for erase, the operator count shows it as `pending`, and the sweep finishes it. Delivery never starts for a contact marked for erase. See [Durability](/systems/durability).
+- The normal path saves a ready contact before answering. Delivery runs after the response through `waitUntil`, within a default 25-second budget. The five-minute sweep retries indexed pending delivery with the same submission ID.
+- Erase writes the event tombstone before removing the contact. A tombstone failure keeps the erase pending. A deliverer that reads an erase marker refuses delivery.
+- Record and sweep-index writes are separate. A failed index write can strand pending delivery or erase.
+- An erase during the first request can prevent its ready commit while the uniform response still leaves. These gaps remain open. See [`packages/core/spec/README.md`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/spec/README.md#weaker-environments) and [Durability](/systems/durability).
+- For a stranded submission, an authorized operator can inspect its ID, then use `intake redeliver` or `intake erase`. A uniform submission response does not prove delivery or confirmation.
 
 ### Applicant identity
 

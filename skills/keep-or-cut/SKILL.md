@@ -99,22 +99,15 @@ Delete:
 - `packages/core/src/inspect-machine.ts` and its test
 - `xstate` and `@xstate/effect` from `packages/core/package.json`
 - their `minimumReleaseAgeExclude` entries from `pnpm-workspace.yaml`
-- `scripts/oxlint-plugin-xstate-effect.ts`
-- its entry in `oxlint.config.ts`
+- the compiled `@xstate/effect/oxlint` plugin registration and `xstate-effect/no-inline-effect` rule in `oxlint.config.ts`
 
 Then call `FileInspector.inspect` directly from the capability handler in `packages/core/src/inspect-file.ts`.
 
 ## Cut devtools
 
-Delete:
+Follow **No devtools (keep the CLI and browser reader)** in [README](/README.md#keep-or-cut). That recipe covers CLI and browser compositions, auth's recorder integration, boundary fixtures, and production exclusion tests.
 
-- `packages/devtools`
-- `@rat-stack/devtools` from `apps/cli/package.json`
-- `devtoolsRoutes`, `devtoolsWebServer`, `mcpServer.devtools`, and `mcpServer.devtoolsCodeMode` from `apps/cli/src/surfaces.ts`
-- the `--devtools` flag from `apps/cli/src/command.ts`
-- the devtools cases from `apps/cli/test/serve.test.ts` and `apps/cli/test/cli.e2e.test.ts`
-
-In `apps/web`, swap `devtoolsRoutes` for `contentRoutes` in `src/dev/backend.ts`, point the `development` condition of `#devtools-overlay` in `apps/web/package.json` at `./src/features/shared/no-devtools.tsx`, and delete `src/dev/devtools`, `src/dev/client`, and `src/dev/features`. `vite dev` keeps serving search and read; `test/dev-content-routes.test.ts` covers that path.
+The browser's replacement overlay is `apps/web/src/client/no-devtools.ts`. `apps/web/test/dev-server.test.ts` checks the retained content backend. Keep ordinary HTTP, MCP and RPC tests when removing recorder-only cases.
 
 `CallWatch`, `aroundHandlers`, `invokerFor`, and `watchActor` stay in `packages/capability`. Devtools supplies `CallWatch` when the application is assembled. It observes calls without wrapping capability lists; its default does nothing. `aroundHandlers` remains the explicit policy wrapper over one list. `invokerFor` calls capabilities for code mode. `watchActor` lets machines report to devtools without depending on it.
 

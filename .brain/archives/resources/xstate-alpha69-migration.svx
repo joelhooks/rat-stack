@@ -1,0 +1,123 @@
+---
+title: XState alpha.69 migration
+summary: Exact pins, upstream compatibility checks, and the source mirror choice.
+status: archived
+---
+
+superseded by completed dependency migration; current pins are owned by package manifests and AGENTS.md, 2026-11-08.
+
+Historical record. Paths, versions, measurements and instructions below describe that work, not the current application.
+
+
+# XState alpha.69 migration
+
+This page started at `xstate@6.0.0-alpha.69` and `@xstate/effect@1.0.0-alpha.8`.
+The current pins are `xstate@6.0.0-beta.1` and `@xstate/effect@1.0.0-beta.0`; see the beta section.
+At alpha.69, Effect stayed at `4.0.0`. The bridge peers accepted Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
+
+## Upstream changes
+
+- [Alpha.66](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.66) fixes entry, exit, and declaration inference.
+- [Alpha.67 changelog](https://github.com/statelyai/xstate/blob/xstate%406.0.0-alpha.69/packages/core/CHANGELOG.md#600-alpha67) renames executable action types and freezes plain context objects in development. State inputs leave with their states.
+- [Alpha.68](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.68) renames public APIs and built-in events. Actor references serialize as `{ $actor: address }`. Persisted timers become lists.
+- [Alpha.69](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.69) fixes literal output inference in `createAsyncLogic`.
+- [Bridge alpha.8](https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%401.0.0-alpha.8) replaces the three `fromEffect*` constructors with `createEffect*Logic` constructors.
+
+## Repository impact
+
+- Rename declared Effect logic in core, deploy, flags, learn, and the learning card.
+- Keep `Stream.fromEffect` in request incidents. It belongs to Effect, not the bridge.
+- Update `xstate-effect/no-inline-effect` for all three constructors. Real Oxlint fixtures cover each inline spawn and the declared alternative.
+- `rat-stack-patterns/watch-effect-actors` already checks `createEffectActor`. That name does not change.
+- No runtime code imports the removed core APIs or executable action types.
+- No runtime code restores XState snapshots or reads timer records, actor-reference envelopes, or state inputs.
+- Existing model and lifecycle tests exercise completion, failure, retry, and scoped actor execution. The inspection model uses category events with `actorId` already.
+
+## Source mirror
+
+The bridge release tag contains core alpha.68. The core alpha.69 tag contains bridge alpha.8.
+The bridge directory has no diff between these two tags.
+
+For alpha.69, the mirror script selected `xstate@6.0.0-alpha.69` and checked both package versions.
+It also requires the exact bridge release tag to exist.
+This keeps source-first work aligned with both installed pins.
+
+## Follow-up
+
+The alpha.69 packet deferred the peers refresh. The alpha.70 gardener pass completes that refresh.
+Apps that copy rat-stack must update both pins, rename bridge constructors, and audit persisted snapshots before restoring them.
+Old actor-reference and timer formats are not accepted by alpha.68 and later.
+
+## Alpha.70 and bridge alpha.9
+
+The 2026-10-20 update pins `xstate@6.0.0-alpha.70` and `@xstate/effect@1.0.0-alpha.9` together.
+Effect stays at `4.0.0`. The bridge peers require Effect `^4.0.0` and XState `^6.0.0-alpha.70`.
+
+- [Core changelog](https://github.com/statelyai/xstate/blob/xstate%406.0.0-alpha.70/packages/core/CHANGELOG.md#600-alpha70) removes `ActorRefFromLogic` and narrows `ActorRefFrom` to logic types.
+- State ids change. Hash targets resolve whole ids. Implicit invoke ids use `<stateId>:<index>`.
+- State keys require escaped dots. Bare string transitions throw. Versioned machines require an explicit id.
+- Invoked actors with required input now require an input mapper. Graph traversal requires samples for events with payloads.
+- Inline invokes no longer persist synthetic source names. Consumers with stored snapshots must migrate old ids and synthetic sources.
+- [Bridge changelog](https://github.com/statelyai/xstate/blob/%40xstate/effect%401.0.0-alpha.9/packages/xstate-effect/CHANGELOG.md#100-alpha9) changes root parallel tags to the machine id, or an empty string without an id.
+
+Our machines need no call-site changes. They already use declared logic, object transitions, and required invoke inputs.
+The inspection graph test supplies both completion payloads. Runtime code uses no removed type helpers, tagged states, or persisted XState snapshots.
+The three `createEffect*Logic` constructors keep their names. The inline-Effect lint rule and its real Oxlint fixtures remain unchanged.
+
+The core alpha.70 and bridge alpha.9 tags contain identical core and bridge trees.
+The source mirror selects the core tag and verifies both package versions.
+Registry checks confirm SHA-512 tarball integrity and GitHub Actions provenance for both packages.
+Neither tarball declares lifecycle scripts or runtime dependencies. The age exceptions remain exact versions.
+
+Consumers must move both pins, refresh mirrors, and run their lifecycle tests.
+Audit persisted snapshots, whole-id targets, graph payload samples, and root parallel tag matching before upgrading.
+
+## Alpha.71 and bridge alpha.10
+
+The update moves both exact npm pins together. Effect stays at `4.0.7`.
+The bridge peers accept XState `^6.0.0-alpha.71`, Effect `^4.0.0`, and optional `@oxlint/plugins` `^1.76.0`; our lint plugin runtime is `1.88.0`.
+
+- [Core release](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-alpha.71) adds system-wide emission observation and improves graph traversal, serialization diagnostics, and invalid-snapshot errors.
+- [Bridge release](https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-alpha.10) carries complete Effect Causes in `EffectFailure<E>`. Invoked child `onError` handlers read `event.error.cause`. `join` replays the original Cause, including defects and interruption.
+- Inspection, learning-log commit, and feedback-device machines retain the Cause and lift it with `Effect.failCause`. Public capability failures stay unchanged. The inspection machine's exported `Unreadable` outcome now carries `cause`, not a bare `error`.
+- Existing `join(...).pipe(Effect.orDie)` boundaries remain deliberate: machine-level failures are defects there, while expected domain failures travel through final output. `watchActor` and the devtools watcher read status, context, and opaque events, not domain fields on snapshot errors; no watcher migration is needed.
+- The compiled `@xstate/effect/oxlint` rule replaces our copy. Both implementations have the same constructor set, enqueue names, return traversal, Promise wrapper handling, and diagnostics. Upstream fixtures and our real-Oxlint fixtures cover discarded actions and inline spawns. Severity stays `error`.
+- `sendAndAwait` replaces the inspection model test's send-plus-yield mailbox guess. `createSnapshotCodec` is deferred because runtime code does not persist XState snapshots.
+
+The source mirror uses `xstate@6.0.0-alpha.71`; both release tags resolve to the same commit and match both package versions. Exact release-age exclusions move in place. Historical peer observations above retain their original versions.
+
+Consumers must move both pins, preserve Causes in invoked-child error handling, wrap synthetic Effect errors with `EffectFailure`, and rerun lifecycle tests. Do not turn defects or interruption into expected domain errors.
+
+## Beta.1 and bridge beta.0
+
+The 2026-11-06 update moves core from alpha.73 to beta.1 and the bridge from alpha.12 to beta.0.
+Effect stays at `4.1.2`. The bridge accepts Effect `^4.0.0`, XState `^6.0.0-beta.0`, and optional `@oxlint/plugins` `^1.76.0`.
+
+The release sequence contains core beta.0, core beta.1, and bridge beta.0, with no intervening alphas.
+
+- [Core beta.0](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.0) moves snapshot restoration to `restoreActor` from `xstate/persist`. `createActor` rejects `snapshot`, and `machine.restoreSnapshot` is removed.
+- Schema helpers become `snapshotSchema(machine)` from `xstate/persist` and `eventSchema(machine)` from `xstate`.
+- Leftover v5 configuration and unused actor options throw in every build. Suffixed v5 lifecycle-event keys also throw.
+- Macrosteps become unbounded by default. An explicit `maxIterations` still bounds them. Production diagnostics use short codes; error classes stay the same.
+- `self` gains machine actor-ref types. Delay functions receive the machine's emitted event type.
+- [Core beta.1](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1) rejects unknown literal targets in `setup().createMachine`, including transition-function returns.
+- [Bridge beta.0](https://github.com/statelyai/xstate/releases/tag/%40xstate/effect%401.0.0-beta.0) announces beta. No further breaking changes are planned for APIs tagged `@public`; experimental APIs may change.
+
+### Repository impact
+
+No application or test restores XState snapshots or uses the removed schema-helper properties.
+There is no hand-written actor restore path to replace.
+Flags keep domain values and receipts in the ledger; deploy keeps apply, watch, and rollback receipts.
+Those stores do not restore actor snapshots, so this upgrade does not change their persistence guarantees.
+
+The bridge's `createEffectActor` remains the scoped machine runner. Its experimental snapshot option is separate from core `createActor`.
+Existing model tests exercise machine completion, failure, retries, and cancellation.
+No compatibility wrappers or new dependencies are needed.
+
+Registry checks verify SHA-512 integrity, provenance records, tarball paths, empty lifecycle scripts, and no runtime dependencies for both releases.
+Both exact release-age exclusions move in place. The source mirror selects `xstate@6.0.0-beta.1` and verifies both package versions.
+Historical peer observations retain their original versions; refreshed peer data records checked commits separately.
+
+Consumers must move both pins and rerun their lifecycle tests.
+Apps that restore core actor snapshots must use `restoreActor`, migrate schema helpers, and audit child restoration and timers.
+Audit v5 configuration and literal transition targets before upgrading.

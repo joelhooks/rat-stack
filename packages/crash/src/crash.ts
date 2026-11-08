@@ -108,15 +108,13 @@ const redact = (text: string, secrets: readonly string[]) => {
   let result = text;
 
   for (const secret of secrets) {
-    result = result.replaceAll(
-      secret,
-      (match, offset: number, input: string) =>
-        /[\p{L}\p{N}_%-]/u.test(input.slice(offset - 1, offset)) ||
-        /[\p{L}\p{N}_%-]/u.test(
-          input.slice(offset + match.length, offset + match.length + 1)
-        )
-          ? match
-          : "[redacted]"
+    result = result.replaceAll(secret, (match, offset: number, input: string) =>
+      /[\p{L}\p{N}_%-]/u.test(input.slice(offset - 1, offset)) ||
+      /[\p{L}\p{N}_%-]/u.test(
+        input.slice(offset + match.length, offset + match.length + 1)
+      )
+        ? match
+        : "[redacted]"
     );
   }
 

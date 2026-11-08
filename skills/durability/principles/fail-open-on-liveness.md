@@ -15,7 +15,7 @@ Name the harm each guard prevents. If passing it could do irreversible harm, ref
 
 The Worker follows the same rule:
 
-- A failed flag read in `apps/site/src/worker.ts` logs and uses the Config value.
+- A failed flag replica read follows its declaration's `failurePolicy`: the catalog default or a typed refusal. Missing values use the Config fallback under the default policy.
 - Flag audit storage failures block writes and leave reads alone.
 
 See the [ship](/skills/ship) skill for the release procedure.

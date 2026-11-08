@@ -17,13 +17,14 @@ rat-stack's join intake answers at commit and delivers to drovr after the respon
 | Clear the marker only after a settled outcome | `withState` in `packages/core/src/join-contact-store.ts` keeps `pending: "delivery"` only while the state is `ready` |
 | Let a durable owner redrive undelivered work | `IntakeSweep` (`packages/core/src/intake-sweep.ts`) runs every five minutes from the Worker cron and reads at most 100 pending ids from the interest index |
 
-Each sweep pass gets a fresh budget and keeps the submission id. drovr deduplicates by that id, so a redrive after an uncertain outcome does not create a second signup.
+Each sweep pass gets a fresh budget and keeps the submission id. The adapter sends that id in the JSON body as `submissionId`, without an idempotency header. Provider deduplication on `submissionId` is unverified.
 
 A numeric deadline policy can use `Context.Reference` when a default is intentional. Compute the absolute deadline for each pass; do not cache a clock-derived absolute deadline as the reference's default. The storage service remains an explicit required dependency, not a default reference.
 
 ## Proof
 
 - `packages/core/test/join-answer-at-commit.model.test.ts` drives slow, refused, retried, and failing drovr answers on the TestClock. Background delivery must be finished when the clock reaches the deadline. Replacing the deadline with one day makes it fail.
-- `packages/core/test/intake-sweep.model.test.ts` interrupts delivery at generated points, erases during delivery, and takes Basin down. The submission ends delivered or still pending, never lost. Nothing is sent after an erase request or an accepted outcome.
+- `packages/core/test/intake-sweep.model.test.ts` interrupts delivery at generated points, erases during delivery, and takes Basin down. It checks pending work and refusal after a deliverer reads an erase marker.
+- `packages/core/spec/README.md` records weaker environments that fail those guarantees. Separate record and index writes can strand pending work. An early erase can also prevent the ready commit. Inspect and redrive an affected ID through the operator commands; do not treat a uniform answer as proof of a committed signup.
 
 See [timeouts](/lore/timeouts-bound-waiting), [idempotency](/lore/retry-needs-idempotency), and [request lifetime](/lore/request-lifetime-is-not-durability). The operational distinction follows Nygard's timeouts and delayed retry and Reis and Housley's idempotency. The Worker ceiling comes from the platform documentation.
