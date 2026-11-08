@@ -278,7 +278,7 @@ No tier changes or implementation adoptions are needed for this dependency-only 
 - **A, beep-effect/beep-effect:** its [catalog](https://github.com/beep-effect/beep-effect/blob/ff3970ddf0c0848d65830d60af080ad903ed4b6a/package.json) pins Effect `4.1.2`, Alchemy `2.0.0-beta.85`, core alpha.73, and bridge alpha.12. The [driver](https://github.com/beep-effect/beep-effect/blob/ff3970ddf0c0848d65830d60af080ad903ed4b6a/packages/drivers/xstate/package.json) consumes those catalogs. Its prior scoped-inspector study remains useful; it does not prove beta bridge compatibility.
 - **A, cill-i-am/durable-pi:** its [manifest](https://github.com/cill-i-am/durable-pi/blob/2b29c599e5b0683f605ac088a8727ba86f10c59c/package.json) pins Effect `4.1.1`, Alchemy `2.0.0-beta.84`, core alpha.71, and bridge alpha.10. Keep the earlier cancellation and durable-boundary study. Do not copy an older restore path into this upgrade.
 
-The [migration audit](https://github.com/joelhooks/rat-stack/blob/main/.brain/resources/xstate-alpha69-migration.svx#beta1-and-bridge-beta0) uses the pinned upstream source and release notes for beta APIs.
+The [migration audit](https://github.com/joelhooks/rat-stack/blob/main/.brain/archives/resources/xstate-alpha69-migration.svx#beta1-and-bridge-beta0) uses the pinned upstream source and release notes for beta APIs.
 The [peer roster](/resources/peers) retains all 90 peers and their tier reasons.
 
 ## Recommendations from the September study

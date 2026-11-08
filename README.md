@@ -22,6 +22,7 @@ Clone the new repository, then install and verify it:
 nvm use
 pnpm install
 pnpm vendor:agent-sources
+pnpm sources:fetch
 pnpm turbo run check test build
 ```
 
@@ -91,7 +92,7 @@ pnpm cli mcp --code-mode         # MCP server with two tools: search and execute
 pnpm cli catalog --types         # the `tools` declarations a code-mode program sees
 ```
 
-Code mode is the fourth projection. The model gets `search` for ranked matches with TypeScript signatures and `execute` for JavaScript with `tools` in scope. The program runs in a fresh Node subprocess under `--permission`. It cannot touch the file system or spawn processes. To call the host, it uses `tools.<name>(input)`. The host validates the input schema and runs the same handler used by every other surface. Node's permission model allows network egress. Put a Worker or Deno runtime behind the same `Sandbox` service to isolate the network too.
+Code mode is another projection. The model gets `search` for ranked matches with TypeScript signatures and `execute` for JavaScript with `tools` in scope. The program runs in a fresh Node subprocess under `--permission`. It cannot touch the file system or spawn processes. To call the host, it uses `tools.<name>(input)`. The host validates the input schema and runs the same handler used by every other surface. Node's permission model allows network egress. Put a Worker or Deno runtime behind the same `Sandbox` service to isolate the network too.
 
 `packages/capability/src` is where a capability becomes a `Command`, an `HttpApiEndpoint`, a `Tool`, and a catalog entry. `packages/core/src/inspect-file.ts` supplies the CLI's example capability. Hosted content has its own registry in `apps/site/src/capabilities/index.ts`. Provider adapters stay outside core (`rat-stack-boundaries/no-core-adapters`); apps provide them to core's job-shaped ports at composition. Add another to `capabilities`, then verify every projection you keep; CLI command registration lives in `apps/cli/src/command.ts`.
 
@@ -152,7 +153,7 @@ pnpm sources:fetch
 
 `pnpm sources:fetch` imports missing pinned source commits from the configured repository remotes once, including in template children. Generation reads only local Git objects and never fetches. Re-run the command when adding a new pin that is not present locally.
 
-Rename the workspace package names before you build on the example. The current `name` fields are:
+Rename the workspace package names before you build on the example. These are examples, not the full package inventory:
 
 - `package.json`: `rat-stack`
 - `apps/cli/package.json`: `@rat-stack/cli`
@@ -161,7 +162,7 @@ Rename the workspace package names before you build on the example. The current 
 - `packages/capability/package.json`: `@rat-stack/capability`
 - `packages/core/package.json`: `@rat-stack/core`
 
-Rename the `bin` entry in `apps/cli/package.json`, the root command in `apps/cli/src/command.ts`, and the version in `apps/cli/src/version.ts`. Then change every matching import. The current workspace imports are `@rat-stack/capability`, `@rat-stack/cli`, `@rat-stack/core`, `@rat-stack/infra`, and `@rat-stack/site`. Find them with:
+Rename the `bin` entry in `apps/cli/package.json`, the root command in `apps/cli/src/command.ts`, and the version in `apps/cli/src/version.ts`. Then change every matching import and workspace manifest reference. Find the current `@rat-stack/` names with:
 
 ```sh
 rg -n '@rat-stack/' --glob '*.json' --glob '*.ts' -l
@@ -175,7 +176,7 @@ pnpm fix
 
 Replace `inspectFile` in `packages/core` with one useful capability. Add it to `capabilities`, then verify each surface you keep. Rewrite the Project law, Architecture, and Boundaries sections of `AGENTS.md` and the top of `.pi/APPEND_SYSTEM.md`; they describe rat-stack until you do. Keep expected failures typed and map them to deliberate exit codes.
 
-`apps/site` is the public site and Worker. `apps/infra` is its Alchemy Stack. Delete both if you do not want a public site. If you keep them, change the Cloudflare Zone name and the DNS names and targets derived from it in `apps/infra/alchemy.run.ts`. Change the Worker domain and redirects in `apps/site/src/worker.ts`. Choose an Alchemy stage for each plan or deploy. The stage is a command-line choice, for example `--stage <stage>`. Configure credentials with:
+`apps/site` is the public site and Worker. `apps/infra` is its Alchemy Stack. The browser reader and content build also depend on `apps/site`; deleting those directories alone is not a supported cut. Trace the dependencies in Keep or cut first. If you keep the site, change the Cloudflare Zone name and the DNS names and targets derived from it in `apps/infra/alchemy.run.ts`. Change the Worker domain and redirects in `apps/site/src/worker.ts`. Choose an Alchemy stage for each plan or deploy. The stage is a command-line choice, for example `--stage <stage>`. Configure credentials with:
 
 ```sh
 pnpm alchemy profile edit --add Cloudflare
@@ -282,7 +283,7 @@ Choose a feature cut below. Combined package names mean the dependent features g
 - **Keep `mischief` (`apps/site`) with the hosted content product**: `apps/web/src/dev/backend.ts` imports its content capabilities and Node layer; `apps/web/src/website.ts` imports its RPC workers. `apps/web/scripts/reader-build.ts` imports its reader-input generators, and `apps/web/package.json` runs its content generator before development. The infra Stack imports its workers. Cutting `apps/site` loses the hosted tools and the reader's generated content/backend. Extract or replace those pieces before deleting the app
 - **No XState (only after removing interest and every other lifecycle except file inspection)**:
   - Keep: Keep XState and its bridge while any retained lifecycle imports them
-  - Delete: `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; `scripts/oxlint-plugin-xstate-effect.ts` and its entry in `oxlint.config.ts`
+  - Delete: `packages/core/src/inspect-machine.ts` and its test (call `FileInspector.inspect` directly from `packages/core/src/inspect-file.ts`); `xstate` and `@xstate/effect` in `packages/core/package.json` and their `minimumReleaseAgeExclude` entries in `pnpm-workspace.yaml`; the compiled `@xstate/effect/oxlint` plugin registration and `xstate-effect/no-inline-effect` rule in `oxlint.config.ts`
 
 `defineContract`, `implement`, and `toCommand` are the minimum that keep `stats` working. The contract module has no dependency on the other projections.
 

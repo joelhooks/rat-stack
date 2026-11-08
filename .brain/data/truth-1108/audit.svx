@@ -1,0 +1,99 @@
+---
+title: "Truth audit, 2026-11-08"
+type: resource
+status: active
+---
+
+# Truth audit, 2026-11-08
+
+This receipt separates source evidence, live observations and work that still needs a source. It claims no deployment.
+
+## Method
+
+Read the requested PARA skill explicitly. Its private corpus was absent. Classifications use “Where will this be useful next?” They are Joel/pi-notes adaptations, not quotations from Forte.
+
+`para.json` classifies all 223 SVX notes, including this receipt: 56 Archives, 18 Areas, 145 Resources and four Projects. Each entry has a confidence, reason, missing fields, next action and source pointer. Two ongoing responsibility notes remain at their existing project paths; the scope authorizes archive moves, not a new system-page registration.
+
+The 56 moved notes have `status: archived`, a dated superseded line and a historical-use warning. Historical source studies remain Resources when their dated evidence is reusable. All 16 system pages stay in `.brain/areas/`.
+
+A curl inventory requested 189 public paths. All returned HTTP 200. This covers every existing lore, system and skill detail route, discovery, and selected indexes. Additional requests checked the public law, resource and prompt routes. A 200 is reachability evidence, not proof of every sentence.
+
+Live OpenAPI and a read-only MCP `tools/list` request each returned the same 23 operation names. No signup, email, feedback, operator or infrastructure mutation ran. The live crawl observes the pre-change deployment. Changed sources still need normal owner merge, deployment and readback.
+
+## Claim ledger
+
+| Surface | Claim | Verdict | Evidence |
+| --- | --- | --- | --- |
+| `README.md` | Fresh-template setup can run the gate before fetching pinned source objects. | fixed | Added `pnpm sources:fetch` to initial setup, matching `apps/site/scripts/fetch-code-sources.ts` and the later setup instructions. |
+| `README.md` | Code mode is the fourth projection. | fixed | `packages/capability/src` also contains RPC. Removed the ordinal. |
+| `README.md` | Six manifests and five imports form the complete current workspace inventory. | fixed | More packages exist under `apps` and `packages`. Marked the list as examples; kept the repository-wide search command. |
+| `README.md` | Deleting site and infra alone cleanly removes the public site. | fixed | Shared reader/backend imports in `apps/web/src/website.ts`, `apps/web/src/dev/backend.ts` and `apps/site/scripts/reader-*-flags.ts` contradict that shortcut. Pointed to dependency tracing in Keep or cut. |
+| README; `skills/keep-or-cut/SKILL.md` | Cutting XState requires deleting a local `oxlint-plugin-xstate-effect.ts`. | fixed | That file is absent. `oxlint.config.ts:53,161` loads and enables the compiled `@xstate/effect/oxlint` rule. |
+| `skills/keep-or-cut/SKILL.md` | The empty overlay is TSX under `features/shared`, with a `dev-content-routes` test. | fixed | Actual files are `apps/web/src/client/no-devtools.ts` and `apps/web/test/dev-server.test.ts`. Linked the complete README removal recipe rather than retaining an incomplete duplicate. |
+| `skills/uncomplect/SKILL.md` | Features read atoms, clients use `reactivityKeys`, and `client/docs.ts` is the example. | fixed | Model, Messages, Commands and queries live under `apps/web/src/client/docs/`; `apps/web/src/features/app.ts` owns the Submodel update. Replaced the obsolete atom guidance. |
+| `.brain/areas/capabilities.svx` | The hosted registry has exactly seven capabilities. | fixed | `apps/site/src/capabilities/index.ts:54-72,117-130`; live `/openapi.json` and MCP `tools/list` both returned 23 names. Replaced the frozen count with registry and discovery pointers. |
+| `.brain/areas/agent-front-door.svx` | Seven named tools describe the full hosted registry. | fixed | Same registry and live evidence. Added flags, prompts, CAFE, learning and signup, with the optional feedback boundary. |
+| `.brain/areas/database.svx` | Auth runs only in the web dev server and the deployed site does not use the cartridge. | fixed | `apps/site/src/auth/foundation.ts` declares the database foundation; `private-worker.ts` composes the optional feedback Worker. Described configuration instead of guessing database health. |
+| `.brain/areas/analytics.svx` | Events owns `CrashArchive` and its R2 adapter. | fixed | `packages/crash/src/crash.ts`, `packages/crash/src/crash-r2.ts`; `apps/site/src/crash-tail.ts:2` imports the crash adapter. |
+| `.brain/areas/analytics.svx` | Exactly three HTTP Workers use the logging policy. | fixed | Kept the named examples and policy source, `apps/site/src/observability.ts`, without a global count. |
+| `.brain/areas/analytics.svx` | A README table lists analytics removal. | fixed | The README uses Keep or cut list sections. |
+| `.brain/areas/auth.svx` | Both uploads must stay below 2,500,000 JavaScript bytes. | fixed | `apps/site/scripts/startup-budget.ts:26-29,65,186-214` enforces per-Worker static startup. Total JavaScript is an alarm, not a failing ceiling. |
+| `.brain/areas/interest.svx` | Every saved pending contact will be found and redelivered. | fixed | `packages/core/spec/README.md:105-125` describes record/index split-write counterexamples. A lost index write strands owed work. Named the gap and ID-based operator redrive. |
+| `.brain/areas/interest.svx` | A uniform answer proves a ready commit; nothing starts after an erase request. | fixed | `packages/core/spec/README.md:135-149` records early erasure preventing the ready commit. `NoSendAfterErase` at line 74 applies when delivery reads the marker. Qualified both claims. |
+| `.brain/areas/durability.svx` | The sweep redrives every marker and finishes every pending erase. | fixed | Same weaker-environment counterexamples. Described indexed recovery and its limits. |
+| `.brain/areas/durability.svx` | The join answer always implies a ready contact. | fixed | `packages/core/src/join-intake.ts` retains a uniform answer on storage failure. Kept the non-blocking delivery claim, removed commit-as-proof. |
+| `.brain/areas/durability.svx` | `setFlag` is the current operator path with Pending/completion keys. | fixed | `packages/core/src/flag-capabilities.ts` exposes `flip_feature_flag`. `packages/flags/src/cloudflare-ledger.ts` commits position, receipt and projection marker together; split KV journaling is a fallback. |
+| Durability system and `fail-open-on-liveness.md` | A failed Worker flag read always uses Config. | fixed | `packages/flags/src/kv.ts:183-219` distinguishes missing values from failed reads and follows the catalog's failure policy. |
+| `skills/durability/principles/answer-at-commit.md` | Join already meets the atomic recovery rule. | fixed | `packages/core/spec/README.md:105-149` and the two open intake projects describe remaining gaps. Made the rule/implementation distinction explicit. |
+| `skills/durability/references/request-budget.md` | The model proves no submission is ever lost or sent after an erase request. | fixed | The tested model environment does not eliminate the implementation's weaker environments. Named split-index writes, early erasure and marker-read refusal. |
+| `skills/durability/references/request-budget.md` | Local tests establish live provider deduplication. | fixed | `packages/subscriber-delivery/src/drovr-agent-intake.ts:47-52` sends the input as JSON, including `submissionId`, without an idempotency header. Provider deduplication on that field is unverified. |
+| `skills/model-a-protocol/SKILL.md` | Sticky erasure passes every invariant without a scope qualification. | fixed | `JoinIntakeEraseSticky.cfg` covers late delivery writes. `JoinIntakeEarlyErase.cfg` retains a ready-commit/answer gap. Named both scopes. |
+| `.brain/resources/lore/hexagonal-architecture.svx` | Core still has `interest-mailer.ts`. | cut | The cited current file is absent. Kept the current `interest-intake.ts` and `interest-confirm-port.ts` ports. |
+| `.brain/resources/lore/hexagonal-architecture.svx` | Signup still uses a browser submission form and inserted human-check widget. | fixed | `apps/site/src/interest/retired-routes.ts` rejects retired POST submissions. Current applications use `joinInterest`; browser confirmation remains. |
+| `.brain/projects/lore-graph.svx` | Graph cartridge is still the current build work and Mischief stays JS-free. | fixed | `packages/lore` and `apps/site/src/capabilities/lore.ts` implement the graph. The Foldkit browser is in `apps/web`. Kept graph-view and ingestion work as proposals. |
+| `.brain/projects/ratstack-own-state-store.svx` | Opening text establishes the stacks still live in the default store. | fixed | `apps/infra/src/state-store.ts:3-7` selects the dedicated store. Reframed beta.84 commands as historical planning, not a live completion receipt. |
+| Completed plans, tasks and migrations | Old launch assignments and migration instructions remain active. | fixed | 56 archived notes have archived status and a dated superseded reason. `para.json` records each move. |
+| Archive metadata and briefs | Private checkout locations and machine/pane assignments belong in public history. | cut | Removed these from moved notes while retaining historical public evidence. |
+| Inbound/archive references | Moved note paths still resolve. | fixed | Rebased relative SVX links and root paths in AGENTS, PROVENANCE, skills and existing lore. Removed the pre-existing link to absent `foldkit-web.svx`. |
+| `BRAIN.md` | Organize by usefulness and preserve source authority. | true | It describes the operating method; `para.json` applies it to this inventory. |
+| `VISION.md` | Site is deployed; infrastructure proofs retain explicit limits. | true | Live root returned 200. VISION already distinguishes SQLite/PGlite from deployed-resource proof and marks binding-removal and deploy-purity proof as outstanding. No thesis amendment. |
+| Agent discovery | Five MCP versions and documentation-only A2A are advertised. | true | Live `/.well-known/mcp.json` lists the five documented versions. `/.well-known/agent-card.json` advertises search/read questions with streaming and push disabled. |
+| `/llms.txt`; `/llms-full.txt` | Agent text exposes public law, lore and skills. | true | Both live responses returned expected text and 200. Their source claims receive the fixes above. Generator code belongs to SEO. |
+| `.brain/resources/lore/the-fence.svx` | A generated `/--no-verify` link intentionally refuses. | true | Source line 44 already uses a code span. Generator lines 366 and 396 declare the trap page. Live route returns its intended 403; this is not a missing document. |
+| Fence messages | Rules name the failure, reason and concrete repair. | true | Reviewed message maps in `scripts/oxlint-plugin-*.ts`, `apps/site/scripts/content-rule-violation.ts:13` and `scripts/vcs-command-policy.js:12`. No fence or severity was weakened. |
+
+## needs_source
+
+- **needs-Joel:** `.pi/APPEND_SYSTEM.md:8` still names `defineCapability` and omits RPC. Editing that file requires approval for public publication. It remains unchanged from the audit baseline. `AGENTS.md` and `packages/capability/src/contract.ts` document `defineContract`, `implement` and the current projections.
+
+- HTTP responses cannot establish warehouse delivery, crash-archive completeness, database health, provider deduplication or old-store cleanup. Those remain qualified live checks for the owner. No private storage access or mail sending ran here.
+- The dedicated-store declaration is not a migration-completion receipt. That project remains open for owner verification.
+- External quotations and dated third-party studies retain their cited sources and dates. This pass did not replay every recording or refresh every external default branch. Current peer refresh belongs to the separate dependency update.
+- Five teaching rewrites belong to wiki. The archive URL repair to `lifecycles-are-machines.svx` is path-only. Pending integration audit: review wiki's final text against its pinned sources after those changes are integrated.
+- Source-ready is not deployed. After deployment, read back the changed system and skill pages, OpenAPI and both llms files.
+
+## Rules that changed the work
+
+Keep boundary words honest removed blanket durability guarantees. Version content artifacts preserved pinned historical code and dates. Separate writers kept version and generator changes with their assigned writers. Check the actual artifact separated live observations from undeployed source edits. Plain language replaced obsolete names with current files and operations.
+
+## Validation
+
+`pnpm turbo run check test build` passed all 91 tasks, with 18 cache hits. The site suite passed 90 files and 730 tests. Both Brain validators passed all 223 pages. A separate assertion checked every classification, all 56 archive destinations and superseded lines, relative SVX links and the required sections of all 16 system pages.
+
+Generated HTML and Markdown for 11 changed system, lore and skill routes each contain one H1. Rendered interest text includes the split-index and early-erase limits. This receipt is an evidence inventory, not a deployment receipt. Final snapshot and uncached-generation checks are recorded in the completion report.
+
+## PARA moves
+
+`para.json` contains the complete move ledger with note, from, to and reason. Each note also records its next use and review action.
+
+## Review corrections
+
+| Surface | Claim | Verdict | Evidence |
+| --- | --- | --- | --- |
+| Archived dependency-refresh note | The schema evidence link resolves after the move. | fixed | Changed the JSON target to `../../data/better-auth-1711.json`. The file exists. |
+| Archived launch notes | Internal checkout names explain where the build ran. | cut | Replaced the checkout jargon with “isolated checkout” and removed the assignment name from that description. |
+| Seven archived asset task notes | Quoted parent examples are relative to the task. | fixed | The examples describe the assets' frontmatter. Restored `./<step>.svx`; all seven match the actual asset frontmatter and resolve from their assets. |
+| Archived vision steer | Public content cites only public evidence. | fixed | Restored the original historical claim, “content cites both”, while keeping the host name redacted. |
+| Request budget | The provider receives an idempotency key. | fixed | The adapter serializes `submissionId` in the JSON body without an idempotency header. Provider deduplication on that field is unverified. |
+
+A Markdown-parser check scanned all 223 notes and resolved 113 relative references without a miss. That total includes 30 frontmatter parents and seven asset-parent examples; 99 references are in archives. Seven extensionless page links resolve to existing SVX source pages. The check covers Markdown links, images, definitions, quoted HTML links and actual frontmatter parents. It does not claim to validate external URLs or dynamic expressions.

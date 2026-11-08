@@ -1,0 +1,2822 @@
+{
+  "date": "2026-11-08",
+  "method": "Joel/pi-notes adaptation: Where will this be useful next? The requested PARA skill was read explicitly. Its private corpus was absent; these classifications do not claim corpus-backed Forte wording.",
+  "notes": [
+    {
+      "note": ".brain/archives/data/foldkit-0167-audit-after.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx",
+      "missingFields": ["frontmatter title"],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [".brain/archives/data/foldkit-0167-audit-after.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/data/foldkit-0167-audit-before.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx",
+      "missingFields": ["frontmatter title"],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/data/foldkit-0167-audit-before.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/data/foldkit-0167-audit-walk.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx",
+      "missingFields": ["frontmatter title"],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [".brain/archives/data/foldkit-0167-audit-walk.svx:10"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/deploy-plan-policy.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "implemented deployment policy; current procedure is skills/ship/references/project.md",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [".brain/archives/projects/deploy-plan-policy.svx:11"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/effect-4-stable-upgrade.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/effect-4-stable-upgrade.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/foldkit-content-shape.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/foldkit-content-shape.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/foldkit-site.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [".brain/archives/projects/foldkit-site.svx:14"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/rat-devtools.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "completed implementation; current behavior is documented in .brain/areas/devtools.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [".brain/archives/projects/rat-devtools.svx:14"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/block-references.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/block-references.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/build-mischief-tools.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/build-mischief-tools.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/build-sveltekit-shell.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/build-sveltekit-shell.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/decide-legacy-mcp-sessions.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/decide-legacy-mcp-sessions.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/decide-not-applicable-checks.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/decide-not-applicable-checks.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/decide-public-content-set.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/decide-public-content-set.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/decide-site-capabilities.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/decide-site-capabilities.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/deploy-ratstack-sh.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/deploy-ratstack-sh.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/document-and-clear-path.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/document-and-clear-path.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/make-og-image-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/make-og-image-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/make-og-image.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/make-og-image.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/plain-svelte-content-compiler.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/plain-svelte-content-compiler.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/protect-and-polish.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/protect-and-polish.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/prototype-mischief-dev.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/prototype-mischief-dev.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/ratstack-sh-brief.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/ratstack-sh-brief.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/reach-level-five-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/reach-level-five-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/reach-level-five.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/reach-level-five.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-agent-ready-checks-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-agent-ready-checks-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-agent-ready-checks.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-agent-ready-checks.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-sveltekit-shell-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-sveltekit-shell-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-sveltekit-shell.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-sveltekit-shell.svx:19"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-worker-sandbox-asset.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-worker-sandbox-asset.svx:15"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/research-worker-sandbox.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/research-worker-sandbox.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/vision-steer-from-alchemy-research.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/vision-steer-from-alchemy-research.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/ratstack-sh/write-skills.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/ratstack-sh/write-skills.svx:18"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/tokenmaxx-interest-form.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "retired browser intake implementation; current contract is documented in .brain/areas/interest.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/tokenmaxx-interest-form.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/projects/tokenmaxx-operator-fix.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "retired browser intake implementation; current contract is documented in .brain/areas/interest.svx",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/projects/tokenmaxx-operator-fix.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/resources/dependency-refresh-2026-10-20.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/resources/dependency-refresh-2026-10-20.svx:12"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/resources/xstate-alpha69-migration.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/resources/xstate-alpha69-migration.svx:12"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-build-mischief-tools.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-build-mischief-tools.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-build-sveltekit-shell.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-build-sveltekit-shell.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-make-og-image.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-make-og-image.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-protect-and-polish.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-protect-and-polish.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-prototype-mischief-dev.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-prototype-mischief-dev.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-reach-level-five.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-reach-level-five.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-agent-ready-checks.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-agent-ready-checks.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-alchemy-effect-worker.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-alchemy-effect-worker.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-effect-mcp-over-http.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-effect-mcp-over-http.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-mcp-client-protocol-support.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-mcp-client-protocol-support.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-sveltekit-shell.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-sveltekit-shell.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-research-worker-sandbox.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-research-worker-sandbox.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/archives/tasks/ratstack-sh-write-skills.svx",
+      "bucket": "Archive",
+      "confidence": "high",
+      "reason": "finished launch assignment; matching launch step is retained as history",
+      "missingFields": [],
+      "nextActionOrReview": "Keep as dated history; consult current linked system or manifest before reuse.",
+      "sourcePointers": [
+        ".brain/archives/tasks/ratstack-sh-write-skills.svx:14"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/agent-front-door.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/agent-front-door.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/all-stars.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/all-stars.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/analytics.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/analytics.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/auth.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/auth.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/capabilities.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/capabilities.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/database.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/database.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/devtools.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/devtools.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/durability.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/durability.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/fence.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/fence.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/flags.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/flags.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/interest.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/interest.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/learn.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/learn.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/motion.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/motion.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/prompts.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/prompts.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/turbo-cache.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/turbo-cache.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/areas/web.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Maintains the shipped system's ongoing behavior, standard and verification procedure.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when the system implementation or deployment changes.",
+      "sourcePointers": [".brain/areas/web.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/data/truth-1108/audit.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Dated audit evidence for council review and later source-truth checks.",
+      "missingFields": [],
+      "nextActionOrReview": "Consult for integration and deployment readback; retain as a dated receipt.",
+      "sourcePointers": [".brain/data/truth-1108/audit.svx:7"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/index.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Navigation instructions for finding the next useful note.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when Brain discovery changes.",
+      "sourcePointers": [".brain/index.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/git-snapshot.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable source-authority and implementation-reference note rather than a bounded project.",
+      "missingFields": [],
+      "nextActionOrReview": "Review with the implementation; retain existing path during this archive-only move pass.",
+      "sourcePointers": [".brain/projects/git-snapshot.svx:5"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/join-intake-early-erase.svx",
+      "bucket": "Project",
+      "confidence": "high",
+      "reason": "Open intake correctness gap with an explicit completion condition and model counterexample.",
+      "missingFields": [],
+      "nextActionOrReview": "Implement and qualify the fix against the named weaker model before archiving.",
+      "sourcePointers": [".brain/projects/join-intake-early-erase.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/join-intake-index-outbox.svx",
+      "bucket": "Project",
+      "confidence": "high",
+      "reason": "Open intake correctness gap with an explicit completion condition and model counterexample.",
+      "missingFields": [],
+      "nextActionOrReview": "Implement and qualify the fix against the named weaker model before archiving.",
+      "sourcePointers": [".brain/projects/join-intake-index-outbox.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/layer-startups.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Ongoing product direction or publication responsibility rather than a single unfinished deliverable.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when direction or publication authority changes; retain existing path during this archive-only move pass.",
+      "sourcePointers": [".brain/projects/layer-startups.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/lore-graph.svx",
+      "bucket": "Project",
+      "confidence": "medium",
+      "reason": "Graph cartridge is implemented, but graph-view and reviewed-ingestion outcomes remain proposed.",
+      "missingFields": ["completion condition for remaining scope"],
+      "nextActionOrReview": "Confirm the remaining scope and explicit completion condition with the owner.",
+      "sourcePointers": [".brain/projects/lore-graph.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/prompts.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable source-authority and implementation-reference note rather than a bounded project.",
+      "missingFields": [],
+      "nextActionOrReview": "Review with the implementation; retain existing path during this archive-only move pass.",
+      "sourcePointers": [".brain/projects/prompts.svx:6"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/ratstack-own-state-store.svx",
+      "bucket": "Project",
+      "confidence": "medium",
+      "reason": "Migration runbook still lacks an in-note live completion and old-store cleanup receipt.",
+      "missingFields": ["live completion receipt"],
+      "nextActionOrReview": "Owner verifies migration completion and cleanup decision; archive when settled.",
+      "sourcePointers": [".brain/projects/ratstack-own-state-store.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/projects/tokenmaxx-workshop.svx",
+      "bucket": "Area",
+      "confidence": "high",
+      "reason": "Ongoing product direction or publication responsibility rather than a single unfinished deliverable.",
+      "missingFields": [],
+      "nextActionOrReview": "Review when direction or publication authority changes; retain existing path during this archive-only move pass.",
+      "sourcePointers": [".brain/projects/tokenmaxx-workshop.svx:6"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/ci-audit-2026-11-05.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/ci-audit-2026-11-05.svx:6"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/effect-4-reference-projects.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": ["frontmatter title"],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/effect-4-reference-projects.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/intake-application-reader.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/intake-application-reader.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/learn-mode.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/learn-mode.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lint-rule-limits.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lint-rule-limits.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/0xsero-dhh-omarchy-the-agent-os.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/0xsero-dhh-omarchy-the-agent-os.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/a-clean-playground.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/a-clean-playground.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/accumulate-independent-errors.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/accumulate-independent-errors.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/admission-controls-new-work.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/admission-controls-new-work.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/agent-source-first-workflow.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/agent-source-first-workflow.svx:33"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/agents-explore-tests-remember.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/agents-explore-tests-remember.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/ai-engineer-vibe-engineering-effect-apps-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/ai-engineer-vibe-engineering-effect-apps-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/aiewf-2026-everything-we-knew-about-software-has-changed-theo-browne.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/aiewf-2026-everything-we-knew-about-software-has-changed-theo-browne.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/alchemy-domain.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/alchemy-domain.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/ambient-cloud.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/ambient-cloud.svx:16"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/an-mcp-your-users-want.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/an-mcp-your-users-want.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/anti-money.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/anti-money.svx:16"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/at-protocol.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/at-protocol.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/backpressure-reaches-the-producer.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/backpressure-reaches-the-producer.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/bindings.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/bindings.svx:26"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/build-time-work-stays-out-of-requests.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/build-time-work-stays-out-of-requests.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/bulkheads-isolate-capacity.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/bulkheads-isolate-capacity.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cache-completed-values.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/cache-completed-values.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cafe-stack.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/cafe-stack.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/capture-first.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/capture-first.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cartridges.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/cartridges.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cascadiajs-2026-its-time-to-rethink-everything-theo-browne.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/cascadiajs-2026-its-time-to-rethink-everything-theo-browne.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cause-and-effect-10-software-engineering-age-of-ai-de-goes.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/cause-and-effect-10-software-engineering-age-of-ai-de-goes.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/checkpoints-follow-commits.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/checkpoints-follow-commits.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/chris-tate.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/chris-tate.svx:21"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/circuit-breakers-have-state.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/circuit-breakers-have-state.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cityjs-effect-production-grade-typescript-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/cityjs-effect-production-grade-typescript-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cleanup-can-be-an-idempotent-postcondition.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/cleanup-can-be-an-idempotent-postcondition.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/cloud-as-a-library.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/cloud-as-a-library.svx:22"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/code-snippets.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/code-snippets.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/concurrent-work-needs-an-owner.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/concurrent-work-needs-an-owner.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/configuration-is-a-dependency.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/configuration-is-a-dependency.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/context-and-requirements.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/context-and-requirements.svx:29"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/david-khourshid.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/david-khourshid.svx:32"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/dead-letters-need-a-return-path.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/dead-letters-need-a-return-path.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/dependency-injection-is-the-reason-to-choose-effect.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/devtools-fm-sam-goodwin-alchemy-next-gen-iac.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/devtools-fm-sam-goodwin-alchemy-next-gen-iac.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/devtools-fm-sam-goodwin-alchemy.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/devtools-fm-sam-goodwin-alchemy.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/distilled.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/distilled.svx:16"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/double-opt-in.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/double-opt-in.svx:32"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/durability-bibliography.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/durability-bibliography.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/durability.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/durability.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/durable-timers-need-recovery.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/durable-timers-need-recovery.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/durable-work-needs-storage.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/durable-work-needs-storage.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-basics.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/effect-basics.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-days-2024-origin-story-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/effect-days-2024-origin-story-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-days-2025-building-effect-4-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/effect-days-2025-building-effect-4-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-design-lineage.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/effect-design-lineage.svx:31"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-is-not-beam.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/effect-is-not-beam.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-meetup-sf-2023-why-effect-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/effect-meetup-sf-2023-why-effect-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-office-hours-26-community-projects-alchemy.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/effect-office-hours-26-community-projects-alchemy.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/effect-office-hours-27-alchemy-infrastructure-as-effects.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/effect-office-hours-27-alchemy-infrastructure-as-effects.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/engine-neutral-tokens-keep-adapters-replaceable.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/engine-neutral-tokens-keep-adapters-replaceable.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/error-model.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/error-model.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/errors-are-part-of-the-interface.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/errors-are-part-of-the-interface.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/every-task-needs-an-owner.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/every-task-needs-an-owner.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/failures-keep-their-meaning.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/failures-keep-their-meaning.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/flags-climb-on-evidence.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/flags-climb-on-evidence.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/floor-and-ceiling.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/floor-and-ceiling.svx:22"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/golden-signals-expose-overload.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/golden-signals-expose-overload.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/happy-path-116-infrastructure-as-effects-sam-goodwin.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/happy-path-116-infrastructure-as-effects-sam-goodwin.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/happy-path-81-typescript-and-effects-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/happy-path-81-typescript-and-effects-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/hateoas.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/hateoas.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/hexagonal-architecture.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/hexagonal-architecture.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/how-we-do-it-with-effect.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/how-we-do-it-with-effect.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/http-responses-need-validation.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/http-responses-need-validation.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/infrastructure-as-effects.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/infrastructure-as-effects.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/init-runs-twice.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/init-runs-twice.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/lauren-tan-skills.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/lauren-tan-skills.svx:34"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/lauren-tan.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/lauren-tan.svx:16"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/layer-constructor-pattern.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/layer-constructor-pattern.svx:24"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/layers-make-dependencies-explicit.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/layers-make-dependencies-explicit.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/lifecycles-are-machines.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/lifecycles-are-machines.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/matt-pocock-skills.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/matt-pocock-skills.svx:24"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/mcp-is-another-surface.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/mcp-is-another-surface.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/mdsvex-left-unified.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/mdsvex-left-unified.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/michael-arnaldi.svx:31"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/model-based-testing.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/model-based-testing.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/no-comments.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/no-comments.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/old-events-must-still-decode.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/old-events-must-still-decode.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/one-capability-every-surface.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/one-capability-every-surface.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/one-program-can-replace-several-tool-calls.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/one-program-can-replace-several-tool-calls.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/one-schema-three-surfaces.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/one-schema-three-surfaces.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/one-snippet-model-two-renderers.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/one-snippet-model-two-renderers.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/openapi-describes-the-refusal-too.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/openapi-describes-the-refusal-too.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/pinned-sources-can-report-drift.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/pinned-sources-can-report-drift.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/plan-model.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/plan-model.svx:22"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/poteto-lauren-tan-2500-prs-dune.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/poteto-lauren-tan-2500-prs-dune.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/production-grade-typescript.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/production-grade-typescript.svx:22"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/property-based-testing.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/property-based-testing.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/pure-cores-reduce-timelines.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/pure-cores-reduce-timelines.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/queries-need-result-bounds.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/queries-need-result-bounds.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/rat-king.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/rat-king.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/rats-nest.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/rats-nest.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/recovery-needs-model-tests.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/recovery-needs-model-tests.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/replay-needs-stable-inputs.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/replay-needs-stable-inputs.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/request-lifetime-is-not-durability.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/request-lifetime-is-not-durability.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/restart-from-known-state.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/restart-from-known-state.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/retry-load-needs-a-budget.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/retry-load-needs-a-budget.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/retry-needs-idempotency.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/retry-needs-idempotency.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/run-effect-at-the-boundary.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/run-effect-at-the-boundary.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/sam-goodwin.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/sam-goodwin.svx:26"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/schema-changes-need-a-transition.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/schema-changes-need-a-transition.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/schemas-define-the-boundary.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/schemas-define-the-boundary.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/scopes-own-resources.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/scopes-own-resources.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/services-capture-dependencies.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/services-capture-dependencies.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-bestiary.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-bestiary.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-canon.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-canon.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-creed.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-creed.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-origin.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-origin.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-rat-king.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-rat-king.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-rituals.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-rituals.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat-war-stories.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat-war-stories.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitrat.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitrat.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/shitratgit-bot.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/shitratgit-bot.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/steady-state-recycles-resources.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/steady-state-recycles-resources.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/structure-effect-by-domain.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/structure-effect-by-domain.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/supervision-is-a-recovery-policy.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/supervision-is-a-recovery-policy.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/tests-that-earn-their-place.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/tests-that-earn-their-place.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/the-fence.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/the-fence.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/theo-browne.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/theo-browne.svx:26"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/theo-please-stop-using-stupid-models.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/theo-please-stop-using-stupid-models.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/there-is-no-isr-on-cloudflare.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/there-is-no-isr-on-cloudflare.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/think-wider.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/think-wider.svx:22"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/timeouts-bound-waiting.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/timeouts-bound-waiting.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/tokenize-before-slicing.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/tokenize-before-slicing.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/trace-meaningful-operations.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/trace-meaningful-operations.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/two-lines-of-curl-is-a-front-door.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/two-lines-of-curl-is-a-front-door.svx:1"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/ui-behaviour-is-a-scene.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/ui-behaviour-is-a-scene.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/visakan-veerasamy.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/lore/visakan-veerasamy.svx:26"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/why-javascript-is-broken-effect-michael-arnaldi.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/why-javascript-is-broken-effect-michael-arnaldi.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/lore/ziverge-de-goes-arnaldi-typescript-for-scala-devs.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable teaching or source page, with linked evidence for later reading and implementation.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/lore/ziverge-de-goes-arnaldi-typescript-for-scala-devs.svx:17"
+      ],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/peers.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": ["frontmatter title"],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/peers.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/prompts/hill-climb.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/prompts/hill-climb.svx:1"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/same-version-repos.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [".brain/resources/same-version-repos.svx:9"],
+      "corpusUsed": false
+    },
+    {
+      "note": ".brain/resources/schema-projections-and-code-mode.svx",
+      "bucket": "Resource",
+      "confidence": "high",
+      "reason": "Reusable concept, source study, reference or prompt for future implementation and teaching.",
+      "missingFields": [],
+      "nextActionOrReview": "Recheck dated sources before relying on current compatibility or live behavior.",
+      "sourcePointers": [
+        ".brain/resources/schema-projections-and-code-mode.svx:18"
+      ],
+      "corpusUsed": false
+    }
+  ],
+  "moves": [
+    {
+      "note": ".brain/projects/ratstack-sh/research-sveltekit-shell.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-sveltekit-shell.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-sveltekit-shell.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-worker-sandbox-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-worker-sandbox-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-worker-sandbox-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-worker-sandbox.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-worker-sandbox.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-worker-sandbox.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/vision-steer-from-alchemy-research.svx",
+      "from_path": ".brain/projects/ratstack-sh/vision-steer-from-alchemy-research.svx",
+      "to": ".brain/archives/projects/ratstack-sh/vision-steer-from-alchemy-research.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/write-skills.svx",
+      "from_path": ".brain/projects/ratstack-sh/write-skills.svx",
+      "to": ".brain/archives/projects/ratstack-sh/write-skills.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/block-references.svx",
+      "from_path": ".brain/projects/ratstack-sh/block-references.svx",
+      "to": ".brain/archives/projects/ratstack-sh/block-references.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/build-mischief-tools.svx",
+      "from_path": ".brain/projects/ratstack-sh/build-mischief-tools.svx",
+      "to": ".brain/archives/projects/ratstack-sh/build-mischief-tools.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/build-sveltekit-shell.svx",
+      "from_path": ".brain/projects/ratstack-sh/build-sveltekit-shell.svx",
+      "to": ".brain/archives/projects/ratstack-sh/build-sveltekit-shell.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/decide-legacy-mcp-sessions.svx",
+      "from_path": ".brain/projects/ratstack-sh/decide-legacy-mcp-sessions.svx",
+      "to": ".brain/archives/projects/ratstack-sh/decide-legacy-mcp-sessions.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/decide-not-applicable-checks.svx",
+      "from_path": ".brain/projects/ratstack-sh/decide-not-applicable-checks.svx",
+      "to": ".brain/archives/projects/ratstack-sh/decide-not-applicable-checks.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/decide-public-content-set.svx",
+      "from_path": ".brain/projects/ratstack-sh/decide-public-content-set.svx",
+      "to": ".brain/archives/projects/ratstack-sh/decide-public-content-set.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/decide-site-capabilities.svx",
+      "from_path": ".brain/projects/ratstack-sh/decide-site-capabilities.svx",
+      "to": ".brain/archives/projects/ratstack-sh/decide-site-capabilities.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/deploy-ratstack-sh.svx",
+      "from_path": ".brain/projects/ratstack-sh/deploy-ratstack-sh.svx",
+      "to": ".brain/archives/projects/ratstack-sh/deploy-ratstack-sh.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/document-and-clear-path.svx",
+      "from_path": ".brain/projects/ratstack-sh/document-and-clear-path.svx",
+      "to": ".brain/archives/projects/ratstack-sh/document-and-clear-path.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/make-og-image-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/make-og-image-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/make-og-image-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/make-og-image.svx",
+      "from_path": ".brain/projects/ratstack-sh/make-og-image.svx",
+      "to": ".brain/archives/projects/ratstack-sh/make-og-image.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/plain-svelte-content-compiler.svx",
+      "from_path": ".brain/projects/ratstack-sh/plain-svelte-content-compiler.svx",
+      "to": ".brain/archives/projects/ratstack-sh/plain-svelte-content-compiler.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/protect-and-polish.svx",
+      "from_path": ".brain/projects/ratstack-sh/protect-and-polish.svx",
+      "to": ".brain/archives/projects/ratstack-sh/protect-and-polish.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/prototype-mischief-dev.svx",
+      "from_path": ".brain/projects/ratstack-sh/prototype-mischief-dev.svx",
+      "to": ".brain/archives/projects/ratstack-sh/prototype-mischief-dev.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/ratstack-sh-brief.svx",
+      "from_path": ".brain/projects/ratstack-sh/ratstack-sh-brief.svx",
+      "to": ".brain/archives/projects/ratstack-sh/ratstack-sh-brief.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/reach-level-five-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/reach-level-five-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/reach-level-five-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/reach-level-five.svx",
+      "from_path": ".brain/projects/ratstack-sh/reach-level-five.svx",
+      "to": ".brain/archives/projects/ratstack-sh/reach-level-five.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-agent-ready-checks-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-agent-ready-checks-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-agent-ready-checks-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-agent-ready-checks.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-agent-ready-checks.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-agent-ready-checks.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-alchemy-effect-worker-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-alchemy-effect-worker-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-alchemy-effect-worker.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-alchemy-effect-worker.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-alchemy-effect-worker.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-effect-mcp-over-http-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-effect-mcp-over-http-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-effect-mcp-over-http.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-effect-mcp-over-http.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-effect-mcp-over-http.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-mcp-client-protocol-support-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-mcp-client-protocol-support-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-mcp-client-protocol-support.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-mcp-client-protocol-support.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-mcp-client-protocol-support.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/ratstack-sh/research-sveltekit-shell-asset.svx",
+      "from_path": ".brain/projects/ratstack-sh/research-sveltekit-shell-asset.svx",
+      "to": ".brain/archives/projects/ratstack-sh/research-sveltekit-shell-asset.svx",
+      "reason": "superseded launch plan and research; current interfaces are documented in .brain/areas/agent-front-door.svx and .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-build-mischief-tools.svx",
+      "from_path": ".brain/tasks/ratstack-sh-build-mischief-tools.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-build-mischief-tools.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-build-sveltekit-shell.svx",
+      "from_path": ".brain/tasks/ratstack-sh-build-sveltekit-shell.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-build-sveltekit-shell.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-make-og-image.svx",
+      "from_path": ".brain/tasks/ratstack-sh-make-og-image.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-make-og-image.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-protect-and-polish.svx",
+      "from_path": ".brain/tasks/ratstack-sh-protect-and-polish.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-protect-and-polish.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-prototype-mischief-dev.svx",
+      "from_path": ".brain/tasks/ratstack-sh-prototype-mischief-dev.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-prototype-mischief-dev.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-reach-level-five.svx",
+      "from_path": ".brain/tasks/ratstack-sh-reach-level-five.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-reach-level-five.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-agent-ready-checks.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-agent-ready-checks.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-agent-ready-checks.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-alchemy-effect-worker.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-alchemy-effect-worker.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-alchemy-effect-worker.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-effect-mcp-over-http.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-effect-mcp-over-http.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-effect-mcp-over-http.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-mcp-client-protocol-support.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-mcp-client-protocol-support.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-mcp-client-protocol-support.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-sveltekit-shell.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-sveltekit-shell.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-sveltekit-shell.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-research-worker-sandbox.svx",
+      "from_path": ".brain/tasks/ratstack-sh-research-worker-sandbox.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-research-worker-sandbox.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/tasks/ratstack-sh-write-skills.svx",
+      "from_path": ".brain/tasks/ratstack-sh-write-skills.svx",
+      "to": ".brain/archives/tasks/ratstack-sh-write-skills.svx",
+      "reason": "finished launch assignment; matching launch step is retained as history"
+    },
+    {
+      "note": ".brain/data/foldkit-0167-audit-after.svx",
+      "from_path": ".brain/data/foldkit-0167-audit-after.svx",
+      "to": ".brain/archives/data/foldkit-0167-audit-after.svx",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/data/foldkit-0167-audit-before.svx",
+      "from_path": ".brain/data/foldkit-0167-audit-before.svx",
+      "to": ".brain/archives/data/foldkit-0167-audit-before.svx",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/data/foldkit-0167-audit-walk.svx",
+      "from_path": ".brain/data/foldkit-0167-audit-walk.svx",
+      "to": ".brain/archives/data/foldkit-0167-audit-walk.svx",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/effect-4-stable-upgrade.svx",
+      "from_path": ".brain/projects/effect-4-stable-upgrade.svx",
+      "to": ".brain/archives/projects/effect-4-stable-upgrade.svx",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md"
+    },
+    {
+      "note": ".brain/projects/foldkit-content-shape.svx",
+      "from_path": ".brain/projects/foldkit-content-shape.svx",
+      "to": ".brain/archives/projects/foldkit-content-shape.svx",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/foldkit-site.svx",
+      "from_path": ".brain/projects/foldkit-site.svx",
+      "to": ".brain/archives/projects/foldkit-site.svx",
+      "reason": "superseded migration evidence; current reader is documented in .brain/areas/web.svx"
+    },
+    {
+      "note": ".brain/projects/rat-devtools.svx",
+      "from_path": ".brain/projects/rat-devtools.svx",
+      "to": ".brain/archives/projects/rat-devtools.svx",
+      "reason": "completed implementation; current behavior is documented in .brain/areas/devtools.svx"
+    },
+    {
+      "note": ".brain/projects/tokenmaxx-interest-form.svx",
+      "from_path": ".brain/projects/tokenmaxx-interest-form.svx",
+      "to": ".brain/archives/projects/tokenmaxx-interest-form.svx",
+      "reason": "retired browser intake implementation; current contract is documented in .brain/areas/interest.svx"
+    },
+    {
+      "note": ".brain/projects/tokenmaxx-operator-fix.svx",
+      "from_path": ".brain/projects/tokenmaxx-operator-fix.svx",
+      "to": ".brain/archives/projects/tokenmaxx-operator-fix.svx",
+      "reason": "retired browser intake implementation; current contract is documented in .brain/areas/interest.svx"
+    },
+    {
+      "note": ".brain/projects/deploy-plan-policy.svx",
+      "from_path": ".brain/projects/deploy-plan-policy.svx",
+      "to": ".brain/archives/projects/deploy-plan-policy.svx",
+      "reason": "implemented deployment policy; current procedure is skills/ship/references/project.md"
+    },
+    {
+      "note": ".brain/resources/dependency-refresh-2026-10-20.svx",
+      "from_path": ".brain/resources/dependency-refresh-2026-10-20.svx",
+      "to": ".brain/archives/resources/dependency-refresh-2026-10-20.svx",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md"
+    },
+    {
+      "note": ".brain/resources/xstate-alpha69-migration.svx",
+      "from_path": ".brain/resources/xstate-alpha69-migration.svx",
+      "to": ".brain/archives/resources/xstate-alpha69-migration.svx",
+      "reason": "completed dependency migration; current pins are owned by package manifests and AGENTS.md"
+    }
+  ]
+}
