@@ -1,10 +1,14 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
+import { withReaderWebsite } from "../../site/src/reader-website.js";
 import {
   readerContentSecurityPolicy,
   readerPagePolicy,
+  secureResponse,
   tubeContentSecurityPolicy,
   tubePagePath,
 } from "../../site/src/security.js";
@@ -80,6 +84,48 @@ it("only /tube widens the reader policy, by YouTube's image host and the nocooki
     expect(readerPagePolicy(path), path).toBe(readerContentSecurityPolicy);
   }
 });
+
+it.effect(
+  "the Worker sends the /tube policy on /tube HTML and the reader policy everywhere else",
+  () =>
+    Effect.gen(function* routeThroughWorker() {
+      const website = {
+        fetch: () =>
+          Promise.resolve(
+            new Response("<!doctype html><title>page</title>", {
+              headers: { "content-type": "text/html" },
+            })
+          ),
+      };
+
+      const route = withReaderWebsite(website, (_path, response) =>
+        Effect.succeed(secureResponse(response, readerContentSecurityPolicy))
+      )(Effect.succeed(HttpServerResponse.text("Mischief")));
+
+      const policyFor = (path: string, accept: string) =>
+        route.pipe(
+          Effect.provideService(
+            HttpServerRequest.HttpServerRequest,
+            HttpServerRequest.fromWeb(
+              new Request(`https://ratstack.sh${path}`, { headers: { accept } })
+            )
+          ),
+          Effect.map((response) => response.headers["content-security-policy"])
+        );
+
+      expect(yield* policyFor(tubePagePath, "text/html")).toBe(
+        tubeContentSecurityPolicy
+      );
+
+      for (const path of ["/news", "/search", "/all-stars"]) {
+        expect(yield* policyFor(path, "text/html"), path).toBe(
+          readerContentSecurityPolicy
+        );
+      }
+
+      expect(yield* policyFor(tubePagePath, "text/markdown")).toBeUndefined();
+    })
+);
 
 it.layer(NodeServices.layer)((test) => {
   test.effect(
