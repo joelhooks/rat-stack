@@ -6,6 +6,7 @@
         "name": "@effect/language-service",
         "allowedUnstableApis": [
           "@effect/vitest",
+          "effect/Arbitrary",
           "effect/ai/Tool",
           "effect/rpc/RpcTest"
         ]
