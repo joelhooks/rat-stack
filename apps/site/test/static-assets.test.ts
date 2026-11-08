@@ -156,7 +156,9 @@ it.effect(
             "text/markdown"
           );
           expect(response.headers.get("vary")).toBe("Accept");
-          expect(response.headers.get("link")).toBe(linkHeaderForPage("/"));
+          expect(response.headers.get("link")).toBe(
+            linkHeaderForPage("/", "https://ratstack.sh")
+          );
           expect(response.headers.get("set-cookie")).toBeNull();
           expect(response.headers.get("x-fence")).toBe("electrified");
           expect(calls.at(-1)).toBe("/index.md");
@@ -179,7 +181,7 @@ it.effect(
           expect(response.status).toBe(200);
           expect(calls.at(-1)).toBe(expected);
           expect(response.headers.get("link")).toBe(
-            linkHeaderForPage(canonical ?? "/")
+            linkHeaderForPage(canonical ?? "/", "https://ratstack.sh")
           );
         }
 

@@ -214,6 +214,36 @@
       "id": "c43",
       "quote": "He says constrained conventions make resource generation easier for coding agents.",
       "page": "devtools-fm-sam-goodwin-alchemy-next-gen-iac"
+    },
+    {
+      "id": "c44",
+      "quote": "const migrations = yield* Drizzle.Schema(`${id}-d1-schema`, { dialect: \"sqlite\", out: databaseMigrationDirectory(\"d1\"), schema: databaseSchemaFile(\"d1\"), });",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts#L17-L24"
+    },
+    {
+      "id": "c45",
+      "quote": "const database = yield* Cloudflare.D1.Database(`${id}-d1`, { migrations });",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts#L26"
+    },
+    {
+      "id": "c46",
+      "quote": "export const D1 = (options: D1Options) => Layer.unwrap( Effect.gen(function* buildD1Layer() { const vendor = yield* makeD1Vendor(options);",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts#L34-L37"
+    },
+    {
+      "id": "c47",
+      "quote": "return Layer.mergeAll( RunLogLayer(vendor), Layer.succeed(DatabaseVendor, vendor) );",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts#L39-L42"
+    },
+    {
+      "id": "c48",
+      "quote": ").pipe(Layer.provide(Cloudflare.D1.QueryDatabaseBinding));",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/packages/database/src/d1.ts#L44"
+    },
+    {
+      "id": "c49",
+      "quote": "The database's one caller is auth, which today runs only in the web app's dev server. pnpm --filter @rat-stack/database test runs the RunLog tests twice, against D1 on local SQLite and against Postgres on PGlite.",
+      "page": "https://github.com/joelhooks/rat-stack/blob/c5e4fc13d7740952fcb1646b29a5cdd1b43001a8/.brain/areas/database.svx#L55-L73"
     }
   ],
   "entries": [
@@ -297,6 +327,41 @@
       "kind": "sentence",
       "text": "The Stack declares cloud resources.",
       "claims": ["c15"]
+    },
+    {
+      "kind": "sentence",
+      "text": "In the database cartridge, makeD1Vendor declares SQLite migrations and a D1 database.",
+      "claims": ["c44", "c45"]
+    },
+    {
+      "kind": "sentence",
+      "text": "The database declaration receives those migrations through its migrations option.",
+      "claims": ["c45"]
+    },
+    {
+      "kind": "sentence",
+      "text": "D1(options) builds the Layer below.",
+      "claims": ["c46"]
+    },
+    {
+      "kind": "sentence",
+      "text": "It combines RunLogLayer(vendor) with the DatabaseVendor service and provides QueryDatabaseBinding.",
+      "claims": ["c47", "c48"]
+    },
+    {
+      "kind": "sentence",
+      "text": "The package keeps its database declaration and service construction together.",
+      "claims": ["c44", "c45", "c46", "c47", "c48"]
+    },
+    {
+      "kind": "sentence",
+      "text": "Trace the declaration first, then the returned Layer.",
+      "claims": ["c44", "c45", "c46", "c47", "c48"]
+    },
+    {
+      "kind": "sentence",
+      "text": "Read Database for its current callers and local verification commands.",
+      "claims": ["c49"]
     },
     {
       "kind": "sentence",

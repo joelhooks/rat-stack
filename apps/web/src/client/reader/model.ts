@@ -11,6 +11,7 @@ import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
+import { Model as TubeModel } from "../tube/model.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
 
@@ -49,6 +50,7 @@ export const ReaderFlags = Schema.Struct({
     })
   ),
   terms: Schema.Array(Schema.String),
+  tube: Schema.OptionFromOptional(TubeModel),
 });
 
 export type ReaderPageFlags = typeof ReaderFlags.Type;

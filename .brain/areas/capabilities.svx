@@ -69,7 +69,11 @@ The projections in `packages/capability` provide:
 - Code mode, which combines capability calls in one program inside a restricted environment.
 See [one capability, every surface](/lore/one-capability-every-surface) for why.
 
-ratstack.sh serves seven: `search`, `read`, `backlinks`, `neighbors`, `mentions`, `path`, and `execute`. The registry lives in `apps/site/src/capabilities/index.ts`. The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
+The hosted registry includes content search and graph traversal, flags, prompts, CAFE news and profiles, learning, code mode, and `joinInterest`.
+[`apps/site/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts) composes that registry.
+[Live OpenAPI](/openapi.json) lists its HTTP operations. Optional feedback operations depend on the auth configuration.
+
+The local command line projects the core registry in `apps/cli/src/surfaces.ts`.
 
 ## The standard
 
@@ -132,7 +136,7 @@ A downstream storage adapter owns its statement and row limits.
 
 ## How to check
 
-- `curl -sS https://ratstack.sh/openapi.json | jq -r '.paths | keys[]'` lists one route per capability. The MCP `tools/list` request in the [agent guide](/llms.txt) returns the same seven names.
+- `curl -sS https://ratstack.sh/openapi.json | jq -r '.paths | keys[]'` lists the current HTTP operations. Compare them with MCP `tools/list` using the request in the [agent guide](/llms.txt). Do not assume a fixed capability count.
 - `pnpm --filter @rat-stack/capability test` covers input rejection before the handler and typed failures as tool errors. It checks approval denial as a 403 and a typed tool error, denial by default, and code-mode calls through capability schemas.
 - `pnpm lint` fails on any callable interface built outside `packages/capability`.
 - `pnpm --filter @rat-stack/capability exec vitest run test/catalog.test.ts test/sandbox-limits.test.ts test/sandbox-conformance.test.ts test/code-mode-context.test.ts` checks discovery, search pages, limits, and captured services.

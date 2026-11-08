@@ -81,7 +81,7 @@ export const wikiProseStyleWarnings = (
 
   const prose = characters
     .join("")
-    .replace(quoted, (span) => span.replaceAll(/[^\n]/gu, "\uFFFC"));
+    .replaceAll(quoted, (span) => span.replaceAll(/[^\n]/gu, "\uFFFC"));
 
   return prose.split("\n").flatMap((text, index) =>
     patterns.flatMap(({ kind, pattern }) =>

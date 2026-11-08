@@ -7,7 +7,7 @@ import {
   pageTitle,
   structuredData,
 } from "../scripts/seo-metadata.ts";
-import { sitemapXml } from "../src/content.ts";
+import { robotsText, sitemapXml } from "../src/content.ts";
 import {
   catalog,
   homeDocumentHtml,
@@ -15,6 +15,20 @@ import {
   loreSources,
   skillSources,
 } from "./generated-content.ts";
+
+it("every robots group declares the same content-use policy", () => {
+  const groups = robotsText
+    .split(/\n\n/u)
+    .filter((group) => group.startsWith("User-agent:"));
+
+  expect(groups.length).toBeGreaterThan(0);
+
+  for (const group of groups) {
+    expect(group).toContain(
+      "Content-Signal: ai-train=no, search=yes, ai-input=yes"
+    );
+  }
+});
 
 const Publisher = Schema.Struct({
   "@type": Schema.Literal("Organization"),
@@ -35,16 +49,20 @@ const Article = Schema.Struct({
   url: Schema.String,
 });
 
-const jsonLd = (html: string) => {
+const jsonLd = (html: string, type = "TechArticle") => {
   const blocks = [
     ...html.matchAll(
       /<script type="application\/ld\+json">(?<json>[^]*?)<\/script>/gu
     ),
   ];
 
-  expect(blocks).toHaveLength(1);
+  const matching = blocks.filter(
+    (block) => block.groups?.json?.includes(`"@type":"${type}"`) === true
+  );
 
-  return blocks[0]?.groups?.json ?? "";
+  expect(matching).toHaveLength(1);
+
+  return matching[0]?.groups?.json ?? "";
 };
 
 it.effect(
@@ -61,6 +79,31 @@ it.effect(
         expect(data.url).toBe(`__RATSTACK_ORIGIN__${page.routePath}`);
         expect(data.datePublished).toBe(page.datePublished);
         expect(data.dateModified).toBe(page.dateModified);
+
+        const breadcrumb = yield* Schema.decodeEffect(
+          Schema.fromJsonString(
+            Schema.Struct({
+              "@type": Schema.Literal("BreadcrumbList"),
+              itemListElement: Schema.Array(
+                Schema.Struct({
+                  "@type": Schema.Literal("ListItem"),
+                  item: Schema.String,
+                  name: Schema.String,
+                  position: Schema.Int,
+                })
+              ),
+            })
+          )
+        )(jsonLd(page.documentHtml, "BreadcrumbList"));
+
+        expect(
+          breadcrumb.itemListElement.map((item) => item.position)
+        ).toStrictEqual([1, 2]);
+        expect(breadcrumb.itemListElement[1]?.item).toBe(data.url);
+        expect(breadcrumb.itemListElement[1]?.name).toBe(page.title);
+        expect(page.documentHtml).toContain(
+          `href="${page.routePath.startsWith("/lore/") ? "/lore" : "/systems"}"`
+        );
 
         if (data.dateModified !== undefined) {
           expect(page.documentHtml).toContain(
@@ -83,13 +126,23 @@ it.effect(
         Schema.fromJsonString(
           Schema.Struct({
             "@type": Schema.Literal("WebSite"),
+            about: Schema.Struct({
+              "@type": Schema.Literal("SoftwareSourceCode"),
+              codeRepository: Schema.String,
+              programmingLanguage: Schema.Literal("TypeScript"),
+            }),
             name: Schema.Literal("rat-stack"),
+            publisher: Schema.Struct({ sameAs: Schema.Array(Schema.String) }),
             url: Schema.String,
           })
         )
-      )(jsonLd(homeDocumentHtml));
+      )(jsonLd(homeDocumentHtml, "WebSite"));
 
       expect(website.url).toBe("__RATSTACK_ORIGIN__");
+      expect(website.about.codeRepository).toBe(
+        "https://github.com/joelhooks/rat-stack"
+      );
+      expect(website.publisher.sameAs).toContain(website.about.codeRepository);
     })
 );
 
@@ -106,9 +159,11 @@ it.effect(
       expect(new Set(paths).size).toBe(paths.length);
 
       for (const page of [...lawSources, ...loreSources, ...skillSources]) {
-        expect(paths.includes(page.routePath)).toBe(
-          page.routePath !== "/log.md"
-        );
+        const indexable =
+          page.routePath !== "/log.md" &&
+          !page.routePath.startsWith("/tokenmaxx/");
+
+        expect(paths.includes(page.routePath)).toBe(indexable);
 
         const entry = xml
           .split("<url>")
@@ -118,7 +173,7 @@ it.effect(
 
         const date = page.dateModified ?? page.datePublished;
 
-        if (page.routePath === "/log.md") {
+        if (!indexable) {
           continue;
         }
 
@@ -193,7 +248,9 @@ it.prop(
     const xml = sitemapXml("https://ratstack.sh", dated);
 
     for (const page of dated.resources.filter(
-      (entry) => entry.routePath !== "/log.md"
+      (entry) =>
+        entry.routePath !== "/log.md" &&
+        !entry.routePath.startsWith("/tokenmaxx/")
     )) {
       const entry = xml
         .split("<url>")
@@ -232,7 +289,29 @@ it.prop(
 
     expect(data.headline).toBe(title);
     expect(data.description).toBe(text);
-    expect(html.match(/<script/gu)).toHaveLength(1);
+    expect(html.match(/<script/gu)).toHaveLength(2);
+  }
+);
+
+it.prop(
+  "only lore and systems articles receive breadcrumb structured data",
+  {
+    prefix: Arbitrary.schema(
+      Schema.Literals(["/lore/", "/systems/", "/skills/", "/resources/", "/"])
+    ),
+    text: Arbitrary.schema(Schema.String),
+  },
+  ({ prefix, text }) => {
+    const html = structuredData({
+      description: text,
+      origin: "https://ratstack.sh",
+      path: `${prefix}${encodeURIComponent(JSON.stringify(text))}`,
+      title: text,
+    });
+
+    expect(html.includes('"@type":"BreadcrumbList"')).toBe(
+      prefix === "/lore/" || prefix === "/systems/"
+    );
   }
 );
 

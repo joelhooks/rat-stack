@@ -46,12 +46,12 @@
   },
   "dependencies": {
     "effect": "4.1.2",
-    "shiki": "4.5.0"
+    "shiki": "4.6.0"
   },
   "devDependencies": {
     "@effect/platform-node": "4.1.2",
     "@effect/vitest": "4.1.2",
     "typescript": "7.0.2",
-    "vitest": "5.0.5"
+    "vitest": "5.1.0"
   }
 }

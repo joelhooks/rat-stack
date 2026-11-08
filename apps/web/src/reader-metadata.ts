@@ -19,13 +19,26 @@ export const readerMetadataHead = (
 ): string => {
   const canonical = `${origin}${metadata.canonicalPath}`;
   const image = `${origin}${metadata.ogImagePath}`;
-  const publisher = { "@type": "Organization", name: "rat-stack", url: origin };
+
+  const publisher = {
+    "@type": "Organization",
+    name: "rat-stack",
+    sameAs: ["https://github.com/joelhooks/rat-stack"],
+    url: origin,
+  };
 
   const data =
     metadata.jsonLd === "WebSite"
       ? {
           "@context": "https://schema.org",
           "@type": "WebSite",
+          about: {
+            "@type": "SoftwareSourceCode",
+            codeRepository: "https://github.com/joelhooks/rat-stack",
+            name: "rat-stack",
+            programmingLanguage: "TypeScript",
+            url: "https://github.com/joelhooks/rat-stack",
+          },
           description: metadata.description,
           name: "rat-stack",
           publisher,
@@ -43,6 +56,29 @@ export const readerMetadataHead = (
           publisher,
           url: canonical,
         };
+
+  const group = metadata.canonicalPath.startsWith("/lore/")
+    ? "lore"
+    : "systems";
+
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        item: `${origin}/${group}`,
+        name: group,
+        position: 1,
+      },
+      {
+        "@type": "ListItem",
+        item: canonical,
+        name: metadata.title.replace(/ \| rat-stack$/u, ""),
+        position: 2,
+      },
+    ],
+  };
 
   return [
     nameMeta("description", metadata.description),
@@ -66,8 +102,9 @@ export const readerMetadataHead = (
     ),
     ...(metadata.jsonLd === "none"
       ? []
-      : [
-          `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`,
-        ]),
+      : [data, ...(metadata.jsonLd === "TechArticle" ? [breadcrumbs] : [])].map(
+          (entry) =>
+            `<script type="application/ld+json">${JSON.stringify(entry).replaceAll("<", "\\u003c")}</script>`
+        )),
   ].join("\n");
 };

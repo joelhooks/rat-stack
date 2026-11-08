@@ -8,7 +8,9 @@ privacy: "public"
 
 # Move rat-stack to its own Alchemy state store
 
-Rat-stack's stacks live in the account's shared default store, `alchemy-state-store`, alongside other repos that still run Alchemy beta.83 and beta.84. Alchemy beta.85 upgrades a store to v8 on first deploy, and that upgrade is one-way. Rat-stack therefore moves to its own store first, on beta.84. The beta.85 bump then upgrades only that store.
+This runbook records the state-store move planned on 2026-11-02, before the Alchemy beta.85 upgrade. Its bootstrap and copy commands target beta.84.
+
+The current `apps/infra/src/state-store.ts` selects rat-stack's own store. [The ship procedure](../../skills/ship/references/project.md) describes current commands. This note contains no live completion receipt for the copy or a cleanup of the old store.
 
 ## What the code does
 

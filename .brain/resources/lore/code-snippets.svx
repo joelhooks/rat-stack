@@ -224,7 +224,7 @@ The [highlighter port](/lore/engine-neutral-tokens-keep-adapters-replaceable) ex
 - Language, alias, and theme catalogues.
 - An engine fingerprint: an identifier for the highlighter, version, and settings used in cache keys.
 
-The `/shiki` adapter uses the build-only Shiki 4.5.0 pin.
+The `/shiki` adapter uses the build-only Shiki 4.6.0 pin.
 Shiki token types stay inside that adapter.
 A `/plain` adapter supplies uncoloured tokens for core tests.
 

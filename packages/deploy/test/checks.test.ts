@@ -138,13 +138,18 @@ const bodyFor = (url: string, body: string) => {
   };
 };
 
+const markdownCanonicalHeader = (path: string, absolute: boolean) =>
+  `<${absolute ? "https://example.com" : ""}${path === "/log.md" ? "/log" : path}>; rel="canonical"`;
+
 it.effect.prop(
   "health requires valid protocols, matching content, workshop indexing, and submission instructions",
   {
     broken: Schema.Boolean,
     guideComplete: Schema.Boolean,
+    markdownCanonical: Schema.Boolean,
     matchesGeneration: Schema.Boolean,
     pageIndexable: Schema.Boolean,
+    sitemapChildrenExcluded: Schema.Boolean,
     sitemapListed: Schema.Boolean,
     subpathsNoindex: Schema.Boolean,
   },
@@ -154,6 +159,8 @@ it.effect.prop(
     matchesGeneration,
     pageIndexable,
     sitemapListed,
+    sitemapChildrenExcluded,
+    markdownCanonical,
     subpathsNoindex,
   }) =>
     Effect.gen(function* test() {
@@ -186,6 +193,7 @@ it.effect.prop(
           "cache-control": "no-store",
           "content-type": "application/json",
           etag: `W/"${matchesGeneration ? "test-generation" : "old-generation"}:default:${encodeURIComponent(path)}"`,
+          link: markdownCanonicalHeader(path, markdownCanonical),
           "x-content-generation": matchesGeneration
             ? "test-generation"
             : "old-generation",
@@ -195,9 +203,16 @@ it.effect.prop(
           headers.set("x-robots-tag", "noindex");
         }
 
-        const sitemapBody = sitemapListed
-          ? "<url><loc>https://example.com/tokenmaxx</loc></url>"
-          : "<urlset></urlset>";
+        const sitemapBody = [
+          "<urlset>",
+          ...(sitemapListed
+            ? ["<url><loc>https://example.com/tokenmaxx</loc></url>"]
+            : []),
+          ...(sitemapChildrenExcluded
+            ? []
+            : ["<url><loc>https://example.com/tokenmaxx/prep</loc></url>"]),
+          "</urlset>",
+        ].join("");
 
         const response =
           workshop || sitemap
@@ -221,15 +236,31 @@ it.effect.prop(
       ).pipe(Effect.provideService(HttpClient.HttpClient, client));
 
       expect(results.every((result) => gateOutcome(result) === "pass")).toBe(
-        !broken &&
-          guideComplete &&
-          matchesGeneration &&
-          pageIndexable &&
-          sitemapListed &&
-          subpathsNoindex
+        [
+          !broken,
+          guideComplete,
+          matchesGeneration,
+          pageIndexable,
+          sitemapListed,
+          sitemapChildrenExcluded,
+          markdownCanonical,
+          subpathsNoindex,
+        ].every(Boolean)
       );
-      expect(requests).toHaveLength(broken ? 28 : 27);
-      expect(results).toHaveLength(27);
+      expect(
+        results
+          .filter((result) => result.check === "markdown-canonicals")
+          .map(gateOutcome)
+      ).toStrictEqual([!broken && markdownCanonical ? "pass" : "fail"]);
+      expect(
+        results
+          .filter((result) => result.check === "tokenmaxx-sitemap")
+          .map(gateOutcome)
+      ).toStrictEqual([
+        !broken && sitemapListed && sitemapChildrenExcluded ? "pass" : "fail",
+      ]);
+      expect(requests).toHaveLength(broken ? 32 : 31);
+      expect(results).toHaveLength(28);
     }).pipe(Effect.scoped),
   { arbitrary: { runs: 50 } }
 );

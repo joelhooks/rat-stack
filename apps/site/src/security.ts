@@ -3,10 +3,12 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 const policy = (sources: {
   readonly base: string;
   readonly formAction: string;
+  readonly frames?: string;
+  readonly images?: string;
   readonly scripts: string;
   readonly styles: string;
 }) =>
-  `default-src 'none'; style-src ${sources.styles}; img-src 'self' data:; script-src ${sources.scripts}; connect-src 'self' https://cloudflareinsights.com; base-uri ${sources.base}; form-action ${sources.formAction}; frame-ancestors 'none'`;
+  `default-src 'none'; style-src ${sources.styles}; img-src 'self' data:${sources.images === undefined ? "" : ` ${sources.images}`}; script-src ${sources.scripts}; connect-src 'self' https://cloudflareinsights.com; base-uri ${sources.base}; form-action ${sources.formAction}; frame-ancestors 'none'${sources.frames === undefined ? "" : `; frame-src ${sources.frames}`}`;
 
 export const contentSecurityPolicy = (formAction: "'none'" | "'self'") =>
   policy({
@@ -16,12 +18,27 @@ export const contentSecurityPolicy = (formAction: "'none'" | "'self'") =>
     styles: "'unsafe-inline'",
   });
 
-export const readerContentSecurityPolicy = policy({
+const readerSources = {
   base: "'self'",
   formAction: "'none'",
   scripts: "'self' https://static.cloudflareinsights.com",
   styles: "'self' 'unsafe-inline'",
+} as const;
+
+export const readerContentSecurityPolicy = policy(readerSources);
+
+export const tubePagePath = "/tube";
+
+export const tubeContentSecurityPolicy = policy({
+  ...readerSources,
+  frames: "https://www.youtube-nocookie.com",
+  images: "https://i.ytimg.com",
 });
+
+export const readerPagePolicy = (pagePath: string) =>
+  pagePath === tubePagePath
+    ? tubeContentSecurityPolicy
+    : readerContentSecurityPolicy;
 
 export const securityHeaders = {
   "cross-origin-opener-policy": "same-origin",

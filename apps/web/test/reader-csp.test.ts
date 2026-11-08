@@ -2,32 +2,84 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
 
-import { readerContentSecurityPolicy } from "../../site/src/security.js";
+import {
+  readerContentSecurityPolicy,
+  readerPagePolicy,
+  tubeContentSecurityPolicy,
+  tubePagePath,
+} from "../../site/src/security.js";
 
-const directives = new Map(
-  readerContentSecurityPolicy.split(";").map((directive) => {
-    const [name = "", ...sources] = directive.trim().split(/\s+/u);
+const directivesOf = (policy: string) =>
+  new Map(
+    policy.split(";").map((directive) => {
+      const [name = "", ...sources] = directive.trim().split(/\s+/u);
 
-    return [name, sources] as const;
-  })
-);
+      return [name, sources] as const;
+    })
+  );
 
-const sourcesFor = (name: string) =>
-  directives.get(name) ?? directives.get("default-src") ?? [];
+const directives = directivesOf(readerContentSecurityPolicy);
+
+const sourcesIn =
+  (policy: ReadonlyMap<string, readonly string[]>) => (name: string) =>
+    policy.get(name) ?? policy.get("default-src") ?? [];
+
+const sourcesFor = sourcesIn(directives);
 
 const sameOrigin = (url: string) =>
   url.startsWith("/") && !url.startsWith("//");
 
 const dataSchemes = new Set(["application/json", "application/ld+json"]);
 
-const allows = (name: string, url: string) => {
-  const sources = sourcesFor(name);
+const allowsIn =
+  (policy: ReadonlyMap<string, readonly string[]>) =>
+  (name: string, url: string) => {
+    const sources = sourcesIn(policy)(name);
 
-  return (
-    (sameOrigin(url) && sources.includes("'self'")) ||
-    (url.startsWith("data:") && sources.includes("data:"))
-  );
+    return (
+      (sameOrigin(url) && sources.includes("'self'")) ||
+      (url.startsWith("data:") && sources.includes("data:")) ||
+      (url.startsWith("https://") && sources.includes(new URL(url).origin))
+    );
+  };
+
+const allows = allowsIn(directives);
+
+const routeOf = (client: string, file: string) => {
+  const route = file.slice(client.length).replace(/\/?index\.html$/u, "");
+
+  return route === "" ? "/" : route;
 };
+
+it("only /tube widens the reader policy, by YouTube's image host and the nocookie player", () => {
+  expect(tubeContentSecurityPolicy).toBe(
+    "default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src https://www.youtube-nocookie.com"
+  );
+
+  expect(directivesOf(tubeContentSecurityPolicy)).toEqual(
+    new Map([
+      ...directives,
+      [
+        "img-src",
+        [...(directives.get("img-src") ?? []), "https://i.ytimg.com"],
+      ],
+      ["frame-src", ["https://www.youtube-nocookie.com"]],
+    ])
+  );
+
+  expect(readerPagePolicy(tubePagePath)).toBe(tubeContentSecurityPolicy);
+
+  for (const path of [
+    "/",
+    "/tube/",
+    "/tube.md",
+    "/tubes",
+    "/news",
+    "/search",
+  ]) {
+    expect(readerPagePolicy(path), path).toBe(readerContentSecurityPolicy);
+  }
+});
 
 it.layer(NodeServices.layer)((test) => {
   test.effect(
@@ -50,20 +102,29 @@ it.layer(NodeServices.layer)((test) => {
         expect(scripts.length).toBeGreaterThan(0);
 
         const pages = yield* Effect.forEach((file: string) =>
-          fs
-            .readFileString(file)
-            .pipe(
-              Effect.map((html) =>
-                new DOMParser().parseFromString(html, "text/html")
-              )
-            )
+          fs.readFileString(file).pipe(
+            Effect.map((html) => ({
+              document: new DOMParser().parseFromString(html, "text/html"),
+              route: routeOf(client, file),
+            }))
+          )
         )(files);
 
+        expect(pages.map(({ route }) => route)).toContain(tubePagePath);
+
         const inlineStyles = pages.some(
-          (document) => document.querySelector("style, [style]") !== null
+          ({ document }) => document.querySelector("style, [style]") !== null
         );
 
-        for (const document of pages) {
+        for (const { document, route } of pages) {
+          const pageAllows = allowsIn(directivesOf(readerPagePolicy(route)));
+
+          if (route !== tubePagePath) {
+            expect(readerPagePolicy(route), route).toBe(
+              readerContentSecurityPolicy
+            );
+          }
+
           for (const script of document.querySelectorAll("script")) {
             const source = script.getAttribute("src");
 
@@ -90,7 +151,7 @@ it.layer(NodeServices.layer)((test) => {
 
           for (const image of document.querySelectorAll("img")) {
             expect(
-              allows("img-src", image.getAttribute("src") ?? ""),
+              pageAllows("img-src", image.getAttribute("src") ?? ""),
               image.getAttribute("src") ?? ""
             ).toBe(true);
           }

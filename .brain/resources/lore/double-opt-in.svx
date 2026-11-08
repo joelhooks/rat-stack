@@ -17,7 +17,7 @@ terms:
   - "double opt-in"
   - "email confirmation"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/tokenmaxx-interest-form.svx
+  - url: https://github.com/joelhooks/rat-stack/blob/main/.brain/archives/projects/tokenmaxx-interest-form.svx
     title: "The tokenmaxx page and its double opt-in interest form"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Source of the confirmation-link definition and the mail-scanner rationale."
@@ -31,7 +31,7 @@ sources:
 
 # Double opt-in
 
-With [double opt-in](https://github.com/joelhooks/rat-stack/blob/main/.brain/projects/tokenmaxx-interest-form.svx), the visitor gets one confirmation email. They count only after using its link.
+With [double opt-in](https://github.com/joelhooks/rat-stack/blob/main/.brain/archives/projects/tokenmaxx-interest-form.svx), the visitor gets one confirmation email. They count only after using its link.
 
 GET is the HTTP method for reading a page.
 The link opens a page with a button because:

@@ -14,6 +14,8 @@ import {
 import {
   readerContentSecurityPolicy,
   securityHeaders,
+  tubeContentSecurityPolicy,
+  tubePagePath,
 } from "../src/security.js";
 
 const browserHeaders = [
@@ -39,6 +41,7 @@ const forwardedPath = Schema.Struct({
     "/prompts",
     "/prompts/",
     "/assets/",
+    "/tube",
   ]),
   slug: Schema.String,
 });
@@ -150,12 +153,18 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
           linkHeaderForPage(
             upstream.status < 500 && catalog.pageRoutes.includes(path)
               ? path
-              : "/"
+              : "/",
+            "https://ratstack.sh"
           )
         );
 
+        const pagePolicy =
+          path === tubePagePath
+            ? tubeContentSecurityPolicy
+            : readerContentSecurityPolicy;
+
         expect(response.headers["content-security-policy"]).toBe(
-          html ? readerContentSecurityPolicy : undefined
+          html ? pagePolicy : undefined
         );
 
         if (html || upstream.status >= 500) {

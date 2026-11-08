@@ -76,7 +76,7 @@ export const llmsText = (
   catalog: ContentCatalog
 ) => `# ratstack.sh
 
-Build an app and its cloud infrastructure in one TypeScript program.
+> Build an app and its cloud infrastructure in one TypeScript program.
 
 Effect describes work with typed failures and required services. A service is a named interface for one job. Alchemy declares cloud resources and plans changes before applying them.
 
@@ -93,6 +93,7 @@ The fence is the compiler checks, lint rules, and hooks that reject prohibited c
 - [CAFE news](${origin}/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
 - [CAFE directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool. Suggest entries through GitHub with the approval steps below.
 ${catalog.llmsAllStarsLinks.replaceAll(originToken, origin)}
+- [Ratstack Tube](${origin}/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each
 - [Docs search](${origin}/search): search the rules, lore, skills, and prompts in a browser; \`?q=\` opens a query; agents call the \`search\` and \`read\` tools
 
 ## Connect with MCP
@@ -198,7 +199,12 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 User-agent: GPTBot
 User-agent: OAI-SearchBot
-User-agent: Claude-Web
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
 User-agent: Google-Extended
 User-agent: Amazonbot
 User-agent: anthropic-ai
@@ -206,6 +212,7 @@ User-agent: Bytespider
 User-agent: CCBot
 User-agent: Applebot-Extended
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://ratstack.sh/sitemap.xml
 `;
@@ -245,9 +252,9 @@ export const sitemapXml = (
   catalog: ContentCatalog
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...catalog.pageRoutes, "/tokenmaxx"]
+${[...new Set([...catalog.pageRoutes, "/tokenmaxx"])]
   .flatMap((path) => {
-    if (path === "/log.md") {
+    if (path === "/log.md" || path.startsWith("/tokenmaxx/")) {
       return [];
     }
 
@@ -271,15 +278,20 @@ const serviceLinkHeaders = [
   `</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
 ];
 
-export const linkHeaderForPage = (pagePath: string) =>
+export const linkHeaderForPage = (pagePath: string, origin: string) =>
   [
     ...serviceLinkHeaders,
+    ...(pagePath.endsWith(".md") || pagePath === "/log"
+      ? [
+          `<${origin}${pagePath === "/log.md" ? "/log" : pagePath}>; rel="canonical"`,
+        ]
+      : []),
     ...markdownDiscoveryLinks(pagePath).map(
       (link) => `<${link.href}>; rel="${link.rel}"; type="${link.type}"`
     ),
   ].join(", ");
 
-export const linkHeader = linkHeaderForPage("/");
+export const linkHeader = linkHeaderForPage("/", "https://ratstack.sh");
 
 export const agentSkillsIndex = (catalog: ContentCatalog) => ({
   $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",

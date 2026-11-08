@@ -74,6 +74,15 @@ export default defineConfig({
     ...foldkitOverrides,
     {
       files: [
+        "**/*.{test,spec,test-d,spec-d}.{ts,tsx,js,jsx,mts,cts,mjs,cjs}",
+        "**/__tests__/**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}",
+      ],
+      rules: {
+        "promise/prefer-await-to-then": "off",
+      },
+    },
+    {
+      files: [
         "**/*.{test,spec,test-d,spec-d}.{mts,cts,mjs,cjs}",
         "**/__tests__/**/*.{mts,cts,mjs,cjs}",
       ],
@@ -140,6 +149,7 @@ export default defineConfig({
     "no-comments/directive-reason": "error",
     "no-comments/no-comments": "error",
     "oxc/no-accumulating-spread": "error",
+    "promise/prefer-await-to-then": "error",
     "rat-stack-boundaries/no-browser-globals-on-server": "error",
     "rat-stack-boundaries/no-code-snippets-in-runtime": "error",
     "rat-stack-boundaries/no-core-adapters": "error",
@@ -158,6 +168,7 @@ export default defineConfig({
     "rat-stack-patterns/shared-waiters": "error",
     "rat-stack-patterns/watch-effect-actors": "error",
     "typescript/promise-function-async": "off",
+    "unicorn/no-useless-undefined": ["error", { checkArguments: true }],
     "unicorn/throw-new-error": "off",
     "xstate-effect/no-inline-effect": "error",
   },
