@@ -21,6 +21,16 @@ export type TubeTierValue = typeof TubeTier.Type;
 
 export const tubeTiers = TubeTier.literals;
 
+export const TubeBasis = Schema.Literals([
+  "transcript",
+  "description",
+  "watched-chapters",
+]);
+
+export type TubeBasisValue = typeof TubeBasis.Type;
+
+export const tubeBases = TubeBasis.literals;
+
 export const YoutubeVideoId = Schema.String.check(
   Schema.isPattern(/^[A-Za-z0-9_-]{11}$/u)
 );
@@ -50,6 +60,7 @@ export const TubeTake = Schema.String.check(
 );
 
 export const TubeVideo = Schema.Struct({
+  basis: TubeBasis,
   channel: TubeLine,
   channelUrl: TubeHttpsUrl,
   checked: IsoDate,
@@ -74,7 +85,11 @@ export type TubeDataValue = typeof TubeData.Type;
 export const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 
 export const thumbnailUrl = (id: string) =>
-  `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+export const thumbnailWidth = 320;
+
+export const thumbnailHeight = 180;
 
 export const embedUrl = (id: string) =>
   `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;

@@ -16,6 +16,7 @@ const model: TubeModel = {
   playing: Option.none(),
   videos: [
     {
+      basis: "transcript",
       channel: "Strange Loop Conference",
       channelUrl: "https://www.youtube.com/@StrangeLoopConf",
       checked: Schema.decodeSync(IsoDate)("2026-11-08"),

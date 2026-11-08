@@ -13,6 +13,7 @@ const listed = ["PxIBWjiv3og", "SxdOUGdseq4", "k4UXEfZf3sc"] as const;
 const model: TubeModel = {
   playing: Option.none(),
   videos: listed.map((id) => ({
+    basis: "description",
     channel: "A channel",
     channelUrl: "https://www.youtube.com/@channel",
     checked: Schema.decodeSync(IsoDate)("2026-11-08"),

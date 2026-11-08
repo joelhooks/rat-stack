@@ -1,4 +1,8 @@
-import type { TubeThemeValue, TubeTierValue } from "../../client/tube/data.js";
+import type {
+  TubeBasisValue,
+  TubeThemeValue,
+  TubeTierValue,
+} from "../../client/tube/data.js";
 
 export const tubeRoutePath = "/tube";
 
@@ -16,7 +20,7 @@ export const tubeCopy = {
   picksIntro: "The S tier, in order:",
   playLabel: "Play here",
   rankRule:
-    "Tiers run from S to F by how useful the video is to someone learning this stack. Within a tier, order is editorial. Titles, channels, durations and dates come from YouTube and carry the date we checked them.",
+    "Tiers run from S to F by how useful the video is to someone learning this stack. Within a tier, order is editorial. Titles, channels, durations and dates come from YouTube. Each entry shows the date we checked it and what its take was checked against.",
   themesLabel: "Themes",
 };
 
@@ -61,3 +65,14 @@ export const themeCopy = {
 >;
 
 export const tierLabel = (tier: TubeTierValue) => `${tier} tier`;
+
+const basisCopy: Readonly<Record<TubeBasisValue, string>> = {
+  description: "the description",
+  transcript: "the transcript",
+  "watched-chapters": "the chapters, watched",
+};
+
+export const checkedLabel = (video: {
+  readonly basis: TubeBasisValue;
+  readonly checked: string;
+}) => `checked ${video.checked} against ${basisCopy[video.basis]}`;

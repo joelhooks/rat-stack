@@ -10,7 +10,7 @@ import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { thumbnailUrl, tubeTiers } from "../src/client/tube/data.js";
 import { view } from "../src/features/reader.js";
-import { tubeRoutePath } from "../src/features/tube/copy.js";
+import { checkedLabel, tubeRoutePath } from "../src/features/tube/copy.js";
 import { isReaderRoutePath } from "../src/reader-routes.js";
 
 const htmlText = (value: string) =>
@@ -55,6 +55,7 @@ it.effect("/tube prerenders every ranked video as a link with no player", () =>
       expect(rendered.html).toContain(`href="${htmlText(video.url)}"`);
       expect(rendered.html).toContain(`src="${thumbnailUrl(video.id)}"`);
       expect(rendered.html).toContain(htmlText(video.take));
+      expect(rendered.html).toContain(htmlText(checkedLabel(video)));
     }
   }).pipe(Effect.provide(NodeServices.layer))
 );

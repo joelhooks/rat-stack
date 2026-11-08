@@ -42,13 +42,13 @@ Every title links to the video on youtube.com, so a card still works when an ima
 ## The standard
 
 - Titles and channels come from YouTube's oEmbed endpoint. Durations and publish dates come from the video page. Each entry records the date it was checked in `checked`.
-- A take must match what the video covers, checked against its description, chapters or transcript. A video whose content cannot be confirmed stays off the list.
+- A take says only what its source supports. `basis` records the source: `transcript`, `description` (which includes a chapter list in the description), or `watched-chapters`. Each card shows its check date and basis. A video whose content cannot be confirmed stays off the list.
 - The list links and embeds only. It never rehosts a video or a thumbnail.
 - `/tube` is the only reader page whose content security policy allows images from `https://i.ytimg.com` and frames from `https://www.youtube-nocookie.com`. Every other page keeps the reader policy unchanged.
 - The page says that thumbnails and played videos load from YouTube.
-- The content build rejects a missing or long take, an unknown theme, and a duplicate id. It also rejects a URL that is not https or does not point at its own video. Each failure is a fence message that names the entry and the field.
+- The content build rejects a missing or long take, an unknown theme or basis, and a duplicate id. It also rejects a URL that is not https or does not point at its own video. Each failure is a fence message that names the entry and the field.
 
-To add a video, append an entry to `.brain/data/tube.json` with facts from YouTube and the date you checked them, then rebuild.
+To add a video, append an entry to `.brain/data/tube.json` with facts from YouTube, the date you checked them, and the `basis` you checked the take against, then rebuild.
 To remove one, delete its entry.
 
 ## How to check

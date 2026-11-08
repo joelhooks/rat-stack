@@ -11,6 +11,7 @@
       "theme": "effect",
       "tier": "S",
       "take": "The opening keynote of Effect Days 2024 makes the case for Effect: production TypeScript has to handle errors, retries, timeouts and observability, and Effect gives you one set of primitives for all of them. Start here to learn why the stack is built on it.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -24,6 +25,7 @@
       "theme": "effect",
       "tier": "S",
       "take": "Ethan Niser's four-hour workshop goes from what an Effect is to running effects, error handling, context, resources, Schema and fibers, with the workshop code in a public repo. Work through it once and the rest of this list gets easier.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -37,6 +39,7 @@
       "theme": "effect",
       "tier": "S",
       "take": "Maxwell Brown builds an app out of services, then provides them with layers, including layers that own resources and layers that depend on other layers. It is the clearest walk through the service-and-layer shape this stack uses everywhere.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -49,7 +52,8 @@
       "published": "2026-06-25",
       "theme": "effect",
       "tier": "S",
-      "take": "Mattia Manzati shows how to keep agent-written code honest with Effect: the language service, Effect TSGo, policy as code through linting, tests, and watching the code run. You learn how compiler checks and lint rules keep agent output in line, the same kind of fence this stack runs.",
+      "take": "Mattia Manzati shows how to keep agent-written code honest with Effect: the Effect LSP turns a missing requirement into a plain diagnostic where the compiler only reports an assignability error, then lint rules, tests, and watching the code run. It is the same kind of fence this stack runs.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -63,6 +67,7 @@
       "theme": "effect",
       "tier": "A",
       "take": "Michael Arnaldi walks through what changed in Effect 4.0: smaller bundles, a simpler runtime, the new queue API, STM in core and simpler Layer APIs. Watch it to understand the version this stack pins.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -76,6 +81,7 @@
       "theme": "effect",
       "tier": "A",
       "take": "Kit Langton rebuilds the core idea of an effect system from thunks, then adds repeat, retry, timing and a generator syntax on top. You learn why describing work as a value is what makes those combinators possible.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -89,6 +95,7 @@
       "theme": "effect",
       "tier": "A",
       "take": "Matt Pocock gives a fast tour of Effect's syntax, typed errors and dependency injection, and why he came round to it. A good first look if you have thirteen minutes.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -102,6 +109,7 @@
       "theme": "effect",
       "tier": "A",
       "take": "Lucas Barake covers Effect Schema v4 from a basic struct to transformations, discriminated unions, normalizing API data and a real boundary example. Schemas are the contract in this stack, so this is required reading in video form.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -115,6 +123,7 @@
       "theme": "effect",
       "tier": "A",
       "take": "Antoine Coulon explains structured concurrency and how Effect's fibers and scopes keep the relationships between concurrent tasks, so interruption and cleanup work. Ten minutes on the concurrency model under every Effect program.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -128,6 +137,7 @@
       "theme": "effect",
       "tier": "B",
       "take": "Kit Langton talks with Johannes Schickling about bringing Effect into OpenCode: Schema and branded IDs, services and layers, testing LLM workflows, and incremental adoption in a large TypeScript codebase. Watch it to see a real migration rather than a demo.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -141,6 +151,7 @@
       "theme": "effect",
       "tier": "B",
       "take": "Mattia Manzati tours Effect's developer tooling, including the language service plugin. This stack turns those language service diagnostics into build failures, so it helps to know where they come from.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -154,6 +165,7 @@
       "theme": "effect",
       "tier": "B",
       "take": "A short clip on what changed in Schema v4, effectful schemas, and schema representations. Useful after the crash course above.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -166,7 +178,8 @@
       "published": "2025-05-13",
       "theme": "effect",
       "tier": "B",
-      "take": "Tim Smart introduces Effect Cluster, a distributed runtime for Effect with durable workflows across nodes. Learn the vocabulary before you need durable execution.",
+      "take": "Tim Smart introduces Effect Cluster, built on Effect RPC, where runners own shards of entities and persistence lives in the messaging layer. Durable workflows build on top of it, so learn the vocabulary before you need durable execution.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -179,7 +192,8 @@
       "published": "2026-10-12",
       "theme": "effect",
       "tier": "B",
-      "take": "An office-hours segment that untangles how Effect Cluster, Effect Workflows and Cloudflare Durable Objects relate: cluster as an actor framework of sharded entities, and workflows that run on any engine with the right layer.",
+      "take": "An office-hours segment that untangles how Effect Cluster, Effect Workflows and Cloudflare Durable Objects relate: cluster as an actor framework of sharded entities, and workflows that run on a workflow engine layer, which today means the cluster engine or an in-memory one.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -193,6 +207,7 @@
       "theme": "effect",
       "tier": "C",
       "take": "Sandro Maglione covers when Effect earns its place in front-end code, how he sets a project up, and a worked example with separate client and server runtimes. Watch it if you are deciding how far Effect should reach into the browser.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -206,6 +221,7 @@
       "theme": "effect",
       "tier": "C",
       "take": "Ethan Niser's 2023 beginner video covers the Effect type, creating and running effects, pipelines, generators and error handling. The ideas hold, but the APIs predate Effect 4, so prefer the workshop above.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -219,6 +235,7 @@
       "theme": "alchemy",
       "tier": "S",
       "take": "Sam Goodwin builds a stack from zero with Alchemy and Effect: runtime code next to infrastructure, Durable Objects and WebSockets, testing, Alchemy against Terraform, and decoupling infrastructure with layers. The best single video on infrastructure as Effects.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -231,7 +248,8 @@
       "published": "2026-05-04",
       "theme": "alchemy",
       "tier": "A",
-      "take": "The first nine minutes of that office hours on their own: what Alchemy is, why it moved to Effect, and a demo where state lives in a Durable Object and swaps for local or in-memory state through layers.",
+      "take": "The first nine minutes of that office hours on their own: what Alchemy is, how v2 moved from async TypeScript to Effect, and a demo where state lives in a Durable Object and swaps for local or in-memory state through layers.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -244,7 +262,8 @@
       "published": "2026-06-05",
       "theme": "alchemy",
       "tier": "A",
-      "take": "A clip on Alchemy against Terraform: why Alchemy keeps a planned state rather than reconciling, and how layers keep the infrastructure decoupled. Watch it to understand why plans come before applies.",
+      "take": "Sam Goodwin on replacing Terraform with resources written in TypeScript and Effect, and why he keeps a plan you can audit and check before deploying rather than a pure reconciler. Then layers swap D1 for DynamoDB behind one Effect service.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -258,6 +277,7 @@
       "theme": "alchemy",
       "tier": "B",
       "take": "Sam Goodwin explains the bind-then-use pattern, where declaring a resource dependency also grants only the permissions it needs, and how layers keep heavy provider code out of the runtime bundle.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -271,6 +291,7 @@
       "theme": "alchemy",
       "tier": "C",
       "take": "A podcast with Sam Goodwin on Alchemy v2, his background building cloud tools, the Distilled SDKs, and why he calls it infrastructure as effects. Background listening once you have seen the demos.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -284,6 +305,7 @@
       "theme": "xstate",
       "tier": "S",
       "take": "David Khourshid shows how async/await hides errors and flow, models a video player as a state machine in XState, and ends on Effect and XState as complementary tools. It is the pairing this stack uses for lifecycles.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -296,7 +318,8 @@
       "published": "2024-05-14",
       "theme": "xstate",
       "tier": "A",
-      "take": "David Khourshid on using state machines to make edge cases explicit, the actions and actors that carry their effects, and the actor model. Pairs with the talk above and goes deeper on actors.",
+      "take": "David Khourshid on where state machines sit above Effect for workflows, the difference between actions that fire and forget and actors that are live entities, and the actor model he would like to see in Effect. Pairs with the talk above and goes deeper on actors.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -310,6 +333,7 @@
       "theme": "xstate",
       "tier": "A",
       "take": "The classic introduction to finite state machines and statecharts for UI: how they tame the growth of possible states, and how to implement, test and visualize them.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -323,6 +347,7 @@
       "theme": "xstate",
       "tier": "B",
       "take": "A long Stately webinar that builds a real app with XState v5: actors and machines, inspecting and visualizing logic, framework integration and TypeScript tips. This stack pins an XState 6 beta, so treat the API details as v5.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -336,6 +361,7 @@
       "theme": "typescript",
       "tier": "A",
       "take": "Anders Hejlsberg introduces TypeScript 7, the Go port of the compiler, with a live compile of the VS Code codebase and the new LSP language server. This stack pins TypeScript 7, so this is the compiler you are running.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -349,6 +375,7 @@
       "theme": "typescript",
       "tier": "A",
       "take": "The longer Build talk on the native port: why the team committed to it, why Go, how it changes your workflow, and the path to completion.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -362,6 +389,7 @@
       "theme": "typescript",
       "tier": "B",
       "take": "Jake Bailey on porting the 150,000-line compiler and its 90,000 tests to Go, the problems they hit and the lessons they learned. Watch it for the engineering story behind the speedup.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -375,6 +403,7 @@
       "theme": "typescript",
       "tier": "B",
       "take": "Matt Pocock explains generics from the type level up: passing type arguments, inference, and constraints. Effect's types lean on generics heavily, so this pays off quickly.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -388,6 +417,7 @@
       "theme": "agents",
       "tier": "S",
       "take": "Sunil Pai explains code mode, where the model writes code against an API instead of making JSON tool calls, and why that scales better, with sandboxing and capability-based security. This stack ships a code mode surface, and this is the idea behind it.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -401,6 +431,7 @@
       "theme": "agents",
       "tier": "A",
       "take": "Barry Zhang on three ideas from Anthropic's Building Effective Agents: don't build agents for everything, keep them simple, and think like your agent. Fifteen minutes that will change how you design tools.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -414,6 +445,7 @@
       "theme": "agents",
       "tier": "A",
       "take": "David Soria Parra lays out where MCP is going: skills, MCP and computer use as one stack, progressive discovery, programmatic tool calling, and advice for server authors.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -427,6 +459,7 @@
       "theme": "agents",
       "tier": "A",
       "take": "Barry Zhang and Mahesh Murag argue that agents need packaged expertise more than new scaffolding, and explain Skills as a minimal format for procedural knowledge an agent loads when it needs it.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -440,6 +473,7 @@
       "theme": "agents",
       "tier": "A",
       "take": "Simon Willison on the engineering practices that make coding agents work: tests as the core reliability tool, prompt injection and security, and getting more from current models.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -453,6 +487,7 @@
       "theme": "agents",
       "tier": "B",
       "take": "Anthropic's applied AI and research people define agents against workflows, look at the anatomy of an agent prompt, and give advice on where agents help and where they don't.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -465,7 +500,8 @@
       "published": "2026-02-26",
       "theme": "agents",
       "tier": "B",
-      "take": "This Week in NET on code mode with demos: the whole Cloudflare API behind two tools and roughly a thousand tokens of context, and agents that query real infrastructure.",
+      "take": "This Week in NET on code mode, with demos: more than 2,500 Cloudflare API endpoints behind two tools and about a thousand tokens of context.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -479,6 +515,7 @@
       "theme": "agents",
       "tier": "C",
       "take": "Andrej Karpathy's talk on Software 3.0: programming in English, LLMs as a new kind of operating system, and designing apps with partial autonomy. Big-picture context rather than technique.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -491,7 +528,8 @@
       "published": "2026-04-28",
       "theme": "cloudflare",
       "tier": "S",
-      "take": "Durable Objects explained by building a Slack-style chat: how they differ from stateless Workers, persistent SQLite state, and WebSocket broadcast in under seventy lines. Watch it before reading any Durable Object code.",
+      "take": "Durable Objects explained by building a Slack-style chat: SQLite state, WebSocket broadcast and hibernation in under seventy lines, and why that makes them stateful serverless functions rather than just storage. Watch it before reading any Durable Object code.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -504,7 +542,8 @@
       "published": "2026-06-23",
       "theme": "cloudflare",
       "tier": "A",
-      "take": "Five minutes on what a Worker is: V8 isolates, the edge network, cold starts, and converting an Express app to a Worker with Hono.",
+      "take": "Five minutes on what a Worker is: V8 isolates instead of containers, scaling to zero on Cloudflare's global network, and converting an Express app to a Worker with Hono.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -517,7 +556,8 @@
       "published": "2025-05-14",
       "theme": "cloudflare",
       "tier": "A",
-      "take": "Josh Howard from Cloudflare explains how Durable Objects and D1 work under the hood: isolates, replication, routing, and what is coming. The deep dive once the basics click.",
+      "take": "Josh Howard from Cloudflare explains how Durable Objects and D1 work under the hood: isolates, replicated storage, and routing every request for an object to one place. The deep dive once the basics click.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -531,6 +571,7 @@
       "theme": "cloudflare",
       "tier": "B",
       "take": "Ashley Peacock from the Durable Objects team on building resilient long-running agents on stateful infrastructure: platform retries and failure recovery, graceful deploys that protect running state, and lifecycle management.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -543,7 +584,8 @@
       "published": "2024-10-24",
       "theme": "cloudflare",
       "tier": "B",
-      "take": "An introduction to Cloudflare Workflows and durable execution: code that resumes where it left off when the host fails, with retries and metrics per step.",
+      "take": "An introduction to Cloudflare Workflows: durable execution that runs in the background in steps, with built-in retries and the ability to sleep for a set time.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -557,6 +599,7 @@
       "theme": "cloudflare",
       "tier": "B",
       "take": "Builds an event-driven app with Cloudflare Queues, moving slow work such as sending email out of the request path so each part scales on its own.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -570,6 +613,7 @@
       "theme": "cloudflare",
       "tier": "B",
       "take": "Kenton Varda on Cap'n Web, which returns references to live server objects instead of data: promise pipelining, lifecycle management, and why capability-based RPC is a better security model for agents than handing them tokens.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -583,6 +627,7 @@
       "theme": "cloudflare",
       "tier": "C",
       "take": "Justin Schroeder on building an agent cloud entirely on Cloudflare, with Durable Objects as long-lived agents and Workers composing them with storage, queues, models and sandboxed code.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -596,6 +641,7 @@
       "theme": "cloudflare",
       "tier": "C",
       "take": "A quick tour of newer Workflows features: human in the loop, sleeping and hibernation, rollbacks, inspecting state locally, and cron triggers.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -609,6 +655,7 @@
       "theme": "systems",
       "tier": "S",
       "take": "Rich Hickey separates simple, meaning not braided together, from easy, meaning close at hand, and argues that reliability needs simplicity. The vocabulary behind this stack's uncomplect skill.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -621,7 +668,8 @@
       "published": "2014-03-26",
       "theme": "systems",
       "tier": "S",
-      "take": "John Hughes, co-inventor of QuickCheck, shows why example tests cannot keep up with feature interactions and race conditions, and how generated tests against a model find the bugs. This is why the stack prefers property and model tests.",
+      "take": "John Hughes shows why example tests cannot keep up with interactions between features and with race conditions, and how QuickCheck tests generated from a state machine model find those bugs and shrink them to a minimal failing case. This is why the stack prefers property and model tests.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -635,6 +683,7 @@
       "theme": "systems",
       "tier": "A",
       "take": "John Hughes gives five strategies for finding properties of pure functions, compares how well each finds bugs, and names the biggest pitfall. The practical companion to the talk above.",
+      "basis": "description",
       "checked": "2026-11-08"
     },
     {
@@ -648,6 +697,7 @@
       "theme": "systems",
       "tier": "A",
       "take": "Leslie Lamport argues that every program deserves a specification written before the code, the way a building gets a blueprint, and especially concurrent and distributed ones.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -660,7 +710,8 @@
       "published": "2017-10-02",
       "theme": "systems",
       "tier": "A",
-      "take": "Hillel Wayne introduces TLA+ through practical examples: specifying a system and its properties, and catching stalls, races and dropped messages in the design before they reach code.",
+      "take": "Hillel Wayne introduces TLA+ through practical examples: writing a specification to check a design, and catching race conditions, duplicated money and deadlocks before they reach code.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -674,6 +725,7 @@
       "theme": "systems",
       "tier": "A",
       "take": "Rich Hickey on values: immutable facts you can compare and share, against places you update in place. The same idea sits behind this stack's rule to store source facts and derive the rest.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -687,6 +739,7 @@
       "theme": "systems",
       "tier": "B",
       "take": "Scott Wlaschin shows how to use types to model a domain so that some incorrect states cannot be written at all. It carries straight over to Effect Schema.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -699,7 +752,8 @@
       "published": "2012-11-25",
       "theme": "systems",
       "tier": "B",
-      "take": "Gary Bernhardt starts from testing in isolation and works toward a design that isolates naturally: values over mutation, data dependencies over interface dependencies.",
+      "take": "Gary Bernhardt starts from isolated unit tests and works toward a design that makes isolation natural: a functional core of values, wrapped in a thin imperative shell that talks to the outside world.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -712,7 +766,8 @@
       "published": "2021-03-26",
       "theme": "systems",
       "tier": "B",
-      "take": "Joe Armstrong on building systems from small isolated parts that talk through defined protocols, expecting failure, detecting and correcting errors at run time, and changing code while it runs.",
+      "take": "Joe Armstrong on systems that run for a very long time: isolated processes with private memory that talk only by message passing, expecting crashes and fixing them as they run, and changing the code while it executes.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -725,7 +780,8 @@
       "published": "2012-12-16",
       "theme": "systems",
       "tier": "C",
-      "take": "Rich Hickey on the value of thinking about a problem for a long time before coding: stating the problem, understanding it, and letting your background mind work on it.",
+      "take": "Rich Hickey on thinking about a problem for a long time before coding: identifying and understanding it, then letting your background mind work on it while your waking mind steps back.",
+      "basis": "transcript",
       "checked": "2026-11-08"
     },
     {
@@ -739,6 +795,7 @@
       "theme": "systems",
       "tier": "C",
       "take": "Martin Kleppmann on what transactions are for, why they got a reputation for being slow, and the newer algorithms that make them scale. Background for choosing what a store guarantees.",
+      "basis": "description",
       "checked": "2026-11-08"
     }
   ]

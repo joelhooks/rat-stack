@@ -4,6 +4,10 @@ import * as Arbitrary from "effect/Arbitrary";
 
 import { fenceMessage } from "../../../packages/core/test/fixtures/fence-message.js";
 import {
+  tubeDataUnreadable,
+  tubeManifestMissing,
+} from "../../site/scripts/reader-tube-flags.ts";
+import {
   decodeTubeData,
   tubeDataProblems,
   unreadableTubeFile,
@@ -32,6 +36,7 @@ const video = (generated: {
   readonly theme: string;
   readonly tier: string;
 }) => ({
+  basis: "transcript",
   channel: "Effect | TypeScript for the AI Era",
   channelUrl: "https://www.youtube.com/@effect-ts",
   checked: "2026-11-08",
@@ -77,6 +82,10 @@ const faults = {
 
     return { entry: withoutTake, expected: `${where} has no valid take` };
   },
+  unknownBasis: (target: Video, _first: Video, where: string) => ({
+    entry: { ...target, basis: "vibes" },
+    expected: `${where}.basis is not a take basis`,
+  }),
   unknownTheme: (target: Video, _first: Video, where: string) => ({
     entry: { ...target, theme: "rust" },
     expected: `${where}.theme is not a tube theme`,
@@ -89,6 +98,7 @@ const fault = Arbitrary.schema(
     "httpUrl",
     "longTake",
     "missingTake",
+    "unknownBasis",
     "unknownTheme",
   ])
 );
@@ -181,4 +191,10 @@ describe("tube data validation", () => {
         expect(fenceMessage(unreadableTubeFile)).toBeDefined();
       })
   );
+
+  it("the reader's tube input failures read as fence messages", () => {
+    for (const message of [tubeManifestMissing, tubeDataUnreadable]) {
+      expect(fenceMessage(message), message).toBeDefined();
+    }
+  });
 });

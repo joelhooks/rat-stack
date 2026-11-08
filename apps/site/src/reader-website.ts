@@ -3,11 +3,7 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
 import { acceptsHtml } from "./negotiation.js";
-import {
-  readerContentSecurityPolicy,
-  readerPagePolicy,
-  secureResponse,
-} from "./security.js";
+import { readerContentSecurityPolicy, secureResponse } from "./security.js";
 import type { AssetBinding } from "./static-assets.js";
 
 export const readerWebsiteAssetPrefixes: readonly string[] = [
@@ -171,7 +167,7 @@ export const withReaderWebsite =
       const vary = headers.get("vary");
       headers.set("vary", vary === null ? "Accept" : `${vary}, Accept`);
 
-      const secured = yield* responseHeaders(
+      return yield* responseHeaders(
         pathname,
         HttpServerResponse.fromWeb(
           new Response(response.body, {
@@ -182,12 +178,4 @@ export const withReaderWebsite =
         ),
         new URL(original.url).origin
       );
-
-      return secured.headers["content-security-policy"] === undefined
-        ? secured
-        : HttpServerResponse.setHeader(
-            secured,
-            "content-security-policy",
-            readerPagePolicy(pathname)
-          );
     });

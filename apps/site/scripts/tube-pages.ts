@@ -3,6 +3,7 @@ import { Effect, Option, Result, Schema, SchemaIssue } from "effect";
 import {
   formatDuration,
   rankTube,
+  tubeBases,
   TubeData,
   tubeThemes,
   TubeVideo,
@@ -10,6 +11,7 @@ import {
 } from "../../web/src/client/tube/data.ts";
 import type { TubeDataValue } from "../../web/src/client/tube/data.ts";
 import {
+  checkedLabel,
   themeCopy,
   tierLabel,
   tubeCopy,
@@ -38,10 +40,14 @@ const httpsProblem = (where: string, field: string, detail: string) =>
 const takeProblem = (where: string, _field: string, detail: string) =>
   `${where} has no valid take (${detail}). Every entry says what the viewer learns from the video. Fix: write one to three sentences in \`take\`, ending with a full stop.`;
 
+const basisProblem = (where: string, _field: string, detail: string) =>
+  `${where}.basis is not a take basis (${detail}). The basis records what the take was checked against, and the page shows it. Fix: set \`basis\` to ${tubeBases.map((basis) => `\`${basis}\``).join(", ")}, naming the source you checked the take against.`;
+
 const themeProblem = (where: string, _field: string, detail: string) =>
   `${where}.theme is not a tube theme (${detail}). The page groups videos under the themes in \`tubeThemes\`. Fix: use one of ${tubeThemes.map((theme) => `\`${theme}\``).join(", ")}, or add the theme to \`tubeThemes\` in \`${schemaFile}\`.`;
 
 const fieldProblems = new Map([
+  ["basis", basisProblem],
   ["channelUrl", httpsProblem],
   ["take", takeProblem],
   ["theme", themeProblem],
@@ -176,7 +182,7 @@ export const tubeMarkdown = (data: TubeDataValue) =>
             "",
             ...videos.map(
               (video) =>
-                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.url}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, checked ${video.checked}. ${video.take}`
+                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.url}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
             ),
             "",
           ];

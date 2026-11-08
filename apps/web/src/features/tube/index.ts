@@ -7,14 +7,16 @@ import type { Html, HtmlBuilder } from "foldkit/html";
 import {
   embedUrl,
   formatDuration,
+  thumbnailHeight,
   thumbnailUrl,
+  thumbnailWidth,
   tubeThemes,
 } from "../../client/tube/data.js";
 import type { TubeThemeValue, TubeVideoValue } from "../../client/tube/data.js";
 import { Message } from "../../client/tube/message.js";
 import type { TubeMessage } from "../../client/tube/message.js";
 import type { TubeModel } from "../../client/tube/model.js";
-import { themeCopy, tierLabel, tubeCopy } from "./copy.js";
+import { checkedLabel, themeCopy, tierLabel, tubeCopy } from "./copy.js";
 import { tubeStyles } from "./tube.stylex.js";
 
 const className = (style: stylex.StyleXStyles) =>
@@ -54,8 +56,8 @@ const mediaView = (
                 h.img([
                   h.Src(thumbnailUrl(video.id)),
                   h.Alt(`Video thumbnail for ${video.title}`),
-                  h.Width("480"),
-                  h.Height("270"),
+                  h.Width(String(thumbnailWidth)),
+                  h.Height(String(thumbnailHeight)),
                   h.Loading("lazy"),
                   h.Decoding("async"),
                   h.Referrerpolicy("no-referrer"),
@@ -101,7 +103,7 @@ const cardView = (
             [h.Href(video.channelUrl), h.Rel("noopener noreferrer")],
             [video.channel]
           ),
-          ` · ${formatDuration(video.durationSeconds)} · ${video.published.slice(0, 4)}`,
+          ` · ${formatDuration(video.durationSeconds)} · ${video.published.slice(0, 4)} · ${checkedLabel(video)}`,
         ]
       ),
       h.p([h.Class(className(tubeStyles.take))], [video.take]),
