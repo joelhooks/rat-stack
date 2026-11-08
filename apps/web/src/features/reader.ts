@@ -37,6 +37,7 @@ import {
   systemsRouter,
   tokenmaxxRouter,
 } from "./site-route.js";
+import * as TubeView from "./tube/index.js";
 
 const copyStatusText = CopyStatus.match({
   Copied: () => "Copied ✓",
@@ -318,6 +319,17 @@ const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
         slotId: "motion",
         toParentMessage: (message) => Message.GotMotionMessage({ message }),
         view: MotionView.view,
+      }),
+    ],
+  }),
+  ...Option.match(model.tube, {
+    onNone: () => [],
+    onSome: (tube) => [
+      h.submodel({
+        model: tube,
+        slotId: "tube",
+        toParentMessage: (message) => Message.GotTubeMessage({ message }),
+        view: TubeView.view,
       }),
     ],
   }),

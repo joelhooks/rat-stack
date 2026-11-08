@@ -8,6 +8,7 @@ import type { AppMessage as DocsMessage } from "../docs/message.js";
 import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
 import * as MotionDemo from "../motion/index.js";
+import * as Tube from "../tube/index.js";
 import { CopyReaderText, WaitBeforeCopyReset } from "./command.js";
 import { Message } from "./message.js";
 import type { ReaderMessage } from "./message.js";
@@ -60,6 +61,15 @@ const foldMotion = Update.foldChild({
     modifyFields(model, { motion: () => Option.some(motion) }),
 });
 
+const foldTube = Update.foldChild({
+  read: (model: ReaderModel) => model.tube,
+  toParentMessage: (message: Tube.TubeMessage) =>
+    Message.GotTubeMessage({ message }),
+  update: Tube.update,
+  write: (model: ReaderModel, tube: Tube.TubeModel) =>
+    modifyFields(model, { tube: () => Option.some(tube) }),
+});
+
 export const update = (
   model: ReaderModel,
   message: ReaderMessage
@@ -94,6 +104,8 @@ export const update = (
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>
         foldMotion(model, motionMessage),
+      GotTubeMessage: ({ message: tubeMessage }) =>
+        foldTube(model, tubeMessage),
       SucceededCopyReaderText: ({ id }) =>
         CopyStatus.guards.Copying(copyStatusOf(model, id))
           ? {

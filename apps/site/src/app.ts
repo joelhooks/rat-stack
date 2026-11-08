@@ -85,7 +85,7 @@ import { IncidentDetails, NoVerifyDetails } from "./reader-error-page.js";
 import { logRequestIncident } from "./request-incidents.js";
 import {
   contentSecurityPolicy,
-  readerContentSecurityPolicy,
+  readerPagePolicy,
   secureResponse,
 } from "./security.js";
 import { StaticAssets } from "./static-assets.js";
@@ -1006,7 +1006,7 @@ export const readerResponseHeaders =
       Effect.map((link) =>
         secureResponse(
           HttpServerResponse.setHeader(response, "Link", link),
-          readerContentSecurityPolicy
+          readerPagePolicy(pagePath)
         )
       )
     );

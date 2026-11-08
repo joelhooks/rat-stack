@@ -43,6 +43,7 @@ export const readerFlagsFixture: ReaderPageFlags = {
   references: Option.none(),
   snippets: [],
   terms: [],
+  tube: Option.none(),
 };
 
 export const readerModelFixture = initialModel(readerFlagsFixture);

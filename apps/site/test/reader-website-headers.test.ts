@@ -14,6 +14,8 @@ import {
 import {
   readerContentSecurityPolicy,
   securityHeaders,
+  tubeContentSecurityPolicy,
+  tubePagePath,
 } from "../src/security.js";
 
 const browserHeaders = [
@@ -39,6 +41,7 @@ const forwardedPath = Schema.Struct({
     "/prompts",
     "/prompts/",
     "/assets/",
+    "/tube",
   ]),
   slug: Schema.String,
 });
@@ -155,8 +158,13 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
           )
         );
 
+        const pagePolicy =
+          path === tubePagePath
+            ? tubeContentSecurityPolicy
+            : readerContentSecurityPolicy;
+
         expect(response.headers["content-security-policy"]).toBe(
-          html ? readerContentSecurityPolicy : undefined
+          html ? pagePolicy : undefined
         );
 
         if (html || upstream.status >= 500) {

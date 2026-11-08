@@ -40,6 +40,11 @@ import {
   newsCopy,
 } from "../../web/src/features/cafe/copy.ts";
 import { searchCopy } from "../../web/src/features/docs-copy.ts";
+import {
+  tubeCopy,
+  tubeDataPath,
+  tubeRoutePath,
+} from "../../web/src/features/tube/copy.ts";
 import { agentNextActions } from "../src/agent-guide.ts";
 import {
   ContentResourceSchema,
@@ -154,6 +159,7 @@ import {
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
 import { buildWorkshop } from "./tokenmaxx-workshop.ts";
+import { decodeTubeData, tubeBuildError, tubeMarkdown } from "./tube-pages.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -1208,6 +1214,15 @@ const program = Effect.gen(function* generateContent() {
     "/directory",
     directoryCopy.heading
   );
+
+  const tubeSource = yield* readText(tubeDataPath).pipe(
+    Effect.flatMap((text) =>
+      decodeTubeData(text).pipe(Effect.mapError(tubeBuildError))
+    ),
+    Effect.map(tubeMarkdown)
+  );
+
+  const tubeText = renderAgentPage(tubeSource, tubeRoutePath, tubeCopy.heading);
 
   const searchPageText = [
     `# ${searchCopy.heading}`,
@@ -2350,6 +2365,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
+    "- [Ratstack Tube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
     "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken, tokenmaxxTitle),
@@ -2393,6 +2409,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       profile.route,
       profile.avatar.path,
     ]),
+    tubeRoutePath,
     "/search",
     "/",
     "/skills",
@@ -3118,6 +3135,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: "/all-stars",
       title: allStarsCopy.heading,
     },
+    {
+      description: tubeCopy.description,
+      routePath: tubeRoutePath,
+      title: tubeCopy.heading,
+    },
     ...allStarsProfiles.map<OgPage>((profile) => ({
       description: profile.bio[0].text,
       routePath: `/all-stars/${profile.id}`,
@@ -3630,6 +3652,26 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const tubeBody = yield* compileMarkdownBody(
+    tubeSource,
+    "tube.md",
+    highlighter,
+    emptyTargets,
+    [],
+    tubeRoutePath
+  );
+
+  const tubeDocument = yield* makeDocument(
+    tubeBody.bodyHtml,
+    {
+      description: tubeCopy.description,
+      path: tubeRoutePath,
+      title: pageTitle(tubeCopy.heading),
+    },
+    tubeDataPath,
+    contentVersion
+  );
+
   const allStarsSources = yield* Effect.forEach(
     (page: (typeof allStarsPages)[number]) =>
       compileMarkdownBody(
@@ -3753,6 +3795,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/directory",
           "/all-stars",
           ...allStarsProfiles.map((profile) => profile.route),
+          tubeRoutePath,
           ...workshop.pages.map((page) => page.routePath),
           "/search",
         ],
@@ -3843,6 +3886,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: allStarsIndexText,
       },
       ...allStarsSources,
+      {
+        documentHtml: tubeDocument,
+        routePath: tubeRoutePath,
+        text: tubeText,
+      },
       ...workshopSources,
       {
         documentHtml: searchPageDocument,
