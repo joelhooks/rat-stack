@@ -508,8 +508,8 @@ export const localLayer = (
           return yield* stepError("apply", "plan-not-approved");
         }
 
-        const intended = [...value.resources, ...value.actions].flatMap(
-          (row) => (row.action === "noop" ? [] : [row.fqn])
+        const intended = [...value.resources, ...value.actions].flatMap((row) =>
+          row.action === "noop" ? [] : [row.fqn]
         );
 
         const interaction = yield* capabilityInteraction;
