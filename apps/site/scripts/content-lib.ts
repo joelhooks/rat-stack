@@ -1125,6 +1125,54 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "A limit on the total retry attempts that one owner allows across a call path.",
     term: "retry budget",
   },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "A Cloudflare message queue. A consumer Worker acknowledges or retries each message, and delivery is at least once.",
+    term: "Cloudflare Queues",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's streaming ingestion product, named Cloudflare.Pipelines in Alchemy. A stream receives events, SQL transforms them, and a sink writes them to R2.",
+    term: "Basin Pipelines",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's durable multi-step execution. Each step retries on its own, and a run can sleep or wait for an external event.",
+    term: "Cloudflare Workflows",
+  },
+  {
+    routePath: "/lore/queues-pipelines-workflows-and-k2-do-different-jobs",
+    summary:
+      "Cloudflare's durable event log. Every subscription reads every record, and records stay until retention ends.",
+    term: "K2",
+  },
+  {
+    routePath: "/lore/workers-answer-requests-durable-objects-own-named-state",
+    summary:
+      "Cloudflare's request handler. One isolate may serve many requests and can be evicted, so code must not rely on module state.",
+    term: "Worker",
+  },
+  {
+    routePath: "/lore/workers-answer-requests-durable-objects-own-named-state",
+    summary:
+      "A Cloudflare Worker with a globally unique name and private, strongly consistent storage. Requests reach it by name.",
+    term: "Durable Object",
+  },
+  {
+    routePath: "/lore/request-lifetime-is-not-durability",
+    summary:
+      "A Worker call that keeps work running after the response, within a shared post-response time allowance.",
+    term: "waitUntil",
+  },
+  {
+    routePath: "/lore/a-browser-send-follows-one-path",
+    summary:
+      "The browser UI framework in rat-stack. A program keeps a Model, handles Messages in update, and runs side effects as named Commands.",
+    term: "Foldkit",
+  },
 ];
 
 export const glossaryEntries = (

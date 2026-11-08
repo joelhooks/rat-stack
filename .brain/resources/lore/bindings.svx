@@ -21,13 +21,57 @@ sources:
     publisher: "Sam Goodwin"
     note: "Policy derivation discussion; used for least privilege from application methods."
     accessed: "2026-10-01"
+  - url: https://developers.cloudflare.com/workers/runtime-apis/bindings/
+    title: "Bindings (env)"
+    publisher: "Cloudflare"
+    note: "Bindings let a Worker interact with resources on the Cloudflare Developer Platform."
+    accessed: "2026-11-08"
+  - url: https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/Queues/Queue.ts
+    title: "Alchemy Queue resource at v2.0.0-beta.85"
+    publisher: "GitHub alchemy-run/alchemy"
+    note: "Use WriteQueue in the init phase and provide WriteQueueBinding in the runtime layer."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/events/src/basin.ts
+    title: "Basin event sink"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The events cartridge binds its Pipelines stream with WriteStream and WriteStreamBinding."
+    accessed: "2026-11-08"
 ---
 
-# Bindings
+**Goal:** connect a [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) to a resource it declares, and see what it gets back.
+
+A binding is a declared connection. On Cloudflare, it lets a Worker use a platform resource such as a bucket, a queue, or a stream. [Cloudflare bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)
+In [Alchemy](/skills/learn-alchemy), the binding is declared in the same [Effect](/lore/effect-basics) program as the resource.
+
+## Worked example: the events cartridge writes to a stream
+
+The events [cartridge](/lore/cartridges) sends one row per request to a Pipelines stream.
+It binds the stream in two steps:
+
+```ts repo=rat-stack path=packages/events/src/basin.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=56-57 {57} title="Init: ask for a writer bound to the stream"
+
+```
+
+```ts repo=rat-stack path=packages/events/src/basin.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=75 title="Runtime: provide the binding implementation"
+
+```
+
+1. `Cloudflare.Pipelines.WriteStream(stream)` names the stream this code writes to. It returns a writer with a `send` method.
+2. `Layer.provide(Cloudflare.Pipelines.WriteStreamBinding)` gives the [Layer](/lore/layers-make-dependencies-explicit) what it needs: it supplies the implementation that talks to the bound stream at runtime.
+
+Alchemy documents the same two steps for queues: `WriteQueue` in the init phase, and `WriteQueueBinding` in the runtime layer. [Queue.ts](https://github.com/alchemy-run/alchemy/blob/v2.0.0-beta.85/packages/cloudflare/src/Queues/Queue.ts)
+
+## Why a binding carries permission and configuration
 
 Sam says a binding includes both permissions and environment variables.
-A service's configuration and permissions can be declared together before the application runs. [Happy Path 116, 37:09](https://youtu.be/YEn4A7XxgF4?t=2229) [37:33](https://youtu.be/YEn4A7XxgF4?t=2253)
+A [service](/lore/services-capture-dependencies)'s configuration and permissions can be declared together before the application runs. [Happy Path 116, 37:09](https://youtu.be/YEn4A7XxgF4?t=2229) [37:33](https://youtu.be/YEn4A7XxgF4?t=2253)
 
-He also describes deriving least-privilege policies: permissions limited to the methods an application uses. [Effect Office Hours 27, 58:16](https://youtu.be/fPSxB7ZgSJw?t=3496) [59:23](https://youtu.be/fPSxB7ZgSJw?t=3563).
+He also describes deriving least-privilege policies: permissions limited to the methods an application uses. [Effect Office Hours 27, 58:16](https://youtu.be/fPSxB7ZgSJw?t=3496) [59:23](https://youtu.be/fPSxB7ZgSJw?t=3563)
+
+## Next
+
+Read [Queues, Pipelines, Workflows and K2 do different jobs](/lore/queues-pipelines-workflows-and-k2-do-different-jobs) to choose what to bind.
+Read [Workers answer requests; Durable Objects own named state](/lore/workers-answer-requests-durable-objects-own-named-state) to choose where state lives.
+Then read [cartridges](/lore/cartridges) for how a package owns its resources and bindings.
 
 See [Happy Path 116](/lore/happy-path-116-infrastructure-as-effects-sam-goodwin) and [Effect Office Hours 27](/lore/effect-office-hours-27-alchemy-infrastructure-as-effects).
