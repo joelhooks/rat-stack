@@ -1730,6 +1730,88 @@ const noSleepInLoop = defineRule({
   },
 });
 
+const isLiteralArgument = (
+  node: ESTree.Node | undefined,
+  value: number | string
+) => node?.type === "Literal" && node.value === value;
+
+const isMemberCall = (
+  node: ESTree.Expression,
+  member: string
+): node is ESTree.CallExpression & { callee: ESTree.MemberExpression } => {
+  if (node.type !== "CallExpression") {
+    return false;
+  }
+
+  const callee = unwrapExpression(node.callee);
+
+  return (
+    callee.type === "MemberExpression" && staticPropertyName(callee) === member
+  );
+};
+
+const isByteToHexPair = (node: ESTree.CallExpression) => {
+  if (
+    !isMemberCall(node, "padStart") ||
+    !isLiteralArgument(node.arguments[0], 2) ||
+    !isLiteralArgument(node.arguments[1], "0")
+  ) {
+    return false;
+  }
+
+  const radix = unwrapExpression(node.callee.object);
+
+  return (
+    isMemberCall(radix, "toString") && isLiteralArgument(radix.arguments[0], 16)
+  );
+};
+
+const isMapCallback = (node: ESTree.CallExpression) => {
+  let current: ESTree.Node | null = node.parent;
+
+  while (current !== null) {
+    if (
+      current.type === "ArrowFunctionExpression" ||
+      current.type === "FunctionExpression"
+    ) {
+      const owner = current.parent;
+
+      return (
+        owner?.type === "CallExpression" &&
+        isMemberCall(owner, "map") &&
+        owner.arguments.includes(current)
+      );
+    }
+
+    ({ parent: current } = current);
+  }
+
+  return false;
+};
+
+const noHandRolledHex = defineRule({
+  create(context) {
+    if (!isRuntimeSource(workspacePath(context.filename))) {
+      return {};
+    }
+
+    return {
+      CallExpression(node) {
+        if (isByteToHexPair(node) && isMapCallback(node)) {
+          context.report({ messageId: "hex", node });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: { description: "Encode bytes as hex with effect/encoding." },
+    messages: {
+      hex: 'This map hand-rolls hex encoding with `toString(16)` and `padStart(2, "0")`. Every copy is another encoder to keep lowercase and two digits per byte. Fix: call `Hex.encode(bytes)` from `effect/encoding`.',
+    },
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "rat-stack-patterns" },
   rules: {
@@ -1739,6 +1821,7 @@ export default definePlugin({
     "contract-binding-matches-name": contractBindingMatchesName,
     "flag-removal-date": flagRemovalDate,
     "learn-snippet-idiom": learnSnippetIdiom,
+    "no-hand-rolled-hex": noHandRolledHex,
     "no-module-level-mutable-state": noModuleLevelMutableState,
     "no-shared-pending-cache": noSharedPendingCache,
     "no-sleep-in-loop": noSleepInLoop,

@@ -1,5 +1,5 @@
 import { Context, Effect, Layer, Redacted, Result, Schema } from "effect";
-import { Base64Url } from "effect/encoding";
+import { Base64Url, Hex } from "effect/encoding";
 
 import { InvalidInterestToken } from "./invalid-interest-token.js";
 
@@ -127,9 +127,7 @@ export class InterestTokens extends Context.Service<
             )
           );
 
-          return [...new Uint8Array(mac)]
-            .map((byte) => byte.toString(16).padStart(2, "0"))
-            .join("");
+          return Hex.encode(new Uint8Array(mac));
         });
 
         return { digest, sign, verify } as const;

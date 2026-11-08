@@ -24,6 +24,7 @@ const rules = [
   "rat-stack-patterns/contract-binding-matches-name",
   "rat-stack-patterns/flag-removal-date",
   "rat-stack-patterns/learn-snippet-idiom",
+  "rat-stack-patterns/no-hand-rolled-hex",
   "rat-stack-patterns/no-module-level-mutable-state",
   "rat-stack-patterns/no-shared-pending-cache",
   "rat-stack-patterns/retain-needs-stage-policy",
@@ -157,6 +158,34 @@ describe("rat-stack pattern rules", () => {
       lintFixture(
         "packages/core/test",
         'import { Effect } from "effect"; function* work() { for (;;) { yield* Effect.sleep(1); } }'
+      ).status
+    ).toBe(0);
+  });
+  it("sends byte hex encoding to Hex.encode and leaves other radix formatting alone", () => {
+    const message = "This map hand-rolls hex encoding";
+
+    for (const area of ["apps/site/src", "packages/core/src"]) {
+      for (const source of [
+        'export const hex = (bytes: Uint8Array) => [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");',
+        'export const hex = (bytes: number[]) => bytes.map(function (byte) { return (byte).toString(16).padStart(2, "0"); }).join("");',
+      ]) {
+        expectRule(lintFixture(area, source), message);
+      }
+
+      for (const source of [
+        "export const hex = (bytes: Uint8Array) => Hex.encode(bytes);",
+        'export const channel = (unit: number) => Math.round(unit * 255).toString(16).padStart(2, "0");',
+        'export const escape = (points: number[]) => points.map((point) => point.toString(16).padStart(4, "0"));',
+        'export const octal = (bytes: number[]) => bytes.map((byte) => byte.toString(8).padStart(2, "0"));',
+      ]) {
+        expect(lintFixture(area, source).status).toBe(0);
+      }
+    }
+
+    expect(
+      lintFixture(
+        "packages/core/test",
+        'export const hex = (bytes: number[]) => bytes.map((byte) => byte.toString(16).padStart(2, "0"));'
       ).status
     ).toBe(0);
   });
