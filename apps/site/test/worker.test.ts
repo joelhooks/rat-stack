@@ -1326,7 +1326,51 @@ it.effect("serves agent indexes, cards, sitemap, and robots policy", () =>
 
       const llmsBody = yield* Effect.promise(llms.text.bind(llms));
       expect(llmsBody).toBe(llmsText("https://ratstack.sh"));
+      expect(llmsBody).toMatch(/^# ratstack\.sh\n\n> .+\n/u);
       expect(llmsBody).toContain("## Connect with MCP");
+
+      for (const route of [
+        "/AGENTS.md",
+        "/README.md",
+        "/VISION.md",
+        "/log.md",
+      ]) {
+        const response = yield* Effect.promise(() =>
+          handler(new Request(`http://localhost${route}`))
+        );
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get("x-robots-tag") ?? "").not.toContain(
+          "noindex"
+        );
+        expect(response.headers.get("link")).toContain(
+          `<${route === "/log.md" ? "/log" : route}>; rel="canonical"`
+        );
+      }
+
+      const sitemap = yield* Effect.promise(() =>
+        handler(new Request("http://localhost/sitemap.xml"))
+      );
+
+      const sitemapBody = yield* Effect.promise(() => sitemap.text());
+      expect(sitemapBody).toContain("<loc>https://ratstack.sh/tokenmaxx</loc>");
+
+      for (const route of [
+        "/tokenmaxx/exercises",
+        "/tokenmaxx/links",
+        "/tokenmaxx/prep",
+        "/tokenmaxx/schedule",
+      ]) {
+        const response = yield* Effect.promise(() =>
+          handler(new Request(`http://localhost${route}`))
+        );
+
+        expect(response.headers.get("x-robots-tag")).toBe("noindex");
+        expect(sitemapBody).not.toContain(
+          `<loc>https://ratstack.sh${route}</loc>`
+        );
+      }
+
       expect(llmsBody).toContain("Protocol 2026-07-28 is stateless");
       expect(llmsBody).toContain("no `initialize` handshake");
       expect(llmsBody).toContain("Mcp-Method: tools/list");

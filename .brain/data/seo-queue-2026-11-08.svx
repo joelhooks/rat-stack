@@ -1,0 +1,166 @@
+---
+title: "rat-stack search and answer-engine audit, 2026-11-08"
+type: resource
+status: active
+---
+
+# rat-stack search and answer-engine audit, 2026-11-08
+
+## Status
+
+This packet changes technical output and records a ranked content queue. It has not been deployed. The content queue is ranked using OpenSEO-supplied Search Console, keyword, SERP and backlink data received on 2026-11-08. Search Console covers 2026-10-08 through 2026-11-05. Keyword metrics use US/en. Missing keyword metrics are unknown, not zero. Difficulty scores and Bing Webmaster data remain unavailable.
+
+The repository and its generated content remain the source of truth. This file records observations and candidate work, not a second content ledger. No `.seo/` foundation was created in this bounded code change.
+
+## Live baseline
+
+Measured on 2026-11-08, before the changes in this packet. HTML requests sent `Accept: text/html`; requests without it receive Markdown. An extracted search result or a Markdown response cannot establish that JSON-LD is absent from HTML.
+
+| Check | Observation |
+| --- | --- |
+| Sitemap | `https://ratstack.sh/sitemap.xml` returned 200 and listed 251 unique URLs. All 251 returned 200. |
+| Indexing conflict | `/tokenmaxx/exercises`, `/tokenmaxx/links`, `/tokenmaxx/prep`, `/tokenmaxx/schedule` appeared in the sitemap but returned `X-Robots-Tag: noindex`. Their placeholder responses contain no HTML head. |
+| Canonicals and headings | The other 247 sitemap pages had self-referencing canonicals, an HTML language, a title, a description and one H1. |
+| Freshness | Eleven sitemap entries carried `lastmod`; none were later than 2026-11-08. Undated pages omit `lastmod`. The generator reads authored content dates, not build time. Absence of an authored date is not proof of staleness. |
+| Redirects | `http://ratstack.sh/` and `https://www.ratstack.sh/` returned 301 to `https://ratstack.sh/`. `/lore/` and `/lore/init-runs-twice/` returned 307 to the slashless path in one hop. |
+| Missing route | `/not-a-real-page` returned 404, not a soft 200. |
+| Link depth | A homepage crawl fetched 279 URLs, found 277 successful responses, completed within its 300-page limit, and reached all sitemap pages. No sitemap orphans were found. All successful pages were within three links of the homepage. |
+| Link exceptions | The generic GET checker flagged two intentional endpoints, described below. No actionable broken link remained after classifying them. |
+| Response speed | Across the 251 sitemap fetches, median TTFB was 82 ms and the nearest-rank p95 sample was 433 ms. These are one-location crawl timings, not Core Web Vitals. |
+| Page weight | `/log` returned 1,600,407 bytes of uncompressed HTML. The sampled homepage was 86,647 bytes, `/lore` 184,009 bytes, and `/lore/init-runs-twice` 41,160 bytes. |
+| Core Web Vitals | Unknown. No Lighthouse, browser measurement, PageSpeed or CrUX connection was available. Do not infer LCP, INP or CLS from TTFB. |
+
+### Intentional non-200 endpoints
+
+Exclude these endpoints from ordinary broken-page counts, while continuing to test their intended contracts:
+
+- `/--no-verify`: a deliberate 403 refusal page. `.brain/resources/lore/the-fence.svx:44` contains the flag in a code span; `apps/site/scripts/generate-content.ts:366` turns it into the trap link. Keep the link and refusal.
+- `/tokenmaxx/mcp`: an MCP endpoint that returns 405 to an ordinary GET. Test it with the MCP protocol rather than treating it as an HTML page.
+- `/api/execute`: a POST endpoint described as such in the agent guide. A GET returning 404 is not evidence that the documented POST capability is broken. Do not put it in a GET-only page liveness denominator.
+
+### Titles to review, not automatically consolidate
+
+The crawl found four duplicate title pairs. They serve different page roles, so shared titles alone do not establish duplicate content or justify redirects:
+
+- `/all-stars` and `/systems/all-stars`: `CAFE all stars | rat-stack`.
+- `/all-stars/davidkpiano` and `/lore/david-khourshid`: `David Khourshid | rat-stack`.
+- `/all-stars/mikearnaldi` and `/lore/michael-arnaldi`: `Michael Arnaldi | rat-stack`.
+- `/skills/durability` and `/systems/durability`: `Durability | rat-stack`.
+
+The lore/system titles are authored in frontmatter; profile titles describe the named people. No title rewrites were made without checking their distinct intents.
+
+## Technical changes
+
+- Exclude every `/tokenmaxx/` child route from the sitemap, matching the existing response-header noindex rule. Keep the workshop landing page `/tokenmaxx`. Deduplicate sitemap paths before serialization.
+- Extend the existing deployment sitemap check so it rejects workshop children in the public sitemap. Keep the landing-page and response-header checks.
+- Add HTTP `Link: rel="canonical"` to Markdown documents. `/AGENTS.md`, `/README.md` and `/VISION.md` retain self-canonicals and remain indexable: their repository instruction, overview and intent documents are distinct resources, not duplicate homepage URLs. `/log.md` canonicalizes to `/log`, whose HTML already owns the change-log intent. Both representations stay readable, and no agent access is blocked. Deployment checks exercise all four headers.
+- Keep existing `WebSite`, nested `Organization`, and `TechArticle` schema. Add the public repository as the publisher's `sameAs` and describe the homepage's subject as `SoftwareSourceCode` with its real code repository and TypeScript language.
+- Add `BreadcrumbList` to lore and system articles, using their visible collection and page title. Preserve script-safe serialization for arbitrary titles.
+- Name current OpenAI, Anthropic and Perplexity agents explicitly in `robots.txt`. Keep wildcard access and the existing content-signal policy unchanged. This is explicit policy documentation, not an unblock: all tested agents were already allowed.
+- Format the existing opening sentence of `/llms.txt` as a blockquote, in both runtime output and the generated source. No factual wording was changed.
+
+The schema changes apply to both generated documents and the reader's served head. They add static head data, not a content corpus in Worker startup code. No pricing, rating, review, release version, support promise, founding date or invented author was added.
+
+## Agent readiness
+
+The robots-policy checker allowed all 25 agents in its list, across retrieval, user-triggered and training categories. Six additional live requests using `GPTBot`, `OAI-SearchBot`, `ClaudeBot`, `Claude-SearchBot`, `PerplexityBot` and `Google-Extended` each returned 200 for `/lore/effect-basics`. This is evidence for those requests only; it does not prove that every crawler IP passes CDN rules.
+
+Official crawler references checked on 2026-11-08:
+
+- OpenAI: <https://platform.openai.com/docs/bots> names `GPTBot`, `OAI-SearchBot` and `ChatGPT-User`.
+- Anthropic: <https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler> names `ClaudeBot`, `Claude-User` and `Claude-SearchBot`. ClaudeBot is the training crawler; Claude-SearchBot is the search crawler.
+- Perplexity: <https://docs.perplexity.ai/guides/bots> names `PerplexityBot` and `Perplexity-User`.
+
+The live `/llms.txt` was 49,734 bytes and `/llms-full.txt` was 2,194,571 bytes. Keep the full corpus as one optional download: the short guide, per-page Markdown, search and read tools already provide narrower entry points. A large optional corpus is not evidence that every reader must download it. Split it only if actual client limits or retrieval measurements justify a discoverable partition scheme. `llms.txt` is an agent convention, not a demonstrated ranking factor.
+
+Discovery endpoints already exist for MCP, A2A, agent skills, OpenAPI and API catalogs. The live MCP discovery JSON returned 200. Markdown responses advertise service and alternate links. HTML contains readable body content before hydration, rather than an empty application shell.
+
+## Citation observations
+
+Method: six Brave-backed web-search queries, supplied on 2026-11-08. These are **search-result observations**, not generated ChatGPT, Claude, Gemini, Perplexity or Copilot answers. No engine mention rate, answer share or citation improvement can be calculated from them. No paid answer-engine panel was run.
+
+| Query | Observed result | Interpretation |
+| --- | --- | --- |
+| `what is rat-stack ratstack.sh` | `https://ratstack.sh/` led with the homepage definition and agent connection block. `/lore/structure-effect-by-domain` also appeared across the branded samples. | The site's own definition is discoverable. |
+| `ratstack npm package learn Effect` | The homepage led; Socket's npm package result appeared second with package README text. | The learning package is associated with the brand in this sample. |
+| `rat-stack Effect Alchemy XState template` | `https://github.com/joelhooks/rat-stack` led with an older indexed README. | Search freshness lag, not proof that the current README is wrong. |
+| `joelhooks rat-stack github` | The GitHub result showed Effect 4.0.7, `@xstate/effect` alpha.10 and Alchemy beta.84, while the inspected current README had Effect 4.1.2, XState beta.1 and Alchemy beta.85. | Do not copy stale snippets into current product claims. |
+| `Effect TypeScript Cloudflare Workers template Alchemy Foldkit` | ratstack.sh was absent; `https://github.com/just-be-dev/effect-cloudflare-foldkit-template` led. | A specific competing reference appears for the generic stack query. Validate demand and intent with OpenSEO before ranking a response. |
+| `best stack for building AI agents with Effect TypeScript` | ratstack.sh was absent. Framework listicles and an Effect case study appeared. | The broad query may not match this reference's intended audience. Do not make a generic agent-framework promise to chase it. |
+
+The homepage already had one `WebSite` JSON-LD block with an `Organization` publisher when fetched as HTML. An initial absence finding based on a Markdown response was withdrawn. The change adds repository identity; it does not repair an absent WebSite block.
+
+## OpenSEO evidence used
+
+The Search Console export contains 155 query rows and 129 page rows for the domain property. Query and page tables are separate aggregates: they do not establish a query-to-page pairing. The domain property also includes a separate subdomain site, excluded from this queue.
+
+The eight-keyword metrics batch returned US monthly search volume of 10 for `effect dependency injection` and 10 for `effect xstate`, with no difficulty score. It returned no data for `alchemy iac`, `alchemy infrastructure as code`, `effect alchemy`, `effect cloudflare workers`, `effect mcp server` or `ratstack`. No-data rows are not zero-volume rows. The provider labeled dependency injection transactional; the queue uses teaching intent because the observed result titles concern implementation and explanations.
+
+Two current SERP reads supplied these title observations:
+
+- `alchemy iac`: Alchemy documentation and product pages occupy nearly all of the top 20, including Getting started, CI, Phases and Stages. A Cloudflare community thread appeared at position 6. This is primarily navigational. Aim for a useful applied reference alongside the official docs, not to outrank Alchemy on its own name.
+- `effect dependency injection`: Effect Solutions appeared at position 2, a dependency-injection/algebraic article at 3, Why My Coding Agents Use Effect at 7, Effect? at 10, and Effect-ts, in practice at 13. Other results covered generic dependency injection. The tool returned Google redirect URLs rather than reliable destination domains; do not invent a domain-level competitor map from those links.
+
+Backlink overview: 25 backlinks, 15 referring domains and 22 referring pages. The returned rank value was 7 on the provider's unspecified scale. Among the listed referrers, `effect.website` supplied two backlinks. Other listed domains included zicq.com, kubaszwajka.com, netwrck.com and nitter.cf. The overview does not establish whether individual links are useful, live or spam, and it is not a complete link-prospecting audit.
+
+Research comprised one eight-seed metrics batch, two SERP queries and one domain backlink overview. The tools returned no credit-cost field. Cost is **unknown**, not zero; the research was recorded in the OpenSEO project log. No rank tracker was scheduled.
+
+## Ranked content queue
+
+Repairs in this packet precede editorial expansion. Among editorial actions, refresh observed pages before adding pages. Priority weighs relevance to the reference, existing impressions and position, evidence strength, effort and whether an existing owner already answers the intent. Small samples do not establish the cause of a low CTR. Test clearer titles and descriptions, then compare matched periods after Google recrawls; do not promise a lift.
+
+| Rank | Query or query hypothesis | Intent | Monthly volume / difficulty | Target | Evidence and action |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `ratstack learn Effect` (page-query association unverified) | Start learning from this reference | Unknown / unknown | Refresh `/learn` | GSC: 85 impressions, average position 5.8, zero clicks. Branded learning search surfaced the homepage and a package aggregator. Review title, description and the first useful action. Preserve the working learn flow. |
+| 2 | `Effect 4 reference projects` (page-query association unverified) | Find real applications to inspect | Unknown / unknown | Refresh `/resources/effect-4-reference-projects` | GSC: 118 impressions, position 6.3, one click (0.8%). Existing source-backed inventory beats another generic template page. Check the snippet against the inventory's actual selection criteria. |
+| 3 | `rat-stack systems Effect Alchemy` (page-query association unverified) | Find shipped systems and verification paths | Unknown / unknown | Refresh `/systems` | GSC: 101 impressions, position 5.0, one click (1.0%). Clarify what the system index offers without making a support promise. |
+| 4 | `learn Alchemy infrastructure as code` (page-query association unverified) | Follow an Alchemy implementation workflow | Unknown / unknown | Refresh `/skills/learn-alchemy` | GSC page: 92 impressions, position 8.1, one click (1.1%). The official product owns navigational Alchemy results; explain this skill's applied role rather than posing as official documentation. |
+| 5 | `effect dependency injection` | Understand and implement Effect services and Layers | 10 / unknown | Refresh `/lore/dependency-injection-is-the-reason-to-choose-effect` | GSC query: three impressions, position 10.7, zero clicks. Page: eight impressions, position 8.9, zero clicks. The current SERP includes Effect Solutions and generic DI articles. Improve the source-backed teaching answer and query-matching snippet; these are separate query/page aggregates, not an asserted pairing. |
+| 6 | `alchemy iac`; `alchemy infrastructure as code`; `effect alchemy` | Understand infrastructure inferred from application code | Unknown / unknown | Refresh `/lore/infrastructure-as-effects`, linked from `/skills/learn-alchemy` | GSC queries: 34 impressions at 8.8; five at 9.0; five at 7.6 respectively, all zero clicks. Existing owner page: four impressions at 3.0. Treat those aggregates separately. Add an applied answer supported by running code; keep official Alchemy docs as the primary learning source. |
+| 7 | `Effect TypeScript Cloudflare Workers template Alchemy Foldkit` | Evaluate an integrated application reference | Unknown / unknown | Refresh `/skills/learn-rat-stack`, linked from `/` | GSC page: 84 impressions, position 7.9, one click (1.2%). The independent 2026-11-08 stack-query sample returned the just-be-dev template and omitted ratstack.sh. Explain reference versus supported starter honestly. No second competing landing page is needed yet. |
+| 8 | `effect xstate` | Implement typed side effects and finite lifecycles | 10 / unknown | Refresh `/lore/lifecycles-are-machines` | Metrics report 10/month. GSC page: eight impressions, position 7.6, zero clicks. Use the real lifecycle and pinned bridge APIs, not an invented generic example. No query-level GSC row was supplied for this seed. |
+| 9 | `Effect MCP HTTP RPC one schema`; `Effect TypeScript MCP server` | Expose one typed capability on several surfaces | Unknown / unknown | Refresh `/lore/one-capability-every-surface` and `/lore/mcp-is-another-surface`; link `/systems/capabilities` | GSC pages: six impressions at 4.2 with zero clicks; nine at 5.0 with one click; capabilities 17 at 9.2 with zero clicks. Metrics returned no data for `effect mcp server`. Keep the two existing pages' architecture and transport intents distinct. |
+| 10 | `Effect TypeScript glossary` (page-query association unverified) | Resolve unfamiliar stack terms | Unknown / unknown | Refresh `/glossary` | GSC: 28 impressions, position 9.1, zero clicks. Improve the snippet only after checking which terms actually bring impressions. |
+
+## Unranked research hypotheses
+
+These lack enough demand or fit evidence to displace the ranked refreshes. Existing pages remain the default owners.
+
+| Query | Intent | Volume / difficulty | Target | Evidence and next check |
+| --- | --- | --- | --- | --- |
+| `Effect Cloudflare Workers initialization` | Diagnose deploy-time versus request-time initialization | Unknown / unknown | Refresh `/lore/init-runs-twice` | Existing first-hand failure explanation, not a generic framework pitch. Validate exact query wording and current search competitors. |
+| `Effect Layer constructor dependencies` | Choose a service construction pattern | Unknown / unknown | Refresh `/lore/layer-constructor-pattern` | Existing service and Layer documentation. GSC page: two impressions, position 29.5, zero clicks. No keyword-level demand measured yet. |
+| `best stack for building AI agents with Effect TypeScript` | Compare agent application stacks | Unknown / unknown | Evaluate `/skills/learn-rat-stack`; no new comparison page yet | Broad search sample omitted ratstack.sh. Confirm audience fit first: rat-stack is a reference, not a supported general-purpose agent framework. |
+
+## Verification before commit
+
+- `pnpm turbo run check test build`: passed, 91 of 91 tasks; site suite 90 files and 730 tests. This was the completed working-tree gate before commit, not a deployment check.
+- Property mutation: removing JSON-LD `<` escaping made the reader metadata test fail. The safe serializer was restored.
+- Route mutation: removing the sitemap's workshop-child filter made the live-handler seam fail on `/tokenmaxx/exercises`. The filter was restored.
+- Deployment-check mutation: ignoring the Markdown canonical header made the property fail with an unexpected pass verdict. Header validation was restored. Each new deployment verdict is checked independently, so unrelated failures cannot mask a missing guard.
+- Built reader HTML contains `WebSite` with `SoftwareSourceCode` on `/`, and `TechArticle` plus `BreadcrumbList` on `/lore/init-runs-twice`.
+- The generated manifest contains no route for this queue and no `/data/` page. The queue stays an audit artifact.
+- The Brain prose checker passes. The artifact uses `.svx` rather than the originally requested `.md`, per the brief amendment on 2026-11-08. No checker or baseline was changed.
+
+Static startup bytes, measured with `apps/site/scripts/startup-budget.ts` after preparing the original build and again through the changed gate:
+
+| Worker | Before | After | Ceiling |
+| --- | ---: | ---: | ---: |
+| Mischief | 1,095,262 | 1,095,539 | 1,114,000 |
+| LearnFeedbackAuth | 1,515,207 | 1,515,207 | 1,516,000 |
+| Workshop | 731,416 | 731,416 | 870,000 |
+| TurboCache | 475,734 | 475,734 | 480,000 |
+
+Mischief grew by 277 bytes for runtime policy and link output. The growing page metadata remains static build output. No ceiling or dependency pin changed. The auth worker's existing headroom remains narrow at 793 bytes.
+
+## Maintenance candidates and missing evidence
+
+- Reduce `/log` HTML weight without hiding useful history behind client-only rendering. Baseline: 1,600,407 bytes of HTML. The page implementation was outside this packet.
+- Review the four duplicate title pairs against distinct user intent. Do not merge based on the title alone.
+- Check IndexNow setup. No key file or submission integration was found in repository search. No submission was made. Add a verified key and submit only changed canonical URLs if the owner chooses to enable it; acknowledgement does not mean indexed.
+- Use the supplied Search Console page/query aggregates as a baseline, but obtain URL inspection and Google-selected canonical data before claiming index coverage or canonical adoption. Impressions do not prove the current indexed state of every URL.
+- Obtain Bing Webmaster data and inspect individual backlinks before classifying link quality, loss or spam. The OpenSEO overview supplies domain totals only.
+- Keep person pages focused on public work. Their larger impression counts do not justify targeting personal attributes, appearance or demographic queries.
+- Run a real answer-engine panel with web retrieval and retained response/citation evidence. The six search queries are a baseline proxy only.
+- Measure mobile Core Web Vitals through CrUX or PageSpeed, or record a clearly labeled Lighthouse lab run. Current response timings do not substitute.
+- After deployment, repeat the sitemap crawl, inspect raw HTML JSON-LD and response headers, and verify that no sitemap URL returns `noindex`. Before deployment, local passing tests do not establish changed live behavior.

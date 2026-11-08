@@ -94,6 +94,7 @@ export const structuredData = (input: {
   const publisher = {
     "@type": "Organization",
     name: "rat-stack",
+    sameAs: ["https://github.com/joelhooks/rat-stack"],
     url: input.origin,
   };
 
@@ -102,6 +103,13 @@ export const structuredData = (input: {
       ? {
           "@context": "https://schema.org",
           "@type": "WebSite",
+          about: {
+            "@type": "SoftwareSourceCode",
+            codeRepository: "https://github.com/joelhooks/rat-stack",
+            name: "rat-stack",
+            programmingLanguage: "TypeScript",
+            url: "https://github.com/joelhooks/rat-stack",
+          },
           description: input.description,
           name: "rat-stack",
           publisher,
@@ -119,5 +127,31 @@ export const structuredData = (input: {
           ...input.dates,
         };
 
-  return `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`;
+  const group = input.path.startsWith("/lore/") ? "lore" : "systems";
+
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        item: `${input.origin}/${group}`,
+        name: group,
+        position: 1,
+      },
+      {
+        "@type": "ListItem",
+        item: `${input.origin}${input.path}`,
+        name: input.title,
+        position: 2,
+      },
+    ],
+  };
+
+  return [data, ...(input.path === "/" ? [] : [breadcrumbs])]
+    .map(
+      (entry) =>
+        `<script type="application/ld+json">${JSON.stringify(entry).replaceAll("<", "\\u003c")}</script>`
+    )
+    .join("\n");
 };

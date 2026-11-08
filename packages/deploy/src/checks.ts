@@ -514,8 +514,31 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
 
           return (
             response.status === 200 &&
-            body.includes(`<loc>${url}/tokenmaxx</loc>`)
+            body.includes(`<loc>${url}/tokenmaxx</loc>`) &&
+            !body.includes(`<loc>${url}/tokenmaxx/`)
           );
+        })
+      ),
+      yield* measuredCheck(
+        "markdown-canonicals",
+        Effect.gen(function* markdownCanonicals() {
+          const matches = yield* Effect.forEach(
+            ["/AGENTS.md", "/README.md", "/VISION.md", "/log.md"],
+            (route) =>
+              client
+                .get(`${url}${route}`)
+                .pipe(
+                  Effect.map(
+                    (response) =>
+                      response.status === 200 &&
+                      response.headers.link?.includes(
+                        `<${route === "/log.md" ? "/log" : route}>; rel="canonical"`
+                      ) === true
+                  )
+                )
+          );
+
+          return matches.every(Boolean);
         })
       )
     );

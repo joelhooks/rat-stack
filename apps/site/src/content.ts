@@ -76,7 +76,7 @@ export const llmsText = (
   catalog: ContentCatalog
 ) => `# ratstack.sh
 
-Build an app and its cloud infrastructure in one TypeScript program.
+> Build an app and its cloud infrastructure in one TypeScript program.
 
 Effect describes work with typed failures and required services. A service is a named interface for one job. Alchemy declares cloud resources and plans changes before applying them.
 
@@ -198,7 +198,12 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 User-agent: GPTBot
 User-agent: OAI-SearchBot
-User-agent: Claude-Web
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
 User-agent: Google-Extended
 User-agent: Amazonbot
 User-agent: anthropic-ai
@@ -245,9 +250,9 @@ export const sitemapXml = (
   catalog: ContentCatalog
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...catalog.pageRoutes, "/tokenmaxx"]
+${[...new Set([...catalog.pageRoutes, "/tokenmaxx"])]
   .flatMap((path) => {
-    if (path === "/log.md") {
+    if (path === "/log.md" || path.startsWith("/tokenmaxx/")) {
       return [];
     }
 
@@ -274,6 +279,9 @@ const serviceLinkHeaders = [
 export const linkHeaderForPage = (pagePath: string) =>
   [
     ...serviceLinkHeaders,
+    ...(pagePath.endsWith(".md") || pagePath === "/log"
+      ? [`<${pagePath === "/log.md" ? "/log" : pagePath}>; rel="canonical"`]
+      : []),
     ...markdownDiscoveryLinks(pagePath).map(
       (link) => `<${link.href}>; rel="${link.rel}"; type="${link.type}"`
     ),
