@@ -19,15 +19,63 @@ sources:
     publisher: "Sam Goodwin"
     note: "Layer composition discussion; used for infrastructure carried with a service."
     accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/src/flag-journal.ts
+    title: "Flag journal service"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "FlagJournal.memory builds private state with Ref.make and returns methods with FlagJournal.of."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/code-snippets/src/drift.ts
+    title: "Source drift service"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Drift has two Layers: silent needs nothing, and layer needs SourceRepository."
+    accessed: "2026-11-08"
 ---
 
-# A Layer as constructor
+**Goal:** write a [Layer](/lore/layers-make-dependencies-explicit) the way you would write a class constructor.
 
-A Layer describes how to build a service and supply its dependencies.
-A service is the named interface callers use for a job.
+A Layer describes how to build a [service](/lore/services-capture-dependencies) and supply its dependencies.
+A service is the named [interface](/lore/one-schema-three-surfaces) callers use for a job.
 
-Sam compares the constructor pattern to a Layer and uses a React component as an analogy. In the same discussion, he connects the pattern to infrastructure policies. [Watch from 18:45](https://youtu.be/MtKHzAH6uXM?t=1125).
+## Worked example: a journal with private state
+
+`FlagJournal` records every change to a flag.
+Its `memory` Layer is a constructor:
+
+```ts repo=rat-stack path=packages/core/src/flag-journal.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=34-41 {38,40} title="Ref.make is a field; FlagJournal.of is the method table"
+
+```
+
+Read it as a class:
+
+- `Layer.effect(FlagJournal, …)` is the constructor for `FlagJournal`.
+- `Ref.make([])` creates a private field. Only the returned methods can reach `entries`.
+- `FlagJournal.of({ … })` returns the methods, checked against the service interface.
+
+Each build of the Layer runs the constructor once and creates a fresh `entries` list.
+
+## One service, two constructors
+
+A class can have more than one constructor. A service can have more than one Layer.
+`Drift` checks pinned code excerpts against the current source:
+
+```ts repo=rat-stack path=packages/code-snippets/src/drift.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=23-31 {24,28,31} title="silent needs nothing; layer needs SourceRepository"
+
+```
+
+- `Drift.silent` uses `Layer.succeed`. It needs nothing and reports nothing.
+- `Drift.layer` uses `Layer.effect`. Its constructor asks for `SourceRepository`, so the Layer carries that [requirement](/lore/effect-basics).
+
+Callers ask for `Drift` either way. The [composition root](/lore/structure-effect-by-domain) picks the constructor.
+
+## Why it matters
+
+A constructor argument becomes a Layer requirement. The type shows it, and the root must supply it.
+
+Sam compares the constructor pattern to a Layer and uses a React component as an analogy. In the same discussion, he connects the pattern to infrastructure policies. [Watch from 18:45](https://youtu.be/MtKHzAH6uXM?t=1125)
+
+## Next
+
+Read [Layers make dependencies explicit](/lore/layers-make-dependencies-explicit) to compose several Layers.
+Then read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).
 
 See [Sam Goodwin on Alchemy](/lore/devtools-fm-sam-goodwin-alchemy) and [cartridges](/lore/cartridges).
-
-Read [why dependency injection matters](/lore/dependency-injection-is-the-reason-to-choose-effect).

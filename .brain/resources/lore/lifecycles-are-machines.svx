@@ -20,6 +20,16 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Lifecycle rule; used for declared Effect actors and explicit states."
     accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/oxlint.config.ts
+    title: "rat-stack oxlint configuration"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Loads the @xstate/effect/oxlint plugin and sets xstate-effect/no-inline-effect to error."
+    accessed: "2026-11-08"
+  - url: https://github.com/joelhooks/rat-stack/blob/a3f5a14861ce89913e82bea0f7ba02c83e8d4725/packages/core/src/inspect-machine.ts
+    title: "Inspection machine at a3f5a14"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Pinned source for the excerpts on this page."
+    accessed: "2026-11-08"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/inspect-machine.ts
     title: "rat-stack/packages/core/src/inspect-machine.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
@@ -32,23 +42,61 @@ sources:
     accessed: "2026-10-01"
 ---
 
-Use an XState machine for the application's named states, retries, cancellation, or a lifecycle you need to resume or inspect.
+**Goal:** move a lifecycle out of boolean flags and into named states, with side effects in declared actors.
+
+A machine is a definition of named states and the events that move between them. Use an XState machine for the application's named states, retries, cancellation, or a lifecycle you need to resume or inspect.
 Model the states and the events that move between them instead of accumulating booleans whose combinations have no meaning.
 
 An actor is a running unit that performs declared work.
 A side effect is work outside the state description, such as reading a file.
-A scope owns cleanup when that work ends.
+A [Scope](/lore/scopes-own-resources) owns cleanup when that work ends.
+
+## Worked example: inspecting a file
+
+`packages/core/src/inspect-machine.ts` is the working example.
+It reads a file and ends in one of two final states.
+
+### 1. Declare the side effect as an actor
+
+```ts repo=rat-stack path=packages/core/src/inspect-machine.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=27-31 title="readStats is the only code that touches the file"
+
+```
+
+`createEffectLogic` defines an Effect-backed side effect with an input [Schema](/lore/schemas-define-the-boundary).
+
+### 2. Let the machine choose transitions
+
+```ts repo=rat-stack path=packages/core/src/inspect-machine.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=41-64 {45-47,52,58} title="reading invokes readStats, then lands in a final state"
+
+```
+
+`setupEffect` declares actors. The machine invokes `readStats` by name in the `reading` state.
+The machine chooses transitions and records its outcome. The invoked actor performs the file read.
+
+A read failure lands in `unreadable` with its cause. The failure is a state you can test.
+
+### 3. Start it inside Effect and wait for the outcome
+
+```ts repo=rat-stack path=packages/core/src/inspect-machine.ts at=a3f5a14861ce89913e82bea0f7ba02c83e8d4725 lines=67-70 {69-70} title="createEffectActor starts it; watchActor reports it"
+
+```
+
+`createEffectActor` starts the machine inside Effect's scope. `watchActor` makes the run visible to devtools.
+`join` waits for the final outcome. `Effect.orDie` treats a machine-level failure as a programming error. The domain read failure remains an explicit machine state.
+
+## Why a machine
+
+Two booleans, `loading` and `failed`, allow four combinations. Only three of them mean anything here.
+This machine has exactly three states: `reading`, `inspected`, and `unreadable`.
+
+The [fence](/lore/the-fence) keeps side effects in declared actors. `oxlint.config.ts` loads the lint plugin that `@xstate/effect` ships and sets `xstate-effect/no-inline-effect` to `error`. That rule catches inline Effects in machine actions and actors.
 
 The stack pins XState `6.0.0-beta.1` and `@xstate/effect` `1.0.0-beta.0` together.
 The [migration note](https://github.com/joelhooks/rat-stack/blob/main/.brain/archives/resources/xstate-alpha69-migration.svx#beta1-and-bridge-beta0) records the beta API changes and persistence audit.
 
-`setupEffect` declares actors. `createEffectLogic` defines an Effect-backed side effect with an input schema. `createEffectActor` starts the machine inside Effect's scope.
+## Next
 
-The machine chooses transitions and records its outcome. The invoked actor performs the file read.
-
-`join` waits for the final outcome. `Effect.orDie` treats a machine-level failure as a programming error. The domain read failure remains an explicit machine state.
-
-`packages/core/src/inspect-machine.ts` is the working example. `watchActor` makes the run visible to devtools. The rule in `scripts/oxlint-plugin-xstate-effect.ts` enforces declared actors by catching inline Effects in machine actions and actors.
+Use [the add-a-lifecycle-machine skill](/skills/add-a-lifecycle-machine) to build one.
 
 See [one capability, every surface](/lore/one-capability-every-surface) for how a capability can own a machine and [the fence](/lore/the-fence) for the rule that protects it.
 
