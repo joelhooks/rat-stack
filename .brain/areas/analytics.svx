@@ -116,7 +116,7 @@ Each event holds:
 
 ## Worker logs
 
-The three HTTP Worker declarations share `privateObservability` in `apps/site/src/observability.ts`:
+These HTTP Worker declarations use `privateObservability` from `apps/site/src/observability.ts`:
 
 - Mischief.
 - RpcBackend.
@@ -150,7 +150,7 @@ It records failed outcomes and traces with exceptions, including exceptions afte
 Successful traces without exceptions produce no object.
 Initialization exceptions keep their event time and script version even when the trace has no fetch event.
 
-The events cartridge owns the `CrashArchive` port and its R2 adapter.
+The `packages/crash` cartridge owns the `CrashArchive` port and its R2 adapter.
 A private `MischiefCrashBucket` holds one immutable JSON object per failed trace.
 Keys use `crashes/<UTC-day>/<random-id>.json`.
 Separate objects prevent concurrent deliveries from overwriting a daily file.
@@ -308,4 +308,4 @@ HTTP Workers use `privateObservability`; the tail Worker uses the stricter `sile
 
 ## Removing it
 
-The README's Keep or cut table lists every file and setting under "No analytics."
+The README's Keep or cut section lists the removal steps under "No analytics."

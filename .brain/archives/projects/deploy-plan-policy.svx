@@ -1,0 +1,112 @@
+---
+title: "Classify the native plan before applying it"
+status: archived
+---
+
+superseded by implemented deployment policy; current procedure is skills/ship/references/project.md, 2026-11-08.
+
+Historical record. Paths, versions, measurements and instructions below describe that work, not the current application.
+
+
+# Classify the native plan before applying it
+
+The Alchemy plan is the authority for proposed changes. The deploy adapter owns its in-memory snapshot. Rows and receipts are derived views.
+
+## Policy
+
+- Read the native plan, not terminal formatting.
+- Include resource, binding and task changes.
+- Pass only updates and noops without an exact allow entry.
+- Require separate owner sign-off for deletion, replacement, orphaning and unbinding.
+- Apply the same native plan under its original session.
+- Keep the XState lifecycle responsible for step order and terminal outcomes.
+- Send Alchemy confirmations through the capability approval service. Other unattended prompts fail typed.
+
+Retention protects physical objects, not state rows. Alchemy removes retained objects from state without deleting their cloud objects. The receipt lists confirmed retained orphans. A retention change appears as a noop and reaches state only on apply.
+
+## Build and live evidence
+
+Deploy commands build every workspace output before planning. The prepared receipt records the expected content generation before apply. Apply failures and crashes retain that intent.
+
+Content checks compare the built asset generation with live root and agent-text ETags. They request identity encoding and add a cache-busting query. They accept strong and weak ETags for the same generation. A missing header gives unknown, not pass. Evidence records the exact header.
+
+The readiness check makes at most two attempts. It records each outcome, duration, scan time and returned cache flags. A scan from before the apply cannot prove readiness. A scanner-reported site error remains red. A later fresh pass can settle the check without discarding the first failure.
+
+The apply receipt records prior live Worker version IDs before mutation.
+
+Alchemy beta.80 leaves `versionId` absent on ordinary full-cutover Worker uploads. Its state attributes provide the script name, not the authoritative live version. Post-apply readback queries deployment history for that physical name. It never substitutes the logical resource ID.
+
+Updated Workers wait for a single fully deployed version different from the recorded prior version. Noops can retain their current version. Readback uses bounded backoff with a 120-second default per Worker. `DEPLOY_WORKER_VERSION_DEADLINE_MS` declares the override. Receipts preserve attempts and failed observations. Successful uploads remain applied if readback cannot qualify them; failed readback verdicts prevent a healthy result.
+
+`deployRollback` restores them only after capability approval. It preserves the source receipt and writes separate progress evidence.
+
+Content propagation can lag a successful Worker apply. Mismatches retry with exponential backoff under an exported 120-second deadline. A declared environment override can shorten or extend that deadline. Verdicts retain each attempt and failed attempt. Deadline exhaustion stays red.
+
+The watch uses an XState lifecycle and declared Effect actors. It checks both Accept classes for ten minutes. Any real non-200 response fails after one observed cycle, even if its error body cannot be read. Real HTTP responses are never retried.
+
+Transport errors and timeouts get three request attempts, with 250 ms and 500 ms backoffs. Exhausted attempts record status 0 as inconclusive client evidence. Two consecutive cycles with transport failures on the same route fail with `persistent-transport-failure`. Two consecutive entirely unreachable cycles fail with `cycle-unreachable`. A healthy or unsampled cycle resets that route's transport streak.
+
+A transport-blip ratio above 5% fails with `transport-blip-ratio`. The limit is about five times the November 7 incident's 15 blips in 1,445 observations, or 1.04%. During the watch, failure waits until even an entirely healthy continuation cannot bring the ratio back to 5%. The observation ceiling includes recorded rows and every remaining cycle that could start before the deadline, assuming probes take no time. A zero cycle interval leaves that future ceiling unbounded until the deadline.
+
+The observer reports the actual number of requests it built for each cycle. The remaining-cycle ceiling uses that count, so Accept classes and sitemap slices do not have a second counting formula.
+
+At completion, the ratio uses the actual observation count. Passing watches retain every blip in evidence and count them separately from real non-200 responses. Route coverage requires a real response.
+
+## Provider failure evidence
+
+Failed apply receipts include `providerErrors`. The verdict and compact command report carry the same errors.
+
+Each error records the logical resource, Cloudflare error code and redacted message. Missing resource or code metadata stays `null`.
+
+The driver observes Worker upload error envelopes before the provider client converts them into typed failures. Some typed failures discard the API code. Alchemy's failed-resource events associate terminal failures with their logical resources. Span metadata separates concurrent uploads with identical messages.
+
+The driver stores only error codes and messages from API envelopes. It excludes request headers, request bodies and other response fields. It redacts known profile credentials, credential-shaped text, emails, network addresses, URLs and private home paths. Structured message dumps are omitted. These rules cannot identify every secret written as ordinary prose.
+
+A failed apply stops before health checks. Completed resources still produce a partial receipt. This capture does not change Alchemy, provider versions, retries or rollback policy.
+
+## Installed API boundary
+
+Checked against Alchemy 2.0.0-beta.81 and installed Effect 4.0.0 source on Oct 9.
+
+`Deploy.ts` runs `evalStack`, `Plan.make` and `Apply.apply`. The exported Alchemist stack route preserves the native plan and session between calls. The adapter uses that route because it also loads the entrypoint, selects the profile and refuses state-store bootstrap.
+
+Internal imports retained in `packages/deploy/src/local.ts`:
+
+| Import | Reason |
+| --- | --- |
+| `alchemy/Alchemist/routes/stack` | Keep the exact native plan and its session between machine steps. |
+| `alchemy/Alchemist/Session` | Load the entrypoint's auth-provider registry without applying the Stack. |
+| `alchemy/Auth/AuthProvider` | Resolve the selected provider; the root exports the registry but not its lookup function. |
+| `alchemy/Auth/Credentials` | Provide Alchemy's credential-store implementation. |
+| `alchemy/Auth/Profile` | Read and refresh the named profile using Alchemy's store. |
+| `alchemy/State/State` | Read persisted Worker attributes for version evidence. |
+
+Other imported Alchemy modules expose their services through exported subpaths. `Plan` and `AuthProviders` use root exports.
+
+## Recovery provider client
+
+The installed beta.81 source exports the Cloudflare credential service but does not re-export Worker API operations. Recovery therefore declares `@distilled.cloud/cloudflare` at exactly `1.0.0-rc.13`, the same version Alchemy depends on. Owner approval covers this importer-only dependency addition.
+
+`packages/deploy/test/provider-pin.test.ts` compares both declared pins. Remove the direct dependency when Alchemy exposes these operations through a public client. An Alchemy bump must keep both pins equal or replace the adapter; it cannot silently split clients.
+
+Recovery uses profile authentication and the typed `listScriptDeployments` / `createScriptDeployment` operations. It never selects environment credentials or forces a rollback past provider safety checks. Cloudflare deployment history remains authoritative for the live Worker version.
+
+Local apply receipts are recovery evidence, not a second infrastructure state store. The driver owns their atomic writes before mutation and after observed outcomes. Rollback records its own result without replacing the source apply receipt. Missing or malformed recovery evidence must refuse with a typed failure.
+
+## Proof seams
+
+- `apps/infra/test/retention.test.ts` compiles the real Stack with capture both on and off. It enumerates durable declarations without provider calls.
+- `packages/deploy/test/plan.test.ts` generates native-plan policy shapes. It tests exact exceptions and separate owner sign-off.
+- `packages/deploy/test/machine.model.test.ts` checks generated step histories and preserves prepared intent on an apply crash.
+- `packages/deploy/test/interaction.test.ts` checks the approval boundary and typed unattended refusal.
+- `packages/deploy/test/version-readiness.test.ts` checks stale, missing and fresh version evidence and bounded scan histories.
+- `packages/deploy/test/worker-version-readback.model.test.ts` models missing state IDs, delayed live listings and the complete production lifecycle. Restoring state-ID extraction or removing retry breaks it.
+- `packages/deploy/test/content-propagation.model.test.ts` models convergence and deadline exhaustion under virtual time. Removing retry makes it fail.
+- `packages/deploy/test/watch.model.test.ts` checks one-cycle HTTP failure, bounded incident evidence, and route sweeps.
+- `packages/deploy/test/watch-transport.model.test.ts` models transport streaks, route-specific resets, consecutive unreachable cycles, and the completed-watch blip ratio. It replays the November 7 incident and supplies an HTTP client layer to prove retries, the literal two-cycle threshold, early failure for alternating outages, and real-response-only coverage. `packages/deploy/test/watch-budget.model.test.ts` enumerates possible future probe cycles, models recoverable and irrecoverable prefixes, and pins the 4% passing and 6% failing examples.
+- `packages/deploy/test/rollback.test.ts` checks receipt refusal, idempotent restore and source preservation. Overwriting the apply receipt breaks it.
+- `packages/deploy/test/provider-pin.test.ts` checks the approved provider pin against Alchemy. A mismatched pin breaks it.
+- `packages/deploy/test/provider-failure.model.test.ts` generates concurrent fake upload failures and partial applies. It checks persisted receipts, verdicts, compact reports and credential redaction.
+- `packages/deploy/test/provider-evidence.test.ts` checks missing metadata and malformed diagnostics. The original response body remains readable by the provider.
+
+Removing bucket retention makes the Stack property fail. Removing owner-sign-off enforcement makes two plan properties fail. Preview lifecycle, expiry and CI remain separate work.

@@ -45,14 +45,14 @@ A held connection, a request, and a provider call in one scope is a braid. Separ
 - **Binding**: A connection that gives runtime code access to a resource.
 - **Machine**: Named states, events, and legal transitions for one lifecycle, defined with XState.
 - **Actor**: A running unit of work used by a machine.
-- **Feature**: A thin route and view that read client state and call named commands.
-- **Client**: The module that owns queries, commands, and a local copy of server data.
+- **Feature**: A thin route and view that read the Model and send Messages.
+- **Client**: The Foldkit program that owns the Model, Messages, update, and named Commands.
 - **Port**: An interface for an application job, independent of a provider.
 - **Adapter**: An implementation of a port for a particular provider.
 
 CLI means command-line interface. MCP lets agents discover and call tools. RPC lets a client call named server operations.
 
-Atoms hold observable client values. A property test checks a rule across generated inputs. A model test checks stateful rules across generated command sequences.
+The Model holds client state; update folds Messages into it. A property test checks a rule across generated inputs. A model test checks stateful rules across generated command sequences.
 
 ## Find combined responsibilities
 
@@ -65,7 +65,7 @@ Atoms hold observable client values. A property test checks a rule across genera
 ### Network calls and retries in a feature
 
 - Look for `fetch`, RPC construction, or retries inside `apps/web/src/features/**`.
-- Move network calls and retries into a client under `apps/web/src/client/`. Copy `apps/web/src/client/docs.ts`; features read atoms and call named commands.
+- Move network calls into named Commands under `apps/web/src/client/`. Copy `apps/web/src/client/docs/command.ts` and the docs Submodel update in `apps/web/src/features/app.ts`; views read the Model and send Messages.
 - `rat-stack-boundaries/no-feature-transport` blocks network calls in features. `rat-stack-boundaries/no-browser-server-imports` keeps handler imports outside browser modules.
 
 ### Provider code in a caller
@@ -101,7 +101,7 @@ Atoms hold observable client values. A property test checks a rule across genera
 ### Two places approving writes
 
 - Look for a cache or local copy of server data that decides a mutation independently of the Durable Object or database cartridge.
-- Keep the server authoritative. Clients in `apps/web/src/client/` update their local copies through `reactivityKeys`. Copy the contract-derived client in `apps/web/src/client/docs.ts` for reads. In domain-driven design (DDD), a read model is derived data arranged for queries. A rat-stack projection instead exposes capabilities through an interface.
+- Keep the server authoritative. Commands call the contract-derived `RpcClient` in `apps/web/src/client/docs/queries.ts`. Result Messages reach the docs Submodel update in `apps/web/src/features/app.ts`, which updates the Model. In domain-driven design (DDD), a read model is derived data arranged for queries. A rat-stack projection instead exposes capabilities through an interface.
 - **No fence yet** proving that local copies update correctly or that only the server approves writes. Candidate: a model test over command sequences with an outdated local copy.
 
 ### Service wrapper that hides nothing

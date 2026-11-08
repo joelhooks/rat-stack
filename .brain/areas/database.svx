@@ -55,7 +55,9 @@ Drizzle defines and queries tables in TypeScript. Migrations change the database
 
 Effect describes work with typed failures and required services. Schema describes accepted values and their runtime checks.
 
-The database's one caller is [auth](/systems/auth), which today runs only in the web app's dev server. The deployed ratstack.sh Worker does not use it. A clone that needs people and history starts here.
+[Auth](/systems/auth) uses the selected database vendor in the web development backend and the optional private `LearnFeedbackAuth` Worker.
+`AUTH_ENABLED` controls the public feedback sign-in surface. The database foundation stays declared when that surface is off.
+See `apps/site/src/auth/foundation.ts` and `apps/site/src/auth/private-worker.ts` for the composition.
 
 ## The standard
 

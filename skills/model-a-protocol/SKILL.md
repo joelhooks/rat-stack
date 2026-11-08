@@ -77,7 +77,9 @@ No rule forces a model onto every protocol yet. Reviewers ask for one when a cha
 
 On its first run, the join-intake model found three ways to lose owed work or an erase marker. The Durable Object store writes a record and its sweep index in two calls. Its `setState` reads and writes in two calls. And an erase can land inside the request's commit. Each is a weaker config with its harm and backstop in the README.
 
-Then it checked the fixes before anyone wrote them. Making the erase marker sticky in the Durable Object passed every invariant, and that fix shipped with a twin. The obvious fix for the index was to mark it before saving the record. The model refused it in four steps:
+Then it checked candidate fixes. Making the erase marker sticky passed the `JoinIntakeEraseSticky.cfg` invariants for late delivery writes, and that fix shipped with a twin. It does not settle `JoinIntakeEarlyErase.cfg`: an erase inside the request's commit can prevent the ready save while the uniform answer still leaves. The early-erase and sweep-index gaps remain open in `packages/core/spec/README.md`.
+
+The obvious fix for the index was to mark it before saving the record. The model refused it in four steps:
 
 1. The request saves the contact as `held` and dies.
 2. The eraser marks the sweep index, ahead of its save.
