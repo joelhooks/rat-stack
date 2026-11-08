@@ -688,6 +688,9 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      tla-ts:
+        specifier: 0.0.8
+        version: 0.0.8
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -2723,7 +2726,9 @@ packages:
   '@smithy/core@3.34.1':
     resolution: {integrity: sha512-dLcOUxz8YCv1RZUMKq6GbyUf95pLbrqh34bPvpCZ1+CByFF31BEAFewZjsGCnVsZTKdThNENfGyAgk2TJqVwSw==}
     engines: {node: '>=18.0.0'}
-    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with this
+        version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -4713,6 +4718,10 @@ packages:
   tinypool@2.2.0:
     resolution: {integrity: sha512-jBrmx4lYmaC9k/mgPbylxs7kBUxHtD8256up+HjLaDFfXScKJQyil+SWXSvhAtT7XHo+yTVlpB81PGmHP8oLSQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
+
+  tla-ts@0.0.8:
+    resolution: {integrity: sha512-o6l6mvlV+o81B6ZRN/k1Jb4De788F4584vzm13U+EBgEIqifeyHjBNvCiUJtZFFM/GV3LugdKhhnCS/cAbA3qg==}
+    hasBin: true
 
   tldts-core@7.4.16:
     resolution: {integrity: sha512-MDolfaSJtlSK5Y0A1xl3277ekubZwobpBjugknDizI9O5Rm60a1m8k4ICK+MRsCDzPygT81mp3BBf5RKDlFRfA==}
@@ -8447,6 +8456,10 @@ snapshots:
       picomatch: 4.0.7
 
   tinypool@2.2.0: {}
+
+  tla-ts@0.0.8:
+    dependencies:
+      fflate: 0.8.3
 
   tldts-core@7.4.16: {}
 

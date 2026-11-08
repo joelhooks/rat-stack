@@ -741,6 +741,7 @@ const skillGroups = [
     names: [
       "add-a-capability",
       "add-a-lifecycle-machine",
+      "model-a-protocol",
       "add-a-store",
       "add-a-feature-flag",
       "onboard-a-list",
