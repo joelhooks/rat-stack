@@ -78,7 +78,7 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 - **`@rat-stack/site`**:
   - Path: `apps/site`
   - Role: Cloudflare Worker: the public site, agent discovery, and sandboxed execute surface
-  - Startup fence: `scripts/startup-budget.ts` measures Alchemy's actual upload. Follow static imports from each entry; count shared chunks once and exclude dynamic-only chunks. Hard startup ceilings are shrink-only: Mischief **1,114,000 bytes**, LearnFeedbackAuth **1,456,000 bytes**, Workshop **870,000 bytes**. Never raise them to accept growth. LearnFeedbackAuth's temporary raise has been retired; `apps/site/STARTUP.md` records the lazy-auth measurements. Entry bytes are evidence only; total JavaScript above **2,500,000 bytes** warns without blocking. Growing page data stays in static assets outside the startup code. Measurement and profiling: `apps/site/STARTUP.md`.
+  - Startup fence: `scripts/startup-budget.ts` measures Alchemy's actual upload. Follow static imports from each entry; count shared chunks once and exclude dynamic-only chunks. Hard startup ceilings are shrink-only: Mischief **1,114,000 bytes**, LearnFeedbackAuth **628,000 bytes**, Workshop **870,000 bytes**. Never raise them to accept growth. LearnFeedbackAuth's temporary raise has been retired; `apps/site/STARTUP.md` records the lazy-auth measurements. Entry bytes are evidence only; total JavaScript above **2,500,000 bytes** warns without blocking. Growing page data stays in static assets outside the startup code. Measurement and profiling: `apps/site/STARTUP.md`.
 
 ## Nouns
 

@@ -8,7 +8,7 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,114,000 bytes for Mischief** and **1,456,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's temporary raise has been retired; see [Request-time D1 auth](#request-time-d1-auth). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+The hard, shrink-only ceilings cover the **static startup set**: **1,114,000 bytes for Mischief** and **628,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's temporary raise has been retired; see [Request-time D1 auth](#request-time-d1-auth). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
@@ -62,7 +62,7 @@ The bump to Alchemy `2.0.0-beta.85` and Effect `4.1.2` grew both Workers' static
 
 Mischief loads its MCP surface (`src/mcp-surface.ts`, `effect/ai/McpServer`, and the toolkit projections) with a dynamic import on the first `/mcp` request, and the legacy MCP Durable Object loads its runtime the same way. That leaves Mischief below main and lowers its ceiling. LearnFeedbackAuth has no MCP surface, so its ceiling rose by 60,000 bytes. This is the one exception to the shrink-only rule, authorised by the Switchboard ruling of 2026-11-02.
 
-The temporary raise was due to expire on 2026-11-16 or when Alchemy shipped the WorkerBridge fix, whichever came first. Request-time D1 auth restored the 1,456,000-byte ceiling before that deadline and removed the expiry warning. Upstream issues: [alchemy-run/alchemy#3051](https://github.com/alchemy-run/alchemy/issues/3051) and [#1954](https://github.com/alchemy-run/alchemy/issues/1954).
+The temporary raise was due to expire on 2026-11-16 or when Alchemy shipped the WorkerBridge fix, whichever came first. Request-time D1 auth first restored the 1,456,000-byte ceiling before that deadline and removed the expiry warning. The follow-up tightened it to 628,000 bytes using the trimmed-size rule below. Upstream issues: [alchemy-run/alchemy#3051](https://github.com/alchemy-run/alchemy/issues/3051) and [#1954](https://github.com/alchemy-run/alchemy/issues/1954).
 
 Startup CPU from `wrangler check startup` 4.94.0, median of three runs per bundle on one host:
 
@@ -79,12 +79,14 @@ Feedback identity now imports its client id and scope from `feedback-constants.t
 
 Measured after building the full workspace, with the same Alchemy beta.85, Effect 4.1.2, and Better Auth 1.7.11 pins:
 
-| Worker | Before startup bytes | Lazy D1 auth startup bytes | Reduction | Restored ceiling | Headroom |
+| Worker | Before startup bytes | Lazy D1 auth startup bytes | Reduction | Ceiling | Headroom |
 | --- | --: | --: | --: | --: | --: |
-| LearnFeedbackAuth | 1,515,504 | 618,566 | 896,938 | 1,456,000 | 837,434 |
+| LearnFeedbackAuth | 1,515,504 | 618,566 | 896,938 | 628,000 | 9,434 |
 | Mischief | 1,096,019 | 1,096,019 | 0 | 1,114,000 | 17,981 |
 | Workshop | 731,416 | 731,416 | 0 | 870,000 | 138,584 |
 | TurboCache | 475,734 | 475,734 | 0 | 480,000 | 4,266 |
+
+The 628,000-byte ceiling follows the same rule as [Request-time learning and narrow imports](#request-time-learning-and-narrow-imports): trimmed startup size plus 10,000 bytes, rounded down to the nearest 1,000. For 618,566 bytes, that is `floor((618566 + 10000) / 1000) * 1000 = 628000`. The dependency evidence's 3,516-byte delta for Better Auth 1.7.18 would bring startup to 622,082 bytes, leaving 5,918 bytes under this ceiling. That arithmetic leaves room for the bump; it is not a measurement of a rebuilt bumped bundle. Better Auth remains pinned to 1.7.11 in this change.
 
 LearnFeedbackAuth's complete JavaScript upload changes from 1,530,341 to 1,532,045 bytes. This change defers evaluation; it does not remove authentication code from the upload. Its entry changes from 123 to 237,343 bytes as Rolldown rearranges shared chunks. The static startup traversal, not the entry size, remains the gate.
 
@@ -103,7 +105,7 @@ WRANGLER_SEND_METRICS=false pnpm dlx wrangler@4.94.0 check startup \
 
 Sampled active time sums sample deltas outside V8's `(idle)` and `(program)` frames. These are local cold module-evaluation profiles, not Cloudflare CPU accounting or first-request latency. The first auth request still pays for the deferred implementation.
 
-`test/cold-auth-runtime.test.ts` starts a fresh local workerd Worker with the production lazy D1 layer, real D1 binding, Better Auth migrations, and private feedback routes. Its first request creates a feedback device, its next request reads the persisted pending device, and an anonymous session request succeeds. Existing HTTP and auth tests cover sign-in, approval, feedback credentials, and writes. A planted runtime-only chunk-load failure makes the first-request test fail with HTTP 500 instead of 200. A planted static implementation import grows startup to 1,515,818 bytes and fails the restored 1,456,000-byte ceiling. Both mutations were removed.
+`test/cold-auth-runtime.test.ts` starts a fresh local workerd Worker with the production lazy D1 layer, real D1 binding, Better Auth migrations, and private feedback routes. Its first request creates a feedback device, its next request reads the persisted pending device, and an anonymous session request succeeds. Existing HTTP and auth tests cover sign-in, approval, feedback credentials, and writes. A planted runtime-only chunk-load failure makes the first-request test fail with HTTP 500 instead of 200. A planted static implementation import grew startup to 1,515,818 bytes and failed the then-restored 1,456,000-byte ceiling. It also exceeds the follow-up 628,000-byte ceiling. Both mutations were removed.
 
 No WorkerBridge replacement or minification experiment was needed. Beta.85's `getSharedBuild` installs its Node layers unconditionally, with no caller option to omit them. Its Rolldown builder already sets `minify: true`. Both remain unchanged.
 

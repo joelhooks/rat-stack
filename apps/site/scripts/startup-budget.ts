@@ -24,7 +24,7 @@ const BundleGraph = Schema.fromJsonString(
 );
 
 const startupBudgets = {
-  LearnFeedbackAuth: 1_456_000,
+  LearnFeedbackAuth: 628_000,
   Mischief: 1_114_000,
   TurboCache: 480_000,
   Workshop: 870_000,
