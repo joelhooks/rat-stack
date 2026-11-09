@@ -10,7 +10,7 @@ import {
 import { Base64Url } from "effect/encoding";
 
 import { AuthService as Auth } from "./auth-service.js";
-import { feedbackClientId, feedbackScope } from "./feedback-plugin.js";
+import { feedbackClientId, feedbackScope } from "./feedback-constants.js";
 import { Unauthenticated } from "./unauthenticated.js";
 
 const Grant = Schema.Struct({

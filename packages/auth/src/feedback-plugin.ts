@@ -1,9 +1,9 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { deviceAuthorization } from "better-auth/plugins";
 
-export const feedbackClientId = "rat-stack-learn-feedback";
+import { feedbackClientId } from "./feedback-constants.js";
 
-export const feedbackScope = "learn:feedback";
+export { feedbackClientId, feedbackScope } from "./feedback-constants.js";
 
 const devicePlugin = deviceAuthorization({
   schema: {},
