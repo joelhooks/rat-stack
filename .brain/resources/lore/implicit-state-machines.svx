@@ -1,0 +1,160 @@
+---
+title: "Implicit state machines"
+description: "Every app runs state machines; the risky ones are scattered across flags, conditions and loops where nobody can list the transitions."
+plain: "Your code already has state machines. Write them down as named states and events, so you and your agents can see which moves are allowed."
+diagram: |-
+  implicit
+    for (;;)
+      if (a || b || c) return
+      sleep
+
+  explicit
+    attempting
+     ├ settled → settled
+     ├ late    → deadlineReached
+     └ retry   → waiting
+group: idea
+prerequisites: ["lore.lifecycles-are-machines"]
+terms:
+  - "implicit state machine"
+  - "implicit state machines"
+  - "explicit state machine"
+sources:
+  - url: https://x.com/davidkpiano/status/2119788094434038264
+    title: 'David K 🎹 on X: "What is an implicit state machine?" / X'
+    publisher: "David Khourshid"
+    note: "Post of 2026-11-09; quoted for the definition of implicit state machines and why they hide impossible states."
+    accessed: "2026-11-09"
+  - url: https://x.com/davidkpiano/status/2119803034716766340
+    title: 'David K 🎹 on X: "My point is one of clarity not correctness." / X'
+    publisher: "David Khourshid"
+    note: "Reply in the same thread; quoted for clarity versus correctness."
+    accessed: "2026-11-09"
+  - url: https://x.com/davidkpiano/status/2119804116515848262
+    title: 'David K 🎹 on X: "Making implicit state machines explicit doesn’t guarantee correctness." / X'
+    publisher: "David Khourshid"
+    note: "Follow-up in the same thread; quoted for what explicit logic makes enforceable."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/caabc4420a2e94f8183be6eb09f37a8e881dd179/packages/deploy/src/checks.ts
+    title: "Deploy checks before the poll machine, at caabc44"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Pinned source for the hand-rolled polling loop."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/commit/bb50d1a9d3b2e82e2c837c63d0e6efe1b2e9ce16
+    title: "refactor(deploy): deploy polling loops run on one lifecycle machine"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The commit that replaced both polling loops with one machine; pinned source for the machine excerpt."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/deploy/test/poll-machine.model.test.ts
+    title: "rat-stack/packages/deploy/test/poll-machine.model.test.ts at main · joelhooks/rat-stack · GitHub"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Property tests that compare both polls with a reference model."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/commit/47308bebc9d28890b76bac733f117a9b304d781f
+    title: "lint: require machines for sleeping runtime loops"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Adds rat-stack-patterns/no-sleep-in-loop; used for the rule and its message."
+    accessed: "2026-11-09"
+---
+
+**Goal:** find the state machines your code already runs, and write them down.
+
+## What David Khourshid said
+
+[David Khourshid](/lore/david-khourshid), who teaches state machines with XState, posted this on 2026-11-09. [X](https://x.com/davidkpiano/status/2119788094434038264)
+
+> Your apps are full of state machines, which is the logic that says "when we're in this state, and this event happens, now we're in this state" (given, when, then).
+>
+> Sometimes those state machines are clearly mapped out (switch statements, reducers, tables/maps, libraries like XState for the more complex ones, etc.) and the logic is explicitly enumerable.
+>
+> And sometimes it's not. The ad-hoc logic is spread all over the place. That's how developers typically code, and that's how agents typically vibe-code (they learned from you). Those are implicit state machines.
+>
+> What's wrong with implicit state machines? It's not clear what state transitions are possible, so you might have "allowed" states that should have been impossible without knowing it. Agents make the same mistakes.
+>
+> You can get all tests passing and your code review agents (even the well-funded ones) can say "LGTM" and you can *still* have very bad bugs because an implicit state machine allowed unexpected or illegal behavior.
+
+In the same thread, he said what explicit logic buys. [X](https://x.com/davidkpiano/status/2119803034716766340)
+
+> My point is one of clarity not correctness.
+
+He added: [X](https://x.com/davidkpiano/status/2119804116515848262)
+
+> Making implicit state machines explicit doesn’t guarantee correctness. It just makes the full logic visible and enumerable so you can actually enforce correctness (with types, tests, formal methods, etc) instead of shipping bugs that your ad-hoc implicit logic silently allowed.
+
+## Our take
+
+The rest of this page is ours.
+
+rat-stack writes the [machine](/lore/lifecycles-are-machines) down whenever the states matter. It uses named states and events in XState, and side effects in declared [Effect](/lore/effect-basics) actors.
+
+### Flags hide states
+
+Three booleans allow eight combinations.
+
+```ts title="Before: an upload as flags"
+export interface UploadFlags {
+  readonly uploading: boolean;
+  readonly failed: boolean;
+  readonly done: boolean;
+}
+```
+
+Only four combinations mean anything. Nothing stops `uploading` and `done` from both being true.
+
+A tagged union names the states and makes the rest unrepresentable.
+
+```ts title="After: an upload as named states"
+export type Upload =
+  | { readonly state: "idle" }
+  | { readonly state: "uploading" }
+  | { readonly state: "failed"; readonly cause: string }
+  | { readonly state: "done"; readonly url: string };
+```
+
+The type lists the states. It does not list the moves between them. A machine lists both.
+
+### Worked example: a deploy poll
+
+Before commit bb50d1a, our deploy checks polled for a new content version in a loop.
+
+```ts repo=rat-stack path=packages/deploy/src/checks.ts at=caabc4420a2e94f8183be6eb09f37a8e881dd179 lines=364,370-382,411-412 {364,378-381,411} title="Before: the states live in one condition and a sleep"
+
+```
+
+This loop has four states, but none of them has a name.
+
+- It is attempting while `runCheck` runs.
+- It is waiting during `Effect.sleep`.
+- It stops for three different reasons in one `if`: a pass, a failure that is not a version mismatch, or the deadline.
+
+A reader has to trace the loop to learn which results retry and which stop.
+
+The commit [bb50d1a](https://github.com/joelhooks/rat-stack/commit/bb50d1a9d3b2e82e2c837c63d0e6efe1b2e9ce16) moved both deploy polls into one machine.
+
+```ts repo=rat-stack path=packages/deploy/src/poll-machine.ts at=bb50d1a9d3b2e82e2c837c63d0e6efe1b2e9ce16 lines=107,113-115,133,136,140,147,151,157,160,163-171 {136,147,157} title="After: each exit is a named state"
+
+```
+
+The machine has four named states: `attempting`, `waiting`, `settled` and `deadlineReached`. Each result picks exactly one target. The result records `stoppedBy`, so a caller sees why polling ended.
+
+The check now decides only what "settled" means. The machine owns the retry.
+
+### What the explicit version enables
+
+David's follow-up is the point. The machine is not correct because it is a machine. It is checkable because its moves are listed.
+
+`packages/deploy/test/poll-machine.model.test.ts` runs both polls against a small reference model with generated observation sequences. It checks attempts, delays, the deadline and the verdict. See [model-based testing](/lore/model-based-testing) for the method.
+
+### The fence keeps it explicit
+
+Agents write the loop again because they learned it from us. A lint rule catches it.
+
+`rat-stack-patterns/no-sleep-in-loop` fails any loop that yields `Effect.sleep`. Its message reads:
+
+> This loop yields Effect.sleep. A hand-rolled retry or polling loop hides its states, cancellation, and resumption. Fix: move the loop into an XState lifecycle machine with declared `createEffectLogic` actors.
+
+The rule landed in [47308be](https://github.com/joelhooks/rat-stack/commit/47308bebc9d28890b76bac733f117a9b304d781f), three hours before the polls moved. See [the fence](/lore/the-fence) for how rules like this stay on.
+
+## Next
+
+Build one with [the add-a-lifecycle-machine skill](/skills/add-a-lifecycle-machine). Read [lifecycles are machines](/lore/lifecycles-are-machines) for the inspection machine, the reference shape.

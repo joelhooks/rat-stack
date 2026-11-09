@@ -891,6 +891,12 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
     term: "machine",
   },
   {
+    routePath: "/lore/implicit-state-machines",
+    summary:
+      "State-transition logic spread across flags, conditions and loops instead of written as named states and events, so nobody can list which moves are allowed.",
+    term: "implicit state machine",
+  },
+  {
     routePath: "/lore/concurrent-work-needs-an-owner",
     summary:
       "Independently running work in Effect. Its fork operation determines its lifetime and ownership.",
