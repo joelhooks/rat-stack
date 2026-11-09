@@ -309,3 +309,4 @@ HTTP Workers use `privateObservability`; the tail Worker uses the stricter `sile
 ## Removing it
 
 The README's Keep or cut section lists the removal steps under "No analytics."
+The [cartridge worked example](/lore/cartridges#worked-example-remove-request-capture-at-one-seam) shows the import seam and core's capture-off replacement.

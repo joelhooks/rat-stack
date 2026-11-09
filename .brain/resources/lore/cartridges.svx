@@ -1,5 +1,5 @@
 ---
-title: "Cartridges"
+title: "A cartridge owns one job and its resources"
 description: "A cartridge owns one job and brings the infrastructure its service needs."
 plain: "A cartridge is one service and its cloud resources in a Layer. Swap the Layer to change vendor; callers stay the same."
 diagram: |-
@@ -13,11 +13,36 @@ terms:
   - cartridges
   - "cartridge test"
 sources:
-  - url: https://github.com/joelhooks/rat-stack/blob/main/VISION.md
-    title: "rat-stack/VISION.md at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/packages/events/README.md
+    title: "Events cartridge removal procedure"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The import seam, replacement export, removal checks, and retained cloud resources."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/apps/site/src/events.ts
+    title: "The site's events import seam"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The single re-export quoted in the worked example."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/packages/core/src/events-off.ts
+    title: "Core's capture-off replacement"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The replacement keeps both export names, returns the application unchanged, and records no events."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/packages/events/src/site.ts
+    title: "Disabled capture retains its resource declarations"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The disabled branch calls basinFoundation before returning undefined."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/packages/events/src/basin.ts
+    title: "The events resource foundation"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "basinFoundation declares the bucket, stream, and visitor salt."
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/VISION.md
+    title: "rat-stack cartridge criteria"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Cartridge criteria; used for labeling, composition, removal, and self-containment."
-    accessed: "2026-10-01"
+    accessed: "2026-11-09"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
     title: "rat-stack/packages/database/src/vendor.ts at main · joelhooks/rat-stack · GitHub"
     publisher: "GitHub joelhooks/rat-stack"
@@ -54,6 +79,35 @@ A cartridge must:
 - Be easy to throw away.
 
 Removal must leave no loose resources or broken imports. Delete the package and its provision line, then run `pnpm turbo run check test build`.
+
+## Worked example: remove request capture at one seam
+
+The events cartridge documents its removal through `apps/site/src/events.ts`.
+That file exports both names the site uses:
+
+```ts repo=rat-stack path=apps/site/src/events.ts at=54bf7786f1260f20d0ba8dd96d828debff9c7759 lines=1 title="The site's events import seam"
+
+```
+
+Core provides the same names with capture off:
+
+```ts repo=rat-stack path=packages/core/src/events-off.ts at=54bf7786f1260f20d0ba8dd96d828debff9c7759 lines=9-18 title="The replacement returns the application unchanged"
+
+```
+
+`events` returns `undefined` inside [Effect](/lore/effect-basics).
+`memoryEvents` leaves the application unchanged. Its `recorded` Effect yields an empty list.
+
+The [documented removal procedure](https://github.com/joelhooks/rat-stack/blob/54bf7786f1260f20d0ba8dd96d828debff9c7759/packages/events/README.md#remove-the-cartridge) has four steps:
+
+1. Change the re-export's module to `@rat-stack/core/events-off`.
+2. Remove `packages/events`.
+3. Remove `@rat-stack/events` from `apps/site/package.json`.
+4. Run `pnpm install`, `pnpm git-snapshot`, then `pnpm turbo run check test build`.
+
+This procedure removes the package from the application. It leaves the retained bucket, stream, and salt in the cloud account until explicitly deleted.
+Turning capture off with `enabled: false` still declares those resources through `basinFoundation`.
+See [Analytics](/systems/analytics#switches) for the capture switch and its resource behavior.
 
 <HumanOnly>
 <figure>

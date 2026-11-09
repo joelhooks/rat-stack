@@ -215,7 +215,7 @@ test.provider(
             "learnRecord",
           ],
           refused: "UnknownCapability",
-          title: "Cartridges",
+          title: "A cartridge owns one job and its resources",
         },
         toolCalls: ["search", "read", "backlinks", "joinInterest"],
       });
