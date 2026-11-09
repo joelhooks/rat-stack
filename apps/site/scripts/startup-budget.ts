@@ -1,6 +1,6 @@
 import { WorkerBundle } from "@alchemy.run/cloudflare/Workers/Sources/Rolldown";
 import { NodeServices } from "@effect/platform-node";
-import { Context, DateTime, Effect, FileSystem, Schema } from "effect";
+import { Context, Effect, FileSystem, Schema } from "effect";
 
 import {
   feedbackAuthBuild,
@@ -24,7 +24,7 @@ const BundleGraph = Schema.fromJsonString(
 );
 
 const startupBudgets = {
-  LearnFeedbackAuth: 1_516_000,
+  LearnFeedbackAuth: 628_000,
   Mischief: 1_114_000,
   TurboCache: 480_000,
   Workshop: 870_000,
@@ -51,15 +51,6 @@ const workerEntries = {
     directory: "dist/startup-workshop",
     main: "../src/workshop-worker.ts",
   },
-};
-
-const temporaryRaises: Partial<
-  Record<
-    keyof typeof startupBudgets,
-    { readonly expires: string; readonly restoreTo: number }
-  >
-> = {
-  LearnFeedbackAuth: { expires: "2026-11-16", restoreTo: 1_456_000 },
 };
 
 const javascriptAlarmBytes = 2_500_000;
@@ -200,17 +191,6 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   yield* Effect.log(
     `${worker} entry: ${entryBytes} bytes; static startup: ${startup.startupBytes} bytes; shrink-only ceiling: ${startupBudgetBytes}; complete JS upload (alarm only): ${javascriptBytes} bytes`
   );
-
-  const raise = temporaryRaises[worker];
-
-  if (
-    raise !== undefined &&
-    DateTime.formatIsoDateUtc(yield* DateTime.now) >= raise.expires
-  ) {
-    yield* Effect.logWarning(
-      `${worker}'s temporary ceiling raise expired on ${raise.expires}. The raise was a one-off exception to the shrink-only rule. Fix: set ${worker} back to ${raise.restoreTo} in \`startupBudgets\` in \`apps/site/scripts/startup-budget.ts\`, delete its \`temporaryRaises\` entry, and update \`apps/site/STARTUP.md\`.`
-    );
-  }
 
   if (javascriptBytes > javascriptAlarmBytes) {
     yield* Effect.logWarning(
