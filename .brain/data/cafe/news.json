@@ -1,5 +1,59 @@
 [
   {
+    "kind": "thread",
+    "url": "https://x.com/devinjameson/status/2119871161265713420",
+    "title": "Foldkit's creator goes full-time on Foldkit",
+    "summary": "Foldkit's creator is now working on the framework full-time, citing the project's momentum. Foldkit began in June 2025 to combine Elm and Effect.",
+    "date": "2026-11-09",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "source": "https://x.com/devinjameson/status/2119871161265713420",
+    "topReplies": [
+      {
+        "likes": 59,
+        "text": "I started working on Foldkit in June of 2025. The idea was to bring together Elm and Effect and make the frontend framework of my dreams.\n\nI've spent the vast majority of my free time on the framework since the start of this year. Even when I'm not sitting at my computer or",
+        "url": "https://x.com/devinjameson/status/2119871164281745591",
+        "x": "devinjameson"
+      },
+      {
+        "likes": 17,
+        "text": "@devinjameson lmk how i can help\n\ni've already decided im your unofficial devrel fyi\n\nlfg",
+        "url": "https://x.com/joelhooks/status/2119873612849315888",
+        "x": "joelhooks"
+      },
+      {
+        "likes": 2,
+        "text": "@devinjameson Congratulations man! Excited to see what more you can bring and do for FoldKit now that you can focus on it full time.",
+        "url": "https://x.com/Dallenpyrah/status/2119872458333532545",
+        "x": "Dallenpyrah"
+      }
+    ],
+    "engagement": {
+      "likes": 244,
+      "replies": 40,
+      "participants": 45
+    }
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=kU2FpNm65-k",
+    "title": "Effect Office Hours 52 with Resonate HQ",
+    "summary": "Office Hours 52 hosts the founder of Resonate HQ, which builds open durable execution: async and await across TypeScript, Python and more.",
+    "date": "2026-11-09",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=kU2FpNm65-k",
+    "engagement": {
+      "views": 238
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.9",
     "title": "tla-ts 0.0.9 adds TLC's -continue",
@@ -12,7 +66,7 @@
     },
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.9",
     "engagement": {
-      "stars": 238
+      "stars": 241
     }
   },
   {
@@ -28,7 +82,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 113
+      "stars": 175
     }
   },
   {
@@ -44,7 +98,7 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 464
+      "stars": 465
     }
   },
   {
@@ -60,7 +114,7 @@
     },
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
-      "stars": 1211
+      "stars": 1216
     }
   },
   {
@@ -76,7 +130,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30426
+      "stars": 30432
     }
   },
   {
@@ -140,7 +194,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4372
+      "stars": 4376
     }
   },
   {
@@ -264,7 +318,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1900
+      "stars": 1907
     }
   },
   {
@@ -309,27 +363,27 @@
     },
     "source": "https://x.com/MattiaManzati/status/2117330070842782057",
     "engagement": {
-      "likes": 393,
-      "participants": 13,
+      "likes": 394,
+      "participants": 6,
       "replies": 12
     },
     "topReplies": [
       {
-        "likes": 12,
-        "text": "https://t.co/gbFouQKEjE",
-        "url": "https://x.com/MattiaManzati/status/2117330174752739551",
+        "likes": 1,
+        "text": "@m_salman_afzal @EffectTS_ Yup that’s kinda the point why we provide them as extension to TSGo as well",
+        "url": "https://x.com/MattiaManzati/status/2118340543747108867",
         "x": "MattiaManzati"
       },
       {
-        "likes": 11,
-        "text": "https://t.co/kqPwXoy8o8",
-        "url": "https://x.com/MattiaManzati/status/2117330119341875326",
-        "x": "MattiaManzati"
+        "likes": 1,
+        "text": "@MattiaManzati @EffectTS_ Cheers",
+        "url": "https://x.com/stephen_rayner/status/2117697357890646516",
+        "x": "stephen_rayner"
       },
       {
-        "likes": 7,
-        "text": "https://t.co/G2gS7S5KeV",
-        "url": "https://x.com/MattiaManzati/status/2117330213717545141",
+        "likes": 1,
+        "text": "@HellSatanS Most of the API already existed in v3 as well; for more info check the rules docs or the picture in the right corner reports dimmed if it supports v3/v4 :)",
+        "url": "https://x.com/MattiaManzati/status/2117540582880870584",
         "x": "MattiaManzati"
       }
     ]
@@ -347,28 +401,28 @@
     },
     "source": "https://x.com/mattpocockuk/status/2117157362700058671",
     "engagement": {
-      "likes": 475,
-      "participants": 75,
+      "likes": 476,
+      "participants": 7,
       "replies": 65
     },
     "topReplies": [
       {
-        "likes": 120,
-        "text": "@mattpocockuk Work on it with agents, connect them to the devtools to inspect state, do scene testing, you won’t have many aha moments but you’ll have no wtf moment",
-        "url": "https://x.com/MichaelArnaldi/status/2117158569607098459",
-        "x": "MichaelArnaldi"
+        "likes": 2,
+        "text": "@mattpocockuk Constraints make agents successful. Strict Typing is a fantastic constraint that keeps the agent on rails. You have already seen that with @EffectTS_, @mattpocockuk. @foldkit is exactly that. Architectural constraints.",
+        "url": "https://x.com/waynemaurer/status/2117688439554359383",
+        "x": "waynemaurer"
       },
       {
-        "likes": 28,
-        "text": "@mattpocockuk the elm architecture, but with typescript and effect\nthere's not that many aha moments, for me it's more like damn why didn't i do this sooner\n\nit feels correctly designed for agents end to end, everything is visible to them including state transitions",
-        "url": "https://x.com/elianiva_/status/2117166491376165087",
-        "x": "elianiva_"
+        "likes": 1,
+        "text": "@mattpocockuk Also @mattpocockuk here’s a cool video of creating a functional core imperative shell demo that renders foldkit logic in n different paradigms and syncs their data (including navigational state) in realtime amongst them: https://t.co/eGnfUbh4TL",
+        "url": "https://x.com/technoplato/status/2117891330672390154",
+        "x": "technoplato"
       },
       {
-        "likes": 16,
-        "text": "@mattpocockuk @MattiaManzati Story based testing is awesome for AI and human review. Let’s you pump out working features. https://t.co/ErPYK4Abn4",
-        "url": "https://x.com/samgoodwin89/status/2117279844530835550",
-        "x": "samgoodwin89"
+        "likes": 0,
+        "text": "@mattpocockuk I'd like to love FoldKit, but the legacy of having an entire company built around React (with a comprehensive design system tightly bound to it) is a deal breaker. Then this popped up in my timeline: https://t.co/U6zfTtczSe. I'd like to dig into it more.",
+        "url": "https://x.com/Nitroin/status/2117872702333562888",
+        "x": "Nitroin"
       }
     ]
   },
@@ -401,7 +455,7 @@
     },
     "source": "https://api.github.com/repos/Effect-TS/effect/releases",
     "engagement": {
-      "stars": 17511
+      "stars": 17515
     }
   },
   {
@@ -465,7 +519,39 @@
     },
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
-      "stars": 15
+      "stars": 16
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/lroy-stack/admin-os",
+    "title": "admin-OS: one set of typed capabilities for screens and MCP tools",
+    "summary": "An open-source small-business dashboard on Cloudflare Workers. Every screen and every MCP tool reads and writes through the same typed capabilities.",
+    "date": "2026-10-31",
+    "repo": "lroy-stack/admin-os",
+    "author": {
+      "github": "lroy-stack",
+      "x": null
+    },
+    "source": "https://github.com/lroy-stack/admin-os",
+    "engagement": {
+      "stars": 34
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/nanami-0713/relay-kit",
+    "title": "relay-kit: an end-to-end encrypted relay on Workers",
+    "summary": "A self-hostable relay on Cloudflare Workers and Durable Objects. It forwards only ciphertext between a phone and a local service; one command deploys it.",
+    "date": "2026-10-30",
+    "repo": "nanami-0713/relay-kit",
+    "author": {
+      "github": "nanami-0713",
+      "x": null
+    },
+    "source": "https://github.com/nanami-0713/relay-kit",
+    "engagement": {
+      "stars": 196
     }
   },
   {
@@ -481,7 +567,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1211
+      "stars": 1216
     }
   },
   {
@@ -558,7 +644,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 238
+      "stars": 241
     }
   },
   {
@@ -686,7 +772,7 @@
     },
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
-      "stars": 56
+      "stars": 57
     }
   },
   {
