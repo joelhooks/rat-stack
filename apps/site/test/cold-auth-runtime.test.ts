@@ -6,6 +6,7 @@ import { Effect, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
 import ColdAuthWorker from "./fixtures/cold-auth-worker.js";
+import { deployScratch } from "./fixtures/scratch-deploy.js";
 
 const { test } = Test.make({
   dev: true,
@@ -18,8 +19,7 @@ test.provider(
   "the first request loads D1 auth and persists a feedback device for a later request",
   (stack) =>
     Effect.gen(function* firstAuthRequest() {
-      // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this local runtime boundary.
-      const worker = yield* stack.deploy(ColdAuthWorker).pipe(Effect.orDie);
+      const worker = yield* deployScratch(stack, ColdAuthWorker);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
 
       const requested = yield* HttpClientRequest.post(

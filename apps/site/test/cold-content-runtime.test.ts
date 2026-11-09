@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
 import ColdContentWorker from "./fixtures/cold-content-worker.js";
+import { deployScratch } from "./fixtures/scratch-deploy.js";
 
 const { test } = Test.make({
   dev: true,
@@ -17,8 +18,7 @@ test.provider(
   "concurrent first content requests finish in one fresh workerd isolate",
   (stack) =>
     Effect.gen(function* concurrentFirstRequests() {
-      // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this local runtime boundary.
-      const worker = yield* stack.deploy(ColdContentWorker).pipe(Effect.orDie);
+      const worker = yield* deployScratch(stack, ColdContentWorker);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
 
       const paths = [

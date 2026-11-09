@@ -8,6 +8,7 @@ import { HttpClient, HttpClientRequest } from "effect/http";
 
 import { LedgerCommand, LedgerOutcome } from "./flag-ledger-protocol.js";
 import FlagLedgerWorker from "./flag-ledger-worker.js";
+import { deployScratch } from "./scratch-deploy.js";
 
 const encodeCommand = Schema.encodeEffect(Schema.fromJsonString(LedgerCommand));
 
@@ -138,8 +139,7 @@ export const localServices = Layer.merge(
 
 export const deployFlagLedger = (stack: Test.ScratchStack) =>
   Effect.gen(function* deployFlagLedgerWorker() {
-    // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this test boundary.
-    const worker = yield* stack.deploy(FlagLedgerWorker);
+    const worker = yield* deployScratch(stack, FlagLedgerWorker);
     const url = yield* Effect.fromNullishOr(worker.url);
 
     return flagLedgerClient(url);
