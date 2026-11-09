@@ -93,6 +93,7 @@ A read failure lands in `unreadable` with its cause. The failure is a state you 
 
 Two booleans, `loading` and `failed`, allow four combinations. Only three of them mean anything here.
 This machine has exactly three states: `reading`, `inspected`, and `unreadable`.
+Logic that spreads such states across flags and loops is an [implicit state machine](/lore/implicit-state-machines).
 
 The [fence](/lore/the-fence) keeps side effects in declared actors. `oxlint.config.ts` loads the lint plugin that `@xstate/effect` ships and sets `xstate-effect/no-inline-effect` to `error`.
 

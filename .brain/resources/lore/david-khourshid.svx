@@ -27,6 +27,11 @@ sources:
     publisher: "David Khourshid"
     note: "Public reply; used for David's invitation to adopt model and property testing."
     accessed: "2026-10-01"
+  - url: https://x.com/davidkpiano/status/2119788094434038264
+    title: 'David K 🎹 on X: "What is an implicit state machine?" / X'
+    publisher: "David Khourshid"
+    note: "Post of 2026-11-09; used for his description of implicit state machines."
+    accessed: "2026-11-09"
 ---
 
 # David Khourshid
@@ -41,3 +46,5 @@ It carries that idea in `xstate/graph` with `createTestModel` and `getShortestPa
 On 2026-10-01 he told Joel, "I need to get you on the MBT/PBT train." [X](https://x.com/davidkpiano/status/2105670489091834297) MBT means model-based testing: compare the application with a model across action sequences.
 PBT means property-based testing: check rules with generated inputs.
 This repo uses both: see [model-based testing](/lore/model-based-testing) and [property-based testing](/lore/property-based-testing).
+
+On 2026-11-09 he described implicit state machines. [X](https://x.com/davidkpiano/status/2119788094434038264) They are ad-hoc transition logic spread across a codebase. See [implicit state machines](/lore/implicit-state-machines) for his words and our worked example.
