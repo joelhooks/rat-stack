@@ -90,6 +90,8 @@ The program passes the search result directly to read and reduces the graph resu
 {"logs":[],"result":{"title":"Cartridges","id":"ratstack://lore/cartridges","links":31}}
 ```
 
+The [cartridges page](/lore/cartridges) is now titled "A cartridge owns one job and its resources", so a fresh run returns that title.
+
 Three typed calls use one outer request. This run measures neither latency nor token savings.
 
 ## The sandbox preserves the boundary

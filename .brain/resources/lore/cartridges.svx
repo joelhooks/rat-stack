@@ -43,16 +43,16 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Cartridge criteria; used for labeling, composition, removal, and self-containment."
     accessed: "2026-11-09"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/database/src/vendor.ts
-    title: "rat-stack/packages/database/src/vendor.ts at main · joelhooks/rat-stack · GitHub"
+  - url: https://github.com/joelhooks/rat-stack/blob/a39e00b93ff48d07d866f3c645344a234fe58036/packages/database/src/vendor.ts
+    title: "rat-stack/packages/database/src/vendor.ts at a39e00b"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Database vendor boundary; used for the D1 and Hyperdrive example."
-    accessed: "2026-10-01"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/auth/src/auth.ts
-    title: "rat-stack/packages/auth/src/auth.ts at main · joelhooks/rat-stack · GitHub"
+    accessed: "2026-11-09"
+  - url: https://github.com/joelhooks/rat-stack/blob/a39e00b93ff48d07d866f3c645344a234fe58036/packages/auth/src/auth.ts
+    title: "rat-stack/packages/auth/src/auth.ts at a39e00b"
     publisher: "GitHub joelhooks/rat-stack"
     note: "Auth composition; used for the cartridge that consumes the database vendor."
-    accessed: "2026-10-01"
+    accessed: "2026-11-09"
 ---
 
 A cartridge is a package that owns one job and the resources it needs.
@@ -78,7 +78,7 @@ A cartridge must:
 - Declare the bindings that give it access to its resources.
 - Be easy to throw away.
 
-Removal must leave no loose resources or broken imports. Delete the package and its provision line, then run `pnpm turbo run check test build`.
+Removal must leave no broken imports and no resource declarations in the Stack. Delete the package and its provision line, then run `pnpm turbo run check test build`. Retained production state stays in the cloud account until you delete it, as the worked example shows.
 
 ## Worked example: remove request capture at one seam
 
