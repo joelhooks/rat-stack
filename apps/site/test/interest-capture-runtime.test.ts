@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
 import InterestWorker from "./fixtures/interest-capture-worker.js";
+import { deployScratch } from "./fixtures/scratch-deploy.js";
 
 const { test } = Test.make({
   dev: true,
@@ -17,8 +18,7 @@ test.provider(
   "retired submissions never reach Durable Object storage",
   (stack) =>
     Effect.gen(function* retiredDurableSubmission() {
-      // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this test boundary.
-      const worker = yield* stack.deploy(InterestWorker).pipe(Effect.orDie);
+      const worker = yield* deployScratch(stack, InterestWorker);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
 
       for (const path of ["/tokenmaxx/interest", "/api/registerInterest"]) {

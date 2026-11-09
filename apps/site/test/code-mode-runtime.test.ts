@@ -13,6 +13,7 @@ import {
 import { backlinks } from "../src/capabilities/index.js";
 import { nodeContentLayer } from "../src/node-content.js";
 import CodeModeWorker from "./fixtures/code-mode-worker.js";
+import { deployScratch } from "./fixtures/scratch-deploy.js";
 
 const measureRequest = Effect.fn("measureContentRequest")(
   function* measureRequest(
@@ -52,8 +53,7 @@ test.provider(
   "content code mode discovers callable names but cannot submit an application",
   (stack) =>
     Effect.gen(function* discoversContentTools() {
-      // @effect-diagnostics-next-line anyUnknownInErrorContext:off -- Alchemy's ScratchStack erases provider errors; orDie closes this local runtime boundary.
-      const worker = yield* stack.deploy(CodeModeWorker).pipe(Effect.orDie);
+      const worker = yield* deployScratch(stack, CodeModeWorker);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
 
       const executeProgram = Effect.fn("executeConformanceProgram")(
