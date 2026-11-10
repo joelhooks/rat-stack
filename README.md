@@ -10,15 +10,15 @@ The **pnpm + Turborepo workspace** includes a working Effect v4 CLI, tests, form
 
 Define a **Contract** with Effect input, output, and failure schemas plus annotations. Bind a server-side handler, then project the capability onto every agent surface. The same `inspectFile` capability is the `stats` command, `POST /inspectFile` with an OpenAPI document, and an MCP tool over stdio.
 
-## Create a repository
+## Use it as a reference
+
+rat-stack works best as a reference: read it, run it, and take the patterns you need into your own project. Copying the whole thing is the exception. A copy inherits every pin, fence, and cartridge, and you own each upgrade after that.
+
+Clone it, then install and verify it:
 
 ```sh
-gh repo create <name> --template joelhooks/rat-stack
-```
-
-Clone the new repository, then install and verify it:
-
-```sh
+gh repo clone joelhooks/rat-stack
+cd rat-stack
 nvm use
 pnpm install
 pnpm vendor:agent-sources
@@ -136,9 +136,9 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 
 Every clone includes `AGENTS.md` for repo law and commands, `CLAUDE.md` as Claude Code's pointer to that law, and `VISION.md` for project intent. Source mirrors live under `.agent_sources/` after you run the vendor script. Repo-local Pi extensions belong in `.pi/extensions/`.
 
-## Make it yours
+## Copy the whole template
 
-Start with the template:
+When you do want a full copy instead of borrowed parts, start from the template:
 
 ```sh
 gh repo create <name> --template joelhooks/rat-stack

@@ -87,7 +87,7 @@ if ! pnpm --filter "${acceptance_scope}/capability" build; then
 fi
 
 # A longer or shorter scope changes line lengths, so the formatter rewraps.
-# README's Make it yours path tells a clone to run the same command.
+# README's Copy the whole template path tells a clone to run the same command.
 step="generate worker content"
 if ! pnpm --filter "${acceptance_scope}/site" generate; then
   fail "site content generation failed after the workspace rename"
