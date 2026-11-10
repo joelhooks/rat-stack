@@ -26,7 +26,7 @@ pnpm sources:fetch
 pnpm turbo run check test build
 ```
 
-Node `24.18.0` and pnpm `11.3.0` are required. The requirement is declared in `.nvmrc`, `engines`, `devEngines`, and `packageManager`.
+Node `24.18.0` and pnpm `11.3.0` are the supported versions. `packageManager` pins pnpm `11.3.0` exactly, so Corepack installs that version. `.nvmrc` names Node `24.18.0` for nvm and fnm, and `engines` sets minimums. `devEngines` names the same versions but only warns, so a different tool still installs. Keep exact package-manager pins with `onFail: "error"` out of anything another tool installs as a package: it fails every consumer whose npm or pnpm differs.
 
 ## Workspace layout
 
