@@ -68,14 +68,14 @@ These checks enforce it today:
 - Patched TypeScript `7.0.2` with `@effect/tsgo` `0.67.5` runs through `pnpm typecheck:tsc` at the switch and on checker bumps. CI does not run it. `ignoreEffectWarningsInTscExitCode` stays false.
 - Report any checker disagreement.
 - Lefthook runs `pnpm check` and `pnpm test` before every commit.
-- `scripts/vcs-command-policy.js` blocks `git … --no-verify`. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
+- `scripts/vcs-command-policy.js` blocks every way an agent command could skip or disable the hooks: `--no-verify` and its abbreviations, `git commit -n` (including flag clusters such as `-nm`), `LEFTHOOK=0`, `LEFTHOOK_EXCLUDE`, `HUSKY=0`, a `core.hooksPath` override, `lefthook uninstall`, and writes under `.git/hooks`, also inside `bash -c` or `sh -c`. It reads the command with shell quoting, so a commit message that mentions `-n` still passes. The Pi extension, the Claude Code hook, and the Cursor hook all call that one file.
 - Continuous integration (CI) runs `pnpm turbo run check test build` after a fresh dependency install.
 - The install uses the exact versions in the lockfile; it cannot update that file.
 
 ## The standard
 
 - A commit runs check and test, and a failure stops it.
-- No agent harness configured in the repo can bypass the hooks with `--no-verify`.
+- No agent harness configured in the repo can skip or disable the hooks, with `--no-verify` or any other bypass.
 - Effect diagnostics fail the typecheck.
 - `pnpm bump:checkers` compares effect-tsrs and patched `tsc` errors, including Effect `TS377xxx`, for every package and root scripts. It normalizes paths, ignores suggestions and messages, and compares exit verdicts.
 - The same command compares plain tsrs with patched `tsc`, excluding Effect-only codes. Plain tsrs cannot emit those diagnostics.
