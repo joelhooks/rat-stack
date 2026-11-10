@@ -1,5 +1,37 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.3",
+    "title": "effect@4.1.3 adds experimental Cloudflare Cluster support",
+    "summary": "Adds experimental Cloudflare Cluster support with durable entities, workflows and optional Alchemy deployment, the AG-UI protocol in effect/ai, and faster RpcClient type-checking.",
+    "date": "2026-11-10",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.3",
+    "engagement": {
+      "stars": 17532
+    }
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=YOZF2tN8YmY",
+    "title": "Effect LSP: smarter rules, faster linting",
+    "summary": "A clip from Effect Office Hours 53 on the Effect language service: smarter diagnostic rules and faster linting.",
+    "date": "2026-11-10",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=YOZF2tN8YmY",
+    "engagement": {
+      "views": 579
+    }
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/devinjameson/status/2119871161265713420",
     "title": "Foldkit's creator goes full-time on Foldkit",
@@ -13,28 +45,28 @@
     "source": "https://x.com/devinjameson/status/2119871161265713420",
     "topReplies": [
       {
-        "likes": 59,
+        "likes": 91,
         "text": "I started working on Foldkit in June of 2025. The idea was to bring together Elm and Effect and make the frontend framework of my dreams.\n\nI've spent the vast majority of my free time on the framework since the start of this year. Even when I'm not sitting at my computer or",
         "url": "https://x.com/devinjameson/status/2119871164281745591",
         "x": "devinjameson"
       },
       {
-        "likes": 17,
+        "likes": 24,
         "text": "@devinjameson lmk how i can help\n\ni've already decided im your unofficial devrel fyi\n\nlfg",
         "url": "https://x.com/joelhooks/status/2119873612849315888",
         "x": "joelhooks"
       },
       {
-        "likes": 2,
-        "text": "@devinjameson Congratulations man! Excited to see what more you can bring and do for FoldKit now that you can focus on it full time.",
-        "url": "https://x.com/Dallenpyrah/status/2119872458333532545",
-        "x": "Dallenpyrah"
+        "likes": 9,
+        "text": "@devinjameson This is huge, congrats on taking the leap! Let me know how I can help",
+        "url": "https://x.com/DavidKPiano/status/2119956038883455119",
+        "x": "DavidKPiano"
       }
     ],
     "engagement": {
-      "likes": 244,
-      "replies": 40,
-      "participants": 45
+      "likes": 398,
+      "replies": 56,
+      "participants": 62
     }
   },
   {
@@ -66,7 +98,7 @@
     },
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.9",
     "engagement": {
-      "stars": 241
+      "stars": 244
     }
   },
   {
@@ -82,7 +114,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 175
+      "stars": 190
     }
   },
   {
@@ -98,7 +130,7 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 465
+      "stars": 467
     }
   },
   {
@@ -114,7 +146,7 @@
     },
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
-      "stars": 1216
+      "stars": 1223
     }
   },
   {
@@ -130,7 +162,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30432
+      "stars": 30440
     }
   },
   {
@@ -194,7 +226,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4376
+      "stars": 4384
     }
   },
   {
@@ -318,7 +350,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1907
+      "stars": 1911
     }
   },
   {
@@ -443,22 +475,6 @@
     }
   },
   {
-    "kind": "release",
-    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.2",
-    "title": "effect@4.1.2 released",
-    "summary": "Patch fixes ByteSize decimal units, cluster workflow engine shard and retry faults, McpServer middleware and failure encoding, and cookie selection with HttpApiClient baseUrl.",
-    "date": "2026-11-02",
-    "repo": "Effect-TS/effect",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/Effect-TS/effect/releases",
-    "engagement": {
-      "stars": 17515
-    }
-  },
-  {
     "kind": "video",
     "url": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
     "title": "Cause & Effect 10: software engineering in the AI era",
@@ -535,7 +551,7 @@
     },
     "source": "https://github.com/lroy-stack/admin-os",
     "engagement": {
-      "stars": 34
+      "stars": 35
     }
   },
   {
@@ -551,7 +567,7 @@
     },
     "source": "https://github.com/nanami-0713/relay-kit",
     "engagement": {
-      "stars": 196
+      "stars": 198
     }
   },
   {
@@ -567,7 +583,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1216
+      "stars": 1223
     }
   },
   {
@@ -628,7 +644,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 158
+      "stars": 159
     }
   },
   {
@@ -644,7 +660,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 241
+      "stars": 244
     }
   },
   {
@@ -708,7 +724,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 158
+      "stars": 159
     }
   },
   {
@@ -724,7 +740,7 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 158
+      "stars": 159
     }
   },
   {
@@ -756,7 +772,7 @@
     },
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
-      "stars": 331
+      "stars": 333
     }
   },
   {
@@ -820,7 +836,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1952
+      "stars": 1953
     }
   },
   {
@@ -836,7 +852,7 @@
     },
     "source": "https://github.com/acoyfellow/coil",
     "engagement": {
-      "stars": 44
+      "stars": 45
     }
   },
   {
@@ -866,40 +882,6 @@
     "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
     "engagement": {
       "stars": 1851
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/humanlayer/effect-channels",
-    "title": "HumanLayer Channels",
-    "summary": "Puts agents in Slack, GitHub and Linear without losing a message: durable, ordered webhook mailboxes on Effect 4, with Durable Objects storage through Alchemy.",
-    "date": "2026-10-10",
-    "repo": "humanlayer/effect-channels",
-    "author": {
-      "github": "humanlayer",
-      "x": null
-    },
-    "source": "https://github.com/humanlayer/effect-channels",
-    "engagement": {
-      "stars": 47
-    }
-  },
-  {
-    "kind": "post",
-    "url": "https://x.com/devinjameson/status/2108710271417999544",
-    "title": "A Foldkit Scene test for the Foldkit UI Toast",
-    "summary": "Walks through a Scene that swipes a toast a short way and checks it settles back instead of dismissing.",
-    "date": "2026-10-10",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": "devinjameson",
-      "x": "devinjameson"
-    },
-    "source": "https://x.com/devinjameson/status/2108710271417999544",
-    "engagement": {
-      "likes": 68,
-      "replies": 5,
-      "views": 1950
     }
   }
 ]
