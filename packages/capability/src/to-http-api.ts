@@ -213,20 +213,34 @@ export type ApiOf<
   Middleware extends HttpApiMiddleware.AnyId = never,
 > = ReturnType<typeof apiFor<Id, GroupOf<Caps, Middleware>>>;
 
+export type HttpProvideFailure = Schema.Top | readonly Schema.Top[];
+
+export type FailureMembers<Failure> =
+  Failure extends readonly (infer Member extends Schema.Top)[]
+    ? Member
+    : Failure extends Schema.Top
+      ? Failure
+      : never;
+
 export interface HttpProvide<
   Id,
   Service,
-  Failure extends Schema.Top,
+  Failure extends HttpProvideFailure,
   Requirements,
 > {
   readonly failure: Failure;
   readonly from: (
     request: HttpServerRequest.HttpServerRequest
-  ) => Effect.Effect<Service, Failure["Type"], Requirements>;
+  ) => Effect.Effect<Service, FailureMembers<Failure>["Type"], Requirements>;
   readonly tag: Context.Key<Id, Service>;
 }
 
-export type AnyHttpProvide = HttpProvide<unknown, unknown, Schema.Top, unknown>;
+export type AnyHttpProvide = HttpProvide<
+  unknown,
+  unknown,
+  HttpProvideFailure,
+  unknown
+>;
 
 export interface ProvideMiddleware<
   Id,
@@ -245,18 +259,18 @@ export interface ProvideMiddleware<
 export type MiddlewareOf<Hooks extends readonly AnyHttpProvide[]> =
   Hooks[number] extends infer Hook
     ? Hook extends {
-        readonly failure: infer Failure extends Schema.Top;
+        readonly failure: infer Failure extends HttpProvideFailure;
         readonly from: (
           request: never
         ) => Effect.Effect<unknown, unknown, infer Requirements>;
         readonly tag: Context.Key<infer Id, unknown>;
       }
-      ? ProvideMiddleware<Id, Failure, Requirements>
+      ? ProvideMiddleware<Id, FailureMembers<Failure>, Requirements>
       : never
     : never;
 
 export type CheckedHook<Hook> = Hook extends {
-  readonly failure: infer Failure extends Schema.Top;
+  readonly failure: infer Failure extends HttpProvideFailure;
   readonly from: (
     request: never
   ) => Effect.Effect<unknown, unknown, infer Requirements>;

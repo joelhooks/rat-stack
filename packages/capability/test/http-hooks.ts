@@ -50,6 +50,47 @@ export const callerFromRequest = {
   tag: Caller,
 };
 
+const UnavailableValue = Schema.TaggedStruct("Unavailable", {
+  retryAfter: Schema.String,
+});
+
+export const Unavailable = UnavailableValue.pipe(
+  HttpApiSchema.encodeToWithHeaders(
+    {
+      body: Schema.Struct({ title: Schema.String }).annotate({
+        httpApiStatus: 503,
+      }),
+      headers: { "retry-after": Schema.String },
+    },
+    {
+      decode: ({ headers }) =>
+        UnavailableValue.make({ retryAfter: headers["retry-after"] }),
+      encode: ({ retryAfter }) => ({
+        body: { title: "Try again soon" },
+        headers: { "retry-after": retryAfter },
+      }),
+    }
+  )
+);
+
+export const callerOrUnavailable = {
+  failure: [Unauthenticated, Unavailable],
+  from: (request: HttpServerRequest.HttpServerRequest) => {
+    const name = request.headers["x-caller"];
+
+    if (name === undefined) {
+      return Effect.fail(
+        UnauthenticatedValue.make({ challenge: RESOURCE_METADATA })
+      );
+    }
+
+    return name === "down"
+      ? Effect.fail(UnavailableValue.make({ retryAfter: "30" }))
+      : Effect.succeed({ name });
+  },
+  tag: Caller,
+};
+
 export interface RequestIdService {
   readonly id: string;
 }

@@ -16,6 +16,7 @@ import {
   RESOURCE_METADATA,
   RequestId,
   callerFromRequest,
+  callerOrUnavailable,
   renderRefusal,
   requestIdFromRequest,
 } from "./http-hooks.js";
@@ -512,11 +513,72 @@ describe("toHttpApi provide hooks", () => {
       ],
     });
 
-    expect([wrongService.api.identifier, undeclared.api.identifier]).toEqual([
-      "WrongServiceApi",
-      "UndeclaredApi",
-    ]);
+    const undeclaredInList = toHttpApi("UndeclaredInListApi", [whoAmI], {
+      provide: [
+        {
+          failure: [MissingRequestId],
+          // @ts-expect-error -- a hook with a list of failures may fail only with one of its members.
+          // @effect-diagnostics-next-line missingEffectError:off -- this hook fails with an undeclared value on purpose, to prove the type error.
+          from: () => Effect.fail("undeclared"),
+          tag: Caller,
+        },
+      ],
+    });
+
+    expect([
+      wrongService.api.identifier,
+      undeclared.api.identifier,
+      undeclaredInList.api.identifier,
+    ]).toEqual(["WrongServiceApi", "UndeclaredApi", "UndeclaredInListApi"]);
   });
+
+  it.effect(
+    "keeps each member's own status and headers when a hook declares a list of failures",
+    () =>
+      Effect.gen(function* listed() {
+        const listedApi = toHttpApi("ListedApi", [whoAmI], {
+          provide: [callerOrUnavailable],
+        });
+
+        const handler = yield* serve(
+          HttpApiBuilder.layer(listedApi.api).pipe(
+            Layer.provide(listedApi.layer)
+          )
+        );
+
+        const refusal = (headers: Record<string, string>) =>
+          Effect.gen(function* refused() {
+            const response = yield* Effect.promise(() =>
+              handler(at("/me", { headers }))
+            );
+
+            const text = yield* Effect.promise(() => response.text());
+
+            return [
+              response.status,
+              response.headers.get("www-authenticate"),
+              response.headers.get("retry-after"),
+              yield* Effect.orDie(decodeJsonText(text)),
+            ];
+          });
+
+        const responses = listedApi.openApi().paths["/me"]?.get?.responses;
+
+        expect([
+          yield* refusal({}),
+          yield* refusal({ "x-caller": "down" }),
+          yield* refusal({ "x-caller": "rat" }),
+          Object.keys(responses?.["401"]?.headers ?? {}),
+          Object.keys(responses?.["503"]?.headers ?? {}),
+        ]).toEqual([
+          [401, RESOURCE_METADATA, null, { title: "Sign in first" }],
+          [503, null, "30", { title: "Try again soon" }],
+          [200, null, null, { name: "rat" }],
+          ["www-authenticate"],
+          ["retry-after"],
+        ]);
+      }).pipe(Effect.scoped)
+  );
 
   it("documents each hook's refusal on every route", () => {
     const { paths } = guarded.openApi();

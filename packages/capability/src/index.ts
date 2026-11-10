@@ -90,7 +90,9 @@ export {
   type AnyHttpProvide,
   type CheckedHook,
   type CheckedHooks,
+  type FailureMembers,
   type HttpProvide,
+  type HttpProvideFailure,
   type MiddlewareOf,
   type ProvideMiddleware,
 } from "./to-http-api.js";
