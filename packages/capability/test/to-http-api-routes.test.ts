@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, expectTypeOf, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
 import {
   Etag,
@@ -8,8 +8,14 @@ import {
 } from "effect/http";
 import { HttpApiBuilder, HttpApiTest } from "effect/http-api";
 
+import type {
+  AnyHttpProvide,
+  CheckedHooks,
+  HttpProvideFailure,
+} from "../src/index.js";
 import { defineContract, implement, toHttpApi } from "../src/index.js";
 import { NotFound, echo } from "./fixtures.js";
+import type { CallerService } from "./http-hooks.js";
 import {
   Caller,
   MissingRequestId,
@@ -131,6 +137,14 @@ const fetchText = (
 
 const at = (path: string, init?: RequestInit): Request =>
   new Request(`http://localhost${path}`, init);
+
+interface HookFailingWith<Failure extends HttpProvideFailure, Error> {
+  readonly failure: Failure;
+  readonly from: () => Effect.Effect<CallerService, Error>;
+  readonly tag: typeof Caller;
+}
+
+type Checked<Hook extends AnyHttpProvide> = CheckedHooks<readonly [Hook]>[0];
 
 describe("toHttpApi routes", () => {
   it.layer(TestServices)("over an in-process client", (test) => {
@@ -501,35 +515,27 @@ describe("toHttpApi provide hooks", () => {
       ],
     });
 
-    const undeclared = toHttpApi("UndeclaredApi", [whoAmI], {
-      provide: [
-        {
-          failure: Schema.Never,
-          // @ts-expect-error -- from may fail only with its declared failure.
-          // @effect-diagnostics-next-line missingEffectError:off -- this hook fails with an undeclared value on purpose, to prove the type error.
-          from: () => Effect.fail("undeclared"),
-          tag: Caller,
-        },
-      ],
-    });
+    expectTypeOf<HookFailingWith<typeof Schema.Never, never>>().toExtend<
+      Checked<HookFailingWith<typeof Schema.Never, never>>
+    >();
+    expectTypeOf<HookFailingWith<typeof Schema.Never, string>>().not.toExtend<
+      Checked<HookFailingWith<typeof Schema.Never, string>>
+    >();
 
-    const undeclaredInList = toHttpApi("UndeclaredInListApi", [whoAmI], {
-      provide: [
-        {
-          failure: [MissingRequestId],
-          // @ts-expect-error -- a hook with a list of failures may fail only with one of its members.
-          // @effect-diagnostics-next-line missingEffectError:off -- this hook fails with an undeclared value on purpose, to prove the type error.
-          from: () => Effect.fail("undeclared"),
-          tag: Caller,
-        },
-      ],
-    });
+    expect(wrongService.api.identifier).toBe("WrongServiceApi");
+  });
 
-    expect([
-      wrongService.api.identifier,
-      undeclared.api.identifier,
-      undeclaredInList.api.identifier,
-    ]).toEqual(["WrongServiceApi", "UndeclaredApi", "UndeclaredInListApi"]);
+  it("types a hook with a list of failures to fail only with one of its members", () => {
+    type Listed = readonly [typeof MissingRequestId];
+
+    expectTypeOf<
+      HookFailingWith<Listed, typeof MissingRequestId.Type>
+    >().toExtend<
+      Checked<HookFailingWith<Listed, typeof MissingRequestId.Type>>
+    >();
+    expectTypeOf<HookFailingWith<Listed, string>>().not.toExtend<
+      Checked<HookFailingWith<Listed, string>>
+    >();
   });
 
   it.effect(
