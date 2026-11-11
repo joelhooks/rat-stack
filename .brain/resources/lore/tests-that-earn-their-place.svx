@@ -86,6 +86,8 @@ Use `it.live` for an integration test that needs live runtime services.
 
 ## Choose the smallest proof that fits the rule
 
+Use the [testing ladder](/lore/testing-ladder) to choose between lint, types, behavior tests, runtime integration, and deployed checks.
+
 - **One interface between components**: An integration example with supplied services
 - **A rule over many inputs**: `it.prop` or `it.effect.prop`
 - **State that depends on earlier actions**: A model checked after generated commands

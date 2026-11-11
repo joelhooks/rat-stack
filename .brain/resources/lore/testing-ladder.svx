@@ -1,0 +1,79 @@
+---
+title: "Choose the check that can catch the failure"
+description: "Use the testing ladder to choose between lint, types, behavior tests, runtime integration, and deployed checks."
+plain: "Name the failure, choose a check that can detect it, and keep local proof separate from deployed proof."
+group: concept
+terms:
+  - "testing ladder"
+prerequisites: ["lore.the-fence", "lore.tests-that-earn-their-place"]
+sources:
+  - url: https://github.com/joelhooks/rat-stack/issues/3
+    title: "drovr contributors. 2026. SOP and upstream ideas from drovr in production."
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Section 2 proposes a testing ladder, from code-shape checks through production canaries."
+    accessed: "2026-11-11"
+  - url: https://github.com/joelhooks/rat-stack/blob/66df9fc245b8f26402835a812426fb9aef06ef7e/AGENTS.md
+    title: "rat-stack contributors. 2026. Agent instructions."
+    publisher: "rat-stack"
+    note: "Commands, commit hooks, and the property/model testing rules define the current local gate."
+    accessed: "2026-11-11"
+  - url: https://github.com/joelhooks/rat-stack/blob/66df9fc245b8f26402835a812426fb9aef06ef7e/packages/core/test/vcs-command-policy.test.ts
+    title: "rat-stack contributors. 2026. VCS command-policy tests."
+    publisher: "rat-stack"
+    note: "Listed bypasses, ordinary commands, and generated commit messages exercise the command policy."
+    accessed: "2026-11-11"
+  - url: https://github.com/joelhooks/rat-stack/blob/66df9fc245b8f26402835a812426fb9aef06ef7e/skills/rat-stack-mode/principles/check-the-actual-artifact.md
+    title: "rat-stack contributors. 2026. Check the actual artifact before declaring done."
+    publisher: "rat-stack"
+    note: "Code-ready, deployed, and behavior-verified are separate claims."
+    accessed: "2026-11-11"
+---
+
+Name the failure before choosing the check. The testing ladder starts with the fastest check that can catch that failure.
+[drovr proposed this approach in issue #3](https://github.com/joelhooks/rat-stack/issues/3).
+
+## Choose a check by what it proves
+
+The issue proposes six verification levels:
+
+- **Lint:** Code shape, checked by Oxlint.
+- **Types:** Wiring, required services, and [contract](/systems/capabilities) drift.
+- **Model and property tests:** Lifecycle behavior over sequences and generated inputs.
+- **Runtime integration:** Storage, migrations, and alarm behavior under workerd, the Workers runtime.
+- **Stage checks:** Deployment, configuration, bindings, and bundles in a staging environment.
+- **Production canaries:** The deployed system's real paths through a dedicated test tenant.
+
+This is a proposed verification map. It does not establish that rat-stack implements every level.
+The current local gate appears below.
+
+[The fence](/lore/the-fence) explains lint and compiler enforcement.
+[Properties](/lore/property-based-testing) cover rules over inputs; [models](/lore/model-based-testing) cover state that depends on earlier actions.
+
+## Worked example: check command-policy decisions
+
+The command policy must block hook bypasses while allowing ordinary commands.
+Its suite checks both lists against independent expected decisions:
+
+```ts repo=rat-stack path=packages/core/test/vcs-command-policy.test.ts at=66df9fc245b8f26402835a812426fb9aef06ef7e lines=91-105 title="Check both refusal and acceptance"
+```
+
+The same suite generates commit messages and checks that their words alone do not cause a block.
+That property exercises decisions over generated input. It complements the listed cases.
+
+1. State the missing behavior: a bypass is accepted, or an ordinary command is blocked.
+2. Check the existing command-policy tests for that behavior before adding another test.
+3. Use a property for a rule over inputs, and plant a violation before trusting a new property.
+
+[Repo law](https://github.com/joelhooks/rat-stack/blob/66df9fc245b8f26402835a812426fb9aef06ef7e/AGENTS.md) requires a genuine behavior-testing gap before adding a regression test.
+
+## Keep the full gate
+
+`pnpm check` runs typechecks, formatting checks, and type-aware lint.
+Lefthook runs `pnpm check` and `pnpm test` before a commit.
+A failed hook needs a fix; disabling it bypasses the fence.
+
+Finish with `pnpm turbo run check test build` before calling the change ready.
+A focused check does not replace this required gate.
+Report code-ready, deployed, and behavior-verified as separate facts.
+
+Read [tests through supplied services](/lore/tests-that-earn-their-place) next to design an independent assertion and choose a test technique.
