@@ -96,6 +96,7 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
                 ...tasks,
                 "--filter=@rat-stack/site",
                 "--dry=json",
+                "--cache=local:rw",
               ],
               { cwd: directory }
             )
