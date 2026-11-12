@@ -1,5 +1,79 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.87",
+    "title": "Alchemy 2.0.0-beta.87 adds Rivet and Effect Cluster providers",
+    "summary": "Since beta.85: breaking Domain changes put handlers on Layers; new Rivet, Effect Cluster, Archil, Daytona and Boat providers; Docker networking; needs effect 4.1.4.",
+    "date": "2026-11-12",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
+    "engagement": {
+      "stars": 1938
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/rivet-dev/open-orange",
+    "title": "OpenOrange runs Workers and Durable Objects on any cloud",
+    "summary": "Runs Cloudflare Workers, Durable Objects and Workflows unchanged on AWS, GCP, Azure or your own servers on Node or Bun, with no-downtime migrations.",
+    "date": "2026-11-12",
+    "repo": "rivet-dev/open-orange",
+    "author": {
+      "github": "NathanFlurry",
+      "x": "NathanFlurry"
+    },
+    "source": "https://x.com/NathanFlurry/status/2120915020355658240",
+    "engagement": {
+      "stars": 206
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://github.com/alchemy-run/alchemy/pull/3260",
+    "title": "Alchemy Domain PR proves aggregate invariants with Z3",
+    "summary": "Open PR: Prove checks an aggregate's declared invariants for every state and command, and Explore searches command sequences for violations, using the Z3 solver.",
+    "date": "2026-11-12",
+    "repo": "alchemy-run/alchemy",
+    "author": {
+      "github": "sam-goodwin",
+      "x": "samgoodwin89"
+    },
+    "source": "https://github.com/alchemy-run/alchemy/pull/3260"
+  },
+  {
+    "kind": "post",
+    "url": "https://developers.cloudflare.com/workers/framework-guides/web-apps/foldkit/#deploy-with-alchemy",
+    "title": "Cloudflare's Foldkit guide covers deploying with Alchemy",
+    "summary": "The Workers framework guide for Foldkit covers SPA, SSG and SSR builds on Workers Assets, and now has a section on deploying with Alchemy.",
+    "date": "2026-11-12",
+    "repo": null,
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "source": "https://x.com/devinjameson/status/2121017721211036124"
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=fNpJ63QjK-k",
+    "title": "Effect Module of the Week 6: Cluster idempotency",
+    "summary": "How Effect Cluster's at-least-once delivery can repeat work, and the fixes: idempotency keys, transactional handlers and delegating to Workflows.",
+    "date": "2026-11-12",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=fNpJ63QjK-k",
+    "engagement": {
+      "views": 169
+    }
+  },
+  {
     "kind": "video",
     "url": "https://www.youtube.com/watch?v=JcY0th6QuMg",
     "title": "Fork Every Business: Alchemy, Effect and AI",
@@ -28,7 +102,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.2",
     "engagement": {
-      "stars": 30448
+      "stars": 30456
     }
   },
   {
@@ -44,7 +118,7 @@
     },
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.10",
     "engagement": {
-      "stars": 247
+      "stars": 249
     }
   },
   {
@@ -60,7 +134,7 @@
     },
     "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.3",
     "engagement": {
-      "stars": 17542
+      "stars": 17550
     }
   },
   {
@@ -112,7 +186,7 @@
       }
     ],
     "engagement": {
-      "likes": 403,
+      "likes": 406,
       "replies": 58,
       "participants": 64
     }
@@ -146,7 +220,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 201
+      "stars": 212
     }
   },
   {
@@ -162,7 +236,7 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 467
+      "stars": 468
     }
   },
   {
@@ -178,7 +252,7 @@
     },
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
-      "stars": 1225
+      "stars": 1230
     }
   },
   {
@@ -194,7 +268,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30448
+      "stars": 30456
     }
   },
   {
@@ -258,7 +332,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4405
+      "stars": 4432
     }
   },
   {
@@ -350,7 +424,7 @@
     },
     "source": "https://vibelang.sh/spec",
     "engagement": {
-      "stars": 20
+      "stars": 21
     }
   },
   {
@@ -367,22 +441,6 @@
     "source": "https://registry.npmjs.org/mutant-cafe",
     "engagement": {
       "stars": 65
-    }
-  },
-  {
-    "kind": "release",
-    "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.85",
-    "title": "Alchemy 2.0.0-beta.85 moves to Effect 4.1",
-    "summary": "Breaking: Cloudflare.state takes workerName only, DynamoDB becomes the default AWS state, and the state store deploys through direct API calls.",
-    "date": "2026-11-02",
-    "repo": "alchemy-run/alchemy",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
-    "engagement": {
-      "stars": 1921
     }
   },
   {
@@ -615,7 +673,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1225
+      "stars": 1230
     }
   },
   {
@@ -676,7 +734,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 177
+      "stars": 193
     }
   },
   {
@@ -692,7 +750,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 247
+      "stars": 249
     }
   },
   {
@@ -756,7 +814,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 177
+      "stars": 193
     }
   },
   {
@@ -772,7 +830,7 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 177
+      "stars": 193
     }
   },
   {
@@ -868,7 +926,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1955
+      "stars": 1956
     }
   },
   {
@@ -899,21 +957,5 @@
     "summary": "Cloudflare's Workers docs now cover Foldkit: start with create-foldkit-app, then configure Wrangler for single-page, static or server-rendered apps on Workers Assets.",
     "title": "Foldkit framework guide in Cloudflare Workers docs",
     "url": "https://developers.cloudflare.com/workers/framework-guides/web-apps/foldkit/"
-  },
-  {
-    "kind": "post",
-    "url": "https://alchemy.run/blog/2026-10-12-beta-83/",
-    "title": "Alchemy 2.0.0-beta.83: the Cloudflare Birthday Week release",
-    "summary": "Adds DO containers, K2 streams, Basin and KV Instant. Needs Node 24.11.1+. One-way: once deployed, Durable Object stacks can't use older Alchemy.",
-    "date": "2026-10-12",
-    "repo": "alchemy-run/alchemy",
-    "author": {
-      "github": "alchemy-run",
-      "x": null
-    },
-    "source": "https://alchemy.run/blog/2026-10-12-beta-83/",
-    "engagement": {
-      "stars": 1851
-    }
   }
 ]
