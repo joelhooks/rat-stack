@@ -82,6 +82,22 @@ Effect describes work with typed failures and required services. A service is a 
 
 The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts.
 
+## Smallest useful floor
+
+This repo is a reference, not a starting point. A new project needs five pieces before anything else. Copy these, not the whole stack:
+
+1. **Strict types.** [\`tsconfig.base.json\`](https://github.com/joelhooks/rat-stack/blob/main/tsconfig.base.json) turns on \`strict\`. Once the project uses Effect, add the Effect language service rules there too; \`pnpm typecheck\` then fails on a floating Effect or an Effect warning.
+2. **Type-aware lint.** [\`oxlint.config.ts\`](https://github.com/joelhooks/rat-stack/blob/main/oxlint.config.ts).
+3. **A format check.** [\`oxfmt.config.ts\`](https://github.com/joelhooks/rat-stack/blob/main/oxfmt.config.ts), run as \`oxfmt --check\`.
+4. **Behavior tests.** Vitest; prefer properties over examples. Effect code uses \`@effect/vitest\` with \`it.effect\`, as in [\`packages/events/test/\`](https://github.com/joelhooks/rat-stack/tree/main/packages/events/test).
+5. **A commit hook that runs all four and can't be skipped.** [\`lefthook.yml\`](https://github.com/joelhooks/rat-stack/blob/main/lefthook.yml) runs \`pnpm check\`, then \`pnpm test\`. [\`scripts/vcs-command-policy.js\`](https://github.com/joelhooks/rat-stack/blob/main/scripts/vcs-command-policy.js) refuses \`--no-verify\`, \`git commit -n\` and other hook bypasses. Agent harnesses apply it to shell commands: Pi through [\`.pi/extensions/git-interceptor/\`](https://github.com/joelhooks/rat-stack/tree/main/.pi/extensions/git-interceptor), Claude Code through [\`.claude/settings.json\`](https://github.com/joelhooks/rat-stack/blob/main/.claude/settings.json) and Cursor through [\`.cursor/hooks.json\`](https://github.com/joelhooks/rat-stack/blob/main/.cursor/hooks.json).
+
+The Effect pieces are for projects that use Effect. Don't add Effect only to satisfy this list.
+
+Prove the floor before building on it: commit a type error and watch the hook refuse it, then try \`git commit --no-verify\` and watch that get refused too. "Hooks passed" with no refusal shown is not proof.
+
+Alchemy, Foldkit, the cartridges and the content build are optional. Add each one when the project needs it.
+
 ## Read this repo
 
 - [Home](${origin}/): short overview
