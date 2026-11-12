@@ -53,11 +53,26 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
     }
 
     if (checkout) {
-      const shallow = yield* spawner.string(
-        command(["rev-parse", "--is-shallow-repository"])
+      const shallowFile = path.resolve(
+        root,
+        (yield* spawner.string(
+          command(["rev-parse", "--git-path", "shallow"])
+        )).trim()
       );
 
-      if (shallow.trim() !== "false") {
+      const boundaries = (yield* fs.exists(shallowFile))
+        ? (yield* fs.readFileString(shallowFile))
+            .split("\n")
+            .filter((line) => line.length > 0)
+        : [];
+
+      const ancestry = yield* Effect.forEach((boundary: string) =>
+        spawner.exitCode(
+          command(["merge-base", "--is-ancestor", boundary, "HEAD"])
+        )
+      )(boundaries);
+
+      if (ancestry.some((code) => code === 0)) {
         return yield* new GitSnapshotError({
           entry: snapshotPath,
           reason: "Full Git history is required",
