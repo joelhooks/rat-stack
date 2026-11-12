@@ -144,14 +144,19 @@ When you do want a full copy instead of borrowed parts, start from the template:
 gh repo create <name> --template joelhooks/rat-stack
 ```
 
-Clone the new repository, then install it:
+Clone the new repository in full, then install it and record its history:
 
 ```sh
 pnpm install
 pnpm sources:fetch
+pnpm git-snapshot
+git add .brain/data/git-snapshot.json
+git commit -m "chore: snapshot this repository's history"
 ```
 
 `pnpm sources:fetch` imports missing pinned source commits from the configured repository remotes once, including in template children. Generation reads only local Git objects and never fetches. Re-run the command when adding a new pin that is not present locally.
+
+A repository created from the template starts with one squashed commit, so the template's Git snapshot no longer matches its history. `pnpm git-snapshot` rebuilds it, and the content build passes once that commit lands. A `--depth 1` clone stops the content build, because the page history needs the whole branch.
 
 Rename the workspace package names before you build on the example. These are examples, not the full package inventory:
 

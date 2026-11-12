@@ -18,17 +18,26 @@ const learnNames = localLearnCapabilities.map(
   (capability) => capability.contract.name
 );
 
-const decodePack = Schema.decodeUnknownSync(
+const PackEntry = Schema.Struct({
+  files: Schema.Array(Schema.Struct({ path: Schema.String })),
+  name: Schema.String,
+  version: Schema.String,
+});
+
+const decodePackOutput = Schema.decodeUnknownSync(
   Schema.fromJsonString(
-    Schema.Tuple([
-      Schema.Struct({
-        files: Schema.Array(Schema.Struct({ path: Schema.String })),
-        name: Schema.String,
-        version: Schema.String,
-      }),
+    Schema.Union([
+      Schema.Tuple([PackEntry]),
+      Schema.Struct({ ratstack: PackEntry }),
     ])
   )
 );
+
+const decodePack = (stdout: string) => {
+  const output = decodePackOutput(stdout);
+
+  return "ratstack" in output ? output.ratstack : output[0];
+};
 
 const decodeJsonRpcResponse = Schema.decodeUnknownSync(
   Schema.fromJsonString(
@@ -108,7 +117,7 @@ const toolNames = async (): Promise<readonly string[]> =>
 
 describe("published ratstack package", () => {
   it("packs the launcher, one self-contained bundle, its licenses, and the CLI version", () => {
-    const [pack] = decodePack(
+    const pack = decodePack(
       spawnSync("npm", ["pack", "--dry-run", "--json"], {
         cwd: packageDir,
         encoding: "utf-8",
