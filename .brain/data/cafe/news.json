@@ -1,5 +1,21 @@
 [
   {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
+    "title": "Effect Module of the Week 7: Cluster workflows",
+    "summary": "Effect Workflow replaces hand-written crash bookkeeping: each activity's result is recorded and replayed after a crash, and a workflow stays in progress without running.",
+    "date": "2026-11-13",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
+    "engagement": {
+      "views": 148
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/alchemy-run/alchemy/releases/tag/v2.0.0-beta.87",
     "title": "Alchemy 2.0.0-beta.87 adds Rivet and Effect Cluster providers",
@@ -12,7 +28,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1938
+      "stars": 1945
     }
   },
   {
@@ -28,7 +44,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 206
+      "stars": 410
     }
   },
   {
@@ -102,7 +118,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.2",
     "engagement": {
-      "stars": 30456
+      "stars": 30458
     }
   },
   {
@@ -118,7 +134,7 @@
     },
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.10",
     "engagement": {
-      "stars": 249
+      "stars": 254
     }
   },
   {
@@ -134,7 +150,7 @@
     },
     "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.3",
     "engagement": {
-      "stars": 17550
+      "stars": 17559
     }
   },
   {
@@ -167,7 +183,7 @@
     "source": "https://x.com/devinjameson/status/2119871161265713420",
     "topReplies": [
       {
-        "likes": 91,
+        "likes": 92,
         "text": "I started working on Foldkit in June of 2025. The idea was to bring together Elm and Effect and make the frontend framework of my dreams.\n\nI've spent the vast majority of my free time on the framework since the start of this year. Even when I'm not sitting at my computer or",
         "url": "https://x.com/devinjameson/status/2119871164281745591",
         "x": "devinjameson"
@@ -186,7 +202,7 @@
       }
     ],
     "engagement": {
-      "likes": 406,
+      "likes": 408,
       "replies": 58,
       "participants": 64
     }
@@ -220,7 +236,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 212
+      "stars": 215
     }
   },
   {
@@ -236,7 +252,7 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 468
+      "stars": 471
     }
   },
   {
@@ -252,7 +268,7 @@
     },
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
-      "stars": 1230
+      "stars": 1233
     }
   },
   {
@@ -268,7 +284,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30456
+      "stars": 30458
     }
   },
   {
@@ -332,7 +348,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4432
+      "stars": 4438
     }
   },
   {
@@ -424,7 +440,7 @@
     },
     "source": "https://vibelang.sh/spec",
     "engagement": {
-      "stars": 21
+      "stars": 23
     }
   },
   {
@@ -673,7 +689,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1230
+      "stars": 1233
     }
   },
   {
@@ -689,7 +705,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 44
+      "stars": 45
     }
   },
   {
@@ -734,7 +750,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 193
+      "stars": 200
     }
   },
   {
@@ -750,7 +766,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 249
+      "stars": 254
     }
   },
   {
@@ -782,7 +798,7 @@
     },
     "source": "https://github.com/codician-team/diffinery",
     "engagement": {
-      "stars": 81
+      "stars": 83
     }
   },
   {
@@ -814,7 +830,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 193
+      "stars": 200
     }
   },
   {
@@ -830,7 +846,7 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 193
+      "stars": 200
     }
   },
   {
@@ -926,36 +942,7 @@
     },
     "source": "https://maple.dev/docs/iac/alchemy/",
     "engagement": {
-      "stars": 1956
+      "stars": 1957
     }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/acoyfellow/coil",
-    "title": "coil",
-    "summary": "A deployable showcase: Pi Durable and a Cloudflare Container share one Durable Object per thread, with an Effect 4 and Foldkit UI on Workers.",
-    "date": "2026-10-13",
-    "repo": "acoyfellow/coil",
-    "author": {
-      "github": "acoyfellow",
-      "x": "acoyfellow"
-    },
-    "source": "https://github.com/acoyfellow/coil",
-    "engagement": {
-      "stars": 45
-    }
-  },
-  {
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "date": "2026-10-13",
-    "kind": "post",
-    "repo": null,
-    "source": "https://developers.cloudflare.com/workers/framework-guides/web-apps/foldkit/",
-    "summary": "Cloudflare's Workers docs now cover Foldkit: start with create-foldkit-app, then configure Wrangler for single-page, static or server-rendered apps on Workers Assets.",
-    "title": "Foldkit framework guide in Cloudflare Workers docs",
-    "url": "https://developers.cloudflare.com/workers/framework-guides/web-apps/foldkit/"
   }
 ]
