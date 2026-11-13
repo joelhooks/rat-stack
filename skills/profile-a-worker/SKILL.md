@@ -52,6 +52,7 @@ A capture does not invoke your code. It records only what runs during the window
 - Start a load loop against the routes you suspect, then start the capture.
 - Keep the loop running for the whole duration.
 - `No recent executions` or `no loaded isolate` means the version had no traffic. Send traffic, then retry.
+- A capture samples one isolate, and a cron or queue handler can run in a different one from the isolate serving fetch. In one 50-second capture that overlapped a cron pass, the profile held 123 ms of samples while the pass used 3,079 ms of CPU. Before you read a profile of a scheduled handler, compare its sampled time with the handler's CPU time in the logs. If the profile holds far less, it sampled another isolate, and its frames say nothing about the handler.
 
 ## 4. Capture
 
