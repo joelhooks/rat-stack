@@ -128,7 +128,7 @@ Every published TypeScript fence without `path` must typecheck.
 The content build writes each one to `apps/site/dist/doc-fences` as its own module.
 `pnpm check` typechecks that directory with `apps/site/tsconfig.doc-fences.json`.
 A fragment that cannot compile takes `nocheck="<reason>"`.
-`.brain/data/doc-fence-baseline.json` records the opt-out count, and the count only shrinks.
+The content build logs each opt-out with its page and line, so the count stays visible without failing a build.
 
 The shipped request records content, selection, and source repository, commit, file, and line numbers:
 
