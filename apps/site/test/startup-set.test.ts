@@ -2,8 +2,9 @@ import { expect, it } from "@effect/vitest";
 import { Arbitrary, Effect, Schema } from "effect";
 
 import {
-  assertStartupBudget,
+  cloudflareWorkerSizeLimitBytes,
   measureStartupSet,
+  startupReport,
 } from "../scripts/startup-set.ts";
 
 const bytes = Arbitrary.schema(
@@ -59,52 +60,47 @@ it.effect.prop(
     })
 );
 
-it.effect.prop(
-  "accepts the exact startup ceiling and rejects a static chunk growing one byte beyond it",
-  { chunkBytes: bytes, entryBytes: bytes },
-  ({ entryBytes, chunkBytes }) =>
-    Effect.gen(function* staticCeiling() {
-      const graph = {
-        chunks: [
-          {
-            imports: [{ targetChunkIndex: 1, type: "static" as const }],
-            name: "entry.js",
-          },
-          { name: "chunk.js" },
-        ],
-      };
-
-      const budget = entryBytes + chunkBytes;
-
-      for (const growth of [0, 1]) {
-        const measured = yield* measureStartupSet(
-          [
-            { bytes: entryBytes, path: "entry.js" },
-            { bytes: chunkBytes + growth, path: "chunk.js" },
-          ],
-          graph,
-          "entry.js"
-        );
-
-        const result = assertStartupBudget(
-          measured.startupBytes,
-          budget,
-          "Mischief"
-        );
-
-        if (growth === 0) {
-          yield* result;
-        } else {
-          const error = yield* result.pipe(Effect.flip);
-          expect(error.bytes).toBe(budget + 1);
-          expect(error.budget).toBe(budget);
-        }
+it.prop(
+  "reports any size with its change, and warns only past half of Cloudflare's Worker limit",
+  {
+    previousBytes: bytes,
+    uploadBytes: Arbitrary.schema(
+      Schema.Int.check(
+        Schema.isBetween({
+          maximum: cloudflareWorkerSizeLimitBytes * 2,
+          minimum: 1,
+        })
+      )
+    ),
+  },
+  ({ previousBytes, uploadBytes }) => {
+    const report = startupReport(
+      "Mischief",
+      {
+        entryBytes: 1,
+        javascriptBytes: uploadBytes,
+        startupBytes: uploadBytes,
+      },
+      {
+        entryBytes: 1,
+        javascriptBytes: previousBytes,
+        startupBytes: previousBytes,
       }
-    })
+    );
+
+    const delta = uploadBytes - previousBytes;
+
+    expect(report.warning !== undefined).toBe(
+      uploadBytes > cloudflareWorkerSizeLimitBytes / 2
+    );
+    expect(report.line).toContain(
+      `static startup ${delta >= 0 ? "+" : ""}${delta} bytes`
+    );
+  }
 );
 
 it.effect.prop(
-  "dynamic-only growth beyond the total JS alarm leaves the startup gate unchanged",
+  "dynamic-only growth leaves the static startup set unchanged",
   { entryBytes: bytes, growth: bytes },
   ({ entryBytes, growth }) =>
     Effect.gen(function* dynamicGrowth() {
@@ -134,7 +130,6 @@ it.effect.prop(
 
       expect(measured.startupBytes).toBe(entryBytes);
       expect(measured.startupFiles).toEqual(["entry.js"]);
-      yield* assertStartupBudget(measured.startupBytes, entryBytes, "Mischief");
     })
 );
 

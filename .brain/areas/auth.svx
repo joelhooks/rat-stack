@@ -70,7 +70,7 @@ The web app's dev server also uses auth, where devtools calls can run as test pe
 - An RPC call without a valid session fails as `Unauthenticated`. That is the only auth failure sent to the client.
 - Feedback credentials permit `learnFeedback` only. They cannot provide `CurrentPerson` to another capability.
 - Off keeps only the database and signing-secret foundation. It exposes no auth route, feedback tool, or private Worker.
-- Mischief contains no Better Auth implementation. `apps/site/scripts/startup-budget.ts` enforces a separate static-startup ceiling for each Worker. Total JavaScript above 2,500,000 bytes warns; it does not fail the build.
+- Mischief contains no Better Auth implementation. `apps/site/scripts/startup-report.ts` fails the build if Better Auth reaches Mischief's graph. It reports each Worker's static startup size without failing on it.
 - A session whose user id fails the person-id schema check also fails as `Unauthenticated`.
 - Test people and `rat_test_person` never reach production. Lint keeps `@rat-stack/auth/devtools` inside dev folders, the CLI, and tests (`rat-stack-boundaries/no-devtools-in-production`).
 - A production build of the web app contains no dev module, no devtools code, and no test person.

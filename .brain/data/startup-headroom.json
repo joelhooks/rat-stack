@@ -6,7 +6,6 @@
       "worker": "Mischief",
       "metrics": {
         "entryBytes": 784218,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1299227,
         "startupBytes": 1238260,
         "startupFiles": [
@@ -24,7 +23,6 @@
           "sandbox-port-CkmFcFCP.js",
           "worker.js"
         ],
-        "startupBudgetBytes": 1247000,
         "worker": "Mischief"
       },
       "proof": {
@@ -54,7 +52,6 @@
       "worker": "LearnFeedbackAuth",
       "metrics": {
         "entryBytes": 123,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1460885,
         "startupBytes": 1446046,
         "startupFiles": [
@@ -67,7 +64,6 @@
           "sqlite-adapter-Cm6SS7X2.js",
           "sqlite-introspector-DSCAP82F-8db5NyHw.js"
         ],
-        "startupBudgetBytes": 1456000,
         "worker": "LearnFeedbackAuth"
       },
       "proof": {
@@ -98,7 +94,6 @@
     "baseline": {
       "Mischief": {
         "entryBytes": 950388,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1299965,
         "startupBytes": 1248053,
         "startupFiles": [
@@ -111,12 +106,10 @@
           "sandbox-port-DPqFOwDc.js",
           "worker.js"
         ],
-        "startupBudgetBytes": 1250000,
         "worker": "Mischief"
       },
       "LearnFeedbackAuth": {
         "entryBytes": 123,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1613922,
         "startupBytes": 1599083,
         "startupFiles": [
@@ -129,14 +122,12 @@
           "sqlite-adapter-Cm6SS7X2.js",
           "sqlite-introspector-DSCAP82F-8db5NyHw.js"
         ],
-        "startupBudgetBytes": 1600000,
         "worker": "LearnFeedbackAuth"
       }
     },
     "learner-only": {
       "Mischief": {
         "entryBytes": 790051,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1301062,
         "startupBytes": 1243238,
         "startupFiles": [
@@ -152,12 +143,10 @@
           "sandbox-port-CkmFcFCP.js",
           "worker.js"
         ],
-        "startupBudgetBytes": 1250000,
         "worker": "Mischief"
       },
       "LearnFeedbackAuth": {
         "entryBytes": 123,
-        "javascriptAlarmBytes": 2500000,
         "javascriptBytes": 1614918,
         "startupBytes": 1594225,
         "startupFiles": [
@@ -171,7 +160,6 @@
           "sqlite-introspector-DSCAP82F-8db5NyHw.js",
           "xstate-effect-DDB0kjjc.js"
         ],
-        "startupBudgetBytes": 1600000,
         "worker": "LearnFeedbackAuth"
       }
     }
@@ -221,5 +209,5 @@
     "feedbackChunkFailure": "Rejected feedback-machine imports become LearnError in both handlers. An Effect.promise mutation fails the loader test; restoring Effect.tryPromise passes.",
     "feedbackProjections": "Poll adds LearnError to its failure union with owner approval. OpenAPI documents Unauthenticated at 401 and LearnError at 422; MCP and RPC error schemas decode both tags. No CLI or web poll-tag switch or device-login loop exists on baseline fd4ed2a."
   },
-  "ceilingPolicy": "Keep already-lowered ceilings unchanged after typed feedback failures add 283 Mischief bytes and 20 LearnFeedbackAuth bytes; do not raise a ceiling to restore the original rounding margin."
+  "note": "Historical measurement from 2026-10-29. Size ceilings were removed on 2026-11-14; apps/site/STARTUP.md explains why."
 }

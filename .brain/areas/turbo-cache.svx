@@ -138,7 +138,7 @@ The desk owns the authorized GitHub secret write.
 CI uploads `.turbo/runs/*.json` to separate LOCAL and REMOTE hits.
 Check those summaries alongside task counts and the uncached main canary.
 Run the full gate with `pnpm turbo run check test build` before shipping.
-Alchemy's startup measurement still bundles the thin cache entry under the shrink-only 480,000-byte ceiling.
+Alchemy's startup report still bundles the thin cache entry and logs its size.
 
 Local workerd tests do not prove deployed account access, lifecycle deletion, or GitHub credential delivery.
 Those remain live checks for the deployment owner.

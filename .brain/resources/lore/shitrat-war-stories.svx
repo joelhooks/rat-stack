@@ -126,6 +126,8 @@ The exception expires when Alchemy ships the bridge fix or on November 16, 2026,
 The broom has a removal date.
 The rat has read it several times.
 
+On November 14 the inspector asks who installed the ceiling. The answer is the rat, on October 1, while tidying. The building's real limit is 64 MiB, the startup clock allows a full second, and the Workers start in about a tenth of that. The ceiling comes out, and the size report stays to say what grew.
+
 ## Two accountants disagree about the shed
 
 November 5, 2026. [PR #212](https://github.com/joelhooks/rat-stack/pull/212).
