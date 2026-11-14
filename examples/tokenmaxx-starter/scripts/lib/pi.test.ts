@@ -1,4 +1,5 @@
-import { execFile, spawnSync } from "node:child_process";
+import { execFile, execFileSync, spawnSync } from "node:child_process";
+import { realpathSync } from "node:fs";
 import {
   mkdir,
   mkdtemp,
@@ -14,6 +15,7 @@ import { promisify } from "node:util";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
+import { gitEnv } from "#shared/core/git-env.ts";
 import {
   readSession,
   readSessions,
@@ -33,6 +35,7 @@ import type { Ancestry } from "./ancestry.ts";
 import {
   buildPiArgs,
   createPiSessionQuietly,
+  starterContextPath,
   freshSessionId,
   launchPi,
   observerPath,
@@ -152,6 +155,8 @@ describe("planLaunch", () => {
       TMX_ROLE: "second",
       TMX_EXERCISE: "00.1",
       TMX_SESSION: launch.record.session,
+      // Not in a git repo of its own or anyone's: the starter is the root.
+      TMX_GUEST_ROOT: repoRoot,
     });
     expect(launch.record).toMatchObject({
       piSessionId: "tmx-00.1-second",
@@ -526,6 +531,107 @@ describe("planLaunch", () => {
   });
 });
 
+describe("a starter pulled into a folder of the guest's repo", () => {
+  // The guest's repo with the starter in workshop/: this checkout's Pi and
+  // exercises, linked, and a settings file of its own.
+  async function guestWithStarter(packages: readonly unknown[] = []) {
+    const guest = realpathSync(await mkdtemp(join(tmpdir(), "tmx-guest-")));
+    execFileSync("git", ["init", "-q", guest], { env: gitEnv() });
+    const workshop = join(guest, "workshop");
+    await mkdir(join(workshop, ".pi", "catch-up", "01.1"), { recursive: true });
+    await symlink(
+      join(starter, "node_modules"),
+      join(workshop, "node_modules")
+    );
+    await symlink(join(starter, "exercises"), join(workshop, "exercises"));
+    await writeFile(
+      join(workshop, ".pi", "settings.json"),
+      JSON.stringify({ packages })
+    );
+    return { guest, workshop };
+  }
+
+  const off = { extensions: [], skills: [], prompts: [], themes: [] };
+  const pin = "git:github.com/example/wait@" + "a".repeat(40);
+  let made: string | undefined;
+  afterEach(async () => {
+    if (made !== undefined) {
+      await rm(made, { recursive: true, force: true });
+      made = undefined;
+    }
+  });
+
+  it("runs Pi at the guest's root, with the starter's AGENTS.md and switched-on packages", async () => {
+    const { guest, workshop } = await guestWithStarter([
+      "catch-up/01.1",
+      pin,
+      { source: "catch-up/other", ...off },
+    ]);
+    made = guest;
+    const launch = await planLaunch(
+      ["--exercise", "02.1"],
+      workshop,
+      {},
+      plain
+    );
+    expect(launch.cwd).toBe(guest);
+    expect(launch.env).toMatchObject({ TMX_GUEST_ROOT: guest });
+    expect(launch.args).toEqual([
+      "-e",
+      observerPath(workshop),
+      "-e",
+      starterContextPath(workshop),
+      "-e",
+      join(workshop, ".pi", "catch-up", "01.1"),
+      // No checkout in .pi/git/: Pi fetches the pinned commit itself.
+      "-e",
+      pin,
+      "--session-id",
+      "tmx-02.1-main",
+    ]);
+  });
+
+  it("loads a pinned package from its checkout when there is one", async () => {
+    const { guest, workshop } = await guestWithStarter([pin]);
+    made = guest;
+    const checkout = join(
+      workshop,
+      ".pi",
+      "git",
+      "github.com",
+      "example",
+      "wait"
+    );
+    await mkdir(join(checkout, "node_modules"), { recursive: true });
+    const launch = await planLaunch([], workshop, {}, plain);
+    expect(launch.args).toContain(checkout);
+    expect(launch.args).not.toContain(pin);
+  });
+
+  it("leaves the starter's packages out when told to ignore the project, and its AGENTS.md with no context files", async () => {
+    const { guest, workshop } = await guestWithStarter(["catch-up/01.1"]);
+    made = guest;
+    const untrusted = await planLaunch(["--no-approve"], workshop, {}, plain);
+    expect(untrusted.args).toContain(starterContextPath(workshop));
+    expect(untrusted.args).not.toContain(
+      join(workshop, ".pi", "catch-up", "01.1")
+    );
+    const bare = await planLaunch(["-nc"], workshop, {}, plain);
+    expect(bare.args).not.toContain(starterContextPath(workshop));
+  });
+
+  it("adds nothing when the starter is the repo", async () => {
+    const launch = await planLaunch([], repoRoot, {}, plain);
+    expect(launch.cwd).toBe(repoRoot);
+    expect(launch.args).toEqual([
+      "-e",
+      observerPath(repoRoot),
+      "--session-id",
+      "tmx-main",
+    ]);
+  });
+});
+
 describe("the session record", () => {
   let root: string | undefined;
 
@@ -547,6 +653,7 @@ describe("the session record", () => {
     const running = launchPi(
       {
         ...launch,
+        cwd: root,
         cli: join(fixtures, "fake-pi.ts"),
         args,
         ownSessionId: null,
@@ -648,6 +755,7 @@ describe("the session record", () => {
     await launchPi(
       {
         ...second,
+        cwd: first.root,
         cli: join(fixtures, "fake-pi.ts"),
         args: ["--exit", "0"],
         ownSessionId: null,

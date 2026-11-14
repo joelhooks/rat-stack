@@ -1,5 +1,6 @@
+import { realpathSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 
 import { Schema } from "effect";
 
@@ -25,13 +26,23 @@ import {
   stretchLine,
   whyClaim,
 } from "./claims.ts";
-import { type FenceReport, tryFence } from "./fence.ts";
+import { type FenceReport, suppliedFolders, tryFence } from "./fence.ts";
 import { type ProbeOutcome, probeFreshPi } from "./probe.ts";
 
 /** What `done` looks at, each one swappable in tests. */
 export type FirstPackageDeps = {
-  readonly fence: (repoRoot: string) => Promise<FenceReport>;
-  /** A fresh Pi; `trusted: false` ignores this repo's own resources. */
+  /**
+   * The fence test of the guest's repo at `root`, with no probe file in the
+   * starter's own `supplied` folders.
+   */
+  readonly fence: (
+    root: string,
+    supplied: readonly string[]
+  ) => Promise<FenceReport>;
+  /**
+   * A fresh Pi as `pnpm pi` starts it from the starter at `repoRoot`, so at
+   * the guest's root; `trusted: false` ignores that repo's own resources.
+   */
   readonly probe: (repoRoot: string, trusted: boolean) => Promise<ProbeOutcome>;
   readonly out: (line: string) => void;
 };
@@ -40,21 +51,22 @@ export const untrustedArgs = (args: readonly string[]) =>
   args.map((arg) => (arg === "--approve" ? "--no-approve" : arg));
 
 const defaultDeps: FirstPackageDeps = {
-  fence: (repoRoot) => tryFence(repoRoot),
+  fence: (root, supplied) => tryFence(root, { supplied }),
   probe: (repoRoot, trusted) =>
     probeFreshPi(repoRoot, trusted ? {} : { mapArgs: untrustedArgs }),
   out: (line) => console.log(line),
 };
 
+const SavedClaim = Schema.Struct({
+  name: Schema.String,
+  ok: Schema.Boolean,
+  detail: Schema.String,
+});
+
 const SavedDone = Schema.Struct({
   at: Schema.String,
-  claims: Schema.Array(
-    Schema.Struct({
-      name: Schema.String,
-      ok: Schema.Boolean,
-      detail: Schema.String,
-    })
-  ),
+  claims: Schema.Array(SavedClaim),
+  notes: Schema.Array(SavedClaim),
   stretch: Schema.NullOr(
     Schema.Struct({
       name: Schema.String,
@@ -66,20 +78,42 @@ const SavedDone = Schema.Struct({
 
 const savedPath = (ctx: ExerciseContext) => join(ctx.stateDir, "done.json");
 
+const real = (path: string) => {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
+};
+
 const indent = (text: string) =>
   text.split("\n").map((line) => `      ${line}`);
+
+// DRAFT label for a line `done` still checks but doesn't need. Joel may
+// change the wording.
+const noteLine = (note: Claim) =>
+  `NOTE  ${note.name}: ${note.ok ? "yes" : "no"}, not needed for done`;
+
+// DRAFT closing lines.
+const doneLine = (ok: boolean) =>
+  ok ? "Done: the fence holds." : "Not done yet.";
 
 function print(
   out: (line: string) => void,
   claims: readonly Claim[],
+  notes: readonly Claim[],
   stretch: Stretch | null
 ) {
   for (const claim of claims) {
     out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
     indent(claim.detail).forEach((line) => out(line));
   }
+  for (const note of notes) {
+    out(noteLine(note));
+    indent(note.detail).forEach((line) => out(line));
+  }
   if (stretch !== null) {
-    out(`STRETCH  ${stretch.name}: ${stretch.held ? "yes" : "not yet"}`);
+    out(`STRETCH  ${stretch.name}: ${stretch.held ? "held" : "not held"}`);
     indent(stretch.detail).forEach((line) => out(line));
   }
 }
@@ -110,7 +144,8 @@ export function firstPackageExercise(
           return 0;
         }
         out(`Last ${ex("done")}, at ${saved.value.at}:`);
-        print(out, saved.value.claims, saved.value.stretch);
+        print(out, saved.value.claims, saved.value.notes, saved.value.stretch);
+        out(doneLine(saved.value.claims.every((c) => c.ok)));
         return 0;
       },
 
@@ -128,36 +163,50 @@ export function firstPackageExercise(
         return catchUp(startedPackage, { out })(ctx, args);
       },
 
-      /** The done check: PASS only when every claim holds. */
+      /** The done check: PASS when the fence holds. The notes never count. */
       async done(ctx) {
+        // The guest's repo, which holds the starter when it was pulled in.
+        // Compared by real path: TMX_GUEST_ROOT can name the starter itself
+        // through a symlink (macOS's /var is one to /private/var).
+        const root = ctx.guestRoot;
+        const nested = real(root) !== real(ctx.repoRoot);
+        const supplied = nested
+          ? [relative(real(root), real(ctx.repoRoot))]
+          : suppliedFolders;
+        if (nested) {
+          out(
+            `Checking your repo at ${root} (the workshop tools are in its ${supplied.join("")}/ folder).`
+          );
+        }
         out(
-          "Trying a commit with a type error in a throwaway copy of the repo..."
+          "Trying a commit with a type error in a throwaway copy of the repo, then a fresh Pi there trying to skip the hook..."
         );
-        const fence = await deps.fence(ctx.repoRoot);
+        const fence = await deps.fence(root, supplied);
         out("Starting a fresh Pi against a local fake model...");
         const trusted = await deps.probe(ctx.repoRoot, true);
         const untrusted = trusted.ok
           ? await deps.probe(ctx.repoRoot, false)
           : null;
-        const claims = [
-          fenceClaim(fence),
+        const claims = [fenceClaim(fence)];
+        const notes = [
           packageClaim(trusted, untrusted),
-          whyClaim(await findWhyFiles(ctx.repoRoot)),
+          whyClaim(await findWhyFiles(root)),
         ];
         const stretch = stretchLine(fence);
         out("");
-        print(out, claims, stretch);
+        print(out, claims, notes, stretch);
         const warning = changedWarning(fence);
         if (warning !== null) {
           out(warning);
         }
-        await writeJsonAtomic(savedPath(ctx), { at: now(), claims, stretch });
+        await writeJsonAtomic(savedPath(ctx), {
+          at: now(),
+          claims,
+          notes,
+          stretch,
+        });
         const ok = claims.every((c) => c.ok);
-        out(
-          ok
-            ? "Done: the fence holds, a fresh Pi loads your tool and skill, and the repo says why."
-            : "Not done yet."
-        );
+        out(doneLine(ok));
         return ok ? 0 : 1;
       },
     },

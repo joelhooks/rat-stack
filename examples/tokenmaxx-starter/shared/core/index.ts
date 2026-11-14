@@ -2,6 +2,8 @@ export * from "./catch-up.ts";
 export * from "./context.ts";
 export * from "./exercise.ts";
 export * from "./fixtures.ts";
+export * from "./git-env.ts";
+export * from "./guest-root.ts";
 export * from "./ids.ts";
 export * from "./paths.ts";
 export * from "./pi-settings.ts";

@@ -1,49 +1,36 @@
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
+
+import { findGuestRoot, guestRootEnv } from "./guest-root.ts";
+import { findRepoRoot } from "./repo-root.ts";
+
+export { findRepoRoot } from "./repo-root.ts";
 
 export type ExerciseContext = {
   /** e.g. `02.1` */
   readonly exerciseId: string;
+  /** The starter's own root: its scripts, shared code and state. */
   readonly repoRoot: string;
+  /**
+   * The repo the guest works in, where Pi runs: the starter root, or the
+   * guest's repo when the starter is a folder inside it. See ./guest-root.ts.
+   */
+  readonly guestRoot: string;
   /** Every file this exercise writes lives under here. */
   readonly stateDir: string;
 };
 
 export type Env = Readonly<Record<string, string | undefined>>;
 
-const packageName = "tokenmaxx-starter";
-
-/** Walks up from `from` to the directory whose package.json is this starter. */
-export function findRepoRoot(
-  from: string = dirname(fileURLToPath(import.meta.url))
-): string {
-  let dir = resolve(from);
-  for (;;) {
-    const pkg = join(dir, "package.json");
-    if (existsSync(pkg) && readPackageName(pkg) === packageName) {
-      return dir;
-    }
-    const parent = dirname(dir);
-    if (parent === dir) {
-      throw new Error(`No ${packageName} package.json above ${from}`);
-    }
-    dir = parent;
-  }
-}
-
-function readPackageName(path: string): string | undefined {
-  const parsed: { name?: unknown } = JSON.parse(readFileSync(path, "utf8"));
-  return typeof parsed.name === "string" ? parsed.name : undefined;
-}
-
 /**
  * The state dir is `<repoRoot>/.workshop-state/<exerciseId>` unless
  * `TMX_STATE_DIR` names one. Nothing is created here; a fresh folder works.
+ * The guest root is `guestRoot` when given, then `TMX_GUEST_ROOT` (which
+ * `pnpm pi` exports), then found from the repo root.
  */
 export function exerciseContext(opts: {
   exerciseId: string;
   repoRoot?: string;
+  guestRoot?: string;
   env?: Env;
 }): ExerciseContext {
   const repoRoot = opts.repoRoot ?? findRepoRoot();
@@ -56,9 +43,14 @@ export function exerciseContext(opts: {
   return {
     exerciseId: opts.exerciseId,
     repoRoot,
+    guestRoot:
+      opts.guestRoot ?? nonEmpty(env[guestRootEnv]) ?? findGuestRoot(repoRoot),
     stateDir,
   };
 }
+
+const nonEmpty = (value: string | undefined) =>
+  value === undefined || value === "" ? undefined : value;
 
 /**
  * The context `pnpm pi --exercise <id>` and `pnpm ex` hand to child processes

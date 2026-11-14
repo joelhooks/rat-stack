@@ -2,10 +2,13 @@ import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { Schema } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 
+import { stepStartPath } from "#shared/core/commit-line.ts";
 import { exerciseContext, findRepoRoot } from "#shared/core/context.ts";
 import { pidAlive, type SessionRecord } from "#shared/core/sessions.ts";
+import { readJson } from "#shared/core/store.ts";
 
 import { ownLoopExercise } from "./exercise.ts";
 import {
@@ -43,7 +46,10 @@ const record = (session: string, parent: string | null): SessionRecord => ({
 function harness(name: string, id = "02.1") {
   const out: string[] = [];
   const spawned: { runId: string; maxMs: number; minMs?: number }[] = [];
-  const who: { session: string | null; within?: string } = { session: TOP };
+  const who: { session: string | null; within?: string; committed: boolean } = {
+    session: TOP,
+    committed: true,
+  };
   const ctx = exerciseContext({
     exerciseId: id,
     repoRoot: findRepoRoot(),
@@ -65,6 +71,11 @@ function harness(name: string, id = "02.1") {
       testWithin: () => who.within,
       readSessions: () =>
         Promise.resolve([record(TOP, null), record(NESTED, TOP)]),
+      commit: async () => ({
+        name: "committed",
+        ok: who.committed,
+        detail: "",
+      }),
     }
   );
   const run = async (command: string, ...args: string[]) => {
@@ -98,7 +109,7 @@ describe("the loop job", () => {
     const started = await run("start");
     expect(started.code).toBe(0);
     expect(spawned).toHaveLength(1);
-    expect(spawned[0]?.maxMs).toBe(480_000);
+    expect(spawned[0]?.maxMs).toBe(300_000);
     expect((await run("done")).code).toBe(1);
     expect((await run("release")).code).toBe(0);
     const status = await run("status");
@@ -106,8 +117,22 @@ describe("the loop job", () => {
     expect(resultId).not.toBe("");
     expect((await run("consume", resultId)).code).toBe(0);
     const done = await run("done");
-    expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(3);
+    expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(4);
+    expect(done.out[6]).toBe("PASS  committed");
     expect(done.code).toBe(0);
+  });
+
+  it("done fails when the work isn't committed, whatever the job says", async () => {
+    const { run, who } = harness("uncommitted");
+    await run("setup");
+    await run("start");
+    await run("release");
+    await run("consume", resultIdIn((await run("status")).out.slice(0, 1)));
+    who.committed = false;
+    const done = await run("done");
+    expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(3);
+    expect(done.out).toContain("FAIL  committed");
+    expect(done.code).toBe(1);
   });
 
   it("records every consume and lets done judge: twice fails", async () => {
@@ -248,14 +273,45 @@ describe("the loop job", () => {
     const { run, spawned, who } = harness("window");
     await run("setup");
     const started = await run("start");
-    expect(started.out[0]).toMatch(/in the next 8 minutes/);
-    expect(spawned[0]).toMatchObject({ maxMs: 480_000, minMs: 180_000 });
+    expect(started.out[0]).toMatch(/in the next 5 minutes/);
+    expect(spawned[0]).toMatchObject({ maxMs: 300_000, minMs: 120_000 });
     who.within = "0.5";
     await run("start");
     expect(spawned[1]).toEqual({
       runId: spawned[1]?.runId,
       maxMs: 30_000,
     });
+  });
+
+  it("start begins the step when setup never ran; an earlier setup keeps its time", async () => {
+    const StepStart = Schema.Struct({ at: Schema.String });
+    const fresh = harness("step-by-start");
+    await fresh.run("start");
+    const started = await readJson(stepStartPath(fresh.ctx), StepStart);
+    expect(Date.parse(started.at)).toBeGreaterThan(0);
+
+    const setUp = harness("step-by-setup");
+    await setUp.run("setup");
+    const first = await readJson(stepStartPath(setUp.ctx), StepStart);
+    await new Promise((wake) => setTimeout(wake, 5));
+    await setUp.run("start");
+    expect(await readJson(stepStartPath(setUp.ctx), StepStart)).toEqual(first);
+  });
+
+  it("a practice copy (another TMX_STATE_DIR, a quick run) leaves the real job alone", async () => {
+    const real = harness("practice-real");
+    const practice = harness("practice-copy");
+    await real.run("setup");
+    await practice.run("setup");
+    practice.who.within = "0.5";
+    await practice.run("start");
+    await practice.run("release");
+    const resultId = resultIdIn((await practice.run("status")).out.slice(0, 1));
+    expect((await practice.run("consume", resultId)).code).toBe(0);
+    expect((await practice.run("done")).out[1]).toMatch(/test-only window/);
+    expect((await real.run("status")).out).toContain("Consumed:     none");
+    expect((await real.run("status")).out[0]).toBe("Current run:  none");
+    expect((await real.run("done")).code).toBe(1);
   });
 
   it("stamps start, release and consume with the calling session", async () => {

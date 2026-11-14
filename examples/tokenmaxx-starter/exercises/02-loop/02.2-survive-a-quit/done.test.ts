@@ -1,10 +1,13 @@
+import { execFileSync } from "node:child_process";
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { markStepStart } from "#shared/core/commit-line.ts";
 import { exerciseContext } from "#shared/core/context.ts";
+import { gitEnv } from "#shared/core/git-env.ts";
 import { type SessionRecord, writeSession } from "#shared/core/sessions.ts";
 import { appendTurn, type TurnLine, turnsPath } from "#shared/core/turns.ts";
 import { appendEvent, type JobEvent } from "#shared/own-loop/job.ts";
@@ -343,14 +346,30 @@ describe("the 02.2 done check", () => {
     ).toEqual([true, true, true, true, false]);
   });
 
-  it("done reads the job, the session records and the prompt notes from disk", async () => {
+  it("done reads the job, the session records, the prompt notes and the guest's repo from disk", async () => {
     const root = realpathSync(mkdtempSync(join(tmpdir(), "tmx-02.2-")));
     try {
       const ctx = exerciseContext({
         exerciseId: "02.2",
         repoRoot: root,
-        env: { TMX_STATE_DIR: join(root, "state") },
+        env: { TMX_STATE_DIR: join(root, ".workshop-state", "02.2") },
       });
+      // The starter as the guest's repo, with a commit made after setup.
+      await markStepStart(ctx, new Date(Date.now() - 60_000));
+      for (const args of [
+        ["init", "-q"],
+        ["commit", "-q", "--allow-empty", "-m", "survive a quit"],
+      ]) {
+        execFileSync(
+          "git",
+          ["-c", "user.name=t", "-c", "user.email=t@example.com", ...args],
+          {
+            cwd: root,
+            env: { ...gitEnv(), GIT_CONFIG_GLOBAL: "/dev/null" },
+            stdio: "ignore",
+          }
+        );
+      }
       for (const event of [
         ...seededOld,
         start(4, A),
