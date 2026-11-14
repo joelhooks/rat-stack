@@ -8,7 +8,7 @@ The goal is to **build the best Effect + Alchemy application that we can**, as c
 
 - New code takes the rat-stack path: a shared contract, a job-shaped service port, a provider adapter outside core, and an outcome you can observe. Ports name the application's jobs; Layers supply the adapters. The fence keeps core free of HTTP-client and vendor implementations.
 - Existing code is finished that way when someone touches it, and the old version is deleted.
-- Debt only shrinks. Plain async code moves onto Effect, and lint exemptions get retired, never added.
+- Prefer paying debt down. Plain async code moves onto Effect, and lint exemptions get retired. Growth is allowed with a one-line reason in the PR.
 - The fence (lint, types, the Effect language service, CI) makes the easy path the right one.
 - Where a platform behaves differently from a test fake, test against the real thing. [Worker init runs twice](https://ratstack.sh/lore/init-runs-twice) is what happens when you don't.
 

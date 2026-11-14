@@ -73,7 +73,7 @@ For each one:
 
 1. Write the lint rule or test that fails on it first. Put a real-`oxlint` fixture test beside the other rule tests in `packages/core/test/`. Break the rule once to watch the test fail.
 2. Then fix every existing instance, so the rule starts at zero findings.
-3. If some findings have to stay for now, record them as a baseline that can only shrink. Never raise a baseline.
+3. If some findings have to stay for now, record them as a baseline. Prefer shrinking it; growth is allowed with a one-line reason in the PR.
 4. Delete code that nothing uses. Git keeps it.
 
 When a pattern cannot be caught by lint, fix it in the codebase so the wrong version is hard to write. Only fall back to prose in `AGENTS.md` or a skill when neither works.

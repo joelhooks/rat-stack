@@ -17,7 +17,7 @@ sources:
   - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/gardener/SKILL.md
     title: "Gardener"
     publisher: "rat-stack"
-    note: "Write and break the rule before cleanup; baselines only shrink."
+    note: "Write and break the rule before cleanup; prefer shrinking baselines."
     accessed: "2026-11-07"
   - url: https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/skills/write-a-wiki-page/SKILL.md
     title: "Write a wiki page"
