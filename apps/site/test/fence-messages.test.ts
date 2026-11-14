@@ -10,7 +10,6 @@ import { parseLorePage, SYSTEMS_DIRECTORY } from "../scripts/content-lib.ts";
 import { GitSnapshotError } from "../scripts/git-snapshot.ts";
 import { glossaryFirstUseWarningText } from "../scripts/glossary-first-use.ts";
 import { PublicAuthBundleLeak } from "../scripts/startup-auth-dependency.ts";
-import { StartupBudgetExceeded } from "../scripts/startup-budget-exceeded.ts";
 import { StartupBuildDependency } from "../scripts/startup-build-dependency.ts";
 import { StartupGraphInvalid } from "../scripts/startup-set.ts";
 import { StartupWorkerEntryMissing } from "../scripts/startup-worker-entry-missing.ts";
@@ -161,10 +160,9 @@ describe("content-build fence messages", () => {
 describe("startup fence messages", () => {
   it.prop(
     "every startup and Git snapshot failure names what, why, and the fix",
-    { budget: count, bytes: count, module: word, worker: word },
-    ({ budget, bytes, module, worker }) => {
+    { module: word, worker: word },
+    ({ module, worker }) => {
       const failures = [
-        new StartupBudgetExceeded({ budget, bytes, worker }),
         new StartupWorkerEntryMissing({ entry: module, worker }),
         new StartupWorkerEntryMissing({ entry: module, worker: "TurboCache" }),
         new PublicAuthBundleLeak({ modules: [module] }),

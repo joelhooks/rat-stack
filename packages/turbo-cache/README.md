@@ -40,13 +40,13 @@ Only the trusted receiver's stdin gets the token. Receiver output is suppressed.
 
 Run `pnpm --filter @rat-stack/turbo-cache test`. The seam test starts the installed cartridge in local workerd, checks the exact three resource FQNs, and hands the generated credential to a subprocess that authenticates against the Worker. Upstream owns protocol property tests, the real Turbo REMOTE-hit test and token safety tests.
 
-`apps/site/scripts/startup-budget.ts` still bundles this entry through Alchemy and enforces the shrink-only `480_000` byte ceiling. Run `pnpm turbo run check test build` before shipping. Local checks do not prove live lifecycle deletion, account access or GitHub secret delivery.
+`apps/site/scripts/startup-report.ts` still bundles this entry through Alchemy and reports its size. Run `pnpm turbo run check test build` before shipping. Local checks do not prove live lifecycle deletion, account access or GitHub secret delivery.
 
 ## Remove the cartridge
 
 1. Remove `yield* turboCache` and its import from `apps/infra/alchemy.run.ts`.
 2. Remove this package and its workspace dependency from `apps/infra/package.json`.
-3. Remove the `TurboCache` budget and entry from `apps/site/scripts/startup-budget.ts`.
+3. Remove the `TurboCache` entry from `apps/site/scripts/startup-report.ts`.
 4. Remove the root `turbo-cache:token` script and `allowBuilds.alchemy-turbo-cache` entry, then refresh the lockfile.
 5. Remove `.brain/areas/turbo-cache.svx` and clear the GitHub cache credentials through the authorized owner.
 6. Run `pnpm turbo run check test build`.

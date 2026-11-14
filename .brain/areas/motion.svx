@@ -82,5 +82,5 @@ Each rule is an `it.prop` property over generated inputs. Each property also run
 
 - `pnpm --filter @rat-stack/motion test` runs the properties and the planted bugs.
 - `packages/motion/test/vendoring.test.ts` fails if a core module imports anything except another core module, or names a browser global.
-- `pnpm --filter @rat-stack/site typecheck` prints the Mischief startup size against its ceiling.
+- `pnpm --filter @rat-stack/site typecheck` prints the Mischief startup size and its change since the last run.
 - Open [/systems/motion](/systems/motion) with reduced motion turned on. The dots and curves show their end state.

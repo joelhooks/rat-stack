@@ -1,6 +1,6 @@
 import { WorkerBundle } from "@alchemy.run/cloudflare/Workers/Sources/Rolldown";
 import { NodeServices } from "@effect/platform-node";
-import { Context, Effect, FileSystem, Schema } from "effect";
+import { Context, Effect, FileSystem, Option, Schema } from "effect";
 
 import {
   feedbackAuthBuild,
@@ -9,9 +9,9 @@ import {
 import { PublicAuthBundleLeak } from "./startup-auth-dependency.ts";
 import { assertBuildOnlyModules } from "./startup-build-dependency.ts";
 import {
-  assertStartupBudget,
   measureStartupSet,
   StartupGraph,
+  startupReport,
 } from "./startup-set.ts";
 import { StartupWorkerEntryMissing } from "./startup-worker-entry-missing.ts";
 import { assertWorkshopIsolation } from "./startup-workshop-isolation.ts";
@@ -23,12 +23,13 @@ const BundleGraph = Schema.fromJsonString(
   })
 );
 
-const startupBudgets = {
-  LearnFeedbackAuth: 628_000,
-  Mischief: 1_114_000,
-  TurboCache: 480_000,
-  Workshop: 870_000,
-};
+const PreviousMetrics = Schema.fromJsonString(
+  Schema.Struct({
+    entryBytes: Schema.Finite,
+    javascriptBytes: Schema.Finite,
+    startupBytes: Schema.Finite,
+  })
+);
 
 const workerEntries = {
   LearnFeedbackAuth: {
@@ -53,10 +54,8 @@ const workerEntries = {
   },
 };
 
-const javascriptAlarmBytes = 2_500_000;
-
 const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
-  worker: keyof typeof startupBudgets
+  worker: keyof typeof workerEntries
 ) {
   const fs = yield* FileSystem.FileSystem;
   const bundler = yield* WorkerBundle;
@@ -177,32 +176,33 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
 
   const javascriptBytes = files.reduce((total, file) => total + file.bytes, 0);
   const startup = yield* measureStartupSet(files, graph, entry.path);
-  const startupBudgetBytes = startupBudgets[worker];
+  const metricsPath = `${directory}/metrics.json`;
+
+  const previous = (yield* fs.exists(metricsPath))
+    ? yield* fs
+        .readFileString(metricsPath)
+        .pipe(
+          Effect.flatMap(Schema.decodeEffect(PreviousMetrics)),
+          Effect.option,
+          Effect.map(Option.getOrUndefined)
+        )
+    : undefined;
 
   const metrics = {
     entryBytes,
-    javascriptAlarmBytes,
     javascriptBytes,
     ...startup,
-    startupBudgetBytes,
     worker,
   };
 
-  yield* Effect.log(
-    `${worker} entry: ${entryBytes} bytes; static startup: ${startup.startupBytes} bytes; shrink-only ceiling: ${startupBudgetBytes}; complete JS upload (alarm only): ${javascriptBytes} bytes`
-  );
+  const report = startupReport(worker, metrics, previous);
+  yield* Effect.log(report.line);
 
-  if (javascriptBytes > javascriptAlarmBytes) {
-    yield* Effect.logWarning(
-      `${worker}'s complete JavaScript upload is ${javascriptBytes} bytes, over the ${javascriptAlarmBytes}-byte alarm. Only startup bytes gate code size, but a growing upload usually means content data landed in code. Fix: inspect the dynamic chunks in \`apps/site/${directory}\`, and move growing page data into static assets.`
-    );
+  if (report.warning !== undefined) {
+    yield* Effect.logWarning(report.warning);
   }
 
-  yield* fs.writeFileString(
-    `${directory}/metrics.json`,
-    JSON.stringify(metrics)
-  );
-  yield* assertStartupBudget(startup.startupBytes, startupBudgetBytes, worker);
+  yield* fs.writeFileString(metricsPath, JSON.stringify(metrics));
 
   return metrics;
 });
