@@ -37,19 +37,19 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.85",
-    "@alchemy.run/drizzle": "2.0.0-beta.85",
-    "@alchemy.run/sql": "2.0.0-beta.85",
-    "@effect/sql-pg": "4.1.2",
-    "alchemy": "2.0.0-beta.85",
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "@alchemy.run/drizzle": "2.0.0-beta.87",
+    "@alchemy.run/sql": "2.0.0-beta.87",
+    "@effect/sql-pg": "4.1.4",
+    "alchemy": "2.0.0-beta.87",
     "drizzle-orm": "1.0.0-rc.5",
-    "effect": "4.1.2",
+    "effect": "4.1.4",
     "pg": "8.23.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261108.1",
-    "@effect/platform-node": "4.1.2",
-    "@effect/vitest": "4.1.2",
+    "@effect/platform-node": "4.1.4",
+    "@effect/vitest": "4.1.4",
     "@electric-sql/pglite": "0.5.15",
     "@types/node": "24.19.2",
     "@types/pg": "8.23.1",

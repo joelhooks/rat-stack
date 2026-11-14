@@ -16,7 +16,7 @@ terms:
   - "Turbo remote cache"
   - "artifact retention"
 sources:
-  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52
+  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763
     title: "alchemy-turbo-cache v0.0.0"
     publisher: "Joel Hooks"
     note: "The extracted cartridge owns the Worker, bucket, credentials, protocol tests and read-only handoff."
@@ -40,12 +40,12 @@ sources:
 
 ## What it does
 
-[alchemy-turbo-cache v0.0.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
+[alchemy-turbo-cache v0.0.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
 `packages/turbo-cache` supplies rat-stack's configuration and adoption test.
 The Stack includes the [cartridge](/lore/cartridges) with `yield* turboCache`.
 The local README describes configuration and removal.
 
-The dependency pins Git commit `a51a7ba6ea56728f89c4214befe8bf940a946e52`.
+The dependency pins Git commit `c081c295b23855fa9245c21a0ec16dd1e2072763`.
 pnpm prepares its compiled exports during installation through the package-specific `allowBuilds` entry.
 No protocol or credential-handoff implementation remains in rat-stack.
 

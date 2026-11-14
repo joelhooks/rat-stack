@@ -70,6 +70,6 @@ Swapping `DomainCloudflare.layerDurableObjects()` for `Domain.InMemory` changes 
 
 ## Where it meets rat-stack
 
-rat-stack pins Alchemy `2.0.0-beta.85`, the release that ships this package.
+rat-stack pins Alchemy `2.0.0-beta.87`, which ships this package as `@alchemy.run/domain` `2.0.0-beta.87`. The links above stay at beta.85, the release this page was checked against.
 rat-stack's own Workers do not run on Alchemy Domain yet.
 An optional `@alchemy.run/domain/Foldkit` [adapter](/lore/hexagonal-architecture) connects a Domain Api to a Foldkit app, as the [Foldkit chapter](https://github.com/alchemy-run/alchemy/blob/d0b4a3326718309793459160e94b35abee517b23/website/src/content/docs/domain/foldkit.mdx) describes.

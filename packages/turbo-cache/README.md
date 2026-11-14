@@ -1,12 +1,12 @@
 # Turbo remote cache
 
-This package is rat-stack's declaration of [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/a51a7ba6ea56728f89c4214befe8bf940a946e52), version `0.0.0`. The external package owns the protocol adapter, Worker, R2 bucket, generated team credentials and read-only token handoff. This package keeps only the project configuration and an adoption seam test.
+This package is rat-stack's declaration of [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763), version `0.0.0`. The external package owns the protocol adapter, Worker, R2 bucket, generated team credentials and read-only token handoff. This package keeps only the project configuration and an adoption seam test.
 
 ## Declaration and installation
 
 `src/index.ts` default-exports the cartridge so Alchemy loads the same declaration inside the Worker runtime. The Stack still includes it with `yield* turboCache` from `@rat-stack/turbo-cache`.
 
-The dependency is `github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52`, the commit behind tag `v0.0.0`. It is not on npm. pnpm builds its exports during Git dependency preparation. `allowBuilds.alchemy-turbo-cache` authorizes that reviewed prepare script. No tarball is vendored. A fresh install needs GitHub access as well as the existing registry access.
+The dependency is `github:joelhooks/alchemy-turbo-cache#c081c295b23855fa9245c21a0ec16dd1e2072763`, the commit behind tag `v0.0.0`. It is not on npm. pnpm builds its exports during Git dependency preparation. `allowBuilds.alchemy-turbo-cache` authorizes that reviewed prepare script. No tarball is vendored. A fresh install needs GitHub access as well as the existing registry access.
 
 The configuration preserves these logical resource identities:
 
@@ -20,7 +20,7 @@ The team is `rat-stack`, retention is seven days from upload, and only stage `pr
 
 Turbo's binary artifact protocol remains an external adapter. A capability projection requires struct inputs, excludes HEAD, and cannot preserve the raw upload stream and per-artifact response headers. The package adds no application capability or alternate agent route.
 
-R2 stores disposable CI outputs under `team/hash`. Each generated bearer authorizes only its team's prefix. A writer can replace artifacts in that team. Turbo owns signature generation and verification; the Worker preserves the signature tag. The [upstream README](https://github.com/joelhooks/alchemy-turbo-cache/blob/a51a7ba6ea56728f89c4214befe8bf940a946e52/README.md) records the routes, authentication, streaming behavior and trust limits.
+R2 stores disposable CI outputs under `team/hash`. Each generated bearer authorizes only its team's prefix. A writer can replace artifacts in that team. Turbo owns signature generation and verification; the Worker preserves the signature tag. The [upstream README](https://github.com/joelhooks/alchemy-turbo-cache/blob/c081c295b23855fa9245c21a0ec16dd1e2072763/README.md) records the routes, authentication, streaming behavior and trust limits.
 
 ## Credentials
 

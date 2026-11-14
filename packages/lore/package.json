@@ -31,10 +31,10 @@
   },
   "dependencies": {
     "@rat-stack/core": "workspace:*",
-    "effect": "4.1.2"
+    "effect": "4.1.4"
   },
   "devDependencies": {
-    "@effect/vitest": "4.1.2",
+    "@effect/vitest": "4.1.4",
     "typescript": "7.0.2",
     "vitest": "5.1.0"
   }
