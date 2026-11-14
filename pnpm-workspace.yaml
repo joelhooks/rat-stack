@@ -45,7 +45,7 @@ minimumReleaseAgeExclude:
   - "@effect/vitest@4.1.4"
   - xstate@6.0.0-beta.1
   - "@xstate/effect@1.0.0-beta.0"
-  - better-auth@1.7.11
+  - better-auth@1.7.23
   - "@alchemy.run/cloudflare-runtime@2.0.0-beta.87"
   - "@alchemy.run/node-utils@2.0.0-beta.87"
   - "@alchemy.run/acme@2.0.0-beta.87"
@@ -79,3 +79,10 @@ minimumReleaseAgeExclude:
   - "@tsrs/win32-x64@0.23.0-ts7.1.0-beta"
   - "@cloudflare/workers-types@5.20261108.1"
   - tla-ts@0.0.9
+  - "@better-auth/core@1.7.23"
+  - "@better-auth/drizzle-adapter@1.7.23"
+  - "@better-auth/kysely-adapter@1.7.23"
+  - "@better-auth/memory-adapter@1.7.23"
+  - "@better-auth/mongo-adapter@1.7.23"
+  - "@better-auth/prisma-adapter@1.7.23"
+  - "@better-auth/telemetry@1.7.23"
