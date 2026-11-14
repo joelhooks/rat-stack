@@ -19,9 +19,9 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - `@yielded/effect-tsrs` `0.2.3` runs `typecheck` and `check` with `diagnostics --project tsconfig.json --strict --type-check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail. It bundles tsrs revision `8f135f106a63`, contained in plain tsrs `0.20.0`. Keep `ignoreEffectWarningsInTscExitCode` false. Patched TypeScript `7.0.2` with `@effect/tsgo` `0.67.5` runs through `typecheck:tsc` and `typecheck:parity` at the switch and on checker bumps (`pnpm bump:checkers`), not on every CI run. Report any checker disagreement.
 - Plain tsrs `0.23.0-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
 - `@effect/vitest` `4.1.4` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
-- `@oxlint/plugins` `1.92.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
-- Oxlint `1.92.0` with Ultracite `8.1.1`, Oxfmt `0.77.0`, and Turborepo `2.11.10`
-- varlock `1.24.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
+- `@oxlint/plugins` `1.93.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
+- Oxlint `1.93.0` with Ultracite `8.2.0`, Oxfmt `0.78.0`, and Turborepo `2.11.11`
+- varlock `1.25.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
 
 The base Effect plugin owns diagnostic severity. Child configs may add exact `allowedUnstableApis` only for modules warned about in that scope. Do not use subtree prefixes, copy severity maps, or set `ignoreEffectWarningsInTscExitCode` to true.
 

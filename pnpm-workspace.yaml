@@ -1,7 +1,7 @@
 verifyDepsBeforeRun: error
 
 overrides:
-  kysely: 0.29.4
+  kysely: 0.29.9
 
 packages:
   - "apps/*"
@@ -77,8 +77,8 @@ minimumReleaseAgeExclude:
   - "@tsrs/linux-x64-gnu@0.23.0-ts7.1.0-beta"
   - "@tsrs/linux-x64-musl@0.23.0-ts7.1.0-beta"
   - "@tsrs/win32-x64@0.23.0-ts7.1.0-beta"
-  - "@cloudflare/workers-types@5.20261108.1"
-  - tla-ts@0.0.9
+  - "@cloudflare/workers-types@5.20261114.1"
+  - tla-ts@0.0.10
   - "@better-auth/core@1.7.23"
   - "@better-auth/drizzle-adapter@1.7.23"
   - "@better-auth/kysely-adapter@1.7.23"
