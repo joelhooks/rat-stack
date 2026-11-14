@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "1.5.2",
-    "@effect/tsgo": "0.67.5",
+    "@effect/tsgo": "0.69.0",
     "@foldkit/oxlint-plugin": "0.15.4",
     "@oxlint/plugins": "1.93.0",
     "@types/node": "24.19.2",
@@ -63,7 +63,7 @@
     "oxlint": "1.93.0",
     "oxlint-tsgolint": "7.0.2007",
     "portless": "0.17.0",
-    "tsrs": "0.23.0-ts7.1.0-beta",
+    "tsrs": "0.25.0-ts7.1.0-beta",
     "turbo": "2.11.11",
     "typescript": "7.0.2",
     "ultracite": "8.2.0",
