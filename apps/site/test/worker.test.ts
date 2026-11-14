@@ -841,7 +841,7 @@ it.effect(
           "search-debt-ledger",
           "tools/call",
           {
-            arguments: { limit: 10, query: "Debt only shrinks" },
+            arguments: { limit: 10, query: "Prefer paying debt down" },
             name: "search",
           },
           "search"
@@ -875,7 +875,7 @@ it.effect(
         expect(markdownResponse.headers.get("content-type")).toContain(
           "text/markdown"
         );
-        expect(markdown).toContain('> "Debt only shrinks."');
+        expect(markdown).toContain('> "Prefer paying debt down."');
         expect(markdown).toContain("Total: **");
         expect(markdown).toContain("tools/oxlint/anti-slop/");
         expect(page).toContain("<li>Directive:");

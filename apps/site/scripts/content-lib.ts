@@ -1690,7 +1690,7 @@ export const debtLedgerMarkdown = (entries: readonly DebtEntry[]) => {
   return [
     "# Debt ledger",
     "",
-    '> "Debt only shrinks."',
+    '> "Prefer paying debt down."',
     "",
     `Total: **${entries.length}** directives.`,
     "",

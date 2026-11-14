@@ -81,7 +81,7 @@ These checks enforce it today:
 - The same command compares plain tsrs with patched `tsc`, excluding Effect-only codes. Plain tsrs cannot emit those diagnostics.
 - Code carries no prose comments. Tool directives need a reason after `--`; type assertions need a one-line `SAFETY:` statement of the condition that makes the assertion safe. Plain JS may keep type-only JSDoc. [No comments](/lore/no-comments) and [repo law](/AGENTS.md) give the full exception policy.
 - Every lint or diagnostic override names its rule and gives a reason.
-- The number of overrides only shrinks. The [debt ledger](/debt.md), a report counting lint and diagnostic exceptions, publishes the count by kind.
+- Prefer fewer overrides; adding one is allowed with a one-line reason in the PR. The [debt ledger](/debt.md), a report counting lint and diagnostic exceptions, publishes the count by kind.
 - A new lint rule ships with a test that runs real Oxlint against fixtures.
 - Loosening any of this needs the owner's sign-off.
 

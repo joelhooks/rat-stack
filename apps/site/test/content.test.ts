@@ -264,7 +264,7 @@ it.effect("decodes Oxlint JSON and formats the debt ledger", () =>
       reason: "fixture reason",
     });
     expect(result.entries[2]?.reason).toBeUndefined();
-    expect(markdown).toContain('> "Debt only shrinks."');
+    expect(markdown).toContain('> "Prefer paying debt down."');
     expect(markdown).toContain("Total: **4** directives.");
     expect(markdown).toContain("apps/sample.ts:2");
     expect(markdown).toContain("no reason given");

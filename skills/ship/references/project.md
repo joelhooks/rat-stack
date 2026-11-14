@@ -42,18 +42,6 @@ A refused plan stops before apply. The verdict's `resources` field names each re
 - The post-deploy watch writes `.rat/deploy/<profile>/watch-<time>.json` and copies it to `last-watch.json`. Stdout gets the same receipt as one JSON line when the watch ends: `outcome` is `passed`, `rolled-back`, `rollback-failed`, `crashed` or `interrupted`, with `reason` and `fix` for anything but `passed`.
 - The exit code follows the watch: 0 passed, 2 rolled back, 3 interrupted, 4 rollback failed, 5 crashed.
 
-## Quiet windows
-
-A quiet window is a UTC time range when `deployProd` must not apply, for example while another project deploys to the same account. Planning still runs.
-
-- `DEPLOY_QUIET_WINDOWS` holds the windows as JSON. Empty means no windows.
-- `{"start":"14:00","end":"15:30"}` repeats every day. It may cross midnight.
-- `{"start":":59","end":":01"}` repeats every hour. It may cross the hour.
-- Both times in one window use the same form.
-- `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` sets how long the driver may wait. The default is 0, so it refuses at once. The maximum is one hour.
-- The check runs after the plan passes and just before apply. Inside a window, the driver waits for its end if that end comes within the bound. Otherwise it refuses with `inside-quiet-window`.
-- An invalid window list refuses with `quiet-window-config-invalid`.
-
 The classifier reads native Alchemy plan values, including bindings and tasks. It never reads terminal formatting. Alchemy confirmations use the capability approval service. Other unattended prompts fail with a typed error.
 
 Retention protects the physical resource only. Alchemy skips physical deletion but removes the state row. The apply receipt lists confirmed retained orphans. Retention changes appear as noops and reach persisted state only on apply.
@@ -128,8 +116,6 @@ Varlock 1.24.0 supports `KEY=exec("command that returns the value")`. A local re
 ```text title=".env.production.local"
 ALCHEMY_PROFILE=my-profile
 EXAMPLE_API_KEY=exec(`my-secret-cli read example_api_key`)
-DEPLOY_QUIET_WINDOWS=[{"start":":59","end":":01"},{"start":"15:30","end":"16:30"}]
-DEPLOY_QUIET_WINDOW_MAX_WAIT_MS=600000
 ```
 
 - `exec()` runs the command in a shell. It removes one trailing newline from the output.

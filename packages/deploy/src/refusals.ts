@@ -12,7 +12,6 @@ export const RefusalReasonSchema = Schema.Literals([
   "credential-preflight-did-not-complete",
   "environment-must-not-override-profile",
   "explicit-resource-action-approval-required",
-  "inside-quiet-window",
   "invalid-deploy-input",
   "invalid-or-duplicate-plan-row",
   "live-version-readback-refused",
@@ -35,7 +34,6 @@ export const RefusalReasonSchema = Schema.Literals([
   "profile-input-invalid",
   "profile-input-mismatch",
   "profile-not-pinned",
-  "quiet-window-config-invalid",
   "receipt-encoding-refused",
   "receipt-write-refused",
   "recovery-receipt-profile-or-targets-invalid",
@@ -110,10 +108,6 @@ const guides: Record<RefusalReason, RefusalGuide> = {
   "explicit-resource-action-approval-required": {
     fix: 'review each listed resource, then pass `--allow \'[{"resource":"<fqn>","action":"<action>"}]\'` for each one you approve.',
     why: "Only updates and no-ops pass by default.",
-  },
-  "inside-quiet-window": {
-    fix: "wait until the window ends, or raise `DEPLOY_QUIET_WINDOW_MAX_WAIT_MS` (at most one hour) so the driver waits for it.",
-    why: "Another deploy may be using the account during a quiet window.",
   },
   "invalid-deploy-input": {
     fix: "correct the listed keys in `.env.production.local` to match `.env.schema`, then run `APP_ENV=production pnpm exec varlock load --agent`.",
@@ -202,10 +196,6 @@ const guides: Record<RefusalReason, RefusalGuide> = {
   "profile-not-pinned": {
     fix: "run `pnpm deploy:prod --profile <profile> --yes` from the start, so preflight pins the profile.",
     why: "The checks run on the profile preflight pinned, and there is none.",
-  },
-  "quiet-window-config-invalid": {
-    fix: 'set `DEPLOY_QUIET_WINDOWS` to a JSON list such as `[{"start":"14:00","end":"15:30"}]`, both times in one form, or leave it empty.',
-    why: "The driver cannot tell whether it is inside a quiet window.",
   },
   "receipt-encoding-refused": {
     fix: "rerun the deploy; if it repeats, report the verdict, because the receipt no longer matches `ApplyReceiptSchema`.",
