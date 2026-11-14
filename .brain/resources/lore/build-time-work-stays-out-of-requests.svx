@@ -26,10 +26,10 @@ sources:
     publisher: "Primary source"
     note: "Request-time asset access"
     accessed: "2026-10-02"
-  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-budget.ts
-    title: "Startup budget"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-report.ts
+    title: "Startup report"
     publisher: "Primary source"
-    note: "Worker bundle limits"
+    note: "Worker bundle report and build-only module check"
     accessed: "2026-10-02"
 ---
 
@@ -41,9 +41,7 @@ Request-time work receives static output.
 It does not resolve Git objects or start Shiki.
 
 The proposed check verifies that neither the snippet package nor Shiki enters the startup bundle.
-The existing [startup budget](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-budget.ts) limits:
-- Entry JavaScript to 3,300,000 bytes.
-- Complete JavaScript upload to 5,000,000 bytes.
+The [startup report](https://github.com/joelhooks/rat-stack/blob/main/apps/site/scripts/startup-report.ts) fails the build when a build-only module enters a Worker upload, and logs each Worker's size.
 
 Check the modules included in the bundle, as well as its size, to verify which packages it includes.
 

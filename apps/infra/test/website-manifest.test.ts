@@ -13,6 +13,8 @@ import {
   Layer,
   Schema,
 } from "effect";
+import * as Digest from "effect/crypto/Digest";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpClient from "effect/http/HttpClient";
 
 import { WebsiteContentManifestError } from "../../web/src/website-content-manifest-error.js";
@@ -23,7 +25,15 @@ const manifestPath = fileURLToPath(
 );
 
 const services = Layer.mergeAll(
-  AlchemyContextLive.pipe(Layer.provideMerge(NodeServices.layer)),
+  AlchemyContextLive.pipe(
+    Layer.provideMerge(
+      Layer.mergeAll(
+        NodeServices.layer,
+        SecureRandom.layerWebCrypto,
+        Digest.layerWebCrypto
+      )
+    )
+  ),
   Layer.succeed(Stage, "prod"),
   Layer.succeed(AuthProviders, {}),
   Layer.succeed(

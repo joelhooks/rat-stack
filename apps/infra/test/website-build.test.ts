@@ -10,6 +10,15 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { readerHtmlProof } from "../../site/test/reader-html-proof.js";
 import { proveWebsiteWorkerd } from "./website-workerd.js";
 
+const cloudflareWorkerSizeLimitBytes = 64 * 1024 * 1024;
+
+const warnPastHalfOfCloudflareLimit = (javascriptBytes: number) =>
+  javascriptBytes > cloudflareWorkerSizeLimitBytes / 2
+    ? Effect.logWarning(
+        `The Website upload is ${javascriptBytes} bytes, over half of Cloudflare's ${cloudflareWorkerSizeLimitBytes}-byte Worker limit. Cloudflare refuses uploads past the limit. Fix: move reader page data into static assets; \`apps/web/STARTUP.md\` explains the split.`
+      )
+    : Effect.void;
+
 const workerProbe = String.raw`
 import { readFile } from "node:fs/promises";
 import { registerHooks } from "node:module";
@@ -95,8 +104,6 @@ it.layer(NodeServices.layer)((test) => {
 
         expect(entry).toBeDefined();
 
-        const entryBudgetBytes = 1_600_000;
-        const nonContentBudgetBytes = 4_500_000;
         const entryBytes = new Blob([entry.content]).size;
 
         const javascript = result.serverBundle.files.filter((file) =>
@@ -127,25 +134,20 @@ it.layer(NodeServices.layer)((test) => {
           JSON.stringify({
             contentBytes,
             contentModules: contentModules.map((file) => file.path),
-            entryBudgetBytes,
             entryBytes,
             javascriptBytes,
-            nonContentBudgetBytes,
             nonContentBytes,
           })
         );
         yield* Effect.log(
-          `Website hard budgets: entry ${entryBytes}/${entryBudgetBytes} bytes; non-content JavaScript ${nonContentBytes}/${nonContentBudgetBytes} bytes`
+          `Website upload: entry ${entryBytes} bytes; non-content JavaScript ${nonContentBytes} bytes; content ${contentBytes} bytes; total ${javascriptBytes} bytes, ${((javascriptBytes / cloudflareWorkerSizeLimitBytes) * 100).toFixed(1)}% of Cloudflare's ${cloudflareWorkerSizeLimitBytes}-byte Worker limit`
         );
-        yield* Effect.logWarning(
-          `Website content size alarm (non-blocking): ${contentBytes} bytes; complete JavaScript upload ${javascriptBytes} bytes`
-        );
+        yield* warnPastHalfOfCloudflareLimit(javascriptBytes);
+
         expect(entryBytes).toBeGreaterThan(0);
         expect(contentModules.length).toBeGreaterThan(0);
         expect(contentModules).not.toContain(entry);
         expect(nonContentBytes).toBeGreaterThanOrEqual(entryBytes);
-        expect(entryBytes).toBeLessThanOrEqual(entryBudgetBytes);
-        expect(nonContentBytes).toBeLessThanOrEqual(nonContentBudgetBytes);
 
         const { prerendered } = result.foldkit.manifest;
 

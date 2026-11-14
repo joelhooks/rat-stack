@@ -57,7 +57,7 @@
     "@oxlint/plugins": "1.92.0",
     "@types/node": "24.19.2",
     "@yielded/effect-tsrs": "0.2.3",
-    "effect": "4.1.2",
+    "effect": "4.1.4",
     "lefthook": "2.2.2",
     "oxfmt": "0.77.0",
     "oxlint": "1.92.0",

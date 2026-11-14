@@ -23,8 +23,8 @@
     "check": "pnpm run typecheck"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.85",
-    "@effect/platform-browser": "4.1.2",
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "@effect/platform-browser": "4.1.4",
     "@foldkit/ui": "0.170.0",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
@@ -33,13 +33,13 @@
     "@rat-stack/motion": "workspace:*",
     "@rat-stack/site": "workspace:*",
     "@stylexjs/stylex": "0.19.1",
-    "alchemy": "2.0.0-beta.85",
-    "effect": "4.1.2",
+    "alchemy": "2.0.0-beta.87",
+    "effect": "4.1.4",
     "foldkit": "0.170.0"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.1.2",
-    "@effect/vitest": "4.1.2",
+    "@effect/platform-node": "4.1.4",
+    "@effect/vitest": "4.1.4",
     "@foldkit/devtools": "0.170.0",
     "@foldkit/markdown": "0.15.0",
     "@foldkit/vite-plugin": "0.29.0",

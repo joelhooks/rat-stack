@@ -1,6 +1,6 @@
-# Mischief startup budget
+# Worker startup size
 
-Run the portable size gate from the repository root:
+Run the portable size report from the repository root:
 
 ```sh
 pnpm --filter @rat-stack/site typecheck
@@ -8,13 +8,23 @@ pnpm --filter @rat-stack/site typecheck
 
 It generates content, typechecks, and builds production Workers with Alchemy's `WorkerBundle`. It does not import the Stack, plan infrastructure, upload a Worker, or require cloud credentials.
 
-The hard, shrink-only ceilings cover the **static startup set**: **1,114,000 bytes for Mischief** and **628,000 bytes for LearnFeedbackAuth**, and **870,000 bytes for Workshop**. Lower a ceiling when code shrinks. Never raise it to accept growth. LearnFeedbackAuth's temporary raise has been retired; see [Request-time D1 auth](#request-time-d1-auth). Both `pnpm check` and `pnpm turbo run check test build` reach this gate.
+For each Worker, `scripts/startup-report.ts` logs the entry bytes, the **static startup set** and the total JavaScript upload. It also logs the change since the last local run and the upload's share of Cloudflare's real limit. Size never fails the build. Past half of Cloudflare's limit it warns. Both `pnpm check` and `pnpm turbo run check test build` run it.
+
+Cloudflare's limits are the ones that matter: a Worker may be up to **64 MiB uncompressed**, and its global scope must finish evaluating within **1 second**. Our Workers upload about 0.6–1.2 MB and start in about 90–140 ms in local profiles.
 
 The harness starts at the upload's entry module and follows only static imports in Rolldown's `analysis.json`. It sums actual uploaded JavaScript bytes, including the entry, once per module. Shared chunks and cycles count once. Dynamic imports and their exclusively reachable dependencies do not count. Missing static graph or upload evidence fails with `StartupGraphInvalid`; inspect the graph and rebuild.
 
-Entry bytes and total JavaScript bytes remain logged measurements. Total JavaScript above **2,500,000 bytes** emits a warning, never a size failure. Page sources, search records, and graph data are static assets outside the JavaScript upload. Their growth does not block this gate. Fixed document shells remain startup code when statically imported. Do not inline growing content data into startup code.
+These behaviour checks still fail the build, because each one guards something a size number cannot: no auth code in the public Worker (`PublicAuthBundleLeak`), no build-only modules in an upload (`StartupBuildDependency`), and no workshop imports in Mischief. The request seam test proves learning code loads only on a learning request.
 
-`dist/startup/metrics.json`, `dist/startup-auth/metrics.json`, and `dist/startup-workshop/metrics.json` record entry bytes, startup bytes, the counted filenames, total JavaScript bytes, and ceilings. Metrics are written before the size verdict, including failed measurements.
+Page sources, search records, and graph data are static assets outside the JavaScript upload. Fixed document shells remain startup code when statically imported. Do not inline growing content data into startup code.
+
+`dist/startup/metrics.json`, `dist/startup-auth/metrics.json`, `dist/startup-workshop/metrics.json` and `dist/startup-turbo-cache/metrics.json` record entry bytes, startup bytes, the counted filenames and total JavaScript bytes. The next run reads them to report the change.
+
+## Why there are no size ceilings
+
+From 2026-10-01 to 2026-11-14 a hard, shrink-only ceiling on each Worker's startup bytes failed the build. A desk set it while trimming Mischief's entry, not from any request by Joel, and later briefs turned it into a rule that ceilings only ever fall. With no headroom, ordinary dependency growth failed the gate. Alchemy beta.86 added about 20–28 KB per Worker, around 2%, and the gate held the stack on beta.85 for days.
+
+The measurements in this file show why the ceiling protected nothing. The beta.85 bump added 82 KB to Mischief's startup set and local startup went from 138 to 131 ms. Removing 897 KB from LearnFeedbackAuth saved about 8 ms. On one host, three `wrangler check startup` runs each: Mischief on beta.85 (1,098,492 startup bytes) took a median 122.9 ms elapsed and 92.7 ms active. On beta.86 with Effect 4.1.4 (1,126,536 bytes, 28 KB more) it took 131.4 ms elapsed and 95.8 ms active. That is about 3 ms of active time against Cloudflare's 1,000 ms. Startup time tracks what global scope does, not a few kilobytes of parsed code. Sections below record measurements from the ceiling era; their "ceiling" columns are history.
 
 ## Isolated Workshop Worker
 
@@ -32,7 +42,7 @@ Measurements on the same fully built workspace:
 | LearnFeedbackAuth | 1,515,481 | 1,515,481 | 1,515,481 | 1,515,481 | 1,516,000 |
 | Workshop | — | — | — | 862,284 | 870,000 |
 
-Workshop's initial ceiling is its measured static startup rounded up to the next 10,000 bytes. It only shrinks. The other ceilings are unchanged. Early standalone measurements made before all workspace dependencies were built are not valid baselines.
+Early standalone measurements made before all workspace dependencies were built are not valid baselines.
 
 ## Page count no longer sets bundle size
 
@@ -174,9 +184,9 @@ Use a disposable checkout of `2b7310c`. Keep mutations uncommitted, and undo eac
    pnpm --filter @rat-stack/site startup:check
    ```
 
-   Expect `StartupBudgetExceeded`: LearnFeedbackAuth static startup is 1,515,818 bytes, exceeding the 628,000-byte ceiling. Inspect the failed run's metrics, which are written before the size verdict. Undo the added import and expression replacement.
+   Expect the report to show LearnFeedbackAuth's static startup at about 1,515,818 bytes, a jump of about 897 KB since the last run. Undo the added import and expression replacement.
 
-After removing the mutations, rebuild `@rat-stack/auth`, rerun `test/cold-auth-runtime.test.ts`, and rerun `startup:check` with the commands above. The cold request test and startup gate must pass again.
+After removing the mutations, rebuild `@rat-stack/auth`, rerun `test/cold-auth-runtime.test.ts`, and rerun `startup:check` with the commands above. The cold request test must pass again, and the report must show the startup set back near 618,566 bytes.
 
 No WorkerBridge replacement or minification experiment was needed. Beta.85's `getSharedBuild` installs its Node layers unconditionally, with no caller option to omit them. Its Rolldown builder already sets `minify: true`. Both remain unchanged.
 
@@ -236,4 +246,4 @@ Main also gained identity validation and observability changes during this slice
 
 There is deliberately no portable millisecond gate. Wrangler's alpha profiler samples a dynamically imported Worker during a local request. Elapsed time includes inspector and idle time; sampled non-idle time is not Cloudflare's startup CPU accounting. CPUs, runner load, V8 versions, and sampling vary. Use profiles on the same host for comparisons, and calibrate runners against an empty-worker control before making milliseconds a CI threshold.
 
-The startup ceilings guard code growth. Total JavaScript is an alarm only. Neither measurement is Cloudflare's compressed-upload limit or proof that a deployment will start successfully. Live startup and parity remain deployment checks.
+The size report shows code growth; it does not prove that a deployment will start. Live startup and parity remain deployment checks.

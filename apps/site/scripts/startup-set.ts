@@ -1,7 +1,5 @@
 import { Effect, Schema } from "effect";
 
-import { StartupBudgetExceeded } from "./startup-budget-exceeded.ts";
-
 export const StartupGraph = Schema.Struct({
   chunks: Schema.Array(
     Schema.Struct({
@@ -29,14 +27,37 @@ export class StartupGraphInvalid extends Schema.TaggedError<
   }
 }
 
-export const assertStartupBudget = (
-  bytes: number,
-  budget: number,
-  worker: string
-) =>
-  bytes > budget
-    ? Effect.fail(new StartupBudgetExceeded({ budget, bytes, worker }))
-    : Effect.void;
+export const cloudflareWorkerSizeLimitBytes = 64 * 1024 * 1024;
+
+export interface StartupSizes {
+  readonly entryBytes: number;
+  readonly javascriptBytes: number;
+  readonly startupBytes: number;
+}
+
+const signed = (delta: number) => (delta >= 0 ? `+${delta}` : `${delta}`);
+
+const percentOfLimit = (bytes: number) =>
+  ((bytes / cloudflareWorkerSizeLimitBytes) * 100).toFixed(1);
+
+export const startupReport = (
+  worker: string,
+  sizes: StartupSizes,
+  previous: StartupSizes | undefined
+) => {
+  const change =
+    previous === undefined
+      ? "no previous run to compare"
+      : `static startup ${signed(sizes.startupBytes - previous.startupBytes)} bytes, upload ${signed(sizes.javascriptBytes - previous.javascriptBytes)} bytes since the last run`;
+
+  return {
+    line: `${worker} entry: ${sizes.entryBytes} bytes; static startup: ${sizes.startupBytes} bytes; JavaScript upload: ${sizes.javascriptBytes} bytes, ${percentOfLimit(sizes.javascriptBytes)}% of Cloudflare's ${cloudflareWorkerSizeLimitBytes}-byte Worker limit; ${change}`,
+    warning:
+      sizes.javascriptBytes > cloudflareWorkerSizeLimitBytes / 2
+        ? `${worker}'s JavaScript upload is ${sizes.javascriptBytes} bytes, over half of Cloudflare's ${cloudflareWorkerSizeLimitBytes}-byte Worker limit. Cloudflare refuses uploads past the limit. Fix: move page data into static assets or split the Worker before it gets there; \`apps/site/STARTUP.md\` shows how to inspect the chunks.`
+        : undefined,
+  };
+};
 
 export const measureStartupSet = Effect.fn("measureStartupSet")(
   function* measureStartupSet(

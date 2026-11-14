@@ -101,6 +101,8 @@ A [total upload above 2,500,000 bytes](https://github.com/joelhooks/rat-stack/bl
 It knows exactly how large your “small helper” is.
 Do not offer it a larger building.
 
+The python was released on November 14, 2026. Nobody could find who had brought it in. The building was never close to full: Cloudflare allows 64 MiB, and the python guarded about one.
+
 ## Mischief
 
 **Habitat:** [the site's Worker](https://github.com/joelhooks/rat-stack/blob/81e9a318e6ce3e767c62be6c2505605bfbb1f021/apps/site/src/worker.ts), in `apps/site/src/worker.ts`.

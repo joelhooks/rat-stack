@@ -25,15 +25,15 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.85",
-    "alchemy": "2.0.0-beta.85",
-    "alchemy-turbo-cache": "github:joelhooks/alchemy-turbo-cache#a51a7ba6ea56728f89c4214befe8bf940a946e52",
-    "effect": "4.1.2"
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "alchemy": "2.0.0-beta.87",
+    "alchemy-turbo-cache": "github:joelhooks/alchemy-turbo-cache#c081c295b23855fa9245c21a0ec16dd1e2072763",
+    "effect": "4.1.4"
   },
   "devDependencies": {
-    "@alchemy.run/test": "2.0.0-beta.85",
+    "@alchemy.run/test": "2.0.0-beta.87",
     "@cloudflare/workers-types": "5.20261108.1",
-    "@effect/vitest": "4.1.2",
+    "@effect/vitest": "4.1.4",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.1.0"

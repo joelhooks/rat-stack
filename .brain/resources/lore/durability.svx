@@ -26,7 +26,7 @@ sources:
 
 Use [the durability skill](/skills/durability) to review a design. [The durability system page](/systems/durability) shows the patterns rat-stack ships. These pages separate the book principles from our Effect API mappings.
 
-The mappings were written and checked against Effect 4.0.0. The template now pins Effect 4.1.2, and the mappings have not been re-audited against it. Check your own Effect [pin](/skills/gardener) before you apply a mapping.
+The mappings were written and checked against Effect 4.0.0. rat-stack now pins Effect 4.1.4, and the mappings have not been re-audited against it. Check your own Effect [pin](/skills/gardener) before you apply a mapping.
 
 ## Reading order
 

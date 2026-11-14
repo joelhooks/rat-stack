@@ -19,19 +19,19 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@distilled.cloud/cloudflare": "1.0.0-rc.18",
-    "@effect/platform-node": "4.1.2",
+    "@distilled.cloud/cloudflare": "1.0.0-rc.20",
+    "@effect/platform-node": "4.1.4",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/check-harness": "workspace:*",
     "@rat-stack/core": "workspace:*",
     "@xstate/effect": "1.0.0-beta.0",
-    "alchemy": "2.0.0-beta.85",
-    "effect": "4.1.2",
+    "alchemy": "2.0.0-beta.87",
+    "effect": "4.1.4",
     "xstate": "6.0.0-beta.1"
   },
   "devDependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.85",
-    "@effect/vitest": "4.1.2",
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "@effect/vitest": "4.1.4",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",
     "vitest": "5.1.0"
