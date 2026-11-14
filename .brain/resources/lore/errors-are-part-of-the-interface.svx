@@ -48,7 +48,7 @@ The author needs the rejected input, its location, and a repair instruction. A s
 
 Use the [error model](/lore/error-model) to separate expected failures from defects.
 Use [schema decoding](/lore/schemas-define-the-boundary) to reject invalid input at the boundary.
-Use [error accumulation](/lore/accumulate-independent-errors) to report unrelated failures together.
+The [error accumulation example](/lore/accumulate-independent-errors#worked-example-collect-snippet-failures) shows how the snippet pipeline collects unrelated failures into one build error.
 
 Related reading: *Exceptional Ruby* and *Confident Ruby*, both by [Avdi Grimm](https://avdi.codes/books/).
 

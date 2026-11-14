@@ -14,35 +14,65 @@ terms:
   - "error accumulation"
   - "preflight"
 sources:
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651
-    title: "Effect.validate"
+  - url: https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Effect.ts#L612-L619
+    title: "Effect.validate, Effect 4.1.4"
     publisher: "Effect contributors"
-    note: "Collection failure semantics"
-    accessed: "2026-10-02"
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/test/Effect.test.ts#L1167-L1173
-    title: "Effect.validate test"
-    publisher: "Effect contributors"
-    note: "Collected failures"
-    accessed: "2026-10-02"
+    note: "Evaluates each element and accumulates typed failures. Successful values are discarded when validation fails."
+    accessed: "2026-11-14"
+  - url: https://github.com/joelhooks/rat-stack/blob/4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a/packages/code-snippets/src/pipeline.ts#L303-L369
+    title: "Snippet preparation and error accumulation"
+    publisher: "rat-stack contributors"
+    note: "prepareCode validates fence jobs and maps collected errors into CodeBuildFailed."
+    accessed: "2026-11-14"
+  - url: https://github.com/joelhooks/rat-stack/blob/4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a/packages/code-snippets/test/pipeline.test.ts#L413-L441
+    title: "P7 independent failures property"
+    publisher: "rat-stack contributors"
+    note: "Generated invalid jobs produce one message per failure and skip the success continuation."
+    accessed: "2026-11-14"
+  - url: https://github.com/joelhooks/rat-stack/blob/4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a/apps/site/scripts/generate-content.ts#L994-L1003
+    title: "Prepare snippets before constructing the Code component"
+    publisher: "rat-stack contributors"
+    note: "The generator verifies fences, prepares snippets, and reports diagnostics before constructing the component."
+    accessed: "2026-11-14"
 ---
 
-[Effect](/lore/effect-basics) 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651) evaluates every collection element.
+Error accumulation means reporting independent failures together before continuing with output.
+[Effect](/lore/effect-basics) 4's [`Effect.validate`](https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Effect.ts#L612-L619) evaluates every collection element.
 It returns all failures as a non-empty array when any element fails.
 Successful values are discarded in that case.
 
-The [code-snippets design brief](/lore/code-snippets) uses this operation for checks before writing assets.
-Each snippet is an independent job.
-A job stops when a dependent stage fails.
-Other jobs still run.
+## Worked example: collect snippet failures
 
-The proposed order is:
-1. Collect snippet jobs.
-2. Check every job.
-3. Report each failure with [diagnostic context](/lore/errors-are-part-of-the-interface).
-4. Write assets only when all checks succeed.
+The [code-snippets pipeline](/lore/code-snippets) applies this operation to Markdown code blocks.
+Each job carries its parsed document node and source path.
+`prepareCode` parses each request before rendering configured code.
+A parse failure ends that job; validation continues across the other jobs.
 
-Error accumulation means reporting every independent failure together. Here it runs across jobs. Each job must pass validation before highlighting.
+The collection starts here:
 
-The planned property inserts exactly `k` independent failures.
-It expects exactly `k` diagnostics and zero asset writes.
-See [property-based testing](/lore/property-based-testing) and [the glossary](/glossary).
+```ts repo=rat-stack path=packages/code-snippets/src/pipeline.ts at=4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a lines=303-312 title="Validate each fence job"
+
+```
+
+The loop turns collected failures into one `CodeBuildFailed` error.
+It retains the individual failures and formats each one as a message with [diagnostic context](/lore/errors-are-part-of-the-interface).
+
+```ts repo=rat-stack path=packages/code-snippets/src/pipeline.ts at=4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a lines=359-369 title="Keep each failure in the build error"
+
+```
+
+The site generator follows this order:
+1. Collect and verify code blocks.
+2. Run `prepareCode` over the jobs.
+3. Report diagnostics and construct the Code component from prepared snippets.
+
+## Check the failure path
+
+The P7 [property test](https://github.com/joelhooks/rat-stack/blob/4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a/packages/code-snippets/test/pipeline.test.ts#L413-L441) generates one to eight jobs with unknown repository names.
+It expects one message and one `CodeUnknownRepo` failure per job.
+The test increments a counter only in a success continuation after `prepareCode`.
+For these invalid jobs, the counter stays zero.
+
+This proves the continuation does not run; it does not observe filesystem asset writes.
+
+Read [property-based testing](/lore/property-based-testing) for generated inputs, and the [snippet pipeline](/lore/code-snippets) for the full build path.
