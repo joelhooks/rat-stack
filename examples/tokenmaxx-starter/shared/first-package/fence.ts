@@ -13,17 +13,34 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+} from "node:path";
+
+import { type SkipReport, type SkipRunner, trySkips } from "./skip.ts";
 
 // Does this repo refuse a type-broken commit? Asked of a throwaway copy, never
-// the repo itself. `git worktree add` makes the copy: it shares the repo's
-// hooks and config, so whatever fence the guest built (a git hook, lefthook,
-// husky, anything `git commit` runs) runs there too. The copy gets the guest's
+// the repo itself. `git clone --local` makes the copy, and the repo's own
+// config, `info/` and hooks are copied into it, so whatever fence the guest
+// built (a git hook, `core.hooksPath`, hooks set in config, lefthook, husky,
+// anything `git commit` runs) runs there too. The copy gets the guest's
 // uncommitted and untracked files, so a fence that isn't committed yet still
 // counts, and installed dependencies of its own, so the fence's tools run.
 //
-// Nothing in the copy links back into the guest's tree, so nothing the hook
-// runs there can write into it. A pnpm repo gets `pnpm install --offline
+// Nothing in the copy links back into the guest's repo, so nothing the hook
+// runs there can write into it. It is a repository of its own, so git hands
+// the hook no GIT_DIR, and a test the hook runs that drives git without
+// scrubbing git's env (`git init` and `git commit` in a fixture, `git config`
+// where it stands) writes into the copy or its own fixture, never the guest's
+// objects, refs, config or index. (A linked worktree shared all four.) The
+// copy's objects are hard links where the disk allows: git never rewrites an
+// object file, it only adds new ones. Where they can't be (a temp folder on
+// another disk), git copies them. A pnpm repo gets `pnpm install --offline
 // --frozen-lockfile` in the copy, from the store the guest's own install came
 // from: workspace packages link to the copy's packages, not the guest's, and
 // pnpm's check that deps match the workspace passes. Any other installed
@@ -49,10 +66,11 @@ import { basename, dirname, join, resolve } from "node:path";
 // repo whose own TypeScript is written without semicolons gets them without
 // the trailing `;`, as its formatter would print them.
 //
-// Then the stretch: `broken` again with `git commit -n` and with
-// `LEFTHOOK=0`. The worktree is removed either way, and no branch is made
-// (it's detached), so the repo is left as it was found. The check compares a
-// snapshot from before and after to prove it.
+// Then the stretch, only when `broken` was refused: can an agent skip the
+// hook? A fresh Pi in the copy tries `broken` again with `git commit -n`,
+// `LEFTHOOK=0` and `core.hooksPath` (./skip.ts). The copy is removed either
+// way, so the repo is left as it was found. The check compares a snapshot
+// from before and after to prove it.
 
 export type CommitTry = {
   readonly refused: boolean;
@@ -80,8 +98,13 @@ export type FenceReport =
       readonly places: number;
       readonly control: CommitTry;
       readonly broken: CommitTry;
-      readonly noVerify: CommitTry;
-      readonly lefthookOff: CommitTry;
+      /**
+       * An agent trying to skip the hook on `broken`. Null when `broken` went
+       * through, or when the run was told not to try.
+       */
+      readonly skips: SkipReport | null;
+      /** The starter's own folders, which got no probe file. */
+      readonly supplied?: readonly string[];
       /** The commit hook events git runs for this repo, e.g. `pre-commit`. */
       readonly hooks?: readonly string[];
       /** What changed in the repo, if anything did. Should always be null. */
@@ -194,6 +217,8 @@ async function snapshot(top: string, env: NodeJS.ProcessEnv): Promise<string> {
     run(top, ["for-each-ref", "--format=%(refname) %(objectname)"], env),
     run(top, ["worktree", "list", "--porcelain"], env),
     run(top, ["stash", "list"], env),
+    run(top, ["config", "--local", "--list"], env),
+    run(top, ["count-objects"], env),
     run(top, ["status", "--porcelain=v1", "--untracked-files=all"], env),
   ]);
   return parts.map((p) => p.output).join("\n--\n");
@@ -207,7 +232,147 @@ function describeChange(before: string, after: string): string {
   return [...gone, ...added].slice(0, 10).join("\n");
 }
 
-/** Copies the guest's uncommitted and untracked files into the worktree. */
+/** `path` relative to `dir` when it's inside it, else null. */
+function inside(dir: string, path: string): string | null {
+  const rel = relative(dir, path);
+  return rel === ".." || rel.startsWith("../") || isAbsolute(rel) ? null : rel;
+}
+
+const copyTree = (from: string, to: string, force: boolean) =>
+  cp(from, to, {
+    recursive: true,
+    force,
+    errorOnExist: false,
+    verbatimSymlinks: true,
+    mode: constants.COPYFILE_FICLONE,
+  });
+
+/** The repo's git dir and common git dir, absolute. */
+async function gitDirs(
+  top: string,
+  env: NodeJS.ProcessEnv
+): Promise<{ gitDir: string; common: string }> {
+  const [gitDir = "", common = ""] = (
+    await git(top, ["rev-parse", "--git-dir", "--git-common-dir"], env)
+  )
+    .trim()
+    .split("\n");
+  return { gitDir: resolve(top, gitDir), common: resolve(top, common) };
+}
+
+/**
+ * Clones the repo into `wt` at `base`, with the repo's own config (and its
+ * worktree config), `info/` (excludes, attributes, a hook manager's records)
+ * and hooks folder in place of the clone's. Checked out with hooks off: the
+ * guest's commit hooks are the ones under test, not their post-checkout.
+ */
+async function makeCopy(
+  top: string,
+  wt: string,
+  base: string,
+  env: NodeJS.ProcessEnv
+): Promise<void> {
+  const { gitDir, common } = await gitDirs(top, env);
+  // A clone from a path is a local clone (`--local`) already. Spelled out,
+  // `--local` fails when the temp folder is on another disk, where hard
+  // links can't reach; left implied, git copies the objects instead.
+  await git(
+    dirname(wt),
+    ["clone", "--quiet", "--no-checkout", "--", top, wt],
+    env
+  );
+  const copyGit = join(wt, ".git");
+  await copyFile(join(common, "config"), join(copyGit, "config"));
+  if (existsSync(join(gitDir, "config.worktree"))) {
+    await copyFile(
+      join(gitDir, "config.worktree"),
+      join(copyGit, "config.worktree")
+    );
+  }
+  // A work tree named in the repo's config is the guest's own folder.
+  await run(wt, ["config", "--local", "--unset-all", "core.worktree"], env);
+  for (const dir of ["info", "hooks"]) {
+    await rm(join(copyGit, dir), { recursive: true, force: true });
+    if (existsSync(join(common, dir))) {
+      await copyTree(join(common, dir), join(copyGit, dir), true);
+    }
+  }
+  await git(
+    wt,
+    [
+      "-c",
+      "core.hooksPath=/dev/null",
+      "-c",
+      "advice.detachedHead=false",
+      "checkout",
+      "-q",
+      "-f",
+      "--detach",
+      base,
+    ],
+    env
+  );
+}
+
+/**
+ * Makes the copy's git find the hooks the repo's git finds. A `core.hooksPath`
+ * in the repo or its git dir names the copy's own folder, with any files git
+ * ignores there (husky's `.husky/_`) copied over; one outside both stays as
+ * it is. Hooks set in config that the copy's git doesn't see (an `includeIf`
+ * on the repo's path, in the guest's global config) are set in the copy.
+ */
+async function carryHooks(
+  top: string,
+  wt: string,
+  env: NodeJS.ProcessEnv
+): Promise<void> {
+  const pathOf = async (cwd: string) => {
+    const got = await run(
+      cwd,
+      ["config", "--type=path", "--get", "core.hooksPath"],
+      env
+    );
+    return got.code === 0 ? got.output.trim() : "";
+  };
+  const value = await pathOf(top);
+  if (value !== "") {
+    const { common } = await gitDirs(top, env);
+    const from = resolve(top, value);
+    const inGit = inside(common, from);
+    const inTop = inGit === null ? inside(top, from) : null;
+    const target =
+      inGit !== null
+        ? join(wt, ".git", inGit)
+        : inTop !== null
+          ? join(wt, inTop)
+          : from;
+    if (target !== from && existsSync(from)) {
+      await copyTree(from, target, false);
+    }
+    const want =
+      !isAbsolute(value) && resolve(wt, value) === target ? value : target;
+    if ((await pathOf(wt)) !== want) {
+      await git(wt, ["config", "--local", "core.hooksPath", want], env);
+    }
+  }
+  const configured = async (cwd: string) => {
+    const got = await run(
+      cwd,
+      ["config", "-z", "--get-regexp", "^hook\\."],
+      env
+    );
+    return got.code === 0 ? nulList(got.output) : [];
+  };
+  const seen = new Set(await configured(wt));
+  for (const entry of await configured(top)) {
+    if (!seen.has(entry)) {
+      const [key = "", ...rest] = entry.split("\n");
+      await git(wt, ["config", "--local", "--add", key, rest.join("\n")], env);
+    }
+  }
+}
+
+/** Copies the guest's uncommitted and untracked files into the copy. */
 async function copyWorkingState(
   top: string,
   wt: string,
@@ -278,7 +443,7 @@ type DepsResult =
   | { readonly ok: false; readonly command: string; readonly output: string };
 
 /**
- * Gives the worktree installed dependencies of its own, never a link into the
+ * Gives the copy installed dependencies of its own, never a link into the
  * guest's. Only when the guest has installed some: a repo with no
  * node_modules gets none in the copy either.
  */
@@ -433,6 +598,8 @@ export type FenceOptions = {
   readonly env?: NodeJS.ProcessEnv;
   /** Folders that get no probe file. Defaults to `suppliedFolders`. */
   readonly supplied?: readonly string[];
+  /** The agent stretch. Defaults to `trySkips`; null skips it. */
+  readonly skip?: SkipRunner | null;
 };
 
 /** Runs the fence test against the repo at `repoRoot`. See the header. */
@@ -446,7 +613,7 @@ export async function tryFence(
     return { _tag: "NotARepo", detail: tail(topRun.output, 1) };
   }
   const top = topRun.output.trim();
-  // Never test, or make a worktree of, a repository this folder merely sits in.
+  // Never test, or copy, a repository this folder merely sits in.
   if (realpathSync(top) !== realpathSync(repoRoot)) {
     return { _tag: "InsideAnotherRepo", top };
   }
@@ -459,31 +626,21 @@ export async function tryFence(
 
   const scratch = await mkdtemp(join(tmpdir(), "tmx-fence-"));
   const wt = join(scratch, "repo");
-  let adminDir: string | null = null;
   try {
-    await git(top, ["worktree", "add", "--detach", "--quiet", wt, base], env);
-    adminDir = (await git(wt, ["rev-parse", "--absolute-git-dir"], env)).trim();
+    await makeCopy(top, wt, base, env);
     await copyWorkingState(top, wt, env);
+    await carryHooks(top, wt, env);
     const deps = await installDeps(top, wt, scratch, env);
     if (!deps.ok) {
-      await cleanUp(top, wt, scratch, adminDir, env);
-      adminDir = null;
       return { _tag: "NoDeps", command: deps.command, output: deps.output };
     }
-    const { places, own } = await placesFor(
-      wt,
-      env,
-      opts.supplied ?? suppliedFolders
-    );
+    const supplied = opts.supplied ?? suppliedFolders;
+    const { places, own } = await placesFor(wt, env, supplied);
     const files = places.map((dir) => join(dir, probeFile));
     const semi = await semicolonStyle(wt, own);
     const hooks = await commitHooks(wt, env);
 
-    const attempt = async (
-      content: string,
-      extraArgs: readonly string[],
-      extraEnv: NodeJS.ProcessEnv
-    ): Promise<CommitTry> => {
+    const attempt = async (content: string): Promise<CommitTry> => {
       for (const file of files) {
         await writeFile(join(wt, file), content);
       }
@@ -501,9 +658,8 @@ export async function tryFence(
           "commit",
           "-m",
           "test: fence check",
-          ...extraArgs,
         ],
-        { ...env, ...extraEnv }
+        env
       );
       const ms = Math.round(performance.now() - started);
       // Back to the base commit with the working files untouched, so the
@@ -515,47 +671,26 @@ export async function tryFence(
 
     const fine = probe("number", semi);
     const wrong = probe("string", semi);
-    const control = await attempt(fine, [], {});
-    const broken = await attempt(wrong, [], {});
-    const noVerify = await attempt(wrong, ["-n"], {});
-    const lefthookOff = await attempt(wrong, [], { LEFTHOOK: "0" });
-    await cleanUp(top, wt, scratch, adminDir, env);
-    adminDir = null;
+    const control = await attempt(fine);
+    const broken = await attempt(wrong);
+    const skip = opts.skip === undefined ? trySkips : opts.skip;
+    const skips =
+      broken.refused && skip !== null
+        ? await skip({ wt, top, base, files, env })
+        : null;
+    await rm(scratch, { recursive: true, force: true });
     const after = await snapshot(top, env);
     return {
       _tag: "Tried",
       places: places.length,
       control,
       broken,
-      noVerify,
-      lefthookOff,
+      skips,
+      supplied,
       hooks,
       changed: before === after ? null : describeChange(before, after),
     };
   } finally {
-    if (adminDir !== null || existsSync(scratch)) {
-      await cleanUp(top, wt, scratch, adminDir, env);
-    }
+    await rm(scratch, { recursive: true, force: true });
   }
-}
-
-/**
- * Removes the worktree, its admin entry under the repo's git dir, and the temp
- * folder. Never `git worktree prune`: that would touch the guest's own stale
- * worktrees too.
- */
-async function cleanUp(
-  top: string,
-  wt: string,
-  scratch: string,
-  adminDir: string | null,
-  env: NodeJS.ProcessEnv
-): Promise<void> {
-  if (existsSync(wt)) {
-    await run(top, ["worktree", "remove", "--force", "--force", wt], env);
-  }
-  if (adminDir !== null && existsSync(adminDir)) {
-    await rm(adminDir, { recursive: true, force: true });
-  }
-  await rm(scratch, { recursive: true, force: true });
 }

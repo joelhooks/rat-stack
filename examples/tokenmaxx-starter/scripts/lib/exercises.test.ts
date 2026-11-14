@@ -166,7 +166,7 @@ describe("workshopLine", () => {
   const inner = "ses_b_000000000000";
   const records = [record(outer, null), record(inner, outer)];
 
-  it("names the session, its nesting, the exercise, the role and the guest's Pi", () => {
+  it("names the session, its nesting, the exercise, the role, the guest's Pi and root", () => {
     expect(
       workshopLine(
         {
@@ -174,11 +174,12 @@ describe("workshopLine", () => {
           TMX_EXERCISE: "02.1",
           TMX_ROLE: "main",
           TMX_GUEST_PI_PID: "4242",
+          TMX_GUEST_ROOT: "/work/factory",
         },
         records
       )
     ).toBe(
-      `Workshop: TMX_SESSION=${outer} (top-level), TMX_EXERCISE=02.1, TMX_ROLE=main, TMX_GUEST_PI_PID=4242`
+      `Workshop: TMX_SESSION=${outer} (top-level), TMX_EXERCISE=02.1, TMX_ROLE=main, TMX_GUEST_PI_PID=4242, TMX_GUEST_ROOT=/work/factory`
     );
     expect(workshopLine({ TMX_SESSION: inner }, records)).toBe(
       `Workshop: TMX_SESSION=${inner} (nested in ${outer})`

@@ -1,5 +1,3 @@
-> DRAFT: Joel rewrites this in his own voice.
-
 # 02.1 Wake me when it's done
 
 ## The problem
@@ -8,7 +6,7 @@ You give your agent a job that takes a while. It starts the job, its turn ends, 
 
 ## The environment
 
-A job that takes several minutes and finishes at a time nobody is told: not you, and not your agent. Start Pi with `pnpm pi --exercise 02.1`.
+A job that takes a few minutes and finishes at a time nobody is told: not you, and not your agent. Start Pi with `pnpm pi --exercise 02.1`.
 
 ```sh
 pnpm ex 02.1 setup               # reset the job
@@ -20,13 +18,24 @@ pnpm ex 02.1 release             # finish the current run now, from any terminal
 
 A finished run publishes a result with an ID like `res_…`.
 
+Building this takes your agent about 15 minutes, so a long quiet stretch doesn't mean it hung.
+
+Your agent can practise without touching your real run. Put `TMX_STATE_DIR=<a scratch folder>` in front of any command above and it works on a separate copy of the job. Put `TMX_TEST_WITHIN_MINUTES=0.5` in front of `start` as well, and that run finishes on its own within 30 seconds; `done` never counts such a run. `done` counts only Pis you start with `pnpm pi`.
+
+When your agent adds or changes a Pi extension, `/reload` loads it into the Pi you have open, without a restart.
+
 ## Done when
 
-`pnpm ex 02.1 done` shows `PASS` on all three lines:
+`pnpm ex 02.1 done` shows `PASS` on all four lines:
 
 - the current run finished;
 - its result was consumed exactly once;
-- no stale result was consumed: nothing from a run before the current one.
+- no stale result was consumed: nothing from a run before the current one;
+- this step's work is committed in your repo, and your commit hook passes it.
+
+Work committed before `setup` counts too, with a note, as long as nothing is left uncommitted; a commit your hook would refuse (made with `-n`) doesn't.
+
+Have your agent commit its work before it hands over to you.
 
 `pnpm ex 02.1 setup` starts over.
 

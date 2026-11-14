@@ -18,7 +18,7 @@ Folder names name the problem, never a tool. An exercise is `exercises/NN-<probl
 
 ## Readmes
 
-Headings: The problem / The environment / Done when. A few lines on the problem, the environment's commands, then the `done` command and what its lines mean. It starts `> DRAFT: Joel rewrites this in his own voice.` No supplied prompt, no hints, at most one closing line pointing at the group chat. A readme names neither a reference tool nor its own catch-up command; the next piece's readme carries both.
+Headings: The problem / The environment / Done when. A few lines on the problem, the environment's commands, then the `done` command and what its lines mean. No supplied prompt, no hints, at most one closing line pointing at the group chat. A readme names neither a reference tool nor its own catch-up command; the next piece's readme carries both.
 
 ## Done checks
 

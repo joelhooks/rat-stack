@@ -1,5 +1,3 @@
-> DRAFT: Joel rewrites this in his own voice.
-
 # 03.1 Yesterday's mistake
 
 ## The problem
@@ -22,18 +20,23 @@ pnpm ex 03.1 change-rule          # the team changes the house rule
 
 ## Done when
 
-`pnpm ex 03.1 done` shows `PASS` on all four lines:
+`pnpm ex 03.1 done` shows `PASS` on all five lines:
 
 - a session broke the house rule, was told why, then passed;
 - a fresh session, started after that, passed on its first try;
 - the house rule changed after that;
-- a fresh session, started after the change, followed the new rule on its first try and never wrote the old one.
+- a fresh session, started after the change, followed the new rule on its first try and never wrote the old one;
+- this step's work is committed in your repo, and your commit hook passes it.
+
+Work committed before `setup` counts too, with a note, as long as nothing is left uncommitted; a commit your hook would refuse (made with `-n`) doesn't.
+
+Have your agent commit its work before it hands over to you.
 
 Only hand-ins from a Pi started with `pnpm pi` count; `status` shows whether the session you're in does. `pnpm ex 03.1 setup` starts over with a new rule.
 
-> DRAFT line for Joel: You start each session yourself, from a terminal, and you run `change-rule`. A Pi your agent starts from inside its own session doesn't count; `done` notes it and moves on.
+You start each session yourself, from a terminal, and you run `change-rule`. A Pi your agent starts from inside its own session doesn't count; `done` notes it and moves on.
 
-> DRAFT line for Joel: Stretch: make your agent tell you, unasked, when a lesson it holds stops being true.
+Stretch: make your agent tell you, unasked, when a lesson it holds stops being true.
 
 ## From the last piece
 

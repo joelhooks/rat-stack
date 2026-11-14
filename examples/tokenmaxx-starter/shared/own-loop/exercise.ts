@@ -1,4 +1,9 @@
 import { type CatchUpPackage, catchUp } from "#shared/core/catch-up.ts";
+import {
+  type CommitClaim,
+  commitLine,
+  markStepStart,
+} from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
 import {
   defineExercise,
@@ -51,13 +56,17 @@ export type OwnLoopDeps = {
   readonly testWithin: () => string | undefined;
   /** The launcher's session records, for the done check. */
   readonly readSessions: (repoRoot: string) => Promise<SessionRecord[]>;
+  /** The commit line `done` ends with. */
+  readonly commit: (ctx: ExerciseContext) => Promise<CommitClaim>;
 };
 
 /**
- * Test-only: `TMX_TEST_WITHIN_MINUTES=<m>` makes `start` finish its run
- * within m minutes and drops the floor to `minFinishMs`, so tests don't wait
- * minutes. The run is stamped with the window, and `done` fails it: a real
- * attempt can't use it. No readme or help mentions it.
+ * Practice and tests: `TMX_TEST_WITHIN_MINUTES=<m>` makes `start` finish its
+ * run within m minutes and drops the floor to `minFinishMs`, so neither tests
+ * nor an agent practising wait minutes. The run is stamped with the window,
+ * and `done` fails it: a real attempt can't use it. The readmes offer it for
+ * practice, next to `TMX_STATE_DIR`: cold agents that practised on a normal
+ * run sat through it, minutes of build time.
  */
 export const testWithinEnv = "TMX_TEST_WITHIN_MINUTES";
 
@@ -69,6 +78,7 @@ const defaultDeps: OwnLoopDeps = {
   session: () => sessionFromEnv(),
   testWithin: () => process.env[testWithinEnv],
   readSessions,
+  commit: (ctx) => commitLine(ctx),
 };
 
 /**
@@ -76,15 +86,16 @@ const defaultDeps: OwnLoopDeps = {
  * `defaultWithinMinutes` after `start`. `testWithinEnv` sets the upper bound
  * instead and drops the floor to `minFinishMs`.
  *
- * Why 3 to 8: long enough that an agent which blocks its turn to wait leaves
+ * Why 2 to 5: long enough that an agent which blocks its turn to wait leaves
  * you staring at a frozen session for minutes, which is the pain the piece is
  * about, and long enough (the floor) to quit Pi and start it again before the
- * run finishes, which 02.2 needs. Short enough that the worst case still
- * leaves time for a second attempt in the slot, and `release` ends a run at
- * once.
+ * run finishes, which 02.2 needs: in cold runs the guest quit 22 to 83 s after
+ * `start`. Short, because the guest sits through one run for 02.1 and one for
+ * 02.2 inside the step's slot, and a miss means another run. `release` ends a
+ * run at once.
  */
-export const defaultWithinMinutes = 8;
-export const defaultMinMinutes = 3;
+export const defaultWithinMinutes = 5;
+export const defaultMinMinutes = 2;
 
 const ex = (ctx: ExerciseContext, command: string) =>
   `pnpm ex ${ctx.exerciseId} ${command}`;
@@ -143,6 +154,7 @@ export function ownLoopExercise(
     commands: {
       /** Resets the job. A run from before is left behind, as on any machine. */
       async setup(ctx) {
+        await markStepStart(ctx, deps.now());
         await resetJob(ctx.stateDir);
         const minutesAgo = (m: number) =>
           new Date(deps.now().getTime() - m * 60_000);
@@ -168,6 +180,9 @@ export function ownLoopExercise(
           return 2;
         }
         const { within } = window;
+        // A guest who never ran setup begins the step here. Card 1 builds
+        // 02.1 and 02.2 at once, and nothing asks for `02.2 setup`.
+        await markStepStart(ctx, deps.now());
         const before = fold(await readEvents(ctx.stateDir)).current;
         // The test window drops the floor; a real run keeps it.
         const testWindow = window.minMs === undefined;
@@ -272,10 +287,9 @@ export function ownLoopExercise(
 
       /** The done check: PASS only when every claim holds. */
       async done(ctx) {
-        const { claims, notes } = await judgeEvents(
-          ctx,
-          await readEvents(ctx.stateDir)
-        );
+        const verdict = await judgeEvents(ctx, await readEvents(ctx.stateDir));
+        const claims = [...verdict.claims, await deps.commit(ctx)];
+        const { notes } = verdict;
         for (const claim of claims) {
           out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
           out(`      ${claim.detail}`);

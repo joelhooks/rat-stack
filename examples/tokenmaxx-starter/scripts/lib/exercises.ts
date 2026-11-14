@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 import { type Env, exerciseContext } from "#shared/core/context.ts";
 import type { Exercise } from "#shared/core/exercise.ts";
+import { guestRootEnv } from "#shared/core/guest-root.ts";
 import {
   readSessions,
   type SessionRecord,
@@ -15,7 +16,7 @@ import { exists } from "#shared/core/store.ts";
 
 /**
  * The workshop facts from the environment, for the top of `status`: the
- * session, whether it's nested, and the guest's Pi. None of them is a secret,
+ * session, whether it's nested, the guest's Pi and the root Pi runs in. None of them is a secret,
  * so nobody needs to dump env to find them.
  */
 export function workshopLine(
@@ -33,7 +34,7 @@ export function workshopLine(
       : record.parentSession === null
         ? "top-level"
         : `nested in ${record.parentSession}`;
-  const rest = ["TMX_EXERCISE", "TMX_ROLE", "TMX_GUEST_PI_PID"]
+  const rest = ["TMX_EXERCISE", "TMX_ROLE", "TMX_GUEST_PI_PID", guestRootEnv]
     .filter((name) => (env[name] ?? "") !== "")
     .map((name) => `${name}=${env[name]}`);
   return `Workshop: ${[`${sessionEnv}=${session} (${nesting})`, ...rest].join(", ")}`;
@@ -200,6 +201,7 @@ export async function runEx(
   }
   // Child processes a command starts (Pi, vitest) see the same exercise.
   process.env["TMX_EXERCISE"] = entry.id;
+  process.env[guestRootEnv] = ctx.guestRoot;
   try {
     return await command(ctx, parsed.args);
   } catch (error) {

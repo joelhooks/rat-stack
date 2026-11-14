@@ -1,8 +1,32 @@
 # tokenmaxx-starter
 
-> DRAFT: Joel rewrites in his voice.
-
 The starter for the Tokenmaxx workshop. You build your own agent factory, one piece at a time. Each piece is a problem: the starter gives you the problem, an environment to work in and a check that says when you're done. The design, the names and the layout are yours.
+
+## Step 0, before the day
+
+Step 0 is a small repo of your own that refuses a broken commit. You build in it on the day, so do it before your day.
+
+In a new folder, start Pi and give it this prompt:
+
+```text
+Set up a small TypeScript monorepo in this folder for my agent tooling.
+
+Give it a floor: typecheck, lint, format and tests, run on every commit by a hook that can't be skipped. Write down in AGENTS.md how work gets checked here.
+
+Reference: https://ratstack.sh/llms.txt. Read what this needs and take only that. Don't copy rat-stack.
+
+Done when: a commit with a type error is refused, a clean commit goes through, one command runs every check, and when you try to skip the hook with `git commit -n` you are stopped. Show me each one happening, and leave the setup committed.
+```
+
+Then quit Pi, start it again in that folder and accept the trust prompt. Give it this prompt to pull in the workshop tools:
+
+```text
+Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v2 workshop`, run `pnpm install` in `workshop/`, add the two root scripts the workshop README's "In a folder of your own repo" section gives, and tell this repo's lint, format and pre-commit checks to skip `workshop/`. I'm the owner of this repo and I approve those changes. Then run `pnpm ex 00.1 check` and commit.
+```
+
+Your agent may have written a rule that check changes need the owner's OK. The owner line answers it up front.
+
+Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first line, `a type-broken commit is refused`, shows `PASS`.
 
 ## Setup
 
@@ -15,6 +39,17 @@ pnpm ex 00.1 check # proves a real model turn, a tool call, the pinned packages,
 ```
 
 Project trust lets Pi load `.pi/settings.json`, which pins the workshop's packages to exact commits. Pi installs them into `.pi/git/` on the first trusted start. They stay switched off until you ask for them.
+
+### In a folder of your own repo
+
+The starter also works as a folder inside your own repo, say `workshop/`. Run `pnpm install` in that folder, then give your repo's `package.json` two scripts that run the tools with Node directly, so your repo's own pnpm version never meets the starter's:
+
+```json
+"ex": "node workshop/scripts/ex.ts",
+"pi": "node workshop/scripts/pi.ts"
+```
+
+Then `pnpm pi` and `pnpm ex <id> <command>` work from your repo's root, and from `workshop/` as before. Either way Pi starts at your repo's root, so your own `.pi` extensions, skills, settings and `AGENTS.md` load. The workshop's `AGENTS.md` and any piece you switch on with `catch-up` come along. Project trust is asked for your repo's root, if it has a `.pi` of its own. `pnpm ex 00.1 check` installs the pinned packages into `workshop/.pi/git/`. The exercises keep their state in `workshop/.workshop-state/`, and checks that look at "your repo" look at its root.
 
 ## Fallback folder
 
@@ -68,7 +103,7 @@ pnpm ex 02.1 test                # the done check's own tests
 
 ## Pi sessions
 
-Start Pi with `pnpm pi`, optionally for an exercise and a role. Each exercise and role gets its own Pi session, and relaunching resumes it:
+Start Pi with `pnpm pi`, optionally for an exercise and a role. Pi runs at the root of your repo: this folder when the starter is the repo, or your own repo's root when the starter is a folder inside it. `TMX_GUEST_ROOT` names that root for Pi and everything it runs. Each exercise and role gets its own Pi session, and relaunching resumes it:
 
 ```sh
 pnpm pi --exercise 02.1

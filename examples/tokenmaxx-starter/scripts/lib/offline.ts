@@ -7,6 +7,7 @@ import {
   ProjectTrustStore,
 } from "@earendil-works/pi-coding-agent";
 
+import { gitEnv } from "#shared/core/git-env.ts";
 import {
   type PinnedGitPackage,
   pinnedGitPackages,
@@ -38,6 +39,7 @@ export const checkoutDir = (repoRoot: string, pkg: PinnedGitPackage) =>
 export function checkedOutCommit(dir: string): string | null {
   try {
     return execFileSync("git", ["-C", dir, "rev-parse", "HEAD"], {
+      env: gitEnv(),
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     }).trim();
@@ -82,7 +84,8 @@ export function installPinned(repoRoot: string, source: string): number {
   const run = spawnSync(
     process.execPath,
     [piCliPath(repoRoot), "install", "-l", "--approve", source],
-    { cwd: repoRoot, stdio: "inherit" }
+    // Pi's installer runs git in `.pi/git/`.
+    { cwd: repoRoot, env: gitEnv(), stdio: "inherit" }
   );
   return run.status ?? 1;
 }

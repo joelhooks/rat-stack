@@ -178,6 +178,7 @@ function harness(name: string, records: SessionRecord[] = []) {
       random: () => randoms[n++ % randoms.length] ?? 0,
       session: () => session,
       readSessions: async () => records,
+      commit: async () => ({ name: "committed", ok: true, detail: "" }),
     }
   );
   const run = async (command: string, ...args: string[]) => {
@@ -342,7 +343,8 @@ describe("the memory environment", () => {
     const second = (await state()).rules[1]?.id ?? "";
     await run("submit", await entry(second));
     const done = await run("done");
-    expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(4);
+    expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(5);
+    expect(done.out).toContain("PASS  committed");
     expect(done.code).toBe(0);
   });
 });

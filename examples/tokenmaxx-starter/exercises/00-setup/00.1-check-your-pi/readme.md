@@ -1,7 +1,5 @@
 # 00.1 Check your Pi
 
-> DRAFT: Joel rewrites in his voice.
-
 Before the workshop starts, prove that Pi works on your machine with this repo.
 
 1. Install dependencies:

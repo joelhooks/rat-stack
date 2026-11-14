@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
+import { gitEnv } from "#shared/core/git-env.ts";
 import { pinnedGitPackages } from "#shared/core/pi-settings.ts";
 
 import {
@@ -179,7 +180,7 @@ describe("checkPinnedPackage", () => {
         cwd: checkout,
         encoding: "utf8",
         env: {
-          ...process.env,
+          ...gitEnv(),
           GIT_AUTHOR_NAME: "t",
           GIT_AUTHOR_EMAIL: "t@example.com",
           GIT_COMMITTER_NAME: "t",

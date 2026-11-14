@@ -1,10 +1,18 @@
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { exerciseContext } from "#shared/core/context.ts";
+import { findGuestRoot, guestRootEnv } from "#shared/core/guest-root.ts";
 import { now } from "#shared/core/paths.ts";
+import { declaredPackages } from "#shared/core/pi-settings.ts";
 import {
   endOf,
   isTopLevel,
@@ -28,6 +36,62 @@ const piPackage = join("node_modules", "@earendil-works", "pi-coding-agent");
  */
 export function observerPath(repoRoot: string): string {
   return join(repoRoot, "shared", "core", "turns-observer.ts");
+}
+
+/**
+ * Loaded into a Pi that runs at the guest's root, a folder above the starter:
+ * the starter's AGENTS.md, which Pi wouldn't read from there.
+ */
+export function starterContextPath(repoRoot: string): string {
+  return join(repoRoot, "shared", "core", "starter-context.ts");
+}
+
+/**
+ * The starter's switched-on packages from its `.pi/settings.json`, as `-e`
+ * sources, for a Pi that runs at the guest's root and so never reads that
+ * file. A pinned git package loads from its checkout in `.pi/git/` when one
+ * is there, as Pi would load it from settings; otherwise Pi fetches the
+ * pinned commit itself. A local one loads in place. Switched-off packages
+ * load nothing either way, so they're left out.
+ */
+export function starterPackageSources(repoRoot: string): string[] {
+  let declared;
+  try {
+    declared = declaredPackages(repoRoot);
+  } catch {
+    return [];
+  }
+  return declared
+    .filter((pkg) => pkg.switchedOn)
+    .map((pkg) => {
+      if (!pkg.source.startsWith("git:")) {
+        return resolve(repoRoot, ".pi", pkg.source);
+      }
+      const repo = pkg.source.slice(4).replace(/@[0-9a-f]{40}$/, "");
+      const checkout = join(repoRoot, ".pi", "git", ...repo.split("/"));
+      return existsSync(join(checkout, "node_modules")) ? checkout : pkg.source;
+    });
+}
+
+/**
+ * What a Pi at the guest's root needs from the starter: its AGENTS.md, unless
+ * the caller turned context files off, and its switched-on packages, unless
+ * the caller told Pi to ignore the project's own files (`--no-approve`), which
+ * the starter is one of.
+ */
+export function starterArgs(
+  repoRoot: string,
+  piArgs: readonly string[]
+): string[] {
+  const has = (...flags: string[]) => piArgs.some((arg) => flags.includes(arg));
+  return [
+    ...(has("--no-context-files", "-nc")
+      ? []
+      : ["-e", starterContextPath(repoRoot)]),
+    ...(has("--no-approve", "-na")
+      ? []
+      : starterPackageSources(repoRoot).flatMap((source) => ["-e", source])),
+  ];
 }
 
 /** The pinned Pi's CLI entry, run with this Node. Not the global `pi`. */
@@ -222,6 +286,12 @@ export async function waitingConversation(
 
 export type Launch = {
   readonly cli: string;
+  /**
+   * Where Pi runs: the guest's repo root (`findGuestRoot`), so the guest's
+   * own `.pi`, skills and AGENTS.md load. The starter root when it is the
+   * repo.
+   */
+  readonly cwd: string;
   readonly args: readonly string[];
   /** Pi's environment, TMX_SESSION included. */
   readonly env: NodeJS.ProcessEnv;
@@ -308,10 +378,12 @@ export async function planLaunch(
     fresh ? freshSessionId(stable) : stable
   );
   const session = newSessionId();
+  const guestRoot = findGuestRoot(repoRoot, env);
   const childEnv: NodeJS.ProcessEnv = {
     ...env,
     TMX_ROLE: parsed.role,
     [sessionEnv]: session,
+    [guestRootEnv]: guestRoot,
     // The guest's own Pi: this launcher, with Pi as its child. A nested Pi
     // keeps its parent's value, so an agent cleaning up its test Pis can tell
     // them from the session it's running in.
@@ -327,7 +399,13 @@ export async function planLaunch(
   }
   return {
     cli: piCliPath(repoRoot),
-    args: ["-e", observerPath(repoRoot), ...args],
+    cwd: guestRoot,
+    args: [
+      "-e",
+      observerPath(repoRoot),
+      ...(guestRoot === repoRoot ? [] : starterArgs(repoRoot, parsed.piArgs)),
+      ...args,
+    ],
     env: childEnv,
     notice:
       holder !== undefined && parentSession === null && !callerPicked
@@ -354,7 +432,7 @@ export async function planLaunch(
 }
 
 /**
- * Starts the pinned Pi in the repo root with the terminal attached, writes the
+ * Starts the pinned Pi in `launch.cwd` with the terminal attached, writes the
  * session's start record, and resolves with Pi's exit code once it exits,
  * after writing the end record. SIGTERM or SIGHUP sent to this wrapper is
  * passed on to Pi, and the end record says `signal` even when Pi then shuts
@@ -366,14 +444,14 @@ export async function launchPi(
 ): Promise<number> {
   if (launch.ownSessionId !== null) {
     await createPiSessionQuietly(
-      repoRoot,
+      launch.cwd,
       launch.ownSessionId,
       launch.env,
       launch.args
     );
   }
   const child = spawn(process.execPath, [launch.cli, ...launch.args], {
-    cwd: repoRoot,
+    cwd: launch.cwd,
     env: launch.env,
     stdio: "inherit",
   });
@@ -488,7 +566,7 @@ export async function piSessionDir(
  * its warning. Returns the file it wrote, or null.
  */
 export async function createPiSessionQuietly(
-  repoRoot: string,
+  piCwd: string,
   id: string,
   env: NodeJS.ProcessEnv,
   args: readonly string[] = []
@@ -496,8 +574,8 @@ export async function createPiSessionQuietly(
   try {
     const { SessionManager, CURRENT_SESSION_VERSION } =
       await import("@earendil-works/pi-coding-agent");
-    // Pi runs with the repo as its cwd and records the resolved path.
-    const cwd = realpathSync(repoRoot);
+    // Pi records the resolved path of the folder it runs in.
+    const cwd = realpathSync(piCwd);
     const dir = await piSessionDir(cwd, env, args);
     if (SessionManager.findById(cwd, id, dir) !== undefined) {
       return null;

@@ -1,4 +1,12 @@
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { execFileSync, spawn } from "node:child_process";
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -6,6 +14,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
 
+import { planLaunch } from "../../scripts/lib/pi.ts";
 import { catchUpArchive, unpackCatchUp } from "./catch-up.ts";
 import {
   addedTools,
@@ -125,6 +134,62 @@ describe("a fresh Pi against the probe (live, no model)", () => {
         skills: [{ name: "wombat-ritual" }],
       },
     });
+  });
+
+  it("runs at the guest's root when the starter is a folder inside it", async () => {
+    // The guest's repo, with its own extension, skill and AGENTS.md, and the
+    // starter in workshop/ (this checkout, linked).
+    const guest = join(home, "guest");
+    mkdirSync(join(guest, ".pi", "extensions"), { recursive: true });
+    mkdirSync(join(guest, ".pi", "skills", "guest-ritual"), {
+      recursive: true,
+    });
+    execFileSync("git", ["init", "-q", guest], {
+      env: { PATH: process.env["PATH"] },
+    });
+    writeFileSync(join(guest, "AGENTS.md"), "GUEST-AGENTS-MARKER\n");
+    writeFileSync(
+      join(guest, ".pi", "extensions", "gauge.ts"),
+      `export default function (pi: any) {
+  pi.registerTool({ name: "guest_gauge", label: "g", description: "g", parameters: { type: "object", properties: {} }, execute: async () => ({ content: [], details: {} }) });
+}
+`
+    );
+    writeFileSync(
+      join(guest, ".pi", "skills", "guest-ritual", "SKILL.md"),
+      "---\nname: guest-ritual\ndescription: The guest's own.\n---\n\nSay it.\n"
+    );
+    const workshop = join(guest, "workshop");
+    mkdirSync(workshop);
+    for (const name of ["node_modules", "exercises", "shared", ".pi"]) {
+      symlinkSync(join(repoRoot, name), join(workshop, name));
+    }
+    const server = await startProbeServer();
+    try {
+      const launch = await planLaunch(probePiArgs, workshop, cleanEnv);
+      expect(launch.cwd).toBe(guest);
+      // Not spawnSync: the fake endpoint answers from this process.
+      await new Promise((resolveExit) => {
+        const child = spawn(process.execPath, [launch.cli, ...launch.args], {
+          cwd: launch.cwd,
+          env: { ...launch.env, TMX_PROBE_URL: server.url },
+          stdio: "ignore",
+          timeout: 60_000,
+        });
+        child.on("exit", resolveExit);
+        child.on("error", resolveExit);
+      });
+      const first = server.requests[0];
+      expect(seenInRequest(first)).toMatchObject({
+        tools: ["read", "bash", "edit", "write", "guest_gauge"],
+        skills: [{ name: "guest-ritual" }],
+      });
+      const text = JSON.stringify(first);
+      expect(text).toContain("GUEST-AGENTS-MARKER");
+      expect(text).toContain("This repo is a workshop starter");
+    } finally {
+      await server.close();
+    }
   });
 
   it("asks for a fresh session with no session file", () => {
