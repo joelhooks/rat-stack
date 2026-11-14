@@ -103,7 +103,7 @@ export { answer };
 
 The highlight uses the inline example's line numbers.
 
-Every TypeScript fence without `path` in a published page typechecks in `pnpm check`. The content build writes each one to `apps/site/dist/doc-fences/<source>/L<line>.ts` as its own module, and `apps/site/tsconfig.doc-fences.json` checks the directory. Import everything the example uses. When an example is a fragment or a template, quote the real file with `path`, or add `nocheck="<reason>"`. `.brain/data/doc-fence-baseline.json` records how many fences opt out; that count only shrinks.
+Every TypeScript fence without `path` in a published page typechecks in `pnpm check`. The content build writes each one to `apps/site/dist/doc-fences/<source>/L<line>.ts` as its own module, and `apps/site/tsconfig.doc-fences.json` checks the directory. Import everything the example uses. When an example is a fragment or a template, quote the real file with `path`, or add `nocheck="<reason>"`. The content build logs each opt-out with its page and line.
 
 A source reference has an empty body. This fence quotes the shipped SHA check:
 

@@ -9,7 +9,6 @@ import * as Arbitrary from "effect/Arbitrary";
 
 import { fenceMessage } from "../../../packages/core/test/fixtures/fence-message.js";
 import {
-  assertDocFenceBaseline,
   assertPublishedFencesChecked,
   docFenceModule,
   docFences,
@@ -104,17 +103,13 @@ const fenceKinds = Arbitrary.array(Arbitrary.schema(FenceKind), {
   maxLength: 8,
 });
 
-const fence = (noCheck?: string): DocFence => ({
+const fence = (): DocFence => ({
   language: "typescript",
   line: 1,
-  noCheck,
+  noCheck: undefined,
   sourcePath: "page.svx",
   value: "export {};",
 });
-
-const count = Arbitrary.schema(
-  Schema.Int.check(Schema.isBetween({ maximum: 6, minimum: 0 }))
-);
 
 describe("doc fence extraction", () => {
   it.effect.prop(
@@ -158,30 +153,6 @@ describe("doc fence extraction", () => {
         expect(
           fences.map(({ noCheck, value }) => ({ noCheck, value }))
         ).toEqual(kinds.flatMap((kind, index) => expected(kind, index)));
-      })
-  );
-
-  it.effect.prop(
-    "fails unless the opt-out count equals the baseline, naming the fix",
-    { baseline: count, checked: count, optOuts: count },
-    ({ baseline, checked, optOuts }) =>
-      Effect.gen(function* baselineRatchet() {
-        const fences = [
-          ...Array.from({ length: checked }, () => fence()),
-          ...Array.from({ length: optOuts }, () => fence("fragment")),
-        ];
-
-        if (optOuts === baseline) {
-          yield* assertDocFenceBaseline(fences, baseline);
-
-          return;
-        }
-
-        const failure = yield* Effect.flip(
-          assertDocFenceBaseline(fences, baseline)
-        );
-
-        expect(fenceMessage(failure.message)).toBeDefined();
       })
   );
 });

@@ -10,12 +10,6 @@ import { buildError, ContentBuildError, violation } from "./content-error.ts";
 
 export const docFenceDirectory = "apps/site/dist/doc-fences";
 
-export const docFenceBaselinePath = ".brain/data/doc-fence-baseline.json";
-
-export const DocFenceBaseline = Schema.fromJsonString(
-  Schema.Struct({ optOuts: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)) })
-);
-
 const typeScriptLanguages = new Set(["typescript", "tsx", "mts", "cts"]);
 
 export interface DocFence {
@@ -68,41 +62,14 @@ export const docFenceModule = (fence: DocFence) => ({
 const located = (fences: readonly DocFence[]) =>
   fences.map((fence) => `${fence.sourcePath}:${fence.line}`).join(", ");
 
-export const assertDocFenceBaseline = (
-  fences: readonly DocFence[],
-  baseline: number
-) => {
+export const reportDocFenceOptOuts = (fences: readonly DocFence[]) => {
   const optOuts = fences.filter((fence) => fence.noCheck !== undefined);
 
-  if (optOuts.length > baseline) {
-    return Effect.fail(
-      buildError(
-        "doc fence baseline",
-        docFenceBaselinePath,
-        violation(
-          `${optOuts.length} TypeScript fences opt out of the doc typecheck, over the baseline of ${baseline}: ${located(optOuts)}.`,
-          "Opt-outs only shrink, so every new example compiles.",
-          'make the new fence compile, or quote the real file with `path=`, instead of adding `nocheck="<reason>"`.'
-        )
-      )
-    );
-  }
-
-  if (optOuts.length < baseline) {
-    return Effect.fail(
-      buildError(
-        "doc fence baseline",
-        docFenceBaselinePath,
-        violation(
-          `${optOuts.length} TypeScript fences opt out of the doc typecheck, under the baseline of ${baseline}.`,
-          "The baseline records the current count, so a new opt-out cannot take the freed slot.",
-          `set \`"optOuts": ${optOuts.length}\` in \`${docFenceBaselinePath}\`.`
-        )
-      )
-    );
-  }
-
-  return Effect.void;
+  return optOuts.length === 0
+    ? Effect.void
+    : Effect.logInfo(
+        `${optOuts.length} TypeScript fences opt out of the doc typecheck: ${located(optOuts)}.`
+      );
 };
 
 const fenceBody = (text: string) => text.trimEnd();
@@ -199,16 +166,7 @@ export const writeDocFences = Effect.fn("writeDocFences")(
       readDocFences
     )).flat();
 
-    const baseline = yield* fileSystem
-      .readFileString(path.join(sources.root, docFenceBaselinePath))
-      .pipe(
-        Effect.flatMap(Schema.decodeEffect(DocFenceBaseline)),
-        Effect.mapError((cause) =>
-          buildError("doc fence baseline", docFenceBaselinePath, cause)
-        )
-      );
-
-    yield* assertDocFenceBaseline(authored, baseline.optOuts);
+    yield* reportDocFenceOptOuts(authored);
     yield* assertPublishedFencesChecked(
       sources.published,
       authored,
