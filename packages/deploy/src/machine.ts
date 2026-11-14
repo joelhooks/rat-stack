@@ -9,19 +9,19 @@ import {
   setupEffect,
   waitFor,
 } from "@xstate/effect";
-import { Cause, Clock, Deferred, Effect, Option, Schema } from "effect";
+import { Cause, Deferred, Effect, Option, Schema } from "effect";
 import { types } from "xstate";
 
-import {
-  ApplyReceiptSchema,
-  DeployInputSchema,
+import { ApplyReceiptSchema, DeployInputSchema } from "./contracts.js";
+import type {
+  ApplyReceipt,
+  DeployInput,
   DeployStepError,
+  DeployVerdict,
 } from "./contracts.js";
-import type { ApplyReceipt, DeployInput, DeployVerdict } from "./contracts.js";
 import { DeployRunner } from "./deploy-runner.js";
 import { classifyRows, PlanRowsSchema } from "./plan.js";
 import type { PlanRow } from "./plan.js";
-import { quietWindowKeys, readQuietWindow } from "./quiet-window.js";
 import type { RollbackReceipt } from "./rollback-contracts.js";
 import { RollbackFailed } from "./rollback-failed.js";
 import { RollbackRefused } from "./rollback-refused.js";
@@ -63,8 +63,6 @@ const stepResult = <A, R>(
 interface DeployContext {
   readonly input: DeployInput;
   readonly plan: readonly PlanRow[];
-  readonly quietDeadline?: number;
-  readonly quietUntil: number;
   readonly verdict: DeployVerdict;
   readonly watch?: WatchReceipt;
   readonly watchCheck?: Verdict;
@@ -111,35 +109,6 @@ const source = createEffectLogic({
   schemas: {
     input: Schema.Struct({ expectSha: DeployInputSchema.fields.expectSha }),
   },
-});
-
-const quietWindow = createEffectLogic({
-  effect: ({ input }) =>
-    stepResult(
-      readQuietWindow(input.deadline).pipe(
-        Effect.mapError(
-          () =>
-            new DeployStepError({
-              keys: [...quietWindowKeys],
-              reason: "quiet-window-config-invalid",
-              step: "quietWindow",
-            })
-        )
-      )
-    ),
-  schemas: {
-    input: Schema.Struct({ deadline: Schema.optionalKey(Schema.Natural) }),
-  },
-});
-
-const awaitQuietWindow = createEffectLogic({
-  effect: ({ input }) =>
-    Effect.gen(function* awaitQuietWindowEnd() {
-      const now = yield* Clock.currentTimeMillis;
-
-      yield* Effect.sleep(Math.max(0, input.until - now));
-    }),
-  schemas: { input: Schema.Struct({ until: Schema.Natural }) },
 });
 
 const preflight = createEffectLogic({
@@ -276,12 +245,10 @@ const checksOutcome = (
 export const deployMachine = setupEffect({
   actors: {
     apply,
-    awaitQuietWindow,
     checks,
     classify,
     plan,
     preflight,
-    quietWindow,
     recordWatch,
     rollback,
     source,
@@ -292,7 +259,6 @@ export const deployMachine = setupEffect({
   context: ({ input }) => ({
     input,
     plan: [],
-    quietUntil: 0,
     verdict: {
       checks: [],
       keys: [],
@@ -360,17 +326,6 @@ export const deployMachine = setupEffect({
     },
     applyCrashed: { type: "final" },
     applyUnsuccessful: { type: "final" },
-    awaitingQuietWindow: {
-      invoke: {
-        input: ({ context }) => ({ until: context.quietUntil }),
-        onDone: { target: "quietWindow" },
-        onError: {
-          context: ({ context }) => ended(context, "crashed", "quietWindow"),
-          target: "quietWindowCrashed",
-        },
-        src: "awaitQuietWindow",
-      },
-    },
     checks: {
       invoke: {
         input: ({ context }) =>
@@ -470,7 +425,7 @@ export const deployMachine = setupEffect({
             context: {
               verdict: { ...context.verdict, rows: event.output.rows },
             },
-            target: "quietWindow",
+            target: "apply",
           };
         },
         onError: {
@@ -560,71 +515,6 @@ export const deployMachine = setupEffect({
       },
     },
     preflightCrashed: { type: "final" },
-    quietWindow: {
-      invoke: {
-        input: ({ context }) =>
-          context.quietDeadline === undefined
-            ? {}
-            : { deadline: context.quietDeadline },
-        onDone: ({ context, event }) => {
-          if (event.output.kind === "crashed") {
-            return {
-              context: ended(context, "crashed", "quietWindow"),
-              target: "quietWindowCrashed",
-            };
-          }
-
-          if (event.output.kind === "refused") {
-            return {
-              context: ended(
-                context,
-                "refused",
-                "quietWindow",
-                event.output.keys,
-                event.output.reason
-              ),
-              target: "refused",
-            };
-          }
-
-          const decision = event.output.value;
-
-          if (decision.kind === "refused") {
-            return {
-              context: ended(
-                context,
-                "refused",
-                "quietWindow",
-                [...quietWindowKeys],
-                decision.reason
-              ),
-              target: "refused",
-            };
-          }
-
-          if (decision.kind === "wait") {
-            return {
-              context: {
-                quietDeadline: decision.deadline,
-                quietUntil: decision.until,
-              },
-              target: "awaitingQuietWindow",
-            };
-          }
-
-          return {
-            context: { quietDeadline: decision.deadline },
-            target: "apply",
-          };
-        },
-        onError: {
-          context: ({ context }) => ended(context, "crashed", "quietWindow"),
-          target: "quietWindowCrashed",
-        },
-        src: "quietWindow",
-      },
-    },
-    quietWindowCrashed: { type: "final" },
     recordingWatch: {
       invoke: {
         input: ({ context }) =>

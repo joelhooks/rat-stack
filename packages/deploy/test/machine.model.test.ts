@@ -2,7 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Approval } from "@rat-stack/capability/approval";
 import type { Verdict } from "@rat-stack/check-harness";
 import { createEffectActor, join, send } from "@xstate/effect";
-import { Clock, ConfigProvider, Effect, Fiber, Layer, Schema } from "effect";
+import { ConfigProvider, Effect, Fiber, Layer, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -35,8 +35,6 @@ const SourceSignal = Schema.Literals([
   "refused",
 ]);
 
-const WindowSignal = Schema.Literals(["none", "clear", "waitable", "blocked"]);
-
 const Scenario = Schema.Struct({
   apply: Signal,
   checks: Signal,
@@ -44,26 +42,11 @@ const Scenario = Schema.Struct({
   plan: Signal,
   preflight: Signal,
   source: SourceSignal,
-  window: WindowSignal,
 });
 
 const expectedSha = "a".repeat(40);
 
 const dayMs = 86_400_000;
-
-const quietWindowEndMs = dayMs + 30 * 60_000;
-
-const quietWindowEnv = (signal: typeof WindowSignal.Type) => {
-  const windows =
-    signal === "clear"
-      ? [{ end: "13:00", start: "12:00" }]
-      : [{ end: "00:30", start: "23:45" }];
-
-  return {
-    DEPLOY_QUIET_WINDOWS: signal === "none" ? "" : JSON.stringify(windows),
-    DEPLOY_QUIET_WINDOW_MAX_WAIT_MS: signal === "blocked" ? "60000" : "3600000",
-  };
-};
 
 const probes = Arbitrary.array(Arbitrary.schema(Schema.String), {
   maxLength: 20,
@@ -186,10 +169,6 @@ const model = (scenario: typeof Scenario.Type): Model => {
     return { calls, outcome: "planned" };
   }
 
-  if (scenario.window === "blocked") {
-    return { calls, outcome: "refused" };
-  }
-
   calls.push("apply");
 
   if (scenario.apply === "crash") {
@@ -244,7 +223,6 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
   generated: readonly string[]
 ) {
   const calls: string[] = [];
-  let appliedAt = -1;
 
   const settle = <A>(
     step: DeployStepError["step"],
@@ -278,15 +256,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
 
   const runner = DeployRunner.of({
     ...passingWatch,
-    apply: () =>
-      Clock.currentTimeMillis.pipe(
-        Effect.tap((now) =>
-          Effect.sync(() => {
-            appliedAt = now;
-          })
-        ),
-        Effect.andThen(settle("apply", scenario.apply, receipt(scenario.apply)))
-      ),
+    apply: () => settle("apply", scenario.apply, receipt(scenario.apply)),
     checks: () => settle("checks", scenario.checks, [check(scenario.checks)]),
     plan: () =>
       settle("plan", scenario.plan, {
@@ -326,7 +296,7 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
     Effect.provideService(DeployRunner, runner),
     Effect.provideService(
       ConfigProvider.ConfigProvider,
-      ConfigProvider.fromEnv({ env: quietWindowEnv(scenario.window) })
+      ConfigProvider.fromEnv({ env: {} })
     ),
     Effect.provide(Layer.mergeAll(Approval.denyAll, unusedRollback))
   );
@@ -338,14 +308,6 @@ const replay = Effect.fn("replayDeployModel")(function* replay(
   const expected = model(scenario);
   expect(result.outcome).toBe(expected.outcome);
   expect(calls).toStrictEqual(expected.calls);
-
-  if (calls.includes("apply")) {
-    expect(appliedAt >= quietWindowEndMs).toBe(scenario.window === "waitable");
-  }
-
-  if (result.step === "quietWindow") {
-    expect(result.reason).toBe("inside-quiet-window");
-  }
 
   if (scenario.source === "moved" || scenario.source === "dirty") {
     expect(result.checkout).toStrictEqual(checkout);
@@ -386,7 +348,6 @@ const Passing = {
   plan: "pass",
   preflight: "pass",
   source: "unchecked",
-  window: "none",
 } as const;
 
 describe("deployment command model", () => {
@@ -402,7 +363,6 @@ describe("deployment command model", () => {
         yield* replay({ ...Passing, checks: scenario.checks }, generated);
         yield* replay({ ...Passing, mode: "plan" }, generated);
         yield* replay({ ...Passing, source: scenario.source }, generated);
-        yield* replay({ ...Passing, window: scenario.window }, generated);
       }),
     { arbitrary: { runs: 300 } }
   );

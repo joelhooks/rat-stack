@@ -65,7 +65,6 @@ export class DeployStepError extends Schema.TaggedError<
     "source",
     "preflight",
     "plan",
-    "quietWindow",
     "apply",
     "checks",
     "watch",

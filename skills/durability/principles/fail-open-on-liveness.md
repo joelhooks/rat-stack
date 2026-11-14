@@ -11,7 +11,7 @@ Name the harm each guard prevents. If passing it could do irreversible harm, ref
 **Example:** The deploy driver in `packages/deploy` does both.
 
 - Closed on harm: `PlanRejected` refuses a replacement or deletion without an exact allow entry and owner sign-off, and names the resources.
-- Open on liveness: content-version mismatches retry until a bounded deadline. A quiet window waits up to its bound before it refuses.
+- Open on liveness: content-version mismatches retry until a bounded deadline.
 
 The Worker follows the same rule:
 
@@ -22,6 +22,6 @@ See the [ship](/skills/ship) skill for the release procedure.
 
 **Incident:** drovr, 2026-10-23 (drovr-mode O8 and O9). PostShiba's p50 rose from 0.3 s to 8 s, and 46 of 47 timed-out first asks still arrived. drovr settled them by lookup and did not resend. A release tripped a check outside its diff, and the desk fixed forward instead of restoring.
 
-**Held by:** `packages/deploy/test/plan.test.ts` (unsafe actions need exact allow entries; destructive actions need owner sign-off). `packages/deploy/test/content-propagation.model.test.ts` and `packages/deploy/test/quiet-window.test.ts` (bounded waits). `packages/flags/test/kv.test.ts` (audit loss gates writes, not reads). See `skills/rat-stack-mode/principles/gates-guard-invariants.md` for where approval policy lives.
+**Held by:** `packages/deploy/test/plan.test.ts` (unsafe actions need exact allow entries; destructive actions need owner sign-off). `packages/deploy/test/content-propagation.model.test.ts` (bounded waits). `packages/flags/test/kv.test.ts` (audit loss gates writes, not reads). See `skills/rat-stack-mode/principles/gates-guard-invariants.md` for where approval policy lives.
 
 **Read more:** Switchboard's recs-v0 durability review.

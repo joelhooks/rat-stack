@@ -54,5 +54,5 @@ it.prop(
 
 it("covers every refusal reason the deploy package can name", () => {
   expect(RefusalReasonSchema.literals.length).toBeGreaterThan(40);
-  expect(Schema.is(RefusalReasonSchema)("inside-quiet-window")).toBe(true);
+  expect(Schema.is(RefusalReasonSchema)("plan-not-approved")).toBe(true);
 });
