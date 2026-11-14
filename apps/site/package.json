@@ -56,7 +56,7 @@
     "pretest": "pnpm run --silent build"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "2.0.0-beta.85",
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
@@ -68,14 +68,14 @@
     "@rat-stack/learn": "workspace:*",
     "@rat-stack/lore": "workspace:*",
     "@rat-stack/subscriber-delivery": "workspace:*",
-    "alchemy": "2.0.0-beta.85",
-    "effect": "4.1.2"
+    "alchemy": "2.0.0-beta.87",
+    "effect": "4.1.4"
   },
   "devDependencies": {
-    "@alchemy.run/test": "2.0.0-beta.85",
-    "@effect/platform-browser": "4.1.2",
-    "@effect/platform-node": "4.1.2",
-    "@effect/vitest": "4.1.2",
+    "@alchemy.run/test": "2.0.0-beta.87",
+    "@effect/platform-browser": "4.1.4",
+    "@effect/platform-node": "4.1.4",
+    "@effect/vitest": "4.1.4",
     "@foldkit/markdown": "0.15.0",
     "@rat-stack/code-snippets": "workspace:*",
     "@resvg/resvg-js": "2.6.2",

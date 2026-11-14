@@ -4,12 +4,22 @@ import { AuthProviders, Stage } from "alchemy";
 import { AlchemyContextLive } from "alchemy/AlchemyContext";
 import { tryFindProviderRegistrationByType } from "alchemy/Provider";
 import { ConfigProvider, Effect, Layer, Option, Schema } from "effect";
+import * as Digest from "effect/crypto/Digest";
+import * as SecureRandom from "effect/crypto/SecureRandom";
 import * as HttpClient from "effect/http/HttpClient";
 
 import stack from "../alchemy.run.js";
 
 const services = Layer.mergeAll(
-  AlchemyContextLive.pipe(Layer.provideMerge(NodeServices.layer)),
+  AlchemyContextLive.pipe(
+    Layer.provideMerge(
+      Layer.mergeAll(
+        NodeServices.layer,
+        SecureRandom.layerWebCrypto,
+        Digest.layerWebCrypto
+      )
+    )
+  ),
   Layer.succeed(Stage, "prod"),
   Layer.succeed(AuthProviders, {}),
   Layer.succeed(
