@@ -58,11 +58,11 @@ sources:
     publisher: "haocheng6"
     note: "Network fetch from raw.githubusercontent.com."
     accessed: "2026-10-02"
-  - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651
-    title: "Effect.validate"
+  - url: https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Effect.ts#L612-L619
+    title: "Effect.validate, Effect 4.1.4"
     publisher: "Effect contributors"
     note: "Evaluate all independent jobs and collect failures."
-    accessed: "2026-10-02"
+    accessed: "2026-11-14"
   - url: https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Schema.ts
     title: "Effect Schema"
     publisher: "Effect contributors"
@@ -271,7 +271,7 @@ Invalid metadata retains raw values because no decoded request exists.
   - Repair: Select a supported language or repair the highlighter adapter.
 
 The report-level `CodeBuildFailed` holds collected failures.
-[Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/effect%404.0.0/packages/effect/src/Effect.ts#L594-L651). `validateAll` is not the operation used here.
+[Error accumulation](/lore/accumulate-independent-errors) uses [`Effect.validate`](https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Effect.ts#L612-L619). `validateAll` is not the operation used here.
 
 A dependent stage stops on failure. Unrelated jobs still run.
 No asset writer runs before successful preflight.

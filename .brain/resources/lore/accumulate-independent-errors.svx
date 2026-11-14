@@ -54,7 +54,7 @@ The collection starts here:
 
 ```
 
-The loop turns collected failures into one `CodeBuildFailed` error.
+The `Effect.mapError` after `Effect.validate` turns collected failures into one `CodeBuildFailed` error.
 It retains the individual failures and formats each one as a message with [diagnostic context](/lore/errors-are-part-of-the-interface).
 
 ```ts repo=rat-stack path=packages/code-snippets/src/pipeline.ts at=4cd7cbbdb90386426f44643f6fc5b8e6c6e4286a lines=359-369 title="Keep each failure in the build error"
