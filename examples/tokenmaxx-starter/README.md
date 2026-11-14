@@ -2,32 +2,6 @@
 
 The starter for the Tokenmaxx workshop. You build your own agent factory, one piece at a time. Each piece is a problem: the starter gives you the problem, an environment to work in and a check that says when you're done. The design, the names and the layout are yours.
 
-## Step 0, before the day
-
-Step 0 is a small repo of your own that refuses a broken commit. You build in it on the day, so do it before your day.
-
-In a new folder, start Pi and give it this prompt:
-
-```text
-Set up a small TypeScript monorepo in this folder for my agent tooling.
-
-Give it a floor: typecheck, lint, format and tests, run on every commit by a hook that can't be skipped. Write down in AGENTS.md how work gets checked here.
-
-Reference: https://ratstack.sh/llms.txt. Read what this needs and take only that. Don't copy rat-stack.
-
-Done when: a commit with a type error is refused, a clean commit goes through, one command runs every check, and when you try to skip the hook with `git commit -n` you are stopped. Show me each one happening, and leave the setup committed.
-```
-
-Then quit Pi, start it again in that folder and accept the trust prompt. Give it this prompt to pull in the workshop tools:
-
-```text
-Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v2 workshop`, run `pnpm install` in `workshop/`, add the two root scripts the workshop README's "In a folder of your own repo" section gives, and tell this repo's lint, format and pre-commit checks to skip `workshop/`. I'm the owner of this repo and I approve those changes. Then run `pnpm ex 00.1 check` and commit.
-```
-
-Your agent may have written a rule that check changes need the owner's OK. The owner line answers it up front.
-
-Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first line, `a type-broken commit is refused`, shows `PASS`.
-
 ## Setup
 
 You need Node 24.18 or newer and pnpm 11.3. Pi is installed with the repo, so you do not need a global one.
@@ -50,6 +24,38 @@ The starter also works as a folder inside your own repo, say `workshop/`. Run `p
 ```
 
 Then `pnpm pi` and `pnpm ex <id> <command>` work from your repo's root, and from `workshop/` as before. Either way Pi starts at your repo's root, so your own `.pi` extensions, skills, settings and `AGENTS.md` load. The workshop's `AGENTS.md` and any piece you switch on with `catch-up` come along. Project trust is asked for your repo's root, if it has a `.pi` of its own. `pnpm ex 00.1 check` installs the pinned packages into `workshop/.pi/git/`. The exercises keep their state in `workshop/.workshop-state/`, and checks that look at "your repo" look at its root.
+
+## Step 0, before the day
+
+Step 0 is a small repo of your own that refuses a broken commit. You build in it on the day, so do it before your day.
+
+Make a new folder beside `tokenmaxx/`. From inside it, start the Pi that came with the starter:
+
+```sh
+../tokenmaxx/node_modules/.bin/pi
+```
+
+Give it this prompt:
+
+```text
+Set up a small TypeScript monorepo in this folder for my agent tooling.
+
+Give it a floor: typecheck, lint, format and tests, run on every commit by a hook that can't be skipped. Write down in AGENTS.md how work gets checked here.
+
+Reference: https://ratstack.sh/llms.txt. Read what this needs and take only that. Don't copy rat-stack.
+
+Done when: a commit with a type error is refused, a clean commit goes through, one command runs every check, and when you try to skip the hook with `git commit -n` you are stopped. Show me each one happening, and leave the setup committed.
+```
+
+Then quit Pi, start it again the same way in that folder and accept the trust prompt. Give it this prompt to pull in the workshop tools:
+
+```text
+Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v3 workshop`, run `pnpm install` in `workshop/`, add the two root scripts the workshop README's "In a folder of your own repo" section gives, and tell this repo's lint, format and pre-commit checks to skip `workshop/`. I'm the owner of this repo and I approve those changes. Then run `pnpm ex 00.1 check` and commit.
+```
+
+Your agent may have written a rule that check changes need the owner's OK. The owner line answers it up front.
+
+Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first line, `a type-broken commit is refused`, shows `PASS`.
 
 ## Fallback folder
 
