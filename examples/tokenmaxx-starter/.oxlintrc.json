@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import",
+    "node",
+    "promise",
+    "vitest"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "no-console": "off",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "promise/no-return-wrap": "warn",
+    "unicorn/no-process-exit": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "import/no-cycle": "warn",
+    "import/no-duplicates": "warn",
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": ["_tag"]
+      }
+    ]
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    ".workshop-state/**",
+    ".pi/git/**",
+    ".pi/npm/**"
+  ],
+  "overrides": [
+    {
+      "files": ["shared/**", "scripts/**", "exercises/**", "*.config.ts"],
+      "rules": {
+        "typescript/no-explicit-any": "error",
+        "typescript/no-non-null-assertion": "error",
+        "promise/no-return-wrap": "error",
+        "import/no-cycle": "error",
+        "import/no-duplicates": "error",
+        "no-underscore-dangle": ["error", { "allow": ["_tag"] }]
+      }
+    },
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "promise/valid-params": "off"
+      }
+    }
+  ]
+}

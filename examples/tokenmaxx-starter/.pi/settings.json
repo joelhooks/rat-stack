@@ -1,0 +1,18 @@
+{
+  "packages": [
+    {
+      "source": "git:github.com/joelhooks/pi-until@bf7abfe46ce51fa59cf7318dc3bd6c0c248e3dd6",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "catch-up/01.1",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    }
+  ]
+}

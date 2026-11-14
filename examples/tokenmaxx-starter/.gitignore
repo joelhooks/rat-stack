@@ -1,0 +1,15 @@
+node_modules/
+.workshop-state/
+# pi-notes runtime files: never commit
+.pi/notes-bridge/
+
+# Pi writes these under .pi/ at runtime
+.pi/git/
+.pi/npm/
+.pi/muster/
+# catch-up packages, unpacked by `pnpm ex <id> catch-up`
+.pi/catch-up/
+
+*.log
+.DS_Store
+.agent_sources/

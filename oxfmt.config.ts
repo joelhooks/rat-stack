@@ -6,6 +6,7 @@ export default defineConfig({
   ignorePatterns: [
     ...(ultracite.ignorePatterns ?? []),
     "skills/security-audit/**",
+    "examples/**",
   ],
   overrides: [
     {

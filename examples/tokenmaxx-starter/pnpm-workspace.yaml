@@ -1,0 +1,25 @@
+# One project: the starter. A guest's own Pi package with a package.json is
+# not a workspace project, so it never trips verifyDepsBeforeRun.
+packages:
+  - "."
+
+verifyDepsBeforeRun: error
+
+# Pi's transitive deps ship install scripts that only print warnings.
+allowBuilds:
+  "@google/genai": false
+  protobufjs: false
+  workerd: set this to true or false
+
+# Exact fresh pins that pnpm's release-age check would otherwise hold back.
+# One entry per version; a bump replaces its entry rather than adding one.
+minimumReleaseAgeExclude:
+  - effect@4.1.4
+  - "@earendil-works/pi-agent-core@1.5.2"
+  - "@earendil-works/pi-ai@1.5.2"
+  - "@earendil-works/pi-codemode@1.5.2"
+  - "@earendil-works/pi-coding-agent@1.5.2"
+  - "@earendil-works/pi-mcp@1.5.2"
+  - "@earendil-works/pi-schema@1.5.2"
+  - "@earendil-works/pi-telemetry@1.5.2"
+  - "@earendil-works/pi-tui@1.5.2"
