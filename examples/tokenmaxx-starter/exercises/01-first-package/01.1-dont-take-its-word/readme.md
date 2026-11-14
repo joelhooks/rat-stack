@@ -1,5 +1,3 @@
-> DRAFT: Joel rewrites this in his own voice.
-
 # 01.1 Don't take its word for it
 
 ## The problem
@@ -15,12 +13,15 @@ This repo, and whatever you and your agent build in it. Nothing is supplied in c
 
 ## Done when
 
-`pnpm ex 01.1 done` shows `PASS` on all three lines:
+`pnpm ex 01.1 done` shows `PASS` on its first line. If the workshop tools sit in a folder of your own repo, "your repo" is that repo: the check looks at its root.
 
-- **a type-broken commit is refused.** The check makes a throwaway copy of your repo with `git worktree`, with your uncommitted files in it, and tries two commits there: one that adds a type error and the same one without it. The first must be refused and the second must go through. Your repo is left exactly as it was.
+- **a type-broken commit is refused.** The check makes a throwaway copy of your repo with `git clone`, with your uncommitted files and your hooks in it, and tries two commits there: one that adds a type error and the same one without it. The first must be refused and the second must go through. Your repo is left exactly as it was.
+
+Two `NOTE` lines follow. The check still looks for these and says what it found, but `done` doesn't need them:
+
 - **a fresh Pi session loads a tool and a skill from this repo.** The check starts a new Pi in this repo against a fake model on your machine, so no tokens are spent, and reads which tools and skills it was given. Only ones that come from this repo count; any your own Pi setup adds are listed in a note.
 - **the repo says why it exists.** A non-empty `VISION` or `WHY` file (any extension) at the repo root.
 
-A `STRETCH` line may follow. It says whether the fence still holds when the commit is made with `git commit -n` or `LEFTHOOK=0`. It never fails the check. `pnpm ex 01.1 status` shows the last result again.
+A `STRETCH` line may follow. It says whether an agent working in your repo is stopped from skipping the fence: in the throwaway copy, a fresh Pi on the fake model runs `git commit -n`, `LEFTHOOK=0 git commit` and `git -c core.hooksPath=/dev/null commit` on the type-broken change, through its bash tool. Refused by git or by your Pi both count as held. It never fails the check. `pnpm ex 01.1 status` shows the last result again.
 
 In the group chat: what went wrong, and what would you do differently for your workflow?

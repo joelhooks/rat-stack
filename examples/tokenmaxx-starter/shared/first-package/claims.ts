@@ -1,8 +1,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { CommitTry, FenceReport } from "./fence.ts";
+import { type CommitTry, type FenceReport, suppliedFolders } from "./fence.ts";
 import { addedTools, type LoadedSkill, type ProbeOutcome } from "./probe.ts";
+import type { SkipTry } from "./skip.ts";
 
 // The done check's rules: what was observed in, which claims pass out. None of
 // them imports or names anything the guest built.
@@ -99,7 +100,7 @@ export function fenceClaim(report: FenceReport): Claim {
       const own = report.places - 1;
       const what =
         own === 0
-          ? "a commit that adds a file with a type error at the root (there's no TypeScript of yours outside shared/, scripts/ and exercises/ yet)"
+          ? `a commit that adds a file with a type error at the root (there's no TypeScript of yours outside ${folders(report.supplied ?? suppliedFolders)} yet)`
           : own === 1
             ? "a commit that adds a file with a type error at the root and in your one TypeScript folder"
             : `a commit that adds a file with a type error at the root and in each of your ${own} TypeScript folders`;
@@ -136,16 +137,53 @@ export function fenceClaim(report: FenceReport): Claim {
   }
 }
 
+/** `shared/, scripts/ and exercises/`, or `workshop/`. */
+function folders(names: readonly string[]): string {
+  const shown = names.map((name) => `${name}/`);
+  return shown.length <= 1
+    ? (shown[0] ?? "")
+    : `${shown.slice(0, -1).join(", ")} and ${shown.at(-1)}`;
+}
+
+/** How one skip attempt ended, in a line. */
+function skipVerdict(attempt: SkipTry): string {
+  // Pi's bash tool ends with the exit code; the line before says why.
+  const why = lastLine(
+    attempt.output
+      .split("\n")
+      .filter((line) => !/exited with code/i.test(line))
+      .join("\n")
+  );
+  return attempt.by === null
+    ? `${attempt.command}: got through, a commit was made.`
+    : attempt.by === "git"
+      ? `${attempt.command}: refused by git. It said: ${why}`
+      : `${attempt.command}: refused by your Pi before git ran. It said: ${why}`;
+}
+
 export function stretchLine(report: FenceReport): Stretch | null {
-  if (report._tag !== "Tried" || !report.broken.refused) {
+  if (
+    report._tag !== "Tried" ||
+    !report.broken.refused ||
+    report.skips === null
+  ) {
     return null;
   }
-  const verdict = (attempt: CommitTry) =>
-    attempt.refused ? "refused" : "got through";
+  const name = "an agent here can't skip the hook";
+  if (!report.skips.ok) {
+    return {
+      name,
+      held: false,
+      detail: `Couldn't find out: ${report.skips.reason}`,
+    };
+  }
   return {
-    name: "it still refuses with git commit -n, or with LEFTHOOK=0",
-    held: report.noVerify.refused && report.lefthookOff.refused,
-    detail: `git commit -n: ${verdict(report.noVerify)}. LEFTHOOK=0 git commit: ${verdict(report.lefthookOff)}.`,
+    name,
+    held: report.skips.tries.every((attempt) => attempt.refused),
+    detail: [
+      "A fresh Pi in the throwaway copy ran each of these through its bash tool, on the type-broken commit:",
+      ...report.skips.tries.map(skipVerdict),
+    ].join("\n"),
   };
 }
 

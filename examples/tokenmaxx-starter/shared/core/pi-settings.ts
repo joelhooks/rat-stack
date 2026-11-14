@@ -134,6 +134,11 @@ export function readDeclared(
   return declaredFrom(entry);
 }
 
+/** Every declared package, on or off, in settings order. */
+export function declaredPackages(repoRoot: string): DeclaredPackage[] {
+  return readSettings(repoRoot).packages.map(declaredFrom);
+}
+
 /** Every `git:<repo>@<sha>` entry, on or off: what Pi installs into `.pi/git/`. */
 export function pinnedGitPackages(repoRoot: string): PinnedGitPackage[] {
   const pinned: PinnedGitPackage[] = [];

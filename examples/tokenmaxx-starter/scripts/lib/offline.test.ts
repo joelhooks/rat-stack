@@ -12,6 +12,8 @@ import { join } from "node:path";
 import { ProjectTrustStore } from "@earendil-works/pi-coding-agent";
 import { afterAll, describe, expect, it } from "vitest";
 
+import { gitEnv } from "#shared/core/git-env.ts";
+
 import { checkoutState, trustFolder } from "./offline.ts";
 
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), "tmx-offline-test-")));
@@ -22,7 +24,7 @@ const git = (cwd: string, ...args: string[]) =>
     cwd,
     encoding: "utf8",
     env: {
-      ...process.env,
+      ...gitEnv(),
       GIT_AUTHOR_NAME: "t",
       GIT_AUTHOR_EMAIL: "t@example.com",
       GIT_COMMITTER_NAME: "t",

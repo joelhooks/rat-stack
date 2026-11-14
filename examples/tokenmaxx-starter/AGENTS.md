@@ -20,6 +20,7 @@ pnpm check                               # typecheck + lint + test (supplied cod
 ## Runtime facts
 
 - Node runs TypeScript directly. Import with the `.ts` extension. Use only erasable syntax: no `enum`, no `namespace`, no constructor parameter properties.
-- If you use Effect, it's Effect 4 (`effect` 4.1.2), not Effect 3. Common renames: `Effect.catchAllCause` → `Effect.catchCause`, `Effect.catchAll` → `Effect.catch`, `Either` → `Result` (`Effect.either` → `Effect.result`), `Context.Tag` → `Context.Service`. Check a name in `node_modules/effect/src` before using it.
+- If you use Effect, it's Effect 4 (`effect` 4.1.4), not Effect 3. Common renames: `Effect.catchAllCause` → `Effect.catchCause`, `Effect.catchAll` → `Effect.catch`, `Either` → `Result` (`Effect.either` → `Effect.result`), `Context.Tag` → `Context.Service`. Check a name in `node_modules/effect/src` before using it.
+- To see env names, run `env | cut -d= -f1`. For the workshop's own values (TMX_SESSION and friends, none secret), run `pnpm ex <id> status` and show them freely. Never print other env values.
 - `pnpm pi` sets `TMX_SESSION` for Pi and everything it runs, and records each session under `.workshop-state/sessions/`.
 - Don't stop a `pnpm pi` you didn't start; stop your own test Pis by PID. `TMX_GUEST_PI_PID` is the guest's own `pnpm pi` (Pi runs as its child), in that Pi and every Pi started from inside it.

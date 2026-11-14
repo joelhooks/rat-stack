@@ -137,8 +137,94 @@ export type ProbeServer = {
   readonly close: () => Promise<void>;
 };
 
+/** One answer from the fake model: some text, or one tool call. */
+export type FakeReply =
+  | { readonly text: string }
+  | { readonly tool: string; readonly args: Readonly<Record<string, unknown>> };
+
+/**
+ * Picks the fake model's answer to each request: `body` is the request as Pi
+ * sent it, `index` counts requests from 0.
+ */
+export type FakeScript = (
+  body: unknown,
+  index: number
+) => FakeReply | Promise<FakeReply>;
+
+const usage = { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 };
+
+function whole(reply: FakeReply, index: number) {
+  const message =
+    "text" in reply
+      ? { role: "assistant", content: reply.text }
+      : {
+          role: "assistant",
+          content: null,
+          tool_calls: [
+            {
+              id: `call_${index}`,
+              type: "function",
+              function: {
+                name: reply.tool,
+                arguments: JSON.stringify(reply.args),
+              },
+            },
+          ],
+        };
+  return JSON.stringify({
+    id: "probe",
+    object: "chat.completion",
+    created: 0,
+    model: "probe",
+    choices: [
+      {
+        index: 0,
+        message,
+        finish_reason: "text" in reply ? "stop" : "tool_calls",
+      },
+    ],
+    usage,
+  });
+}
+
+function streamed(reply: FakeReply, index: number): string[] {
+  return "text" in reply
+    ? [
+        chunk({ role: "assistant", content: reply.text }, null),
+        chunk({}, "stop"),
+      ]
+    : [
+        chunk(
+          {
+            role: "assistant",
+            tool_calls: [
+              {
+                index: 0,
+                id: `call_${index}`,
+                type: "function",
+                function: {
+                  name: reply.tool,
+                  arguments: JSON.stringify(reply.args),
+                },
+              },
+            ],
+          },
+          null
+        ),
+        chunk({}, "tool_calls"),
+      ];
+}
+
 /** A fake endpoint on 127.0.0.1 that records requests and answers "ok". */
-export async function startProbeServer(): Promise<ProbeServer> {
+export function startProbeServer(): Promise<ProbeServer> {
+  return startFakeModel(() => ({ text: "ok" }));
+}
+
+/**
+ * A fake OpenAI-compatible endpoint on 127.0.0.1 that records every request
+ * and answers each one as `script` says.
+ */
+export async function startFakeModel(script: FakeScript): Promise<ProbeServer> {
   const requests: unknown[] = [];
   const server = createServer((req, res) => {
     void (async () => {
@@ -154,25 +240,19 @@ export async function startProbeServer(): Promise<ProbeServer> {
         res.end(JSON.stringify({ error: { message: "not found" } }));
         return;
       }
+      const index = requests.length;
       requests.push(body);
+      let reply: FakeReply;
+      try {
+        reply = await script(body, index);
+      } catch (error) {
+        reply = {
+          text: `fake model error: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
       if (isRecord(body) && body["stream"] === false) {
         res.writeHead(200, { "content-type": "application/json" });
-        res.end(
-          JSON.stringify({
-            id: "probe",
-            object: "chat.completion",
-            created: 0,
-            model: "probe",
-            choices: [
-              {
-                index: 0,
-                message: { role: "assistant", content: "ok" },
-                finish_reason: "stop",
-              },
-            ],
-            usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
-          })
-        );
+        res.end(whole(reply, index));
         return;
       }
       res.writeHead(200, {
@@ -180,8 +260,9 @@ export async function startProbeServer(): Promise<ProbeServer> {
         "cache-control": "no-cache",
         connection: "close",
       });
-      res.write(chunk({ role: "assistant", content: "ok" }, null));
-      res.write(chunk({}, "stop"));
+      for (const part of streamed(reply, index)) {
+        res.write(part);
+      }
       res.end("data: [DONE]\n\n");
     })();
   });
@@ -255,7 +336,7 @@ export async function probeFreshPi(
     const exit = await new Promise<{ code: number | null; output: string }>(
       (resolveExit, rejectExit) => {
         const child = spawn(process.execPath, [launch.cli, ...launch.args], {
-          cwd: repoRoot,
+          cwd: launch.cwd,
           env,
           stdio: ["ignore", "pipe", "pipe"],
         });

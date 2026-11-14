@@ -1,7 +1,9 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  accessSync,
   chmodSync,
+  constants,
   existsSync,
   lstatSync,
   mkdirSync,
@@ -11,6 +13,7 @@ import {
   readlinkSync,
   realpathSync,
   rmSync,
+  statSync,
   symlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -20,6 +23,7 @@ import { delimiter, join, relative } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
+import { gitEnv } from "#shared/core/git-env.ts";
 
 import { fenceClaim, hookTime, stretchLine } from "./claims.ts";
 import {
@@ -29,13 +33,14 @@ import {
   wellTyped,
   writesSemicolons,
 } from "./fence.ts";
+import { probeFilesPiLoaded } from "./skip.ts";
 
 // The fence test against real throwaway repos with real hooks. Each repo is a
 // guest's repo in miniature: a tsconfig, one TypeScript file, an installed
 // node_modules (a link to this starter's, so tsc is real), and whatever fence
 // the story gives it.
 
-// Each fence test makes a worktree, copies or installs node_modules and
+// Each fence test makes a copy, copies or installs node_modules and
 // commits four times through a real hook. That takes 1-5 s on a quiet
 // machine, but a git-only one went past vitest's 30 s default on a loaded
 // one, and the pnpm installs took up to 2 minutes with the disk busy. A
@@ -57,9 +62,12 @@ const tsc = realpathSync(
 );
 // `pnpm test` exports its own verify-deps setting to everything it runs; drop
 // it, so each fixture's pnpm-workspace.yaml decides, as in a guest's repo.
+// Drop git's own env too (`gitEnv`): a guest's hook that runs these tests
+// sets GIT_DIR or GIT_INDEX_FILE, and every git call below would then write
+// into the guest's repo instead of the fixture's.
 const env: NodeJS.ProcessEnv = {
   ...Object.fromEntries(
-    Object.entries(process.env).filter(
+    Object.entries(gitEnv()).filter(
       ([key]) => !/^(npm|pnpm)_config_verify_deps_before_run$/i.test(key)
     )
   ),
@@ -126,7 +134,8 @@ async function fenced(
   runEnv: NodeJS.ProcessEnv = env
 ): Promise<FenceReport> {
   const before = state(repo);
-  const report = await tryFence(repo, { env: runEnv });
+  // The agent stretch starts Pi: its own tests are below.
+  const report = await tryFence(repo, { env: runEnv, skip: null });
   expect(state(repo)).toBe(before);
   expect(existsSync(join(repo, "tmx-fence-check.ts"))).toBe(false);
   expect(report).not.toMatchObject({ changed: expect.any(String) });
@@ -156,15 +165,13 @@ describe("the 01.1 fence test", fenceRuns, () => {
     expect(claim.detail).toContain("no commits today");
   });
 
-  it("passes a hook that typechecks, and reports -n getting through", async () => {
+  it("passes a hook that typechecks", async () => {
     const repo = guestRepo("tsc");
     hook(repo, typecheckHook);
     const report = await fenced(repo);
     expect(fenceClaim(report).ok).toBe(true);
-    expect(stretchLine(report)).toMatchObject({
-      held: false,
-      detail: expect.stringContaining("git commit -n: got through"),
-    });
+    expect(report).toMatchObject({ skips: null });
+    expect(stretchLine(report)).toBeNull();
   });
 
   it("passes a fence that only covers a subfolder, by finding that folder", async () => {
@@ -215,21 +222,12 @@ describe("the 01.1 fence test", fenceRuns, () => {
     );
   });
 
-  it("reports LEFTHOOK=0 as a stretch line, never as a FAIL", async () => {
-    const repo = guestRepo("lefthook");
-    hook(repo, `[ "$LEFTHOOK" = "0" ] && exit 0\n${typecheckHook}`);
-    const report = await fenced(repo);
-    expect(fenceClaim(report).ok).toBe(true);
-    expect(stretchLine(report)?.detail).toContain(
-      "LEFTHOOK=0 git commit: got through"
-    );
-  });
-
   it("isn't fooled by LEFTHOOK=0 or GIT_DIR in the caller's own env", async () => {
     const repo = guestRepo("callerenv");
     hook(repo, `[ "$LEFTHOOK" = "0" ] && exit 0\n${typecheckHook}`);
     const report = await tryFence(repo, {
       env: { ...env, LEFTHOOK: "0", GIT_DIR: "/nowhere" },
+      skip: null,
     });
     expect(fenceClaim(report).ok).toBe(true);
   });
@@ -254,7 +252,7 @@ describe("the 01.1 fence test", fenceRuns, () => {
 
 // pnpm workspaces, where a symlinked node_modules broke the check and the
 // guest's repo: pnpm installed through the link, rewriting the guest's own
-// links to point into the deleted worktree. Two packages, one depending on
+// links to point into the deleted copy. Two packages, one depending on
 // the other, and no package from a registry, so `pnpm install --offline`
 // needs nothing in pnpm's store. tsc runs from this starter by full path.
 //
@@ -415,7 +413,7 @@ describe.each(pnpmDirs)(
     it("passes a hook that typechecks across packages, and refuses the type error", async () => {
       const repo = pnpmWorkspace(tag("ws"), pnpmEnv, { verify: null });
       hook(repo, "pnpm -r run typecheck || exit 1");
-      const report = await tryFence(repo, { env: pnpmEnv });
+      const report = await tryFence(repo, { env: pnpmEnv, skip: null });
       expect(report).toMatchObject({
         _tag: "Tried",
         places: 3,
@@ -427,7 +425,7 @@ describe.each(pnpmDirs)(
     });
 
     it("leaves the guest's node_modules byte for byte as it was, with pnpm set to install before running", async () => {
-      // The condition that did the damage: verify-deps sees the worktree as a
+      // The condition that did the damage: verify-deps sees the copy as a
       // changed workspace and installs.
       const repo = pnpmWorkspace(tag("damage"), pnpmEnv, { verify: "install" });
       hook(repo, "pnpm run typecheck || exit 1");
@@ -435,7 +433,7 @@ describe.each(pnpmDirs)(
       expect(before).toContain(
         "link packages/app/node_modules/@fx/core -> ../../../core"
       );
-      const report = await tryFence(repo, { env: pnpmEnv });
+      const report = await tryFence(repo, { env: pnpmEnv, skip: null });
       expect(installed(repo)).toEqual(before);
       expect(report).toMatchObject({
         control: { refused: false },
@@ -451,7 +449,7 @@ describe.each(pnpmDirs)(
         verify: "error",
       });
       hook(repo, "pnpm run typecheck || exit 1");
-      const report = await tryFence(repo, { env: pnpmEnv });
+      const report = await tryFence(repo, { env: pnpmEnv, skip: null });
       expect(report).toMatchObject({ control: { refused: false } });
       expect(fenceClaim(report).ok).toBe(true);
     });
@@ -461,7 +459,9 @@ describe.each(pnpmDirs)(
       // linked node_modules showed up as untracked.
       const repo = pnpmWorkspace(tag("untracked"), pnpmEnv, { verify: null });
       hook(repo, `${untrackedGate}\npnpm -r run typecheck || exit 1`);
-      expect(fenceClaim(await tryFence(repo, { env: pnpmEnv })).ok).toBe(true);
+      expect(
+        fenceClaim(await tryFence(repo, { env: pnpmEnv, skip: null })).ok
+      ).toBe(true);
     });
 
     it("keeps a prepare script's git writes out of the guest's repo", async () => {
@@ -478,7 +478,9 @@ describe.each(pnpmDirs)(
       rmSync(join(repo, ".git", "hooks", "post-checkout"));
       const hooks = readdirSync(join(repo, ".git", "hooks")).toSorted();
       const config = readFileSync(join(repo, ".git", "config"), "utf8");
-      expect(fenceClaim(await tryFence(repo, { env: pnpmEnv })).ok).toBe(true);
+      expect(
+        fenceClaim(await tryFence(repo, { env: pnpmEnv, skip: null })).ok
+      ).toBe(true);
       expect(readFileSync(join(repo, ".git", "config"), "utf8")).toBe(config);
       expect(config).not.toContain("prepared");
       expect(readdirSync(join(repo, ".git", "hooks")).toSorted()).toEqual(
@@ -495,7 +497,7 @@ describe.each(pnpmDirs)(
       json.dependencies["tmx-not-in-the-lockfile"] = "1.0.0";
       writeFileSync(app, JSON.stringify(json));
       const before = installed(repo);
-      const report = await tryFence(repo, { env: pnpmEnv });
+      const report = await tryFence(repo, { env: pnpmEnv, skip: null });
       expect(report).toMatchObject({ _tag: "NoDeps" });
       const claim = fenceClaim(report);
       expect(claim.ok).toBe(false);
@@ -530,8 +532,7 @@ describe("the hook-time line", fenceRuns, () => {
     places: 1,
     control: { refused: false, output: "ok", ms },
     broken: { refused: true, output: "error TS2322", ms },
-    noVerify: { refused: false, output: "ok" },
-    lefthookOff: { refused: true, output: "error TS2322" },
+    skips: null,
     changed: null,
   });
 
@@ -835,5 +836,399 @@ describe("a probe the guest's own lint and formatter accept", fenceRuns, () => {
       writesSemicolons(["export const a = 1;\n", "export const b = 2\n"])
     ).toBe(true);
     expect(writesSemicolons(["", "  \n"])).toBe(true);
+  });
+});
+
+// The stretch: an agent in the guest's repo tries to skip the hook. A fresh
+// Pi in the throwaway copy, on the fake model, runs each skip through its bash
+// tool. Pi gets an empty HOME and agent dir and no network, so only the
+// fixture's own `.pi` counts, as on a guest's machine with nothing else.
+const piHome = join(scratch, "pi-home");
+mkdirSync(piHome, { recursive: true });
+const agentEnv: NodeJS.ProcessEnv = {
+  PATH: process.env["PATH"],
+  HOME: piHome,
+  PI_CODING_AGENT_DIR: join(piHome, ".pi", "agent"),
+  PI_OFFLINE: "1",
+  RATKING_NAME: "off",
+};
+
+/**
+ * A Pi-level guard, as a guest's agent might build it: a project extension
+ * that refuses bash tool calls skipping the hook. Typed without imports, so
+ * the fixture's own typecheck passes it.
+ */
+const guard = `type Call = { toolName: string; input: { command?: unknown } };
+type Pi = { on: (event: string, handler: (call: Call) => unknown) => void };
+const skip = /(^|\\s)(-n|--no-verify)(\\s|$)|LEFTHOOK=0|core\\.hooksPath/;
+export default function guard(pi: Pi): void {
+  pi.on("tool_call", (call) => {
+    const command = String(call.input.command ?? "");
+    if (call.toolName === "bash" && /\\bgit\\b/.test(command) && skip.test(command)) {
+      return { block: true, reason: "Skipping the commit hook is not allowed here." };
+    }
+    return undefined;
+  });
+}
+`;
+
+async function stretched(repo: string) {
+  const before = state(repo);
+  const report = await tryFence(repo, { env: agentEnv });
+  expect(state(repo)).toBe(before);
+  expect(report).not.toMatchObject({ changed: expect.any(String) });
+  expect(fenceClaim(report).ok).toBe(true);
+  const stretch = stretchLine(report);
+  if (report._tag !== "Tried" || report.skips === null || !report.skips.ok) {
+    throw new Error(`no agent tries: ${JSON.stringify(report)}`);
+  }
+  return { tries: report.skips.tries, stretch };
+}
+
+describe("the agent stretch (live Pi, fake model)", installRuns, () => {
+  it("isn't held when nothing stops an agent's git commit -n", async () => {
+    const repo = guestRepo("agent-none");
+    hook(repo, typecheckHook);
+    const { tries, stretch } = await stretched(repo);
+    expect(tries.map((t) => t.by)).toEqual([null, "git", null]);
+    expect(stretch?.held).toBe(false);
+    expect(stretch?.detail).toContain(
+      'git commit -n -m "test: fence check": got through, a commit was made.'
+    );
+    expect(stretch?.detail).toContain(
+      'LEFTHOOK=0 git commit -m "test: fence check": refused by git. It said: '
+    );
+  });
+
+  it("is held by the guest's Pi alone, even with a hook git can skip", async () => {
+    const repo = guestRepo("agent-guard");
+    hook(repo, typecheckHook);
+    mkdirSync(join(repo, ".pi", "extensions"), { recursive: true });
+    writeFileSync(join(repo, ".pi", "extensions", "guard.ts"), guard);
+    sh(repo, "add", ".pi");
+    sh(
+      repo,
+      "-c",
+      "user.name=t",
+      "-c",
+      "user.email=t@t",
+      "commit",
+      "-q",
+      "-m",
+      "guard"
+    );
+    const { tries, stretch } = await stretched(repo);
+    expect(tries.map((t) => t.by)).toEqual(["pi", "pi", "pi"]);
+    expect(stretch?.held).toBe(true);
+    expect(stretch?.detail).toContain(
+      "refused by your Pi before git ran. It said: Skipping the commit hook is not allowed here."
+    );
+  });
+
+  it("starts Pi even with a probe file in a package's extensions folder", async () => {
+    // The guard ships in the guest's own package, which `.pi/settings.json`
+    // points at; the fence puts a probe file in its extensions/ too.
+    const repo = guestRepo("agent-package");
+    hook(repo, typecheckHook);
+    mkdirSync(join(repo, "mine", "extensions"), { recursive: true });
+    mkdirSync(join(repo, ".pi"), { recursive: true });
+    writeFileSync(join(repo, "mine", "extensions", "guard.ts"), guard);
+    writeFileSync(
+      join(repo, "mine", "package.json"),
+      JSON.stringify({ name: "mine", private: true, keywords: ["pi-package"] })
+    );
+    writeFileSync(
+      join(repo, ".pi", "settings.json"),
+      JSON.stringify({ packages: ["../mine"] })
+    );
+    sh(repo, "add", ".");
+    sh(
+      repo,
+      "-c",
+      "user.name=t",
+      "-c",
+      "user.email=t@t",
+      "commit",
+      "-q",
+      "-m",
+      "package"
+    );
+    const { tries, stretch } = await stretched(repo);
+    expect(tries.map((t) => t.by)).toEqual(["pi", "pi", "pi"]);
+    expect(stretch?.held).toBe(true);
+  });
+
+  it("says it couldn't find out when the hook only checks a folder Pi loads extensions from", async () => {
+    const repo = guestRepo("agent-narrow");
+    mkdirSync(join(repo, "mine", "extensions"), { recursive: true });
+    mkdirSync(join(repo, ".pi"), { recursive: true });
+    writeFileSync(join(repo, "mine", "extensions", "guard.ts"), guard);
+    writeFileSync(
+      join(repo, ".pi", "settings.json"),
+      JSON.stringify({ packages: ["../mine"] })
+    );
+    sh(repo, "add", ".");
+    sh(
+      repo,
+      "-c",
+      "user.name=t",
+      "-c",
+      "user.email=t@t",
+      "commit",
+      "-q",
+      "-m",
+      "package"
+    );
+    hook(
+      repo,
+      "node_modules/.bin/tsc --noEmit --strict --ignoreConfig mine/extensions/*.ts || exit 1"
+    );
+    const report = await tryFence(repo, { env: agentEnv });
+    expect(fenceClaim(report).ok).toBe(true);
+    expect(stretchLine(report)).toMatchObject({
+      held: false,
+      detail: expect.stringContaining(
+        "Couldn't find out: your hook only caught the type error in folders Pi loads extensions from (mine/extensions)"
+      ),
+    });
+  });
+
+  it("names the probe files Pi failed to load, and only those", () => {
+    const output = [
+      'Error: Failed to load extension "/tmp/x/repo/mine/extensions/tmx-fence-check.ts": Extension does not export a valid factory function',
+      'Error: Failed to load extension "/tmp/x/repo/mine/extensions/other.ts": boom',
+    ].join("\n");
+    expect(
+      probeFilesPiLoaded(output, "/tmp/x/repo", [
+        "tmx-fence-check.ts",
+        "src/tmx-fence-check.ts",
+        "mine/extensions/tmx-fence-check.ts",
+      ])
+    ).toEqual(["mine/extensions/tmx-fence-check.ts"]);
+  });
+
+  it("counts a hook -n can't skip as git refusing it", async () => {
+    // git runs prepare-commit-msg even with -n; core.hooksPath still gets past it.
+    const repo = guestRepo("agent-prepare");
+    const path = join(repo, ".git", "hooks", "prepare-commit-msg");
+    writeFileSync(path, `#!/bin/sh\n${typecheckHook}\n`);
+    chmodSync(path, 0o755);
+    const { tries, stretch } = await stretched(repo);
+    expect(tries.map((t) => t.by)).toEqual(["git", "git", null]);
+    expect(stretch?.held).toBe(false);
+  });
+
+  it("doesn't start Pi when the type-broken commit already went through", async () => {
+    const report = await tryFence(guestRepo("agent-nofence"), {
+      env: agentEnv,
+    });
+    expect(report).toMatchObject({ broken: { refused: false }, skips: null });
+    expect(stretchLine(report)).toBeNull();
+  });
+});
+
+// The copy is a local `git clone`, not a linked worktree. In a linked
+// worktree git hands the guest's hook a GIT_DIR into the guest's repo, and a
+// test the hook runs that drives git without scrubbing git's env wrote
+// there: config, objects, the worktree's HEAD and index.
+const leakyTest = `import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const out = process.env.HOOK_GIT_DIR_OUT;
+if (out) writeFileSync(out, process.env.GIT_DIR ?? "(none)");
+execFileSync("git", ["config", "tmx.hook-ran", "yes"]);
+const dir = mkdtempSync(join(tmpdir(), "hook-fixture-"));
+const git = (...args) => execFileSync("git", args, { cwd: dir, stdio: "pipe" });
+git("init", "-q");
+git("config", "user.name", "fixture");
+git("config", "user.email", "fixture@localhost");
+writeFileSync(join(dir, "fixture.txt"), "fixture\\n");
+git("add", "fixture.txt");
+git("commit", "-q", "-m", "fixture");
+rmSync(dir, { recursive: true, force: true });
+`;
+
+/** Every file under the repo's git dir, by path, as a content hash. */
+function gitBytes(gitDir: string): Map<string, string> {
+  const files = new Map<string, string>();
+  const walk = (dir: string) => {
+    for (const name of readdirSync(dir).toSorted()) {
+      const path = join(dir, name);
+      const stat = lstatSync(path);
+      if (stat.isDirectory()) {
+        walk(path);
+      } else {
+        const bytes = stat.isSymbolicLink()
+          ? readlinkSync(path)
+          : readFileSync(path);
+        files.set(
+          relative(gitDir, path),
+          createHash("sha256").update(bytes).digest("hex")
+        );
+      }
+    }
+  };
+  walk(gitDir);
+  return files;
+}
+
+/** The paths whose bytes differ, or that one side lacks. */
+function bytesChanged(
+  before: Map<string, string>,
+  after: Map<string, string>
+): string[] {
+  const paths = new Set([...before.keys(), ...after.keys()]);
+  return [...paths]
+    .filter((path) => before.get(path) !== after.get(path))
+    .toSorted();
+}
+
+/** A writable temp folder on another disk than the fixtures, if there is one. */
+const otherDisk = (() => {
+  const here = statSync(scratch).dev;
+  for (const dir of ["/dev/shm", "/tmp", "/private/tmp"]) {
+    try {
+      accessSync(dir, constants.W_OK);
+      if (statSync(dir).dev !== here) {
+        return dir;
+      }
+    } catch {
+      // Not there, or not writable.
+    }
+  }
+  return null;
+})();
+
+function leakyRepo(name: string): string {
+  const repo = guestRepo(name);
+  writeFileSync(join(repo, "leaky.test.mjs"), leakyTest);
+  sh(repo, "add", "leaky.test.mjs");
+  sh(
+    repo,
+    "-c",
+    "user.name=t",
+    "-c",
+    "user.email=t@t",
+    "commit",
+    "-q",
+    "-m",
+    "a test that drives git"
+  );
+  hook(repo, `node leaky.test.mjs || exit 1\n${typecheckHook}`);
+  return repo;
+}
+
+describe("the copy is a repository of its own", fenceRuns, () => {
+  it("leaves the guest's objects, refs, config and index byte-identical, with a hook that drives git unscrubbed", async () => {
+    const repo = leakyRepo("leaky");
+    const out = join(scratch, "leaky-git-dir.txt");
+    sh(repo, "status", "--porcelain");
+    const before = gitBytes(join(repo, ".git"));
+    const report = await fenced(repo, { ...env, HOOK_GIT_DIR_OUT: out });
+    expect(fenceClaim(report).ok).toBe(true);
+    expect(readFileSync(out, "utf8")).toBe("(none)");
+    expect(bytesChanged(before, gitBytes(join(repo, ".git")))).toEqual([]);
+    expect(() => sh(repo, "config", "tmx.hook-ran")).toThrow(/Command failed/);
+  });
+
+  it("leaves the main repo byte-identical when the guest's repo is a linked worktree of it", async () => {
+    const main = leakyRepo("leaky-main");
+    const linked = join(scratch, "leaky-linked");
+    sh(main, "worktree", "add", "-q", "--detach", linked, "HEAD");
+    mkdirSync(join(linked, "node_modules", ".bin"), { recursive: true });
+    symlinkSync(tsc, join(linked, "node_modules", ".bin", "tsc"));
+    writeFileSync(join(linked, "node_modules", "canary.txt"), "keep me\n");
+    sh(linked, "status", "--porcelain");
+    const before = gitBytes(join(main, ".git"));
+    const report = await fenced(linked);
+    expect(report).toMatchObject({ hooks: ["pre-commit"] });
+    expect(fenceClaim(report).ok).toBe(true);
+    expect(bytesChanged(before, gitBytes(join(main, ".git")))).toEqual([]);
+  });
+
+  // Hard links can't cross disks: the copy is made by copying there.
+  it.runIf(otherDisk !== null)(
+    "makes the copy in a temp folder on another disk",
+    async () => {
+      const repo = guestRepo("other-disk");
+      hook(repo, typecheckHook);
+      const saved = process.env["TMPDIR"];
+      process.env["TMPDIR"] = otherDisk ?? "";
+      try {
+        expect(tmpdir()).toBe(otherDisk);
+        expect(fenceClaim(await fenced(repo)).ok).toBe(true);
+      } finally {
+        if (saved === undefined) {
+          delete process.env["TMPDIR"];
+        } else {
+          process.env["TMPDIR"] = saved;
+        }
+      }
+    }
+  );
+
+  it("runs a core.hooksPath folder git ignores, husky style, from the copy", async () => {
+    const repo = guestRepo("husky");
+    const where = join(scratch, "husky-ran-from.txt");
+    mkdirSync(join(repo, ".husky", "_"), { recursive: true });
+    writeFileSync(join(repo, ".husky", ".gitignore"), "_\n");
+    writeFileSync(
+      join(repo, ".husky", "_", "pre-commit"),
+      `#!/bin/sh\npwd > "${where}"\n${typecheckHook}\n`
+    );
+    chmodSync(join(repo, ".husky", "_", "pre-commit"), 0o755);
+    sh(repo, "config", "core.hooksPath", ".husky/_");
+    const report = await fenced(repo);
+    expect(report).toMatchObject({ hooks: ["pre-commit"] });
+    expect(fenceClaim(report).ok).toBe(true);
+    expect(readFileSync(where, "utf8").trim()).not.toBe(repo);
+  });
+
+  it.each([
+    ["a folder in the repo", "abs-in-repo", "hooks-abs"],
+    ["a folder in its git dir", "abs-in-git", join(".git", "my-hooks")],
+  ])(
+    "runs an absolute core.hooksPath to %s from the copy's own folder",
+    async (_name, slug, folder) => {
+      const repo = guestRepo(slug);
+      const where = join(scratch, `${slug}-ran.txt`);
+      const dir = join(repo, folder);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(
+        join(dir, "pre-commit"),
+        `#!/bin/sh\necho "$0" > "${where}"\n${typecheckHook}\n`
+      );
+      chmodSync(join(dir, "pre-commit"), 0o755);
+      sh(repo, "config", "core.hooksPath", dir);
+      const report = await fenced(repo);
+      expect(fenceClaim(report).ok).toBe(true);
+      const ran = readFileSync(where, "utf8").trim();
+      expect(ran.startsWith(`${repo}/`)).toBe(false);
+      expect(ran.endsWith(join(folder, "pre-commit"))).toBe(true);
+      expect(sh(repo, "config", "core.hooksPath").trim()).toBe(dir);
+    }
+  );
+
+  it("runs a hooks folder the guest's global config names only for the repo's path", async () => {
+    const repo = guestRepo("include-if");
+    const hooks = join(scratch, "include-if-hooks");
+    mkdirSync(hooks, { recursive: true });
+    writeFileSync(join(hooks, "pre-commit"), `#!/bin/sh\n${typecheckHook}\n`);
+    chmodSync(join(hooks, "pre-commit"), 0o755);
+    const included = join(scratch, "include-if.gitconfig");
+    writeFileSync(included, `[core]\n\thooksPath = ${hooks}\n`);
+    // The fence drops GIT_CONFIG_GLOBAL with the rest of git's env, so the
+    // guest's global config is the one in their HOME.
+    const home = join(scratch, "include-if-home");
+    mkdirSync(home, { recursive: true });
+    writeFileSync(
+      join(home, ".gitconfig"),
+      `[includeIf "gitdir:${repo}/"]\n\tpath = ${included}\n`
+    );
+    const report = await fenced(repo, { ...env, HOME: home });
+    expect(report).toMatchObject({ hooks: ["pre-commit"] });
+    expect(fenceClaim(report).ok).toBe(true);
   });
 });

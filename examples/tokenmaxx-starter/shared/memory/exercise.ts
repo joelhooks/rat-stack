@@ -1,3 +1,8 @@
+import {
+  type CommitClaim,
+  commitLine,
+  markStepStart,
+} from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import {
@@ -45,6 +50,8 @@ export type MemoryDeps = {
   /** The workshop session running this command, or null in a plain terminal. */
   readonly session: () => string | null;
   readonly readSessions: (repoRoot: string) => Promise<SessionRecord[]>;
+  /** The commit line `done` ends with. */
+  readonly commit: (ctx: ExerciseContext) => Promise<CommitClaim>;
 };
 
 const defaultDeps: MemoryDeps = {
@@ -54,6 +61,7 @@ const defaultDeps: MemoryDeps = {
   random: Math.random,
   session: () => sessionFromEnv(),
   readSessions,
+  commit: (ctx) => commitLine(ctx),
 };
 
 /** Who ships things. No two-letter initials here spell a word. */
@@ -206,6 +214,7 @@ export function memoryExercise(
     commands: {
       /** Starts over: a new house rule, nothing handed in. */
       async setup(ctx) {
+        await markStepStart(ctx, deps.now());
         await startOver(ctx);
         out(
           "Fresh start: a new house rule is in force, and nothing has been handed in."
@@ -406,7 +415,7 @@ export function memoryExercise(
       async done(ctx) {
         const events = await readEvents(ctx.stateDir);
         const sessions = await deps.readSessions(ctx.repoRoot);
-        const claims = judge(events, sessions);
+        const claims = [...judge(events, sessions), await deps.commit(ctx)];
         for (const claim of claims) {
           out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
           out(`      ${claim.detail}`);
