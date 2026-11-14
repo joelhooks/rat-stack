@@ -1,15 +1,15 @@
 ---
 title: "Property-based testing"
-description: "State a rule that must hold for every input, then let a generator hunt for the smallest input that breaks it."
-plain: "State a rule that holds for every input, and let a generator find the smallest input that breaks it."
+description: "State a rule that must hold for every input, then let a generator search for a failing input."
+plain: "State a rule that holds for every input, and let a generator search for a failing input."
 diagram: |-
   Arbitrary.schema(...)
     │ many inputs
     ▼
   rule holds for each?
     ├ yes → pass
-    └ no  → shrink to the
-            smallest failure
+    └ no  → bounded search
+            reported failure
 group: concept
 terms:
   - "property-based testing"
@@ -17,6 +17,11 @@ terms:
   - "property tests"
   - "PBT"
 sources:
+  - url: https://github.com/Effect-TS/effect/blob/506eef143bcc1750ce58920aac1e45da7265d103/packages/effect/src/Arbitrary.ts#L287-L297
+    title: "Effect Arbitrary: Falsified result. Effect 4.1.2."
+    publisher: "GitHub Effect-TS/effect"
+    note: "The bounded shrink search returns its best failing value, which may equal the initial input."
+    accessed: "2026-11-13"
   - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts
     title: "Effect contributors. 2026. Arbitrary. Effect 4.0.0."
     publisher: "GitHub Effect-TS/effect"
@@ -35,6 +40,8 @@ sources:
 ---
 
 An example test checks one input you picked. A property test states a rule that must hold for every input. It generates many inputs and shrinks a failing input to a small counterexample.
+
+[The bounded shrink search may return the original failing input.](https://github.com/Effect-TS/effect/blob/506eef143bcc1750ce58920aac1e45da7265d103/packages/effect/src/Arbitrary.ts#L287-L297)
 
 Effect 4 ships its own engine in `effect/Arbitrary`. `Arbitrary.schema` derives a generator from an Effect `Schema`. The same schema defines the [capability's contract](/systems/capabilities) and generates its test inputs. `Arbitrary.checkEffect` checks a pure or effectful property and "shrinks the first falsification." [Arbitrary.ts](https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Arbitrary.ts)
 

@@ -10,14 +10,19 @@ diagram: |-
   after every step
     real system == model
     │
-  failure shrinks to the
-  fewest steps
+  try shrinking the
+  failing sequence
 group: concept
 terms:
   - "model-based testing"
   - "test model"
   - "MBT"
 sources:
+  - url: https://github.com/Effect-TS/effect/blob/506eef143bcc1750ce58920aac1e45da7265d103/packages/effect/src/Arbitrary.ts#L450-L466
+    title: "Effect Arbitrary: array shrinking. Effect 4.1.2."
+    publisher: "GitHub Effect-TS/effect"
+    note: "Array shrinking tries block removal and element shrinks; bounded shrinking does not guarantee a globally minimal failure."
+    accessed: "2026-11-13"
   - url: https://css-tricks.com/model-based-testing-in-react-with-state-machines/
     title: "Model-Based Testing in React with State Machines"
     publisher: "David Khourshid · CSS-Tricks"
