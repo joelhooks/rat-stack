@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "printWidth": 80,
+  "proseWrap": "never",
+  "quoteProps": "as-needed",
+  "semi": true,
+  "singleQuote": false,
+  "sortImports": {
+    "ignoreCase": true,
+    "newlinesBetween": true,
+    "order": "asc"
+  },
+  "sortPackageJson": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    ".workshop-state/**",
+    ".pi/git/**",
+    ".pi/npm/**",
+    ".pi/notes-bridge/**"
+  ]
+}

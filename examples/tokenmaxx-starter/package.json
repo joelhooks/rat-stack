@@ -1,0 +1,39 @@
+{
+  "name": "tokenmaxx-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tokenmaxx workshop starter: build your own agent factory, one piece at a time.",
+  "license": "MIT",
+  "type": "module",
+  "imports": {
+    "#shared/*": "./shared/*"
+  },
+  "scripts": {
+    "ex": "node scripts/ex.ts",
+    "pi": "node scripts/pi.ts",
+    "check:pi": "node scripts/check-pi.ts",
+    "offline:prepare": "node scripts/offline-prepare.ts",
+    "test": "vitest run --config vitest.config.ts --maxWorkers=4",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "oxlint shared scripts exercises vitest.config.ts vitest.exercise.config.ts && oxfmt --check shared scripts exercises vitest.config.ts vitest.exercise.config.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
+    "format": "oxfmt shared scripts exercises vitest.config.ts vitest.exercise.config.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
+    "check": "pnpm typecheck && pnpm lint && pnpm test"
+  },
+  "dependencies": {
+    "effect": "4.1.4"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "1.5.2",
+    "@earendil-works/pi-coding-agent": "1.5.2",
+    "@types/node": "24.19.2",
+    "oxfmt": "0.73.0",
+    "oxlint": "1.88.0",
+    "typebox": "1.3.27",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "packageManager": "pnpm@11.3.0"
+}
