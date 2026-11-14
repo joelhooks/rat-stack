@@ -32,7 +32,7 @@
     "@rat-stack/devtools": "workspace:*",
     "@rat-stack/motion": "workspace:*",
     "@rat-stack/site": "workspace:*",
-    "@stylexjs/stylex": "0.19.1",
+    "@stylexjs/stylex": "0.19.2",
     "alchemy": "2.0.0-beta.87",
     "effect": "4.1.4",
     "foldkit": "0.170.0"
@@ -43,11 +43,11 @@
     "@foldkit/devtools": "0.170.0",
     "@foldkit/markdown": "0.15.0",
     "@foldkit/vite-plugin": "0.29.0",
-    "@stylexjs/unplugin": "0.19.1",
+    "@stylexjs/unplugin": "0.19.2",
     "@types/node": "24.19.2",
     "jsdom": "31.0.0",
     "typescript": "7.0.2",
-    "vite": "8.3.6",
+    "vite": "8.3.8",
     "vitest": "5.1.0"
   }
 }

@@ -98,7 +98,7 @@ Code mode is another projection. The model gets `search` for ranked matches with
 
 ## What is in the stack?
 
-- **pnpm workspaces + Turborepo `2.11.10`**: cached `typecheck` / `test` / `build` across packages from day one.
+- **pnpm workspaces + Turborepo `2.11.11`**: cached `typecheck` / `test` / `build` across packages from day one.
 - **Effect `4.1.4`**: typed runtime, errors, filesystem service, and the three surfaces the capabilities project onto: `effect/cli`, `effect/http-api` (with `OpenApi.fromApi`), and `effect/ai` (`Toolkit` + `McpServer`).
 - **`@effect/platform-node` `4.1.4`**: Node-backed services; keep adapter and core pins matched.
 - **TypeScript `7.0.2`**: strict module and index-access checks.
@@ -111,7 +111,7 @@ Code mode is another projection. The model gets `search` for ranked matches with
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
 - **Vitest `5.1.0` + `@effect/vitest` `4.1.4`**: `it.effect` and `it.layer` for every Effect test; running Effects by hand in a test file is a lint error.
 - **`@effect/tsgo` `0.67.5`**: patches TypeScript 7 in `prepare` for `typecheck:tsc`. Effect warnings fail because `ignoreEffectWarningsInTscExitCode` stays false. Patched `tsc` runs at the switch and on checker bumps through parity, not on every CI run. Report any checker disagreement.
-- **varlock `1.24.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
+- **varlock `1.25.0`**: `.env.schema` declares every variable with `@env-spec` decorators; `pnpm check` runs `varlock load`, secrets stay in gitignored `.env.local`.
 - **Vendored agent sources**: Effect, [effect-solutions](https://github.com/kitlangton/effect-solutions), XState, [Alchemy](https://github.com/alchemy-run/alchemy), [Better Auth](https://github.com/better-auth/better-auth), and [Foldkit](https://github.com/foldkit/foldkit) via `./scripts/vendor-agent-sources.sh`, each at the ref its workspace pin names (not x-algorithm; that stays app-specific).
 - **Agent fence**: lefthook pre-commit + Pi/Cursor/Claude hooks that block `git … --no-verify`. Cheating should be uncomfortable and obvious.
 
