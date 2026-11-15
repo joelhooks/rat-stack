@@ -1,0 +1,59 @@
+---
+title: "Private catalog"
+description: "An authenticated Alchemy Domain model records observations and editorial decisions for canonical URLs."
+group: system
+terms:
+  - "aggregate"
+  - "event history"
+sources:
+  - url: https://alchemy.run/domain/cloudflare
+    title: "Domain on Cloudflare"
+    publisher: "Alchemy"
+    note: "Durable Object hosting and atomic aggregate commits."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/catalog/src/Catalog.model.ts
+    title: "Catalog model"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Item aggregate and ItemHistory view declarations."
+    accessed: "2026-11-15"
+---
+
+## What it does
+
+`packages/catalog` defines a private catalog with Alchemy Domain.
+An Item aggregate owns the observations and decisions for one canonical HTTP or HTTPS URL.
+An aggregate commits its events and state together in one Durable Object.
+
+Operators send `RecordSighting`, `Keep`, and `Drop` through one Api.
+`apps/catalog` hosts that Api with bearer-token authentication.
+Recording a decision never publishes content.
+The public site receives no catalog data.
+
+## The standard
+
+- The event log is authoritative. `ItemHistory` is a rebuildable summary and cursor-paged event history.
+- The first sighting from each source on each UTC day wins. Retrying with another command id adds no observation.
+- Item kinds are repo, post, video, and news. An observed item's kind cannot change.
+- Keep and Drop require a sighting. An opposite decision can follow; repeating the current decision records nothing.
+- Unknown metrics stay absent. A missing measurement never becomes zero.
+- Every command and history read requires the operator token. Missing or empty configuration denies access.
+- Domain's Api defines this model's contract. Its own projections expose the same schemas and authorization.
+
+This first slice has no cross-item queries, projection database, people, or backfill.
+History state holds the latest observation and decision; `ItemHistory.list` pages through earlier events by cursor.
+Operators pass an explicit `take` on every list call and resume with its cursor.
+Domain beta.87 supplies no default or maximum page size for `View.list`; omitting `take` reads the item's full history.
+This slice accepts that limitation for private operator access. Future cross-item Queries must bound every read.
+Reads can use a command receipt as `atLeast` to wait for their own write.
+
+## How to check
+
+Run `pnpm --filter @rat-stack/catalog test` for command stories and generated idempotency histories.
+The declaration test expects `Domain.verify(Catalog)` to return no problems.
+
+Run `pnpm --filter @rat-stack/catalog-server test` for authentication, command retries, and history pagination over `Domain.InMemory`.
+Run `pnpm env:check`, then `pnpm turbo run check test build` for the full fence.
+
+Review `pnpm infra:plan` before deployment.
+The owner provisions `CATALOG_OPERATOR_TOKEN`; no secret value ships in source.
+After deployment, confirm an unauthenticated command and history read fail, then send a synthetic observation with an operator token.

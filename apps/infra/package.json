@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "@alchemy.run/domain": "2.0.0-beta.87",
     "@alchemy.run/drizzle": "2.0.0-beta.87",
     "@effect/platform-node": "4.1.4",
+    "@rat-stack/catalog-server": "workspace:*",
     "@rat-stack/site": "workspace:*",
     "@rat-stack/turbo-cache": "workspace:*",
     "alchemy": "2.0.0-beta.87",
