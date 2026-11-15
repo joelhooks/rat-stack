@@ -23,6 +23,10 @@ export interface JoinContactStub {
     contactRef?: string
   ) => Effect.Effect<void>;
   readonly joinRead: () => Effect.Effect<string | undefined>;
+  readonly joinReadSnapshot: () => Effect.Effect<
+    | { readonly sealed: string; readonly retentionDeadlineAt?: number }
+    | undefined
+  >;
   readonly joinReadRetentionDeadline: () => Effect.Effect<number | undefined>;
   readonly joinErase: () => Effect.Effect<void>;
   readonly joinRequestErase: () => Effect.Effect<JoinErasure | undefined>;
@@ -51,12 +55,7 @@ const retentionGroupFor = (contact: JoinContact): JoinRetentionGroup => {
     return "erase";
   }
 
-  if (
-    contact.state === "accepted" ||
-    contact.state === "refused" ||
-    ((contact.state === "held" || contact.hold) &&
-      contact.retentionDeadlineAt === undefined)
-  ) {
+  if (contact.state === "accepted" || contact.state === "refused") {
     return "finished";
   }
 
@@ -139,16 +138,20 @@ export const joinContactStoreLayer = (
       const load = Effect.fn("JoinContactStore.load")(function* load(
         submissionId: string
       ) {
-        const sealed = yield* stub(submissionId).joinRead();
+        const snapshot = yield* stub(submissionId).joinReadSnapshot();
 
-        if (sealed === undefined) {
-          return sealed;
+        if (snapshot === undefined) {
+          return snapshot;
         }
+
+        const { sealed, retentionDeadlineAt } = snapshot;
 
         const envelope = yield* Schema.decodeEffect(
           Schema.fromJsonString(SealedContact)
         )(sealed).pipe(
-          Effect.mapError((cause) => new JoinContactUnreadable({ cause }))
+          Effect.mapError(
+            () => new JoinContactUnreadable({ reason: "contact unreadable" })
+          )
         );
 
         const key = yield* keyFor(submissionId);
@@ -164,28 +167,24 @@ export const joinContactStoreLayer = (
               key,
               bytesOf(envelope.data)
             ),
-          catch: (cause) => new JoinContactUnreadable({ cause }),
+          catch: () =>
+            new JoinContactUnreadable({ reason: "contact unreadable" }),
         });
 
         const decoded = yield* Schema.decodeEffect(
           Schema.fromJsonString(JoinContactSchema)
         )(decoder.decode(plaintext)).pipe(
-          Effect.mapError((cause) => new JoinContactUnreadable({ cause }))
+          Effect.mapError(
+            () => new JoinContactUnreadable({ reason: "contact unreadable" })
+          )
         );
 
         const contact = { ...decoded };
         delete contact.retentionDeadlineAt;
 
-        const retentionDeadlineAt =
-          yield* stub(submissionId).joinReadRetentionDeadline();
-
-        if (retentionDeadlineAt !== undefined) {
-          return { ...contact, retentionDeadlineAt };
-        }
-
-        return (yield* stub(submissionId).joinRead()) === sealed
+        return retentionDeadlineAt === undefined
           ? contact
-          : undefined;
+          : { ...contact, retentionDeadlineAt };
       });
 
       const migrateRetention = Effect.fn("JoinContactStore.migrateRetention")(
@@ -225,8 +224,9 @@ export const joinContactStoreLayer = (
               contact.retentionDeadlineAt ?? retentionDeadlineAt,
           };
 
+          const held = migrated.hold || migrated.state === "held";
           yield* save(
-            group === "pending"
+            group === "pending" && !held
               ? withPending(withState(migrated, "ready"), "delivery")
               : migrated
           );
@@ -240,7 +240,7 @@ export const joinContactStoreLayer = (
             yield* markPending(submissionId, true);
           }
 
-          if (group !== "pending") {
+          if (group === "finished" || group === "erase") {
             yield* stub(submissionId).joinErase();
           }
 
@@ -269,17 +269,8 @@ export const joinContactStoreLayer = (
           }),
         requestErase: (submissionId: string) =>
           Effect.gen(function* requestErase() {
-            const contact = yield* read(submissionId);
-
-            if (contact !== undefined) {
-              yield* save(contact);
-            }
-
             const marker = yield* stub(submissionId).joinRequestErase();
-
-            if (marker !== undefined) {
-              yield* markPending(submissionId, true);
-            }
+            yield* markPending(submissionId, marker !== undefined);
 
             return marker;
           }),

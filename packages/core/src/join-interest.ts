@@ -152,7 +152,10 @@ export type {
 
 export { JoinRequest, joinIntakeLayer } from "./join-intake.js";
 
-export { JoinDeliveryDeadline } from "./join-delivery-machine.js";
+export {
+  JoinDeliveryDeadline,
+  runJoinDelivery,
+} from "./join-delivery-machine.js";
 
 export {
   JOIN_RETENTION_DEFAULT_LIMIT,

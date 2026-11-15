@@ -10,7 +10,9 @@ import { remoteJoinRetentionBackfillLayer } from "./retention-backfill-client.ts
 
 const Arguments = Schema.Struct({
   origin: Schema.String,
-  flags: Schema.Array(Schema.Literal("--apply")).check(Schema.isMaxLength(1)),
+  flags: Schema.Array(Schema.Literals(["--apply", "--origin-override"])).check(
+    Schema.isMaxLength(2)
+  ),
 });
 
 const program = Effect.gen(function* retentionBackfill() {
@@ -21,7 +23,11 @@ const program = Effect.gen(function* retentionBackfill() {
   const counts = yield* runJoinRetentionWalk({
     apply: input.flags.includes("--apply"),
   }).pipe(
-    Effect.provide(remoteJoinRetentionBackfillLayer(input.origin, token))
+    Effect.provide(
+      remoteJoinRetentionBackfillLayer(input.origin, token, {
+        previewOriginOverride: input.flags.includes("--origin-override"),
+      })
+    )
   );
 
   yield* Console.log(JSON.stringify(counts));
@@ -33,7 +39,7 @@ const program = Effect.gen(function* retentionBackfill() {
     Effect.fail(
       new JoinRetentionBackfillUnavailable({
         reason:
-          "Retention backfill failed; no complete totals were produced. Fix: set INTEREST_OPERATOR_TOKEN and run `pnpm --filter @rat-stack/site retention:backfill <https-origin> [--apply]`; verify endpoint availability and rerun a preview.",
+          "Retention backfill failed; no complete totals were produced. Fix: set INTEREST_OPERATOR_TOKEN and run `pnpm --filter @rat-stack/site retention:backfill https://ratstack.sh [--apply]`; a different preview origin requires `--origin-override` and cannot apply. Verify endpoint availability and rerun a preview.",
       })
     )
   )

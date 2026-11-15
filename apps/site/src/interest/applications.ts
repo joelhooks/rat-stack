@@ -48,7 +48,7 @@ const readApplication = Effect.fnUntraced(function* readApplication(
   const sealed = yield* vault(contact.contactRef).intakeRead();
 
   if (sealed.key === undefined || sealed.rows.length === 0) {
-    return { reason: "erased", state: "erased", submissionId };
+    return { reason: "intake history missing", state: "held", submissionId };
   }
 
   const application = yield* unsealApplication(sealed.rows, sealed.key);
@@ -82,7 +82,7 @@ const listApplications = (
       [...new Set(submissions)],
       (id) =>
         readApplication(contacts, vault, knownIds, id).pipe(
-          Effect.catchCause(() =>
+          Effect.catchTag("JoinContactUnreadable", () =>
             Effect.succeed({
               reason: "application unreadable",
               state: "unreadable",

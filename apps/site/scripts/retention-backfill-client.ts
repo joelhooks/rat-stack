@@ -14,7 +14,10 @@ const unavailable = () =>
       "Retention backfill page failed. Fix: verify the origin, operator token and endpoint, then rerun a preview.",
   });
 
-const operatorUrl = Effect.fnUntraced(function* operatorUrl(origin: string) {
+const operatorUrl = Effect.fnUntraced(function* operatorUrl(
+  origin: string,
+  previewOverride: boolean
+) {
   const url = yield* Effect.try({
     try: () => new URL(origin),
     catch: unavailable,
@@ -26,6 +29,7 @@ const operatorUrl = Effect.fnUntraced(function* operatorUrl(origin: string) {
     url.pathname !== "/" ||
     url.search !== "" ||
     url.hash !== "" ||
+    (url.origin !== "https://ratstack.sh" && !previewOverride) ||
     (url.protocol !== "https:" &&
       !(
         url.protocol === "http:" &&
@@ -70,7 +74,8 @@ const requestPage = Effect.fnUntraced(function* requestPage(
 
 export const remoteJoinRetentionBackfillLayer = (
   origin: string,
-  token: Redacted.Redacted
+  token: Redacted.Redacted,
+  options: { readonly previewOriginOverride?: boolean } = {}
 ) =>
   Layer.effect(
     JoinRetentionBackfill,
@@ -79,7 +84,11 @@ export const remoteJoinRetentionBackfillLayer = (
         return yield* unavailable();
       }
 
-      const url = yield* operatorUrl(origin);
+      const url = yield* operatorUrl(
+        origin,
+        options.previewOriginOverride === true
+      );
+
       const http = yield* HttpClient.HttpClient;
 
       return {
@@ -88,16 +97,20 @@ export const remoteJoinRetentionBackfillLayer = (
           after?: string,
           limit = JOIN_RETENTION_DEFAULT_LIMIT
         ) =>
-          requestPage(url, token, http, dryRun, after, limit).pipe(
-            Effect.timeout("30 seconds"),
-            Effect.withTracerEnabled(false),
-            Effect.provideService(FetchHttpClient.RequestInit, {
-              cache: "no-store",
-              redirect: "error",
-            }),
-            Effect.provide(Logger.layer([])),
-            Effect.catchCause(() => Effect.fail(unavailable()))
-          ),
+          !dryRun &&
+          (url.origin !== "https://ratstack.sh" ||
+            options.previewOriginOverride === true)
+            ? Effect.fail(unavailable())
+            : requestPage(url, token, http, dryRun, after, limit).pipe(
+                Effect.timeout("30 seconds"),
+                Effect.withTracerEnabled(false),
+                Effect.provideService(FetchHttpClient.RequestInit, {
+                  cache: "no-store",
+                  redirect: "error",
+                }),
+                Effect.provide(Logger.layer([])),
+                Effect.catchCause(() => Effect.fail(unavailable()))
+              ),
       };
     })
   );

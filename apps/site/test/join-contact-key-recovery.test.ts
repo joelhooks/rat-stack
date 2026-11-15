@@ -20,9 +20,15 @@ it.effect(
     Effect.gen(function* keyRecovery() {
       const entries = new Map<string, unknown>();
       const writes: unknown[] = [];
+      const reads: string[] = [];
 
       const cell = joinContactCell({
-        get: (key) => Effect.sync(() => entries.get(key)),
+        get: (key) =>
+          Effect.sync(() => {
+            reads.push(key);
+
+            return entries.get(key);
+          }),
         put: (key, value) =>
           Effect.sync(() => {
             entries.set(key, value);
@@ -111,5 +117,12 @@ it.effect(
 
       expect(JSON.stringify([...entries])).toBe(before);
       expect(writes).toEqual([]);
+      reads.length = 0;
+      expect(
+        yield* changed.requestErase("synthetic-key-recovery")
+      ).toBeUndefined();
+      expect(reads).not.toContain(JOIN_CONTACT_KEY);
+      expect(entries.has(JOIN_CONTACT_KEY)).toBe(false);
+      expect(writes).toContainEqual(["synthetic-key-recovery", false]);
     })
 );

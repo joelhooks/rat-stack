@@ -67,7 +67,7 @@ it.effect.prop(
             includeDamaged && id === damaged
               ? Effect.fail(
                   new JoinContactUnreadable({
-                    cause: new Error("synthetic damaged key"),
+                    reason: "contact unreadable",
                   })
                 )
               : contacts.read(id),

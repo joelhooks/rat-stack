@@ -46,7 +46,7 @@ it.effect.prop(
 
       const stub = {
         ...cell,
-        joinReadRetentionDeadline: () =>
+        joinReadSnapshot: () =>
           Effect.gen(function* deadlineRead() {
             if (expireAtDeadlineRead) {
               expireAtDeadlineRead = false;
@@ -56,7 +56,7 @@ it.effect.prop(
               yield* cell.alarm();
             }
 
-            return yield* cell.joinReadRetentionDeadline();
+            return yield* cell.joinReadSnapshot();
           }),
       };
 

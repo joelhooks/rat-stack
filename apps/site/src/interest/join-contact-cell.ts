@@ -109,6 +109,17 @@ export const joinContactCell = (storage: JoinCellStorage) => {
         )
       ),
     joinErase,
+    joinReadSnapshot: () =>
+      readLive.pipe(
+        Effect.map(
+          Option.map(({ sealed, retentionDeadlineAt }) =>
+            retentionDeadlineAt === undefined
+              ? { sealed }
+              : { sealed, retentionDeadlineAt }
+          )
+        ),
+        Effect.map(Option.getOrUndefined)
+      ),
     joinReadRetentionDeadline: () =>
       current.pipe(
         Effect.map(
@@ -124,13 +135,13 @@ export const joinContactCell = (storage: JoinCellStorage) => {
       Effect.gen(function* requestErase() {
         const marker = yield* metadata;
 
-        if (Option.isNone(marker)) {
-          return yield* Effect.undefined;
+        if (Option.isSome(marker)) {
+          yield* storage.put(ERASE_REQUEST_KEY, marker.value);
         }
 
-        yield* storage.put(ERASE_REQUEST_KEY, marker.value);
+        yield* joinErase();
 
-        return marker.value;
+        return Option.getOrUndefined(marker);
       }),
     joinCompleteErasure: () =>
       storage.delete(ERASE_REQUEST_KEY).pipe(Effect.asVoid),

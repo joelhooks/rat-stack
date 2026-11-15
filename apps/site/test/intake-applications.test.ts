@@ -279,13 +279,23 @@ it.effect.prop(
         },
       ]);
       yield* events.erase(actor);
-      expect(yield* reader.list()).toEqual([
-        {
-          reason: "erased",
-          state: "erased",
-          submissionId: "synthetic-submission",
-        },
-      ]);
+      expect(yield* reader.list()).toEqual(
+        forwarded
+          ? [
+              {
+                reason: "erased",
+                state: "erased",
+                submissionId: "synthetic-submission",
+              },
+            ]
+          : [
+              {
+                reason: "intake history missing",
+                state: "held",
+                submissionId: "synthetic-submission",
+              },
+            ]
+      );
     }).pipe(Effect.scoped)
 );
 
@@ -489,14 +499,16 @@ it.effect(
       expect(yield* Effect.promise(partial.json.bind(partial))).toEqual({
         alreadyGone: 0,
         erased: 0,
-        failed: 0,
-        pending: 1,
-        handedToDrovr: 0,
-        handedToDrovrSubmissionIds: [],
-        handedToDrovrSubmissions: [],
+        failed: 1,
+        pending: 0,
+        handedToDrovr: 1,
+        handedToDrovrSubmissionIds: ["synthetic-submission"],
+        handedToDrovrSubmissions: [
+          { submissionId: "synthetic-submission", handedAt: null },
+        ],
       });
       expect(yield* contacts.read("synthetic-submission")).toBeDefined();
-      expect((yield* vault.contents).size).toBe(0);
+      expect((yield* vault.contents).size).toBe(1);
       yield* Ref.set(failErase, false);
 
       for (let attempt = 0; attempt < 2; attempt += 1) {

@@ -34,7 +34,7 @@ const visitedCount = (length: number, dryRun: boolean, stop: number) =>
   dryRun || stop === -1 ? length : stop + 1;
 
 it.effect.prop(
-  "redelivery sends only unheld ready contacts in order and stops at the first non-accepted outcome",
+  "redelivery releases held contacts, sends eligible contacts in order and stops at the first non-accepted outcome",
   {
     dryRun: Arbitrary.schema(Schema.Boolean),
     entries: Arbitrary.array(Arbitrary.schema(Entry), {
@@ -47,7 +47,11 @@ it.effect.prop(
     Effect.gen(function* verifyRedelivery() {
       const contacts = yield* JoinContactStore;
       const sent: AgentIntakeRequest[] = [];
-      const eligibleStates = includeRefused ? ["ready", "refused"] : ["ready"];
+
+      const eligibleStates = includeRefused
+        ? ["ready", "held", "refused"]
+        : ["ready", "held"];
+
       const ids = entries.map((_entry, index) => `synthetic-${index}`);
 
       const outcomes = new Map(
@@ -112,18 +116,14 @@ it.effect.prop(
 
       const stop = entries.findIndex(
         (entry) =>
-          !eligibleStates.includes(entry.state) ||
-          entry.hold ||
-          entry.result !== "accepted"
+          !eligibleStates.includes(entry.state) || entry.result !== "accepted"
       );
 
       const count = visitedCount(entries.length, dryRun, stop);
       const attempted = entries.slice(0, count);
 
       const eligible = attempted.flatMap((entry, index) =>
-        !dryRun && eligibleStates.includes(entry.state) && !entry.hold
-          ? [ids[index]]
-          : []
+        !dryRun && eligibleStates.includes(entry.state) ? [ids[index]] : []
       );
 
       expect(sent.map((input) => input.submissionId)).toEqual(eligible);
@@ -133,7 +133,7 @@ it.effect.prop(
       for (const [index, entry] of attempted.entries()) {
         const row = result.rows[index];
 
-        const canSend = eligibleStates.includes(entry.state) && !entry.hold;
+        const canSend = eligibleStates.includes(entry.state);
 
         const state = entry.state === "erased" ? "missing" : entry.state;
 
@@ -161,6 +161,7 @@ it.effect.prop(
         sent.every(
           (input) =>
             input.agentRef === "synthetic-agent" &&
+            input.hold === false &&
             input.ticket === undefined &&
             input.signals === undefined
         )

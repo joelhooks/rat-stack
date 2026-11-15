@@ -97,9 +97,9 @@ it.effect(
         Effect.provide(
           joinContactStoreLayer(() => ({
             ...cell,
-            joinRead: () =>
+            joinReadSnapshot: () =>
               cell
-                .joinRead()
+                .joinReadSnapshot()
                 .pipe(
                   Effect.tap(() =>
                     Ref.getAndSet(interleave, Option.none()).pipe(

@@ -43,7 +43,7 @@ const respond = (body: typeof JoinRetentionCountsSchema.Type) =>
   Promise.resolve(Response.json(body));
 
 const client = remoteJoinRetentionBackfillLayer(
-  "https://fixture.example.test",
+  "https://ratstack.sh",
   Redacted.make(secret)
 ).pipe(Layer.provide(FetchHttpClient.layer));
 
@@ -233,5 +233,35 @@ it.effect.prop(
 
       expect(Exit.isFailure(result)).toBe(true);
       expect(calls).toBe(0);
+    }).pipe(Effect.scoped)
+);
+
+it.effect.prop(
+  "the explicit origin override authorizes previews only, never an apply",
+  { apply: Schema.Boolean, override: Schema.Boolean },
+  ({ apply, override }) =>
+    Effect.gen(function* previewOverride() {
+      let calls = 0;
+
+      const fetch: typeof globalThis.fetch = () => {
+        calls += 1;
+
+        return respond({ ...empty, nextCursor: null });
+      };
+
+      const result = yield* runJoinRetentionWalk({ apply }).pipe(
+        Effect.provide(
+          remoteJoinRetentionBackfillLayer(
+            "https://fixture.example.test",
+            Redacted.make(secret),
+            { previewOriginOverride: override }
+          ).pipe(Layer.provide(FetchHttpClient.layer))
+        ),
+        Effect.provideService(FetchHttpClient.Fetch, fetch),
+        Effect.exit
+      );
+
+      expect(Exit.isSuccess(result)).toBe(override && !apply);
+      expect(calls).toBe(override && !apply ? 1 : 0);
     }).pipe(Effect.scoped)
 );

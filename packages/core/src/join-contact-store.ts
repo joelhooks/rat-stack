@@ -83,7 +83,7 @@ export class JoinContactStore extends Context.Service<
     readonly erase: (submissionId: string) => Effect.Effect<void>;
     readonly requestErase: (
       submissionId: string
-    ) => Effect.Effect<JoinErasure | undefined, JoinContactUnreadable>;
+    ) => Effect.Effect<JoinErasure | undefined>;
     readonly readHandoff: (
       submissionId: string
     ) => Effect.Effect<JoinErasure | undefined>;
@@ -113,6 +113,17 @@ export class JoinContactStore extends Context.Service<
 
       const erasures = yield* Ref.make<ReadonlySet<string>>(new Set());
 
+      const erase = (submissionId: string) =>
+        Effect.andThen(
+          Ref.update(erased, (all) => new Set(all).add(submissionId)),
+          Ref.update(contacts, (all) => {
+            const next = new Map(all);
+            next.delete(submissionId);
+
+            return next;
+          })
+        );
+
       const requestErase = (submissionId: string) =>
         Ref.get(metadata).pipe(
           Effect.flatMap((all) => {
@@ -123,7 +134,8 @@ export class JoinContactStore extends Context.Service<
               : Ref.update(erasures, (pending) =>
                   new Set(pending).add(submissionId)
                 ).pipe(Effect.as(marker));
-          })
+          }),
+          Effect.tap(() => erase(submissionId))
         );
 
       return {
@@ -171,16 +183,7 @@ export class JoinContactStore extends Context.Service<
               })
             )
           ),
-        erase: (submissionId: string) =>
-          Effect.andThen(
-            Ref.update(erased, (all) => new Set(all).add(submissionId)),
-            Ref.update(contacts, (all) => {
-              const next = new Map(all);
-              next.delete(submissionId);
-
-              return next;
-            })
-          ),
+        erase,
         read: (submissionId: string) =>
           Ref.get(contacts).pipe(Effect.map((all) => all.get(submissionId))),
         save: (contact: JoinContact) =>

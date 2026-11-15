@@ -4,6 +4,7 @@ import { Deferred, Effect, Fiber, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
+import { IntakeRedeliver } from "../src/intake-redeliver.js";
 import {
   AbuseScore,
   IntakeEvents,
@@ -63,8 +64,52 @@ const pendingAfterAnswer = (
   delivered: "accepted" | "refused" | "retry"
 ) => (deferred || delivered !== "retry" ? undefined : "delivery");
 
+const isRetained = (eligible: boolean, hold: boolean, eventsUp: boolean) =>
+  eligible && (hold || !eventsUp);
+
+const expectedSavedState = (hold: boolean, eventsUp: boolean) =>
+  eventsUp && !hold ? undefined : "held";
+
+const expectOperatorRelease = Effect.fnUntraced(function* expectOperatorRelease(
+  contacts: JoinContactStore["Service"],
+  submissionId: string
+) {
+  if ((yield* contacts.read(submissionId)) === undefined) {
+    return;
+  }
+
+  const released = yield* IntakeRedeliver.use((service) =>
+    service.redeliver({ submissionIds: [submissionId] })
+  ).pipe(
+    Effect.provide(
+      IntakeRedeliver.layer.pipe(
+        Layer.provide(
+          Layer.mergeAll(
+            Layer.succeed(JoinContactStore, contacts),
+            Layer.succeed(SubscriberIntake, {
+              submit: () => Effect.succeed({ kind: "refused" }),
+              agent: {
+                enabled: true,
+                submit: (input) =>
+                  Effect.sync(() => {
+                    expect(input.hold).toBe(false);
+
+                    return { kind: "accepted" } as const;
+                  }),
+              },
+            })
+          )
+        )
+      )
+    )
+  );
+
+  expect(released.rows[0]?.outcome).toBe("accepted");
+  expect(yield* contacts.read(submissionId)).toBeUndefined();
+});
+
 it.effect.prop(
-  "only authorized submissions reach delivery; accepted or held contacts are erased and every response hides disposition",
+  "only authorized submissions reach delivery; accepted contacts are erased and held or events-down contacts remain releasable",
   {
     answers: Arbitrary.schema(JoinAnswers),
     scenario: Arbitrary.schema(Scenario),
@@ -188,11 +233,15 @@ it.effect.prop(
         eligible && !scenario.hold && scenario.eventsUp ? 1 : 0
       );
       const contact = yield* contacts.read(result.statusRef);
-      expect(contact !== undefined).toBe(eligible && !scenario.eventsUp);
+      expect(contact !== undefined).toBe(
+        isRetained(eligible, scenario.hold, scenario.eventsUp)
+      );
 
       if (eligible) {
         expect(steps.slice(0, 3)).toEqual(["gate", "ticket", "score"]);
-        expect(contact?.state).toBe(scenario.eventsUp ? undefined : "held");
+        expect(contact?.state).toBe(
+          expectedSavedState(scenario.hold, scenario.eventsUp)
+        );
 
         if (scenario.eventsUp) {
           const recorded = yield* IntakeEventsTest.use(
@@ -255,6 +304,8 @@ it.effect.prop(
         expect(payload.clientBucket.ipHash).toMatch(/^[a-f0-9]{64}$/u);
         expect(payload.clientBucket.uaHash).toMatch(/^[a-f0-9]{64}$/u);
       }
+
+      yield* expectOperatorRelease(contacts, result.statusRef);
     }).pipe(
       Effect.provide(
         Layer.mergeAll(
@@ -400,12 +451,12 @@ it.effect.prop(
         retry: "ready",
       };
 
-      const retained = !realHold && (scorerOnly || delivery.kind === "retry");
+      const retained = realHold || scorerOnly || delivery.kind === "retry";
 
       if (retained) {
         expect(contact).toMatchObject({
-          state: "ready",
-          hold: false,
+          state: realHold ? "held" : "ready",
+          hold: realHold,
           signals: verdict.signals,
           email: card.email,
         });

@@ -227,8 +227,6 @@ export const joinIntakeLayer = Layer.effect(
         }
 
         if (held) {
-          yield* contacts.erase(statusRef);
-
           return answer;
         }
 

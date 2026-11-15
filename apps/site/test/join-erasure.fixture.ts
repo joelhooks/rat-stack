@@ -39,12 +39,25 @@ const wrapStub = (stub: SealedStub): JoinContactStub => {
 
         yield* stub.joinSave(sealed, erase, deadline, contactRef);
       }),
+    joinReadSnapshot: () =>
+      stub.joinRead().pipe(
+        Effect.map((sealed) => {
+          if (sealed === undefined) {
+            return sealed;
+          }
+
+          return retentionDeadline === undefined
+            ? { sealed }
+            : { sealed, retentionDeadlineAt: retentionDeadline };
+        })
+      ),
     joinReadErasure: () => Effect.sync(() => marker),
     joinReadRetentionDeadline: () => Effect.sync(() => retentionDeadline),
     joinReadHandoff: () => Effect.sync(() => metadata),
     joinRequestErase: () =>
-      Effect.sync(() => {
+      Effect.gen(function* requestErase() {
         marker = metadata;
+        yield* stub.joinErase();
 
         return marker;
       }),

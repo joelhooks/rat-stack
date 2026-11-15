@@ -65,9 +65,7 @@ const attempt = Effect.fnUntraced(function* attempt(
   }
 
   if (contact.hold || contact.state === "held") {
-    yield* contacts.erase(input.submissionId);
-
-    return { kind: "refused" } as const;
+    return { kind: "retry", afterSeconds: 0 } as const;
   }
 
   if (contact.retryAt !== undefined && contact.retryAt > now) {
@@ -140,7 +138,6 @@ const settle = createEffectLogic({
   effect: ({ input }) =>
     Effect.gen(function* settleDelivery() {
       const contacts = yield* JoinContactStore;
-      const contact = yield* contacts.read(input.submissionId);
 
       if (input.result.kind !== "retry") {
         yield* contacts.erase(input.submissionId);
@@ -148,7 +145,9 @@ const settle = createEffectLogic({
         return;
       }
 
-      if (contact === undefined) {
+      const contact = yield* contacts.read(input.submissionId);
+
+      if (contact === undefined || contact.hold || contact.state === "held") {
         return;
       }
 

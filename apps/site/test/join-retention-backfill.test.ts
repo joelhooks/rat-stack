@@ -134,11 +134,11 @@ it.effect(
       const expected = {
         current: 1,
         erase: 1,
-        finished: 4,
+        finished: 2,
         gone: 1,
         legacyHandoffTimeUnknown: 8,
         nextCursor: null,
-        pending: 1,
+        pending: 3,
         unreadable: 1,
       };
 
@@ -163,8 +163,14 @@ it.effect(
         handedToDrovrAt: null,
       });
 
-      expect(yield* contacts.read("held")).toBeUndefined();
-      expect(yield* contacts.read("ready-held")).toBeUndefined();
+      expect(yield* contacts.read("held")).toMatchObject({
+        state: "held",
+        retentionDeadlineAt: start + JOIN_CONTACT_RETENTION_MILLIS,
+      });
+      expect(yield* contacts.read("ready-held")).toMatchObject({
+        hold: true,
+        retentionDeadlineAt: start + JOIN_CONTACT_RETENTION_MILLIS,
+      });
       expect((yield* contacts.read("ready"))?.retentionDeadlineAt).toBe(
         start + JOIN_CONTACT_RETENTION_MILLIS
       );
@@ -172,10 +178,10 @@ it.effect(
 
       yield* TestClock.adjust("1 hour");
       expect(yield* run(true)).toEqual({
-        current: 2,
+        current: 4,
         erase: 0,
         finished: 0,
-        gone: 6,
+        gone: 4,
         legacyHandoffTimeUnknown: 8,
         nextCursor: null,
         pending: 0,

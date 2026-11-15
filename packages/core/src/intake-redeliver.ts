@@ -5,7 +5,12 @@ import { Context, Effect, Layer, Logger, Schema } from "effect";
 
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 import { SubscriberIntake } from "./interest-intake.js";
-import { JoinContactSchema, JoinContactStore } from "./join-contact-store.js";
+import {
+  JoinContactSchema,
+  JoinContactStore,
+  withPending,
+  withState,
+} from "./join-contact-store.js";
 import {
   JoinDeliveryDeadline,
   runJoinDelivery,
@@ -82,8 +87,8 @@ export class IntakeRedeliver extends Context.Service<
 
             const eligible =
               contact !== undefined &&
-              !contact.hold &&
               (contact.state === "ready" ||
+                contact.state === "held" ||
                 (includeRefused && contact.state === "refused"));
 
             if (!eligible || dryRun) {
@@ -101,9 +106,11 @@ export class IntakeRedeliver extends Context.Service<
               return { notAttempted: submissionIds.slice(index + 1), rows };
             }
 
-            if (previousState === "refused") {
-              yield* contacts.setState(submissionId, "ready");
-            }
+            const released = { ...contact, hold: false };
+            delete released.retryAt;
+            yield* contacts.save(
+              withPending(withState(released, "ready"), "delivery")
+            );
 
             const result = yield* runJoinDelivery({ submissionId }).pipe(
               Effect.provideService(SubscriberIntake, intake),
@@ -146,7 +153,7 @@ export class IntakeRedeliver extends Context.Service<
 export const intakeRedeliverContract = defineContract("intakeRedeliver", {
   annotations: { readOnly: false },
   description:
-    "Redeliver ready applications in order using their original submission ids. Stop at the first non-accepted outcome. Authenticated operator surface only.",
+    "Release held applications and redeliver ready applications in order using their original submission ids. Stop at the first non-accepted outcome. Authenticated operator surface only.",
   failure: IntakeApplicationsUnavailable,
   input: RedeliveryInputSchema,
   output: IntakeRedeliverySchema,

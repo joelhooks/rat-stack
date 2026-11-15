@@ -37,17 +37,17 @@ test.provider(
           `intake-statement:${id}`
         );
 
-        expect(yield* storage.keys("")).toContain("join-contact");
+        expect((yield* storage.keys("")).includes("join-contact")).toBe(
+          !explicitRequest
+        );
         expect(yield* storage.alarmPending).toBe(true);
         expect((yield* storage.keys("")).includes("join-erase-request")).toBe(
           explicitRequest
         );
 
-        const keys = yield* eventually(
-          storage.keys(""),
-          (current) => !current.includes("join-contact")
-        );
-
+        yield* eventually(storage.alarmPending, (pending) => !pending);
+        const keys = yield* storage.keys("");
+        expect(keys).not.toContain("join-contact");
         expect(keys).toContain("join-erased");
         expect(keys).toContain("join-contact-meta");
         expect(keys.includes("join-erase-request")).toBe(explicitRequest);
