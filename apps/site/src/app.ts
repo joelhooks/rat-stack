@@ -358,6 +358,13 @@ const assetRoutes = (
         }
 
         return yield* Effect.gen(function* readStaticAsset() {
+          if (path === "/tokenmaxx/setup.md") {
+            return HttpServerResponse.uint8Array(yield* assets.read(path), {
+              contentType: "text/markdown; charset=utf-8",
+              headers: { "cache-control": assetCacheControl },
+            });
+          }
+
           const catalog = yield* store.catalog;
 
           if (

@@ -2176,6 +2176,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "ratstack.sh auth.md"
   );
 
+  const tokenmaxxShitratJpegBase64 = Buffer.from(
+    yield* fileSystem
+      .readFile(path.join(root, "apps/site/content/tokenmaxx/shitrat.jpg"))
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError("read", "apps/site/content/tokenmaxx/shitrat.jpg", cause)
+        )
+      )
+  ).toString("base64");
+
   const tokenmaxxImageJpegBase64 = Buffer.from(
     yield* fileSystem
       .readFile(
@@ -3772,6 +3782,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/apple-touch-icon.png",
           "/favicon.svg",
           "/tokenmaxx/four-comma-club.jpg",
+          "/tokenmaxx/shitrat.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
           ...infrastructureImages.map((image) => image.path),
           dillonPosterRoutePath,
@@ -3846,8 +3857,28 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         path: ogImagePath(image.routePath),
       })),
       {
+        base64: Buffer.from(
+          yield* fileSystem
+            .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
+            .pipe(
+              Effect.mapError((cause) =>
+                buildError(
+                  "read",
+                  "apps/site/content/tokenmaxx/setup.md",
+                  cause
+                )
+              )
+            )
+        ).toString("base64"),
+        path: "/tokenmaxx/setup.md",
+      },
+      {
         base64: tokenmaxxImageJpegBase64,
         path: "/tokenmaxx/four-comma-club.jpg",
+      },
+      {
+        base64: tokenmaxxShitratJpegBase64,
+        path: "/tokenmaxx/shitrat.jpg",
       },
       {
         base64: cartridgesImageJpegBase64,
