@@ -1,18 +1,19 @@
 # Turbo remote cache
 
-This package is rat-stack's declaration of [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763), version `0.0.0`. The external package owns the protocol adapter, Worker, R2 bucket, generated team credentials and read-only token handoff. This package keeps only the project configuration and an adoption seam test.
+This package is rat-stack's declaration of [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/b38115bee650aceb6e7dd1eb503209a4d32a5381), version `0.1.0`. The external package owns the protocol adapter, Worker, R2 bucket, generated team credentials and read-only token handoff. This package keeps only the project configuration and an adoption seam test.
 
 ## Declaration and installation
 
 `src/index.ts` default-exports the cartridge so Alchemy loads the same declaration inside the Worker runtime. The Stack still includes it with `yield* turboCache` from `@rat-stack/turbo-cache`.
 
-The dependency is `github:joelhooks/alchemy-turbo-cache#c081c295b23855fa9245c21a0ec16dd1e2072763`, the commit behind tag `v0.0.0`. It is not on npm. pnpm builds its exports during Git dependency preparation. `allowBuilds.alchemy-turbo-cache` authorizes that reviewed prepare script. No tarball is vendored. A fresh install needs GitHub access as well as the existing registry access.
+The dependency is `github:joelhooks/alchemy-turbo-cache#b38115bee650aceb6e7dd1eb503209a4d32a5381`, version `0.1.0`. It is not on npm. pnpm builds its exports during Git dependency preparation. `allowBuilds.alchemy-turbo-cache` authorizes that reviewed prepare script. No tarball is vendored. A fresh install needs GitHub access as well as the existing registry access.
 
 The configuration preserves these logical resource identities:
 
 - `TurboCache`
 - `TurboCacheFoundation/TurboCacheBucket`
 - `TurboCacheFoundation/TurboCacheToken-rat-stack`
+- `TurboCacheFoundation/TurboCacheReaderToken-rat-stack`
 
 The team is `rat-stack`, retention is seven days from upload, and only stage `prod` retains resources. Reads do not extend retention; R2 lifecycle deletion is asynchronous. Changing the resource prefix or team changes identity, so inspect a production plan before deployment.
 
@@ -20,7 +21,11 @@ The team is `rat-stack`, retention is seven days from upload, and only stage `pr
 
 Turbo's binary artifact protocol remains an external adapter. A capability projection requires struct inputs, excludes HEAD, and cannot preserve the raw upload stream and per-artifact response headers. The package adds no application capability or alternate agent route.
 
-R2 stores disposable CI outputs under `team/hash`. Each generated bearer authorizes only its team's prefix. A writer can replace artifacts in that team. Turbo owns signature generation and verification; the Worker preserves the signature tag. The [upstream README](https://github.com/joelhooks/alchemy-turbo-cache/blob/c081c295b23855fa9245c21a0ec16dd1e2072763/README.md) records the routes, authentication, streaming behavior and trust limits.
+R2 stores disposable CI outputs under `team/hash`. Each generated bearer authorizes only its team's prefix. A writer can replace artifacts in that team. The declaration enables a separate reader for `rat-stack`; every reader must name a configured team.
+
+Readers may GET or HEAD artifacts, GET status, and POST bulk metadata queries. Other calls, including PUT and event acknowledgement, return 403. Use readers for deploy builds and worker gates that reuse CI artifacts without permission to replace them. Trusted CI keeps the writer role.
+
+A reader can see the team's artifacts, so it is not a confidentiality boundary within the team. Turbo owns signature generation and verification; the Worker preserves the signature tag. A reader with the signing key can verify signed artifacts but cannot upload them. The [upstream README](https://github.com/joelhooks/alchemy-turbo-cache/blob/b38115bee650aceb6e7dd1eb503209a4d32a5381/README.md) records the routes, authentication, streaming behavior and trust limits.
 
 ## Credentials
 
@@ -30,6 +35,8 @@ After the desk deploys and approves the account, stage and receiver:
 pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command> [args]
 ```
 
+The role defaults to `writer`. For read-only consumers, add `--role reader` before `-- <trusted-command>`. Reader handoff requires a completed reader resource and never falls back to the writer. Configure those consumers with `TURBO_CACHE=remote:r`; this change declares the reader but does not distribute it.
+
 The root script invokes the package's executable with `--stack RatStack --state-store alchemy-state-store-ratstack-state-store --prefix TurboCache --teams rat-stack`. Supply `--stage` explicitly.
 
 The operator's secret tool injects `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. This read-only handoff uses completed Alchemy state and refuses state-store bootstrap or upgrade. Deployment authentication remains separate and uses Alchemy profiles.
@@ -38,7 +45,7 @@ Only the trusted receiver's stdin gets the token. Receiver output is suppressed.
 
 ## Checks
 
-Run `pnpm --filter @rat-stack/turbo-cache test`. The seam test starts the installed cartridge in local workerd, checks the exact three resource FQNs, and hands the generated credential to a subprocess that authenticates against the Worker. Upstream owns protocol property tests, the real Turbo REMOTE-hit test and token safety tests.
+Run `pnpm --filter @rat-stack/turbo-cache test`. The seam test starts the installed cartridge in local workerd, checks the exact four resource FQNs, and hands each generated credential to a subprocess that authenticates against the Worker. The reader subprocess also proves PUT returns 403. Upstream owns protocol property tests, the real Turbo REMOTE-hit test and token safety tests.
 
 `apps/site/scripts/startup-report.ts` still bundles this entry through Alchemy and reports its size. Run `pnpm turbo run check test build` before shipping. Local checks do not prove live lifecycle deletion, account access or GitHub secret delivery.
 

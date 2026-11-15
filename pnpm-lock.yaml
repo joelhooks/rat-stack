@@ -1127,8 +1127,8 @@ importers:
         specifier: 2.0.0-beta.87
         version: 2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
       alchemy-turbo-cache:
-        specifier: github:joelhooks/alchemy-turbo-cache#c081c295b23855fa9245c21a0ec16dd1e2072763
-        version: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/c081c295b23855fa9245c21a0ec16dd1e2072763(@alchemy.run/cloudflare@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(@effect/sql-pg@4.1.4(effect@4.1.4))(@types/node@24.19.2)(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)
+        specifier: github:joelhooks/alchemy-turbo-cache#b38115bee650aceb6e7dd1eb503209a4d32a5381
+        version: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/b38115bee650aceb6e7dd1eb503209a4d32a5381(@alchemy.run/cloudflare@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(@effect/sql-pg@4.1.4(effect@4.1.4))(@types/node@24.19.2)(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)
       effect:
         specifier: 4.1.4
         version: 4.1.4
@@ -3192,9 +3192,9 @@ packages:
     resolution: {integrity: sha512-TQf59BsZnytt8GdJKLPfUZ54g/iaUL2OWDSFCCvMOhsHduDQxO8xC4PNeyIkVcA5KwL2phPSv0douC0fgWzmnA==}
     engines: {node: '>= 20'}
 
-  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/c081c295b23855fa9245c21a0ec16dd1e2072763:
-    resolution: {gitHosted: true, integrity: sha512-KtwpkC+ha9xLF3kKQwvEZZ/So2fwI4T6BSfY+oreEa2tYNWONYABttbjM952VaxyIN+XtBMmaT+20D1rIOUvEQ==, tarball: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/c081c295b23855fa9245c21a0ec16dd1e2072763}
-    version: 0.0.0
+  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/b38115bee650aceb6e7dd1eb503209a4d32a5381:
+    resolution: {gitHosted: true, integrity: sha512-EDe0/qmxC7+2oIifQRzY9VsLJqQoFsihC/hc5C5CrfCfwtgMNYk2UthDho7OCnCemM/AICYYGMkarj47jhys0Q==, tarball: https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/b38115bee650aceb6e7dd1eb503209a4d32a5381}
+    version: 0.1.0
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
@@ -6864,7 +6864,7 @@ snapshots:
 
   agent-base@9.0.0: {}
 
-  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/c081c295b23855fa9245c21a0ec16dd1e2072763(@alchemy.run/cloudflare@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(@effect/sql-pg@4.1.4(effect@4.1.4))(@types/node@24.19.2)(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4):
+  alchemy-turbo-cache@https://codeload.github.com/joelhooks/alchemy-turbo-cache/tar.gz/b38115bee650aceb6e7dd1eb503209a4d32a5381(@alchemy.run/cloudflare@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(@effect/sql-pg@4.1.4(effect@4.1.4))(@types/node@24.19.2)(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4):
     dependencies:
       '@alchemy.run/cloudflare': 2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(@effect/sql-pg@4.1.4(effect@4.1.4))(@types/node@24.19.2)(alchemy@2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1))(effect@4.1.4)(pg@8.23.1)(typescript@7.0.2)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@effect/platform-node': 4.1.4(effect@4.1.4)(redis@6.2.1)

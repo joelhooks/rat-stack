@@ -1,6 +1,6 @@
 ---
 title: "Turbo remote cache"
-description: "A separate Worker stores streamed Turbo artifacts in R2, with one credential per team and lifecycle expiry."
+description: "A separate Worker stores streamed Turbo artifacts in R2, with team-scoped writer and reader credentials and lifecycle expiry."
 plain: "CI can reuse task artifacts from a team-scoped cache. The nightly canary never reads cached artifacts."
 diagram: |-
   CI + team credential
@@ -16,11 +16,11 @@ terms:
   - "Turbo remote cache"
   - "artifact retention"
 sources:
-  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763
-    title: "alchemy-turbo-cache v0.0.0"
+  - url: https://github.com/joelhooks/alchemy-turbo-cache/tree/b38115bee650aceb6e7dd1eb503209a4d32a5381
+    title: "alchemy-turbo-cache v0.1.0"
     publisher: "Joel Hooks"
-    note: "The extracted cartridge owns the Worker, bucket, credentials, protocol tests and read-only handoff."
-    accessed: "2026-11-05"
+    note: "The extracted cartridge owns the Worker, bucket, writer and reader credentials, protocol tests and read-only handoff."
+    accessed: "2026-11-15"
   - url: https://github.com/vercel/turborepo/blob/v2.11.9/crates/turborepo-api-client/src/lib.rs
     title: "Turbo 2.11.9 API client"
     publisher: "Vercel"
@@ -40,17 +40,19 @@ sources:
 
 ## What it does
 
-[alchemy-turbo-cache v0.0.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/c081c295b23855fa9245c21a0ec16dd1e2072763) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
+[alchemy-turbo-cache v0.1.0](https://github.com/joelhooks/alchemy-turbo-cache/tree/b38115bee650aceb6e7dd1eb503209a4d32a5381) owns a separate Worker, a dedicated R2 bucket, and generated team credentials.
 `packages/turbo-cache` supplies rat-stack's configuration and adoption test.
 The Stack includes the [cartridge](/lore/cartridges) with `yield* turboCache`.
 The local README describes configuration and removal.
 
-The dependency pins Git commit `c081c295b23855fa9245c21a0ec16dd1e2072763`.
+The dependency pins Git commit `b38115bee650aceb6e7dd1eb503209a4d32a5381`.
 pnpm prepares its compiled exports during installation through the package-specific `allowBuilds` entry.
 No protocol or credential-handoff implementation remains in rat-stack.
 
 The declaration preserves `TurboCache`, `TurboCacheFoundation/TurboCacheBucket`, and `TurboCacheFoundation/TurboCacheToken-rat-stack`.
+It adds `TurboCacheFoundation/TurboCacheReaderToken-rat-stack` for the opt-in reader.
 The team remains `rat-stack`, with seven-day expiry and prod-only resource retention.
+Every entry in `readers` must also appear in `teams`, or cartridge construction fails.
 
 Turbo sends binary task archives through its own HTTP protocol.
 The Worker streams those bodies to R2 and streams stored bodies back.
@@ -74,12 +76,20 @@ Each token authorizes one team prefix.
 A missing or wrong bearer gets 401.
 A valid bearer with an unknown or different team gets 403.
 
-Other routes return 404.
+Readers may GET and HEAD artifacts, GET status, and POST bulk metadata queries.
+All other reader calls return 403, including PUT and event acknowledgement.
+Writers retain all supported routes; unsupported routes return 404 for writers.
 There are no internal, debug, populate, count, or expiry-override routes.
 
-A credential holder can replace artifacts within its team.
+A writer credential holder can replace artifacts within its team.
 Team separation does not protect writers from another writer in the same team.
-Only trusted CI should receive credentials.
+Only trusted CI should receive writer credentials.
+
+Use readers for deploy builds and worker gates that reuse artifacts without writing them.
+Readers can see all cached artifacts within their team.
+A reader with the signing key can verify signed artifacts but cannot upload them.
+This declaration enables readers; credential distribution remains a separate approved step.
+
 Turbo owns optional signature verification; the Worker preserves the signature tag without verifying archive contents.
 rat-stack CI turns signing on with `remoteCache.signature` in `turbo.json` and the `TURBO_REMOTE_CACHE_SIGNATURE_KEY` secret.
 Turbo signs every upload and rejects an artifact with a missing or wrong signature, so a leaked cache token or bucket access cannot plant one.
@@ -112,8 +122,9 @@ A missing token also leaves tasks running without remote reuse.
 ## How to check
 
 Run `pnpm --filter @rat-stack/turbo-cache test`.
-The adoption test starts the installed cartridge in local workerd and checks its exact three resource FQNs.
-It hands the generated credential to a subprocess that authenticates against the Worker.
+The adoption test starts the installed cartridge in local workerd and checks its exact four resource FQNs.
+It hands each generated credential to a subprocess that authenticates against the Worker.
+The reader subprocess also checks that PUT returns 403.
 
 The external package owns generated checks for byte-identical reads, team isolation, HEAD agreement, and auth before storage.
 Its real Turbo seam uses two empty local cache directories and requires a REMOTE hit on its second run.
@@ -128,6 +139,10 @@ A failed handoff keeps the source tag and message without serializing credential
 Stack deployment authentication is separate from this read-only handoff.
 
 Run `pnpm turbo-cache:token --team rat-stack --stage prod -- <trusted-command>` after the approved deployment.
+Add `--role reader` before the receiver separator to select the reader; the default role is `writer`.
+Reader handoff requires a completed reader resource and never falls back to the writer.
+Set `TURBO_CACHE=remote:r` for reader consumers.
+
 The root script supplies the Stack, state-store, resource prefix and team list to the package's executable.
 Only the trusted command's stdin receives the token.
 

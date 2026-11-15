@@ -30,6 +30,7 @@ test.provider(
       expect(fqns.toSorted()).toEqual([
         "TurboCache",
         "TurboCacheFoundation/TurboCacheBucket",
+        "TurboCacheFoundation/TurboCacheReaderToken-rat-stack",
         "TurboCacheFoundation/TurboCacheToken-rat-stack",
       ]);
 
@@ -53,6 +54,28 @@ test.provider(
 
       expect(values.TURBO_API).toBe(new URL(deployment.url ?? "").origin);
       expect(values.TURBO_TEAM).toBe("rat-stack");
+
+      const readerValues = yield* handoffToken(
+        (fqn) =>
+          state
+            .get({ fqn, stack: stack.name, stage: stack.stage })
+            .pipe(Effect.orDie),
+        {
+          args: [
+            "-e",
+            "let input=''; process.stdin.on('data',x=>input+=x); process.stdin.on('end',async()=>{ if(!/^[a-f0-9]{64}$/.test(input))process.exit(1); const url=process.argv[1]+'/v8/artifacts'; const headers={authorization:'Bearer '+input}; const status=await fetch(url+'/status?slug=rat-stack',{headers}); const write=await fetch(url+'/reader-probe?slug=rat-stack',{method:'PUT',headers,body:'forbidden'}); process.exit(status.status===200&&write.status===403?0:2); });",
+            deployment.url ?? "",
+          ],
+          command: process.execPath,
+          resourceNamePrefix: "TurboCache",
+          role: "reader",
+          team: "rat-stack",
+          teams: ["rat-stack"],
+        }
+      );
+
+      expect(readerValues.TURBO_API).toBe(new URL(deployment.url ?? "").origin);
+      expect(readerValues.TURBO_TEAM).toBe("rat-stack");
     }),
   { timeout: 180_000 }
 );

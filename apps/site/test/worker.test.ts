@@ -480,9 +480,9 @@ it.effect(
         expect(markdownResponse.headers.get("link")).toBe(linkHeader);
         expect(markdown).toBe(markdownDocument("https://ratstack.sh"));
         expect(markdown).toContain("an app and its cloud as one typed program");
-        expect(markdown).toContain("## Four ideas");
+        expect(markdown).toContain("## How it fits together");
         expect(markdown.indexOf("## Connect an agent")).toBeLessThan(
-          markdown.indexOf("## Four ideas")
+          markdown.indexOf("## How it fits together")
         );
         expect(markdown).toContain(
           "Read https://ratstack.sh/llms.txt and use rat-stack as the reference\n"
