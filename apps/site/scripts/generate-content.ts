@@ -160,6 +160,7 @@ import {
   stripHtmlComments,
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
+import { buildHelpGuide } from "./tokenmaxx-help.ts";
 import { buildWorkshop } from "./tokenmaxx-workshop.ts";
 import { decodeTubeData, tubeBuildError, tubeMarkdown } from "./tube-pages.ts";
 import {
@@ -1115,6 +1116,7 @@ const program = Effect.gen(function* generateContent() {
   });
 
   const workshop = yield* buildWorkshop(root);
+  const helpGuide = yield* buildHelpGuide(root);
 
   const cafeData = yield* Effect.all({
     news: readText(cafeNewsFile),
@@ -3003,6 +3005,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       tokenmaxxAgentMarkdown,
       tokenmaxxBodyHtml,
       JSON.stringify(workshop.data),
+      JSON.stringify(helpGuide),
       ...workshop.pages.map((page) => page.source),
       interestResultBody,
       interestConfirmBody,
@@ -3754,6 +3757,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { path: "/_content/prompts.json", value: promptTexts },
     { path: "/_content/cafe.json", value: encodedCafeData },
     { path: "/_content/workshop.json", value: workshop.data },
+    { path: "/_content/tokenmaxx-help.json", value: helpGuide },
     { path: "/_content/tokenmaxx.json", value: tokenmaxxAgentMarkdown },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),

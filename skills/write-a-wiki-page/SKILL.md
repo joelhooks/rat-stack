@@ -69,6 +69,18 @@ Generation warns on sentences above 25 words and paragraphs above four sentences
 
 The check reads parsed prose, including list paragraphs. Style rules skip quoted spans, blockquotes, code, links, tables, and frontmatter. Length rules still count link labels. Warnings never fail the build. Fix new warnings or explain why they remain.
 
+### The jargon onion
+
+Joel, 2026-11-15, 9:22 a.m. Pacific:
+
+> the homenpage shoild be as jargon free as possible and we have a "jargon onion" such that explorers learn the jargon and are exposed to impl and complexitybover time we dont require full assimilation but offer it as a path
+
+In practice:
+
+- Keep the homepage free of unexplained terms.
+- Let deeper pages introduce the terms and implementation details they need.
+- Link each term to its glossary entry on first use.
+
 ## 3. Use a visual when it explains something
 
 - **Flow or topology**: Fenced box-drawing diagram
