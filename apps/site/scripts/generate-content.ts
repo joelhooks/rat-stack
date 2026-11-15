@@ -132,6 +132,7 @@ import {
   glossaryFirstUseWarnings,
   glossaryFirstUseWarningText,
 } from "./glossary-first-use.ts";
+import { homeFeaturedMarkdown } from "./home-featured.ts";
 import { buildLearningDeck } from "./learn-deck.ts";
 import { collectLearnSnippets } from "./learn-snippets.ts";
 import { renderMarkdownHtml } from "./markdown-html.ts";
@@ -1216,11 +1217,18 @@ const program = Effect.gen(function* generateContent() {
     directoryCopy.heading
   );
 
-  const tubeSource = yield* readText(tubeDataPath).pipe(
+  const tubeData = yield* readText(tubeDataPath).pipe(
     Effect.flatMap((text) =>
       decodeTubeData(text).pipe(Effect.mapError(tubeBuildError))
-    ),
-    Effect.map(tubeMarkdown)
+    )
+  );
+
+  const tubeSource = tubeMarkdown(tubeData);
+
+  const homeFeatured = homeFeaturedMarkdown(
+    cafeData,
+    tubeData.videos,
+    originToken
   );
 
   const tubeText = renderAgentPage(tubeSource, tubeRoutePath, tubeCopy.heading);
@@ -2030,6 +2038,8 @@ Your agent can also load one skill for one task. Nothing is installed in your sk
 - [HTTP API docs](${originToken}/openapi.json)
 - [Short agent guide](${originToken}/llms.txt)
 - [Everything in one file](${originToken}/llms-full.txt): rules, lore, systems and skills
+
+${homeFeatured}
 
 ## Go as deep as you like
 

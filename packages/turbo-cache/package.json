@@ -27,7 +27,7 @@
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",
     "alchemy": "2.0.0-beta.87",
-    "alchemy-turbo-cache": "github:joelhooks/alchemy-turbo-cache#c081c295b23855fa9245c21a0ec16dd1e2072763",
+    "alchemy-turbo-cache": "github:joelhooks/alchemy-turbo-cache#b38115bee650aceb6e7dd1eb503209a4d32a5381",
     "effect": "4.1.4"
   },
   "devDependencies": {
