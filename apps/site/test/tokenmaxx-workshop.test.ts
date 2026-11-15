@@ -99,6 +99,37 @@ it.effect(
     })
 );
 
+it.effect(
+  "publishes the approved seven setup steps through the workshop prep tool",
+  () =>
+    Effect.gen(function* approvedWorkshopPrep() {
+      const path = yield* Path.Path;
+
+      const workshop = yield* buildWorkshop(
+        path.resolve(import.meta.dirname, "../../..")
+      );
+
+      const prep = yield* workshopPrep
+        .handler({})
+        .pipe(Effect.provide(WorkshopDirectory.layer(workshop.data)));
+
+      expect(prep.status).toBe("published");
+      expect(prep.items.map((item) => item.item)).toEqual(
+        [
+          "Node, pnpm and git",
+          "The workshop tools",
+          "Herdr",
+          "The person gives Pi a model",
+          "The check",
+          "The person's own repo",
+          "Report",
+        ].map((label) => `[${label}](https://ratstack.sh/tokenmaxx/setup.md)`)
+      );
+      expect(prep.items[4]?.proof).toBe("pnpm ex 00.1 check");
+      expect(prep.items[5]?.proof).toBe("pnpm ex 01.1 done");
+    }).pipe(Effect.provide(NodeServices.layer))
+);
+
 const unpublished = "UNPUBLISHED_WORKSHOP_CANARY";
 
 const fixture = {

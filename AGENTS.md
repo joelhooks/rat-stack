@@ -133,9 +133,14 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 - **`pnpm infra:plan`**: Preview the Alchemy Stack diff without applying
 - **`pnpm infra:deploy` / `pnpm infra:destroy`**: Apply or tear down the Stack (asks for approval)
 - **`pnpm exec lefthook install`**: Install git hooks (also via `prepare`)
-- **`pnpm turbo run check test build`**: Required validation before claiming a change is ready
+- **`pnpm turbo run check test build --summarize`**: Required validation before claiming a change is ready; leaves a Turbo run summary
+- **`pnpm turbo:summary --surface local`**: Print one safe JSON line per `.turbo/runs/*.json` artifact; surfaces are `pr`, `main`, `nightly`, and `local`
 
-Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo run check test build`.
+Turbo and our `alchemy-turbo-cache` cartridge are core CI/CD infrastructure. Every CI/CD path must run its build, check, and test work through Turbo. Every invocation must leave a summary: pass `--summarize` or set `TURBO_RUN_SUMMARY=true`. PR/main CI and the uncached nightly publish the JSONL cache story in the job summary and alongside raw run artifacts. Deploy and local callers must currently enable summaries themselves. Only trusted CI receives the writer token and signing key. Deploy, local and agent gates will take the read-only token (`pnpm turbo-cache:token --role reader`) with `TURBO_CACHE=remote:r`; see `packages/turbo-cache/README.md`. Consumer wiring is not implemented yet.
+
+The desk tracks cache hit rate, task durations, and wall time across content-only changes, package changes, and no-op reruns. Use the same command, concurrency, and cache conditions before and after a change. Keep failed runs in the evidence; report retries separately. Telemetry warns on missing or unsupported artifacts and never changes the check result. It adds no storage service.
+
+Run `pnpm fix` only when you intend to rewrite files. Finish with `pnpm turbo run check test build --summarize`.
 
 ## Deploy
 

@@ -52,6 +52,7 @@ import {
   contentPagePath,
 } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
+import { contentWithOrigin } from "../src/content-origin.ts";
 import { tokenmaxxTitle } from "../src/house-ad-copy.ts";
 import {
   addInboundCounts,
@@ -1972,166 +1973,62 @@ const program = Effect.gen(function* generateContent() {
       })
       .join("\n\n");
 
-  const searchCapabilitySource = yield* readText(
-    "apps/site/src/capabilities/search.ts"
-  );
-
-  const searchCapabilityExcerpt = searchCapabilitySource
-    .split("\n")
-    .slice(6)
-    .join("\n")
-    .trim();
-
   const homeMarkdownSource = `# Rat Stack
 
-Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
-
-Rat Stack is an agent-first way to build with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy) and to learn how they work. Point your agent at this site and tell it to build your project. When you want to know why the code looks the way it does, go as deep as you like.
-
-There's a repo underneath, but it isn't a template. It's a set of references your agent reads for the idioms: rules, skills, lore and working source.
-
-Build an app and its cloud as one typed program. Effect handles dependencies, errors and concurrent work. Alchemy declares the cloud resources in TypeScript, so the compiler checks how the app and its infrastructure fit together. We're trying to build the best Effect + Alchemy app we can.
-
-_${linkedTagline}_
-
-The [fence](${originToken}/lore/the-fence) is the compiler checks, lint rules and commit hooks that reject shortcuts.
-
-## Connect an agent
-
-Paste this into your coding agent:
+<HumanOnly>
 
 \`\`\`text
-Read ${originToken}/llms.txt and use rat-stack as the reference
-for how we build: Effect for the hard parts, Alchemy for the
-infrastructure, and a fence that makes the easy path the right
-one. Search its rules and skills before you write code, follow
-its patterns, and tell me when my code breaks them.
+Check out ratstack.sh and explain how it would be useful for my current project, and how I can learn more about it.
 \`\`\`
+
+</HumanOnly>
 
 <CopyPrompt id="connect" />
 
-Or add the [MCP](${originToken}/lore/mcp-is-another-surface) server so your agent can call the site's tools:
+<AgentOnly>
 
-\`\`\`sh
-# Claude Code
-claude mcp add --transport http rat-stack ${originToken}/mcp
+## For agents
 
-# Codex
-codex mcp add rat-stack --url ${originToken}/mcp
-\`\`\`
+Connect to the main [MCP server](${originToken}/mcp). Read the [agent guide](${originToken}/llms.txt) for protocol headers, request limits and [code mode](${originToken}/llms.txt#run-code-one-program-instead-of-several-calls). Use its worked requests. Code mode is available through the MCP \`execute\` tool or \`POST /api/execute\`.
 
-<CopyPrompt id="mcp" />
+For setup, see [MCP](${originToken}/skills/learn-rat-stack#connect-an-agent) and [Cursor](${originToken}/skills/learn-rat-stack#cursor). Load the [skills](${originToken}/skills) that fit the project.
 
-Cursor reads \`~/.cursor/mcp.json\`:
+For learning feedback, first check which tools are available. When \`learnFeedbackStart\` is offered, call it and show the person its \`verificationUrl\` and \`userCode\`. They sign in and approve in their browser.
 
-\`\`\`json
-{ "mcpServers": { "rat-stack": { "url": "${originToken}/mcp" } } }
-\`\`\`
+Poll \`learnFeedbackPoll\` at the returned interval. After approval, use the returned token with \`learnFeedback\` to submit the agreed feedback.
 
-<CopyPrompt id="cursor" />
+Approval returns a [feedback-only credential](${originToken}/systems/auth). The person's sign-in session stays in their browser. See the [feedback sign-in flow](${originToken}/systems/learn#feedback-sign-in).
 
-Your agent can also load one skill for one task. Nothing is installed in your skill folders. The [skills index](${originToken}/.well-known/agent-skills/index.json) lists every skill.
+For other feedback, point the person to Joel's contact link in the intro. To suggest a CAFE story or project, follow the [agent guide's approval steps](${originToken}/llms.txt#suggest-a-cafe-entry-through-your-agent). Draft the exact GitHub issue for the person to approve, then submit it once.
 
-<CopyPrompt id="skills" />
+For signup, read the [interest rules](${originToken}/systems/interest) and the [signup instructions](${originToken}/llms.txt#choose-the-next-action) before calling \`joinInterest\`. Submission needs the person's approval of the exact card and contact permission. Email confirmation happens separately in their browser.
 
-- [MCP connection details](${originToken}/.well-known/mcp.json)
-- [HTTP API docs](${originToken}/openapi.json)
-- [Short agent guide](${originToken}/llms.txt)
-- [Everything in one file](${originToken}/llms-full.txt): rules, lore, systems and skills
+</AgentOnly>
+
+Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
+
+Rat Stack helps your agent build your project with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy). You can get your project running, then learn how it works at whatever depth you like.
+
+The site gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working examples to follow. You can read them too.
 
 ${homeFeatured}
 
 ## Go as deep as you like
 
-- **Just build it.** Paste the prompt above and describe your project. Your agent follows the rules and skills here.
-- **Ask why.** Point your agent at the site and ask what's good about it, or why a pattern looks the way it does.
-- **Learn it yourself.** [Learn mode](${originToken}/learn) teaches the stack through your own agent. [Ratstack Tube](${originToken}/tube) has the videos worth watching. The [lore](${originToken}/lore) explains the ideas, the [glossary](${originToken}/glossary) the terms, and [systems](${originToken}/systems) how each part works and how to check it.
-- **Read the source.** The packages below are working code your agent can take patterns from.
-
-[CAFE news](${originToken}/news) and the [CAFE directory](${originToken}/directory) track reviewed Cloudflare, Alchemy, Foldkit and Effect news and projects.
+- Get your project running. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
+- Understand the pieces. Ask your agent why the code looks the way it does, or read the [explanations](${originToken}/lore).
+- Learn by building. Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
+- Choose what to keep. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
+- Check the work. The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
+- See what others are building. Browse the [news](${originToken}/news) and [project directory](${originToken}/directory).
 
 ## How it fits together
 
-Each job is a service with an interface. A [Layer](${originToken}/lore/layer-constructor-pattern) builds its implementation and supplies its dependencies. An Alchemy Layer also carries the job's cloud resources, so you choose the implementation, and the infrastructure that comes with it, when you provide the Layer.
+Rat Stack describes [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
 
-The easy path should be the right one. The compiler stops mistakes that a style guide can only ask you to avoid. Remove a cloud resource and the code that uses it stops compiling. Fewer mistakes let an agent work longer without help. Deploy checks then prove the result works.
+Follow [a search through the app](${originToken}/lore/a-browser-send-follows-one-path) or [one action in several places](${originToken}/lore/one-capability-every-surface) to see the code. The [package guide](${originToken}/AGENTS.md#packages) lists the pieces.
 
-The [vision](${originToken}/VISION.md) has the reasoning and sources.
-
-## Packages
-
-These packages and apps are the working reference. If you do copy code out of the repo, the [removal checklists](${originToken}/README.md#keep-or-cut) say what each cut takes with it. A few packages share the hosted content build, so they come out together.
-
-- **capability**: contracts, and the command-line, web and agent interfaces built from them
-- **core**: shared operations and service interfaces
-- **database**: run logs on D1 or Hyperdrive Postgres
-- **auth**: identity and access through [Better Auth](${originToken}/systems/auth)
-- **devtools**: record, replay and compare operation calls in development
-- **events**: [request analytics](${originToken}/systems/analytics)
-- **lore**: queries over the public content graph
-- **subscriber-delivery**: signup and email confirmation
-- **intake-live**: signup application checks and protected stored answers
-- **code-snippets**: highlighted code examples built from source files
-- **check-harness**: runs checks and reports their results
-- **deploy**: plans, applies, checks and rolls back deployments
-- **web**: the reader and browser UI, built with Foldkit
-- **cli**: the command-line interface
-- **mischief**: the hosted site, agent interfaces and code sandbox in apps/site
-- **infra**: the Alchemy cloud resource declarations
-
-A [cartridge](${originToken}/lore/cartridges) is a package that owns one job, including its implementation and cloud resources. You add one with a package and one line that provides it. Removing one must leave the rest working. The agent interfaces still live in Mischief and aren't a separate cartridge yet.
-
-Core holds the service interfaces, and provider code lives outside it. That's [hexagonal architecture](${originToken}/lore/hexagonal-architecture): a port names a job and an adapter connects it to a provider. [Interest signup](${originToken}/systems/interest) is the worked example, with consent and confirmation behind a delivery adapter.
-
-## One capability, several interfaces
-
-A [contract](${originToken}/systems/capabilities) names an operation and defines its input, output and errors with Effect Schema. A [capability](${originToken}/systems/capabilities) binds the contract to one server-side handler. A [projection](${originToken}/lore/one-capability-every-surface) puts that capability on one interface: the command line, HTTP with [OpenAPI](${originToken}/lore/openapi-describes-the-refusal-too), MCP tools, browser [RPC](${originToken}/lore/one-capability-every-surface), or code mode in a sandbox. When the work has states, an XState machine owns them.
-
-<Diagram alt="One capability projected to the command line, HTTP with OpenAPI, MCP tools, browser RPC, and sandbox code mode">
-
-\`\`\`text
-              ┌─────────────────────────────────────┐
-              │  one contract + capability          │
-              │  Effect Schema: input · output · err│
-              │  one Effect handler                 │
-              │  XState when the work has states    │
-              └──────────────────┬──────────────────┘
-                                 │  defineContract → implement
-    ┌────────────┬────────────┬────────────┬────────────┬────────────┐
-    ▼            ▼            ▼            ▼            ▼
-  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-  │ command  │ │   HTTP   │ │   MCP    │ │   RPC    │ │ sandbox  │
-  │   line   │ │ + OpenAPI│ │  tools   │ │ browser  │ │ code mode│
-  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-  checked by  TypeScript 7 · Oxlint · Vitest · lefthook
-  shipped by  pnpm · Turborepo · Alchemy → Cloudflare Worker
-\`\`\`
-</Diagram>
-
-All five share one contract and one handler.
-
-## The pattern in code
-
-This is the whole search capability. Every interface calls it.
-
-\`\`\`ts
-${searchCapabilityExcerpt}
-\`\`\`
-
-The schemas define the input, output and errors. Every projection calls this same handler.
-
-## Learn the stack
-
-Each guide is a skill. Your agent can load one with the skills command above, or you can read it here.
-
-${groupedSkills(false)}
-
-XState 6 and Alchemy are pre-release, so their APIs move. [pins.md](${originToken}/pins.md) lists the exact versions this repo builds against.
-
-## Source files
-
-${entryList(publicSpecs, false)}
+_${linkedTagline}_
 
 `;
 
@@ -2207,6 +2104,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/auth.md",
     "ratstack.sh auth.md"
   );
+
+  const tokenmaxxShitratJpegBase64 = Buffer.from(
+    yield* fileSystem
+      .readFile(path.join(root, "apps/site/content/tokenmaxx/shitrat.jpg"))
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError("read", "apps/site/content/tokenmaxx/shitrat.jpg", cause)
+        )
+      )
+  ).toString("base64");
 
   const tokenmaxxImageJpegBase64 = Buffer.from(
     yield* fileSystem
@@ -3340,7 +3247,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           )
         );
 
-        const text = renderAgentPage(bodyMarkdown, skill.routePath, skill.name);
+        const text = contentWithOrigin(
+          renderAgentPage(bodyMarkdown, skill.routePath, skill.name),
+          "https://ratstack.sh"
+        );
 
         return {
           ...contentDates(skill.rawText, skill.sourcePath),
@@ -3801,6 +3711,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/apple-touch-icon.png",
           "/favicon.svg",
           "/tokenmaxx/four-comma-club.jpg",
+          "/tokenmaxx/shitrat.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
           ...infrastructureImages.map((image) => image.path),
           dillonPosterRoutePath,
@@ -3875,8 +3786,28 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         path: ogImagePath(image.routePath),
       })),
       {
+        base64: Buffer.from(
+          yield* fileSystem
+            .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
+            .pipe(
+              Effect.mapError((cause) =>
+                buildError(
+                  "read",
+                  "apps/site/content/tokenmaxx/setup.md",
+                  cause
+                )
+              )
+            )
+        ).toString("base64"),
+        path: "/tokenmaxx/setup.md",
+      },
+      {
         base64: tokenmaxxImageJpegBase64,
         path: "/tokenmaxx/four-comma-club.jpg",
+      },
+      {
+        base64: tokenmaxxShitratJpegBase64,
+        path: "/tokenmaxx/shitrat.jpg",
       },
       {
         base64: cartridgesImageJpegBase64,

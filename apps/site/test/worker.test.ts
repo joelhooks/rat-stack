@@ -15,6 +15,7 @@ import {
 } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Layer, Schema } from "effect";
 import * as McpSchema from "effect/ai/McpSchema";
+import * as Arbitrary from "effect/Arbitrary";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { parseContentMarkdown } from "../scripts/svx-ast.js";
@@ -145,6 +146,39 @@ const sha256 = (text: string) =>
       ).join("")
     )
   );
+
+it.effect.prop(
+  "generated skill digests match the bytes published at every request origin",
+  {
+    name: Arbitrary.schema(Schema.Literals(skills.map((skill) => skill.name))),
+    host: Arbitrary.array(
+      Arbitrary.schema(Schema.Literals(["a", "b", "c", "d"])),
+      { maxLength: 20, minLength: 1 }
+    ).pipe(Arbitrary.map((letters) => letters.join(""))),
+  },
+  ({ name, host }) =>
+    withHandler((handler) =>
+      Effect.gen(function* skillDigestAtOrigin() {
+        const skill = skills.find((candidate) => candidate.name === name);
+
+        if (skill === undefined) {
+          throw new Error("Generated skill has no discovery record");
+        }
+
+        const response = yield* Effect.promise(() =>
+          handler(new Request(`https://${host}.example${skill.routePath}`))
+        );
+
+        const text = yield* Effect.promise(() => response.text());
+
+        const digest = yield* sha256(text);
+
+        expect(response.status).toBe(200);
+        expect(text).toBe(skill.text);
+        expect(digest).toBe(skill.digest);
+      })
+    )
+);
 
 const metadata = {
   "io.modelcontextprotocol/clientCapabilities": {},
@@ -481,25 +515,103 @@ it.effect(
         expect(markdown).toBe(markdownDocument("https://ratstack.sh"));
         expect(markdown).toContain("an app and its cloud as one typed program");
         expect(markdown).toContain("## How it fits together");
-        expect(markdown.indexOf("## Connect an agent")).toBeLessThan(
-          markdown.indexOf("## How it fits together")
+
+        const connectPrompt =
+          "Check out ratstack.sh and explain how it would be useful for my current project, and how I can learn more about it.";
+
+        expect(
+          markdown
+            .slice(markdown.indexOf("```text"))
+            .startsWith(`\`\`\`text\n${connectPrompt}\n\`\`\``)
+        ).toBe(true);
+        expect(markdown.split(connectPrompt)).toHaveLength(2);
+        expect(markdown.indexOf(connectPrompt)).toBeLessThan(
+          markdown.indexOf("Most of this site is for you")
+        );
+        expect(html).toContain(`data-text="${connectPrompt}"`);
+        expect(html.indexOf(`data-text="${connectPrompt}"`)).toBeLessThan(
+          html.indexOf("Most of this site is for you")
         );
         expect(markdown).toContain(
-          "Read https://ratstack.sh/llms.txt and use rat-stack as the reference\n"
+          "[MCP](https://ratstack.sh/skills/learn-rat-stack#connect-an-agent)"
         );
         expect(markdown).toContain(
+          "[Cursor](https://ratstack.sh/skills/learn-rat-stack#cursor)"
+        );
+        expect(markdown).toContain("[skills](https://ratstack.sh/skills)");
+        expect(markdown).toContain("[learn mode](https://ratstack.sh/learn)");
+
+        for (const agentInstruction of [
+          "## For agents",
+          "https://ratstack.sh/mcp",
+          "protocol headers, request limits",
+          "POST /api/execute",
+          "learnFeedbackStart",
+          "learnFeedbackPoll",
+          "verificationUrl",
+          "joinInterest",
+          "Draft the exact GitHub issue",
+        ]) {
+          expect(markdown).toContain(agentInstruction);
+        }
+
+        for (const hiddenInstruction of [
+          "For agents</h2>",
+          "protocol headers, request limits",
+          "POST /api/execute",
+          "learnFeedbackStart",
+          "learnFeedbackPoll",
+          "verificationUrl",
+          "joinInterest",
+          "Draft the exact GitHub issue",
+        ]) {
+          expect(html).not.toContain(hiddenInstruction);
+        }
+
+        for (const deeperPage of [
+          "/AGENTS.md#packages",
+          "/README.md#keep-or-cut",
+          "/lore/one-capability-every-surface",
+          "/lore/a-browser-send-follows-one-path",
+        ]) {
+          expect(html).toContain(`href="https://ratstack.sh${deeperPage}"`);
+        }
+
+        expect(
+          generatedReaderPage("/lore/one-capability-every-surface")
+        ).toContain("defineContract");
+        expect(
+          generatedReaderPage("/lore/a-browser-send-follows-one-path")
+        ).toContain("searchContract");
+        expect(agentsHtml).toContain('id="packages"');
+        expect(skillHtml).toContain(
           "claude mcp add --transport http rat-stack https://ratstack.sh/mcp"
         );
-        expect(markdown).toContain("│  defineContract");
-        expect(markdown).toContain("/.well-known/agent-skills/index.json");
-        expect(markdown).toContain("## Source files");
-        expect(markdown).toContain(
-          "[Agent rules for rat-stack (AGENTS.md)](/AGENTS.md)"
+        expect(skillHtml).toContain('id="cursor"');
+        expect(skillHtml).toContain(
+          'data-text="# Claude Code&#10;claude mcp add --transport http rat-stack https://ratstack.sh/mcp'
         );
-        expect(markdown).toContain(
-          "[Purpose and boundaries of rat-stack (VISION.md)](/VISION.md)"
+        expect(skillHtml).toContain(
+          'data-text="{ &quot;mcpServers&quot;: { &quot;rat-stack&quot;: { &quot;url&quot;: &quot;https://ratstack.sh/mcp&quot;'
         );
-        expect(markdown).toContain("## Connect an agent");
+        expect(skillHtml).toContain(
+          'data-text="Read https://ratstack.sh/.well-known/agent-skills/index.json. Pick the skill that fits my task'
+        );
+        expect(skillHtml).toContain("/.well-known/agent-skills/index.json");
+
+        for (const removedSection of [
+          "## Packages",
+          "## One capability, several interfaces",
+          "## The pattern in code",
+          "## Learn the stack",
+          "## Source files",
+        ]) {
+          expect(markdown).not.toContain(removedSection);
+        }
+
+        expect(markdown).toContain("[rules](https://ratstack.sh/AGENTS.md)");
+        expect(markdown).toContain("https://ratstack.sh/VISION.md");
+        expect(markdown).not.toContain("## Connect an agent");
         expect(html).toContain(
           "<title>Rat Stack: an app and its cloud as one typed program</title>"
         );
@@ -512,7 +624,7 @@ it.effect(
         expect(html).toContain("<pre><code>");
         expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
-        expect(html).toContain("│  defineContract");
+        expect(html).not.toContain("│  defineContract");
         expect(html).toContain('class="copy-label">Copy prompt</span>');
         expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");

@@ -99,6 +99,7 @@ const assertProductionPayloads = (pages: readonly ReaderPageFlags[]) => {
       ...page.copyPrompts.map((prompt) => prompt.text),
       ...page.codeFences.flatMap((fence) => [fence.value, fence.html]),
       JSON.stringify(page.blocks),
+      JSON.stringify(page.bodyNodes),
     ];
 
     for (const payload of payloads) {
@@ -107,14 +108,14 @@ const assertProductionPayloads = (pages: readonly ReaderPageFlags[]) => {
     }
   }
 
-  const home = pages.find((page) => page.page.path === "/");
+  const setup = pages.find(
+    (page) => page.page.path === "/skills/learn-rat-stack"
+  );
+
   expect(
-    home?.copyPrompts.find((prompt) => prompt.id === "mcp")?.text
+    setup?.copyPrompts.find((prompt) => prompt.id === "mcp")?.text
   ).toContain("https://ratstack.sh/mcp");
-  expect(
-    home?.codeFences.find((fence) => fence.value.includes("claude mcp add"))
-      ?.value
-  ).toContain("https://ratstack.sh/mcp");
+  expect(JSON.stringify(setup?.bodyNodes)).toContain("https://ratstack.sh/mcp");
 };
 
 it.layer(PreparedReaderPages.layer)((test) => {
