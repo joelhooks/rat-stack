@@ -13,7 +13,7 @@ import * as HttpRouter from "effect/http/HttpRouter";
 import { interestRoutes } from "../src/interest/routes.js";
 
 it.effect(
-  "retention backfill uses operator protection and only explicit apply mutates",
+  "retention backfill authenticates the operator and validates page controls and apply mode",
   () =>
     Effect.gen(function* protectedBackfill() {
       const runs: boolean[] = [];
@@ -24,6 +24,7 @@ it.effect(
         finished: 2,
         gone: 0,
         legacyHandoffTimeUnknown: 0,
+        nextCursor: null,
         pending: 3,
         unreadable: 0,
       };
@@ -68,6 +69,9 @@ it.effect(
           { body: { apply: false }, status: 200 },
           { body: { apply: true }, status: 200 },
           { body: { apply: "true" }, status: 400 },
+          { body: { limit: 1, after: "synthetic-cursor" }, status: 200 },
+          { body: { limit: 0 }, status: 400 },
+          { body: { limit: 51 }, status: 400 },
         ]) {
           const response = yield* Effect.promise(() =>
             handler(
@@ -99,6 +103,6 @@ it.effect(
         }
       }
 
-      expect(runs).toEqual([true, true, false]);
+      expect(runs).toEqual([true, true, false, true]);
     }).pipe(Effect.scoped)
 );

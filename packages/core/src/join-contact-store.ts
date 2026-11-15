@@ -1,6 +1,9 @@
 import { Context, DateTime, Effect, Layer, Ref, Schema } from "effect";
 
 import { ContactRefSchema } from "./intake-events.js";
+import type { JoinContactUnreadable } from "./join-contact-unreadable.js";
+
+export { JoinContactUnreadable } from "./join-contact-unreadable.js";
 
 export const JOIN_CONTACT_RETENTION_MILLIS = 24 * 60 * 60 * 1000;
 
@@ -72,15 +75,15 @@ export class JoinContactStore extends Context.Service<
     readonly save: (contact: JoinContact) => Effect.Effect<void>;
     readonly read: (
       submissionId: string
-    ) => Effect.Effect<JoinContact | undefined>;
+    ) => Effect.Effect<JoinContact | undefined, JoinContactUnreadable>;
     readonly setState: (
       submissionId: string,
       state: JoinContactState
-    ) => Effect.Effect<void>;
+    ) => Effect.Effect<void, JoinContactUnreadable>;
     readonly erase: (submissionId: string) => Effect.Effect<void>;
     readonly requestErase: (
       submissionId: string
-    ) => Effect.Effect<JoinErasure | undefined>;
+    ) => Effect.Effect<JoinErasure | undefined, JoinContactUnreadable>;
     readonly readHandoff: (
       submissionId: string
     ) => Effect.Effect<JoinErasure | undefined>;

@@ -90,6 +90,8 @@ it.effect(
 
       if (Exit.isFailure(result)) {
         expect(Cause.pretty(result.cause)).toContain("JoinContactUnreadable");
+        expect(Cause.hasFails(result.cause)).toBe(true);
+        expect(Cause.hasDies(result.cause)).toBe(false);
       }
 
       const backfill = yield* JoinRetentionBackfill.pipe(

@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
+import { Clock, Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -266,6 +266,14 @@ const expectRecovered = Effect.fnUntraced(function* expectRecovered(
   tracker: Tracker
 ) {
   yield* Ref.set(world.basinDown, false);
+  const parked = yield* world.contacts.read(submissionId);
+
+  if (parked?.retryAt !== undefined) {
+    yield* TestClock.adjust(
+      Math.max(0, parked.retryAt - (yield* Clock.currentTimeMillis))
+    );
+  }
+
   const sentBeforeRecovery = tracker.sent.length;
   yield* world.sweep;
 

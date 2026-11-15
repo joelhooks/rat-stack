@@ -136,6 +136,7 @@ export {
   JoinContactStore,
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
+  JoinContactUnreadable,
   JoinErasureSchema,
   withPending,
   withState,
@@ -154,11 +155,19 @@ export { JoinRequest, joinIntakeLayer } from "./join-intake.js";
 export { JoinDeliveryDeadline } from "./join-delivery-machine.js";
 
 export {
+  JOIN_RETENTION_DEFAULT_LIMIT,
+  JOIN_RETENTION_MAX_LIMIT,
   JoinRetentionBackfill,
   JoinRetentionCountsSchema,
+  JoinRetentionBackfillUnavailable,
   joinRetentionBackfill,
   joinRetentionBackfillContract,
 } from "./join-retention-backfill.js";
+
+export {
+  joinRetentionWalkMachine,
+  runJoinRetentionWalk,
+} from "./join-retention-walk.js";
 
 export { IntakeSweep, SWEEP_CONCURRENCY } from "./intake-sweep.js";
 

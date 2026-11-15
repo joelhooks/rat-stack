@@ -25,6 +25,11 @@ export const IntakeApplicationSchema = Schema.Union([
     x: Schema.optionalKey(Schema.toType(JoinIdentity.fields.x)),
   }),
   Schema.Struct({
+    reason: Schema.Literal("application unreadable"),
+    state: Schema.Literal("unreadable"),
+    submissionId: Schema.String,
+  }),
+  Schema.Struct({
     reason: Schema.Literal("erased"),
     state: Schema.Literal("erased"),
     submissionId: Schema.String,

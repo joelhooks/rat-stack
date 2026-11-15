@@ -17,13 +17,18 @@ export default class JoinContactWorker extends Cloudflare.Worker<JoinContactWork
     return {
       fetch: Effect.gen(function* fetch() {
         const request = yield* HttpServerRequest.HttpServerRequest;
-        const id = request.url.slice(1);
+        const url = new URL(request.url, "https://fixture.example.test");
+        const id = url.pathname.slice(1);
         const contact = interests.getByName(id);
         yield* contact.intakeStore([
           { id, sealed: "synthetic-runtime-marker" },
         ]);
         const deadline = (yield* Clock.currentTimeMillis) + 10_000;
         yield* contact.joinSave(`unreadable-${id}`, false, deadline, id);
+
+        if (url.searchParams.has("erase")) {
+          yield* contact.joinRequestErase();
+        }
 
         return HttpServerResponse.jsonUnsafe({ deadline });
       }),

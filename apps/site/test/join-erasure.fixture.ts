@@ -1,6 +1,9 @@
-import { JoinErasureSchema } from "@rat-stack/core/join-interest";
+import {
+  JOIN_CONTACT_RETENTION_MILLIS,
+  JoinErasureSchema,
+} from "@rat-stack/core/join-interest";
 import type { JoinErasure } from "@rat-stack/core/join-interest";
-import { DateTime, Effect, Schema } from "effect";
+import { Clock, DateTime, Effect, Schema } from "effect";
 
 import type { JoinContactStub } from "../src/interest/join-contact-store.js";
 
@@ -9,11 +12,18 @@ type SealedStub = Pick<JoinContactStub, "joinErase" | "joinRead" | "joinSave">;
 const wrapStub = (stub: SealedStub): JoinContactStub => {
   let metadata: JoinErasure | undefined;
   let marker: JoinErasure | undefined;
+  let retentionDeadline: number | undefined;
 
   return {
     ...stub,
     joinSave: (sealed, erase, deadline, contactRef) =>
       Effect.gen(function* save() {
+        const candidate =
+          deadline ??
+          (yield* Clock.currentTimeMillis) + JOIN_CONTACT_RETENTION_MILLIS;
+
+        retentionDeadline = Math.min(retentionDeadline ?? candidate, candidate);
+
         if (metadata === undefined && contactRef !== undefined) {
           metadata = yield* Schema.decodeEffect(JoinErasureSchema)({
             contactRef,
@@ -30,6 +40,7 @@ const wrapStub = (stub: SealedStub): JoinContactStub => {
         yield* stub.joinSave(sealed, erase, deadline, contactRef);
       }),
     joinReadErasure: () => Effect.sync(() => marker),
+    joinReadRetentionDeadline: () => Effect.sync(() => retentionDeadline),
     joinReadHandoff: () => Effect.sync(() => metadata),
     joinRequestErase: () =>
       Effect.sync(() => {

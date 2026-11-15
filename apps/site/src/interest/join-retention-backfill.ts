@@ -1,4 +1,6 @@
 import {
+  JOIN_RETENTION_DEFAULT_LIMIT,
+  JOIN_RETENTION_MAX_LIMIT,
   JoinContactStore,
   JoinRetentionBackfill,
   SWEEP_CONCURRENCY,
@@ -15,15 +17,32 @@ export const joinRetentionBackfillLayer = (
 
       return {
         run: Effect.fn("JoinRetentionBackfill.run")(function* run(
-          dryRun: boolean
+          dryRun: boolean,
+          after?: string,
+          limit = JOIN_RETENTION_DEFAULT_LIMIT
         ) {
+          const remaining = [...new Set(yield* ids())]
+            .toSorted()
+            .filter((id) => after === undefined || id > after);
+
+          const page = remaining.slice(
+            0,
+            Math.min(JOIN_RETENTION_MAX_LIMIT, Math.max(1, limit))
+          );
+
+          const nextCursor =
+            remaining.length > page.length ? (page.at(-1) ?? null) : null;
+
           const outcomes = yield* Effect.forEach(
-            [...new Set(yield* ids())],
+            page,
             (id) =>
               Effect.gen(function* migrateAndCountUnknownHandoff() {
                 const group = yield* contacts.migrateRetention(id, dryRun);
                 const handoff = yield* contacts.readHandoff(id);
-                const legacy = ["pending", "finished", "erase"].includes(group);
+
+                const legacy =
+                  handoff === undefined &&
+                  ["pending", "finished", "erase"].includes(group);
 
                 return {
                   group,
@@ -44,6 +63,7 @@ export const joinRetentionBackfillLayer = (
             finished: 0,
             gone: 0,
             legacyHandoffTimeUnknown: 0,
+            nextCursor,
             pending: 0,
             unreadable: 0,
           };

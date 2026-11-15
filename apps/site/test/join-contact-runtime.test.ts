@@ -18,36 +18,41 @@ const { test } = Test.make({
 });
 
 test.provider(
-  "the real Interest alarm deletes unreadable sealed bytes and preserves the erase marker without a read",
+  "the real Interest alarm deletes unreadable bytes without creating or clearing subject erasure requests",
   (stack) =>
     Effect.gen(function* alarmRuntime() {
       const worker = yield* deployScratch(stack, JoinContactWorker);
       const url = yield* Effect.fromNullishOr(worker.url).pipe(Effect.orDie);
       const random = yield* SecureRandom.SecureRandom;
-      const id = yield* random.uuidV4();
-      const saved = yield* HttpClient.get(new URL(`/${id}`, url));
-      expect(saved.status).toBe(200);
-      yield* saved.text;
 
-      const storage = yield* durableObjectStorage(
-        "Interest",
-        `intake-statement:${id}`
-      );
+      for (const explicitRequest of [false, true]) {
+        const id = yield* random.uuidV4();
+        const path = explicitRequest ? `/${id}?erase=true` : `/${id}`;
+        const saved = yield* HttpClient.get(new URL(path, url));
+        expect(saved.status).toBe(200);
+        yield* saved.text;
 
-      expect(yield* storage.keys("")).toContain("join-contact");
-      expect(yield* storage.alarmPending).toBe(true);
-      expect(yield* storage.keys("")).not.toContain("join-erase-request");
+        const storage = yield* durableObjectStorage(
+          "Interest",
+          `intake-statement:${id}`
+        );
 
-      const keys = yield* eventually(
-        storage.keys(""),
-        (current) =>
-          !current.includes("join-contact") &&
-          current.includes("join-erase-request")
-      );
+        expect(yield* storage.keys("")).toContain("join-contact");
+        expect(yield* storage.alarmPending).toBe(true);
+        expect((yield* storage.keys("")).includes("join-erase-request")).toBe(
+          explicitRequest
+        );
 
-      expect(keys).toContain("join-erased");
-      expect(keys).toContain("join-contact-meta");
-      expect(keys).not.toContain("join-contact");
+        const keys = yield* eventually(
+          storage.keys(""),
+          (current) => !current.includes("join-contact")
+        );
+
+        expect(keys).toContain("join-erased");
+        expect(keys).toContain("join-contact-meta");
+        expect(keys.includes("join-erase-request")).toBe(explicitRequest);
+        expect(keys).toContain(`intake-statement:${id}`);
+      }
     }).pipe(Effect.scoped, Effect.provide(localServices)),
   { timeout: 120_000 }
 );

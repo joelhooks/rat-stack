@@ -18,7 +18,7 @@ import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
 import { joinRetentionBackfillLayer } from "../src/interest/join-retention-backfill.js";
 
 it.effect(
-  "backfill defaults to read-only counts, migrates legacy groups once, and preserves event-erasure work",
+  "backfill previews readable legacy groups, migrates them once, and preserves explicit event-erasure work",
   () =>
     Effect.gen(function* migrationFixture() {
       const entries = new Map<string, Map<string, unknown>>();
@@ -59,6 +59,7 @@ it.effect(
         "refused",
         "ready",
         "held",
+        "ready-held",
         "erase",
         "current",
       ] as const;
@@ -71,11 +72,11 @@ it.effect(
             `synthetic-${state}`
           ),
           email: "synthetic@example.test",
-          hold: false,
+          hold: state === "ready-held",
           score: 0,
           signals: [],
           state:
-            state === "erase" || state === "current"
+            state === "erase" || state === "current" || state === "ready-held"
               ? ("ready" as const)
               : state,
           submissionId: state,
@@ -133,9 +134,10 @@ it.effect(
       const expected = {
         current: 1,
         erase: 1,
-        finished: 3,
+        finished: 4,
         gone: 1,
-        legacyHandoffTimeUnknown: 7,
+        legacyHandoffTimeUnknown: 8,
+        nextCursor: null,
         pending: 1,
         unreadable: 1,
       };
@@ -162,6 +164,7 @@ it.effect(
       });
 
       expect(yield* contacts.read("held")).toBeUndefined();
+      expect(yield* contacts.read("ready-held")).toBeUndefined();
       expect((yield* contacts.read("ready"))?.retentionDeadlineAt).toBe(
         start + JOIN_CONTACT_RETENTION_MILLIS
       );
@@ -172,8 +175,9 @@ it.effect(
         current: 2,
         erase: 0,
         finished: 0,
-        gone: 5,
-        legacyHandoffTimeUnknown: 7,
+        gone: 6,
+        legacyHandoffTimeUnknown: 8,
+        nextCursor: null,
         pending: 0,
         unreadable: 1,
       });

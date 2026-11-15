@@ -75,12 +75,6 @@ export const joinContactCell = (storage: JoinCellStorage) => {
       .pipe(Effect.andThen(storage.delete(JOIN_CONTACT_KEY)), Effect.asVoid);
 
   const expire = Effect.gen(function* expireContact() {
-    const marker = yield* metadata;
-
-    if (Option.isSome(marker)) {
-      yield* storage.put(ERASE_REQUEST_KEY, marker.value);
-    }
-
     yield* joinErase();
     yield* Effect.logWarning("join contact erased at retention deadline");
   });
@@ -115,6 +109,15 @@ export const joinContactCell = (storage: JoinCellStorage) => {
         )
       ),
     joinErase,
+    joinReadRetentionDeadline: () =>
+      current.pipe(
+        Effect.map(
+          Option.flatMap((contact) =>
+            Option.fromUndefinedOr(contact.retentionDeadlineAt)
+          )
+        ),
+        Effect.map(Option.getOrUndefined)
+      ),
     joinReadErasure: readErasure,
     joinReadHandoff: () => metadata.pipe(Effect.map(Option.getOrUndefined)),
     joinRequestErase: () =>

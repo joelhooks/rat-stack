@@ -500,7 +500,16 @@ export const interestRoutes = (options: InterestOptions) => {
             return HttpServerResponse.jsonUnsafe(counts, {
               headers: operatorHeaders,
             });
-          })
+          }).pipe(
+            Effect.catchTag("JoinRetentionBackfillUnavailable", () =>
+              Effect.succeed(
+                HttpServerResponse.text("Applications unavailable.\n", {
+                  headers: operatorHeaders,
+                  status: 503,
+                })
+              )
+            )
+          )
         ).pipe(
           Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
           Effect.withTracerEnabled(false),

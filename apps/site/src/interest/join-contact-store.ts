@@ -3,6 +3,7 @@ import {
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
   JoinContactStore,
+  JoinContactUnreadable,
   withState,
   withPending,
 } from "@rat-stack/core/join-interest";
@@ -22,6 +23,7 @@ export interface JoinContactStub {
     contactRef?: string
   ) => Effect.Effect<void>;
   readonly joinRead: () => Effect.Effect<string | undefined>;
+  readonly joinReadRetentionDeadline: () => Effect.Effect<number | undefined>;
   readonly joinErase: () => Effect.Effect<void>;
   readonly joinRequestErase: () => Effect.Effect<JoinErasure | undefined>;
   readonly joinReadErasure: () => Effect.Effect<JoinErasure | undefined>;
@@ -34,13 +36,6 @@ const SealedContact = Schema.Struct({
   data: Schema.String,
   iv: Schema.String,
 });
-
-class JoinContactUnreadable extends Schema.TaggedError<JoinContactUnreadable>()(
-  "JoinContactUnreadable",
-  {
-    cause: Schema.Defect(),
-  }
-) {}
 
 const encoder = new TextEncoder();
 
@@ -59,7 +54,8 @@ const retentionGroupFor = (contact: JoinContact): JoinRetentionGroup => {
   if (
     contact.state === "accepted" ||
     contact.state === "refused" ||
-    (contact.state === "held" && contact.retentionDeadlineAt === undefined)
+    ((contact.state === "held" || contact.hold) &&
+      contact.retentionDeadlineAt === undefined)
   ) {
     return "finished";
   }
@@ -171,11 +167,25 @@ export const joinContactStoreLayer = (
           catch: (cause) => new JoinContactUnreadable({ cause }),
         });
 
-        return yield* Schema.decodeEffect(
+        const decoded = yield* Schema.decodeEffect(
           Schema.fromJsonString(JoinContactSchema)
         )(decoder.decode(plaintext)).pipe(
           Effect.mapError((cause) => new JoinContactUnreadable({ cause }))
         );
+
+        const contact = { ...decoded };
+        delete contact.retentionDeadlineAt;
+
+        const retentionDeadlineAt =
+          yield* stub(submissionId).joinReadRetentionDeadline();
+
+        if (retentionDeadlineAt !== undefined) {
+          return { ...contact, retentionDeadlineAt };
+        }
+
+        return (yield* stub(submissionId).joinRead()) === sealed
+          ? contact
+          : undefined;
       });
 
       const migrateRetention = Effect.fn("JoinContactStore.migrateRetention")(
@@ -209,14 +219,21 @@ export const joinContactStoreLayer = (
           const retentionDeadlineAt =
             (yield* Clock.currentTimeMillis) + JOIN_CONTACT_RETENTION_MILLIS;
 
-          const migrated = { ...contact, retentionDeadlineAt };
+          const migrated = {
+            ...contact,
+            retentionDeadlineAt:
+              contact.retentionDeadlineAt ?? retentionDeadlineAt,
+          };
+
           yield* save(
             group === "pending"
               ? withPending(withState(migrated, "ready"), "delivery")
               : migrated
           );
 
-          yield* stub(submissionId).joinMarkHandedToDrovr(true);
+          if (contact.retentionDeadlineAt === undefined) {
+            yield* stub(submissionId).joinMarkHandedToDrovr(true);
+          }
 
           if (group === "erase") {
             yield* stub(submissionId).joinRequestErase();
@@ -235,7 +252,7 @@ export const joinContactStoreLayer = (
         migrateRetention(submissionId, false).pipe(
           Effect.flatMap((group) =>
             group === "current" || group === "pending" || group === "unreadable"
-              ? load(submissionId).pipe(Effect.orDie)
+              ? load(submissionId)
               : Effect.undefined
           )
         );

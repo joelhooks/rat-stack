@@ -4,6 +4,7 @@ import { settleErase } from "./intake-erase.js";
 import { IntakeEvents } from "./intake-events.js";
 import { SubscriberIntake } from "./interest-intake.js";
 import { JoinContactStore } from "./join-contact-store.js";
+import type { JoinContactUnreadable } from "./join-contact-store.js";
 import {
   JoinDeliveryDeadline,
   deliveryStateFor,
@@ -67,7 +68,7 @@ export class IntakeSweep extends Context.Service<
 
       const settle = Effect.fnUntraced(function* settle(
         submissionId: string
-      ): Effect.fn.Return<IntakeSweepOutcome> {
+      ): Effect.fn.Return<IntakeSweepOutcome, JoinContactUnreadable> {
         const contact = yield* contacts.read(submissionId);
 
         const erasure = yield* contacts.readErasure(submissionId);
@@ -78,7 +79,11 @@ export class IntakeSweep extends Context.Service<
           return erased === "pending" ? "erasePending" : "erased";
         }
 
-        if (contact?.pending !== "delivery" || contact.state !== "ready") {
+        if (
+          contact?.pending !== "delivery" ||
+          contact.state !== "ready" ||
+          contact.hold
+        ) {
           return "idle";
         }
 

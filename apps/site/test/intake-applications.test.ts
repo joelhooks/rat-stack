@@ -15,6 +15,7 @@ import {
 } from "@rat-stack/core/interest";
 import {
   IntakeApplications,
+  IntakeApplicationsSchema,
   IntakeErasure,
   JoinContactStore,
   JOIN_CONTACT_RETENTION_MILLIS,
@@ -559,10 +560,21 @@ it.effect(
         })
       );
 
-      expect(corrupted.status).toBe(503);
-      const failure = yield* Effect.promise(corrupted.text.bind(corrupted));
-      expect(failure).not.toContain(answer);
-      expect(failure).not.toContain("synthetic@example.test");
+      expect(corrupted.status).toBe(200);
+      const reported = yield* Effect.promise(corrupted.text.bind(corrupted));
+      expect(reported).not.toContain(answer);
+      expect(reported).not.toContain("synthetic@example.test");
+      expect(
+        yield* Schema.decodeEffect(
+          Schema.fromJsonString(IntakeApplicationsSchema)
+        )(reported)
+      ).toEqual([
+        {
+          state: "unreadable",
+          reason: "application unreadable",
+          submissionId: "synthetic-submission",
+        },
+      ]);
       expect((yield* Ref.get(sealedContacts)).get("synthetic-submission")).toBe(
         `${answer}:synthetic@example.test`
       );
