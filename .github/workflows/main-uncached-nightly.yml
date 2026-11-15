@@ -36,11 +36,24 @@ jobs:
         run: pnpm sources:fetch
       - name: Check and test without cache reads
         run: pnpm turbo run check test build --concurrency=1
+      - name: Report Turbo cache story
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p .turbo
+          pnpm --silent turbo:summary --surface nightly --ref "$GITHUB_REF" | tee .turbo/cache-story.jsonl
+          {
+            printf '\n### Turbo cache story\n\n```json\n'
+            cat .turbo/cache-story.jsonl
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload Turbo run summaries
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: turbo-runs-main-uncached
-          path: .turbo/runs/*.json
+          path: |
+            .turbo/runs/*.json
+            .turbo/cache-story.jsonl
           include-hidden-files: true
           if-no-files-found: ignore

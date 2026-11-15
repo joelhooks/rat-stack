@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 
 import {
+  generatedReaderPage,
   homeDocumentHtml,
   homeMarkdownTemplate,
   tokenmaxxDocumentHtml,
@@ -8,7 +9,8 @@ import {
 } from "./generated-content.js";
 
 it.each([
-  ["home", homeDocumentHtml, 4],
+  ["home", homeDocumentHtml, 1],
+  ["setup skill", generatedReaderPage("/skills/learn-rat-stack"), 3],
   ["tokenmaxx", tokenmaxxDocumentHtml, 1],
 ])(
   "%s gives every copy control a visible label and live status",

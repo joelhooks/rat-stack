@@ -186,9 +186,25 @@ const semanticTree = (markdown: string) =>
 
 const unconfiguredSource = (markdown: string) => {
   const tree = parseContentMarkdown(markdown);
-  tree.children = tree.children.filter(
-    (node) => node.type !== "code" || node.meta?.includes("repo=") !== true
-  );
+  tree.children = tree.children.filter((node) => {
+    if (
+      node.type === "html" &&
+      /^<CopyPrompt(?:\s|\/>)/u.test(node.value.trim())
+    ) {
+      const prompt = /^<CopyPrompt id="(?<id>[^"]+)" \/>$/u.exec(
+        node.value.trim()
+      );
+
+      expect(
+        ["mcp", "cursor", "skills"],
+        "Each excluded CopyPrompt must have rendering coverage in worker.test.ts"
+      ).toContain(prompt?.groups?.id);
+
+      return false;
+    }
+
+    return node.type !== "code" || node.meta?.includes("repo=") !== true;
+  });
 
   return stringifyContentMarkdown(tree);
 };
@@ -952,11 +968,18 @@ it.layer(contentServices)("generated content", (test) => {
 
   test.effect("uses Shiki for code and leaves text diagrams uncoloured", () =>
     Effect.sync(() => {
-      expect(homeDocumentHtml).toContain('class="shiki catppuccin-latte"');
-      expect(homeDocumentHtml).toMatch(
-        /<figure role="img"[^>]*>\s*<pre><code>/u
-      );
-      expect(homeDocumentHtml).not.toMatch(
+      const documentHtml =
+        loreSources.find((page) => page.slug === "code-snippets")
+          ?.documentHtml ?? "";
+
+      const setupHtml =
+        skillSources.find(
+          (page) => page.routePath === "/skills/learn-rat-stack"
+        )?.documentHtml ?? "";
+
+      expect(setupHtml).toContain('class="shiki catppuccin-latte"');
+      expect(documentHtml).toMatch(/<figure role="img"[^>]*>\s*<pre><code>/u);
+      expect(documentHtml).not.toMatch(
         /<figure role="img"[^>]*>\s*<pre[^>]*style=/u
       );
     })
@@ -1009,7 +1032,11 @@ it.layer(contentServices)("generated content", (test) => {
 
   test.effect("keeps the line breaks in a text diagram", () =>
     Effect.sync(() => {
-      const figures = homeDocumentHtml.match(
+      const documentHtml =
+        loreSources.find((page) => page.slug === "code-snippets")
+          ?.documentHtml ?? "";
+
+      const figures = documentHtml.match(
         /<figure role="img"[\s\S]*?<\/figure>/gu
       );
 

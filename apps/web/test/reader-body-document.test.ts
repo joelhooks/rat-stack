@@ -5,10 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import { renderToString } from "foldkit/experimental/server";
 import type { HtmlBuilder } from "foldkit/html";
 
-import {
-  compileReaderBodies,
-  compileReaderBody,
-} from "../../site/scripts/reader-body-document.ts";
+import { compileReaderBody } from "../../site/scripts/reader-body-document.ts";
 import { readerCopyPrompts } from "../../site/scripts/reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { ReaderNode, ReaderNodeSchema } from "../src/client/reader-node.js";
@@ -211,7 +208,13 @@ it.effect(
         /^\/(?:lore|systems|skills)(?:\/|$)/u.test(page.path)
       );
 
-      const bodies = yield* compileReaderBodies(pages);
+      const bodies = yield* Effect.validate(pages, (page) =>
+        compileReaderBody(
+          page.html.replaceAll("__RATSTACK_ORIGIN__", "https://ratstack.sh"),
+          page.sourcePath,
+          prompts
+        )
+      );
 
       expect(bodies).toHaveLength(pages.length);
       expect(

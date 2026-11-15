@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import { compileReaderBody, readerNewsTitle } from "./reader-body-document.ts";
+import { readerCopyPrompts } from "./reader-body-flags.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 import { isSystemsSkillsRoute } from "./reader-systems-skills-routes.ts";
 
@@ -14,9 +15,12 @@ export const readerSystemsSkillsFlags = Effect.fn("readerSystemsSkillsFlags")(
 
     return yield* Effect.validate(pages, (page) =>
       Effect.gen(function* compileSystemsSkillsPage() {
+        const prompts = readerCopyPrompts(origin);
+
         const document = yield* compileReaderBody(
           page.html.replaceAll("__RATSTACK_ORIGIN__", origin),
-          page.sourcePath
+          page.sourcePath,
+          prompts
         );
 
         return {
@@ -25,7 +29,7 @@ export const readerSystemsSkillsFlags = Effect.fn("readerSystemsSkillsFlags")(
           bodyNodes: document.nodes,
           breadcrumb: document.breadcrumb,
           codeFences: [],
-          copyPrompts: [],
+          copyPrompts: prompts,
           heading: document.heading,
           newsTitle: readerNewsTitle(page.html),
           origin,

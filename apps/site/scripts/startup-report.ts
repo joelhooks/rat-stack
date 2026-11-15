@@ -84,7 +84,10 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
   }
 
   if (worker === "Workshop") {
-    Object.assign(exports, { WorkshopLegacyMcp: durableObject });
+    Object.assign(exports, {
+      WorkshopHelpDesk: durableObject,
+      WorkshopLegacyMcp: durableObject,
+    });
   }
 
   const bundle = yield* bundler.build({
