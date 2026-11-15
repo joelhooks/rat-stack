@@ -42,7 +42,7 @@ it("every summarized Tube page is discoverable in the sitemap and live agent gui
     ),
   ].map((match) => match.groups?.route ?? "");
 
-  expect(routes).toHaveLength(53);
+  expect(routes).toHaveLength(54);
 
   for (const route of routes) {
     expect(guide).toContain(`https://ratstack.sh${route}`);

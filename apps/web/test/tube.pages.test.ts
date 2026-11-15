@@ -11,6 +11,7 @@ import {
   tubeDataProblems,
   tubeGaps,
   TubeFile,
+  validateTubeConcepts,
 } from "../../site/scripts/tube-pages.ts";
 import { transcriptChunks } from "../../site/scripts/tube-transcript.ts";
 import { isReaderWebsiteRoute } from "../../site/src/reader-website.js";
@@ -179,6 +180,51 @@ it.effect.prop(
           videos: [`/tube/${id}`, "/tube/ABCDEFGHIJK"],
         },
       ]);
+    })
+);
+
+it.effect.prop(
+  "wiki and glossary fragments must exist in the generated document, not just its route",
+  { id: YoutubeVideoId },
+  ({ id }) =>
+    Effect.gen(function* fragmentsResolve() {
+      const paths = ["/lore/effect-basics", "/systems/database", "/glossary"];
+      const fragment = `layer-${id}`;
+
+      const concepts = paths.map((path) => ({
+        route: `${path}#${fragment}`,
+        term: "Layers",
+      }));
+
+      const data = yield* decodeTubeData(
+        JSON.stringify({
+          videos: [{ ...input(id), page: { ...page, concepts } }],
+        })
+      );
+
+      const routes = new Set(paths);
+
+      const documents = paths.map((routePath) => ({
+        routePath,
+        bodyHtml: `<h2 id="${fragment}">Layers</h2>`,
+      }));
+
+      yield* validateTubeConcepts(data, routes, documents);
+
+      const error = yield* Effect.flip(
+        validateTubeConcepts(
+          data,
+          routes,
+          documents.map((document) => ({
+            ...document,
+            bodyHtml: `<h2 id="${fragment}-missing">Layers</h2>`,
+          }))
+        )
+      );
+
+      for (const concept of concepts) {
+        expect(error.message).toContain(concept.route);
+      }
     })
 );
 

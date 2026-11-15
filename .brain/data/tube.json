@@ -922,6 +922,78 @@
       }
     },
     {
+      "id": "JcY0th6QuMg",
+      "url": "https://www.youtube.com/watch?v=JcY0th6QuMg",
+      "title": "Fork Every Business: Sam Goodwin on Alchemy, Effect and AI",
+      "channel": "Joel Hooks",
+      "channelUrl": "https://www.youtube.com/@JoelHooks",
+      "durationSeconds": 2230,
+      "published": "2026-11-11",
+      "theme": "alchemy",
+      "basis": "transcript",
+      "checked": "2026-11-15",
+      "tier": "A",
+      "take": "Sam connects declarative deployment, Effect requirements, and replaceable Layers across the interview. Joel discusses composing services and moving an experiment to Cloudflare. Watch for the link between Effect requirements and Alchemy's pluggable infrastructure.",
+      "page": {
+        "summary": [
+          "Sam Goodwin describes Alchemy as a declarative framework that treats application logic and infrastructure as one program. Joel raises a React analogy. Sam extends it to the reconciler.",
+          "Effect tracks failures and required services. Goodwin explains how Layers encapsulate resources and policies so implementations can be swapped. He also describes generating Effect-native SDKs with Distilled before generating Alchemy resources and bindings.",
+          "Joel and Sam discuss personal software, composable services, and a future in which people can fork and combine businesses. Joel describes an experimental AT Protocol agent network and moving it from his local provider to Cloudflare. Sam describes building services as Layers that swap between providers."
+        ],
+        "sections": [
+          {
+            "at": 63,
+            "note": "Goodwin describes companies represented as programs as a future direction for forking and combining businesses."
+          },
+          {
+            "at": 186,
+            "note": "The conversation turns to owning personal software and adapting it to one's needs."
+          },
+          {
+            "at": 307,
+            "note": "Declarative configuration and React-style reconciliation frame the discussion of changing resources."
+          },
+          {
+            "at": 428,
+            "note": "Goodwin puts application logic and infrastructure together in Alchemy's scope."
+          },
+          {
+            "at": 670,
+            "note": "Effect's failure and requirement types lead into Alchemy's checks on infrastructure."
+          },
+          {
+            "at": 912,
+            "note": "Requirements and Layers support resource policies, encapsulation, and interchangeable implementations."
+          },
+          {
+            "at": 1638,
+            "note": "Goodwin describes generating a Distilled SDK from a provider's API specification before generating Alchemy resources and bindings."
+          },
+          {
+            "at": 1882,
+            "note": "Joel describes an experimental agent communication network built with AT Protocol, Effect, and Alchemy."
+          },
+          {
+            "at": 2065,
+            "note": "Joel discusses composing software from Layers. Sam describes swapping providers for a Git service."
+          }
+        ],
+        "concepts": [
+          { "term": "Alchemy", "route": "/lore/infrastructure-as-effects" },
+          { "term": "Effect", "route": "/lore/effect-basics" },
+          {
+            "term": "Layers",
+            "route": "/lore/infrastructure-as-effects#code-bindings-resources"
+          },
+          { "term": "Distilled", "route": "/lore/distilled" },
+          { "term": "AT Protocol", "route": "/lore/at-protocol" }
+        ],
+        "gaps": ["Forkable companies", "Personal software ownership"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
+    },
+    {
       "id": "fPSxB7ZgSJw",
       "url": "https://www.youtube.com/watch?v=fPSxB7ZgSJw",
       "title": "Alchemy, Infrastructure as Effects | Office Hours 27 🔥",

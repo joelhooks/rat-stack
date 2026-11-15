@@ -67,7 +67,7 @@ const TubeParagraph = Schema.String.check(
 
 export const TubeConceptRoute = Schema.String.check(
   Schema.isPattern(
-    /^\/(?:lore\/[^\s#]+|learn(?:\/[^\s#]+)?|glossary#[^\s#]+|systems\/[^\s#]+)$/u
+    /^\/(?:lore\/[^\s#]+(?:#[^\s#]+)?|learn(?:\/[^\s#]+)?|glossary#[^\s#]+|systems\/[^\s#]+(?:#[^\s#]+)?)$/u
   )
 );
 

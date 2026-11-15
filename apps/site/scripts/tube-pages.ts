@@ -139,14 +139,16 @@ export const tubeConceptProblems = (
 export const validateTubeConcepts = (
   data: TubeDataValue,
   routes: ReadonlySet<string>,
-  glossaryHtml: string
+  documents: readonly { routePath: string; bodyHtml: string }[]
 ) => {
-  const document = parseDocument(glossaryHtml);
+  const anchors = documents.flatMap(({ routePath, bodyHtml }) => {
+    const document = parseDocument(bodyHtml);
 
-  const anchors = DomUtils.findAll(
-    (element) => element.attribs.id !== undefined,
-    document.children
-  ).map((element) => `/glossary#${element.attribs.id}`);
+    return DomUtils.findAll(
+      (element) => element.attribs.id !== undefined,
+      document.children
+    ).map((element) => `${routePath}#${element.attribs.id}`);
+  });
 
   const problems = tubeConceptProblems(
     data,
@@ -182,7 +184,7 @@ export const tubeVideoMarkdown = (
     "",
     `[${linkText(video.channel)}](${video.channelUrl}) · Published ${video.published} · ${formatDuration(video.durationSeconds)} · ${tierLabel(video.tier)} · ${themeCopy[video.theme].name}`,
     "",
-    `[Watch on YouTube](${video.url}) · [All videos](/tube)`,
+    `[Watch on YouTube](${video.url}) · [All ${tubeCopy.heading} videos](/tube)`,
     "",
     "## Summary",
     "",

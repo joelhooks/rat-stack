@@ -203,7 +203,10 @@ const videoView = (
   h.div(
     [],
     [
-      h.p([], [h.a([h.Href(tubeRoutePath)], ["All videos"])]),
+      h.p(
+        [],
+        [h.a([h.Href(tubeRoutePath)], [`All ${tubeCopy.heading} videos`])]
+      ),
       mediaView(model, video, h),
       h.p(
         [],

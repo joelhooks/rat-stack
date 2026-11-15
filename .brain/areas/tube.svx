@@ -1,5 +1,5 @@
 ---
-title: "Ratstack Tube"
+title: "RatTube"
 description: "Curated videos with transcript-based summaries, timestamped notes, and links to wiki concepts, built from one data file."
 plain: "One JSON file owns the list and summaries. Videos with summaries get their own pages. Players load only when the reader presses play."
 diagram: |-
@@ -13,7 +13,7 @@ diagram: |-
     ├ /tube/gaps.json
     └ sitemap and agent guide
 group: system
-terms: ["Ratstack Tube"]
+terms: ["RatTube"]
 sources:
   - url: https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=PxIBWjiv3og
     title: "YouTube oEmbed response for one listed video"
@@ -24,7 +24,7 @@ sources:
 
 ## What it does
 
-[Ratstack Tube](/tube) lists videos worth watching while learning this stack.
+[RatTube](/tube) lists videos worth watching while learning this stack.
 Most are by the people who build the tools: [Effect](/lore/effect-basics), [Alchemy](/skills/learn-alchemy), XState and Cloudflare engineers.
 Each entry has a tier from S to F, a theme, and a take of one to three sentences that names what the viewer learns.
 
@@ -94,7 +94,7 @@ pnpm --filter @rat-stack/site tube:draft <videoId> <transcript.vtt>
 
 The draft command makes no model calls and writes no content.
 The build makes no model calls either.
-It rejects empty summaries, unknown concept routes, missing glossary anchors, and unordered or out-of-range timestamps.
+It rejects empty summaries, unknown concept routes, missing wiki or glossary anchors, and unordered or out-of-range timestamps.
 It reports independent concept errors together before emitting assets.
 
 Each summarized video has a canonical URL and a `VideoObject` with its recorded duration and publication date.
