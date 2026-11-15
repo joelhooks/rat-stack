@@ -186,9 +186,25 @@ const semanticTree = (markdown: string) =>
 
 const unconfiguredSource = (markdown: string) => {
   const tree = parseContentMarkdown(markdown);
-  tree.children = tree.children.filter(
-    (node) => node.type !== "code" || node.meta?.includes("repo=") !== true
-  );
+  tree.children = tree.children.filter((node) => {
+    if (
+      node.type === "html" &&
+      /^<CopyPrompt(?:\s|\/>)/u.test(node.value.trim())
+    ) {
+      const prompt = /^<CopyPrompt id="(?<id>[^"]+)" \/>$/u.exec(
+        node.value.trim()
+      );
+
+      expect(
+        ["mcp", "cursor", "skills"],
+        "Each excluded CopyPrompt must have rendering coverage in worker.test.ts"
+      ).toContain(prompt?.groups?.id);
+
+      return false;
+    }
+
+    return node.type !== "code" || node.meta?.includes("repo=") !== true;
+  });
 
   return stringifyContentMarkdown(tree);
 };
