@@ -1978,13 +1978,15 @@ const program = Effect.gen(function* generateContent() {
 
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
-Build an app and its cloud as one typed program: TypeScript checks how the parts fit together. [Effect](https://effect.website/docs/getting-started/introduction/) is a TypeScript library for dependencies, errors, and concurrent work. [Alchemy](${originToken}/skills/learn-alchemy) declares cloud resources in TypeScript and infers their connections from the code. Our goal is the best Effect + Alchemy application we can build.
+Rat Stack is an agent-first way to build with Effect and Alchemy and to learn how they work. Point your agent at this site and tell it to build your project. When you want to know why the code looks the way it does, go as deep as you like.
+
+There's a repo underneath, but it isn't a template. It's a set of references your agent reads for the idioms: rules, skills, lore and working source.
+
+Build an app and its cloud as one typed program. [Effect](https://effect.website/docs/getting-started/introduction/) handles dependencies, errors and concurrent work. [Alchemy](${originToken}/skills/learn-alchemy) declares the cloud resources in TypeScript, so the compiler checks how the app and its infrastructure fit together. We're trying to build the best Effect + Alchemy app we can.
 
 _${linkedTagline}_
 
-The [fence](${originToken}/lore/the-fence) is our compiler checks, lint rules, and commit hooks. They reject prohibited code and shortcuts.
-
-Copy rat-stack into your project and keep its source under your control. Keep the packages you need and follow the removal checklists for the rest.
+The [fence](${originToken}/lore/the-fence) is the compiler checks, lint rules and commit hooks that reject shortcuts.
 
 ## Connect an agent
 
@@ -2000,7 +2002,7 @@ its patterns, and tell me when my code breaks them.
 
 <CopyPrompt id="connect" />
 
-Or connect the [MCP (Model Context Protocol)](${originToken}/lore/mcp-is-another-surface) server to let your agent call the site's tools:
+Or add the [MCP](${originToken}/lore/mcp-is-another-surface) server so your agent can call the site's tools:
 
 \`\`\`sh
 # Claude Code
@@ -2020,63 +2022,60 @@ Cursor reads \`~/.cursor/mcp.json\`:
 
 <CopyPrompt id="cursor" />
 
-Load a skill into one session when the task needs it. Skills stay out of global and project skill folders. The [skills index](${originToken}/.well-known/agent-skills/index.json) lists every skill and its \`SKILL.md\` URL.
+Your agent can also load one skill for one task. Nothing is installed in your skill folders. The [skills index](${originToken}/.well-known/agent-skills/index.json) lists every skill.
 
 <CopyPrompt id="skills" />
-
-Supports MCP protocol versions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05. Clients on protocol 2026-07-28 use no sessions. Older clients get their own session in a Cloudflare Durable Object, which stores state between requests.
 
 - [MCP connection details](${originToken}/.well-known/mcp.json)
 - [HTTP API docs](${originToken}/openapi.json)
 - [Short agent guide](${originToken}/llms.txt)
-- [Public rules, lore, systems, and skills](${originToken}/llms-full.txt)
-- [Lore wiki](${originToken}/lore)
-- [Systems](${originToken}/systems)
-- [CAFE news](${originToken}/news) and the [CAFE directory](${originToken}/directory): reviewed Cloudflare, Alchemy, Foldkit and Effect news and projects
+- [Everything in one file](${originToken}/llms-full.txt): rules, lore, systems and skills
 
-## Four ideas
+## Go as deep as you like
 
-- **Pieces:** A service is an interface for one job. A [Layer](${originToken}/lore/layer-constructor-pattern) describes how to build its implementation and supply its dependencies. An Alchemy Layer also carries its cloud resources. Choose the implementation when you provide the Layer.
-- **Trust.** Make the easy path the right path. The codebase and the compiler stop mistakes that rules and style guides can only ask about. Remove a cloud resource connection and the code that uses it stops compiling.
-- **Reliability.** Reduce mistakes so an agent can work longer without help.
-- **More useful features.** Build more of the jobs your product needs. Layers can carry cloud resources alongside application code. The compiler checks resource requirements; deployment checks prove that the result works.
+- **Just build it.** Paste the prompt above and describe your project. Your agent follows the rules and skills here.
+- **Ask why.** Point your agent at the site and ask what's good about it, or why a pattern looks the way it does.
+- **Learn it yourself.** [Learn mode](${originToken}/learn) teaches the stack through your own agent. [Ratstack Tube](${originToken}/tube) has the videos worth watching. The [lore](${originToken}/lore) explains the ideas, the [glossary](${originToken}/glossary) the terms, and [systems](${originToken}/systems) how each part works and how to check it.
+- **Read the source.** The packages below are working code your agent can take patterns from.
 
-See the [vision](${originToken}/VISION.md) for the reasoning and sources.
+[CAFE news](${originToken}/news) and the [CAFE directory](${originToken}/directory) track reviewed Cloudflare, Alchemy, Foldkit and Effect news and projects.
 
-## Packages and their jobs
+## How it fits together
 
-rat-stack ships these packages and apps. The [removal checklists](${originToken}/README.md#keep-or-cut) give tested feature cuts and conditional Keep entries. Some packages share the hosted content build; they are not independent cartridges. Run the checks after each cut.
+Each job is a service with an interface. A [Layer](${originToken}/lore/layer-constructor-pattern) builds its implementation and supplies its dependencies. An Alchemy Layer also carries the job's cloud resources, so you choose the implementation, and the infrastructure that comes with it, when you provide the Layer.
 
-- **capability**: shared data definitions and command-line, web and agent interfaces. Keep the interfaces you use.
-- **core**: shared operations and service interfaces. Keep what your app uses.
-- **database**: run logs with D1 or Hyperdrive Postgres. Cut with auth, protected feedback, and browser dev identity.
-- **auth**: identity and access through [Better Auth](${originToken}/systems/auth). Cut with database and those dependent features.
-- **devtools**: record, replay and compare operation calls. Optional development tools.
-- **events**: capture [request analytics](${originToken}/systems/analytics). Optional.
-- **lore**: query the public content graph. Keep with the hosted graph and content build.
-- **subscriber-delivery**: handle signup and email confirmation. Cut with intake-live and the live signup feature.
-- **intake-live**: validate signup applications and protect stored answers. Cut with subscriber-delivery and the live signup feature.
-- **code-snippets**: build highlighted code examples from source files. Keep with the teaching-content and source-snapshot build.
-- **check-harness**: run checks and report their results. Cut with the deployment driver.
-- **deploy**: plan, apply, check and roll back deployments. Cut with check-harness; the cloud Stack can stay.
-- **web**: shared reader models and browser UI built with Foldkit. Keep with the hosted content build.
-- **cli**: command-line interface. Optional; hosted interfaces and browser devtools can stay.
-- **mischief**: hosted site, agent interfaces and code sandbox in apps/site. Keep with the reader's shared content build and backend.
-- **infra**: Alchemy cloud resource declarations. Cut with deployment tooling after moving its Alchemy-version metadata input.
+The easy path should be the right one. The compiler stops mistakes that a style guide can only ask you to avoid. Remove a cloud resource and the code that uses it stops compiling. Fewer mistakes let an agent work longer without help. Deploy checks then prove the result works.
 
-A [cartridge](${originToken}/lore/cartridges) is a package for one job, including its implementation and cloud resources. Add it with one package and one line that provides the implementation. Removing it must leave unrelated packages working.
+The [vision](${originToken}/VISION.md) has the reasoning and sources.
 
-The hosted agent interfaces run in Mischief; extracting them into a separate cartridge is still work to do.
+## Packages
 
-[Hexagonal architecture](${originToken}/lore/hexagonal-architecture) keeps service interfaces in core and provider-specific implementations outside it. A [port](${originToken}/lore/hexagonal-architecture) names a job; an [adapter](${originToken}/lore/hexagonal-architecture) connects it to a provider. [HATEOAS](${originToken}/lore/hateoas) uses response links to guide the next action. [Analytics](${originToken}/systems/analytics) is a running capture system; [interest signup](${originToken}/systems/interest) shows consent and confirmation across a delivery adapter.
+These packages and apps are the working reference. If you do copy code out of the repo, the [removal checklists](${originToken}/README.md#keep-or-cut) say what each cut takes with it. A few packages share the hosted content build, so they come out together.
+
+- **capability**: contracts, and the command-line, web and agent interfaces built from them
+- **core**: shared operations and service interfaces
+- **database**: run logs on D1 or Hyperdrive Postgres
+- **auth**: identity and access through [Better Auth](${originToken}/systems/auth)
+- **devtools**: record, replay and compare operation calls in development
+- **events**: [request analytics](${originToken}/systems/analytics)
+- **lore**: queries over the public content graph
+- **subscriber-delivery**: signup and email confirmation
+- **intake-live**: signup application checks and protected stored answers
+- **code-snippets**: highlighted code examples built from source files
+- **check-harness**: runs checks and reports their results
+- **deploy**: plans, applies, checks and rolls back deployments
+- **web**: the reader and browser UI, built with Foldkit
+- **cli**: the command-line interface
+- **mischief**: the hosted site, agent interfaces and code sandbox in apps/site
+- **infra**: the Alchemy cloud resource declarations
+
+A [cartridge](${originToken}/lore/cartridges) is a package that owns one job, including its implementation and cloud resources. You add one with a package and one line that provides it. Removing one must leave the rest working. The agent interfaces still live in Mischief and aren't a separate cartridge yet.
+
+Core holds the service interfaces, and provider code lives outside it. That's [hexagonal architecture](${originToken}/lore/hexagonal-architecture): a port names a job and an adapter connects it to a provider. [Interest signup](${originToken}/systems/interest) is the worked example, with consent and confirmation behind a delivery adapter.
 
 ## One capability, several interfaces
 
-A [contract](${originToken}/systems/capabilities) defines an operation's name, input, output, and errors. A [capability](${originToken}/systems/capabilities) binds that contract to a server-side handler. A [projection](${originToken}/lore/one-capability-every-surface) exposes the capability through one interface, such as the CLI (command-line interface) or HTTP.
-
-XState models work as states and the transitions between them. Effect Schema defines and validates the data each operation accepts and returns.
-
-[RPC (remote procedure call)](${originToken}/lore/one-capability-every-surface) lets the browser call server operations. [OpenAPI](${originToken}/lore/openapi-describes-the-refusal-too) describes the HTTP API in a format that software can read. Code mode is a way to run a program that calls tools inside a sandbox, a restricted execution environment.
+A [contract](${originToken}/systems/capabilities) names an operation and defines its input, output and errors with Effect Schema. A [capability](${originToken}/systems/capabilities) binds the contract to one server-side handler. A [projection](${originToken}/lore/one-capability-every-surface) puts that capability on one interface: the command line, HTTP with [OpenAPI](${originToken}/lore/openapi-describes-the-refusal-too), MCP tools, browser [RPC](${originToken}/lore/one-capability-every-surface), or code mode in a sandbox. When the work has states, an XState machine owns them.
 
 <Diagram alt="One capability projected to the command line, HTTP with OpenAPI, MCP tools, browser RPC, and sandbox code mode">
 
@@ -2100,7 +2099,7 @@ XState models work as states and the transitions between them. Effect Schema def
 \`\`\`
 </Diagram>
 
-All five projections share one contract and handler. Agents use MCP, HTTP, or code mode.
+All five share one contract and one handler.
 
 ## The pattern in code
 
@@ -2110,15 +2109,15 @@ This is the whole search capability. Every interface calls it.
 ${searchCapabilityExcerpt}
 \`\`\`
 
-The schemas define the input, output, and errors. Each projection calls the same handler through the same contract.
+The schemas define the input, output and errors. Every projection calls this same handler.
 
 ## Learn the stack
 
-Install these short guides for your agent with the command above, or read them here.
+Each guide is a skill. Your agent can load one with the skills command above, or you can read it here.
 
 ${groupedSkills(false)}
 
-XState 6 and Alchemy are pre-release. APIs move; [pins.md](${originToken}/pins.md) lists the exact versions this repo builds against.
+XState 6 and Alchemy are pre-release, so their APIs move. [pins.md](${originToken}/pins.md) lists the exact versions this repo builds against.
 
 ## Source files
 
