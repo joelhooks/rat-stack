@@ -1,9 +1,14 @@
 import { toHttpApi } from "@rat-stack/capability/http-api";
 import { toRpc } from "@rat-stack/capability/rpc";
+import {
+  HelpCaller,
+  attendeeHelpCapabilities,
+  operatorHelpCapabilities,
+} from "@rat-stack/core/tokenmaxx-help";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { workshopCapabilities } from "@rat-stack/core/workshop-directory";
 import * as AlchemyHttp from "alchemy/Http";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Option, Redacted, Schema } from "effect";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
@@ -17,13 +22,36 @@ import {
 } from "./legacy-mcp/routing.js";
 import type { LegacyMcpRouter } from "./legacy-mcp/routing.js";
 import { workshopDirectoryLayer } from "./workshop-directory.js";
+import type { WorkshopHelpServices } from "./workshop-help/live.js";
 import { lazyWorkshopMcpHandler } from "./workshop-mcp-loader.js";
 
-const api = toHttpApi("TokenmaxxWorkshop", workshopCapabilities, {
-  prefix: "/tokenmaxx/api",
-});
+const attendeeCapabilities = [
+  ...workshopCapabilities,
+  ...attendeeHelpCapabilities,
+] as const;
 
-const rpc = toRpc(workshopCapabilities);
+const api = toHttpApi(
+  "TokenmaxxWorkshop",
+  [...attendeeCapabilities, ...operatorHelpCapabilities],
+  {
+    prefix: "/tokenmaxx/api",
+    provide: [
+      {
+        failure: Schema.Never,
+        from: (request: HttpServerRequest.HttpServerRequest) =>
+          Effect.succeed({
+            authorization: Option.map(
+              Option.fromUndefinedOr(request.headers.authorization),
+              (header) => Redacted.make(header)
+            ),
+          }),
+        tag: HelpCaller,
+      },
+    ],
+  }
+);
+
+const rpc = toRpc(attendeeCapabilities);
 
 const lazyWorkshopMcpRoutes = HttpRouter.use(
   Effect.fnUntraced(function* registerWorkshopMcp(router) {
@@ -80,11 +108,12 @@ export const workshopRoutesFor = (router: LegacyMcpRouter) =>
     )
   );
 
-export const workshopRuntimeFor = (router: LegacyMcpRouter) =>
+export const workshopRuntimeFor = <E, R>(
+  router: LegacyMcpRouter,
+  help: Layer.Layer<WorkshopHelpServices, E, R>
+) =>
   HttpRouter.toHttpEffect(
-    workshopRoutesFor(router).pipe(Layer.provide(workshopDirectoryLayer))
+    workshopRoutesFor(router).pipe(
+      Layer.provide(Layer.merge(workshopDirectoryLayer, help))
+    )
   ).pipe(Effect.map((fetch) => ({ fetch })));
-
-export const workshopRuntime = HttpRouter.toHttpEffect(
-  workshopRoutes.pipe(Layer.provide(workshopDirectoryLayer))
-).pipe(Effect.map((fetch) => ({ fetch })));

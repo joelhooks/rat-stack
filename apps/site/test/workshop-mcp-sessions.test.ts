@@ -13,6 +13,7 @@ import type { StoredSession } from "../src/legacy-mcp/session.js";
 import { workshopMcpForward } from "../src/workshop-mcp-loader.js";
 import type { workshopRoutes } from "../src/workshop-runtime.js";
 import { workshopRoutesFor } from "../src/workshop-runtime.js";
+import { workshopHelpWithoutAssets } from "./fixtures/workshop-help.js";
 
 const directory = Layer.effect(
   WorkshopDirectory,
@@ -52,7 +53,9 @@ const directory = Layer.effect(
 const freshRuntime = (routes: typeof workshopRoutes) =>
   Effect.gen(function* makeFreshRuntime() {
     const runtime = HttpRouter.toWebHandler(
-      routes.pipe(Layer.provide(directory)),
+      routes.pipe(
+        Layer.provide(Layer.merge(directory, workshopHelpWithoutAssets))
+      ),
       { disableLogger: true }
     );
 
@@ -126,7 +129,7 @@ it.effect.prop(
         forward: (id: string, incoming: Request) =>
           Effect.gen(function* forwardToFreshObject() {
             const forward = yield* workshopMcpForward.pipe(
-              Effect.provide(directory),
+              Effect.provide(Layer.merge(directory, workshopHelpWithoutAssets)),
               Effect.orDie
             );
 
