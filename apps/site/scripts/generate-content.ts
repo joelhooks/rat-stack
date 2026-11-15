@@ -1978,11 +1978,11 @@ const program = Effect.gen(function* generateContent() {
 
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
-Rat Stack is an agent-first way to build with Effect and Alchemy and to learn how they work. Point your agent at this site and tell it to build your project. When you want to know why the code looks the way it does, go as deep as you like.
+Rat Stack is an agent-first way to build with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy) and to learn how they work. Point your agent at this site and tell it to build your project. When you want to know why the code looks the way it does, go as deep as you like.
 
 There's a repo underneath, but it isn't a template. It's a set of references your agent reads for the idioms: rules, skills, lore and working source.
 
-Build an app and its cloud as one typed program. [Effect](https://effect.website/docs/getting-started/introduction/) handles dependencies, errors and concurrent work. [Alchemy](${originToken}/skills/learn-alchemy) declares the cloud resources in TypeScript, so the compiler checks how the app and its infrastructure fit together. We're trying to build the best Effect + Alchemy app we can.
+Build an app and its cloud as one typed program. Effect handles dependencies, errors and concurrent work. Alchemy declares the cloud resources in TypeScript, so the compiler checks how the app and its infrastructure fit together. We're trying to build the best Effect + Alchemy app we can.
 
 _${linkedTagline}_
 
