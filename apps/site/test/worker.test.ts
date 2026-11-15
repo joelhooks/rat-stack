@@ -540,7 +540,50 @@ it.effect(
         );
         expect(markdown).toContain("[skills](https://ratstack.sh/skills)");
         expect(markdown).toContain("[learn mode](https://ratstack.sh/learn)");
-        expect(markdown).toContain("│  defineContract");
+
+        for (const agentInstruction of [
+          "## For agents",
+          "https://ratstack.sh/mcp",
+          "protocol headers, request limits",
+          "POST /api/execute",
+          "learnFeedbackStart",
+          "learnFeedbackPoll",
+          "verificationUrl",
+          "joinInterest",
+          "Draft the exact GitHub issue",
+        ]) {
+          expect(markdown).toContain(agentInstruction);
+        }
+
+        for (const hiddenInstruction of [
+          "For agents</h2>",
+          "protocol headers, request limits",
+          "POST /api/execute",
+          "learnFeedbackStart",
+          "learnFeedbackPoll",
+          "verificationUrl",
+          "joinInterest",
+          "Draft the exact GitHub issue",
+        ]) {
+          expect(html).not.toContain(hiddenInstruction);
+        }
+
+        for (const deeperPage of [
+          "/AGENTS.md#packages",
+          "/README.md#keep-or-cut",
+          "/lore/one-capability-every-surface",
+          "/lore/a-browser-send-follows-one-path",
+        ]) {
+          expect(html).toContain(`href="https://ratstack.sh${deeperPage}"`);
+        }
+
+        expect(
+          generatedReaderPage("/lore/one-capability-every-surface")
+        ).toContain("defineContract");
+        expect(
+          generatedReaderPage("/lore/a-browser-send-follows-one-path")
+        ).toContain("searchContract");
+        expect(agentsHtml).toContain('id="packages"');
         expect(skillHtml).toContain(
           "claude mcp add --transport http rat-stack https://ratstack.sh/mcp"
         );
@@ -555,13 +598,19 @@ it.effect(
           'data-text="Read https://ratstack.sh/.well-known/agent-skills/index.json. Pick the skill that fits my task'
         );
         expect(skillHtml).toContain("/.well-known/agent-skills/index.json");
-        expect(markdown).toContain("## Source files");
-        expect(markdown).toContain(
-          "[Agent rules for rat-stack (AGENTS.md)](/AGENTS.md)"
-        );
-        expect(markdown).toContain(
-          "[Purpose and boundaries of rat-stack (VISION.md)](/VISION.md)"
-        );
+
+        for (const removedSection of [
+          "## Packages",
+          "## One capability, several interfaces",
+          "## The pattern in code",
+          "## Learn the stack",
+          "## Source files",
+        ]) {
+          expect(markdown).not.toContain(removedSection);
+        }
+
+        expect(markdown).toContain("[rules](https://ratstack.sh/AGENTS.md)");
+        expect(markdown).toContain("https://ratstack.sh/VISION.md");
         expect(markdown).not.toContain("## Connect an agent");
         expect(html).toContain(
           "<title>Rat Stack: an app and its cloud as one typed program</title>"
@@ -575,7 +624,7 @@ it.effect(
         expect(html).toContain("<pre><code>");
         expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
-        expect(html).toContain("│  defineContract");
+        expect(html).not.toContain("│  defineContract");
         expect(html).toContain('class="copy-label">Copy prompt</span>');
         expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");
