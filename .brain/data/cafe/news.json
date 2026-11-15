@@ -12,7 +12,7 @@
     },
     "source": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
     "engagement": {
-      "views": 148
+      "views": 367
     }
   },
   {
@@ -28,7 +28,7 @@
     },
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
-      "stars": 1945
+      "stars": 1959
     }
   },
   {
@@ -44,7 +44,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 410
+      "stars": 554
     }
   },
   {
@@ -86,7 +86,7 @@
     },
     "source": "https://www.youtube.com/watch?v=fNpJ63QjK-k",
     "engagement": {
-      "views": 169
+      "views": 319
     }
   },
   {
@@ -118,7 +118,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.2",
     "engagement": {
-      "stars": 30458
+      "stars": 30470
     }
   },
   {
@@ -134,7 +134,7 @@
     },
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.10",
     "engagement": {
-      "stars": 254
+      "stars": 255
     }
   },
   {
@@ -150,7 +150,7 @@
     },
     "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.3",
     "engagement": {
-      "stars": 17559
+      "stars": 17571
     }
   },
   {
@@ -202,7 +202,7 @@
       }
     ],
     "engagement": {
-      "likes": 408,
+      "likes": 409,
       "replies": 58,
       "participants": 64
     }
@@ -252,7 +252,7 @@
     },
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
-      "stars": 471
+      "stars": 474
     }
   },
   {
@@ -268,7 +268,7 @@
     },
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
-      "stars": 1233
+      "stars": 1239
     }
   },
   {
@@ -284,7 +284,7 @@
     },
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
-      "stars": 30458
+      "stars": 30470
     }
   },
   {
@@ -348,7 +348,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4438
+      "stars": 4453
     }
   },
   {
@@ -689,7 +689,7 @@
     },
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
-      "stars": 1233
+      "stars": 1239
     }
   },
   {
@@ -705,7 +705,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
-      "stars": 45
+      "stars": 47
     }
   },
   {
@@ -750,7 +750,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
-      "stars": 200
+      "stars": 206
     }
   },
   {
@@ -766,7 +766,7 @@
     },
     "source": "https://tla-ts.aidenybai.com/",
     "engagement": {
-      "stars": 254
+      "stars": 255
     }
   },
   {
@@ -798,7 +798,7 @@
     },
     "source": "https://github.com/codician-team/diffinery",
     "engagement": {
-      "stars": 83
+      "stars": 84
     }
   },
   {
@@ -830,7 +830,7 @@
     },
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
-      "stars": 200
+      "stars": 206
     }
   },
   {
@@ -846,7 +846,7 @@
     },
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
-      "stars": 200
+      "stars": 206
     }
   },
   {
@@ -878,7 +878,7 @@
     },
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
-      "stars": 335
+      "stars": 337
     }
   },
   {
@@ -927,22 +927,6 @@
     "source": "https://github.com/acoyfellow/hark",
     "engagement": {
       "stars": 16
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://maple.dev/docs/iac/alchemy/",
-    "title": "Maple Alchemy provider",
-    "summary": "Maple, an open source OpenTelemetry platform built on Effect, ships Alchemy resources for telemetry collection, alerts and dashboards.",
-    "date": "2026-10-14",
-    "repo": "MapleTechLabs/maple",
-    "author": {
-      "github": "MapleTechLabs",
-      "x": null
-    },
-    "source": "https://maple.dev/docs/iac/alchemy/",
-    "engagement": {
-      "stars": 1957
     }
   }
 ]
