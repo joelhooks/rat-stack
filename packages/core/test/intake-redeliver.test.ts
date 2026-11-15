@@ -23,6 +23,13 @@ const Entry = Schema.Struct({
   ]),
 });
 
+const storedStateAfterAttempt = (
+  canSend: boolean,
+  dryRun: boolean,
+  result: typeof Entry.Type.result,
+  state: string | undefined
+) => (canSend && !dryRun && result !== "retry" ? "missing" : state);
+
 const visitedCount = (length: number, dryRun: boolean, stop: number) =>
   dryRun || stop === -1 ? length : stop + 1;
 
@@ -145,14 +152,17 @@ it.effect.prop(
         });
         expect(
           (yield* contacts.read(ids[index] ?? "missing"))?.state ?? "missing"
-        ).toBe(row?.state);
+        ).toBe(
+          storedStateAfterAttempt(canSend, dryRun, entry.result, row?.state)
+        );
       }
 
       expect(
         sent.every(
           (input) =>
             input.agentRef === "synthetic-agent" &&
-            input.ticket === "synthetic-ticket"
+            input.ticket === undefined &&
+            input.signals === undefined
         )
       ).toBe(true);
       expect(JSON.stringify(result)).not.toContain("fictional@example.test");

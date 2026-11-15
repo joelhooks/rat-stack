@@ -17,12 +17,22 @@ import {
   IntakeApplications,
   IntakeErasure,
   JoinContactStore,
+  JOIN_CONTACT_RETENTION_MILLIS,
 } from "@rat-stack/core/join-interest";
 import {
   makeMemoryIntakeVault,
   sealedIntakeEventsLayer,
 } from "@rat-stack/intake-live";
-import { Effect, Layer, Logger, Redacted, Ref, Schema, Tracer } from "effect";
+import {
+  Clock,
+  Effect,
+  Layer,
+  Logger,
+  Redacted,
+  Ref,
+  Schema,
+  Tracer,
+} from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import * as HttpRouter from "effect/http/HttpRouter";
 
@@ -32,6 +42,7 @@ import { intakeApplicationsLayer } from "../src/interest/applications.js";
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
 import { interestRoutes } from "../src/interest/routes.js";
 import { fakeIntakeLayer } from "./fixtures/fake-intake.js";
+import { withMemoryErasure } from "./join-erasure.fixture.js";
 
 const call = (
   handler: (request: Request) => Promise<Response>,
@@ -106,7 +117,7 @@ const makeReaderFixture = Effect.gen(function* makeFixture() {
 
   const services = yield* Layer.build(
     joinContactStoreLayer(
-      (submissionId) => ({
+      withMemoryErasure((submissionId) => ({
         joinErase: () =>
           Ref.get(failErase).pipe(
             Effect.flatMap((fail) =>
@@ -129,7 +140,7 @@ const makeReaderFixture = Effect.gen(function* makeFixture() {
           Ref.update(sealedContacts, (all) =>
             new Map(all).set(submissionId, sealed)
           ),
-      }),
+      })),
       (submissionId) =>
         Ref.update(indexed, (ids) => [...new Set([...ids, submissionId])])
     ).pipe(
@@ -183,11 +194,11 @@ const makeReaderFixture = Effect.gen(function* makeFixture() {
   };
 });
 
-const seedContact = (
+const seedContact = Effect.fnUntraced(function* seedContact(
   contacts: JoinContactStore["Service"],
   state: "held" | "accepted"
-) =>
-  contacts.save({
+) {
+  yield* contacts.save({
     agentRef: "synthetic-agent",
     clientBucket: { ipHash: "synthetic-ip", uaHash: "synthetic-ua" },
     contactRef: actor,
@@ -198,7 +209,10 @@ const seedContact = (
     state,
     submissionId: "synthetic-submission",
     ticket: "synthetic-ticket",
+    retentionDeadlineAt:
+      (yield* Clock.currentTimeMillis) + JOIN_CONTACT_RETENTION_MILLIS,
   });
+});
 
 it.effect.prop(
   "unseals arbitrary answers and keeps erased or legacy lookups free of contact data",
@@ -231,21 +245,31 @@ it.effect.prop(
       expect(
         JSON.stringify([...(yield* Ref.get(sealedContacts)).values()])
       ).not.toContain("synthetic@example.test");
-      expect(yield* reader.list()).toEqual([
-        {
-          answers,
-          email: "synthetic@example.test",
-          ...identity,
-          hold: false,
-          score: 0,
-          share,
-          signals: [],
-          source: "agent",
-          state: forwarded ? "forwarded" : "held",
-          submissionId: "synthetic-submission",
-          submittedAt: "2026-10-01T18:00:00.000Z",
-        },
-      ]);
+      expect(yield* reader.list()).toEqual(
+        forwarded
+          ? [
+              {
+                reason: "erased",
+                state: "erased",
+                submissionId: "synthetic-submission",
+              },
+            ]
+          : [
+              {
+                answers,
+                email: "synthetic@example.test",
+                ...identity,
+                hold: false,
+                score: 0,
+                share,
+                signals: [],
+                source: "agent",
+                state: "held",
+                submissionId: "synthetic-submission",
+                submittedAt: "2026-10-01T18:00:00.000Z",
+              },
+            ]
+      );
       expect(yield* reader.list("legacy-browser-submission")).toEqual([
         {
           reason: "no answers: legacy browser signup or erased contact",
@@ -272,7 +296,7 @@ it.effect(
         yield* makeReaderFixture;
 
       const answer = "synthetic-private-answer-marker";
-      yield* seedContact(contacts, "accepted");
+      yield* seedContact(contacts, "held");
 
       const identity = {
         name: "Fake Private Applicant",
@@ -464,8 +488,11 @@ it.effect(
       expect(yield* Effect.promise(partial.json.bind(partial))).toEqual({
         alreadyGone: 0,
         erased: 0,
-        failed: 1,
-        pending: 0,
+        failed: 0,
+        pending: 1,
+        handedToDrovr: 0,
+        handedToDrovrSubmissionIds: [],
+        handedToDrovrSubmissions: [],
       });
       expect(yield* contacts.read("synthetic-submission")).toBeDefined();
       expect((yield* vault.contents).size).toBe(0);
@@ -488,10 +515,13 @@ it.effect(
 
         expect(erased.status).toBe(200);
         expect(yield* Effect.promise(erased.json.bind(erased))).toEqual({
-          alreadyGone: attempt === 0 ? 0 : 1,
-          erased: attempt === 0 ? 1 : 0,
+          alreadyGone: 0,
+          erased: 1,
           failed: 0,
           pending: 0,
+          handedToDrovr: 0,
+          handedToDrovrSubmissionIds: [],
+          handedToDrovrSubmissions: [],
         });
 
         const after = yield* call(
@@ -529,10 +559,15 @@ it.effect(
         })
       );
 
-      expect(corrupted.status).toBe(503);
-      expect(yield* Effect.promise(corrupted.text.bind(corrupted))).toBe(
-        "Applications unavailable.\n"
-      );
+      expect(corrupted.status).toBe(200);
+      expect(yield* Effect.promise(corrupted.json.bind(corrupted))).toEqual([
+        {
+          reason: "erased",
+          state: "erased",
+          submissionId: "synthetic-submission",
+        },
+      ]);
+      expect(yield* contacts.read("synthetic-submission")).toBeUndefined();
 
       expect(yield* captured.recorded).toEqual([]);
       expect(logs).toEqual([]);

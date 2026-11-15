@@ -4,6 +4,10 @@
 
 Results hold at these bounds only. They are checked results, not a proof.
 
+Since 2026-11-15, the work-record abstraction covers the separate event-erasure marker, not the sealed contact. `TombstoneBeforeRemove` means the marker completes only after the event tombstone. The sealed payload goes earlier, on acceptance, final refusal, an unusable retry, or its 24-hour deadline. The model does not check payload retention, the metadata writes, or the alarm implementation.
+
+The runtime histories in `test/join-delivery-machine.model.test.ts` and `test/join-erasure.model.test.ts` check settlement, retry identity, and erasure races. `apps/site/test/join-contact-retention.model.test.ts` checks stored sealed bytes, alarms, restarts, and the deadline. `apps/site/test/join-retention-backfill.test.ts` checks legacy migration and dry-run behavior. The historical weaker configs remain unchanged; their counterexamples are not claims that the new storage layout was exhaustively checked.
+
 ## Run it
 
 ```sh
@@ -38,7 +42,7 @@ Bounds: one submission, at most one crash, one provider retry, and one Basin out
 
 ## Action map
 
-Each await in the code is a separate step, and a crash can land between any two steps.
+The original work-record protocol splits the following awaits into steps. A crash can land between steps. The new split metadata and payload writes are outside this abstraction.
 
 | Spec action | Code |
 | --- | --- |
@@ -49,9 +53,9 @@ Each await in the code is a separate step, and a crash can land between any two 
 | `SweepVisit` | `IntakeSweep.settle`; `sweepPendingIntake` clears an index entry with no marker |
 | `DeliveryRead`, `DeliverySend` | `attempt` in `join-delivery-machine.ts`: `contacts.read`, then `intake.agent.submit` |
 | `SettleRead`, `SettleWrite` | `contacts.setState(statusRef, deliveryStateFor[result.kind])` |
-| `EraseRead`, `EraseMark` | `settleErase`: `contacts.read`, then `contacts.save(withPending(contact, "erase"))` |
-| `Tombstone` | `settleErase`: `events.erase(contact.contactRef)` with bounded retry; Basin down → `pending` |
-| `Remove` | `contacts.erase`; the Durable Object's `joinErase` sets the erased key and deletes the record |
+| `EraseRead`, `EraseMark` | `settleErase`: `contacts.requestErase` retains the contact reference in a separate marker |
+| `Tombstone` | `settleErase`: `events.erase(marker.contactRef)` with bounded retry; Basin down → `pending` |
+| `Remove` | `contacts.completeErasure` deletes only the marker after its event tombstone; sealed-contact deletion is separate |
 | `FlushIndex` | `markPending` in `joinContactStoreLayer`, when the index write is a separate step |
 | `PreMark` | a `markPending(true)` before `joinSave`; no code does this, see `JoinIntakeMarkBeforeSave.cfg` |
 | `Refused` in `Save` | `joinContactCell`'s `joinSave`: the erased key, and with `EraseSticky` a stored erase marker |
@@ -73,8 +77,8 @@ Each invariant has one guard flip that fails it alone.
 - `AnswerAtCommit`: the person hears "check your email" only after the contact is committed as ready, or after it was erased.
 - `SameKey`: every provider call carries the submission id that the person was answered with, so the provider can deduplicate.
 - `NoSendAfterErase`: a deliverer that reads an erase marker never calls the provider.
-- `TombstoneBeforeRemove`: the contact is removed only after its event tombstone lands.
-- `EraseWins`: once an erase is marked, the contact stays marked until it is removed.
+- `TombstoneBeforeRemove`: the erase marker completes only after its event tombstone lands.
+- `EraseWins`: once an erase is marked, its work record stays marked until completion.
 - `OwedIsFindable`: a contact with a delivery or erase marker is in the sweep index. This works like an armed alarm: owed work the sweep cannot find is never done.
 - `TypeOK` has no flip.
 
@@ -95,6 +99,16 @@ Each flip replaces one line of the spec. Checked against only its own invariant,
 | `EraseWins`, in `JoinIntakeEraseSticky.cfg` | a late delivery result overwrites the erase marker | `apps/site/test/join-contact-cell.test.ts` | `join-contact-cell.ts`: the stored-marker refusal disabled; separately, `join-contact-store.ts`: `false` passed for `erase` | `expected undefined to be 'erase'`, both times |
 
 The sticky-erase row was mutated on 2026-11-07 at commit `1cf8040`. Disabling the refusal also fails the cell's property, `expected 'sealed-1' to be 'sealed-0'`.
+
+The table above records historical mutations of the combined contact-and-marker implementation. The current source tie for `TombstoneBeforeRemove` points to `contacts.completeErasure`, not `contacts.erase`. The runtime erase-history test checks that deleting sealed data leaves the marker intact.
+
+| Tie | Before | Now |
+| --- | --- | --- |
+| `TombstoneBeforeRemove` | `Effect.retry(RETRY_ERASE_TOMBSTONE)` then `contacts.erase(submissionId)` | Event tombstone succeeds, then `contacts.completeErasure(submissionId)`; `contacts.erase` deletes only the sealed payload |
+
+On 2026-11-15, skipping sealed-contact erasure for `accepted` failed the delivery model with a single accepted result at time zero. Replay: `[0,"-8489209264382513",5,0,[0,0,0],"PropertyError"]`. Making `joinErase` also delete the separate marker failed the durable-cell history with one `requestErase` command at time zero. Replay: `[0,"-5426859627743535",1,0,[0],"PropertyError"]`. Both mutations were restored before validation.
+
+Removing the durable pre-dispatch handoff write also failed both erase-history properties on 2026-11-15. The first shrank to dispatch, accepted, then erase; replay `[0,"-3152302148389143",0,0,[0,0],"PropertyError"]`. The write-failure property also caught dispatch escaping after its durable write failed; replay `[0,"-2340553278854977",0,0,[0,0],"PropertyError"]`. The guard was restored before the full gate.
 
 The test checks that each flip's guard occurs once in the spec, that each twin's title is still in its file, and that each code guard is still in its source. That ties the model to the code. It does not prove the twin still fails without the guard; only another hand mutation proves that.
 
@@ -141,6 +155,20 @@ With the sticky erase guard, the Durable Object refuses the commit instead, and 
 - **Harm:** the same as above, plus a delivery the person asked to undo.
 - **Backstop:** rerunning `rat-stack intake erase` for the id.
 - **Open:** [join intake early erase](../../../.brain/projects/join-intake-early-erase.svx).
+
+## Operator migration and erasure
+
+`joinRetentionBackfill` is an operator capability at `POST /operator/interest/applications/retention-backfill`, protected like `intakeErase`. An empty JSON body runs a dry-run. Only `{"apply": true}` applies it. It enumerates the existing application index with the sweep's concurrency of four.
+
+The backfill erases finished legacy contacts, converts legacy erasures to separate markers, and gives pending legacy contacts one 24-hour window. First access applies the same migration to missed contacts. It never extends an existing deadline. Unreadable payloads are erased; a storage outage fails the operation without treating valid data as unreadable.
+
+`legacyHandoffTimeUnknown` counts recoverable legacy contacts which may have reached drovr without a known first dispatch time. It overlaps the state-group counts. The old store recorded no dispatch history, so all recoverable legacy contacts are flagged conservatively. The eight-row fixture reports current 1, finished 2, erase 1, pending 2, unreadable 1, gone 1, and unknown handoff time 5.
+
+The erase result's `handedToDrovr` means: **a delivery attempt left for drovr, so drovr may hold this contact; forward the erasure**. It is a conservative dispatch-intent flag, persisted before the request leaves. A failed flag write prevents dispatch. Neither a timeout, a crash nor a final refusal clears it. It does not prove admission or email delivery.
+
+`handedToDrovrSubmissions` returns each affected `submissionId` with `handedAt`, the immutable first dispatch-intent ISO time. Legacy time is explicitly `null`, never a made-up backfill time. Send the tenant and the address by encrypted operator message: `erasure request, handed to drovr at <time>`. For a null time, say `handed to drovr before <slice 1 deploy date>, exact time unknown`. Keep the deploy date in the operator's receipt, not in the contact's timestamp.
+
+This slice completes the local erase marker after the event tombstone. The non-PII reference, handoff flag and first dispatch time remain available for repeated operator erasure requests. It does not record drovr's final `stopped` or `not held` answer. Remote completion tracking and the reviewed public subscribers page remain later work; no automatic forwarding is implemented here.
 
 ## Not modelled
 

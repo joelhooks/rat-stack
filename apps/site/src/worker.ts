@@ -403,6 +403,7 @@ const makeMischiefWorker = Effect.gen(function* makeMischiefWorker() {
           () => interestIndex.getByName("index").applicationIds(),
           (actor) => interests.getByName(intakeInstance(actor))
         ),
+        applicationIds: () => interestIndex.getByName("index").applicationIds(),
         contacts: (submissionId: string) =>
           interests.getByName(`join:${submissionId}`),
         intake: intakeLiveLayer({

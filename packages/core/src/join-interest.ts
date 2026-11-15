@@ -134,7 +134,9 @@ export const joinInterest = {
 
 export {
   JoinContactStore,
+  JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
+  JoinErasureSchema,
   withPending,
   withState,
 } from "./join-contact-store.js";
@@ -143,11 +145,20 @@ export type {
   JoinContact,
   JoinContactPending,
   JoinContactState,
+  JoinErasure,
+  JoinRetentionGroup,
 } from "./join-contact-store.js";
 
 export { JoinRequest, joinIntakeLayer } from "./join-intake.js";
 
 export { JoinDeliveryDeadline } from "./join-delivery-machine.js";
+
+export {
+  JoinRetentionBackfill,
+  JoinRetentionCountsSchema,
+  joinRetentionBackfill,
+  joinRetentionBackfillContract,
+} from "./join-retention-backfill.js";
 
 export { IntakeSweep, SWEEP_CONCURRENCY } from "./intake-sweep.js";
 

@@ -14,6 +14,9 @@ import {
   IntakeApplications,
   IntakeErasure,
   IntakeRedeliver,
+  JoinRetentionBackfill,
+  joinRetentionBackfill,
+  joinRetentionBackfillContract,
   intakeRedeliver,
   intakeRedeliverContract,
   intakeErase,
@@ -452,6 +455,51 @@ export const interestRoutes = (options: InterestOptions) => {
                   }),
               })
             );
+          })
+        ).pipe(
+          Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
+          Effect.withTracerEnabled(false),
+          Effect.provide(Logger.layer([]))
+        )
+    ),
+    HttpRouter.add(
+      "POST",
+      "/operator/interest/applications/retention-backfill",
+      (request) =>
+        guarded(request, () =>
+          Effect.gen(function* backfillRetention() {
+            const input = yield* request.json.pipe(
+              Effect.flatMap(
+                Schema.decodeUnknownEffect(joinRetentionBackfillContract.input)
+              ),
+              Effect.option
+            );
+
+            if (Option.isNone(input)) {
+              return HttpServerResponse.text("Bad request.\n", {
+                headers: operatorHeaders,
+                status: 400,
+              });
+            }
+
+            const service = yield* Effect.serviceOption(JoinRetentionBackfill);
+
+            if (Option.isNone(service)) {
+              return HttpServerResponse.text("Applications unavailable.\n", {
+                headers: operatorHeaders,
+                status: 503,
+              });
+            }
+
+            const counts = yield* joinRetentionBackfill
+              .handler(input.value)
+              .pipe(
+                Effect.provideService(JoinRetentionBackfill, service.value)
+              );
+
+            return HttpServerResponse.jsonUnsafe(counts, {
+              headers: operatorHeaders,
+            });
           })
         ).pipe(
           Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),

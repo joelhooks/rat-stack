@@ -35,7 +35,15 @@ export const sweepPendingIntake = (
           .pipe(
             Effect.flatMap((contact) =>
               contact?.pending === undefined
-                ? markPending(submissionId, false)
+                ? contacts
+                    .readErasure(submissionId)
+                    .pipe(
+                      Effect.flatMap((marker) =>
+                        marker === undefined
+                          ? markPending(submissionId, false)
+                          : Effect.void
+                      )
+                    )
                 : Effect.void
             )
           ),

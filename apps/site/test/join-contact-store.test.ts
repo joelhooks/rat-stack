@@ -1,15 +1,19 @@
 import { expect, it } from "@effect/vitest";
 import { ContactRefSchema } from "@rat-stack/core/intake";
 import { InterestTokens } from "@rat-stack/core/interest";
-import { JoinContactStore } from "@rat-stack/core/join-interest";
-import { Effect, Layer, Redacted, Schema } from "effect";
+import {
+  JOIN_CONTACT_RETENTION_MILLIS,
+  JoinContactStore,
+} from "@rat-stack/core/join-interest";
+import { Clock, Effect, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
+import { withMemoryErasure } from "./join-erasure.fixture.js";
 
 const Scenario = Schema.Struct({
   score: Schema.Finite.check(Schema.isBetween({ maximum: 1, minimum: 0 })),
-  state: Schema.Literals(["held", "ready", "accepted", "refused"]),
+  state: Schema.Literals(["held", "ready"]),
 });
 
 it.effect.prop(
@@ -19,17 +23,19 @@ it.effect.prop(
     Effect.gen(function* sealedMapping() {
       const stored = new Map<string, string>();
 
-      const contactsLayer = joinContactStoreLayer((submissionId) => ({
-        joinErase: () =>
-          Effect.sync(() => {
-            stored.delete(submissionId);
-          }),
-        joinRead: () => Effect.sync(() => stored.get(submissionId)),
-        joinSave: (sealed) =>
-          Effect.sync(() => {
-            stored.set(submissionId, sealed);
-          }),
-      }));
+      const contactsLayer = joinContactStoreLayer(
+        withMemoryErasure((submissionId) => ({
+          joinErase: () =>
+            Effect.sync(() => {
+              stored.delete(submissionId);
+            }),
+          joinRead: () => Effect.sync(() => stored.get(submissionId)),
+          joinSave: (sealed) =>
+            Effect.sync(() => {
+              stored.set(submissionId, sealed);
+            }),
+        }))
+      );
 
       const services = yield* Layer.build(contactsLayer);
 
@@ -46,6 +52,8 @@ it.effect.prop(
         contactRef: actor,
         email: "fictional@example.test",
         hold: false,
+        retentionDeadlineAt:
+          (yield* Clock.currentTimeMillis) + JOIN_CONTACT_RETENTION_MILLIS,
         score: Math.abs(scenario.score),
         signals: ["test"],
         state: scenario.state,
@@ -63,19 +71,13 @@ it.effect.prop(
 
       if (sealed !== undefined) {
         stored.set("submission-b", sealed);
-        expect(
-          yield* contacts.read("submission-b").pipe(
-            Effect.exit,
-            Effect.map((exit) => exit._tag)
-          )
-        ).toBe("Failure");
+        expect(yield* contacts.read("submission-b")).toBeUndefined();
+        expect(stored.has("submission-b")).toBe(false);
         stored.delete("submission-b");
       }
 
       yield* contacts.setState(mapping.submissionId, "accepted");
-      expect((yield* contacts.read(mapping.submissionId))?.state).toBe(
-        "accepted"
-      );
+      expect(yield* contacts.read(mapping.submissionId)).toBeUndefined();
       yield* contacts.erase(mapping.submissionId);
       expect(yield* contacts.read(mapping.submissionId)).toBeUndefined();
       expect(stored.size).toBe(0);

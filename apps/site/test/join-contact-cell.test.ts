@@ -13,6 +13,7 @@ const memoryStorage = Effect.gen(function* makeMemoryStorage() {
   const entries = yield* Ref.make<ReadonlyMap<string, unknown>>(new Map());
 
   const storage: JoinCellStorage = {
+    setAlarm: () => Effect.void,
     delete: (key) =>
       Ref.update(entries, (current) => {
         const next = new Map(current);
@@ -141,6 +142,9 @@ it.effect(
 
       const after = yield* contacts.read(contact.submissionId);
 
-      expect(after?.pending).toBe("erase");
+      expect(after).toBeUndefined();
+      expect((yield* contacts.readErasure(contact.submissionId))?.pending).toBe(
+        "erase"
+      );
     })
 );

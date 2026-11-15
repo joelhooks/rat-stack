@@ -10,7 +10,7 @@ import {
 } from "../src/intake-erase.js";
 
 it.effect(
-  "sends repeated submission ids to the private erase endpoint and returns only counts without telemetry",
+  "sends submission ids to the private erase endpoint and returns counts and handoff ids without telemetry",
   () =>
     Effect.gen(function* remoteErasure() {
       const requests: {
@@ -23,7 +23,21 @@ it.effect(
       const logs: unknown[] = [];
       const spans: Tracer.NativeSpan[] = [];
       const observed: unknown[] = [];
-      const counts = { alreadyGone: 1, erased: 2, failed: 0, pending: 0 };
+
+      const counts = {
+        alreadyGone: 1,
+        erased: 2,
+        failed: 0,
+        pending: 0,
+        handedToDrovr: 1,
+        handedToDrovrSubmissionIds: ["synthetic-first"],
+        handedToDrovrSubmissions: [
+          {
+            submissionId: "synthetic-first",
+            handedAt: "2026-11-15T00:00:00.000Z",
+          },
+        ],
+      };
 
       const client = HttpClient.make((request, url) => {
         requests.push({
@@ -120,15 +134,39 @@ it.effect(
         ],
         [
           "https://operator.example.test",
-          Response.json({ alreadyGone: 0, erased: -1, failed: 0, pending: 0 }),
+          Response.json({
+            alreadyGone: 0,
+            erased: -1,
+            failed: 0,
+            pending: 0,
+            handedToDrovr: 0,
+            handedToDrovrSubmissionIds: [],
+            handedToDrovrSubmissions: [],
+          }),
         ],
         [
           "http://operator.example.test",
-          Response.json({ alreadyGone: 0, erased: 1, failed: 0, pending: 0 }),
+          Response.json({
+            alreadyGone: 0,
+            erased: 1,
+            failed: 0,
+            pending: 0,
+            handedToDrovr: 0,
+            handedToDrovrSubmissionIds: [],
+            handedToDrovrSubmissions: [],
+          }),
         ],
         [
           "https://user:password@operator.example.test",
-          Response.json({ alreadyGone: 0, erased: 1, failed: 0, pending: 0 }),
+          Response.json({
+            alreadyGone: 0,
+            erased: 1,
+            failed: 0,
+            pending: 0,
+            handedToDrovr: 0,
+            handedToDrovrSubmissionIds: [],
+            handedToDrovrSubmissions: [],
+          }),
         ],
       ] as const) {
         const eraser = yield* IntakeErasure.pipe(

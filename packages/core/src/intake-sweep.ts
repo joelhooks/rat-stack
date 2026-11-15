@@ -70,17 +70,15 @@ export class IntakeSweep extends Context.Service<
       ): Effect.fn.Return<IntakeSweepOutcome> {
         const contact = yield* contacts.read(submissionId);
 
-        if (contact?.pending === "erase") {
+        const erasure = yield* contacts.readErasure(submissionId);
+
+        if (erasure !== undefined || contact?.pending === "erase") {
           const erased = yield* settleErase(contacts, events, submissionId);
 
           return erased === "pending" ? "erasePending" : "erased";
         }
 
-        if (
-          contact?.pending !== "delivery" ||
-          contact.state !== "ready" ||
-          contact.hold
-        ) {
+        if (contact?.pending !== "delivery" || contact.state !== "ready") {
           return "idle";
         }
 
