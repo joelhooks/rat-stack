@@ -5,6 +5,7 @@ import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { renderToString } from "foldkit/experimental/server";
 
+import { copyPrompts } from "../../site/scripts/component-data.ts";
 import {
   prepareReaderSiteInputs,
   readerAssetInputs,
@@ -16,9 +17,68 @@ import {
   footerSemantics,
   mainSemantics,
 } from "../../site/test/reader-semantics.ts";
+import { ReaderNode } from "../src/client/reader-node.js";
+import type { ReaderNodeValue } from "../src/client/reader-node.js";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";
+
+const promptIds = (nodes: readonly ReaderNodeValue[]): readonly string[] =>
+  nodes.flatMap((node) =>
+    ReaderNode.$match(node, {
+      CopyPrompt: ({ id }) => [id],
+      Element: ({ children }) => promptIds(children),
+      Text: () => [],
+    })
+  );
+
+it.effect(
+  "moved setup controls resolve their spec ids in the browser reader",
+  () =>
+    Effect.gen(function* setupCopyControls() {
+      const flags = yield* readerSystemsSkillsFlags("https://ratstack.sh");
+
+      const input = flags.find(
+        (page) => page.page.path === "/skills/learn-rat-stack"
+      );
+
+      if (input === undefined) {
+        throw new Error("Setup skill has no reader flags");
+      }
+
+      const page = yield* Schema.decodeUnknownEffect(ReaderFlags)(input);
+
+      const rendered = yield* renderToString(
+        { Flags: ReaderFlags, init, view },
+        { flags: page, isHydratable: false }
+      );
+
+      expect(promptIds(Option.getOrElse(page.bodyNodes, () => []))).toEqual([
+        "mcp",
+        "cursor",
+        "skills",
+      ]);
+
+      for (const id of ["mcp", "cursor", "skills"] as const) {
+        expect(page.copyPrompts.find((prompt) => prompt.id === id)?.text).toBe(
+          copyPrompts[id].text.replaceAll(
+            "__RATSTACK_ORIGIN__",
+            "https://ratstack.sh"
+          )
+        );
+      }
+
+      expect(rendered.html).toContain(
+        'data-text="# Claude Code\nclaude mcp add --transport http rat-stack https://ratstack.sh/mcp'
+      );
+      expect(rendered.html).toContain(
+        'data-text="{ &quot;mcpServers&quot;: { &quot;rat-stack&quot;:'
+      );
+      expect(rendered.html).toContain(
+        'data-text="Read https://ratstack.sh/.well-known/agent-skills/index.json.'
+      );
+    }).pipe(Effect.provide(NodeServices.layer))
+);
 
 it.effect(
   "ReaderSiteParity preserves every systems and skills main, table and deep link",

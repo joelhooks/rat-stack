@@ -28,7 +28,6 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { a2aError, decodeA2aRequest, handleA2aRequest } from "./a2a.js";
 import { feedbackRequests } from "./auth/feedback-access.js";
 import type { feedbackAccess } from "./auth/feedback-access.js";
-import { originToken } from "./bundled-content.generated.js";
 import { cafeDirectoryLayer } from "./cafe-directory.js";
 import { cafeAtomFeed } from "./cafe-feed.js";
 import {
@@ -41,6 +40,7 @@ import {
 } from "./capabilities/index.js";
 import { learnLayer } from "./capabilities/learn.js";
 import type { ContentCatalogData as ContentCatalog } from "./content-data.js";
+import { contentWithOrigin } from "./content-origin.js";
 import { ContentStore } from "./content-store.js";
 import {
   a2aAgentCard,
@@ -314,7 +314,7 @@ const assetPageResponse = (
   }
 
   return HttpServerResponse.text(
-    new TextDecoder().decode(bytes).replaceAll(originToken, originOf(request)),
+    contentWithOrigin(new TextDecoder().decode(bytes), originOf(request)),
     { contentType: "text/markdown; charset=utf-8", headers }
   );
 };
@@ -358,6 +358,13 @@ const assetRoutes = (
         }
 
         return yield* Effect.gen(function* readStaticAsset() {
+          if (path === "/tokenmaxx/setup.md") {
+            return HttpServerResponse.uint8Array(yield* assets.read(path), {
+              contentType: "text/markdown; charset=utf-8",
+              headers: { "cache-control": assetCacheControl },
+            });
+          }
+
           const catalog = yield* store.catalog;
 
           if (

@@ -56,6 +56,8 @@ sources:
 
 ## What it does
 
+The setup page at `/tokenmaxx/setup.md` serves `apps/site/content/tokenmaxx/setup.md` unchanged. tmx-desk writes its text; Joel approves it.
+
 Applications are [agent-only](/tokenmaxx#interested). Submission starts email confirmation. A person must follow the email link in a browser to confirm signup. Confirmation does not reserve a seat.
 
 An agent applies for a person through the `joinInterest` capability.

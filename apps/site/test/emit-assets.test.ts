@@ -230,6 +230,10 @@ it.effect(
           path: "/tokenmaxx/four-comma-club.jpg",
         },
         {
+          base64: fixtureBytes("/tokenmaxx/shitrat.jpg").toString("base64"),
+          path: "/tokenmaxx/shitrat.jpg",
+        },
+        {
           base64: cartridgesImageJpegBase64,
           path: "/lore/cartridges/snes-sfam-cartridges.jpg",
         },
@@ -252,6 +256,7 @@ it.effect(
           ...images.map((image) => image.path),
           ...allStarsAvatarPaths,
           ...auditFiles.map((name) => `/skills/security-audit/${name}`),
+          "/tokenmaxx/setup.md",
         ].toSorted()
       );
     }).pipe(Effect.provide(NodeServices.layer))

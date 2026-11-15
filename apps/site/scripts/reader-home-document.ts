@@ -242,6 +242,46 @@ const weaveHomeTerms = (
   });
 };
 
+const humanReaderNodes = (nodes: readonly RootContent[]) => {
+  const audiences: string[] = [];
+  const visible: RootContent[] = [];
+
+  for (const node of nodes) {
+    const tag =
+      node.type === "html"
+        ? /^<(?<closing>\/?)(?<name>HumanOnly|AgentOnly)>$/u.exec(
+            node.value.trim()
+          )
+        : null;
+
+    if (tag?.groups?.name !== undefined) {
+      if (tag.groups.closing === "/") {
+        if (audiences.pop() !== tag.groups.name) {
+          throw new Error(
+            "Mismatched reader audience. Audience wrappers must close in order. Fix: match the `HumanOnly` and `AgentOnly` tags in the page source."
+          );
+        }
+      } else {
+        audiences.push(tag.groups.name);
+      }
+
+      continue;
+    }
+
+    if (!audiences.includes("AgentOnly")) {
+      visible.push(node);
+    }
+  }
+
+  if (audiences.length > 0) {
+    throw new Error(
+      "Unclosed reader audience. A missing closing tag can hide later content. Fix: close the `HumanOnly` or `AgentOnly` tag in the page source."
+    );
+  }
+
+  return visible;
+};
+
 export const compileReaderDocument = (
   source: string,
   targets: readonly LoreTermTarget[],
@@ -261,9 +301,10 @@ export const compileReaderDocument = (
   }
 
   const blocks: HomeBlock[] = [];
+  const nodes = humanReaderNodes(root.children.slice(1));
 
-  for (let index = 1; index < root.children.length; index += 1) {
-    const node = root.children[index];
+  for (let index = 0; index < nodes.length; index += 1) {
+    const node = nodes[index];
 
     if (node === undefined) {
       throw new Error("Home parser returned a missing block");
@@ -285,8 +326,8 @@ export const compileReaderDocument = (
     }
 
     const diagram = /^<Diagram alt="(?<alt>[^"]+)">$/u.exec(node.value.trim());
-    const code = root.children[index + 1];
-    const closing = root.children[index + 2];
+    const code = nodes[index + 1];
+    const closing = nodes[index + 2];
 
     if (
       diagram?.groups?.alt !== undefined &&

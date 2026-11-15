@@ -52,6 +52,7 @@ import {
   contentPagePath,
 } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
+import { contentWithOrigin } from "../src/content-origin.ts";
 import { tokenmaxxTitle } from "../src/house-ad-copy.ts";
 import {
   addInboundCounts,
@@ -1984,60 +1985,23 @@ const program = Effect.gen(function* generateContent() {
 
   const homeMarkdownSource = `# Rat Stack
 
+<HumanOnly>
+
+\`\`\`text
+Check out ratstack.sh and explain how it would be useful for my current project, and how I can learn more about it.
+\`\`\`
+
+</HumanOnly>
+
+<CopyPrompt id="connect" />
+
+Other ways to connect: [MCP](${originToken}/skills/learn-rat-stack#connect-an-agent), [Cursor](${originToken}/skills/learn-rat-stack#cursor), [skills](${originToken}/skills), [learn mode](${originToken}/learn).
+
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
 Rat Stack is an agent-first way to build with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy) and to learn how they work. Point your agent at this site and tell it to build your project. When you want to know why the code looks the way it does, go as deep as you like.
 
 There's a repo underneath, but it isn't a template. It's a set of references your agent reads for the idioms: rules, skills, lore and working source.
-
-Build an app and its cloud as one typed program. Effect handles dependencies, errors and concurrent work. Alchemy declares the cloud resources in TypeScript, so the compiler checks how the app and its infrastructure fit together. We're trying to build the best Effect + Alchemy app we can.
-
-_${linkedTagline}_
-
-The [fence](${originToken}/lore/the-fence) is the compiler checks, lint rules and commit hooks that reject shortcuts.
-
-## Connect an agent
-
-Paste this into your coding agent:
-
-\`\`\`text
-Read ${originToken}/llms.txt and use rat-stack as the reference
-for how we build: Effect for the hard parts, Alchemy for the
-infrastructure, and a fence that makes the easy path the right
-one. Search its rules and skills before you write code, follow
-its patterns, and tell me when my code breaks them.
-\`\`\`
-
-<CopyPrompt id="connect" />
-
-Or add the [MCP](${originToken}/lore/mcp-is-another-surface) server so your agent can call the site's tools:
-
-\`\`\`sh
-# Claude Code
-claude mcp add --transport http rat-stack ${originToken}/mcp
-
-# Codex
-codex mcp add rat-stack --url ${originToken}/mcp
-\`\`\`
-
-<CopyPrompt id="mcp" />
-
-Cursor reads \`~/.cursor/mcp.json\`:
-
-\`\`\`json
-{ "mcpServers": { "rat-stack": { "url": "${originToken}/mcp" } } }
-\`\`\`
-
-<CopyPrompt id="cursor" />
-
-Your agent can also load one skill for one task. Nothing is installed in your skill folders. The [skills index](${originToken}/.well-known/agent-skills/index.json) lists every skill.
-
-<CopyPrompt id="skills" />
-
-- [MCP connection details](${originToken}/.well-known/mcp.json)
-- [HTTP API docs](${originToken}/openapi.json)
-- [Short agent guide](${originToken}/llms.txt)
-- [Everything in one file](${originToken}/llms-full.txt): rules, lore, systems and skills
 
 ${homeFeatured}
 
@@ -2052,11 +2016,15 @@ ${homeFeatured}
 
 ## How it fits together
 
+The goal is to build an app and its cloud as one typed program. Effect handles dependencies, errors and concurrent work. Alchemy declares the cloud resources in TypeScript. The compiler checks how the app and its infrastructure fit together.
+
 Each job is a service with an interface. A [Layer](${originToken}/lore/layer-constructor-pattern) builds its implementation and supplies its dependencies. An Alchemy Layer also carries the job's cloud resources, so you choose the implementation, and the infrastructure that comes with it, when you provide the Layer.
 
-The easy path should be the right one. The compiler stops mistakes that a style guide can only ask you to avoid. Remove a cloud resource and the code that uses it stops compiling. Fewer mistakes let an agent work longer without help. Deploy checks then prove the result works.
+The [fence](${originToken}/lore/the-fence) is the compiler checks, lint rules and commit hooks that reject shortcuts. Remove a cloud resource and the code that uses it stops compiling. Deploy checks then prove the result works.
 
 The [vision](${originToken}/VISION.md) has the reasoning and sources.
+
+_${linkedTagline}_
 
 ## Packages
 
@@ -2207,6 +2175,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/auth.md",
     "ratstack.sh auth.md"
   );
+
+  const tokenmaxxShitratJpegBase64 = Buffer.from(
+    yield* fileSystem
+      .readFile(path.join(root, "apps/site/content/tokenmaxx/shitrat.jpg"))
+      .pipe(
+        Effect.mapError((cause) =>
+          buildError("read", "apps/site/content/tokenmaxx/shitrat.jpg", cause)
+        )
+      )
+  ).toString("base64");
 
   const tokenmaxxImageJpegBase64 = Buffer.from(
     yield* fileSystem
@@ -3340,7 +3318,10 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           )
         );
 
-        const text = renderAgentPage(bodyMarkdown, skill.routePath, skill.name);
+        const text = contentWithOrigin(
+          renderAgentPage(bodyMarkdown, skill.routePath, skill.name),
+          "https://ratstack.sh"
+        );
 
         return {
           ...contentDates(skill.rawText, skill.sourcePath),
@@ -3801,6 +3782,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/apple-touch-icon.png",
           "/favicon.svg",
           "/tokenmaxx/four-comma-club.jpg",
+          "/tokenmaxx/shitrat.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
           ...infrastructureImages.map((image) => image.path),
           dillonPosterRoutePath,
@@ -3875,8 +3857,28 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         path: ogImagePath(image.routePath),
       })),
       {
+        base64: Buffer.from(
+          yield* fileSystem
+            .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
+            .pipe(
+              Effect.mapError((cause) =>
+                buildError(
+                  "read",
+                  "apps/site/content/tokenmaxx/setup.md",
+                  cause
+                )
+              )
+            )
+        ).toString("base64"),
+        path: "/tokenmaxx/setup.md",
+      },
+      {
         base64: tokenmaxxImageJpegBase64,
         path: "/tokenmaxx/four-comma-club.jpg",
+      },
+      {
+        base64: tokenmaxxShitratJpegBase64,
+        path: "/tokenmaxx/shitrat.jpg",
       },
       {
         base64: cartridgesImageJpegBase64,

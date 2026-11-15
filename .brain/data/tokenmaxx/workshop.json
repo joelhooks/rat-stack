@@ -118,39 +118,42 @@
     }
   ],
   "prep": {
-    "status": "draft",
-    "note": "Item wording is a DRAFT for Joel to rewrite; do not render until he flips status.",
+    "status": "published",
+    "note": "",
     "items": [
       {
-        "id": "node-pnpm",
-        "item": "Node and pnpm at the starter's pinned versions",
-        "proof": "node -v and pnpm -v match the starter README"
+        "id": "node-pnpm-git",
+        "item": "[Node, pnpm and git](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": null
       },
       {
-        "id": "pi-model",
-        "item": "Pi with one model you're allowed to use",
-        "proof": "Pi runs a tool call (for example, lists the files in this folder)"
-      },
-      {
-        "id": "two-sessions",
-        "item": "Two Pi sessions at once (builder and judge)",
-        "proof": "both sessions answer a prompt"
-      },
-      {
-        "id": "starter",
-        "item": "The starter repo cloned and installed",
-        "proof": "pnpm ex 00.1 check",
-        "needs": "starterPublic"
+        "id": "workshop-tools",
+        "item": "[The workshop tools](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": null
       },
       {
         "id": "herdr",
-        "item": "Herdr, optional; plain terminals are fine",
-        "proof": null,
-        "optional": true
+        "item": "[Herdr](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": null
       },
       {
-        "id": "own-task",
-        "item": "One small task from your own work for the last hour",
+        "id": "pi-model",
+        "item": "[The person gives Pi a model](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": null
+      },
+      {
+        "id": "check",
+        "item": "[The check](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": "pnpm ex 00.1 check"
+      },
+      {
+        "id": "own-repo",
+        "item": "[The person's own repo](https://ratstack.sh/tokenmaxx/setup.md)",
+        "proof": "pnpm ex 01.1 done"
+      },
+      {
+        "id": "report",
+        "item": "[Report](https://ratstack.sh/tokenmaxx/setup.md)",
         "proof": null
       }
     ]

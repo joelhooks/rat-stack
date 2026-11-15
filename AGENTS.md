@@ -27,6 +27,13 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 
 ## Packages
 
+- **`@rat-stack/catalog`**:
+  - Path: `packages/catalog`
+  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
+- **`@rat-stack/catalog-server`**:
+  - Path: `apps/catalog`
+  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware. Missing or empty `CATALOG_OPERATOR_TOKEN` denies every Api call. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
+
 - **`@rat-stack/capability`**:
   - Path: `packages/capability`
   - Role: `defineContract`, `implement`, and the `toCommand`, `toHttpApi`, `toToolkit`, `toRpc`, and `toCodeMode` projections
@@ -190,9 +197,10 @@ Preserve existing work. Inspect status before editing, stage only files changed 
 
 A child project replaces this section on day one with its own product rules. These rules describe the rat-stack template, not the product in a clone. Keep durable product intent in `VISION.md`.
 
-- One contract, every surface. Define schemas and metadata with `defineContract`; bind a server-side handler with `implement` and add the capability to `capabilities`. CLI, HTTP, MCP, RPC, and code mode are projections in `packages/capability`. Do not add a command, route, or tool handler that bypasses a capability.
+- One contract, every surface. For Alchemy Domain models, follow the durable-state rule below: the model's Api is its contract. Elsewhere, define schemas and metadata with `defineContract`; bind a server-side handler with `implement` and add the capability to `capabilities`. CLI, HTTP, MCP, RPC, and code mode are projections in `packages/capability`. Do not add a command, route, or tool handler that bypasses its contract.
 - Schemas are the contract. Input, output, and failure are Effect `Schema`; JSON Schema, OpenAPI, and the code-mode declarations are derived from them, never hand-written.
-- Lifecycles are machines. Finite modes, retries, and cancellation live in XState machines started with `createEffectActor`; side effects live in declared `createEffectLogic` actors, never inline.
+- Durable state belongs to Alchemy Domain. State that outlives a request and has rules about allowed changes lives in a Domain model. Its aggregates, sagas, and atomic commits own that lifecycle. Its Api is the contract, and Domain's own HTTP, MCP, and CLI projections are its surfaces. A model never duplicates its aggregate in XState, and its Api never gets a second hand-rolled capability layer. Existing systems move to this rule when explicitly scoped; it does not authorize incidental migrations.
+- In-process lifecycles are machines. Finite modes, retries, and cancellation inside one process live in XState machines started with `createEffectActor`; side effects live in declared `createEffectLogic` actors, never inline. Durable lifecycles follow the Alchemy Domain rule above.
 - The sandbox is a surface, not a bypass. Anything reachable from a code-mode program must be a capability and goes through that capability's schemas and handler.
 - Gardener rule: add a lint rule before cleaning up a bad pattern. Prefer shrinking lint baselines; growth is allowed with a one-line reason in the PR. The routine is `skills/gardener`; before simplifying or replacing a design, run `skills/uncomplect`.
 - Refresh peers, versions, and tiers after every bump of Effect, Alchemy, XState, or `@xstate/effect`. On every gardener pass, refresh peers whose checked date is more than 14 days old. Report stale dates; they never block other gardener work. The repo-native `skills/gardener` pass owns the peers refresh through `skills/find-peers`: check default-branch manifests or lockfiles, record exact versions and checked dates in `.brain/data/peers.json`, and explain tiers with evidence. The content build reads our pins from manifests and filters/sorts that dataset into `.brain/resources/peers.svx`; never hand-edit generated entries. Drift is expected. Preserve every peer; show S through B in the main list and C through F in a collapsed Also seen list. Put the rubric and full ranking at the top of the report for feedback after shipping; no separate approval round is required.
