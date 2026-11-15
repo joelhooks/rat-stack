@@ -559,15 +559,13 @@ it.effect(
         })
       );
 
-      expect(corrupted.status).toBe(200);
-      expect(yield* Effect.promise(corrupted.json.bind(corrupted))).toEqual([
-        {
-          reason: "erased",
-          state: "erased",
-          submissionId: "synthetic-submission",
-        },
-      ]);
-      expect(yield* contacts.read("synthetic-submission")).toBeUndefined();
+      expect(corrupted.status).toBe(503);
+      const failure = yield* Effect.promise(corrupted.text.bind(corrupted));
+      expect(failure).not.toContain(answer);
+      expect(failure).not.toContain("synthetic@example.test");
+      expect((yield* Ref.get(sealedContacts)).get("synthetic-submission")).toBe(
+        `${answer}:synthetic@example.test`
+      );
 
       expect(yield* captured.recorded).toEqual([]);
       expect(logs).toEqual([]);

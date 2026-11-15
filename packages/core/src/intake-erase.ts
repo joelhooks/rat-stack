@@ -6,6 +6,7 @@ import { Context, Effect, Exit, Layer, Logger, Schedule, Schema } from "effect";
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 import { IntakeEvents } from "./intake-events.js";
 import { JoinContactStore } from "./join-contact-store.js";
+import type { JoinErasure } from "./join-contact-store.js";
 
 export const IntakeEraseCountsSchema = Schema.Struct({
   alreadyGone: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
@@ -13,7 +14,7 @@ export const IntakeEraseCountsSchema = Schema.Struct({
   failed: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)),
   handedToDrovr: Schema.Int.check(Schema.isGreaterThanOrEqualTo(0)).annotate({
     description:
-      "A delivery attempt left for drovr, so drovr may hold this contact; forward the erasure. This count includes unknown outcomes and final refusals.",
+      "A delivery attempt may have left for drovr, so drovr may hold this contact; forward the erasure. This count includes unknown outcomes, final refusals and absent or unreadable history.",
   }),
   handedToDrovrSubmissionIds: Schema.Array(Schema.String).annotate({
     description:
@@ -38,12 +39,12 @@ export const RETRY_ERASE_TOMBSTONE = Schedule.max([
   Schedule.recurs(3),
 ]).pipe(Schedule.jittered);
 
-export const settleErase = Effect.fnUntraced(function* settleErase(
+const settleRequestedErase = Effect.fnUntraced(function* settleRequestedErase(
   contacts: JoinContactStore["Service"],
   events: IntakeEvents["Service"],
-  submissionId: string
+  submissionId: string,
+  marker: JoinErasure | undefined
 ) {
-  const marker = yield* contacts.requestErase(submissionId);
   const erased = yield* contacts.erase(submissionId).pipe(Effect.exit);
 
   if (marker === undefined) {
@@ -69,6 +70,16 @@ export const settleErase = Effect.fnUntraced(function* settleErase(
   );
 });
 
+export const settleErase = Effect.fnUntraced(function* settleErase(
+  contacts: JoinContactStore["Service"],
+  events: IntakeEvents["Service"],
+  submissionId: string
+) {
+  const marker = yield* contacts.requestErase(submissionId);
+
+  return yield* settleRequestedErase(contacts, events, submissionId, marker);
+});
+
 const eraseContacts = Effect.fnUntraced(function* eraseContacts(
   contacts: JoinContactStore["Service"],
   events: IntakeEvents["Service"],
@@ -78,24 +89,30 @@ const eraseContacts = Effect.fnUntraced(function* eraseContacts(
     Effect.gen(function* eraseAndReportHandoff() {
       const marker = yield* contacts.requestErase(id);
 
-      const outcome = yield* settleErase(contacts, events, id).pipe(
-        Effect.catchCause(() => Effect.succeed("failed" as const))
-      );
+      const outcome = yield* settleRequestedErase(
+        contacts,
+        events,
+        id,
+        marker
+      ).pipe(Effect.catchCause(() => Effect.succeed("failed" as const)));
 
       return {
-        handedToDrovr: marker?.handedToDrovr === true,
+        handedToDrovr: marker === undefined || marker.handedToDrovr,
         handedAt: marker?.handedToDrovrAt ?? null,
         id,
         outcome,
       };
     }).pipe(
       Effect.catchCause(() =>
-        Effect.succeed({
-          handedToDrovr: false,
-          handedAt: null,
-          id,
-          outcome: "failed" as const,
-        })
+        contacts.readHandoff(id).pipe(
+          Effect.catchCause(() => Effect.undefined),
+          Effect.map((handoff) => ({
+            handedToDrovr: true,
+            handedAt: handoff?.handedToDrovrAt ?? null,
+            id,
+            outcome: "failed" as const,
+          }))
+        )
       )
     )
   );

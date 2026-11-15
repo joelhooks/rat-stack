@@ -64,7 +64,7 @@ const attempt = Effect.fnUntraced(function* attempt(
     return { kind: "refused" } as const;
   }
 
-  if (contact.hold || contact.state === "held" || intake.agent === undefined) {
+  if (contact.hold || contact.state === "held") {
     yield* contacts.erase(input.submissionId);
 
     return { kind: "refused" } as const;
@@ -75,6 +75,10 @@ const attempt = Effect.fnUntraced(function* attempt(
       afterSeconds: (contact.retryAt - now) / 1000,
       kind: "retry",
     } as const;
+  }
+
+  if (intake.agent === undefined || !intake.agent.enabled) {
+    return { kind: "retry", afterSeconds: 0 } as const;
   }
 
   yield* contacts.save({ ...contact, retentionDeadlineAt });

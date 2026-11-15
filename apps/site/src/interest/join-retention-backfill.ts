@@ -29,7 +29,10 @@ export const joinRetentionBackfillLayer = (
                   group,
                   unknownHandoffTime:
                     (handoff?.handedToDrovrAt ?? null) === null &&
-                    (handoff?.handedToDrovr === true || legacy),
+                    (handoff?.handedToDrovr === true ||
+                      legacy ||
+                      group === "unreadable" ||
+                      (group === "gone" && handoff === undefined)),
                 };
               }),
             { concurrency: SWEEP_CONCURRENCY }

@@ -56,7 +56,11 @@ const retentionGroupFor = (contact: JoinContact): JoinRetentionGroup => {
     return "erase";
   }
 
-  if (contact.state === "accepted" || contact.state === "refused") {
+  if (
+    contact.state === "accepted" ||
+    contact.state === "refused" ||
+    (contact.state === "held" && contact.retentionDeadlineAt === undefined)
+  ) {
     return "finished";
   }
 
@@ -187,13 +191,6 @@ export const joinContactStoreLayer = (
           );
 
           if (Option.isNone(loaded)) {
-            if (!dryRun) {
-              yield* stub(submissionId).joinErase();
-              yield* Effect.logWarning(
-                "unreadable join contact erased during retention migration"
-              );
-            }
-
             return "unreadable";
           }
 
@@ -237,7 +234,7 @@ export const joinContactStoreLayer = (
       const read = (submissionId: string) =>
         migrateRetention(submissionId, false).pipe(
           Effect.flatMap((group) =>
-            group === "current" || group === "pending"
+            group === "current" || group === "pending" || group === "unreadable"
               ? load(submissionId).pipe(Effect.orDie)
               : Effect.undefined
           )

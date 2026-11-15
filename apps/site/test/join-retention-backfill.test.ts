@@ -133,10 +133,10 @@ it.effect(
       const expected = {
         current: 1,
         erase: 1,
-        finished: 2,
+        finished: 3,
         gone: 1,
-        legacyHandoffTimeUnknown: 5,
-        pending: 2,
+        legacyHandoffTimeUnknown: 7,
+        pending: 1,
         unreadable: 1,
       };
 
@@ -161,29 +161,29 @@ it.effect(
         handedToDrovrAt: null,
       });
 
-      for (const id of ["ready", "held"]) {
-        expect((yield* contacts.read(id))?.retentionDeadlineAt).toBe(
-          start + JOIN_CONTACT_RETENTION_MILLIS
-        );
-        expect(alarms.get(id)).toBe(start + JOIN_CONTACT_RETENTION_MILLIS);
-      }
+      expect(yield* contacts.read("held")).toBeUndefined();
+      expect((yield* contacts.read("ready"))?.retentionDeadlineAt).toBe(
+        start + JOIN_CONTACT_RETENTION_MILLIS
+      );
+      expect(alarms.get("ready")).toBe(start + JOIN_CONTACT_RETENTION_MILLIS);
 
       yield* TestClock.adjust("1 hour");
       expect(yield* run(true)).toEqual({
-        current: 3,
+        current: 2,
         erase: 0,
         finished: 0,
         gone: 5,
-        legacyHandoffTimeUnknown: 5,
+        legacyHandoffTimeUnknown: 7,
         pending: 0,
-        unreadable: 0,
+        unreadable: 1,
       });
 
-      for (const id of ["ready", "held"]) {
-        expect((yield* contacts.read(id))?.retentionDeadlineAt).toBe(
-          start + JOIN_CONTACT_RETENTION_MILLIS
-        );
-      }
+      expect((yield* contacts.read("ready"))?.retentionDeadlineAt).toBe(
+        start + JOIN_CONTACT_RETENTION_MILLIS
+      );
+      expect(entries.get("unreadable")?.get(JOIN_CONTACT_KEY)).toBe(
+        "invalid-sealed-contact"
+      );
 
       yield* TestClock.adjust("24 hours");
       yield* cellFor("erase").alarm();

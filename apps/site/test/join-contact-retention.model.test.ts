@@ -75,6 +75,11 @@ it.effect.prop(
 
         if (alarmAt !== undefined && alarmAt <= now) {
           yield* cell.alarm();
+
+          if (!erased) {
+            marker = true;
+          }
+
           erased = true;
         }
 
@@ -132,6 +137,11 @@ it.effect.prop(
       const now = yield* Clock.currentTimeMillis;
       yield* TestClock.adjust(Math.max(0, deadline - now));
       yield* cell.alarm();
+
+      if (!erased) {
+        marker = true;
+      }
+
       expect((yield* Ref.get(entries)).has(JOIN_CONTACT_KEY)).toBe(false);
       yield* cell.joinSave("late-result", false);
       expect(yield* cell.joinRead()).toBeUndefined();

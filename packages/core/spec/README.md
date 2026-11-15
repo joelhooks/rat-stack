@@ -52,7 +52,7 @@ The original work-record protocol splits the following awaits into steps. A cras
 | `Answer` | `joinIntakeLayer`: `request.afterResponse(...)`, then `return answer` |
 | `SweepVisit` | `IntakeSweep.settle`; `sweepPendingIntake` clears an index entry with no marker |
 | `DeliveryRead`, `DeliverySend` | `attempt` in `join-delivery-machine.ts`: `contacts.read`, then `intake.agent.submit` |
-| `SettleRead`, `SettleWrite` | `contacts.setState(statusRef, deliveryStateFor[result.kind])` |
+| `SettleRead`, `SettleWrite` | `settle` reads the contact; accepted and refused results erase its payload, while retries save their due time with the same submission ID. The original work-record abstraction does not model these split payload writes. |
 | `EraseRead`, `EraseMark` | `settleErase`: `contacts.requestErase` retains the contact reference in a separate marker |
 | `Tombstone` | `settleErase`: `events.erase(marker.contactRef)` with bounded retry; Basin down → `pending` |
 | `Remove` | `contacts.completeErasure` deletes only the marker after its event tombstone; sealed-contact deletion is separate |
@@ -110,6 +110,10 @@ On 2026-11-15, skipping sealed-contact erasure for `accepted` failed the deliver
 
 Removing the durable pre-dispatch handoff write also failed both erase-history properties on 2026-11-15. The first shrank to dispatch, accepted, then erase; replay `[0,"-3152302148389143",0,0,[0,0],"PropertyError"]`. The write-failure property also caught dispatch escaping after its durable write failed; replay `[0,"-2340553278854977",0,0,[0,0],"PropertyError"]`. The guard was restored before the full gate.
 
+The two retention mutations requested for this slice were also planted on 2026-11-15. Disabling deadline expiry left a sealed contact physically present at the deadline and failed the durable-cell model; replay `[0,"4865270492316789",1,0,[0],"PropertyError"]`. Changing the submission ID only on a retry failed the delivery model with timeout followed by challenge; replay `[0,"3741748008396045",51,3,[0,0,0,0,0,0,0,2,2,3,2,2],"PropertyError"]`. Both mutations were restored before validation.
+
+`apps/site/test/join-contact-runtime.test.ts` saves deliberately unreadable bytes through the real `Interest` Durable Object in workerd. It verifies a native alarm is armed, then observes SQLite directly without another contact read. The payload disappears and the erase marker remains. This checks the actual Alchemy handler wiring and storage alarm, not a memory stub or read-time expiry.
+
 The test checks that each flip's guard occurs once in the spec, that each twin's title is still in its file, and that each code guard is still in its source. That ties the model to the code. It does not prove the twin still fails without the guard; only another hand mutation proves that.
 
 ## Weaker environments
@@ -158,17 +162,21 @@ With the sticky erase guard, the Durable Object refuses the commit instead, and 
 
 ## Operator migration and erasure
 
-`joinRetentionBackfill` is an operator capability at `POST /operator/interest/applications/retention-backfill`, protected like `intakeErase`. An empty JSON body runs a dry-run. Only `{"apply": true}` applies it. It enumerates the existing application index with the sweep's concurrency of four.
+`joinRetentionBackfill` is an operator capability at `POST /operator/interest/applications/retention-backfill`, protected like `intakeErase`. An empty JSON body runs an informational dry-run. Only `{"apply": true}` applies that operator request. This is not a migration consent gate: normal reads, operator application listings, erasure requests and the five-minute sweep already migrate readable legacy records on first access. Counts can therefore describe post-migration state. The operation enumerates the entire existing application index, with concurrency four but no page bound. It can time out on a large index; a paged index reader remains follow-up work.
 
-The backfill erases finished legacy contacts, converts legacy erasures to separate markers, and gives pending legacy contacts one 24-hour window. First access applies the same migration to missed contacts. It never extends an existing deadline. Unreadable payloads are erased; a storage outage fails the operation without treating valid data as unreadable.
+The backfill erases finished and legacy held contacts, converts legacy erasures to separate markers, and gives pending ready contacts one 24-hour window. Legacy held contacts never become ready or dispatchable. Newly held contacts are deliberately erased at intake; there is no release path. The intake's `statusRef` is the `submissionId` used as the store key. A missing intake agent is a configuration outage, not a refusal: it leaves a contact pending until recovery or its original deadline.
 
-`legacyHandoffTimeUnknown` counts recoverable legacy contacts which may have reached drovr without a known first dispatch time. It overlaps the state-group counts. The old store recorded no dispatch history, so all recoverable legacy contacts are flagged conservatively. The eight-row fixture reports current 1, finished 2, erase 1, pending 2, unreadable 1, gone 1, and unknown handoff time 5.
+No migration path deletes a row because decryption failed, including explicit apply. Unreadable legacy rows keep their bytes, index entry and any existing deadline for operator key recovery. Implicit reads fail visibly with `JoinContactUnreadable`; they never silently report a missing contact. Backfill counts unreadable rows without changing them. A legacy unreadable row without a deadline is the one exception to the 24-hour bound, pending the owner's decision after real production counts. A later, separate explicit erase capability may handle those rows. A readable sentinel is not permission to destroy ciphertext encrypted under an older key.
+
+An existing deadline remains authoritative even when decryption fails: the native alarm deletes raw sealed bytes and writes the independent erase marker without decrypting. Reads enforce the same deadline. No save extends a deadline. Storage outages fail the operation rather than being classified as unreadable data.
+
+`legacyHandoffTimeUnknown` counts legacy contacts, unreadable rows and missing rows without handoff metadata which may have reached drovr without a known first dispatch time. It overlaps the state-group counts. Unknown historical handoffs are forwarded conservatively, including erasure results for missing history or failed reads. Absence of history is not proof of no handoff. The eight-row fixture reports current 1, finished 3, erase 1, pending 1, unreadable 1, gone 1, and unknown handoff time 7. After applying, it reports current 2, gone 5, unreadable 1 and unknown time 7.
 
 The erase result's `handedToDrovr` means: **a delivery attempt left for drovr, so drovr may hold this contact; forward the erasure**. It is a conservative dispatch-intent flag, persisted before the request leaves. A failed flag write prevents dispatch. Neither a timeout, a crash nor a final refusal clears it. It does not prove admission or email delivery.
 
 `handedToDrovrSubmissions` returns each affected `submissionId` with `handedAt`, the immutable first dispatch-intent ISO time. Legacy time is explicitly `null`, never a made-up backfill time. Send the tenant and the address by encrypted operator message: `erasure request, handed to drovr at <time>`. For a null time, say `handed to drovr before <slice 1 deploy date>, exact time unknown`. Keep the deploy date in the operator's receipt, not in the contact's timestamp.
 
-This slice completes the local erase marker after the event tombstone. The non-PII reference, handoff flag and first dispatch time remain available for repeated operator erasure requests. It does not record drovr's final `stopped` or `not held` answer. Remote completion tracking and the reviewed public subscribers page remain later work; no automatic forwarding is implemented here.
+This slice completes the local erase marker after the event tombstone. The random reference, handoff flag and first dispatch time remain available for repeated operator erasure requests. `join-contact-meta` has no expiry; this indefinite minimal metadata retention must be disclosed on the slice 4 page. It does not record drovr's final `stopped` or `not held` answer. Remote completion tracking and the reviewed public subscribers page remain later work; no automatic forwarding is implemented here. The adapter whitelist also needs an optional `geo` audit against the slice 2 vendored wire schema; this slice does not claim that whitelist is the full wire contract.
 
 ## Not modelled
 

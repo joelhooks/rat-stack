@@ -182,6 +182,55 @@ it.effect.prop(
 );
 
 it.effect.prop(
+  "missing history and failed reads still report possible handoffs without losing known dispatch time",
+  {
+    contact: JoinContactSchema,
+    missing: Schema.Boolean,
+    unreadable: Schema.Boolean,
+  },
+  ({ contact, missing, unreadable }) =>
+    Effect.gen(function* uncertainHandoffHistory() {
+      const contacts = yield* JoinContactStore;
+      const firstDispatchAt = DateTime.formatIso(yield* DateTime.now);
+
+      if (!missing) {
+        yield* contacts.save(contact);
+        yield* contacts.markHandedToDrovr(contact.submissionId);
+      }
+
+      const services = Layer.mergeAll(
+        Layer.succeed(JoinContactStore, {
+          ...contacts,
+          requestErase: (id) =>
+            unreadable
+              ? Effect.die("synthetic unreadable contact")
+              : contacts.requestErase(id),
+        }),
+        Layer.succeed(IntakeEvents, {
+          erase: () => Effect.void,
+          record: () => Effect.void,
+        })
+      );
+
+      const erasure = yield* IntakeErasure.pipe(
+        Effect.provide(IntakeErasure.layer.pipe(Layer.provide(services)))
+      );
+
+      const result = yield* erasure.erase([contact.submissionId]);
+      expect(result.handedToDrovrSubmissions).toEqual([
+        {
+          submissionId: contact.submissionId,
+          handedAt: missing ? null : firstDispatchAt,
+        },
+      ]);
+      expect(result.failed).toBe(unreadable ? 1 : 0);
+      expect((yield* contacts.read(contact.submissionId)) !== undefined).toBe(
+        !missing && unreadable
+      );
+    }).pipe(Effect.provide(JoinContactStore.testLayer))
+);
+
+it.effect.prop(
   "a failed durable handoff write prevents dispatch",
   { contact: JoinContactSchema },
   ({ contact }) =>

@@ -5,7 +5,7 @@ import {
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactStore,
 } from "@rat-stack/core/join-interest";
-import { Clock, Effect, Layer, Redacted, Schema } from "effect";
+import { Clock, Effect, Exit, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
@@ -71,8 +71,10 @@ it.effect.prop(
 
       if (sealed !== undefined) {
         stored.set("submission-b", sealed);
-        expect(yield* contacts.read("submission-b")).toBeUndefined();
-        expect(stored.has("submission-b")).toBe(false);
+        expect(
+          Exit.isFailure(yield* contacts.read("submission-b").pipe(Effect.exit))
+        ).toBe(true);
+        expect(stored.get("submission-b")).toBe(sealed);
         stored.delete("submission-b");
       }
 

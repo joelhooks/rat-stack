@@ -30,7 +30,7 @@ export const joinRetentionBackfillContract = defineContract(
   {
     annotations: { readOnly: false },
     description:
-      "Migrate legacy sealed signup contacts to bounded retention. Dry-run is the default; apply must be explicit. Returns counts only, never contact data.",
+      "Migrate readable legacy sealed signup contacts to bounded retention. Dry-run is informational: normal reads, listings and sweeps already migrate on first access. Apply is explicit for this operator request only. Unreadable rows are counted and preserved in both modes. Returns counts only, never contact data.",
     failure: Schema.Never,
     input: Schema.Struct({ apply: Schema.optionalKey(Schema.Boolean) }),
     output: JoinRetentionCountsSchema,
