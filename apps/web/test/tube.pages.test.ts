@@ -27,7 +27,6 @@ import {
   videoPagePath,
   videoObject,
   watchUrl,
-  relatedVideos,
 } from "../src/client/tube/data.js";
 import { view } from "../src/features/reader.js";
 import { isReaderRoutePath } from "../src/reader-routes.js";
@@ -293,9 +292,18 @@ it.effect(
         expect(document).toContain(`href="${concept.route}"`);
       }
 
-      expect(
-        relatedVideos(video, encoded.tube.videos).length
-      ).toBeLessThanOrEqual(4);
+      const related = encoded.tube.videos.filter(
+        (candidate) => candidate.id !== video.id
+      );
+
+      expect(related.length).toBeGreaterThan(0);
+      expect(related.length).toBeLessThanOrEqual(4);
+
+      for (const candidate of related) {
+        expect("page" in candidate).toBe(false);
+        expect(document).toContain(`href="/tube/${candidate.id}"`);
+      }
+
       expect(document.match(/<h1(?:\s|>)/gu)).toHaveLength(1);
       const fs = yield* FileSystem.FileSystem;
 

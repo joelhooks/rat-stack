@@ -83,7 +83,12 @@ export const readerTubePagesFlags = Effect.fn("readerTubePagesFlags")(
             videos:
               selected === undefined
                 ? data.videos
-                : [selected, ...relatedVideos(selected, data.videos)],
+                : [
+                    selected,
+                    ...relatedVideos(selected, data.videos).map(
+                      ({ page: _page, ...metadata }) => metadata
+                    ),
+                  ],
           },
         };
       })

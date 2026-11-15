@@ -12,7 +12,6 @@ import {
   thumbnailWidth,
   tubeThemes,
   videoPagePath,
-  relatedVideos,
   summaryLinks,
 } from "../../client/tube/data.js";
 import type { TubeThemeValue, TubeVideoValue } from "../../client/tube/data.js";
@@ -247,11 +246,15 @@ const videoView = (
       h.h2([], ["Related videos"]),
       h.ul(
         [],
-        relatedVideos(video, model.videos).map((related) =>
-          h.li(
-            [h.Key(related.id)],
-            [h.a([h.Href(videoPagePath(related.id))], [related.title])]
-          )
+        model.videos.flatMap((related) =>
+          related.id === video.id
+            ? []
+            : [
+                h.li(
+                  [h.Key(related.id)],
+                  [h.a([h.Href(videoPagePath(related.id))], [related.title])]
+                ),
+              ]
         )
       ),
       h.p(
