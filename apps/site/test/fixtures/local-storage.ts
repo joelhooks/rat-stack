@@ -33,36 +33,40 @@ const databases = (directory: string) =>
     )
   );
 
-const holding = (table: string, key: string) => (path: string) => {
-  const database = new DatabaseSync(path, {
-    readOnly: true,
-    timeout: lockWaitMilliseconds,
-  });
+const holding =
+  (table: string, key: string, column = "key") =>
+  (path: string) => {
+    const database = new DatabaseSync(path, {
+      readOnly: true,
+      timeout: lockWaitMilliseconds,
+    });
 
-  try {
-    return (
-      database
-        .prepare(`select name from sqlite_master where name = ?`)
-        .get(table) !== undefined &&
-      database.prepare(`select 1 from ${table} where key = ?`).get(key) !==
-        undefined
-    );
-  } finally {
-    database.close();
-  }
-};
+    try {
+      return (
+        database
+          .prepare(`select name from sqlite_master where name = ?`)
+          .get(table) !== undefined &&
+        database
+          .prepare(`select 1 from ${table} where ${column} = ?`)
+          .get(key) !== undefined
+      );
+    } finally {
+      database.close();
+    }
+  };
 
 const openHolding = (
   directories: Effect.Effect<readonly string[], never, FileSystem.FileSystem>,
   table: string,
-  key: string
+  key: string,
+  column = "key"
 ) =>
   Effect.acquireRelease(
     directories.pipe(
       Effect.flatMap(Effect.forEach(databases)),
       Effect.flatMap((paths) =>
         Effect.sync(() =>
-          Option.fromUndefinedOr(paths.flat().find(holding(table, key)))
+          Option.fromUndefinedOr(paths.flat().find(holding(table, key, column)))
         )
       ),
       Effect.flatMap(
@@ -187,5 +191,87 @@ export const kvStorage = (key: string) =>
           })
       ),
       rejectWrites: rejectingWrites(database, "_mf_entries"),
+    }))
+  );
+
+const StoredValue = Schema.Struct({
+  database: Schema.String,
+  row: Schema.Struct({ key: Schema.String, value: Schema.Uint8Array }),
+});
+
+const storedValuesIn = (path: string) => {
+  const database = new DatabaseSync(path, {
+    readOnly: true,
+    timeout: lockWaitMilliseconds,
+  });
+
+  try {
+    const rows =
+      database
+        .prepare("select name from sqlite_master where name = '_cf_KV'")
+        .get() === undefined
+        ? []
+        : database.prepare("select key, value from _cf_KV").all();
+
+    return rows.map((row) => ({ database: path, row }));
+  } finally {
+    database.close();
+  }
+};
+
+export const durableObjectValues = (className: string) =>
+  entries(localRoot).pipe(
+    Effect.map((paths) =>
+      paths.filter((path) => path.endsWith(`-${className}`))
+    ),
+    Effect.flatMap(Effect.forEach(databases)),
+    Effect.flatMap((paths) =>
+      Effect.sync(() => paths.flat().flatMap(storedValuesIn))
+    ),
+    Effect.flatMap(Schema.decodeUnknownEffect(Schema.Array(StoredValue))),
+    Effect.map((rows) =>
+      rows.map(({ database, row }) => ({
+        database,
+        key: row.key,
+        text: JSON.stringify(deserialize(row.value)),
+      }))
+    ),
+    Effect.orDie
+  );
+
+const CountRow = Schema.Struct({ total: Schema.Finite });
+
+export const durableObjectRow = (
+  className: string,
+  table: string,
+  id: string
+) =>
+  openHolding(
+    entries(localRoot).pipe(
+      Effect.map((paths) =>
+        paths.filter((path) => path.endsWith(`-${className}`))
+      )
+    ),
+    table,
+    id,
+    "id"
+  ).pipe(
+    Effect.map((database) => ({
+      alarmPending: Effect.sync(() =>
+        database
+          .prepare(
+            "select 1 from _cf_METADATA where key = 1 and value is not null"
+          )
+          .get()
+      ).pipe(Effect.map((row) => row !== undefined)),
+      rows: Effect.sync(() =>
+        database
+          .prepare(`select count(*) as total from ${table} where id = ?`)
+          .get(id)
+      ).pipe(
+        Effect.flatMap(Schema.decodeUnknownEffect(CountRow)),
+        Effect.map(({ total }) => total),
+        Effect.orDie
+      ),
     }))
   );

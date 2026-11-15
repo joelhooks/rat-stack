@@ -3,6 +3,7 @@ import { Effect, Layer } from "effect";
 
 import { workerAssetsLayer } from "../worker-content.js";
 import { workshopDirectoryLayer } from "../workshop-directory.js";
+import { workshopHelpLive } from "../workshop-help/live.js";
 import { workshopMcpForward } from "../workshop-mcp-loader.js";
 import { legacySessionFetch } from "./session.js";
 import type { StoredSession } from "./session.js";
@@ -13,7 +14,12 @@ export default class WorkshopLegacyMcp extends Cloudflare.DurableObject<Workshop
     const state = yield* Cloudflare.DurableObjectState;
 
     const forward = yield* workshopMcpForward.pipe(
-      Effect.provide(Layer.provide(workshopDirectoryLayer, workerAssetsLayer))
+      Effect.provide(
+        Layer.provide(
+          Layer.merge(workshopDirectoryLayer, workshopHelpLive),
+          workerAssetsLayer
+        )
+      )
     );
 
     // @effect-diagnostics-next-line returnEffectInGen:off -- Alchemy's DurableObject contract returns the per-instance Effect.
