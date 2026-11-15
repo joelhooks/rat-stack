@@ -60,7 +60,7 @@ const notConfigured = new HelpUnavailable({
 
 const notAnAttendee = new NotAnAttendee({
   message:
-    "This email and workshop code don't match the attendee list. Use the email the workshop invite went to and the code from the prep email.",
+    "This email and workshop code don't match the attendee list. Use the email the workshop invite went to and the workshop code on your workshop calendar event.",
 });
 
 const signIn = Effect.fn("tokenmaxxHelp.signIn")(function* signIn(input: {

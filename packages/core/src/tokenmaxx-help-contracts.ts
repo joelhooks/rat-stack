@@ -79,7 +79,7 @@ export const SetupProblemPage = Schema.Struct({
 
 const attendee = {
   code: WorkshopCode.annotate({
-    description: "The workshop code from the prep email.",
+    description: "The workshop code on your workshop calendar event.",
   }),
   email: Email.annotate({
     description: "The email address the workshop invite went to.",
