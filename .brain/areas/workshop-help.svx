@@ -46,7 +46,7 @@ sources:
 
 A setup report says which of the seven setup steps is stuck and what went wrong. An attendee's agent files one with `reportSetupProblem` and gets back a `reportId`, the known fixes for that step, and what happens next. Each fix says whether we watched it work.
 
-The agent calls `setupProblemStatus` with the same `reportId` to read the desk's answer. Both capabilities take the attendee's email and the workshop code from the prep email. They are [MCP](/lore/mcp-is-another-surface) tools at `/tokenmaxx/mcp`, HTTP endpoints under `/tokenmaxx/api`, and [RPC](/skills/learn-rat-stack) calls at `/tokenmaxx/rpc`.
+The agent calls `setupProblemStatus` with the same `reportId` to read the desk's answer. Both capabilities take the attendee's email and the workshop code on their workshop calendar event. They are [MCP](/lore/mcp-is-another-surface) tools at `/tokenmaxx/mcp`, HTTP endpoints under `/tokenmaxx/api`, and [RPC](/skills/learn-rat-stack) calls at `/tokenmaxx/rpc`.
 
 The desk lists reports with `listSetupProblems` and answers one with `answerSetupProblem`. `setupHelpStatus` reports whether sign-in is configured and how many attendee and test hashes the [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) holds. It returns counts only, never hashes or values. These three are HTTP only and need the operator bearer token. From a checkout:
 
