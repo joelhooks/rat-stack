@@ -252,6 +252,7 @@ it.effect(
           ...images.map((image) => image.path),
           ...allStarsAvatarPaths,
           ...auditFiles.map((name) => `/skills/security-audit/${name}`),
+          "/tokenmaxx/setup.md",
         ].toSorted()
       );
     }).pipe(Effect.provide(NodeServices.layer))

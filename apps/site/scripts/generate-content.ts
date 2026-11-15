@@ -3875,6 +3875,22 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         path: ogImagePath(image.routePath),
       })),
       {
+        base64: Buffer.from(
+          yield* fileSystem
+            .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
+            .pipe(
+              Effect.mapError((cause) =>
+                buildError(
+                  "read",
+                  "apps/site/content/tokenmaxx/setup.md",
+                  cause
+                )
+              )
+            )
+        ).toString("base64"),
+        path: "/tokenmaxx/setup.md",
+      },
+      {
         base64: tokenmaxxImageJpegBase64,
         path: "/tokenmaxx/four-comma-club.jpg",
       },
