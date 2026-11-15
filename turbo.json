@@ -52,6 +52,9 @@
     "//#typecheck-scripts": {
       "outputs": []
     },
+    "//#test:turbo-summary": {
+      "outputs": []
+    },
     "//#lockfile:check": {
       "cache": false,
       "outputs": []
@@ -61,7 +64,8 @@
         "//#lockfile:check",
         "typecheck",
         "//#lint",
-        "//#typecheck-scripts"
+        "//#typecheck-scripts",
+        "//#test:turbo-summary"
       ],
       "outputs": []
     },
@@ -202,7 +206,8 @@
         "//#lockfile:check",
         "typecheck",
         "//#lint",
-        "//#typecheck-scripts"
+        "//#typecheck-scripts",
+        "//#test:turbo-summary"
       ],
       "outputs": [],
       "inputs": [
