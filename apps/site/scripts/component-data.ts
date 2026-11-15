@@ -50,13 +50,7 @@ export const copyPrompts = {
     label: "Copy prompt",
     showLabel: true,
     showText: false,
-    text: [
-      "Read __RATSTACK_ORIGIN__/llms.txt and use rat-stack as the reference",
-      "for how we build: Effect for the hard parts, Alchemy for the",
-      "infrastructure, and a fence that makes the easy path the right",
-      "one. Search its rules and skills before you write code, follow",
-      "its patterns, and tell me when my code breaks them.",
-    ].join("\n"),
+    text: "Check out ratstack.sh and explain how it would be useful for my current project, and how I can learn more about it.",
   },
   cursor: {
     agentFence: false,
