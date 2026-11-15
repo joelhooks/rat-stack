@@ -12,7 +12,48 @@
       "tier": "S",
       "take": "The opening keynote of Effect Days 2024 makes the case for Effect: production TypeScript has to handle errors, retries, timeouts and observability, and Effect gives you one set of primitives for all of them. Start here to learn why the stack is built on it.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Johannes Schickling starts with a small program and adds the work needed to run it in production. Error handling, retries, interruption, and tracing make the original happy path much larger.",
+          "He presents Effect as a way to make those concerns easier to add and compose. He also discusses shared code across platforms and the growing community. His hopes for the ecosystem include more library and framework integrations."
+        ],
+        "sections": [
+          {
+            "at": 300,
+            "note": "Adding observability expands the small happy-path example."
+          },
+          {
+            "at": 590,
+            "note": "Effect makes error handling, retries, and interruption easier to include."
+          },
+          {
+            "at": 876,
+            "note": "Platform packages support code shared across different environments."
+          },
+          {
+            "at": 1449,
+            "note": "Johannes's hopes for the ecosystem include more data structures, API wrappers, and integrations. He does not present these as promises."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "tracing",
+            "route": "/lore/trace-meaningful-operations"
+          },
+          {
+            "term": "production",
+            "route": "/lore/production-grade-typescript"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "Lz2J1NBnHK4",
@@ -26,7 +67,60 @@
       "tier": "S",
       "take": "Ethan Niser's four-hour workshop goes from what an Effect is to running effects, error handling, context, resources, Schema and fibers, with the workshop code in a public repo. Work through it once and the rest of this list gets easier.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "This workshop builds up Effect programs as values that describe work. It shows how mapping a successful result creates another program, rather than immediately running the original one.",
+          "The later examples cover failure causes, services, branded types, and fibers. A cause distinguishes expected failure, defects, and interruption. Services provide dependencies, while a running fiber gives the caller a handle for awaiting or interrupting work."
+        ],
+        "sections": [
+          {
+            "at": 324,
+            "note": "The workshop introduces effects and programs that interact with the outside world."
+          },
+          {
+            "at": 2648,
+            "note": "Mapping a result builds a new immutable program."
+          },
+          {
+            "at": 5434,
+            "note": "Cause distinguishes failure, defects, and interruption."
+          },
+          {
+            "at": 8331,
+            "note": "Service accessors obtain dependencies from the environment."
+          },
+          {
+            "at": 11182,
+            "note": "Branded types distinguish values that share an underlying representation."
+          },
+          {
+            "at": 13962,
+            "note": "Fibers expose running work that can be awaited or interrupted."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "failure",
+            "route": "/lore/error-model"
+          },
+          {
+            "term": "services",
+            "route": "/lore/context-and-requirements"
+          },
+          {
+            "term": "fiber",
+            "route": "/lore/concurrent-work-needs-an-owner"
+          }
+        ],
+        "gaps": ["Branded types"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "upXJJ9maWPc",
@@ -40,7 +134,52 @@
       "tier": "S",
       "take": "Maxwell Brown builds an app out of services, then provides them with layers, including layers that own resources and layers that depend on other layers. It is the clearest walk through the service-and-layer shape this stack uses everywhere.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The workshop develops application structure through Effect services and Layers. It starts with dependency requirements and shows how a service tag identifies an implementation in the environment.",
+          "Examples supply different cache implementations to different subprograms. The discussion then covers construction order, resource cleanup, and sharing service instances. Layer composition combines outputs and requirements so the application can assemble its dependencies."
+        ],
+        "sections": [
+          {
+            "at": 224,
+            "note": "The workshop outlines its progression from services to more advanced Layer composition."
+          },
+          {
+            "at": 1634,
+            "note": "Service tag identifiers must distinguish services within the application."
+          },
+          {
+            "at": 5170,
+            "note": "Providing a cache to a subprogram changes that program's environment."
+          },
+          {
+            "at": 6923,
+            "note": "Service construction must account for ordering, cleanup, and memoization."
+          },
+          {
+            "at": 8623,
+            "note": "Merge and provideMerge combine Layer outputs and dependencies in different ways."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "services",
+            "route": "/lore/services-capture-dependencies"
+          },
+          {
+            "term": "Layers",
+            "route": "/lore/layers-make-dependencies-explicit"
+          },
+          {
+            "term": "resource cleanup",
+            "route": "/lore/scopes-own-resources"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "88XERFAibQc",
@@ -54,7 +193,55 @@
       "tier": "S",
       "take": "Mattia Manzati shows how to keep agent-written code honest with Effect: the Effect LSP turns a missing requirement into a plain diagnostic where the compiler only reports an assignability error, then lint rules, tests, and watching the code run. It is the same kind of fence this stack runs.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Mattia Manzati examines how to keep coding agents from producing code that ignores an application's rules. Effect makes success values, failures, and dependency requirements visible to the type checker, which can feed mistakes back to the agent.",
+          "He also connects Effect with runtime observation. An experimental side project called inspect collects telemetry through the JavaScript runtime's debug protocol. Agents can use it to debug a local reproduction."
+        ],
+        "sections": [
+          {
+            "at": 55,
+            "note": "The talk frames agent engineering around preventing low-quality generated code."
+          },
+          {
+            "at": 723,
+            "note": "Effect's type parameters let the checker expose new failures and requirements."
+          },
+          {
+            "at": 1096,
+            "note": "Lint and language service rules can steer agents from raw environment reads, logging, fetch, and JSON.parse toward Effect APIs."
+          },
+          {
+            "at": 1460,
+            "note": "Logs, metrics, traces, and errors provide runtime evidence."
+          },
+          {
+            "at": 1831,
+            "note": "The experimental inspect tool collects telemetry through the JavaScript runtime's debug protocol for debugging local reproductions."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "schemas",
+            "route": "/lore/schemas-define-the-boundary"
+          },
+          {
+            "term": "type checker",
+            "route": "/lore/the-fence"
+          }
+        ],
+        "gaps": [
+          "Runtime debug protocol and inspect",
+          "Agent-readable runtime telemetry"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "nyvB6nRe5x0",
@@ -68,7 +255,48 @@
       "tier": "A",
       "take": "Michael Arnaldi walks through what changed in Effect 4.0: smaller bundles, a simpler runtime, the new queue API, STM in core and simpler Layer APIs. Watch it to understand the version this stack pins.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Michael Arnaldi presents the work underway on Effect 4 at Effect Days 2025. He shows smaller bundle examples and changes intended to make unused parts easier to tree-shake.",
+          "The talk explores queue APIs, the relationship between batching and fibers, and changes to runtime behavior. It also discusses structural versus reference equality. These are plans and demonstrations from the talk, rather than a guide to the current API."
+        ],
+        "sections": [
+          {
+            "at": 442,
+            "note": "Bundle examples track the size of basic programs that include the runtime."
+          },
+          {
+            "at": 877,
+            "note": "The queue redesign adds a potential error type to the queue."
+          },
+          {
+            "at": 1371,
+            "note": "Arnaldi discusses building batching on fibers."
+          },
+          {
+            "at": 1882,
+            "note": "A runtime example examines work that keeps the Node process alive."
+          },
+          {
+            "at": 2303,
+            "note": "Plans would make plain objects structurally equal by default and class instances referential."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect 4",
+            "route": "/lore/effect-days-2025-building-effect-4-michael-arnaldi"
+          },
+          {
+            "term": "fibers",
+            "route": "/lore/concurrent-work-needs-an-owner"
+          }
+        ],
+        "gaps": ["Effect queue APIs", "Structural and reference equality"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "F5aWLtEdNjE",
@@ -82,7 +310,52 @@
       "tier": "A",
       "take": "Kit Langton rebuilds the core idea of an effect system from thunks, then adds repeat, retry, timing and a generator syntax on top. You learn why describing work as a value is what makes those combinators possible.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The speaker builds a small teaching version of Effect from deferred functions, also called thunks. Wrapping instructions in a value preserves the recipe for a computation so it can run later.",
+          "The examples compose those values, repeat them, and add work before or after execution. Later examples introduce sequencing that depends on an earlier result, then show how generator syntax can express that flow more directly."
+        ],
+        "sections": [
+          {
+            "at": 34,
+            "note": "A simplified teaching implementation starts with deferred functions."
+          },
+          {
+            "at": 211,
+            "note": "A thunk preserves instructions instead of only their computed result."
+          },
+          {
+            "at": 405,
+            "note": "Repeated programs remain composable because repetition returns another effect."
+          },
+          {
+            "at": 589,
+            "note": "Deferred computation allows instrumentation around execution."
+          },
+          {
+            "at": 783,
+            "note": "Dependent sequencing needs access to an earlier result."
+          },
+          {
+            "at": 970,
+            "note": "Generator syntax presents dependent steps in a more direct form."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "execution",
+            "route": "/lore/run-effect-at-the-boundary"
+          }
+        ],
+        "gaps": ["Thunks and deferred computation"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "S2GChOwivwQ",
@@ -96,7 +369,56 @@
       "tier": "A",
       "take": "Matt Pocock gives a fast tour of Effect's syntax, typed errors and dependency injection, and why he came round to it. A good first look if you have thirteen minutes.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The speaker introduces Effect through an audio and video processing workflow. Typed errors let the program name different failures and handle a chosen error without treating every failure alike.",
+          "The walkthrough adds an AI service to show dependency tracking in the Effect type. It also covers tracing, configuration, and other library modules. The closing discussion considers the kinds of backend projects where learning Effect may be worthwhile."
+        ],
+        "sections": [
+          {
+            "at": 145,
+            "note": "The audio extraction example introduces typed failures."
+          },
+          {
+            "at": 282,
+            "note": "A tagged catch handles a specific named error."
+          },
+          {
+            "at": 424,
+            "note": "An AI service appears as a required dependency in the program's type."
+          },
+          {
+            "at": 563,
+            "note": "Named spans support trace viewing; configuration and concurrency are also discussed."
+          },
+          {
+            "at": 703,
+            "note": "The speaker considers backend teams and incremental adoption."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "Typed errors",
+            "route": "/lore/error-model"
+          },
+          {
+            "term": "dependency tracking",
+            "route": "/lore/context-and-requirements"
+          },
+          {
+            "term": "tracing",
+            "route": "/lore/trace-meaningful-operations"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "0naAPm0-0Wg",
@@ -124,7 +446,48 @@
       "tier": "A",
       "take": "Antoine Coulon explains structured concurrency and how Effect's fibers and scopes keep the relationships between concurrent tasks, so interruption and cleanup work. Ten minutes on the concurrency model under every Effect program.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Antoine Coulon explains problems with concurrent Promise code, including cancellation, resource leaks, and cleanup. Passing cancellation signals still leaves each operation responsible for handling and forwarding them correctly.",
+          "He introduces structured concurrency through Effect. Parent work owns child operations, interruption reaches those children, and each operation can clean up. Fibers provide handles for running operations while preserving their relationships and execution state."
+        ],
+        "sections": [
+          {
+            "at": 126,
+            "note": "Promise examples expose cancellation and resource cleanup problems."
+          },
+          {
+            "at": 239,
+            "note": "Cancellation signals require receivers to handle cleanup and propagate cancellation."
+          },
+          {
+            "at": 351,
+            "note": "Effect.all demonstrates interruption reaching child operations."
+          },
+          {
+            "at": 464,
+            "note": "Parent fibers supervise child work and interrupt it when the parent ends."
+          },
+          {
+            "at": 582,
+            "note": "Fibers represent running operations and retain their relationships."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "structured concurrency",
+            "route": "/lore/concurrent-work-needs-an-owner"
+          },
+          {
+            "term": "resource",
+            "route": "/lore/scopes-own-resources"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "-mL7VVvkLGM",
@@ -138,7 +501,48 @@
       "tier": "B",
       "take": "Kit Langton talks with Johannes Schickling about bringing Effect into OpenCode: Schema and branded IDs, services and layers, testing LLM workflows, and incremental adoption in a large TypeScript codebase. Watch it to see a real migration rather than a demo.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Kit Langton discusses bringing Effect into OpenCode without breaking the existing application. An early step uses Schema brands to distinguish session, message, and workspace identifiers that would otherwise all be strings.",
+          "The conversation also explores keeping complex behavior locally scoped and composing it into a larger application. Langton describes his experience with Effect 4, including changes to naming, Schema, bundle size, and tree shaking."
+        ],
+        "sections": [
+          {
+            "at": 1146,
+            "note": "Branded identifiers provide an early, limited step in adopting Effect."
+          },
+          {
+            "at": 2240,
+            "note": "Langton describes prioritizing a migration that would not break OpenCode."
+          },
+          {
+            "at": 4545,
+            "note": "Locally scoped complexity can compose without spreading through the codebase."
+          },
+          {
+            "at": 5711,
+            "note": "The conversation reviews Langton's experience with Effect 4."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "Schema",
+            "route": "/lore/schemas-define-the-boundary"
+          },
+          {
+            "term": "locally scoped",
+            "route": "/lore/structure-effect-by-domain"
+          }
+        ],
+        "gaps": ["Branded types", "Incremental Effect adoption in OpenCode"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "ZCHNLS8e0os",
@@ -152,7 +556,52 @@
       "tier": "B",
       "take": "Mattia Manzati tours Effect's developer tooling, including the language service plugin. This stack turns those language service diagnostics into build failures, so it helps to know where they come from.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Mattia Manzati presents tools for working with Effect inside the editor. The language service plugin uses type information to explain problems and reveal Effect types that TypeScript has shortened in its output.",
+          "The talk discusses plans for lint rules, editor spans, and editor-agnostic developer tools. A Chrome-only experiment shows span names in the call stack. Manzati also notes Effect's built-in observability."
+        ],
+        "sections": [
+          {
+            "at": 180,
+            "note": "The language service plugin brings Effect-aware support into editors."
+          },
+          {
+            "at": 351,
+            "note": "Expanded Effect information helps explain truncated types."
+          },
+          {
+            "at": 512,
+            "note": "Manzati plans to release ESLint rules, with stylistic rules such as tag naming to follow."
+          },
+          {
+            "at": 677,
+            "note": "Lazy programs make ordinary JavaScript call stacks harder to use."
+          },
+          {
+            "at": 848,
+            "note": "A Chrome-only experiment shows span names in the call stack. Manzati then notes Effect's built-in observability."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "lint rules",
+            "route": "/lore/the-fence"
+          }
+        ],
+        "gaps": [
+          "Effect language service plugin",
+          "Debugging interpreted Effect programs",
+          "Effect editor spans"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "wFNbDkE69_U",
@@ -166,7 +615,48 @@
       "tier": "B",
       "take": "A short clip on what changed in Schema v4, effectful schemas, and schema representations. Useful after the crash course above.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The discussion explores changes to Effect Schema in version 4. Basic definitions remain familiar, while field mapping and easier generic constraints change how authors build reusable Schema utilities.",
+          "The speakers examine schemas that perform work while decoding, including a service-backed check that a user identifier exists. Encoding and decoding can require different services. They also introduce schema representations as another part of the redesign."
+        ],
+        "sections": [
+          {
+            "at": 16,
+            "note": "Basic schemas remain familiar and field mapping receives attention."
+          },
+          {
+            "at": 147,
+            "note": "Generic constraints become easier for functions that accept schemas."
+          },
+          {
+            "at": 290,
+            "note": "An encrypted token illustrates a possible effectful decoding use case."
+          },
+          {
+            "at": 431,
+            "note": "A user lookup can require a service for decoding but not encoding."
+          },
+          {
+            "at": 584,
+            "note": "The discussion turns to schema representations."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect Schema",
+            "route": "/lore/schemas-define-the-boundary"
+          },
+          {
+            "term": "services",
+            "route": "/lore/context-and-requirements"
+          }
+        ],
+        "gaps": ["Effectful schemas", "Schema representations"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "4lEDdMuTDJg",
@@ -180,7 +670,52 @@
       "tier": "B",
       "take": "Tim Smart introduces Effect Cluster, built on Effect RPC, where runners own shards of entities and persistence lives in the messaging layer. Durable workflows build on top of it, so learn the vocabulary before you need durable execution.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Tim Smart introduces Effect Cluster through entities that process messages and distribute work across machines. Message persistence can be enabled when work needs to survive a client or process going away.",
+          "The demonstration covers delivery at a future time, runners, and redistribution of shards when more runners join. Smart describes durable workflows with an optional Cluster backend as the next step. He calls Cluster very early alpha software."
+        ],
+        "sections": [
+          {
+            "at": 244,
+            "note": "Entities organize business logic and let several machines act as one system."
+          },
+          {
+            "at": 487,
+            "note": "Optional persisted messages support resuming after a client or process returns."
+          },
+          {
+            "at": 749,
+            "note": "deliverAt schedules a message for a future point in time."
+          },
+          {
+            "at": 1005,
+            "note": "Adding runners can redistribute shards and move a singleton."
+          },
+          {
+            "at": 1343,
+            "note": "The next step is durable workflows with a replaceable backend."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "persistence",
+            "route": "/lore/durable-work-needs-storage"
+          },
+          {
+            "term": "future time",
+            "route": "/lore/durable-timers-need-recovery"
+          }
+        ],
+        "gaps": ["Effect Cluster entities and sharding"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "CBPttaqp9Ec",
@@ -194,7 +729,63 @@
       "tier": "B",
       "take": "An office-hours segment that untangles how Effect Cluster, Effect Workflows and Cloudflare Durable Objects relate: cluster as an actor framework of sharded entities, and workflows that run on a workflow engine layer, which today means the cluster engine or an in-memory one.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The speakers distinguish Effect Cluster entities from workflows and their activities. Entities process messages, while a workflow groups steps that need durable execution. A workflow engine supplies the implementation that runs those descriptions.",
+          "They explore using Cloudflare Durable Objects as a target for this work. The discussion also connects Alchemy provisioning with runtime resource access and shows how changing a Layer can select a different runtime or infrastructure backend."
+        ],
+        "sections": [
+          {
+            "at": 45,
+            "note": "Cluster entities act as message-processing units with optional persisted messages."
+          },
+          {
+            "at": 337,
+            "note": "Workflows organize durable work into activities."
+          },
+          {
+            "at": 691,
+            "note": "Alchemy resources expose runtime access as well as provisioning."
+          },
+          {
+            "at": 1028,
+            "note": "Layer selection changes the runtime and motivates a Cloudflare target."
+          },
+          {
+            "at": 1367,
+            "note": "Implementing WorkflowEngine provides an execution backend."
+          },
+          {
+            "at": 1706,
+            "note": "A Cluster-backed workflow engine can target different deployments."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Durable Objects",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          },
+          {
+            "term": "Alchemy",
+            "route": "/lore/infrastructure-as-effects"
+          },
+          {
+            "term": "Layer",
+            "route": "/lore/layers-make-dependencies-explicit"
+          },
+          {
+            "term": "durable execution",
+            "route": "/lore/durability"
+          }
+        ],
+        "gaps": [
+          "Effect Cluster entities and sharding",
+          "Effect WorkflowEngine adapters"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "G_jp87gxILE",
@@ -208,7 +799,60 @@
       "tier": "C",
       "take": "Sandro Maglione covers when Effect earns its place in front-end code, how he sets a project up, and a worked example with separate client and server runtimes. Watch it if you are deciding how far Effect should reach into the browser.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sandro Maglione separates frontend work that benefits from Effect from work such as styling, layout, and animation. He focuses on application services rather than using Effect for every part of an interface.",
+          "The walkthrough groups services, assembles runtimes for server and client environments, and handles named errors in frontend code. It also points to browser platform support for HTTP calls and web workers. The examples reflect the APIs available when the talk was recorded."
+        ],
+        "sections": [
+          {
+            "at": 23,
+            "note": "The talk asks when, why, and how to use Effect on the frontend."
+          },
+          {
+            "at": 140,
+            "note": "Styling, layout, and animation are distinguished from service-oriented work."
+          },
+          {
+            "at": 276,
+            "note": "Service definitions organize reusable frontend behavior."
+          },
+          {
+            "at": 406,
+            "note": "Separate server and client runtimes supply their services."
+          },
+          {
+            "at": 543,
+            "note": "Named errors support more specific messages for the person using the interface."
+          },
+          {
+            "at": 675,
+            "note": "Browser platform modules cover HTTP and web workers."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "services",
+            "route": "/lore/services-capture-dependencies"
+          },
+          {
+            "term": "runtimes",
+            "route": "/lore/run-effect-at-the-boundary"
+          },
+          {
+            "term": "errors",
+            "route": "/lore/error-model"
+          }
+        ],
+        "gaps": ["Effect browser workers"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "fTN8BX5qj6s",
@@ -222,7 +866,60 @@
       "tier": "C",
       "take": "Ethan Niser's 2023 beginner video covers the Effect type, creating and running effects, pipelines, generators and error handling. The ideas hold, but the APIs predate Effect 4, so prefer the workshop above.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "This tutorial introduces Effect through its success value, error, and requirement types. It explains creating programs, running them, and combining several effects into one result.",
+          "A Pokémon example develops the flow from fetching and parsing to generator syntax and error handling. The tutorial then introduces dependency requirements so the data-fetching implementation can change higher in the program. It ends by keeping execution at the application's edges."
+        ],
+        "sections": [
+          {
+            "at": 36,
+            "note": "The Effect type describes values, errors, and requirements."
+          },
+          {
+            "at": 290,
+            "note": "Run functions execute synchronous or asynchronous programs."
+          },
+          {
+            "at": 600,
+            "note": "Effect.all combines several effects into a single result."
+          },
+          {
+            "at": 902,
+            "note": "The Pokémon program uses generators for dependent steps."
+          },
+          {
+            "at": 1212,
+            "note": "Dependency requirements allow the fetching implementation to change."
+          },
+          {
+            "at": 1527,
+            "note": "The recap distinguishes constructors and keeps execution at program edges."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "error handling",
+            "route": "/lore/error-model"
+          },
+          {
+            "term": "dependency requirements",
+            "route": "/lore/context-and-requirements"
+          },
+          {
+            "term": "execution",
+            "route": "/lore/run-effect-at-the-boundary"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "fPSxB7ZgSJw",
@@ -236,7 +933,48 @@
       "tier": "S",
       "take": "Sam Goodwin builds a stack from zero with Alchemy and Effect: runtime code next to infrastructure, Durable Objects and WebSockets, testing, Alchemy against Terraform, and decoupling infrastructure with layers. The best single video on infrastructure as Effects.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sam Goodwin presents Alchemy's move from asynchronous TypeScript to infrastructure built with Effect. The session discusses documentation for coding agents and compares keeping deployment state with checking deployed resources directly.",
+          "The later discussion examines resource providers, including reading state, custom differences, and replacement decisions. It also covers stages for separate environments. These pieces connect infrastructure declarations with the services an application uses."
+        ],
+        "sections": [
+          {
+            "at": 116,
+            "note": "Goodwin introduces the Effect-based second version of Alchemy."
+          },
+          {
+            "at": 798,
+            "note": "Markdown-native documentation supports agents following setup steps."
+          },
+          {
+            "at": 1609,
+            "note": "The discussion compares stateful deployment with checking existing resources."
+          },
+          {
+            "at": 3281,
+            "note": "Resource providers implement reads, differences, and lifecycle operations."
+          },
+          {
+            "at": 4107,
+            "note": "Stages separate deployment environments."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Alchemy",
+            "route": "/lore/infrastructure-as-effects"
+          },
+          {
+            "term": "services",
+            "route": "/lore/services-capture-dependencies"
+          }
+        ],
+        "gaps": ["Alchemy stages", "Alchemy resource provider lifecycle"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "EMbztKSI3-o",
@@ -250,7 +988,52 @@
       "tier": "A",
       "take": "The first nine minutes of that office hours on their own: what Alchemy is, how v2 moved from async TypeScript to Effect, and a demo where state lives in a Durable Object and swaps for local or in-memory state through layers.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sam Goodwin introduces Alchemy by building a small TypeScript stack with an AI-generated scaffold. A bucket declaration produces an output that resolves when the stack deploys.",
+          "He then adds a Worker that reads and writes the bucket to explain infrastructure as Effects. Provider Layers supply the implementations, and the discussion shows how a stack can combine providers for different clouds."
+        ],
+        "sections": [
+          {
+            "at": 14,
+            "note": "Goodwin describes rebuilding Alchemy around Effect."
+          },
+          {
+            "at": 189,
+            "note": "The demonstration starts with a scaffold and an alchemy.run.ts file."
+          },
+          {
+            "at": 287,
+            "note": "A deployed bucket supplies a resolved output value."
+          },
+          {
+            "at": 379,
+            "note": "A Worker using the bucket extends the example beyond resource declarations."
+          },
+          {
+            "at": 470,
+            "note": "Provider Layers can be composed across clouds."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Alchemy",
+            "route": "/lore/infrastructure-as-effects"
+          },
+          {
+            "term": "Worker",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          },
+          {
+            "term": "Layers",
+            "route": "/lore/layers-make-dependencies-explicit"
+          }
+        ],
+        "gaps": ["Alchemy deployment outputs"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "83BsUCw3wew",
@@ -264,7 +1047,59 @@
       "tier": "A",
       "take": "Sam Goodwin on replacing Terraform with resources written in TypeScript and Effect, and why he keeps a plan you can audit and check before deploying rather than a pure reconciler. Then layers swap D1 for DynamoDB behind one Effect service.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sam Goodwin discusses Alchemy's TypeScript approach and the tradeoffs of stateful infrastructure tools. The conversation covers deployment graphs, circular references, and the value of knowing a resource plan before applying it.",
+          "The discussion then turns to separating application code from infrastructure choices through Layers. Swapping implementations can change how the application reaches a resource. A Better Auth example illustrates a service with a database-specific implementation."
+        ],
+        "sections": [
+          {
+            "at": 14,
+            "note": "Goodwin explains his preference for TypeScript infrastructure over a Terraform-based tool."
+          },
+          {
+            "at": 120,
+            "note": "The speakers compare stateful tools with checking deployed infrastructure."
+          },
+          {
+            "at": 250,
+            "note": "Deployment graphs complicate circular dependencies."
+          },
+          {
+            "at": 380,
+            "note": "A known resource plan offers checks before deployment."
+          },
+          {
+            "at": 501,
+            "note": "Layers allow resource access implementations to be replaced."
+          },
+          {
+            "at": 633,
+            "note": "A Better Auth service illustrates an infrastructure-carrying implementation."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Alchemy",
+            "route": "/lore/infrastructure-as-effects"
+          },
+          {
+            "term": "Layers",
+            "route": "/lore/layers-make-dependencies-explicit"
+          },
+          {
+            "term": "service",
+            "route": "/lore/layer-constructor-pattern"
+          }
+        ],
+        "gaps": [
+          "Stateful infrastructure reconciliation",
+          "Circular infrastructure dependencies"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "_QVf4d1WsAQ",
@@ -278,7 +1113,52 @@
       "tier": "B",
       "take": "Sam Goodwin explains the bind-then-use pattern, where declaring a resource dependency also grants only the permissions it needs, and how layers keep heavy provider code out of the runtime bundle.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sam Goodwin describes a workflow built around readable documentation and inspectable packages. He explains how binding and using resources lets application code contribute the bindings and policies needed for deployment.",
+          "The discussion presents Layers as constructors that initialize resources and return implementations. It also covers stages, access to the current stack, and keeping heavy resource-provider code outside the application's runtime bundle."
+        ],
+        "sections": [
+          {
+            "at": 17,
+            "note": "Goodwin favors crawlable Markdown and inspectable package source for agent guidance."
+          },
+          {
+            "at": 117,
+            "note": "Bindings and policies emerge from binding and using resources."
+          },
+          {
+            "at": 212,
+            "note": "Layers initialize resources and return composable implementations."
+          },
+          {
+            "at": 317,
+            "note": "The stack service exposes stage information inside a program."
+          },
+          {
+            "at": 425,
+            "note": "Provider Layers can remain outside the application bundle."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Layers",
+            "route": "/lore/layer-constructor-pattern"
+          },
+          {
+            "term": "bindings",
+            "route": "/lore/bindings"
+          },
+          {
+            "term": "runtime bundle",
+            "route": "/lore/build-time-work-stays-out-of-requests"
+          }
+        ],
+        "gaps": ["Alchemy stages"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "MtKHzAH6uXM",
@@ -292,7 +1172,52 @@
       "tier": "C",
       "take": "A podcast with Sam Goodwin on Alchemy v2, his background building cloud tools, the Distilled SDKs, and why he calls it infrastructure as effects. Background listening once you have seen the demos.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sam Goodwin describes the path from Alchemy's first version to its Effect-based design. The conversation links typed errors and tight feedback to reliable application development, then explores having runtime code describe its infrastructure needs.",
+          "Goodwin explains deployment outputs and the importance of reviewing a plan before it changes resources. A Hyperdrive and Drizzle example shows a Worker obtaining a binding and setting up a database connection."
+        ],
+        "sections": [
+          {
+            "at": 80,
+            "note": "Goodwin traces Alchemy's development from version 1 to version 2."
+          },
+          {
+            "at": 556,
+            "note": "Typed errors are discussed as part of a tight development feedback loop."
+          },
+          {
+            "at": 1101,
+            "note": "Runtime code can describe infrastructure through Effect's service patterns."
+          },
+          {
+            "at": 1619,
+            "note": "Outputs and plans make intended infrastructure changes reviewable."
+          },
+          {
+            "at": 2151,
+            "note": "A Worker obtains a Hyperdrive binding for a Drizzle Postgres connection."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Alchemy",
+            "route": "/lore/cloud-as-a-library"
+          },
+          {
+            "term": "typed errors",
+            "route": "/lore/error-model"
+          },
+          {
+            "term": "binding",
+            "route": "/lore/bindings"
+          }
+        ],
+        "gaps": ["Alchemy deployment outputs"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "m-dSS55VO3Y",
@@ -306,7 +1231,48 @@
       "tier": "S",
       "take": "David Khourshid shows how async/await hides errors and flow, models a video player as a state machine in XState, and ends on Effect and XState as complementary tools. It is the pairing this stack uses for lifecycles.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "David Khourshid uses state machines to make application behavior explicit. Examples show a video player moving through named states, with transitions describing what events are allowed to do.",
+          "He introduces actors as stateful units that receive messages, then explores running those transitions with Effect. The closing distinction is between safe execution and correct logic: Effect can handle failures and requirements while a machine describes the intended behavior."
+        ],
+        "sections": [
+          {
+            "at": 307,
+            "note": "A state machine follows explicit transitions between named states."
+          },
+          {
+            "at": 622,
+            "note": "The video example reveals hard-coded action implementations."
+          },
+          {
+            "at": 940,
+            "note": "Actors own internal state and respond to messages."
+          },
+          {
+            "at": 1268,
+            "note": "An Effect-backed loop reads a mailbox and applies transitions and actions."
+          },
+          {
+            "at": 1587,
+            "note": "The talk distinguishes execution safety from correct application logic."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "state machines",
+            "route": "/lore/lifecycles-are-machines"
+          },
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          }
+        ],
+        "gaps": ["XState actor mailboxes", "XState actor model"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "mZJxGgI7FXU",
@@ -320,7 +1286,52 @@
       "tier": "A",
       "take": "David Khourshid on where state machines sit above Effect for workflows, the difference between actions that fire and forget and actors that are live entities, and the actor model he would like to see in Effect. Pairs with the talk above and goes deeper on actors.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "David Khourshid connects state machines with requirements written as given, when, and then. Invoked actors live for the lifetime of a state and can report results back, unlike fire-and-forget actions.",
+          "The talk explores actors built from promises or transitions and demonstrates a drink machine whose actors exchange messages. A sequence diagram makes those exchanges visible. Khourshid closes by discussing how Effect could execute the machine and supply runtime features."
+        ],
+        "sections": [
+          {
+            "at": 313,
+            "note": "State transitions map directly to given-when-then requirements."
+          },
+          {
+            "at": 635,
+            "note": "Invoked actors live within a state's lifetime and communicate back."
+          },
+          {
+            "at": 960,
+            "note": "Promise and transition logic provide different actor behaviors."
+          },
+          {
+            "at": 1289,
+            "note": "A drink machine demonstrates actor communication and its sequence diagram."
+          },
+          {
+            "at": 1619,
+            "note": "Effect can supply execution, observability, and retries around machine logic."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "state machines",
+            "route": "/lore/lifecycles-are-machines"
+          },
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          },
+          {
+            "term": "requirements",
+            "route": "/lore/ui-behaviour-is-a-scene"
+          }
+        ],
+        "gaps": ["XState actor sequence diagrams"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "RqTxtOXcv8Y",
@@ -334,7 +1345,52 @@
       "tier": "A",
       "take": "The classic introduction to finite state machines and statecharts for UI: how they tame the growth of possible states, and how to implement, test and visualize them.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "David Khourshid shows how interface logic grows harder to follow as new requirements arrive. A search interface gains cancellation, and scattered conditions give way to explicit states and transitions.",
+          "He represents transitions as data and explores paths through the resulting graph for testing. Statecharts then compress combinations of independent options into a smaller representation. The approach is presented independently of any particular UI framework."
+        ],
+        "sections": [
+          {
+            "at": 58,
+            "note": "The talk presents state machines as a framework-independent way to model interfaces."
+          },
+          {
+            "at": 384,
+            "note": "Adding search cancellation makes conditional logic more complicated."
+          },
+          {
+            "at": 730,
+            "note": "A transition table looks up the next state from a state and event."
+          },
+          {
+            "at": 1112,
+            "note": "Paths through a machine can generate scenarios beyond the happy path."
+          },
+          {
+            "at": 1456,
+            "note": "Orthogonal statecharts represent combinations without listing every state."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "states and transitions",
+            "route": "/lore/lifecycles-are-machines"
+          },
+          {
+            "term": "testing",
+            "route": "/lore/model-based-testing"
+          },
+          {
+            "term": "interface logic",
+            "route": "/lore/implicit-state-machines"
+          }
+        ],
+        "gaps": ["Hierarchical and orthogonal statecharts"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "1NsSHkao-q4",
@@ -348,7 +1404,55 @@
       "tier": "B",
       "take": "A long Stately webinar that builds a real app with XState v5: actors and machines, inspecting and visualizing logic, framework integration and TypeScript tips. This stack pins an XState 6 beta, so treat the API details as v5.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "This webinar introduces XState v5 through actors that hold state and receive messages. David Khourshid relates that model to familiar stores, then builds behavior by sending events rather than changing another actor's state directly.",
+          "The examples include nested states, a multi-step form, and React components that work with actors. Questions explore parent-child communication and optional actor references. The session also distinguishes XState's behavioral structure from Effect's execution of side effects."
+        ],
+        "sections": [
+          {
+            "at": 228,
+            "note": "Stores provide a starting point for understanding actors with state and messages."
+          },
+          {
+            "at": 1726,
+            "note": "Effect handles effectful work while XState supplies overall structure."
+          },
+          {
+            "at": 3392,
+            "note": "Nested states organize loading and ready behavior."
+          },
+          {
+            "at": 5218,
+            "note": "Sending events is the usual way to request changes in an actor."
+          },
+          {
+            "at": 7030,
+            "note": "The form demonstration follows several steps and possible outcomes."
+          },
+          {
+            "at": 8776,
+            "note": "A component example considers an optional actor reference."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "XState",
+            "route": "/lore/lifecycles-are-machines"
+          },
+          {
+            "term": "Effect",
+            "route": "/lore/effect-basics"
+          }
+        ],
+        "gaps": [
+          "Hierarchical and orthogonal statecharts",
+          "React and XState actor references"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "OytpXXeNmTQ",
@@ -362,7 +1466,42 @@
       "tier": "A",
       "take": "Anders Hejlsberg introduces TypeScript 7, the Go port of the compiler, with a live compile of the VS Code codebase and the new LSP language server. This stack pins TypeScript 7, so this is the compiler you are running.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Anders Hejlsberg presents the native TypeScript compiler and explains why the team moved beyond a JavaScript implementation. The port preserves the compiler's structure while using more CPU cores for compute-heavy work.",
+          "Demonstrations vary the number of type checkers and show the native language server in the editor. Hejlsberg also names a compatibility limit: projects that depend on compiler APIs still need the older implementation at the time of the talk."
+        ],
+        "sections": [
+          {
+            "at": 104,
+            "note": "The JavaScript compiler faces performance and scalability constraints."
+          },
+          {
+            "at": 217,
+            "note": "The native port retains the source structure while using multiple cores."
+          },
+          {
+            "at": 338,
+            "note": "The demonstration increases concurrent type checkers."
+          },
+          {
+            "at": 461,
+            "note": "The native language server runs alongside the existing editor tooling."
+          },
+          {
+            "at": 573,
+            "note": "Compiler API consumers remain a compatibility exception in the talk."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Native TypeScript compiler architecture",
+          "TypeScript compiler API compatibility"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "UJfF3-13aFo",
@@ -376,7 +1515,42 @@
       "tier": "A",
       "take": "The longer Build talk on the native port: why the team committed to it, why Go, how it changes your workflow, and the path to completion.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Anders Hejlsberg describes porting the TypeScript compiler to Go. Early scanner and parser results encouraged the team to move the remaining compiler while keeping each stage buildable and runnable.",
+          "The talk examines Go's memory and string behavior and demonstrates compiler performance. It explains trying the compiler and language service beside the older tools. It also names features the port drops."
+        ],
+        "sections": [
+          {
+            "at": 584,
+            "note": "Early scanner and parser work motivates the full compiler port."
+          },
+          {
+            "at": 1203,
+            "note": "The team ports incrementally while preserving a runnable compiler."
+          },
+          {
+            "at": 1797,
+            "note": "Go string representation permits allocation-free substring operations."
+          },
+          {
+            "at": 2355,
+            "note": "The demonstration compares compiler builds and diagnostics."
+          },
+          {
+            "at": 2933,
+            "note": "The native tools can coexist with the old compiler; some old targets are dropped."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Native TypeScript compiler architecture",
+          "Go strings and allocation"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "PZm_YbE3fcA",
@@ -390,7 +1564,39 @@
       "tier": "B",
       "take": "Jake Bailey on porting the 150,000-line compiler and its 90,000 tests to Go, the problems they hit and the lessons they learned. Watch it for the engineering story behind the speedup.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Jake Bailey explains why the native TypeScript compiler needed to be a port rather than a fresh rewrite. Preserving existing behavior constrained the choice of implementation language and the way the team moved the code.",
+          "The technical examples cover pooled node allocation, concurrent access to cached node flags, and string-related performance problems. Go's race detector and profiling tools help reveal assumptions that were harmless in the single-threaded JavaScript compiler."
+        ],
+        "sections": [
+          {
+            "at": 444,
+            "note": "Without a complete specification, the team preserves behavior by porting the existing code."
+          },
+          {
+            "at": 1295,
+            "note": "A pool allocates nodes from slices to reduce allocations."
+          },
+          {
+            "at": 1716,
+            "note": "The race detector finds concurrent mutation of cached node flags."
+          },
+          {
+            "at": 2128,
+            "note": "Profiling reveals string and cache performance problems in the Go port."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Native TypeScript compiler architecture",
+          "Go race detection and profiling",
+          "Concurrent compiler mutation"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "dLPgQRbVquo",
@@ -404,7 +1610,48 @@
       "tier": "B",
       "take": "Matt Pocock explains generics from the type level up: passing type arguments, inference, and constraints. Effect's types lean on generics heavily, so this pays off quickly.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Matt Pocock introduces generics as a way to carry type information through reusable TypeScript code. The examples distinguish generic types from generic functions and show when a constructor needs an explicit type argument.",
+          "Later examples combine type helpers and constrain generic inputs. A key lookup uses keyof to keep the selected property tied to its object. A schema example connects the type of supplied data with the schema expected to describe it."
+        ],
+        "sections": [
+          {
+            "at": 25,
+            "note": "Generic types accept type arguments instead of losing information to any."
+          },
+          {
+            "at": 200,
+            "note": "A Set example shows when an explicit element type is useful."
+          },
+          {
+            "at": 393,
+            "note": "Type helpers combine return types and awaited values with constraints."
+          },
+          {
+            "at": 589,
+            "note": "Constraints limit valid inputs to generic functions."
+          },
+          {
+            "at": 790,
+            "note": "A keyof constraint connects an object's keys to its return type."
+          },
+          {
+            "at": 990,
+            "note": "A schema type argument links a schema to its expected data shape."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "schema",
+            "route": "/lore/schemas-define-the-boundary"
+          }
+        ],
+        "gaps": ["TypeScript generics, inference, and constraints"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "8txf05vVVl4",
@@ -418,7 +1665,48 @@
       "tier": "S",
       "take": "Sunil Pai explains code mode, where the model writes code against an API instead of making JSON tool calls, and why that scales better, with sandboxing and capability-based security. This stack ships a code mode surface, and this is the idea behind it.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Sunil Pai presents code mode as a response to tool calling across large APIs. Instead of asking the model to make each call separately, an execution environment lets it write a program that uses the available operations.",
+          "The talk extends that idea into stateful and long-running programs as possibilities to explore. Pai also discusses agent-readable documentation, useful errors, discovery, and capability-based security as parts of the developer experience."
+        ],
+        "sections": [
+          {
+            "at": 72,
+            "note": "Large APIs and longer runs expose limits in ordinary tool calling."
+          },
+          {
+            "at": 246,
+            "note": "A slide example shows a DDoS-response prompt. The live demo lists Workers through code mode."
+          },
+          {
+            "at": 457,
+            "note": "Writing a script provides the analogy for composing API operations."
+          },
+          {
+            "at": 853,
+            "note": "Long-running workflows and per-user interfaces are proposed directions."
+          },
+          {
+            "at": 1052,
+            "note": "Documentation, useful errors, discovery, and capability-based security support agents."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "code mode",
+            "route": "/lore/one-program-can-replace-several-tool-calls"
+          },
+          {
+            "term": "useful errors",
+            "route": "/lore/errors-are-part-of-the-interface"
+          }
+        ],
+        "gaps": ["Capability-based security for generated programs"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "D7_ipDqhtwk",
@@ -432,7 +1720,42 @@
       "tier": "A",
       "take": "Barry Zhang on three ideas from Anthropic's Building Effective Agents: don't build agents for everything, keep them simple, and think like your agent. Fifteen minutes that will change how you design tools.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Barry Zhang argues that an agent is useful when a task needs exploration rather than a fully known decision tree. He asks builders to consider both task complexity and the value of spending model calls on that exploration.",
+          "He models agents as models using tools in a loop, operating within an environment. His design advice is to keep that loop simple and inspect the context the model actually sees. Reviewing tool descriptions and execution histories can reveal why an agent made a poor choice."
+        ],
+        "sections": [
+          {
+            "at": 32,
+            "note": "The talk introduces three themes: selective use, simplicity, and the agent's perspective."
+          },
+          {
+            "at": 174,
+            "note": "Ambiguity and task value help decide whether an agent is appropriate."
+          },
+          {
+            "at": 335,
+            "note": "An agent is described as a model using tools in a loop."
+          },
+          {
+            "at": 493,
+            "note": "Inspecting the context window helps explain an agent's decisions."
+          },
+          {
+            "at": 651,
+            "note": "Tool descriptions and execution histories offer material for improving decisions."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Choosing between agents and explicit workflows",
+          "Agent context and tool design"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "v3Fr2JR47KA",
@@ -446,7 +1769,48 @@
       "tier": "A",
       "take": "David Soria Parra lays out where MCP is going: skills, MCP and computer use as one stack, progressive discovery, programmatic tool calling, and advice for server authors.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "David Soria Parra presents MCP as shared semantics between clients and servers, including how clients recognize interface content. He describes agents combining several kinds of tools rather than relying on a single interface.",
+          "The talk explores giving a model an execution environment so it can compose operations in code. It outlines proposed improvements to MCP transport and skill delivery. These remain plans at the time of the talk."
+        ],
+        "sections": [
+          {
+            "at": 42,
+            "note": "Client-server agreement lets a protocol carry meaning such as interface content."
+          },
+          {
+            "at": 424,
+            "note": "Agents can combine MCP with other tools rather than selecting only one."
+          },
+          {
+            "at": 624,
+            "note": "A REPL-style tool lets the model compose operations in an execution environment."
+          },
+          {
+            "at": 819,
+            "note": "The roadmap includes changes to core protocol and HTTP transport behavior."
+          },
+          {
+            "at": 1010,
+            "note": "Skill loading and updates are discussed as an area for new semantics."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "MCP",
+            "route": "/lore/mcp-is-another-surface"
+          },
+          {
+            "term": "compose operations in code",
+            "route": "/lore/one-program-can-replace-several-tool-calls"
+          }
+        ],
+        "gaps": ["MCP interface content semantics", "MCP skill delivery"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "CEvIs9y1uog",
@@ -460,7 +1824,51 @@
       "tier": "A",
       "take": "Barry Zhang and Mahesh Murag argue that agents need packaged expertise more than new scaffolding, and explain Skills as a minimal format for procedural knowledge an agent loads when it needs it.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Barry Zhang and Mahesh Murag argue for adding reusable skills to general agents instead of building a separate agent for each task. Skills use files that people and agents can create, version, share, and combine with scripts.",
+          "They show examples of skills extending existing products and helping people with work beyond coding. The talk places skills alongside the agent loop and runtime, then discusses easier integration and distribution as areas for further development."
+        ],
+        "sections": [
+          {
+            "at": 44,
+            "note": "The speakers introduce a shift toward general agents extended by skills."
+          },
+          {
+            "at": 190,
+            "note": "Files and scripts make skills simple to create, version, and share."
+          },
+          {
+            "at": 361,
+            "note": "Product examples include browser automation and workspace research."
+          },
+          {
+            "at": 531,
+            "note": "The emerging architecture combines an agent loop with reusable knowledge."
+          },
+          {
+            "at": 705,
+            "note": "Sharing, distribution, and integration are future areas of work."
+          },
+          {
+            "at": 869,
+            "note": "The closing analogy separates the model from the runtime around it."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "MCP",
+            "route": "/lore/mcp-is-another-surface"
+          }
+        ],
+        "gaps": [
+          "General agents and reusable skill packages",
+          "Anthropic Agent Skills"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "owmJyKVu5f8",
@@ -474,7 +1882,47 @@
       "tier": "A",
       "take": "Simon Willison on the engineering practices that make coding agents work: tests as the core reliability tool, prompt injection and security, and getting more from current models.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Simon Willison discusses engineering practices for working with coding agents. He describes red-green test-driven development: first observe a failing test, then have the implementation make it pass.",
+          "He argues that people still choose the quality of the code they accept and can direct agents to refactor weak results. The conversation also examines prompt injection through three ingredients: private data, malicious instructions, and a way to send data out."
+        ],
+        "sections": [
+          {
+            "at": 50,
+            "note": "Willison describes a workflow that includes shipping code from his phone."
+          },
+          {
+            "at": 318,
+            "note": "Red-green testing establishes a failing test before the implementation."
+          },
+          {
+            "at": 622,
+            "note": "Accepting or improving generated code remains an engineering choice."
+          },
+          {
+            "at": 911,
+            "note": "The prompt injection discussion combines private data, hostile instructions, and exfiltration."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "test",
+            "route": "/lore/tests-that-earn-their-place"
+          },
+          {
+            "term": "coding agents",
+            "route": "/lore/agents-explore-tests-remember"
+          }
+        ],
+        "gaps": [
+          "Prompt injection and the lethal trifecta",
+          "Red-green development with coding agents"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "LP5OCa20Zpg",
@@ -488,7 +1936,47 @@
       "tier": "B",
       "take": "Anthropic's applied AI and research people define agents against workflows, look at the anatomy of an agent prompt, and give advice on where agents help and where they don't.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The speakers distinguish predetermined workflows from agents that choose what to do next. Fixed sequences can transform inputs through known steps, while agentic work needs room for exploration.",
+          "They emphasize tool descriptions the model can understand, valuable and complex tasks where errors are cheap to catch, and a way to measure results. The discussion also explores interactions between multiple agents and the uncertainty around where those approaches help."
+        ],
+        "sections": [
+          {
+            "at": 29,
+            "note": "The conversation begins by separating definitions of agents from broader LLM applications."
+          },
+          {
+            "at": 198,
+            "note": "A fixed workflow has known steps and intermediate checks."
+          },
+          {
+            "at": 403,
+            "note": "Tool use still requires instructions that make sense from the model's perspective."
+          },
+          {
+            "at": 596,
+            "note": "Task value, complexity, and the cost of errors affect agent suitability."
+          },
+          {
+            "at": 798,
+            "note": "A game illustrates multiple agents communicating in different roles."
+          },
+          {
+            "at": 990,
+            "note": "Measuring results provides feedback on whether the system works."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Choosing between agents and explicit workflows",
+          "Agent evaluation design",
+          "Agent context and tool design"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "-ZikRWR1Gb4",
@@ -502,7 +1990,56 @@
       "tier": "B",
       "take": "This Week in NET on code mode, with demos: more than 2,500 Cloudflare API endpoints behind two tools and about a thousand tokens of context.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "This discussion demonstrates code mode over Cloudflare's API. It contrasts exposing a small hand-picked tool list with letting an agent discover operations and compose them through a compact tool interface.",
+          "The live session experiments with Workers, KV, Durable Objects, access controls, and analytics, then asks the agent to clean up its resources. The speakers also discuss progressive disclosure and plans for MCP portals."
+        ],
+        "sections": [
+          {
+            "at": 75,
+            "note": "The episode introduces broad API access through two tools."
+          },
+          {
+            "at": 452,
+            "note": "Small per-product MCP servers limit the exposed API surface."
+          },
+          {
+            "at": 923,
+            "note": "Explicit guidance helps make the short live demonstration more predictable."
+          },
+          {
+            "at": 1392,
+            "note": "The session requests cleanup after experimenting with several Cloudflare services."
+          },
+          {
+            "at": 1873,
+            "note": "Progressive disclosure offers alternatives to loading every tool into context."
+          },
+          {
+            "at": 2296,
+            "note": "Code mode for MCP portals is described as coming soon."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "code mode",
+            "route": "/lore/one-program-can-replace-several-tool-calls"
+          },
+          {
+            "term": "MCP",
+            "route": "/lore/mcp-is-another-surface"
+          },
+          {
+            "term": "Durable Objects",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          }
+        ],
+        "gaps": ["Progressive tool discovery"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "LCEmiRjPEtQ",
@@ -530,7 +2067,52 @@
       "tier": "S",
       "take": "Durable Objects explained by building a Slack-style chat: SQLite state, WebSocket broadcast and hibernation in under seventy lines, and why that makes them stateful serverless functions rather than just storage. Watch it before reading any Durable Object code.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The video builds a small chat application to explain Durable Objects. Each room identifier selects one object with its own private storage, so people in the same room reach the same stateful unit.",
+          "The example starts with SQLite-backed messages, then adds WebSockets and hibernation support for live updates. The speaker explicitly leaves out production concerns such as authentication, validation, and rate limiting to keep the example focused on the object model."
+        ],
+        "sections": [
+          {
+            "at": 13,
+            "note": "A minimal chat app provides the example for persistent state and WebSockets."
+          },
+          {
+            "at": 97,
+            "note": "One room identifier maps to one Durable Object and its private storage."
+          },
+          {
+            "at": 202,
+            "note": "The object creates a table and implements message insertion and reading."
+          },
+          {
+            "at": 305,
+            "note": "The example adds hibernatable WebSockets and routes requests through the Worker."
+          },
+          {
+            "at": 404,
+            "note": "The demonstration shows live message broadcasting."
+          },
+          {
+            "at": 510,
+            "note": "The speaker names production concerns deliberately omitted from the teaching example."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Durable Objects",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          },
+          {
+            "term": "persistent state",
+            "route": "/lore/durable-work-needs-storage"
+          }
+        ],
+        "gaps": ["Durable Object WebSocket hibernation"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "WDhruDqb5nM",
@@ -544,7 +2126,52 @@
       "tier": "A",
       "take": "Five minutes on what a Worker is: V8 isolates instead of containers, scaling to zero on Cloudflare's global network, and converting an Express app to a Worker with Hono.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The video contrasts an always-listening Node server with a Cloudflare Worker fetch handler. Cloudflare receives the request, passes it to the handler, and returns the response from the program.",
+          "The explanation covers distribution across Cloudflare's network, deploying web applications as well as APIs, and accessing other platform products through bindings. The examples include full-stack frameworks and services such as Queues."
+        ],
+        "sections": [
+          {
+            "at": 6,
+            "note": "An Express application introduces the traditional listening-server model."
+          },
+          {
+            "at": 59,
+            "note": "A load balancer and additional servers address a growing request load."
+          },
+          {
+            "at": 114,
+            "note": "Cloudflare routes a request to a Worker's fetch handler."
+          },
+          {
+            "at": 173,
+            "note": "The speaker explains distribution across the global network."
+          },
+          {
+            "at": 228,
+            "note": "Workers can return HTML, host frameworks, and use platform bindings."
+          },
+          {
+            "at": 291,
+            "note": "The closing overview includes Queues and other platform products."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Worker",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          },
+          {
+            "term": "bindings",
+            "route": "/lore/bindings"
+          }
+        ],
+        "gaps": ["Cloudflare Workers request routing"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "C5-741uQPVU",
@@ -558,7 +2185,56 @@
       "tier": "A",
       "take": "Josh Howard from Cloudflare explains how Durable Objects and D1 work under the hood: isolates, replicated storage, and routing every request for an object to one place. The deep dive once the basics click.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Josh Howard discusses how Cloudflare runs stateful services on top of its isolate-based platform. The conversation explores Durable Objects, storage behavior, and the difference between a fast local write and one confirmed as durable.",
+          "Howard describes replication through a storage relay and coordination when clients create the same named object. Planned containers would attach to objects and be routed through the Durable Objects API."
+        ],
+        "sections": [
+          {
+            "at": 84,
+            "note": "V8 isolates provide the starting point for Cloudflare's execution model."
+          },
+          {
+            "at": 642,
+            "note": "The speakers examine the Durable Object abstraction and its state."
+          },
+          {
+            "at": 1284,
+            "note": "Local writes differ from confirmed durable writes replicated through the storage relay."
+          },
+          {
+            "at": 1957,
+            "note": "The conversation considers object placement behavior."
+          },
+          {
+            "at": 2582,
+            "note": "Coordination resolves concurrent creation of the same named object."
+          },
+          {
+            "at": 3244,
+            "note": "Planned containers would attach to objects and be routed through the Durable Objects API."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Durable Objects",
+            "route": "/lore/workers-answer-requests-durable-objects-own-named-state"
+          },
+          {
+            "term": "durable",
+            "route": "/lore/durability"
+          }
+        ],
+        "gaps": [
+          "Durable Object storage relay",
+          "Durable Object placement and creation coordination",
+          "Cloudflare containers attached to Durable Objects"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "75jxhU6z3ho",
@@ -586,7 +2262,56 @@
       "tier": "B",
       "take": "An introduction to Cloudflare Workflows: durable execution that runs in the background in steps, with built-in retries and the ability to sleep for a set time.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The video introduces Cloudflare Workflows through a pun-publishing application. The request stores an entry, then starts a workflow with the new identifier instead of doing every processing step while the person waits.",
+          "Workflow steps perform moderation and AI processing before updating search data and publication status. The demonstration explains retry behavior and configurable backoff, then introduces sleep for pausing work until a later time."
+        ],
+        "sections": [
+          {
+            "at": 10,
+            "note": "The speaker describes the difficulty of moving multi-step work out of a request."
+          },
+          {
+            "at": 80,
+            "note": "The pun application uses semantic search backed by Vectorize."
+          },
+          {
+            "at": 168,
+            "note": "The request stores an entry and starts its publish workflow."
+          },
+          {
+            "at": 252,
+            "note": "step.do supplies retries and configurable backoff around a step."
+          },
+          {
+            "at": 328,
+            "note": "AI-generated categories feed a later Vectorize update."
+          },
+          {
+            "at": 403,
+            "note": "The workflow updates publication status and the speaker introduces sleep."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Cloudflare Workflows",
+            "route": "/lore/queues-pipelines-workflows-and-k2-do-different-jobs"
+          },
+          {
+            "term": "retry",
+            "route": "/lore/retry-needs-idempotency"
+          },
+          {
+            "term": "pausing",
+            "route": "/lore/durable-timers-need-recovery"
+          }
+        ],
+        "gaps": ["Vectorize semantic search"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "HXOpxNaKUzw",
@@ -600,7 +2325,48 @@
       "tier": "B",
       "take": "Builds an event-driven app with Cloudflare Queues, moving slow work such as sending email out of the request path so each part scales on its own.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The video builds an event-driven shop with Cloudflare Queues. Signup and order requests send messages so welcome and confirmation emails can run away from the request's critical path.",
+          "Consumer Workers read the messages, fetch user and product information, and build the emails. Successful processing acknowledges the message. The walkthrough also shows the error path that requests another delivery instead of acknowledging unfinished work."
+        ],
+        "sections": [
+          {
+            "at": 9,
+            "note": "Email work motivates moving events away from the request path."
+          },
+          {
+            "at": 52,
+            "note": "The shop demonstration begins with signup and a new-user event."
+          },
+          {
+            "at": 114,
+            "note": "A consumer reads user information and sends a welcome email."
+          },
+          {
+            "at": 168,
+            "note": "The order endpoint sends order details to a queue."
+          },
+          {
+            "at": 221,
+            "note": "The consumer builds a confirmation email and acknowledges success or handles failure."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Cloudflare Queues",
+            "route": "/lore/queues-pipelines-workflows-and-k2-do-different-jobs"
+          },
+          {
+            "term": "another delivery",
+            "route": "/lore/retry-needs-idempotency"
+          }
+        ],
+        "gaps": ["Queue acknowledgement and redelivery"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "6ExqctHGuVw",
@@ -614,7 +2380,51 @@
       "tier": "B",
       "take": "Kenton Varda on Cap'n Web, which returns references to live server objects instead of data: promise pipelining, lifecycle management, and why capability-based RPC is a better security model for agents than handing them tokens.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Kenton Varda presents Cap'n Web through remote objects with callable methods. A chat API moves from endpoint-shaped methods toward objects representing individual rooms, where access can be checked when a room object is obtained.",
+          "The examples also use callbacks for subscriptions and disposal to remove a subscription when the client goes away. Varda discusses exposing typed interfaces to agents and the care needed when wrapping existing objects so unintended methods are not exposed."
+        ],
+        "sections": [
+          {
+            "at": 43,
+            "note": "The introduction presents network communication as remote function calls."
+          },
+          {
+            "at": 322,
+            "note": "A chat API begins with a direct conversion of endpoints to methods."
+          },
+          {
+            "at": 637,
+            "note": "Room objects group methods and provide a point for access checks."
+          },
+          {
+            "at": 942,
+            "note": "Disposing a client stub removes its subscription, including on disconnect."
+          },
+          {
+            "at": 1244,
+            "note": "Typed interfaces offer an alternative to ambiguous request details for agents."
+          },
+          {
+            "at": 1557,
+            "note": "Wrapping objects requires care to avoid exposing unintended functionality."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "disposal",
+            "route": "/lore/scopes-own-resources"
+          }
+        ],
+        "gaps": [
+          "Cap'n Web object capabilities and RPC",
+          "Remote callback subscriptions"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "VBsqp3NutAE",
@@ -642,7 +2452,59 @@
       "tier": "C",
       "take": "A quick tour of newer Workflows features: human in the loop, sleeping and hibernation, rollbacks, inspecting state locally, and cron triggers.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "The video demonstrates Cloudflare Workflows with an interactive application. It walks through durable steps, waiting for an external event with a timeout, and sleeping between pieces of work.",
+          "Later examples cover compensating actions after a failed step, including removing an image uploaded earlier in a photo-processing workflow. The walkthrough also shows the local explorer for inspecting workflow history and configuration for starting workflows on a schedule."
+        ],
+        "sections": [
+          {
+            "at": 10,
+            "note": "An interactive app walks through individual durable workflow steps."
+          },
+          {
+            "at": 81,
+            "note": "Waiting for an event supports approval flows and has an explicit timeout."
+          },
+          {
+            "at": 169,
+            "note": "Sleep separates work across a longer interval."
+          },
+          {
+            "at": 252,
+            "note": "A photo-processing example uses rollback functions to undo earlier steps."
+          },
+          {
+            "at": 339,
+            "note": "The local explorer displays workflow history and other services."
+          },
+          {
+            "at": 426,
+            "note": "Schedule configuration can start workflows regularly."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Cloudflare Workflows",
+            "route": "/lore/queues-pipelines-workflows-and-k2-do-different-jobs"
+          },
+          {
+            "term": "timeout",
+            "route": "/lore/timeouts-bound-waiting"
+          },
+          {
+            "term": "sleeping",
+            "route": "/lore/durable-timers-need-recovery"
+          }
+        ],
+        "gaps": [
+          "Workflow compensation and rollback",
+          "Cloudflare Workflow event waits and schedules"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "SxdOUGdseq4",
@@ -656,7 +2518,43 @@
       "tier": "S",
       "take": "Rich Hickey separates simple, meaning not braided together, from easy, meaning close at hand, and argues that reliability needs simplicity. The vocabulary behind this stack's uncomplect skill.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Rich Hickey distinguishes simple from easy. Simple concerns how many things are intertwined, while easy concerns what is close at hand or familiar. He asks developers to judge designs by their long-term use rather than only the ease of starting.",
+          "He argues that modules alone do not remove complexity when their concerns remain intertwined. The talk examines separating data, communication, and policy so a program's essential parts can be understood and changed with fewer entanglements."
+        ],
+        "sections": [
+          {
+            "at": 98,
+            "note": "Hickey starts with the origins and more precise meanings of simple and easy."
+          },
+          {
+            "at": 668,
+            "note": "Long-term use raises questions beyond how quickly a programmer starts typing."
+          },
+          {
+            "at": 1347,
+            "note": "Tools can be made easier to reach or learn without changing their complexity."
+          },
+          {
+            "at": 2029,
+            "note": "Modular components can still be intertwined through their connections."
+          },
+          {
+            "at": 2701,
+            "note": "The discussion favors manipulating essential data and clearer communication."
+          },
+          {
+            "at": 3333,
+            "note": "Policy and rules are often scattered across an application."
+          }
+        ],
+        "concepts": [],
+        "gaps": ["Simple versus easy", "Separating mechanism from policy"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "zi0rHwfiX1Q",
@@ -670,7 +2568,52 @@
       "tier": "S",
       "take": "John Hughes shows why example tests cannot keep up with interactions between features and with race conditions, and how QuickCheck tests generated from a state machine model find those bugs and shrink them to a minimal failing case. This is why the stack prefers property and model tests.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "John Hughes shows why enumerating example tests becomes difficult when operations interact. He uses small models and generated operation sequences to specify behavior and find bugs in imperative code.",
+          "The demonstrations shrink failures into short cases that are easier to debug. Hughes then moves from sequential behavior to parallel tests, where the model must first match ordinary operation. Examples expose race conditions and corruption that successful individual results can hide."
+        ],
+        "sections": [
+          {
+            "at": 61,
+            "note": "Combinations and race conditions make exhaustive hand-written cases grow quickly."
+          },
+          {
+            "at": 483,
+            "note": "Small pure functions specify the behavior of imperative operations."
+          },
+          {
+            "at": 1057,
+            "note": "One specification finds different bugs and shrinks them to small failing cases."
+          },
+          {
+            "at": 1569,
+            "note": "Industrial testing finds problems in implementations and in their standard."
+          },
+          {
+            "at": 2040,
+            "note": "A model must match sequential behavior before parallel tests are meaningful."
+          },
+          {
+            "at": 2548,
+            "note": "Concurrent operations can return plausible results while corrupting stored data."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "generated operation sequences",
+            "route": "/lore/model-based-testing"
+          },
+          {
+            "term": "shrink",
+            "route": "/lore/property-based-testing"
+          }
+        ],
+        "gaps": ["Linearizability testing"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "zvRAyq5wj38",
@@ -684,7 +2627,52 @@
       "tier": "A",
       "take": "John Hughes gives five strategies for finding properties of pure functions, compares how well each finds bugs, and names the biggest pitfall. The practical companion to the talk above.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "John Hughes explains how to write properties for pure functions rather than collecting more examples. Generated inputs exercise a rule, and shrinking reduces a failure to a small case in which each part matters.",
+          "He shows why generators also need checks: invalid generated trees can confuse the properties that consume them. The talk explores describing how output should change when input changes and comparing an implementation with an abstract model."
+        ],
+        "sections": [
+          {
+            "at": 66,
+            "note": "A reverse function introduces generated inputs and properties."
+          },
+          {
+            "at": 465,
+            "note": "Shrinking finds a small counterexample relevant to the failure."
+          },
+          {
+            "at": 924,
+            "note": "Generators must produce valid inputs and need properties of their own."
+          },
+          {
+            "at": 1429,
+            "note": "Changing an input can predict how a result should change without predicting the whole result."
+          },
+          {
+            "at": 1884,
+            "note": "Abstract data representations provide models for testing implementations."
+          },
+          {
+            "at": 2351,
+            "note": "The closing comparison considers the effectiveness of input-change properties and models."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "properties",
+            "route": "/lore/property-based-testing"
+          }
+        ],
+        "gaps": [
+          "Metamorphic testing",
+          "Testing property generators",
+          "Pure-function reference models"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "-4Yp3j_jk8Q",
@@ -698,7 +2686,39 @@
       "tier": "A",
       "take": "Leslie Lamport argues that every program deserves a specification written before the code, the way a building gets a blueprint, and especially concurrent and distributed ones.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Leslie Lamport argues for thinking and writing about a program before coding it. He models a behavior as a sequence of states and a program as the set of behaviors it permits.",
+          "Examples including Euclid's algorithm and quicksort show specifications above implementation details. Lamport discusses model checking and mechanically checked proofs, then recommends writing specifications for code that someone may need to use or change later."
+        ],
+        "sections": [
+          {
+            "at": 688,
+            "note": "Programs are modeled as possible behaviors, each a sequence of states."
+          },
+          {
+            "at": 1348,
+            "note": "Model checking and mechanically checked proofs offer different ways to examine correctness."
+          },
+          {
+            "at": 1967,
+            "note": "Quicksort is specified without choosing its partition implementation."
+          },
+          {
+            "at": 2618,
+            "note": "Writing before coding makes the intended behavior explicit for future readers."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "TLA+ specifications and proofs",
+          "Specification before implementation",
+          "TLA+ model checking"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "_9B__0S21y8",
@@ -712,7 +2732,43 @@
       "tier": "A",
       "take": "Hillel Wayne introduces TLA+ through practical examples: writing a specification to check a design, and catching race conditions, duplicated money and deadlocks before they reach code.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Hillel Wayne uses TLA+ to explore possible executions of a concurrent system. A model checker does the repetitive work of examining interleavings that would be difficult to inspect reliably by hand.",
+          "The demonstration finds and fixes a design bug before the application is implemented. A later example checks a plausible fix against every invariant. Changing one rule can break another through a much longer sequence of steps."
+        ],
+        "sections": [
+          {
+            "at": 331,
+            "note": "Concurrency problems require reasoning beyond ordinary local debugging tools."
+          },
+          {
+            "at": 636,
+            "note": "A computer can check possible behaviors more reliably than manual enumeration."
+          },
+          {
+            "at": 970,
+            "note": "The Toolbox translates and checks the specification, including process interleavings."
+          },
+          {
+            "at": 1323,
+            "note": "The model exposes a design bug before application code is written."
+          },
+          {
+            "at": 1627,
+            "note": "Candidate fixes break other invariants through a long execution sequence."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "TLA+ specifications and proofs",
+          "Concurrency invariants",
+          "TLA+ model checking"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "-6BsiVyC1kM",
@@ -726,7 +2782,44 @@
       "tier": "A",
       "take": "Rich Hickey on values: immutable facts you can compare and share, against places you update in place. The same idea sits behind this stack's rule to store source facts and derive the rest.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Rich Hickey distinguishes values from mutable places that hold information. He challenges the idea that a reference to a location is the same as remembering a fact.",
+          "Sharing values supports reproducible results without coordination around later mutation. The talk connects this distinction to consistent observations, memory, and the need to separate value-oriented information from process-oriented parts of a system."
+        ],
+        "sections": [
+          {
+            "at": 65,
+            "note": "A deliberately misleading definition of facts exposes the difference between information and a location."
+          },
+          {
+            "at": 373,
+            "note": "Computing has narrowed words such as memory and records to mutable storage places."
+          },
+          {
+            "at": 707,
+            "note": "Shared values support reproducible function results."
+          },
+          {
+            "at": 1029,
+            "note": "Changing objects complicate consistent observation and remembering earlier information."
+          },
+          {
+            "at": 1368,
+            "note": "The talk distinguishes value-oriented information from process-oriented constructs."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Values",
+            "route": "/lore/pure-cores-reduce-timelines"
+          }
+        ],
+        "gaps": ["Values versus mutable places", "Facts, identity, and time"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "2JB1_e5wZmU",
@@ -740,7 +2833,51 @@
       "tier": "B",
       "take": "Scott Wlaschin shows how to use types to model a domain so that some incorrect states cannot be written at all. It carries straight over to Effect Schema.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Scott Wlaschin demonstrates functional domain modeling with F# examples. Types can express business choices in a form that people outside programming can review and correct.",
+          "The talk moves business rules out of undocumented flags and into explicit representations. Examples model optional data, constrained quantities, and a contact rule that requires at least one way to make contact. Constructors distinguish valid values from rejected input."
+        ],
+        "sections": [
+          {
+            "at": 101,
+            "note": "The talk connects functional programming with domain-driven design."
+          },
+          {
+            "at": 571,
+            "note": "A missing choice in a type is understandable to a non-programmer reviewing the model."
+          },
+          {
+            "at": 1098,
+            "note": "Flags and undocumented atomic updates hide domain rules."
+          },
+          {
+            "at": 1641,
+            "note": "Optional values receive an explicit type representation."
+          },
+          {
+            "at": 2193,
+            "note": "A constructor checks the allowed range for an order-line quantity."
+          },
+          {
+            "at": 2747,
+            "note": "Making both contact fields optional fails to express the at-least-one rule."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "Types",
+            "route": "/lore/schemas-define-the-boundary"
+          }
+        ],
+        "gaps": [
+          "Functional domain modeling with sum and product types",
+          "Making illegal states unrepresentable"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "yTkzNHF6rMs",
@@ -754,7 +2891,48 @@
       "tier": "B",
       "take": "Gary Bernhardt starts from isolated unit tests and works toward a design that makes isolation natural: a functional core of values, wrapped in a thin imperative shell that talks to the outside world.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Gary Bernhardt explores boundaries between logic and the outside world. A functional core handles decisions with values, while an imperative shell connects those decisions to dependencies and side effects.",
+          "He relates those boundaries to testing: isolated tests cover the core's many paths, while integration tests check the shell's connections. Larger applications can contain many small core-and-shell systems rather than one enormous core surrounded by one shell."
+        ],
+        "sections": [
+          {
+            "at": 76,
+            "note": "A billing example introduces isolated tests and stubbed dependencies."
+          },
+          {
+            "at": 470,
+            "note": "The discussion shifts from isolated testing to values."
+          },
+          {
+            "at": 945,
+            "note": "Logic with few dependencies suits unit tests; a shell with few paths suits integration tests."
+          },
+          {
+            "at": 1431,
+            "note": "Large systems can be composed from several smaller core-and-shell units."
+          },
+          {
+            "at": 1944,
+            "note": "The implementation demonstration compares the functional module with its imperative shell."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "functional core",
+            "route": "/lore/pure-cores-reduce-timelines"
+          },
+          {
+            "term": "testing",
+            "route": "/lore/testing-ladder"
+          }
+        ],
+        "gaps": [],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "cNICGEwmXLU",
@@ -768,7 +2946,52 @@
       "tier": "B",
       "take": "Joe Armstrong on systems that run for a very long time: isolated processes with private memory that talk only by message passing, expecting crashes and fixing them as they run, and changing the code while it executes.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Joe Armstrong discusses systems that must keep running in a highly concurrent, connected world. He examines architectures for recovery rather than assuming the whole application can simply stop and restart.",
+          "The Erlang examples use processes, mailboxes, links, and supervision trees. Processes receive matching messages, and links report failures. Armstrong also stresses identifying why a failure happened, rather than only observing that something crashed."
+        ],
+        "sections": [
+          {
+            "at": 102,
+            "note": "The talk frames the problem around highly concurrent and connected systems."
+          },
+          {
+            "at": 736,
+            "note": "Continuously available services cannot rely on stopping the whole system for maintenance."
+          },
+          {
+            "at": 1519,
+            "note": "Consensus protocols illustrate the difficulty of explaining distributed algorithms."
+          },
+          {
+            "at": 2290,
+            "note": "Supervision trees observe processes across machine boundaries, with fault identification alongside detection."
+          },
+          {
+            "at": 3051,
+            "note": "Erlang mailboxes select matching messages and links deliver process-failure notifications."
+          }
+        ],
+        "concepts": [
+          {
+            "term": "supervision trees",
+            "route": "/lore/supervision-is-a-recovery-policy"
+          },
+          {
+            "term": "Erlang",
+            "route": "/lore/effect-is-not-beam"
+          },
+          {
+            "term": "recovery",
+            "route": "/lore/restart-from-known-state"
+          }
+        ],
+        "gaps": ["Erlang selective receive and process links"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "f84n5oFoZBc",
@@ -782,7 +3005,43 @@
       "tier": "C",
       "take": "Rich Hickey on thinking about a problem for a long time before coding: identifying and understanding it, then letting your background mind work on it while your waking mind steps back.",
       "basis": "transcript",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Rich Hickey argues that problem solving needs time spent thinking away from the keyboard. Avoiding a problem is different from solving it, and a quick first answer may miss defects in logic, judgment, or abstraction.",
+          "He asks developers to examine their own proposed solutions and recognize the limits of immediate working memory. The talk explores returning to a problem over time and capturing an answer when it arrives, even if it belongs to a different project."
+        ],
+        "sections": [
+          {
+            "at": 88,
+            "note": "Extended periods of thought can be valuable parts of development."
+          },
+          {
+            "at": 477,
+            "note": "Getting around a problem is not the same as solving it."
+          },
+          {
+            "at": 877,
+            "note": "Search for defects in one's own proposed solution, including judgment and abstraction."
+          },
+          {
+            "at": 1300,
+            "note": "Immediate discussion and short-term attention do not guarantee a good design decision."
+          },
+          {
+            "at": 1702,
+            "note": "Complex problems exceed the amount that fits in working memory at once."
+          },
+          {
+            "at": 2124,
+            "note": "Capture useful answers even when they concern another project."
+          }
+        ],
+        "concepts": [],
+        "gaps": ["Deliberate problem framing and background thought"],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     },
     {
       "id": "5ZjhNTM8XU8",
@@ -796,7 +3055,47 @@
       "tier": "C",
       "take": "Martin Kleppmann on what transactions are for, why they got a reputation for being slow, and the newer algorithms that make them scale. Background for choosing what a store guarantees.",
       "basis": "description",
-      "checked": "2026-11-08"
+      "checked": "2026-11-08",
+      "page": {
+        "summary": [
+          "Martin Kleppmann examines what database transactions promise and where those promises differ. Atomicity addresses partial multi-write changes, while isolation concerns what concurrent transactions can observe.",
+          "A bank-transfer example illustrates read skew. The talk then examines locking and the difficulty of extending serializable transactions across services. Kleppmann closes by exploring what information about ordering is lost in a loosely coordinated microservice system."
+        ],
+        "sections": [
+          {
+            "at": 68,
+            "note": "The talk introduces its connection to the transactions chapter of Designing Data-Intensive Applications."
+          },
+          {
+            "at": 452,
+            "note": "Atomicity protects a group of writes from leaving a partially applied result."
+          },
+          {
+            "at": 894,
+            "note": "A bank transfer illustrates read skew between two account balances."
+          },
+          {
+            "at": 1334,
+            "note": "Shared locks held through the transaction stop conflicting writes to read data."
+          },
+          {
+            "at": 1771,
+            "note": "Cross-service serializability would require an atomic commit protocol."
+          },
+          {
+            "at": 2216,
+            "note": "The closing exploration considers ordering information and eventual consistency across services."
+          }
+        ],
+        "concepts": [],
+        "gaps": [
+          "Transaction atomicity and isolation levels",
+          "Read skew and serializability",
+          "Distributed atomic commit"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-15"
+      }
     }
   ]
 }

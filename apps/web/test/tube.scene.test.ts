@@ -3,7 +3,12 @@ import { IsoDate } from "@rat-stack/core/contracts";
 import { Option, Schema } from "effect";
 import { click, expect, given, role, scene, selector } from "foldkit/scene";
 
-import { embedUrl, thumbnailUrl, watchUrl } from "../src/client/tube/data.js";
+import {
+  TubePage,
+  embedUrl,
+  thumbnailUrl,
+  watchUrl,
+} from "../src/client/tube/data.js";
 import type { TubeModel } from "../src/client/tube/model.js";
 import { update } from "../src/client/tube/update.js";
 import { view } from "../src/features/tube/index.js";
@@ -14,6 +19,7 @@ const title = "Simple Made Easy";
 
 const model: TubeModel = {
   playing: Option.none(),
+  selected: Option.none(),
   videos: [
     {
       basis: "transcript",
@@ -31,6 +37,38 @@ const model: TubeModel = {
     },
   ],
 };
+
+it("a video page keeps summary and concepts while play loads the existing nocookie embed", () => {
+  const page = Schema.decodeSync(TubePage)({
+    basis: "transcript",
+    concepts: [{ term: "Simple", route: "/lore/a-clean-playground" }],
+    gaps: [],
+    sections: [{ at: 98, note: "The speaker distinguishes simple and easy." }],
+    summary: [
+      "Simple concerns how many things are intertwined.",
+      "Easy concerns what is familiar or close at hand.",
+    ],
+    written: "2026-11-15",
+  });
+
+  scene(
+    { update, view },
+    given({
+      ...model,
+      selected: Option.some(id),
+      videos: model.videos.map((video) => ({ ...video, page })),
+    }),
+    expect(selector("iframe")).toBeAbsent(),
+    expect(role("link", { name: "1:38" })).toHaveAttr(
+      "href",
+      `${watchUrl(id)}&t=98s`
+    ),
+    click(role("button", { name: `Play here: ${title}` })),
+    expect(selector("iframe")).toHaveAttr("src", embedUrl(id)),
+    expect(role("heading", { name: "Summary" })).toExist(),
+    expect(role("heading", { name: "Key concepts" })).toExist()
+  );
+});
 
 it("a card links to YouTube and loads no player until the reader presses play", () => {
   scene(

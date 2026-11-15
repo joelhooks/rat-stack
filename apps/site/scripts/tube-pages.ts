@@ -1,4 +1,5 @@
 import { Effect, Option, Result, Schema, SchemaIssue } from "effect";
+import { DomUtils, parseDocument } from "htmlparser2";
 
 import {
   formatDuration,
@@ -8,6 +9,9 @@ import {
   tubeThemes,
   TubeVideo,
   watchUrl,
+  videoPagePath,
+  relatedVideos,
+  summaryLinks,
 } from "../../web/src/client/tube/data.ts";
 import type { TubeDataValue } from "../../web/src/client/tube/data.ts";
 import {
@@ -78,12 +82,22 @@ const entryProblems = (
             issue.message
           )
         ),
-      onSuccess: (video) =>
-        video.url === watchUrl(video.id)
+      onSuccess: (video) => [
+        ...(video.url === watchUrl(video.id)
           ? []
           : [
               `${where}.url does not point at video ${video.id}. The link and the player must show the same video. Fix: set \`url\` to \`${watchUrl(video.id)}\`.`,
-            ],
+            ]),
+        ...(video.page?.sections.flatMap((section, sectionIndex) =>
+          section.at < video.durationSeconds &&
+          (sectionIndex === 0 ||
+            section.at > (video.page?.sections[sectionIndex - 1]?.at ?? -1))
+            ? []
+            : [
+                `${where}.page.sections[${sectionIndex}].at is outside the ordered video timeline. Section links must seek to distinct points within this video. Fix: use increasing seconds below \`durationSeconds\` in \`${tubeDataPath}\`.`,
+              ]
+        ) ?? []),
+      ],
     }
   );
 };
@@ -107,6 +121,110 @@ const duplicateProblems = (
       },
     })
   );
+
+export const tubeConceptProblems = (
+  data: TubeDataValue,
+  routes: ReadonlySet<string>
+): readonly string[] =>
+  data.videos.flatMap((video) =>
+    (video.page?.concepts ?? []).flatMap((concept) =>
+      routes.has(concept.route)
+        ? []
+        : [
+            `${tubeDataPath} video ${video.id} links to unknown concept ${concept.route}. Concepts must resolve to a generated wiki page or glossary anchor. Fix: correct \`page.concepts\` for \`${video.id}\` in \`${tubeDataPath}\`.`,
+          ]
+    )
+  );
+
+export const validateTubeConcepts = (
+  data: TubeDataValue,
+  routes: ReadonlySet<string>,
+  glossaryHtml: string
+) => {
+  const document = parseDocument(glossaryHtml);
+
+  const anchors = DomUtils.findAll(
+    (element) => element.attribs.id !== undefined,
+    document.children
+  ).map((element) => `/glossary#${element.attribs.id}`);
+
+  const problems = tubeConceptProblems(
+    data,
+    new Set([...routes, "/learn", ...anchors])
+  );
+
+  return problems.length === 0
+    ? Effect.void
+    : Effect.fail(
+        tubeBuildError(
+          new TubeDataInvalid({ message: problems.join("\n"), problems })
+        )
+      );
+};
+
+export const tubeGaps = (data: TubeDataValue) => ({
+  gaps: [...new Set(data.videos.flatMap((video) => video.page?.gaps ?? []))]
+    .toSorted()
+    .map((term) => ({
+      term,
+      videos: data.videos
+        .filter((video) => video.page?.gaps.includes(term) === true)
+        .map((video) => videoPagePath(video.id)),
+    })),
+});
+
+export const tubeVideoMarkdown = (
+  video: TubeDataValue["videos"][number],
+  videos: TubeDataValue["videos"]
+) =>
+  [
+    `# ${video.title}`,
+    "",
+    `[${linkText(video.channel)}](${video.channelUrl}) · Published ${video.published} · ${formatDuration(video.durationSeconds)} · ${tierLabel(video.tier)} · ${themeCopy[video.theme].name}`,
+    "",
+    `[Watch on YouTube](${video.url}) · [All videos](/tube)`,
+    "",
+    "## Summary",
+    "",
+    ...(video.page?.summary.flatMap((paragraph) => [
+      summaryLinks(paragraph, video)
+        .map((part) =>
+          part.route === undefined
+            ? part.text
+            : `[${linkText(part.text)}](${part.route})`
+        )
+        .join(""),
+      "",
+    ]) ?? []),
+    "## Section notes",
+    "",
+    ...(video.page?.sections.map(
+      ({ at, note }) =>
+        `- [${formatDuration(at)}](${video.url}&t=${at}s): ${note}`
+    ) ?? []),
+    "",
+    "## Key concepts",
+    "",
+    ...((video.page?.concepts.length ?? 0) === 0
+      ? ["No matching wiki page yet.", ""]
+      : []),
+    ...(video.page?.concepts.map(
+      ({ term, route }) => `- [${linkText(term)}](${route})`
+    ) ?? []),
+    "",
+    "## Our take",
+    "",
+    video.take,
+    "",
+    "## Related videos",
+    "",
+    ...relatedVideos(video, videos).map(
+      (related) =>
+        `- [${linkText(related.title)}](${videoPagePath(related.id)})`
+    ),
+    "",
+    `Summary based on the transcript. Written ${video.page?.written ?? ""}.`,
+  ].join("\n");
 
 export const tubeDataProblems = (file: TubeFileValue): readonly string[] => [
   ...file.videos.flatMap(entryProblems),
@@ -182,7 +300,7 @@ export const tubeMarkdown = (data: TubeDataValue) =>
             "",
             ...videos.map(
               (video) =>
-                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.url}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
+                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video.id)}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
             ),
             "",
           ];

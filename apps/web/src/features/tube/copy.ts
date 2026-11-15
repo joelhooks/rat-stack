@@ -12,7 +12,7 @@ export const tubeCopy = {
   description:
     "Curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each.",
   disclosure:
-    "Thumbnails load from YouTube's image host. A video plays from youtube-nocookie.com only after you press its play button. Every title links to the video on youtube.com.",
+    "Thumbnails load from YouTube's image host. A video plays from youtube-nocookie.com only after you press its play button. Each video also has a direct link to youtube.com.",
   heading: "Ratstack Tube",
   intro:
     "Videos worth your time if you are learning this stack, most of them by the people who build the tools. Each one comes with a short take on what you learn from it.",

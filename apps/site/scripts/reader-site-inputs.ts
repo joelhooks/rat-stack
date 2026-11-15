@@ -2,7 +2,10 @@ import { CafeData, Prompt } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Path, Schema } from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
-import { ReaderReferences } from "../../web/src/page-descriptor.ts";
+import {
+  ReaderReferences,
+  ReaderVideoMetadata,
+} from "../../web/src/page-descriptor.ts";
 import { ContentAssetManifest } from "../src/asset-manifest.ts";
 import {
   staticAssetGeneration,
@@ -96,6 +99,12 @@ export const documentMetadata = (path: string, html: string) => {
       ? "noindex"
       : "index",
     title: DomUtils.textContent(title),
+    video:
+      structuredData !== undefined && /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(path)
+        ? Schema.decodeSync(Schema.fromJsonString(ReaderVideoMetadata))(
+            DomUtils.textContent(structuredData)
+          )
+        : undefined,
   };
 };
 

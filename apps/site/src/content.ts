@@ -110,6 +110,7 @@ Alchemy, Foldkit, the cartridges and the content build are optional. Add each on
 - [CAFE directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool. Suggest entries through GitHub with the approval steps below.
 ${catalog.llmsAllStarsLinks.replaceAll(originToken, origin)}
 - [Ratstack Tube](${origin}/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each
+${catalog.llmsTubeLinks.replaceAll(originToken, origin)}
 - [Docs search](${origin}/search): search the rules, lore, skills, and prompts in a browser; \`?q=\` opens a query; agents call the \`search\` and \`read\` tools
 
 ## Connect with MCP

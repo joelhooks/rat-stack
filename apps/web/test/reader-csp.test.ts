@@ -51,7 +51,7 @@ const routeOf = (client: string, file: string) => {
   return route === "" ? "/" : route;
 };
 
-it("only /tube widens the reader policy, by YouTube's image host and the nocookie player", () => {
+it("only Tube pages widen the reader policy, by YouTube's image host and the nocookie player", () => {
   expect(tubeContentSecurityPolicy).toBe(
     "default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src https://www.youtube-nocookie.com"
   );
@@ -119,7 +119,10 @@ it.layer(NodeServices.layer)((test) => {
         for (const { document, route } of pages) {
           const pageAllows = allowsIn(directivesOf(readerPagePolicy(route)));
 
-          if (route !== tubePagePath) {
+          if (
+            route !== tubePagePath &&
+            !/^\/tube\/[A-Za-z0-9_-]{11}$/u.test(route)
+          ) {
             expect(readerPagePolicy(route), route).toBe(
               readerContentSecurityPolicy
             );

@@ -43,6 +43,7 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
+    "tube:draft": "node scripts/tube-draft.ts",
     "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict --type-check && pnpm run --silent typecheck:doc-fences && pnpm run --silent startup:check",
     "typecheck:doc-fences": "effect-tsrs diagnostics --project tsconfig.doc-fences.json --strict --type-check",
     "typecheck:tsc": "node scripts/prepare-content.ts && tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.doc-fences.json && pnpm run --silent startup:check",

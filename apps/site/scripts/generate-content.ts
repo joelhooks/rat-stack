@@ -35,6 +35,12 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import satori from "satori";
 
 import {
+  videoObject,
+  videoPagePath,
+  videoPageDescription,
+  tubePageVideos,
+} from "../../web/src/client/tube/data.ts";
+import {
   allStarsCopy,
   directoryCopy,
   newsCopy,
@@ -161,7 +167,14 @@ import {
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
 import { buildWorkshop } from "./tokenmaxx-workshop.ts";
-import { decodeTubeData, tubeBuildError, tubeMarkdown } from "./tube-pages.ts";
+import {
+  decodeTubeData,
+  tubeBuildError,
+  tubeMarkdown,
+  validateTubeConcepts,
+  tubeGaps,
+  tubeVideoMarkdown,
+} from "./tube-pages.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -1223,6 +1236,31 @@ const program = Effect.gen(function* generateContent() {
       decodeTubeData(text).pipe(Effect.mapError(tubeBuildError))
     )
   );
+
+  const tubePages = tubePageVideos(tubeData);
+  yield* Effect.forEach(
+    tubePages,
+    (video) =>
+      Effect.forEach(
+        wikiProseWarnings(
+          `${tubeDataPath} video ${video.id}`,
+          [
+            ...(video.page?.summary ?? []),
+            ...(video.page?.sections.map((section) => section.note) ?? []),
+          ].join("\n\n")
+        ),
+        (warning) => Effect.logWarning(wikiProseWarningText(warning)),
+        { discard: true }
+      ),
+    { discard: true }
+  );
+
+  const llmsTubeLinks = [
+    ...tubePages.map(
+      (video) => `- [${video.title}](${originToken}${videoPagePath(video.id)})`
+    ),
+    `- [Tube concept gaps](${originToken}/tube/gaps.json)`,
+  ].join("\n");
 
   const tubeSource = tubeMarkdown(tubeData);
 
@@ -2299,6 +2337,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
     "- [Ratstack Tube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
+    llmsTubeLinks,
     "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken, tokenmaxxTitle),
@@ -2343,6 +2382,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       profile.avatar.path,
     ]),
     tubeRoutePath,
+    ...tubePages.map((video) => videoPagePath(video.id)),
+    "/tube/gaps.json",
     "/search",
     "/",
     "/skills",
@@ -2395,6 +2436,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       ...loreTexts.map((lore) => lore.routePath),
     ].map(ogImagePath),
   ]);
+
+  yield* validateTubeConcepts(
+    tubeData,
+    knownRoutes,
+    glossaryIndexBody.bodyHtml
+  );
 
   const documentsToCheck = [
     {
@@ -3073,6 +3120,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: tubeRoutePath,
       title: tubeCopy.heading,
     },
+    ...tubePages.map<OgPage>((video) => ({
+      description: videoPageDescription(video),
+      routePath: videoPagePath(video.id),
+      title: video.title,
+    })),
     ...allStarsProfiles.map<OgPage>((profile) => ({
       description: profile.bio[0].text,
       routePath: `/all-stars/${profile.id}`,
@@ -3608,6 +3660,45 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const tubeVideoSources = yield* Effect.forEach(
+    (video: (typeof tubePages)[number]) =>
+      Effect.gen(function* buildTubeVideo() {
+        const routePath = videoPagePath(video.id);
+        const source = tubeVideoMarkdown(video, tubeData.videos);
+
+        const body = yield* compileMarkdownBody(
+          source,
+          `${routePath}.md`,
+          highlighter,
+          emptyTargets,
+          [],
+          routePath
+        );
+
+        const document = yield* makeDocument(
+          body.bodyHtml,
+          {
+            description: videoPageDescription(video),
+            path: routePath,
+            title: pageTitle(video.title),
+          },
+          tubeDataPath,
+          contentVersion
+        );
+
+        const documentHtml = document.replace(
+          "</head>",
+          `<script type="application/ld+json">${JSON.stringify(videoObject(video)).replaceAll("<", "\\u003c")}</script></head>`
+        );
+
+        return {
+          documentHtml,
+          routePath,
+          text: renderAgentPage(source, routePath, video.title),
+        };
+      })
+  )(tubePages);
+
   const allStarsSources = yield* Effect.forEach(
     (page: (typeof allStarsPages)[number]) =>
       compileMarkdownBody(
@@ -3710,6 +3801,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/favicon.ico",
           "/apple-touch-icon.png",
           "/favicon.svg",
+          "/tube/gaps.json",
           "/tokenmaxx/four-comma-club.jpg",
           "/tokenmaxx/shitrat.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
@@ -3718,6 +3810,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           ...avatarImages.map((image) => image.path),
         ],
         llmsAllStarsLinks,
+        llmsTubeLinks,
         llmsLoreLinks,
         loreIndexMarkdown: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
         pageRoutes: [
@@ -3733,6 +3826,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/all-stars",
           ...allStarsProfiles.map((profile) => profile.route),
           tubeRoutePath,
+          ...tubePages.map((video) => videoPagePath(video.id)),
           ...workshop.pages.map((page) => page.routePath),
           "/search",
         ],
@@ -3774,6 +3868,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     data,
     directory: path.join(root, "apps/site/dist/content"),
     images: [
+      {
+        path: "/tube/gaps.json",
+        base64: Buffer.from(JSON.stringify(tubeGaps(tubeData))).toString(
+          "base64"
+        ),
+      },
       ...securityAuditAssets,
       { base64: faviconIcoBase64, path: "/favicon.ico" },
       { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
@@ -3843,6 +3943,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: allStarsIndexText,
       },
       ...allStarsSources,
+      ...tubeVideoSources,
       {
         documentHtml: tubeDocument,
         routePath: tubeRoutePath,

@@ -58,6 +58,7 @@ export const isReaderWebsiteRoute = (
   pathname: string,
   routes: readonly string[] = readerWebsiteRoutes
 ): boolean =>
+  (routes.includes("/tube") && /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(pathname)) ||
   routes.some((route) =>
     route.endsWith("/*")
       ? pathname.startsWith(route.slice(0, -1))
