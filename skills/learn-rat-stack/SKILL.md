@@ -26,6 +26,40 @@ Follow these parts, then try the hosted content tools.
 
 Read [Effect basics](/lore/effect-basics) before this trace if the computation model is new. For implementation tasks, use [services](/lore/services-capture-dependencies), [Layer composition](/lore/layers-make-dependencies-explicit), and [testing](/lore/tests-that-earn-their-place).
 
+## Connect an agent
+
+Add the [MCP](/lore/mcp-is-another-surface) server so your agent can call the site's tools:
+
+```sh
+# Claude Code
+claude mcp add --transport http rat-stack https://ratstack.sh/mcp
+
+# Codex
+codex mcp add rat-stack --url https://ratstack.sh/mcp
+```
+
+<CopyPrompt id="mcp" />
+
+The [connection card](/.well-known/mcp.json) has the server details.
+
+### Cursor
+
+Cursor reads `~/.cursor/mcp.json`:
+
+```json
+{ "mcpServers": { "rat-stack": { "url": "https://ratstack.sh/mcp" } } }
+```
+
+<CopyPrompt id="cursor" />
+
+### Load one skill
+
+Your agent can load one skill for one task. Nothing is installed in your skill folders. The [skills index](/.well-known/agent-skills/index.json) lists every skill.
+
+<CopyPrompt id="skills" />
+
+[Browse the skills](/skills) or [start learn mode](/learn).
+
 ## The pieces
 
 - Effect describes work with typed failures and required dependencies.
