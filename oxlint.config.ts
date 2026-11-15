@@ -73,6 +73,16 @@ export default defineConfig({
   overrides: [
     ...foldkitOverrides,
     {
+      files: ["packages/catalog/**/*.ts", "apps/catalog/**/*.ts"],
+      rules: {
+        "unicorn/filename-case": [
+          "error",
+          { cases: { kebabCase: true, pascalCase: true } },
+        ],
+        "max-classes-per-file": ["error", 3],
+      },
+    },
+    {
       files: [
         "**/*.{test,spec,test-d,spec-d}.{ts,tsx,js,jsx,mts,cts,mjs,cjs}",
         "**/__tests__/**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}",
