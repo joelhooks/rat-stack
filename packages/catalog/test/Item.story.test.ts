@@ -2,9 +2,11 @@ import * as Domain from "@alchemy.run/domain";
 import { Story } from "@alchemy.run/domain/Story";
 import { it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
+import * as Layer from "effect/Layer";
 import { expect } from "vitest";
 
 import { Catalog, CatalogHandlers } from "../src/Catalog.model.ts";
+import { CatalogMemory } from "../src/Catalog/CatalogMemory.ts";
 import { Drop, ItemDropped } from "../src/Item/Drop.command.ts";
 import { Item } from "../src/Item/Item.aggregate.ts";
 import { ItemId } from "../src/Item/Item.id.ts";
@@ -21,7 +23,9 @@ import { Operator } from "../src/Operator.context.ts";
 
 const expectEvents = Story.then;
 
-const story = Story.make(Catalog, { layer: CatalogHandlers });
+const story = Story.make(Catalog, {
+  layer: CatalogHandlers.pipe(Layer.provide(CatalogMemory)),
+});
 
 const item = Item.ref(ItemId.make("https://example.test/project"));
 

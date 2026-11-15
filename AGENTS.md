@@ -29,10 +29,10 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 
 - **`@rat-stack/catalog`**:
   - Path: `packages/catalog`
-  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
+  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. `CatalogIndex` writes replay-idempotent `stream:seq` rows through `CatalogStore`; native `Rising` and `RepeatAuthors` Queries read that derived index with bounded windows and keyset pages. The memory store runs in stories. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
 - **`@rat-stack/catalog-server`**:
   - Path: `apps/catalog`
-  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware. Missing or empty `CATALOG_OPERATOR_TOKEN` denies every Api call. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
+  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware, the D1 catalog index and its migrations. Worker props explicitly bind a configured `CATALOG_OPERATOR_TOKEN` as a redacted secret; missing or empty configuration denies every Api call. The `smoke <url>` script tests unauthenticated and authenticated reads through the native Api client without printing credentials. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
 
 - **`@rat-stack/capability`**:
   - Path: `packages/capability`
