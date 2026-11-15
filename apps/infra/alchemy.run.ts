@@ -1,9 +1,12 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
+import * as DomainCloudflare from "@alchemy.run/domain/Cloudflare";
 import * as Drizzle from "@alchemy.run/drizzle/Providers";
+import CatalogWorker from "@rat-stack/catalog-server/CatalogWorker";
 import { turboCache } from "@rat-stack/turbo-cache";
 import * as Alchemy from "alchemy";
 import { adopt } from "alchemy/AdoptPolicy";
 import { retain } from "alchemy/RemovalPolicy";
+import { Stage } from "alchemy/Stage";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -19,7 +22,11 @@ import { ratstackState } from "./src/state-store.js";
 export default Alchemy.Stack(
   "RatStack",
   {
-    providers: Layer.mergeAll(Cloudflare.providers(), Drizzle.providers()),
+    providers: Layer.mergeAll(
+      Cloudflare.providers(),
+      DomainCloudflare.providers(),
+      Drizzle.providers()
+    ),
     state: ratstackState(),
   },
   Effect.gen(function* stack() {
@@ -157,13 +164,21 @@ export default Alchemy.Stack(
     yield* Workshop;
     yield* turboCache;
 
+    const catalog = yield* CatalogWorker.pipe(
+      retain(Stage.pipe(Effect.map((stage) => stage === "prod")))
+    );
+
     yield* mischief.bind`${website}`({
       bindings: [
         { name: "WEBSITE", service: website.workerName, type: "service" },
       ],
     });
 
-    return { mischiefUrl: mischief.url, websiteUrl: website.url };
+    return {
+      catalogUrl: catalog.url,
+      mischiefUrl: mischief.url,
+      websiteUrl: website.url,
+    };
   }).pipe(
     Effect.provide(
       Layer.unwrap(
