@@ -40,11 +40,24 @@ jobs:
       - name: Check and test
         # 6882060, 4 cores/16 GB: median N1=479s, N2=265s, N4=271s; N2 worst test=39.13% of budget.
         run: pnpm turbo run check test build --concurrency=2
+      - name: Report Turbo cache story
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p .turbo
+          pnpm --silent turbo:summary --surface "${{ github.event_name == 'pull_request' && 'pr' || 'main' }}" --ref "$GITHUB_REF" | tee .turbo/cache-story.jsonl
+          {
+            printf '\n### Turbo cache story\n\n```json\n'
+            cat .turbo/cache-story.jsonl
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload Turbo run summaries
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: turbo-runs
-          path: .turbo/runs/*.json
+          path: |
+            .turbo/runs/*.json
+            .turbo/cache-story.jsonl
           include-hidden-files: true
           if-no-files-found: ignore
