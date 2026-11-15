@@ -135,7 +135,7 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 
 ### Measure the CI/CD loop
 
-Turbo and our `alchemy-turbo-cache` cartridge are core CI/CD infrastructure. Every CI/CD path must run build, check, and test work through Turbo and leave a run summary. Pass `--summarize` or set `TURBO_RUN_SUMMARY=true`. PR/main CI and the uncached nightly already enable summaries; deploy and local callers must currently enable them explicitly. Only trusted CI receives the current cache writer token and signing key.
+Turbo and our `alchemy-turbo-cache` cartridge are core CI/CD infrastructure. Every CI/CD path must run build, check, and test work through Turbo and leave a run summary. Pass `--summarize` or set `TURBO_RUN_SUMMARY=true`. PR/main CI and the uncached nightly already enable summaries; deploy and local callers must currently enable them explicitly. Only trusted CI receives the writer token and signing key. Deploy, local and agent gates will take the read-only token (`pnpm turbo-cache:token --role reader`) with `TURBO_CACHE=remote:r`; see `packages/turbo-cache/README.md`. Consumer wiring is not implemented yet.
 
 `pnpm turbo:summary --surface local` prints one JSON line per run. Use `pr`, `main`, or `nightly` for those surfaces. An optional directory replaces `.turbo/runs`; `--ref` supplies the current job's ref when Git checks out a detached head. Without it, each row keeps the summary's own Git branch and SHA.
 
