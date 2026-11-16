@@ -2,6 +2,7 @@ import { rankCafeNews } from "@rat-stack/core/contracts";
 import type { CafeDataValue } from "@rat-stack/core/contracts";
 import { Array as Arr, Order } from "effect";
 
+import { videoPagePath } from "../../web/src/client/tube/data.ts";
 import type {
   TubeTierValue,
   TubeVideoValue,
@@ -50,7 +51,7 @@ export const homeFeaturedMarkdown = (
 
   const watch = featuredVideos(videos).map(
     (video) =>
-      `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.url}) by ${linkText(video.channel)}. ${firstSentence(video.take)}`
+      `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video)}) by ${linkText(video.channel)}. ${firstSentence(video.take)}`
   );
 
   return [

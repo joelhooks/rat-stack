@@ -1,4 +1,4 @@
-import { isTubeVideoPath } from "./client/tube/data.js";
+import { isTubeVideoPath } from "../../site/src/tube-routes.js";
 
 export const readerRoutePaths: readonly string[] = [
   "/",

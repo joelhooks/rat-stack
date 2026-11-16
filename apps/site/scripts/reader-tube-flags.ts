@@ -48,8 +48,10 @@ export const readerTubePagesFlags = Effect.fn("readerTubePagesFlags")(
 
     return yield* Effect.forEach((videoId: string | undefined) =>
       Effect.gen(function* tubeFlags() {
+        const selected = data.videos.find((video) => video.id === videoId);
+
         const route =
-          videoId === undefined ? tubeRoutePath : videoPagePath(videoId);
+          selected === undefined ? tubeRoutePath : videoPagePath(selected);
 
         const page = inputs.pages.find((entry) => entry.path === route);
 
@@ -59,8 +61,6 @@ export const readerTubePagesFlags = Effect.fn("readerTubePagesFlags")(
             sourcePath: route,
           });
         }
-
-        const selected = data.videos.find((video) => video.id === videoId);
 
         return {
           bibliography: [],
@@ -100,15 +100,12 @@ export const readerTubeFlags = Effect.fn("readerTubeFlags")(
   function* readerTubeFlags(origin: string, videoId?: string) {
     const pages = yield* readerTubePagesFlags(origin);
 
-    const route =
-      videoId === undefined ? tubeRoutePath : videoPagePath(videoId);
-
-    const page = pages.find((entry) => entry.page.path === route);
+    const page = pages.find((entry) => entry.tube.selected === videoId);
 
     if (page === undefined) {
       return yield* new ReaderInputError({
         message: tubeManifestMissing,
-        sourcePath: route,
+        sourcePath: videoId ?? tubeRoutePath,
       });
     }
 

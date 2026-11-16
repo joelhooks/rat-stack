@@ -8,6 +8,7 @@ import {
   tubeContentSecurityPolicy,
   tubePagePath,
 } from "../../site/src/security.js";
+import { isTubeVideoPath } from "../../site/src/tube-routes.js";
 
 const directivesOf = (policy: string) =>
   new Map(
@@ -119,10 +120,7 @@ it.layer(NodeServices.layer)((test) => {
         for (const { document, route } of pages) {
           const pageAllows = allowsIn(directivesOf(readerPagePolicy(route)));
 
-          if (
-            route !== tubePagePath &&
-            !/^\/tube\/[A-Za-z0-9_-]{11}$/u.test(route)
-          ) {
+          if (route !== tubePagePath && !isTubeVideoPath(route)) {
             expect(readerPagePolicy(route), route).toBe(
               readerContentSecurityPolicy
             );

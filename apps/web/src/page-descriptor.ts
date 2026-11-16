@@ -9,6 +9,7 @@ export const ReaderVideoMetadata = Schema.Struct({
   name: Schema.String,
   thumbnailUrl: Schema.String,
   uploadDate: Schema.String,
+  url: Schema.String,
 });
 
 export const ReaderMetadata = Schema.Struct({

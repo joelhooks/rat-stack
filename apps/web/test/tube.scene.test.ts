@@ -28,6 +28,7 @@ const model: TubeModel = {
       checked: Schema.decodeSync(IsoDate)("2026-11-08"),
       durationSeconds: 3699,
       id,
+      slug: "simple-made-easy",
       published: Schema.decodeSync(IsoDate)("2021-09-02"),
       take: "Simple is not easy.",
       theme: "systems",

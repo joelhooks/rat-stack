@@ -104,7 +104,7 @@ const cardView = (
           h.a(
             [
               h.Href(
-                video.page === undefined ? video.url : videoPagePath(video.id)
+                video.page === undefined ? video.url : videoPagePath(video)
               ),
             ],
             [video.title]
@@ -255,7 +255,7 @@ const videoView = (
             : [
                 h.li(
                   [h.Key(related.id)],
-                  [h.a([h.Href(videoPagePath(related.id))], [related.title])]
+                  [h.a([h.Href(videoPagePath(related))], [related.title])]
                 ),
               ]
         )

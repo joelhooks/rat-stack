@@ -20,6 +20,7 @@ const model: TubeModel = {
     checked: Schema.decodeSync(IsoDate)("2026-11-08"),
     durationSeconds: 60,
     id,
+    slug: `video-talk-${id.toLowerCase().replaceAll(/[^a-z0-9]/gu, "-")}`,
     published: Schema.decodeSync(IsoDate)("2024-01-01"),
     take: "A take.",
     theme: "effect",
