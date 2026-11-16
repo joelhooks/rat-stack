@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Cause, Clock, Effect, Exit, Fiber, Schema } from "effect";
+import { Clock, DateTime, Effect, Fiber, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -9,273 +9,191 @@ import type {
 } from "../src/interest-intake.js";
 import { SubscriberIntake } from "../src/interest-intake.js";
 import {
+  JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
   JoinContactStore,
 } from "../src/join-contact-store.js";
 import { runJoinDelivery } from "../src/join-delivery-machine.js";
 
-const Outcome = Schema.Union([
-  Schema.Struct({ kind: Schema.Literal("accepted") }),
-  Schema.Struct({ kind: Schema.Literal("refused") }),
-  Schema.Struct({
-    afterSeconds: Schema.Int.check(
-      Schema.isBetween({ maximum: 10, minimum: 0 })
-    ),
-    kind: Schema.Literal("retry"),
-  }),
-  Schema.Struct({ kind: Schema.Literal("defect") }),
-]);
-
-const ShortDelay = Schema.Int.check(
-  Schema.isBetween({ maximum: 3, minimum: 0 })
-);
-
-const crashPrefixes = Arbitrary.array(Arbitrary.schema(ShortDelay), {
-  maxLength: 2,
+const Step = Schema.Struct({
+  advance: Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 86_401 })),
+  afterSeconds: Schema.Int.check(
+    Schema.isBetween({ minimum: 0, maximum: 86_401 })
+  ),
+  outcome: Schema.Literals([
+    "accepted",
+    "unavailable",
+    "budget",
+    "invalid",
+    "challenge",
+    "timeout",
+  ]),
 });
 
-const Scenario = Schema.Struct({
-  agentPresent: Schema.Boolean,
-  contact: JoinContactSchema,
-  contactPresent: Schema.Boolean,
+const histories = Arbitrary.array(Arbitrary.schema(Step), {
+  minLength: 1,
+  maxLength: 12,
 });
 
-const histories = Arbitrary.array(Arbitrary.schema(Outcome), {
-  maxLength: 8,
-  minLength: 3,
-});
-
-type DeliveryOutcome = typeof Outcome.Type;
-
-type DeliveryScenario = typeof Scenario.Type;
-
-const modelDelivery = (
-  scenario: DeliveryScenario,
-  history: readonly DeliveryOutcome[]
-) => {
-  const times: number[] = [];
-  let elapsed = 0;
-  let output: IntakeResult = { kind: "refused" };
-
-  if (
-    !scenario.contactPresent ||
-    scenario.contact.state === "held" ||
-    scenario.contact.hold ||
-    scenario.contact.pending === "erase" ||
-    !scenario.agentPresent
-  ) {
-    return { outcome: { kind: "settled", output } as const, reads: 1, times };
-  }
-
-  for (const outcome of history.slice(0, 3)) {
-    times.push(elapsed);
-
-    if (outcome.kind === "defect") {
-      return {
-        outcome: { kind: "crashed" } as const,
-        reads: times.length,
-        times,
-      };
-    }
-
-    output = outcome;
-
-    if (
-      outcome.kind !== "retry" ||
-      outcome.afterSeconds > 3 ||
-      times.length === 3
-    ) {
-      break;
-    }
-
-    elapsed += outcome.afterSeconds * 1000;
-  }
-
-  return {
-    outcome: { kind: "settled", output } as const,
-    reads: times.length,
-    times,
-  };
-};
-
-const replayDelivery = Effect.fn("replayDelivery")(function* replayDelivery(
-  scenario: DeliveryScenario,
-  history: readonly DeliveryOutcome[]
+const replay = Effect.fnUntraced(function* replay(
+  contact: typeof JoinContactSchema.Type,
+  history: readonly (typeof Step.Type)[]
 ) {
-  const expected = modelDelivery(scenario, history);
-  const reads: string[] = [];
-  const requests: AgentIntakeRequest[] = [];
-  const times: number[] = [];
+  const contacts = yield* JoinContactStore;
   const start = yield* Clock.currentTimeMillis;
+  const deadline = start + JOIN_CONTACT_RETENTION_MILLIS;
+  const requests: AgentIntakeRequest[] = [];
+  let elapsed = 0;
+  let retryAt = 0;
+  let alive = true;
+  let firstDispatchAt: string | null = null;
 
-  const submit = Effect.fn("submitDelivery")(function* submitDelivery(
-    request: AgentIntakeRequest
-  ) {
-    const outcome = history[requests.length];
-    requests.push(request);
-    times.push((yield* Clock.currentTimeMillis) - start);
-
-    if (outcome === undefined) {
-      return yield* Effect.die("delivery exceeded generated history");
-    }
-
-    if (outcome.kind === "defect") {
-      return yield* Effect.die("generated delivery defect");
-    }
-
-    return outcome;
+  yield* contacts.save({
+    ...contact,
+    hold: false,
+    pending: "delivery",
+    retentionDeadlineAt: deadline,
+    retryAt: 0,
+    state: "ready",
   });
 
-  const personIntake = {
-    submit: () => Effect.die("person intake must not run"),
-  };
+  for (const step of history) {
+    yield* TestClock.adjust(step.advance * 1000);
+    elapsed += step.advance * 1000;
 
-  const intake = SubscriberIntake.of(
-    scenario.agentPresent
-      ? { ...personIntake, agent: { enabled: true, submit } }
-      : personIntake
-  );
+    const shouldSubmit =
+      alive && elapsed < JOIN_CONTACT_RETENTION_MILLIS && elapsed >= retryAt;
 
-  const contacts = JoinContactStore.of({
-    erase: () => Effect.die("delivery must not erase contacts"),
-    read: (id) =>
-      Effect.sync(() => {
-        reads.push(id);
+    if (shouldSubmit && firstDispatchAt === null) {
+      firstDispatchAt = DateTime.formatIso(yield* DateTime.now);
+    }
 
-        return scenario.contactPresent ? scenario.contact : undefined;
+    const before = requests.length;
+
+    const kind = {
+      accepted: "accepted",
+      unavailable: "retry",
+      budget: "retry",
+      invalid: "refused",
+      challenge: "refused",
+      timeout: "retry",
+    } as const;
+
+    const afterSeconds = step.outcome === "timeout" ? 0 : step.afterSeconds;
+
+    const resultKind = kind[step.outcome];
+
+    const outcome: IntakeResult =
+      resultKind === "retry"
+        ? { afterSeconds, kind: resultKind }
+        : { kind: resultKind };
+
+    const fiber = yield* runJoinDelivery({
+      submissionId: contact.submissionId,
+    }).pipe(
+      Effect.provideService(SubscriberIntake, {
+        agent: {
+          enabled: true,
+          submit: (request) =>
+            Effect.gen(function* submit() {
+              requests.push(request);
+
+              return yield* step.outcome === "timeout"
+                ? Effect.never
+                : Effect.succeed(outcome);
+            }),
+        },
+        submit: () => Effect.die("person intake must not run"),
       }),
-    save: () => Effect.die("delivery must not save contacts"),
-    setState: () => Effect.die("delivery must not change contact state"),
-  });
-
-  const fiber = yield* runJoinDelivery({
-    submissionId: scenario.contact.submissionId,
-  }).pipe(
-    Effect.provideService(SubscriberIntake, intake),
-    Effect.provideService(JoinContactStore, contacts),
-    Effect.exit,
-    Effect.forkScoped
-  );
-
-  yield* TestClock.adjust(0);
-
-  for (let millis = 0; millis <= 6001; millis += 1000) {
-    expect(times).toStrictEqual(
-      expected.times.filter((time) => time <= millis)
+      Effect.forkScoped
     );
-    yield* TestClock.adjust(999);
-    expect(times).toStrictEqual(
-      expected.times.filter((time) => time <= millis + 999)
-    );
-    yield* TestClock.adjust(1);
-  }
 
-  const exit = yield* Fiber.join(fiber);
+    yield* TestClock.adjust(0);
 
-  if (expected.outcome.kind === "crashed") {
-    expect(Exit.isFailure(exit)).toBe(true);
+    if (shouldSubmit && step.outcome === "timeout") {
+      const duration = Math.min(
+        25_000,
+        JOIN_CONTACT_RETENTION_MILLIS - elapsed
+      );
 
-    if (Exit.isFailure(exit)) {
-      expect(Cause.hasDies(exit.cause)).toBe(true);
-      expect(Cause.hasFails(exit.cause)).toBe(false);
-      expect(Cause.squash(exit.cause)).toBe("generated delivery defect");
+      yield* TestClock.adjust(duration);
+      elapsed += duration;
     }
-  } else {
-    expect(exit).toStrictEqual(Exit.succeed(expected.outcome.output));
-  }
 
-  expect(requests).toHaveLength(expected.times.length);
-  expect(requests.length).toBeLessThanOrEqual(3);
-  expect(reads).toStrictEqual(
-    Array.from({ length: expected.reads }, () => scenario.contact.submissionId)
-  );
+    yield* Fiber.join(fiber);
+
+    expect(requests.length - before).toBe(shouldSubmit ? 1 : 0);
+    const handoff = yield* contacts.readHandoff(contact.submissionId);
+    expect(handoff?.handedToDrovrAt).toBe(firstDispatchAt);
+    expect(handoff?.handedToDrovr).toBe(firstDispatchAt !== null);
+
+    if (shouldSubmit) {
+      if (outcome.kind === "retry") {
+        retryAt = elapsed + outcome.afterSeconds * 1000;
+        alive = retryAt < JOIN_CONTACT_RETENTION_MILLIS;
+      } else {
+        alive = false;
+      }
+    }
+
+    if (elapsed >= JOIN_CONTACT_RETENTION_MILLIS) {
+      alive = false;
+    }
+
+    const stored = yield* contacts.read(contact.submissionId);
+    expect(stored !== undefined).toBe(alive);
+
+    if (stored !== undefined) {
+      expect(stored.retentionDeadlineAt).toBe(deadline);
+
+      if (shouldSubmit) {
+        expect(stored.retryAt).toBe(start + retryAt);
+      }
+    }
+  }
 
   for (const request of requests) {
     expect(request).toStrictEqual({
-      agentRef: scenario.contact.agentRef,
-      clientBucket: scenario.contact.clientBucket,
-      email: scenario.contact.email,
-      hold: scenario.contact.hold,
-      score: scenario.contact.score,
-      signals: scenario.contact.signals,
+      agentRef: contact.agentRef,
+      clientBucket: contact.clientBucket,
+      email: contact.email,
+      hold: false,
+      score: contact.score,
       source: "agent",
-      submissionId: scenario.contact.submissionId,
-      ticket: scenario.contact.ticket,
+      submissionId: contact.submissionId,
     });
   }
-
-  yield* TestClock.adjust("1 day");
-  expect(times).toStrictEqual(expected.times);
-
-  return exit;
 }, Effect.scoped);
 
-describe("join delivery lifecycle contract", () => {
+describe("join delivery retention model", () => {
   it.effect.prop(
-    "short retries use their own delays and stop after three submissions",
+    "generated delivery results and clock advances preserve erasure, due times and submission identity",
+    { contact: JoinContactSchema, history: histories },
+    ({ contact, history }) =>
+      replay(contact, history).pipe(Effect.provide(JoinContactStore.testLayer)),
+    { arbitrary: { runs: 200 } }
+  );
+
+  it.effect.prop(
+    "outages and Retry-After on either side of 24h cannot extend retention",
     {
       contact: JoinContactSchema,
-      first: ShortDelay,
-      second: ShortDelay,
-      third: ShortDelay,
+      offset: Schema.Int.check(Schema.isBetween({ minimum: -2, maximum: 2 })),
+      outcome: Schema.Literals([
+        "accepted",
+        "unavailable",
+        "budget",
+        "invalid",
+        "challenge",
+        "timeout",
+      ]),
     },
-    ({ first, second, third, contact }) =>
-      replayDelivery(
-        {
-          agentPresent: true,
-          contact: { ...contact, hold: false, state: "ready" },
-          contactPresent: true,
-        },
-        [
-          { afterSeconds: first, kind: "retry" },
-          { afterSeconds: second, kind: "retry" },
-          { afterSeconds: third, kind: "retry" },
-          { kind: "accepted" },
-        ]
-      ),
+    ({ contact, offset, outcome }) =>
+      replay(contact, [
+        { advance: 0, afterSeconds: 86_400 + offset, outcome: "unavailable" },
+        { advance: 86_400 + offset, afterSeconds: 30, outcome },
+        { advance: 4, afterSeconds: 0, outcome: "accepted" },
+      ]).pipe(Effect.provide(JoinContactStore.testLayer)),
     { arbitrary: { runs: 100 } }
-  );
-
-  it.effect.prop(
-    "a crash at any attempt propagates as a defect and stops delivery",
-    { contact: JoinContactSchema, prefix: crashPrefixes },
-    ({ contact, prefix }) =>
-      replayDelivery(
-        {
-          agentPresent: true,
-          contact: { ...contact, hold: false, state: "ready" },
-          contactPresent: true,
-        },
-        [
-          ...prefix.map((afterSeconds): DeliveryOutcome => ({
-            afterSeconds,
-            kind: "retry",
-          })),
-          { kind: "defect" },
-          { kind: "accepted" },
-        ]
-      ),
-    { arbitrary: { runs: 100 } }
-  );
-  it.effect.prop(
-    "generated histories preserve submission bounds, deadlines and final results",
-    { history: histories, scenario: Scenario },
-    ({ history, scenario }) => replayDelivery(scenario, history),
-    { arbitrary: { runs: 200 } }
-  );
-
-  it.effect.prop(
-    "eligible contacts exercise retry and defect histories",
-    { contact: JoinContactSchema, history: histories },
-    ({ history, contact }) =>
-      replayDelivery(
-        {
-          agentPresent: true,
-          contact: { ...contact, hold: false, state: "ready" },
-          contactPresent: true,
-        },
-        history
-      ),
-    { arbitrary: { runs: 200 } }
   );
 });

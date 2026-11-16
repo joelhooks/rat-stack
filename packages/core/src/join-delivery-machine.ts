@@ -10,29 +10,19 @@ import { types } from "xstate";
 
 import { SubscriberIntake } from "./interest-intake.js";
 import type { IntakeResult } from "./interest-intake.js";
-import { JoinContactStore } from "./join-contact-store.js";
+import {
+  JOIN_CONTACT_RETENTION_MILLIS,
+  JoinContactStore,
+} from "./join-contact-store.js";
 
 export const JoinDeliveryDeadline = Context.Reference<Duration.Duration>(
   "@rat-stack/core/JoinDeliveryDeadline",
   { defaultValue: () => Duration.seconds(25) }
 );
 
-const MAX_DELIVERY_RETRIES = 2;
-
-const MAX_DELIVERY_WAIT_SECONDS = 3;
-
-interface DeliveryInput {
-  readonly submissionId: string;
-}
-
-const AttemptInputSchema = Schema.Struct({
-  deadlineAt: Schema.Finite,
-  submissionId: Schema.String,
-});
+const DeliveryInputSchema = Schema.Struct({ submissionId: Schema.String });
 
 interface DeliveryContext {
-  readonly attempts: number;
-  readonly deadlineAt: number;
   readonly result: IntakeResult;
   readonly submissionId: string;
 }
@@ -46,26 +36,66 @@ export const deliveryStateFor = {
 } as const satisfies Record<IntakeResult["kind"], string>;
 
 const attempt = Effect.fnUntraced(function* attempt(
-  input: typeof AttemptInputSchema.Type
+  input: typeof DeliveryInputSchema.Type
 ) {
   const contacts = yield* JoinContactStore;
   const intake = yield* SubscriberIntake;
+  const budget = yield* JoinDeliveryDeadline;
   const contact = yield* contacts.read(input.submissionId);
+  const erasure = yield* contacts.readErasure(input.submissionId);
 
   if (
     contact === undefined ||
-    contact.state === "held" ||
-    contact.hold ||
     contact.pending === "erase" ||
-    intake.agent === undefined
+    erasure !== undefined
   ) {
     return { kind: "refused" } as const;
   }
 
-  const remaining = input.deadlineAt - (yield* Clock.currentTimeMillis);
+  const now = yield* Clock.currentTimeMillis;
+
+  const retentionDeadlineAt =
+    contact.retentionDeadlineAt ?? now + JOIN_CONTACT_RETENTION_MILLIS;
+
+  if (retentionDeadlineAt <= now) {
+    yield* contacts.erase(input.submissionId);
+    yield* Effect.logWarning("join delivery retention deadline reached");
+
+    return { kind: "refused" } as const;
+  }
+
+  if (contact.hold || contact.state === "held") {
+    return { kind: "retry", afterSeconds: 0 } as const;
+  }
+
+  if (contact.retryAt !== undefined && contact.retryAt > now) {
+    return {
+      afterSeconds: (contact.retryAt - now) / 1000,
+      kind: "retry",
+    } as const;
+  }
+
+  if (intake.agent === undefined || !intake.agent.enabled) {
+    return { kind: "retry", afterSeconds: 0 } as const;
+  }
+
+  yield* contacts.save({ ...contact, retentionDeadlineAt });
+  yield* contacts.markHandedToDrovr(input.submissionId);
+
+  if (
+    (yield* contacts.read(input.submissionId)) === undefined ||
+    (yield* contacts.readErasure(input.submissionId)) !== undefined
+  ) {
+    return { kind: "refused" } as const;
+  }
+
+  const remaining = retentionDeadlineAt - (yield* Clock.currentTimeMillis);
 
   if (remaining <= 0) {
-    return outOfTime;
+    yield* contacts.erase(input.submissionId);
+    yield* Effect.logWarning("join delivery retention deadline reached");
+
+    return { kind: "refused" } as const;
   }
 
   const result = yield* intake.agent
@@ -75,96 +105,117 @@ const attempt = Effect.fnUntraced(function* attempt(
       email: contact.email,
       hold: contact.hold,
       score: contact.score,
-      signals: contact.signals,
       source: "agent",
-      submissionId: contact.submissionId,
-      ticket: contact.ticket,
+      submissionId: input.submissionId,
     })
-    .pipe(Effect.timeoutOption(Duration.millis(remaining)));
+    .pipe(
+      Effect.timeoutOption(
+        Duration.millis(Math.min(Duration.toMillis(budget), remaining))
+      )
+    );
 
   return Option.getOrElse(result, (): IntakeResult => outOfTime);
 });
 
 const deliver = createEffectLogic({
-  effect: ({ input }) =>
-    attempt(input).pipe(
-      Effect.flatMap((result) =>
-        Clock.currentTimeMillis.pipe(
-          Effect.map((now) => ({
-            remainingMillis: input.deadlineAt - now,
-            result,
-          }))
-        )
-      )
-    ),
-  schemas: { input: AttemptInputSchema },
+  effect: ({ input }) => attempt(input),
+  schemas: { input: DeliveryInputSchema },
 });
 
-const wait = createEffectLogic({
-  effect: ({ input }) => Effect.sleep(Duration.seconds(input.seconds)),
-  schemas: { input: Schema.Struct({ seconds: Schema.Finite }) },
+const SettlementInputSchema = Schema.Struct({
+  result: Schema.Union([
+    Schema.Struct({ kind: Schema.Literal("accepted") }),
+    Schema.Struct({ kind: Schema.Literal("refused") }),
+    Schema.Struct({
+      afterSeconds: Schema.Finite,
+      kind: Schema.Literal("retry"),
+    }),
+  ]),
+  submissionId: Schema.String,
+});
+
+const settle = createEffectLogic({
+  effect: ({ input }) =>
+    Effect.gen(function* settleDelivery() {
+      const contacts = yield* JoinContactStore;
+
+      if (input.result.kind !== "retry") {
+        yield* contacts.erase(input.submissionId);
+
+        return;
+      }
+
+      const contact = yield* contacts.read(input.submissionId);
+
+      if (contact === undefined || contact.hold || contact.state === "held") {
+        return;
+      }
+
+      const erasure = yield* contacts.readErasure(input.submissionId);
+
+      if (contact.pending === "erase" || erasure !== undefined) {
+        yield* contacts.erase(input.submissionId);
+
+        return;
+      }
+
+      const now = yield* Clock.currentTimeMillis;
+
+      const retentionDeadlineAt =
+        contact.retentionDeadlineAt ?? now + JOIN_CONTACT_RETENTION_MILLIS;
+
+      const retryAt = now + input.result.afterSeconds * 1000;
+
+      if (now >= retentionDeadlineAt || retryAt >= retentionDeadlineAt) {
+        yield* contacts.erase(input.submissionId);
+
+        yield* Effect.logWarning(
+          "join delivery retention exhausted before retry"
+        );
+
+        return;
+      }
+
+      yield* contacts.save({ ...contact, retentionDeadlineAt, retryAt });
+    }),
+  schemas: { input: SettlementInputSchema },
 });
 
 export const joinDeliveryMachine = setupEffect({
-  actors: { deliver, wait },
-  schemas: { context: types<DeliveryContext>(), input: AttemptInputSchema },
+  actors: { deliver, settle },
+  schemas: { context: types<DeliveryContext>(), input: DeliveryInputSchema },
 }).createMachine({
-  context: ({ input }) => ({
-    ...input,
-    attempts: 0,
-    result: { kind: "refused" },
-  }),
+  context: ({ input }) => ({ ...input, result: { kind: "refused" } }),
   initial: "submitting",
   output: ({ context }) => context.result,
   states: {
     settled: { type: "final" },
-    submitting: {
+    settling: {
       invoke: {
         input: ({ context }) => ({
-          deadlineAt: context.deadlineAt,
+          result: context.result,
           submissionId: context.submissionId,
         }),
-        onDone: ({ context, event }) =>
-          event.output.result.kind === "retry" &&
-          event.output.result.afterSeconds <= MAX_DELIVERY_WAIT_SECONDS &&
-          event.output.result.afterSeconds * 1000 <
-            event.output.remainingMillis &&
-          context.attempts < MAX_DELIVERY_RETRIES
-            ? {
-                context: {
-                  attempts: context.attempts + 1,
-                  result: event.output.result,
-                },
-                target: "waiting",
-              }
-            : { context: { result: event.output.result }, target: "settled" },
-        src: "deliver",
+        onDone: { target: "settled" },
+        src: "settle",
       },
     },
-    waiting: {
+    submitting: {
       invoke: {
-        input: ({ context }) => ({
-          seconds:
-            context.result.kind === "retry" ? context.result.afterSeconds : 0,
+        input: ({ context }) => ({ submissionId: context.submissionId }),
+        onDone: ({ event }) => ({
+          context: { result: event.output },
+          target: "settling",
         }),
-        onDone: { target: "submitting" },
-        src: "wait",
+        src: "deliver",
       },
     },
   },
 });
 
 export const runJoinDelivery = Effect.fn("runJoinDelivery")(
-  function* runJoinDelivery(input: DeliveryInput) {
-    const deadline = yield* JoinDeliveryDeadline;
-    const startedAt = yield* Clock.currentTimeMillis;
-
-    const actor = yield* createEffectActor(joinDeliveryMachine, {
-      input: {
-        deadlineAt: startedAt + Duration.toMillis(deadline),
-        submissionId: input.submissionId,
-      },
-    });
+  function* runJoinDelivery(input: typeof DeliveryInputSchema.Type) {
+    const actor = yield* createEffectActor(joinDeliveryMachine, { input });
 
     yield* watchActor("joinDeliveryMachine", actor);
 

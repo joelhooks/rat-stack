@@ -18,10 +18,12 @@ import { Layer } from "effect";
 
 import { joinContactStoreLayer } from "./join-contact-store.js";
 import type { JoinContactStub } from "./join-contact-store.js";
+import { joinRetentionBackfillLayer } from "./join-retention-backfill.js";
 
 export interface AgentSignupOptions {
   readonly intake: Layer.Layer<IntakeTicket | AbuseScore | IntakeEvents>;
   readonly contacts: (submissionId: string) => JoinContactStub;
+  readonly applicationIds: () => Effect.Effect<readonly string[]>;
   readonly noteApplication?: (submissionId: string) => Effect.Effect<void>;
   readonly markPending?: (
     submissionId: string,
@@ -42,7 +44,10 @@ export const agentSignupLayer = (
   options: AgentSignupOptions,
   services: Context.Context<InterestTokens | SubscriberIntake>
 ) =>
-  joinIntakeLayer.pipe(
+  Layer.mergeAll(
+    joinIntakeLayer,
+    joinRetentionBackfillLayer(options.applicationIds)
+  ).pipe(
     Layer.provideMerge(
       joinContactStoreLayer(
         options.contacts,

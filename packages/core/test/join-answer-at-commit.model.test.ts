@@ -65,40 +65,17 @@ const latencyMillis = (attempt: Attempt | undefined) =>
   (attempt?.latencySeconds ?? 0) * 1000 + 1;
 
 const settledBy = (attempts: readonly Attempt[], from: number) => {
-  let cursor = from;
-  let elapsed = 0;
+  const attempt = attempts[from];
 
-  for (let retries = 0; ; retries += 1) {
-    if (elapsed >= DEADLINE_MILLIS) {
-      return { cursor, state: "ready" as const };
-    }
-
-    const attempt = attempts[cursor];
-    cursor += 1;
-
-    const timedOut = latencyMillis(attempt) >= DEADLINE_MILLIS - elapsed;
-
-    elapsed = timedOut ? DEADLINE_MILLIS : elapsed + latencyMillis(attempt);
-
-    const outcome: DrovrOutcome = timedOut
+  const outcome: DrovrOutcome =
+    latencyMillis(attempt) >= DEADLINE_MILLIS
       ? { afterSeconds: 0, kind: "retry" }
       : (attempt?.outcome ?? { kind: "accepted" });
 
-    if (outcome.kind === "defect") {
-      return { cursor, state: "ready" as const };
-    }
-
-    if (
-      outcome.kind !== "retry" ||
-      outcome.afterSeconds > 3 ||
-      retries >= 2 ||
-      outcome.afterSeconds * 1000 >= DEADLINE_MILLIS - elapsed
-    ) {
-      return { cursor, state: finalStateFor[outcome.kind] };
-    }
-
-    elapsed += outcome.afterSeconds * 1000;
-  }
+  return {
+    cursor: from + 1,
+    state: outcome.kind === "defect" ? "ready" : finalStateFor[outcome.kind],
+  };
 };
 
 const card = {
@@ -209,11 +186,13 @@ it.effect.prop(
 
       expect(sent).toHaveLength(background.cursor);
       expect((yield* contacts.read(answer.statusRef))?.state).toBe(
-        background.state
+        background.state === "ready" ? "ready" : undefined
       );
 
       if (background.state === "ready") {
         const backstop = settledBy(attempts, background.cursor);
+
+        yield* TestClock.adjust("5 minutes");
 
         const redelivery = yield* IntakeRedeliver.use((service) =>
           service.redeliver({ submissionIds: [answer.statusRef] })
@@ -224,7 +203,7 @@ it.effect.prop(
 
         expect(sent).toHaveLength(backstop.cursor);
         expect((yield* contacts.read(answer.statusRef))?.state).toBe(
-          backstop.state
+          backstop.state === "ready" ? "ready" : undefined
         );
       }
 

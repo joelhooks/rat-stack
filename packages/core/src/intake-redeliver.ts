@@ -5,7 +5,12 @@ import { Context, Effect, Layer, Logger, Schema } from "effect";
 
 import { IntakeApplicationsUnavailable } from "./intake-applications-unavailable.js";
 import { SubscriberIntake } from "./interest-intake.js";
-import { JoinContactSchema, JoinContactStore } from "./join-contact-store.js";
+import {
+  JoinContactSchema,
+  JoinContactStore,
+  withPending,
+  withState,
+} from "./join-contact-store.js";
 import {
   JoinDeliveryDeadline,
   runJoinDelivery,
@@ -24,6 +29,7 @@ const ContactState = Schema.Union([
 const RedeliveryInputSchema = Schema.Struct({
   dryRun: Schema.optionalKey(Schema.Boolean),
   includeRefused: Schema.optionalKey(Schema.Boolean),
+  releaseHeld: Schema.optionalKey(Schema.Boolean),
   submissionIds: Schema.Array(SubmissionId).check(
     Schema.isMinLength(1),
     Schema.isMaxLength(100)
@@ -33,6 +39,9 @@ const RedeliveryInputSchema = Schema.Struct({
 export type IntakeRedeliveryInput = typeof RedeliveryInputSchema.Type;
 
 export const IntakeRedeliveryRowSchema = Schema.Struct({
+  hold: Schema.NullOr(Schema.Boolean).annotate({
+    description: "Pre-run abuse hold; null when the contact is missing.",
+  }),
   outcome: Schema.Literals([
     "accepted",
     "retry",
@@ -71,6 +80,7 @@ export class IntakeRedeliver extends Context.Service<
         function* redeliver({
           dryRun = false,
           includeRefused = false,
+          releaseHeld = false,
           submissionIds,
         }: IntakeRedeliveryInput) {
           const rows: IntakeRedelivery["rows"][number][] = [];
@@ -82,12 +92,14 @@ export class IntakeRedeliver extends Context.Service<
 
             const eligible =
               contact !== undefined &&
-              !contact.hold &&
+              (!contact.hold || releaseHeld) &&
               (contact.state === "ready" ||
+                contact.state === "held" ||
                 (includeRefused && contact.state === "refused"));
 
             if (!eligible || dryRun) {
               rows.push({
+                hold: contact?.hold ?? null,
                 outcome: eligible ? "would_send" : "skipped",
                 previousState,
                 state: previousState,
@@ -101,9 +113,11 @@ export class IntakeRedeliver extends Context.Service<
               return { notAttempted: submissionIds.slice(index + 1), rows };
             }
 
-            if (previousState === "refused") {
-              yield* contacts.setState(submissionId, "ready");
-            }
+            const released = { ...contact, hold: false };
+            delete released.retryAt;
+            yield* contacts.save(
+              withPending(withState(released, "ready"), "delivery")
+            );
 
             const result = yield* runJoinDelivery({ submissionId }).pipe(
               Effect.provideService(SubscriberIntake, intake),
@@ -120,6 +134,7 @@ export class IntakeRedeliver extends Context.Service<
             const state = stateFor[result.kind];
             yield* contacts.setState(submissionId, state);
             rows.push({
+              hold: contact.hold,
               outcome: result.kind,
               previousState,
               state,
@@ -146,7 +161,7 @@ export class IntakeRedeliver extends Context.Service<
 export const intakeRedeliverContract = defineContract("intakeRedeliver", {
   annotations: { readOnly: false },
   description:
-    "Redeliver ready applications in order using their original submission ids. Stop at the first non-accepted outcome. Authenticated operator surface only.",
+    "Release abuse holds only with releaseHeld and redeliver eligible applications in order using their original submission ids. Stop at the first non-accepted outcome. Authenticated operator surface only.",
   failure: IntakeApplicationsUnavailable,
   input: RedeliveryInputSchema,
   output: IntakeRedeliverySchema,

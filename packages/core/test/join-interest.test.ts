@@ -4,6 +4,7 @@ import { Deferred, Effect, Fiber, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
+import { IntakeRedeliver } from "../src/intake-redeliver.js";
 import {
   AbuseScore,
   IntakeEvents,
@@ -63,8 +64,52 @@ const pendingAfterAnswer = (
   delivered: "accepted" | "refused" | "retry"
 ) => (deferred || delivered !== "retry" ? undefined : "delivery");
 
+const isRetained = (eligible: boolean, hold: boolean, eventsUp: boolean) =>
+  eligible && (hold || !eventsUp);
+
+const expectedSavedState = (hold: boolean, eventsUp: boolean) =>
+  eventsUp && !hold ? undefined : "held";
+
+const expectOperatorRelease = Effect.fnUntraced(function* expectOperatorRelease(
+  contacts: JoinContactStore["Service"],
+  submissionId: string
+) {
+  if ((yield* contacts.read(submissionId)) === undefined) {
+    return;
+  }
+
+  const released = yield* IntakeRedeliver.use((service) =>
+    service.redeliver({ releaseHeld: true, submissionIds: [submissionId] })
+  ).pipe(
+    Effect.provide(
+      IntakeRedeliver.layer.pipe(
+        Layer.provide(
+          Layer.mergeAll(
+            Layer.succeed(JoinContactStore, contacts),
+            Layer.succeed(SubscriberIntake, {
+              submit: () => Effect.succeed({ kind: "refused" }),
+              agent: {
+                enabled: true,
+                submit: (input) =>
+                  Effect.sync(() => {
+                    expect(input.hold).toBe(false);
+
+                    return { kind: "accepted" } as const;
+                  }),
+              },
+            })
+          )
+        )
+      )
+    )
+  );
+
+  expect(released.rows[0]?.outcome).toBe("accepted");
+  expect(yield* contacts.read(submissionId)).toBeUndefined();
+});
+
 it.effect.prop(
-  "only authorized clean recorded submissions leave the mapping; every response hides disposition",
+  "only authorized submissions reach delivery; accepted contacts are erased and held or events-down contacts remain releasable",
   {
     answers: Arbitrary.schema(JoinAnswers),
     scenario: Arbitrary.schema(Scenario),
@@ -73,6 +118,7 @@ it.effect.prop(
     Effect.gen(function* verifyGates() {
       const forwarded: AgentIntakeRequest[] = [];
       const saved: string[] = [];
+      const savedRefs: string[] = [];
       const tickets = yield* IntakeTicket;
       const events = yield* IntakeEvents;
       const contacts = yield* JoinContactStore;
@@ -102,6 +148,7 @@ it.effect.prop(
               ...contacts,
               save: (contact) => {
                 saved.push(contact.submissionId);
+                savedRefs.push(contact.contactRef);
 
                 return contacts.save(contact);
               },
@@ -186,12 +233,14 @@ it.effect.prop(
         eligible && !scenario.hold && scenario.eventsUp ? 1 : 0
       );
       const contact = yield* contacts.read(result.statusRef);
-      expect(contact !== undefined).toBe(eligible);
+      expect(contact !== undefined).toBe(
+        isRetained(eligible, scenario.hold, scenario.eventsUp)
+      );
 
       if (eligible) {
         expect(steps.slice(0, 3)).toEqual(["gate", "ticket", "score"]);
         expect(contact?.state).toBe(
-          scenario.hold || !scenario.eventsUp ? "held" : "accepted"
+          expectedSavedState(scenario.hold, scenario.eventsUp)
         );
 
         if (scenario.eventsUp) {
@@ -211,7 +260,7 @@ it.effect.prop(
           expect(
             recorded.every(
               (statement) =>
-                statement.actor === contact?.contactRef &&
+                statement.actor === savedRefs[0] &&
                 statement.context.submissionId === result.statusRef
             )
           ).toBe(true);
@@ -242,10 +291,8 @@ it.effect.prop(
           "email",
           "hold",
           "score",
-          "signals",
           "source",
           "submissionId",
-          "ticket",
         ]);
         expect(payload).not.toHaveProperty("name");
         expect(payload).not.toHaveProperty("x");
@@ -257,6 +304,8 @@ it.effect.prop(
         expect(payload.clientBucket.ipHash).toMatch(/^[a-f0-9]{64}$/u);
         expect(payload.clientBucket.uaHash).toMatch(/^[a-f0-9]{64}$/u);
       }
+
+      yield* expectOperatorRelease(contacts, result.statusRef);
     }).pipe(
       Effect.provide(
         Layer.mergeAll(
@@ -402,11 +451,19 @@ it.effect.prop(
         retry: "ready",
       };
 
-      const unheldState = scorerOnly ? "ready" : deliveredState[delivery.kind];
-      expect(contact?.state).toBe(realHold ? "held" : unheldState);
-      expect(contact?.hold).toBe(realHold);
-      expect(contact?.signals).toEqual(verdict.signals);
-      expect(contact?.email).toBe(card.email);
+      const retained = realHold || scorerOnly || delivery.kind === "retry";
+
+      if (retained) {
+        expect(contact).toMatchObject({
+          state: realHold ? "held" : "ready",
+          hold: realHold,
+          signals: verdict.signals,
+          email: card.email,
+        });
+      } else {
+        expect(contact).toBeUndefined();
+      }
+
       expect(result.statusRef).toBe(delayed ? "unavailable" : submissionId);
       const deferredStates = scorerOnly ? ["ready"] : [];
       expect(states).toEqual(
@@ -418,10 +475,7 @@ it.effect.prop(
         pendingAfterAnswer(realHold || scorerOnly, delivery.kind)
       );
 
-      const expectedCalls =
-        delivery.kind === "retry" && delivery.afterSeconds <= 3 ? 3 : 1;
-
-      expect(sent).toHaveLength(realHold || scorerOnly ? 0 : expectedCalls);
+      expect(sent).toHaveLength(realHold || scorerOnly ? 0 : 1);
       expect(sent.every((id) => id === submissionId)).toBe(true);
     }).pipe(Effect.scoped, Effect.provide(base)),
   { arbitrary: { runs: 100 } }
@@ -448,17 +502,14 @@ it.effect.prop(
     })
 );
 
-const crashPrefixes = Arbitrary.array(
-  Arbitrary.schema(
-    Schema.Int.check(Schema.isBetween({ maximum: 3, minimum: 0 }))
-  ),
-  { maxLength: 2 }
+const crashDelay = Schema.Int.check(
+  Schema.isBetween({ maximum: 3, minimum: 0 })
 );
 
 it.effect.prop(
   "a delivery crash leaves admitted contacts ready for redrive, never refused or accepted",
-  { prefix: crashPrefixes },
-  ({ prefix }) =>
+  { delay: crashDelay },
+  ({ delay }) =>
     Effect.gen(function* crashPreservesReadyContact() {
       const sent: AgentIntakeRequest[] = [];
       const tickets = yield* IntakeTicket;
@@ -487,15 +538,11 @@ it.effect.prop(
                 submit: Effect.fn("crashingIntake")(function* crashingIntake(
                   input: AgentIntakeRequest
                 ) {
-                  const delay = prefix[sent.length];
                   sent.push(input);
                   yield* Deferred.succeed(submitting, true);
+                  yield* Effect.sleep(`${delay} seconds`);
 
-                  if (delay === undefined) {
-                    return yield* Effect.die("generated seam delivery crash");
-                  }
-
-                  return { afterSeconds: delay, kind: "retry" } as const;
+                  return yield* Effect.die("generated seam delivery crash");
                 }),
               },
               submit: () => Effect.die("person intake must not run"),
@@ -519,7 +566,7 @@ it.effect.prop(
       yield* TestClock.adjust("6 seconds");
       const answer = yield* Fiber.join(fiber);
       expect(answer.message).toBe(JOIN_ANSWER);
-      expect(sent).toHaveLength(prefix.length + 1);
+      expect(sent).toHaveLength(1);
       const contact = yield* contacts.read(answer.statusRef);
       expect(contact?.state).toBe("ready");
       expect(states).not.toContain("refused");
@@ -528,7 +575,7 @@ it.effect.prop(
         sent.every((request) => request.submissionId === answer.statusRef)
       ).toBe(true);
       yield* TestClock.adjust("1 day");
-      expect(sent).toHaveLength(prefix.length + 1);
+      expect(sent).toHaveLength(1);
       expect((yield* contacts.read(answer.statusRef))?.state).toBe("ready");
     }).pipe(Effect.scoped, Effect.provide(base)),
   { arbitrary: { runs: 100 } }
@@ -588,12 +635,7 @@ it.effect.prop(
 
       const first = yield* submit;
 
-      const firstSettled = generated.findIndex((kind) => kind !== "retry");
-
-      const expectedAttempts = Math.min(
-        3,
-        firstSettled === -1 ? generated.length + 1 : firstSettled + 1
-      );
+      const expectedAttempts = 1;
 
       expect(sent.length).toBe(expectedAttempts);
       expect(

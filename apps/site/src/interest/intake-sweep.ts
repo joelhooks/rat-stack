@@ -30,15 +30,26 @@ export const sweepPendingIntake = (
     yield* Effect.forEach(
       pending,
       (submissionId) =>
-        contacts
-          .read(submissionId)
-          .pipe(
-            Effect.flatMap((contact) =>
-              contact?.pending === undefined
-                ? markPending(submissionId, false)
-                : Effect.void
-            )
+        contacts.read(submissionId).pipe(
+          Effect.flatMap((contact) =>
+            contact?.pending === undefined
+              ? contacts
+                  .readErasure(submissionId)
+                  .pipe(
+                    Effect.flatMap((marker) =>
+                      marker === undefined
+                        ? markPending(submissionId, false)
+                        : Effect.void
+                    )
+                  )
+              : Effect.void
           ),
+          Effect.catchCause(() =>
+            Effect.logWarning(
+              "intake sweep contact unavailable; its index entry stays pending"
+            )
+          )
+        ),
       { concurrency: SWEEP_CONCURRENCY, discard: true }
     );
 

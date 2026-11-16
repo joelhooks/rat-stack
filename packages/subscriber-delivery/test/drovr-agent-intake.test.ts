@@ -167,15 +167,27 @@ it.effect(
                   email: Schema.String,
                   hold: Schema.Boolean,
                   score: Schema.Finite,
-                  signals: Schema.Array(Schema.String),
                   source: Schema.Literal("agent"),
                   submissionId: Schema.String,
-                  ticket: Schema.String,
                 })
               )
             )(new TextDecoder().decode(request.body.body));
 
-            expect(decoded).toEqual(payload);
+            expect(decoded).toEqual({
+              agentRef: payload.agentRef,
+              clientBucket: payload.clientBucket,
+              email: payload.email,
+              hold: payload.hold,
+              score: payload.score,
+              source: payload.source,
+              submissionId: payload.submissionId,
+            });
+            expect(new TextDecoder().decode(request.body.body)).not.toContain(
+              '"signals":'
+            );
+            expect(new TextDecoder().decode(request.body.body)).not.toContain(
+              '"ticket":'
+            );
             expect(new TextDecoder().decode(request.body.body)).not.toContain(
               "challenge"
             );

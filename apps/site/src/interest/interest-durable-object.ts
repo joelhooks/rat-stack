@@ -119,6 +119,7 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
           delete: (key) => storage(state.storage.delete(key)),
           get: (key) => storage(state.storage.get(key)),
           put: (key, value) => storage(state.storage.put(key, value)),
+          setAlarm: (deadlineAt) => storage(state.storage.setAlarm(deadlineAt)),
         }),
         mailFailed: (address: string) => run(address, "mailFailed"),
         register: (address: string, capture?: CaptureRequest) =>
