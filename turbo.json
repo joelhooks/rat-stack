@@ -71,13 +71,15 @@
     },
     "@rat-stack/site#generate": {
       "dependsOn": ["^build"],
-      "cache": false,
+      "cache": true,
       "outputs": [
         "src/bundled-content.generated.ts",
         "src/interest-pages.generated.ts",
         "src/rat-icons.generated.ts",
         "dist/content/**",
-        "dist/reader-source.json"
+        "dist/doc-fences/**",
+        "dist/reader-source.json",
+        "$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -102,7 +104,12 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/site#typecheck": {
@@ -131,12 +138,22 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/site#build": {
       "dependsOn": ["@rat-stack/site#generate", "^build"],
-      "outputs": ["dist/**", "!dist/content/**", "!dist/reader-source.json"],
+      "outputs": [
+        "dist/**",
+        "!dist/content/**",
+        "!dist/doc-fences/**",
+        "!dist/reader-source.json"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.brain/**",
@@ -160,7 +177,12 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/infra#test": {
@@ -198,7 +220,12 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/site#check": {
@@ -233,7 +260,12 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     }
   }

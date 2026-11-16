@@ -36,7 +36,7 @@ export const tubeContentSecurityPolicy = policy({
 });
 
 export const readerPagePolicy = (pagePath: string) =>
-  pagePath === tubePagePath
+  pagePath === tubePagePath || /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(pagePath)
     ? tubeContentSecurityPolicy
     : readerContentSecurityPolicy;
 

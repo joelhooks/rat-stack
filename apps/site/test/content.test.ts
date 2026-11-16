@@ -6,6 +6,7 @@ import { Effect, FileSystem, Layer, Path, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { DomUtils, parseDocument } from "htmlparser2";
 
+import { TubeData } from "../../web/src/client/tube/data.ts";
 import { collectCodeFences } from "../scripts/code-pipeline.ts";
 import {
   assertDocumentTitle,
@@ -1050,6 +1051,16 @@ it.layer(contentServices)("generated content", (test) => {
 
   test.effect("generates a 1200x630 PNG for every public page", () =>
     Effect.gen(function* publicPageImages() {
+      const fs = yield* FileSystem.FileSystem;
+
+      const tube = yield* fs
+        .readFileString(
+          new URL("../../../.brain/data/tube.json", import.meta.url).pathname
+        )
+        .pipe(
+          Effect.flatMap(Schema.decodeEffect(Schema.fromJsonString(TubeData)))
+        );
+
       const path = yield* Path.Path;
 
       const workshop = yield* buildWorkshop(
@@ -1065,6 +1076,9 @@ it.layer(contentServices)("generated content", (test) => {
         "/directory",
         ...allStarsRoutes,
         "/tube",
+        ...tube.videos.flatMap((video) =>
+          video.page === undefined ? [] : [`/tube/${video.id}`]
+        ),
         "/search",
         "/systems",
         "/glossary",

@@ -60,7 +60,7 @@ export const homeFeaturedMarkdown = (
     "",
     ...news,
     "",
-    `The newest top-tier picks on [Ratstack Tube](${origin}/tube):`,
+    `The newest top-tier picks on [RatTube](${origin}/tube):`,
     "",
     ...watch,
   ].join("\n");
