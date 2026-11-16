@@ -43,6 +43,10 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
+    "help:answer": "node scripts/help-answer.ts",
+    "help:check-hashes": "node scripts/help-check-hashes.ts",
+    "help:proof": "node scripts/help-proof.ts",
+    "help:reports": "node scripts/help-reports.ts",
     "tube:draft": "node scripts/tube-draft.ts",
     "typecheck": "node scripts/prepare-content.ts && effect-tsrs diagnostics --project tsconfig.json --strict --type-check && pnpm run --silent typecheck:doc-fences && pnpm run --silent startup:check",
     "typecheck:doc-fences": "effect-tsrs diagnostics --project tsconfig.doc-fences.json --strict --type-check",

@@ -11,7 +11,7 @@ export class WorkshopBundleLeak extends Schema.TaggedError<
 
 export const assertWorkshopIsolation = (modules: readonly string[]) => {
   const workshop = modules.filter((path) =>
-    /(?:^|\/)(?:tokenmaxx-workshop[^/]*|workshop-(?:contracts|directory|handlers|runtime|worker))\.(?:js|ts)$/u.test(
+    /(?:^|\/)(?:tokenmaxx-(?:workshop|help)[^/]*|workshop-(?:contracts|directory|handlers|runtime|worker)|workshop-help\/[^/]+)\.(?:js|ts)$/u.test(
       path
     )
   );
