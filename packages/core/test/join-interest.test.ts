@@ -79,7 +79,7 @@ const expectOperatorRelease = Effect.fnUntraced(function* expectOperatorRelease(
   }
 
   const released = yield* IntakeRedeliver.use((service) =>
-    service.redeliver({ submissionIds: [submissionId] })
+    service.redeliver({ releaseHeld: true, submissionIds: [submissionId] })
   ).pipe(
     Effect.provide(
       IntakeRedeliver.layer.pipe(

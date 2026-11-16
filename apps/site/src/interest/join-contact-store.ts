@@ -269,7 +269,27 @@ export const joinContactStoreLayer = (
           }),
         requestErase: (submissionId: string) =>
           Effect.gen(function* requestErase() {
-            const marker = yield* stub(submissionId).joinRequestErase();
+            yield* read(submissionId).pipe(
+              Effect.catchTag("JoinContactUnreadable", () => Effect.undefined)
+            );
+            yield* markPending(submissionId, true);
+
+            const marker = yield* stub(submissionId)
+              .joinRequestErase()
+              .pipe(
+                Effect.catchCause((cause) =>
+                  stub(submissionId)
+                    .joinReadErasure()
+                    .pipe(
+                      Effect.flatMap((durable) =>
+                        durable === undefined
+                          ? Effect.failCause(cause)
+                          : Effect.succeed(durable)
+                      )
+                    )
+                )
+              );
+
             yield* markPending(submissionId, marker !== undefined);
 
             return marker;

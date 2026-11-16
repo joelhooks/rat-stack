@@ -499,16 +499,14 @@ it.effect(
       expect(yield* Effect.promise(partial.json.bind(partial))).toEqual({
         alreadyGone: 0,
         erased: 0,
-        failed: 1,
-        pending: 0,
-        handedToDrovr: 1,
-        handedToDrovrSubmissionIds: ["synthetic-submission"],
-        handedToDrovrSubmissions: [
-          { submissionId: "synthetic-submission", handedAt: null },
-        ],
+        failed: 0,
+        pending: 1,
+        handedToDrovr: 0,
+        handedToDrovrSubmissionIds: [],
+        handedToDrovrSubmissions: [],
       });
       expect(yield* contacts.read("synthetic-submission")).toBeDefined();
-      expect((yield* vault.contents).size).toBe(1);
+      expect((yield* vault.contents).size).toBe(0);
       yield* Ref.set(failErase, false);
 
       for (let attempt = 0; attempt < 2; attempt += 1) {

@@ -36,6 +36,7 @@ it.effect.prop(
         notAttempted: [],
         rows: [
           {
+            hold: false,
             outcome: "accepted",
             previousState: "ready",
             state: "accepted",

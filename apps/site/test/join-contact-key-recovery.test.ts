@@ -121,7 +121,7 @@ it.effect(
       expect(
         yield* changed.requestErase("synthetic-key-recovery")
       ).toBeUndefined();
-      expect(reads).not.toContain(JOIN_CONTACT_KEY);
+      expect(reads).toContain(JOIN_CONTACT_KEY);
       expect(entries.has(JOIN_CONTACT_KEY)).toBe(false);
       expect(writes).toContainEqual(["synthetic-key-recovery", false]);
     })
