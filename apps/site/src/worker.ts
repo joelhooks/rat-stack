@@ -6,11 +6,6 @@ import {
 } from "@rat-stack/core/flags";
 import { InterestMode, InterestTokens } from "@rat-stack/core/interest";
 import type { InterestDirectory } from "@rat-stack/core/interest";
-import {
-  IntakeApplications,
-  IntakeErasure,
-  IntakeRedeliver,
-} from "@rat-stack/core/join-interest";
 import type { RequestCaptureSettings } from "@rat-stack/core/request-capture";
 import { webCryptoLayer } from "@rat-stack/core/web-crypto";
 import { intakeLiveLayer, intakeInstance } from "@rat-stack/intake-live";
@@ -51,6 +46,7 @@ import Interest from "./interest/interest-durable-object.js";
 import InterestIndex from "./interest/interest-index-durable-object.js";
 import { agentSignupLayer } from "./interest/join-layer.js";
 import type { AgentSignupOptions } from "./interest/join-layer.js";
+import { interestOperatorOptions } from "./interest/operator-options.js";
 import LegacyMcp from "./legacy-mcp/durable-object.js";
 import { LEGACY_SESSION_HEADER } from "./legacy-mcp/session.js";
 import {
@@ -240,38 +236,10 @@ export const makeMischief = (
 
     yield* scheduleIntakeSweep(agentSignup, joinServices);
 
-    const applications =
-      agentSignup?.applications === undefined || joinServices === undefined
-        ? undefined
-        : yield* IntakeApplications.pipe(
-            Effect.provide(
-              agentSignup.applications.pipe(
-                Layer.provide(Layer.succeedContext(joinServices))
-              )
-            )
-          );
-
-    const erasure =
-      joinServices === undefined
-        ? undefined
-        : yield* IntakeErasure.pipe(
-            Effect.provide(
-              IntakeErasure.layer.pipe(
-                Layer.provide(Layer.succeedContext(joinServices))
-              )
-            )
-          );
-
-    const redelivery =
-      joinServices === undefined
-        ? undefined
-        : yield* IntakeRedeliver.pipe(
-            Effect.provide(
-              IntakeRedeliver.layer.pipe(
-                Layer.provide(Layer.succeedContext(joinServices))
-              )
-            )
-          );
+    const operatorOptions = yield* interestOperatorOptions(
+      agentSignup,
+      joinServices
+    );
 
     const assetBinding = Schema.decodeUnknownOption(AssetBindingSchema)(
       environment.ASSETS
@@ -308,7 +276,7 @@ export const makeMischief = (
       interest:
         interest === undefined
           ? undefined
-          : { ...interest, applications, erasure, redelivery },
+          : { ...interest, ...operatorOptions },
       joinTokens: interestServices,
       legacyMcp,
       rateLimits,

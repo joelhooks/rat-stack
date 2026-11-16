@@ -1,7 +1,14 @@
 import { Schema } from "effect";
 
 export const JoinRetentionDiagnosticSchema = Schema.Struct({
-  step: Schema.Literals(["index", "migrate", "handoff"]),
+  step: Schema.Literals([
+    "index",
+    "migrate",
+    "handoff",
+    "route_not_configured",
+    "route_unavailable",
+    "route_defect",
+  ]),
   submissionId: Schema.NullOr(
     Schema.String.check(
       Schema.isMinLength(1),
