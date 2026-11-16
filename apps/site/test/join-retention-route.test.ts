@@ -6,7 +6,6 @@ import {
   SubscriberConfirm,
   SubscriberIntake,
 } from "@rat-stack/core/interest";
-import { JoinRetentionBackfill } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Redacted } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
@@ -44,18 +43,15 @@ it.effect(
       const routes = interestRoutes({
         operatorToken: "synthetic-operator",
         services,
-      }).pipe(
-        Layer.provideMerge(
-          Layer.succeed(JoinRetentionBackfill, {
-            run: (dryRun) =>
-              Effect.sync(() => {
-                runs.push(dryRun);
+        backfill: {
+          run: (dryRun) =>
+            Effect.sync(() => {
+              runs.push(dryRun);
 
-                return counts;
-              }),
-          })
-        )
-      );
+              return counts;
+            }),
+        },
+      });
 
       const { handler, dispose } = HttpRouter.toWebHandler(routes, {
         disableLogger: true,
@@ -108,13 +104,8 @@ it.effect(
       const brokenRoutes = interestRoutes({
         operatorToken: "synthetic-operator",
         services,
-      }).pipe(
-        Layer.provideMerge(
-          Layer.succeed(JoinRetentionBackfill, {
-            run: () => Effect.die("synthetic-private-defect"),
-          })
-        )
-      );
+        backfill: { run: () => Effect.die("synthetic-private-defect") },
+      });
 
       const broken = HttpRouter.toWebHandler(brokenRoutes, {
         disableLogger: true,
@@ -136,8 +127,12 @@ it.effect(
       );
 
       expect(failure.status).toBe(503);
-      expect(yield* Effect.promise(() => failure.text())).toBe(
-        "Applications unavailable.\n"
-      );
+      expect(yield* Effect.promise(() => failure.json())).toEqual({
+        error: "applications_unavailable",
+        step: "route_defect",
+        submissionId: null,
+        kind: "Defect",
+        name: "Unknown",
+      });
     }).pipe(Effect.scoped)
 );

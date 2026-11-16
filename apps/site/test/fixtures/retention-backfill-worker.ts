@@ -7,7 +7,10 @@ import {
   SubscriberConfirm,
   SubscriberIntake,
 } from "@rat-stack/core/interest";
-import { JoinContactStore } from "@rat-stack/core/join-interest";
+import {
+  JoinContactStore,
+  JoinRetentionBackfill,
+} from "@rat-stack/core/join-interest";
 import { Effect, Layer, Logger, Redacted, Schema } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 
@@ -110,18 +113,6 @@ export default class RetentionBackfillWorker extends Cloudflare.Worker<Retention
       Logger.map((record) => logs.push(record))
     );
 
-    const app = yield* HttpRouter.toHttpEffect(
-      Layer.mergeAll(
-        seed,
-        HttpRouter.add(
-          "GET",
-          "/logs",
-          Effect.sync(() => HttpServerResponse.jsonUnsafe(logs))
-        ),
-        interestRoutes({ operatorToken: "synthetic-operator", services })
-      )
-    ).pipe(Effect.orDie);
-
     return {
       fetch: Effect.gen(function* fetch() {
         const request = yield* HttpServerRequest.HttpServerRequest;
@@ -154,17 +145,37 @@ export default class RetentionBackfillWorker extends Cloudflare.Worker<Retention
             }
           : contacts;
 
-        return yield* app.pipe(
+        const backfill = yield* JoinRetentionBackfill.pipe(
           Effect.provide(
             joinRetentionBackfillLayer(() => Effect.succeed(namedIds)).pipe(
               Layer.provide(
                 Layer.succeed(JoinContactStore, operationalContacts)
               )
             )
-          ),
-          Effect.scoped
+          )
         );
-      }).pipe(Effect.provide(Logger.layer([logger, Logger.defaultLogger]))),
+
+        const app = yield* HttpRouter.toHttpEffect(
+          Layer.mergeAll(
+            seed,
+            HttpRouter.add(
+              "GET",
+              "/logs",
+              Effect.sync(() => HttpServerResponse.jsonUnsafe(logs))
+            ),
+            interestRoutes({
+              operatorToken: "synthetic-operator",
+              services,
+              backfill,
+            })
+          )
+        ).pipe(Effect.orDie);
+
+        return yield* app;
+      }).pipe(
+        Effect.scoped,
+        Effect.provide(Logger.layer([logger, Logger.defaultLogger]))
+      ),
     };
   })
 ) {}
