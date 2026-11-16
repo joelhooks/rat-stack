@@ -6,7 +6,7 @@ Pi appends this file to its system prompt for sessions in this repo. A child pro
 - Agent edit loop: `pnpm typecheck:fast` runs plain tsrs for fast feedback. It has no Effect diagnostics; use `typecheck` or `check` for those.
 - Validation gate: `pnpm turbo run check test build`. Lefthook runs `pnpm check` and `pnpm test` on commit; CI runs the full gate on a cold cache.
 - Domain terms: a **capability** (a contract from `defineContract` bound to a handler with `implement`) is one named, schema-typed behavior; a **projection** (`packages/capability`) turns capabilities into a CLI command, an HTTP API, an MCP toolkit, or code mode; the **fence** is the type-aware lint, Effect language-service diagnostics, and hooks that make bypasses fail loudly.
-- Active constraint: XState 6 and `@xstate/effect` move together; bump them as a pair. Invoked Effect errors carry `EffectFailure<E>`; preserve `event.error.cause` and lift it with `Effect.failCause`. Use the compiled `@xstate/effect/oxlint` rule at error severity.
+- Active constraint: XState 6 and `@xstate/effect` move together; bump them as a pair. Serialized actor references use `@actor`; snapshot counters use `nextTimerId` and `nextActorIds`. Audit snapshot schemas when upgrading. `sendAndAwait` comes from `@xstate/effect` and acknowledges one event's transition and immediate effects, not child replies or background work. Invoked Effect errors carry `EffectFailure<E>`; preserve `event.error.cause` and lift it with `Effect.failCause`. Use the compiled `@xstate/effect/oxlint` rule at error severity.
 - Current focus: rat-stack is a reference, not a template. Keep a fresh clone working: a cold `pnpm install` and the full gate must pass.
 
 ## Brain procedures

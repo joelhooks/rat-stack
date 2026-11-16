@@ -438,14 +438,14 @@
     "versions": {
       "effect": "—",
       "alchemy": "—",
-      "xstate": "6.0.0-beta.0 (development and peer pin)",
+      "xstate": "6.0.0-beta.2 (development and peer pin)",
       "xstateEffect": "—"
     },
-    "checked": "2026-11-06",
+    "checked": "2026-11-16",
     "firstSeen": "2026-10-01",
     "studied": "Not yet studied",
     "branch": "next",
-    "commit": "cd6148c01d45a547bed9df5b7601e8a871f9a412",
+    "commit": "25dbef955f3a6db106ac52a124624909b604405c",
     "sources": [
       {
         "label": "package.json",
