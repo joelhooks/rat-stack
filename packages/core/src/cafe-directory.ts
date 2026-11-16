@@ -1,5 +1,5 @@
 import { implement } from "@rat-stack/capability/implement";
-import { Context, Effect, Layer, Option } from "effect";
+import { Context, Effect, Layer } from "effect";
 
 import type * as CafePeople from "./cafe-people.js";
 import { selectCafeNews, selectCafeProjects } from "./cafe.js";
@@ -67,17 +67,14 @@ export const listChannels = implement(listChannelsContract, (query) =>
 export const readPerson = implement(readPersonContract, ({ id }) =>
   withData((people, data) => people.findCafePerson(data, id)).pipe(
     Effect.flatMap((found) =>
-      // @effect-diagnostics-next-line optionMatchToFromOption:off -- Absence is the domain failure itself; fromOption would invent an uninformative NoSuchElement cause.
-      Option.match(found, {
-        onNone: () =>
-          Effect.fail(
-            new UnknownPerson({
-              id,
-              message: "Choose an id returned by listPeople or searchPeople.",
-            })
-          ),
-        onSome: Effect.succeed,
-      })
+      Effect.fromOption(
+        found,
+        () =>
+          new UnknownPerson({
+            id,
+            message: "Choose an id returned by listPeople or searchPeople.",
+          })
+      )
     )
   )
 );
