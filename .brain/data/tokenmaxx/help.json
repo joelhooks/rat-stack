@@ -83,6 +83,13 @@
       ]
     },
     {
+      "steps": [4],
+      "symptom": "The person's models go through their own proxy or custom endpoint, and Pi's `/login` only offers a subscription or an API key.",
+      "fix": "`/login` has no custom endpoint. With the person's approval, add a provider entry to `~/.pi/agent/models.json` with the proxy's `baseUrl` and an `apiKey`, then pick the model with `/model`. Pi's provider documentation has the shape. Don't print the key.",
+      "tested": true,
+      "keywords": ["proxy", "baseurl", "custom endpoint", "cliproxyapi"]
+    },
+    {
       "steps": [5],
       "symptom": "The two-sessions line of `pnpm ex 00.1 check` fails.",
       "fix": "The person's model account may allow only one session at a time. Tell them; it's a question for the workshop email.",
