@@ -339,7 +339,11 @@ const scopedSwitch = defineFlag("SCOPED_SWITCH", Schema.Boolean, {
   rungs: binaryLadder(false, true),
 });
 
-const storageFields = (error: { readonly _tag: string }) =>
+const storageFields = (
+  error: Effect.Error<
+    ReturnType<FlagLedger["Service"]["read" | "flip" | "recordEvidence"]>
+  >
+) =>
   Schema.is(FlagStorageError)(error)
     ? { flag: error.flag, operation: error.operation }
     : error._tag;

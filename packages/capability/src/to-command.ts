@@ -174,8 +174,9 @@ const promptApproval = (description: string) =>
   Layer.effect(
     Approval,
     Effect.gen(function* captureApprovalPrompt() {
-      // @effect-diagnostics-next-line unstableApiUsage:off -- The CLI projection uses the workspace-pinned experimental prompt environment.
-      const environment = yield* Effect.context<Prompt.Environment>();
+      const environment =
+        // @effect-diagnostics-next-line unstableApiUsage:off -- The CLI projection uses the workspace-pinned experimental prompt environment.
+        yield* Effect.context<Prompt.Environment>();
 
       return Approval.of({
         approve: Effect.fn("Cli.approve")(function* approve(
