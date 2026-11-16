@@ -35,6 +35,29 @@ export type TubeFileValue = typeof TubeFile.Type;
 
 const EntryId = Schema.Struct({ id: Schema.String });
 
+const EntrySlug = Schema.Struct({ slug: Schema.String });
+
+const duplicateSlugProblems = (entries: readonly Schema.Json[]) =>
+  entries.flatMap((entry, index) =>
+    Option.match(Schema.decodeUnknownOption(EntrySlug)(entry), {
+      onNone: () => [],
+      onSome: ({ slug }) => {
+        const first = entries.findIndex((candidate) =>
+          Option.exists(
+            Schema.decodeUnknownOption(EntrySlug)(candidate),
+            (other) => other.slug === slug
+          )
+        );
+
+        return first === index
+          ? []
+          : [
+              `${tubeDataPath} videos[${index}] repeats slug ${slug} from videos[${first}]. Each published video needs its own stable URL. Fix: assign a unique numeric suffix to \`slug\` in \`${tubeDataPath}\`.`,
+            ];
+      },
+    })
+  );
+
 const entryId = (entry: Schema.Json) =>
   Option.map(Schema.decodeUnknownOption(EntryId)(entry), ({ id }) => id);
 
@@ -171,7 +194,7 @@ export const tubeGaps = (data: TubeDataValue) => ({
       term,
       videos: data.videos
         .filter((video) => video.page?.gaps.includes(term) === true)
-        .map((video) => videoPagePath(video.id)),
+        .map((video) => videoPagePath(video)),
     })),
 });
 
@@ -221,8 +244,7 @@ export const tubeVideoMarkdown = (
     "## Related videos",
     "",
     ...relatedVideos(video, videos).map(
-      (related) =>
-        `- [${linkText(related.title)}](${videoPagePath(related.id)})`
+      (related) => `- [${linkText(related.title)}](${videoPagePath(related)})`
     ),
     "",
     `Summary based on the transcript. Written ${video.page?.written ?? ""}.`,
@@ -231,6 +253,7 @@ export const tubeVideoMarkdown = (
 export const tubeDataProblems = (file: TubeFileValue): readonly string[] => [
   ...file.videos.flatMap(entryProblems),
   ...duplicateProblems(file.videos),
+  ...duplicateSlugProblems(file.videos),
 ];
 
 export const unreadableTubeFile = `${tubeDataPath} is not a JSON object with a videos array. The content build reads every entry from \`videos\`. Fix: shape the file as \`{ "videos": [...] }\` and repair any syntax error that \`JSON.parse\` reports.`;
@@ -302,7 +325,7 @@ export const tubeMarkdown = (data: TubeDataValue) =>
             "",
             ...videos.map(
               (video) =>
-                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video.id)}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
+                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video)}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
             ),
             "",
           ];

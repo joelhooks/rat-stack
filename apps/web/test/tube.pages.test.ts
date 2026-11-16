@@ -19,10 +19,12 @@ import {
   readerPagePolicy,
   tubeContentSecurityPolicy,
 } from "../../site/src/security.js";
+import { isTubeVideoPath } from "../../site/src/tube-routes.js";
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import {
   TubePage,
+  assignTubeSlug,
   YoutubeVideoId,
   tubePageVideos,
   videoPagePath,
@@ -56,6 +58,10 @@ const input = (id: string, durationSeconds = 60, withPage = true) => {
     checked: "2026-11-15",
     durationSeconds,
     id,
+    slug: `talk-video-${id
+      .split("")
+      .map((char) => char.codePointAt(0))
+      .join("-")}`,
     published: "2025-01-01",
     take: "An example of composing work.",
     theme: "effect",
@@ -66,6 +72,25 @@ const input = (id: string, durationSeconds = 60, withPage = true) => {
 
   return withPage ? { ...base, page } : base;
 };
+
+it.prop(
+  "draft slugs are readable, avoid reserved ids, and resolve collisions before storage",
+  {
+    title: Schema.NonEmptyString,
+    count: Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 20 })),
+  },
+  ({ title, count }) => {
+    const assigned: string[] = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const slug = assignTubeSlug(title, assigned);
+      expect(slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+      expect(slug).not.toMatch(/^[A-Za-z0-9_-]{11}$/u);
+      expect(assigned).not.toContain(slug);
+      assigned.push(slug);
+    }
+  }
+);
 
 it.effect.prop(
   "only summarized videos receive unique, stable page routes independent of ranking and file order",
@@ -88,14 +113,12 @@ it.effect.prop(
       const videos = unique.map(({ id, withPage }) => input(id, 60, withPage));
       const data = yield* decodeTubeData(JSON.stringify({ videos }));
 
-      const routes = tubePageVideos(data).map((video) =>
-        videoPagePath(video.id)
-      );
+      const routes = tubePageVideos(data).map((video) => videoPagePath(video));
 
       expect(routes).toEqual(
         unique
           .filter((entry) => entry.withPage)
-          .map((entry) => `/tube/${entry.id}`)
+          .map((entry) => videoPagePath(input(entry.id)))
       );
       expect(new Set(routes).size).toBe(routes.length);
 
@@ -105,14 +128,23 @@ it.effect.prop(
 
       expect(
         tubePageVideos(reordered)
-          .map((video) => videoPagePath(video.id))
+          .map((video) => videoPagePath(video))
           .toSorted()
       ).toEqual(routes.toSorted());
 
+      const renamed = yield* decodeTubeData(
+        JSON.stringify({
+          videos: videos.map((video) => ({
+            ...video,
+            title: "A changed title",
+          })),
+        })
+      );
+
+      expect(tubePageVideos(renamed).map(videoPagePath)).toEqual(routes);
+
       for (const route of routes) {
-        expect(isReaderRoutePath(route)).toBe(true);
-        expect(isReaderWebsiteRoute(route)).toBe(true);
-        expect(readerPagePolicy(route)).toBe(readerPagePolicy("/tube"));
+        expect(isTubeVideoPath(route, data.videos)).toBe(true);
       }
     })
 );
@@ -135,7 +167,7 @@ it.prop(
 
     expect(tubeDataProblems({ videos: [input(id, 60, false)] })).toEqual([]);
     expect(tubeDataProblems({ videos: [input(id), input(id)] })).toHaveLength(
-      1
+      2
     );
   }
 );
@@ -177,7 +209,10 @@ it.effect.prop(
       expect(tubeGaps(data).gaps).toEqual([
         {
           term: "A missing concept",
-          videos: [`/tube/${id}`, "/tube/ABCDEFGHIJK"],
+          videos: [
+            videoPagePath(input(id)),
+            videoPagePath(input("ABCDEFGHIJK")),
+          ],
         },
       ]);
     })
@@ -274,11 +309,18 @@ it("caption digest removes rolling duplicates and retains timestamps", () => {
   ]);
 });
 
-it("only exact YouTube-id page paths inherit the Tube policy and forwarding", () => {
-  expect(readerPagePolicy("/tube/PxIBWjiv3og")).toBe(tubeContentSecurityPolicy);
+it("only published slug paths inherit the Tube policy and forwarding", () => {
+  const known = "/tube/production-grade-typescript-by-johannes-schickling";
+
+  expect(readerPagePolicy(known)).toBe(tubeContentSecurityPolicy);
+  expect(isReaderRoutePath(known)).toBe(true);
+  expect(isReaderWebsiteRoute(known)).toBe(true);
 
   for (const route of [
     "/tube/no",
+    "/tube/unknown-readable-video-slug",
+    "/tube/AAAAAAAAAAA",
+    "/tube/PxIBWjiv3og",
     "/tube/gaps.json",
     "/tube/PxIBWjiv3og/extra",
     "/tube/PxIBWjiv3og/",
@@ -296,7 +338,7 @@ it.effect(
       const pages = yield* readerTubePagesFlags("https://ratstack.sh");
 
       const encoded = pages.find(
-        (entry) => entry.page.path === "/tube/PxIBWjiv3og"
+        (entry) => entry.tube.selected === "PxIBWjiv3og"
       );
 
       expect(encoded).toBeDefined();
@@ -325,9 +367,12 @@ it.effect(
       });
 
       expect(document).toContain(
-        'rel="canonical" href="https://ratstack.sh/tube/PxIBWjiv3og"'
+        `rel="canonical" href="https://ratstack.sh${videoPagePath(video)}"`
       );
       expect(document).toContain('"@type":"VideoObject"');
+      expect(document).toContain(
+        `"url":"https://ratstack.sh${videoPagePath(video)}"`
+      );
       expect(document).toContain(`"duration":"PT${video.durationSeconds}S"`);
       expect(document).toContain(
         'src="https://i.ytimg.com/vi/PxIBWjiv3og/mqdefault.jpg"'
@@ -347,18 +392,23 @@ it.effect(
 
       for (const candidate of related) {
         expect("page" in candidate).toBe(false);
-        expect(document).toContain(`href="/tube/${candidate.id}"`);
+        expect(document).toContain(`href="${videoPagePath(candidate)}"`);
       }
 
       expect(document.match(/<h1(?:\s|>)/gu)).toHaveLength(1);
       const fs = yield* FileSystem.FileSystem;
 
       const built = yield* fs.readFileString(
-        new URL("../dist/client/tube/PxIBWjiv3og/index.html", import.meta.url)
-          .pathname
+        new URL(
+          `../dist/client${videoPagePath(video)}/index.html`,
+          import.meta.url
+        ).pathname
       );
 
       expect(built).toContain('"@type":"VideoObject"');
+      expect(built).toContain(
+        `"url":"https://ratstack.sh${videoPagePath(video)}"`
+      );
       expect(built).toContain('rel="canonical"');
     }).pipe(Effect.provide(NodeServices.layer)),
   { timeout: 60_000 }

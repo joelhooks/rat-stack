@@ -63,7 +63,7 @@ it.effect(
           "/directory",
           "/tube",
           ...tube.videos.flatMap((video) =>
-            video.page === undefined ? [] : [`/tube/${video.id}`]
+            video.page === undefined ? [] : [`/tube/${video.slug}`]
           ),
           "/search",
           "/systems",

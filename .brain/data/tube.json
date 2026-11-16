@@ -2,6 +2,7 @@
   "videos": [
     {
       "id": "PxIBWjiv3og",
+      "slug": "production-grade-typescript-by-johannes-schickling",
       "url": "https://www.youtube.com/watch?v=PxIBWjiv3og",
       "title": "Production-Grade TypeScript by Johannes Schickling (Effect Days 2024)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -57,6 +58,7 @@
     },
     {
       "id": "Lz2J1NBnHK4",
+      "slug": "effect-typescript-library-beginner-intermediate-workshop",
       "url": "https://www.youtube.com/watch?v=Lz2J1NBnHK4",
       "title": "Effect TypeScript Library: Beginner / Intermediate Workshop (Effect Days 2024)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -124,6 +126,7 @@
     },
     {
       "id": "upXJJ9maWPc",
+      "slug": "production-grade-app-architecture-with-effect",
       "url": "https://www.youtube.com/watch?v=upXJJ9maWPc",
       "title": "Production-grade app architecture with Effect (Workshop Part 1 – Effect Days 2025 )",
       "channel": "Effect | TypeScript for the AI Era",
@@ -183,6 +186,7 @@
     },
     {
       "id": "88XERFAibQc",
+      "slug": "stop-agent-slop-with-effect-mattia",
       "url": "https://www.youtube.com/watch?v=88XERFAibQc",
       "title": "Stop agent slop with Effect |  Mattia Manzati | Effect Milan 2026 🇮🇹",
       "channel": "Effect | TypeScript for the AI Era",
@@ -245,6 +249,7 @@
     },
     {
       "id": "nyvB6nRe5x0",
+      "slug": "building-effect-4-0-michael-arnaldi",
       "url": "https://www.youtube.com/watch?v=nyvB6nRe5x0",
       "title": "Building Effect 4.0 | Michael Arnaldi (Effect Days 2025)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -300,6 +305,7 @@
     },
     {
       "id": "F5aWLtEdNjE",
+      "slug": "the-simple-secret-behind-effect-s",
       "url": "https://www.youtube.com/watch?v=F5aWLtEdNjE",
       "title": "The Simple Secret Behind Effect’s Power",
       "channel": "Kit Langton",
@@ -359,6 +365,7 @@
     },
     {
       "id": "S2GChOwivwQ",
+      "slug": "effect-the-unreadable-library-that-captured",
       "url": "https://www.youtube.com/watch?v=S2GChOwivwQ",
       "title": "Effect: the unreadable library that captured my heart",
       "channel": "Matt Pocock",
@@ -422,6 +429,7 @@
     },
     {
       "id": "0naAPm0-0Wg",
+      "slug": "effect-schema-v4-crash-course",
       "url": "https://www.youtube.com/watch?v=0naAPm0-0Wg",
       "title": "Effect Schema V4 Crash Course",
       "channel": "Lucas Barake",
@@ -436,6 +444,7 @@
     },
     {
       "id": "do5KCcCgS18",
+      "slug": "structured-concurrency-the-hidden-power-behind",
       "url": "https://www.youtube.com/watch?v=do5KCcCgS18",
       "title": "Structured Concurrency: The hidden power behind Effect | Antoine Coulon (Effect Days 2025)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -491,6 +500,7 @@
     },
     {
       "id": "-mL7VVvkLGM",
+      "slug": "effectifying-opencode-kit-langton-cause-effect",
       "url": "https://www.youtube.com/watch?v=-mL7VVvkLGM",
       "title": "Effectifying OpenCode // Kit Langton // Cause & Effect 8",
       "channel": "Effect | TypeScript for the AI Era",
@@ -546,6 +556,7 @@
     },
     {
       "id": "ZCHNLS8e0os",
+      "slug": "next-gen-devtools-for-effect-mattia",
       "url": "https://www.youtube.com/watch?v=ZCHNLS8e0os",
       "title": "Next-gen DevTools for Effect | Mattia Manzati (Effect Days 2025)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -605,6 +616,7 @@
     },
     {
       "id": "wFNbDkE69_U",
+      "slug": "effect-schema-v4-effectful-schemas-schema",
       "url": "https://www.youtube.com/watch?v=wFNbDkE69_U",
       "title": "Effect Schema v4, Effectful Schemas, Schema Representations",
       "channel": "Effect | TypeScript for the AI Era",
@@ -660,6 +672,7 @@
     },
     {
       "id": "4lEDdMuTDJg",
+      "slug": "effect-cluster-tim-smart-effect-days",
       "url": "https://www.youtube.com/watch?v=4lEDdMuTDJg",
       "title": "Effect Cluster | Tim Smart (Effect Days 2025)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -719,6 +732,7 @@
     },
     {
       "id": "CBPttaqp9Ec",
+      "slug": "cluster-workflows-cloudflare-durable-objects",
       "url": "https://www.youtube.com/watch?v=CBPttaqp9Ec",
       "title": "Cluster, Workflows & Cloudflare Durable Objects",
       "channel": "Effect | TypeScript for the AI Era",
@@ -789,6 +803,7 @@
     },
     {
       "id": "G_jp87gxILE",
+      "slug": "effect-on-the-frontend-when-why",
       "url": "https://www.youtube.com/watch?v=G_jp87gxILE",
       "title": "Effect on the Frontend: When, Why, How | Sandro Maglione (Effect Days 2025)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -856,6 +871,7 @@
     },
     {
       "id": "fTN8BX5qj6s",
+      "slug": "effect-for-beginners",
       "url": "https://www.youtube.com/watch?v=fTN8BX5qj6s",
       "title": "Effect for Beginners",
       "channel": "Ethan Niser",
@@ -923,6 +939,7 @@
     },
     {
       "id": "JcY0th6QuMg",
+      "slug": "sam-goodwin-alchemy-effect-ai",
       "url": "https://www.youtube.com/watch?v=JcY0th6QuMg",
       "title": "Fork Every Business: Sam Goodwin on Alchemy, Effect and AI",
       "channel": "Joel Hooks",
@@ -995,6 +1012,7 @@
     },
     {
       "id": "fPSxB7ZgSJw",
+      "slug": "alchemy-infrastructure-as-effects-office-hours",
       "url": "https://www.youtube.com/watch?v=fPSxB7ZgSJw",
       "title": "Alchemy, Infrastructure as Effects | Office Hours 27 🔥",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1050,6 +1068,7 @@
     },
     {
       "id": "EMbztKSI3-o",
+      "slug": "what-is-alchemy-zero-to-production",
       "url": "https://www.youtube.com/watch?v=EMbztKSI3-o",
       "title": "What is Alchemy? Zero-to-Production Infrastructure in TypeScript & Effect | Office Hours 27",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1109,6 +1128,7 @@
     },
     {
       "id": "83BsUCw3wew",
+      "slug": "alchemy-vs-terraform-decoupling-infrastructure-with",
       "url": "https://www.youtube.com/watch?v=83BsUCw3wew",
       "title": "Alchemy vs Terraform + Decoupling Infrastructure with Layers",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1175,6 +1195,7 @@
     },
     {
       "id": "_QVf4d1WsAQ",
+      "slug": "using-skills-layers-and-managing-stages",
       "url": "https://www.youtube.com/watch?v=_QVf4d1WsAQ",
       "title": "Using Skills, Layers, and managing Stages | Sam Goodwin, Founder of Alchemy",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1234,6 +1255,7 @@
     },
     {
       "id": "MtKHzAH6uXM",
+      "slug": "sam-goodwin-alchemy",
       "url": "https://www.youtube.com/watch?v=MtKHzAH6uXM",
       "title": "Sam Goodwin - Alchemy",
       "channel": "devtools-fm",
@@ -1293,6 +1315,7 @@
     },
     {
       "id": "m-dSS55VO3Y",
+      "slug": "effective-state-machines-with-xstate-david",
       "url": "https://www.youtube.com/watch?v=m-dSS55VO3Y",
       "title": "Effective State Machines with XState | David Khourshid | Effect Miami 2",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1348,6 +1371,7 @@
     },
     {
       "id": "mZJxGgI7FXU",
+      "slug": "effective-state-machines-for-complex-logic",
       "url": "https://www.youtube.com/watch?v=mZJxGgI7FXU",
       "title": "Effective state machines for complex logic by David Khourshid (Effect Days 2024)",
       "channel": "Effect | TypeScript for the AI Era",
@@ -1407,6 +1431,7 @@
     },
     {
       "id": "RqTxtOXcv8Y",
+      "slug": "david-khourshid-simplifying-complex-uis-with",
       "url": "https://www.youtube.com/watch?v=RqTxtOXcv8Y",
       "title": "David Khourshid: Simplifying Complex UIs with Finite Automata & Statecharts | JSConf Iceland 2018",
       "channel": "JSConf",
@@ -1466,6 +1491,7 @@
     },
     {
       "id": "1NsSHkao-q4",
+      "slug": "webinar-state-machines-and-actors-with",
       "url": "https://www.youtube.com/watch?v=1NsSHkao-q4",
       "title": "Webinar: State Machines and Actors with XState v5",
       "channel": "Stately",
@@ -1528,6 +1554,7 @@
     },
     {
       "id": "OytpXXeNmTQ",
+      "slug": "typescript-7-is-here-and-it",
       "url": "https://www.youtube.com/watch?v=OytpXXeNmTQ",
       "title": "TypeScript 7 Is Here (And It's 10× Faster)",
       "channel": "Microsoft Developer",
@@ -1577,6 +1604,7 @@
     },
     {
       "id": "UJfF3-13aFo",
+      "slug": "a-10x-faster-typescript-with-anders",
       "url": "https://www.youtube.com/watch?v=UJfF3-13aFo",
       "title": "A 10x Faster TypeScript with Anders Hejlsberg | BRK116",
       "channel": "Microsoft Developer",
@@ -1626,6 +1654,7 @@
     },
     {
       "id": "PZm_YbE3fcA",
+      "slug": "gophercon-2025-porting-the-typescript-compiler",
       "url": "https://www.youtube.com/watch?v=PZm_YbE3fcA",
       "title": "GopherCon 2025: Porting the TypeScript Compiler to Go for a 10x Speedup V2 - Jake Bailey",
       "channel": "Gopher Academy",
@@ -1672,6 +1701,7 @@
     },
     {
       "id": "dLPgQRbVquo",
+      "slug": "generics-the-most-intimidating-typescript-feature",
       "url": "https://www.youtube.com/watch?v=dLPgQRbVquo",
       "title": "Generics: The most intimidating TypeScript feature",
       "channel": "Matt Pocock",
@@ -1727,6 +1757,7 @@
     },
     {
       "id": "8txf05vVVl4",
+      "slug": "code-mode-let-the-code-do",
       "url": "https://www.youtube.com/watch?v=8txf05vVVl4",
       "title": "Code Mode: Let the Code do the Talking - Sunil Pai, Cloudflare",
       "channel": "AI Engineer",
@@ -1782,6 +1813,7 @@
     },
     {
       "id": "D7_ipDqhtwk",
+      "slug": "how-we-build-effective-agents-barry",
       "url": "https://www.youtube.com/watch?v=D7_ipDqhtwk",
       "title": "How We Build Effective Agents: Barry Zhang, Anthropic",
       "channel": "AI Engineer",
@@ -1831,6 +1863,7 @@
     },
     {
       "id": "v3Fr2JR47KA",
+      "slug": "the-future-of-mcp-david-soria",
       "url": "https://www.youtube.com/watch?v=v3Fr2JR47KA",
       "title": "The Future of MCP — David Soria Parra, Anthropic",
       "channel": "AI Engineer",
@@ -1886,6 +1919,7 @@
     },
     {
       "id": "CEvIs9y1uog",
+      "slug": "don-t-build-agents-build-skills",
       "url": "https://www.youtube.com/watch?v=CEvIs9y1uog",
       "title": "Don't Build Agents, Build Skills Instead – Barry Zhang & Mahesh Murag, Anthropic",
       "channel": "AI Engineer",
@@ -1944,6 +1978,7 @@
     },
     {
       "id": "owmJyKVu5f8",
+      "slug": "simon-willison-engineering-practices-that-make",
       "url": "https://www.youtube.com/watch?v=owmJyKVu5f8",
       "title": "Simon Willison: Engineering practices that make coding agents work - The Pragmatic Summit",
       "channel": "The Pragmatic Engineer",
@@ -1998,6 +2033,7 @@
     },
     {
       "id": "LP5OCa20Zpg",
+      "slug": "tips-for-building-ai-agents",
       "url": "https://www.youtube.com/watch?v=LP5OCa20Zpg",
       "title": "Tips for building AI agents",
       "channel": "Anthropic",
@@ -2052,6 +2088,7 @@
     },
     {
       "id": "-ZikRWR1Gb4",
+      "slug": "code-mode-giving-ai-agents-an",
       "url": "https://www.youtube.com/watch?v=-ZikRWR1Gb4",
       "title": "Code Mode: Giving AI Agents an Entire API in 1,000 Tokens (With Demos)",
       "channel": "Cloudflare",
@@ -2115,6 +2152,7 @@
     },
     {
       "id": "LCEmiRjPEtQ",
+      "slug": "andrej-karpathy-software-is-changing-again",
       "url": "https://www.youtube.com/watch?v=LCEmiRjPEtQ",
       "title": "Andrej Karpathy: Software Is Changing (Again)",
       "channel": "Y Combinator",
@@ -2129,6 +2167,7 @@
     },
     {
       "id": "k4UXEfZf3sc",
+      "slug": "durable-objects-finally-make-sense",
       "url": "https://www.youtube.com/watch?v=k4UXEfZf3sc",
       "title": "Durable Objects Finally Make Sense",
       "channel": "Cloudflare Developers",
@@ -2188,6 +2227,7 @@
     },
     {
       "id": "WDhruDqb5nM",
+      "slug": "cloudflare-workers-explained",
       "url": "https://www.youtube.com/watch?v=WDhruDqb5nM",
       "title": "Cloudflare Workers Explained",
       "channel": "Cloudflare Developers",
@@ -2247,6 +2287,7 @@
     },
     {
       "id": "C5-741uQPVU",
+      "slug": "how-durable-objects-and-d1-work",
       "url": "https://www.youtube.com/watch?v=C5-741uQPVU",
       "title": "How Durable Objects and D1 Work: A Deep Dive with Cloudflare’s Josh Howard",
       "channel": "Aaron Francis",
@@ -2310,6 +2351,7 @@
     },
     {
       "id": "75jxhU6z3ho",
+      "slug": "why-modern-software-engineering-needs-durable",
       "url": "https://www.youtube.com/watch?v=75jxhU6z3ho",
       "title": "Why modern software engineering needs Durable Objects (Cloudflare Connect 2026)",
       "channel": "Cloudflare Developers",
@@ -2324,6 +2366,7 @@
     },
     {
       "id": "slS4RBV0SBk",
+      "slug": "cloudflare-workflows-the-newest-developer-platform",
       "url": "https://www.youtube.com/watch?v=slS4RBV0SBk",
       "title": "Cloudflare Workflows: The Newest Developer Platform Primitive at Cloudflare",
       "channel": "Cloudflare Developers",
@@ -2387,6 +2430,7 @@
     },
     {
       "id": "HXOpxNaKUzw",
+      "slug": "how-to-build-event-driven-applications",
       "url": "https://www.youtube.com/watch?v=HXOpxNaKUzw",
       "title": "How to Build Event-Driven Applications: Cloudflare Queues",
       "channel": "Cloudflare Developers",
@@ -2442,6 +2486,7 @@
     },
     {
       "id": "6ExqctHGuVw",
+      "slug": "rest-sends-data-across-the-network",
       "url": "https://www.youtube.com/watch?v=6ExqctHGuVw",
       "title": "REST sends data across the network. What if it could send callable objects instead? | Kenton Varda",
       "channel": "JavaScript Conferences by GitNation",
@@ -2500,6 +2545,7 @@
     },
     {
       "id": "VBsqp3NutAE",
+      "slug": "building-durable-agents-with-durable-objects",
       "url": "https://www.youtube.com/watch?v=VBsqp3NutAE",
       "title": "Building durable agents with Durable Objects (Cloudflare Connect 2026)",
       "channel": "Cloudflare Developers",
@@ -2514,6 +2560,7 @@
     },
     {
       "id": "fZ_2bnOvGjQ",
+      "slug": "cloudflare-workflows-just-got-a-lot",
       "url": "https://www.youtube.com/watch?v=fZ_2bnOvGjQ",
       "title": "Cloudflare Workflows Just Got A Lot Better!",
       "channel": "Cloudflare Developers",
@@ -2580,6 +2627,7 @@
     },
     {
       "id": "SxdOUGdseq4",
+      "slug": "simple-made-easy-rich-hickey-2011",
       "url": "https://www.youtube.com/watch?v=SxdOUGdseq4",
       "title": "\"Simple Made Easy\" - Rich Hickey (2011)",
       "channel": "Strange Loop Conference",
@@ -2630,6 +2678,7 @@
     },
     {
       "id": "zi0rHwfiX1Q",
+      "slug": "john-hughes-testing-the-hard-stuff",
       "url": "https://www.youtube.com/watch?v=zi0rHwfiX1Q",
       "title": "John Hughes - Testing the Hard Stuff and Staying Sane",
       "channel": "ClojureTV",
@@ -2689,6 +2738,7 @@
     },
     {
       "id": "zvRAyq5wj38",
+      "slug": "john-hughes-how-to-specify-it",
       "url": "https://www.youtube.com/watch?v=zvRAyq5wj38",
       "title": "John Hughes - How to specify it! A guide to writing properties of pure functions | Code Mesh LDN 19",
       "channel": "Code Sync",
@@ -2748,6 +2798,7 @@
     },
     {
       "id": "-4Yp3j_jk8Q",
+      "slug": "leslie-lamport-thinking-above-the-code",
       "url": "https://www.youtube.com/watch?v=-4Yp3j_jk8Q",
       "title": "Leslie Lamport: Thinking Above the Code",
       "channel": "Microsoft Research",
@@ -2794,6 +2845,7 @@
     },
     {
       "id": "_9B__0S21y8",
+      "slug": "tackling-concurrency-bugs-with-tla-by",
       "url": "https://www.youtube.com/watch?v=_9B__0S21y8",
       "title": "\"Tackling Concurrency Bugs with TLA+\" by Hillel Wayne",
       "channel": "Strange Loop Conference",
@@ -2844,6 +2896,7 @@
     },
     {
       "id": "-6BsiVyC1kM",
+      "slug": "the-value-of-values-with-rich",
       "url": "https://www.youtube.com/watch?v=-6BsiVyC1kM",
       "title": "The Value of Values with Rich Hickey",
       "channel": "InfoQ",
@@ -2895,6 +2948,7 @@
     },
     {
       "id": "2JB1_e5wZmU",
+      "slug": "domain-modeling-made-functional-scott-wlaschin",
       "url": "https://www.youtube.com/watch?v=2JB1_e5wZmU",
       "title": "Domain Modeling Made Functional - Scott Wlaschin - KanDDDinsky 2019",
       "channel": "KanDDDinsky",
@@ -2953,6 +3007,7 @@
     },
     {
       "id": "yTkzNHF6rMs",
+      "slug": "ruby-conf-12-boundaries-by-gary",
       "url": "https://www.youtube.com/watch?v=yTkzNHF6rMs",
       "title": "Ruby Conf 12 - Boundaries by Gary Bernhardt",
       "channel": "Confreaks",
@@ -3008,6 +3063,7 @@
     },
     {
       "id": "cNICGEwmXLU",
+      "slug": "systems-that-run-forever-self-heal",
       "url": "https://www.youtube.com/watch?v=cNICGEwmXLU",
       "title": "\"Systems that run forever self-heal and scale\" by Joe Armstrong (2013)",
       "channel": "Strange Loop Conference",
@@ -3067,6 +3123,7 @@
     },
     {
       "id": "f84n5oFoZBc",
+      "slug": "hammock-driven-development-rich-hickey",
       "url": "https://www.youtube.com/watch?v=f84n5oFoZBc",
       "title": "Hammock Driven Development - Rich Hickey",
       "channel": "ClojureTV",
@@ -3117,6 +3174,7 @@
     },
     {
       "id": "5ZjhNTM8XU8",
+      "slug": "transactions-myths-surprises-and-opportunities-by",
       "url": "https://www.youtube.com/watch?v=5ZjhNTM8XU8",
       "title": "\"Transactions: myths, surprises and opportunities\" by Martin Kleppmann",
       "channel": "Strange Loop Conference",

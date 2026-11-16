@@ -90,6 +90,27 @@ export const TubePage = Schema.Struct({
   written: IsoDate,
 });
 
+export const TubeSlug = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u),
+  Schema.makeFilter<string>((slug) => !/^[A-Za-z0-9_-]{11}$/u.test(slug), {
+    expected: "a readable slug distinct from a YouTube video id",
+  })
+);
+
+export const assignTubeSlug = (title: string, existing: readonly string[]) => {
+  const words = title.toLowerCase().match(/[a-z0-9]+/gu) ?? ["video"];
+  const base = words.slice(0, 6).join("-");
+  let slug = base;
+  let suffix = 2;
+
+  while (existing.includes(slug) || /^[A-Za-z0-9_-]{11}$/u.test(slug)) {
+    slug = `${base}-${suffix}`;
+    suffix += 1;
+  }
+
+  return slug;
+};
+
 export const TubeVideo = Schema.Struct({
   basis: TubeBasis,
   channel: TubeLine,
@@ -99,6 +120,7 @@ export const TubeVideo = Schema.Struct({
   id: YoutubeVideoId,
   page: Schema.optional(TubePage),
   published: IsoDate,
+  slug: TubeSlug,
   take: TubeTake,
   theme: TubeTheme,
   tier: TubeTier,
@@ -119,10 +141,9 @@ export const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 export const tubePageVideos = (data: TubeDataValue) =>
   data.videos.filter((video) => video.page !== undefined);
 
-export const videoPagePath = (id: string): `/tube/${string}` => `/tube/${id}`;
-
-export const isTubeVideoPath = (path: string) =>
-  /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(path);
+export const videoPagePath = (video: {
+  readonly slug: string;
+}): `/tube/${string}` => `/tube/${video.slug}`;
 
 export const videoPageDescription = (video: TubeVideoValue) =>
   (video.page?.summary[0] ?? "").slice(0, 160).replace(/\s+\S*$/u, "");
@@ -136,6 +157,7 @@ export const videoObject = (video: TubeVideoValue) => ({
   name: video.title,
   thumbnailUrl: thumbnailUrl(video.id),
   uploadDate: video.published,
+  url: `https://ratstack.sh${videoPagePath(video)}`,
 });
 
 export const relatedVideos = (

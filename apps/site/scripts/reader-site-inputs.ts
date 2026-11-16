@@ -10,6 +10,7 @@ import { ContentAssetManifest } from "../src/asset-manifest.ts";
 import {
   staticAssetGeneration,
   tokenmaxxDocumentHtml,
+  tubeRoutes,
 } from "../src/bundled-content.generated.ts";
 import { ContentCatalog } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
@@ -100,7 +101,8 @@ export const documentMetadata = (path: string, html: string) => {
       : "index",
     title: DomUtils.textContent(title),
     video:
-      structuredData !== undefined && /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(path)
+      structuredData !== undefined &&
+      tubeRoutes.some((video) => path === `/tube/${video.slug}`)
         ? Schema.decodeSync(Schema.fromJsonString(ReaderVideoMetadata))(
             DomUtils.textContent(structuredData)
           )

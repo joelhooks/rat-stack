@@ -1,5 +1,7 @@
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
+import { isTubeVideoPath } from "./tube-routes.js";
+
 const policy = (sources: {
   readonly base: string;
   readonly formAction: string;
@@ -36,7 +38,7 @@ export const tubeContentSecurityPolicy = policy({
 });
 
 export const readerPagePolicy = (pagePath: string) =>
-  pagePath === tubePagePath || /^\/tube\/[A-Za-z0-9_-]{11}$/u.test(pagePath)
+  pagePath === tubePagePath || isTubeVideoPath(pagePath)
     ? tubeContentSecurityPolicy
     : readerContentSecurityPolicy;
 
