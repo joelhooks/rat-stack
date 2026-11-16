@@ -3,6 +3,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
+import { authorIdentityKey } from "./AuthorIdentity.ts";
 import { queryTake } from "./CatalogValues.ts";
 import type { RepeatAuthorsInput, RisingInput } from "./CatalogValues.ts";
 import { InvalidCatalogCursor } from "./InvalidCatalogCursor.rejection.ts";
@@ -44,9 +45,9 @@ export const repeatAuthorsScope = (input: typeof RepeatAuthorsInput.Type) =>
     from: DateTime.toEpochMillis(input.from),
     until: DateTime.toEpochMillis(input.until),
     minimumItems: input.minimumItems,
-    excludedAuthors: [...new Set(input.excludedAuthors)].toSorted(
-      compareCatalogText
-    ),
+    excludedAuthors: [
+      ...new Set(input.excludedAuthors.map(authorIdentityKey)),
+    ].toSorted(compareCatalogText),
   });
 
 export const readCatalogCursor = Effect.fn("readCatalogCursor")(

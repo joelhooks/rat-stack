@@ -1,4 +1,8 @@
 import {
+  authorIdentityKey,
+  normalizeAuthor,
+} from "@rat-stack/catalog/Catalog/AuthorIdentity";
+import {
   catalogPage,
   risingScope,
   repeatAuthorsScope,
@@ -16,6 +20,7 @@ import {
   validateRepeatAuthorsInput,
   validateRisingInput,
 } from "@rat-stack/catalog/Catalog/CatalogValues";
+import type { InvalidCatalogInput } from "@rat-stack/catalog/Catalog/InvalidCatalogInput.rejection";
 import { Effect } from "effect";
 import * as DateTime from "effect/DateTime";
 import * as Layer from "effect/Layer";
@@ -43,15 +48,15 @@ export interface CatalogSql {
   ) => Effect.Effect<typeof CatalogSqlRows.Type, CatalogUnavailable>;
   readonly batch: (
     statements: readonly CatalogSqlStatement[]
-  ) => Effect.Effect<void, CatalogUnavailable>;
+  ) => Effect.Effect<void, CatalogUnavailable | InvalidCatalogInput>;
 }
 
 export const risingSql = (metric: "stars" | "views") => `
 WITH ranked AS (
   SELECT item_id, kind, source, observed_at, ${metric} AS metric_value,
-    FIRST_VALUE(${metric}) OVER (PARTITION BY item_id, source ORDER BY observed_at, id) AS first_value,
-    FIRST_VALUE(observed_at) OVER (PARTITION BY item_id, source ORDER BY observed_at, id) AS first_at,
-    ROW_NUMBER() OVER (PARTITION BY item_id, source ORDER BY observed_at DESC, id DESC) AS position,
+    FIRST_VALUE(${metric}) OVER (PARTITION BY item_id, source ORDER BY observed_at, seq, id) AS first_value,
+    FIRST_VALUE(observed_at) OVER (PARTITION BY item_id, source ORDER BY observed_at, seq, id) AS first_at,
+    ROW_NUMBER() OVER (PARTITION BY item_id, source ORDER BY observed_at DESC, seq DESC, id DESC) AS position,
     COUNT(*) OVER (PARTITION BY item_id, source) AS samples
   FROM catalog_events
   WHERE observed_at >= ? AND observed_at < ? AND ${metric} IS NOT NULL
@@ -72,14 +77,18 @@ ORDER BY gain DESC, item_id LIMIT ?`;
 
 export const repeatAuthorsSql = `
 WITH authors AS (
-  SELECT author, COUNT(DISTINCT item_id) AS items FROM catalog_events
+  SELECT source, author, COUNT(DISTINCT item_id) AS items FROM catalog_events
   WHERE observed_at >= ? AND observed_at < ? AND author IS NOT NULL
-    AND author NOT IN (SELECT value FROM json_each(?))
-  GROUP BY author HAVING COUNT(DISTINCT item_id) >= ?
+    AND NOT EXISTS (SELECT 1 FROM json_each(?) AS excluded
+      WHERE json_extract(excluded.value, '$.source') = catalog_events.source
+        AND json_extract(excluded.value, '$.author') = catalog_events.author)
+  GROUP BY source, author HAVING COUNT(DISTINCT item_id) >= ?
+), identities AS (
+  SELECT source, author, items, json_array(source, author) AS identity FROM authors
 )
-SELECT author, items FROM authors
-WHERE (? IS NULL OR items < ? OR (items = ? AND author > ?))
-ORDER BY items DESC, author LIMIT ?`;
+SELECT source, author, items FROM identities
+WHERE (? IS NULL OR items < ? OR (items = ? AND identity > ?))
+ORDER BY items DESC, identity LIMIT ?`;
 
 const SqlRisingEntry = Schema.Struct({
   ...RisingEntry.fields,
@@ -94,6 +103,25 @@ ON CONFLICT(id) DO NOTHING`;
 
 const makeCatalogSqlStore = (sql: CatalogSql) =>
   CatalogStore.of({
+    quarantine: (row, reason) =>
+      sql
+        .batch([
+          {
+            sql: `INSERT INTO catalog_quarantine (id, stream, seq, reason) VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET reason = excluded.reason`,
+            parameters: [
+              `${row.stream}:${row.seq}`,
+              row.stream,
+              row.seq,
+              reason,
+            ],
+          },
+        ])
+        .pipe(
+          Effect.mapError(
+            (cause) => new CatalogUnavailable({ operation: "record", cause })
+          )
+        ),
     record: Effect.fn("CatalogSql.record")(function* record(rows) {
       const parsed = yield* validateCatalogRows(rows);
 
@@ -122,7 +150,9 @@ const makeCatalogSqlStore = (sql: CatalogSql) =>
                   sighting === null
                     ? null
                     : DateTime.toEpochMillis(sighting.observedAt),
-                  sighting?.author ?? null,
+                  sighting?.author === undefined
+                    ? null
+                    : normalizeAuthor(sighting.author),
                   sighting?.metrics.stars ?? null,
                   sighting?.metrics.views ?? null,
                   editorialDecisionOf(row.event),
@@ -133,7 +163,9 @@ const makeCatalogSqlStore = (sql: CatalogSql) =>
       )(parsed);
 
       if (statements.length > 0) {
-        yield* sql.batch(statements);
+        for (let start = 0; start < statements.length; start += 25) {
+          yield* sql.batch(statements.slice(start, start + 25));
+        }
       }
     }),
     rising: Effect.fn("CatalogSql.rising")(function* rising(input, page) {
@@ -188,7 +220,12 @@ const makeCatalogSqlStore = (sql: CatalogSql) =>
           parameters: [
             DateTime.toEpochMillis(input.from),
             DateTime.toEpochMillis(input.until),
-            JSON.stringify(input.excludedAuthors),
+            JSON.stringify(
+              input.excludedAuthors.map((identity) => ({
+                source: identity.source,
+                author: normalizeAuthor(identity.author),
+              }))
+            ),
             input.minimumItems,
             rank,
             rank,
@@ -209,7 +246,7 @@ const makeCatalogSqlStore = (sql: CatalogSql) =>
 
         return catalogPage("RepeatAuthors", scope, entries, page, (entry) => ({
           rank: entry.items,
-          key: entry.author,
+          key: authorIdentityKey(entry),
         }));
       }
     ),

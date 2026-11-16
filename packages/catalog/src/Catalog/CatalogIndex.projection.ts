@@ -1,5 +1,5 @@
 import * as Domain from "@alchemy.run/domain";
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
 
 import { ItemDropped } from "../Item/Drop.command.ts";
 import { Item } from "../Item/Item.aggregate.ts";
@@ -25,17 +25,25 @@ export const CatalogIndexLive = CatalogIndex.toLayer(
     const store = yield* CatalogStore;
 
     return Effect.fn("CatalogIndex.record")(function* record(batch) {
-      yield* store
-        .record(
-          batch.map(({ key, event, envelope }) => ({
+      yield* Effect.forEach(
+        ({ key, event, envelope }: (typeof batch)[number]) => {
+          const row = {
             item: key.id,
             stream: envelope.stream,
             seq: envelope.seq,
             recordedAt: envelope.at,
             event,
-          }))
-        )
-        .pipe(Effect.orDie);
+          };
+
+          return store.record([row]).pipe(
+            Effect.catchTag("InvalidCatalogInput", (failure) =>
+              store.quarantine(row, String(failure.cause).slice(0, 2048))
+            ),
+            Effect.orDie
+          );
+        }
+      )(batch);
     });
-  })
+  }),
+  { batch: { size: 25 } }
 );

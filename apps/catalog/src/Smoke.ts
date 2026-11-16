@@ -38,6 +38,17 @@ export class CatalogSmokeFailed extends Schema.TaggedError<
   }
 }
 
+export const smokeTarget = Schema.URLFromString.check(
+  Schema.makeFilter(
+    (url) =>
+      (url.protocol === "https:" ||
+        (url.protocol === "http:" &&
+          ["localhost", "127.0.0.1"].includes(url.hostname))) &&
+      url.username === "" &&
+      url.password === ""
+  )
+);
+
 const missingItemTags: ReadonlySet<string> = new Set(["NotFound"]);
 
 const smokeItem = ItemId.make("https://example.test/catalog-smoke");
@@ -48,7 +59,13 @@ export const smokeCatalog = Effect.fn("smokeCatalog")(
       return yield* CatalogSmokeFailed.forPhase("configuration-or-transport");
     }
 
-    const api = yield* OperatorApi.clientHttp(url);
+    const target = yield* Schema.decodeEffect(smokeTarget)(url).pipe(
+      Effect.mapError(() =>
+        CatalogSmokeFailed.forPhase("configuration-or-transport")
+      )
+    );
+
+    const api = yield* OperatorApi.clientHttp(target.toString());
 
     yield* api.ItemHistory.get(smokeItem).pipe(
       Effect.matchEffect({

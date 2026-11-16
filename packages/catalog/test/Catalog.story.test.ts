@@ -78,11 +78,16 @@ it.effect(
         { item: b.id, gain: 10 },
       ]),
       Story.query(RepeatAuthors, repeats, [
-        { author: "synthetic-author", items: 2 },
+        { source: "synthetic", author: "synthetic-author", items: 2 },
       ]),
       Story.query(
         RepeatAuthors,
-        { ...repeats, excludedAuthors: ["synthetic-author"] },
+        {
+          ...repeats,
+          excludedAuthors: [
+            { source: "synthetic", author: "SYNTHETIC-AUTHOR" },
+          ],
+        },
         []
       ),
       Story.query(Rising, { ...rising, until: window.from }),

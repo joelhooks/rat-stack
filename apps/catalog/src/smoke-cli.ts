@@ -7,19 +7,10 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
-import { CatalogSmokeFailed, smokeCatalog } from "./Smoke.ts";
-
-const target = Schema.URLFromString.check(
-  Schema.makeFilter(
-    (url) =>
-      ["http:", "https:"].includes(url.protocol) &&
-      url.username === "" &&
-      url.password === ""
-  )
-);
+import { CatalogSmokeFailed, smokeCatalog, smokeTarget } from "./Smoke.ts";
 
 const program = Effect.gen(function* runCatalogSmoke() {
-  const url = yield* Schema.decodeUnknownEffect(target)(process.argv[2]);
+  const url = yield* Schema.decodeUnknownEffect(smokeTarget)(process.argv[2]);
   const token = yield* Config.Redacted("CATALOG_OPERATOR_TOKEN");
 
   yield* smokeCatalog(url.toString(), token);

@@ -24,6 +24,7 @@
     "effect": "4.1.4"
   },
   "devDependencies": {
+    "@alchemy.run/test": "2.0.0-beta.87",
     "@effect/vitest": "4.1.4",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",

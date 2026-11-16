@@ -1,10 +1,12 @@
+import { Effect } from "effect";
 import * as DateTime from "effect/DateTime";
-import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Predicate from "effect/Predicate";
 import * as Ref from "effect/Ref";
+import * as Schema from "effect/Schema";
 
 import type { SightingRecorded } from "../Item/RecordSighting.command.ts";
+import { authorIdentityKey, normalizeAuthor } from "./AuthorIdentity.ts";
 import {
   catalogPage,
   risingScope,
@@ -14,23 +16,30 @@ import {
   validateCatalogPage,
 } from "./CatalogPaging.ts";
 import { CatalogStore } from "./CatalogStore.ts";
+import { CatalogUnavailable } from "./CatalogUnavailable.rejection.ts";
 import {
+  CatalogEventRow,
   editorialDecisionOf,
   validateCatalogRows,
   validateRepeatAuthorsInput,
   validateRisingInput,
 } from "./CatalogValues.ts";
 import type {
-  CatalogEventRow,
   EditorialDecision,
   RepeatAuthorsInput,
   RisingEntry,
   RisingInput,
 } from "./CatalogValues.ts";
 
+interface StoredCatalogRow {
+  readonly row: typeof CatalogEventRow.Type;
+  readonly encoded: string;
+}
+
 interface Observation {
   readonly item: typeof CatalogEventRow.Type.item;
   readonly id: string;
+  readonly seq: number;
   readonly event: SightingRecorded;
 }
 
@@ -47,7 +56,14 @@ const observationsIn = (
 
     return at >= DateTime.toEpochMillis(input.from) &&
       at < DateTime.toEpochMillis(input.until)
-      ? [{ item: row.item, id: `${row.stream}:${row.seq}`, event: row.event }]
+      ? [
+          {
+            item: row.item,
+            id: `${row.stream}:${row.seq}`,
+            seq: row.seq,
+            event: row.event,
+          },
+        ]
       : [];
   });
 
@@ -95,6 +111,7 @@ const risingEntries = (
       (left, right) =>
         DateTime.toEpochMillis(left.event.observedAt) -
           DateTime.toEpochMillis(right.event.observedAt) ||
+        left.seq - right.seq ||
         compareCatalogText(left.id, right.id)
     );
     const first = group.at(0);
@@ -149,33 +166,73 @@ const risingEntries = (
 export const CatalogMemory = Layer.effect(
   CatalogStore,
   Effect.gen(function* makeCatalogMemory() {
-    const state = yield* Ref.make(
-      new Map<string, typeof CatalogEventRow.Type>()
-    );
+    const state = yield* Ref.make(new Map<string, StoredCatalogRow>());
+
+    const quarantined = yield* Ref.make(new Map<string, string>());
 
     return CatalogStore.of({
+      quarantine: (row, reason) =>
+        Ref.update(quarantined, (current) =>
+          new Map(current).set(`${row.stream}:${row.seq}`, reason)
+        ),
       record: Effect.fn("CatalogMemory.record")(function* record(rows) {
         const parsed = yield* validateCatalogRows(rows);
-        yield* Ref.update(state, (current) => {
-          const next = new Map(current);
 
-          for (const row of parsed) {
-            const key = `${row.stream}:${row.seq}`;
+        const encodedRows = yield* Effect.forEach(
+          (row: typeof CatalogEventRow.Type) =>
+            Schema.encodeEffect(Schema.fromJsonString(CatalogEventRow))(
+              row
+            ).pipe(
+              Effect.map((encoded) => ({ row, encoded })),
+              Effect.mapError(
+                (cause) =>
+                  new CatalogUnavailable({ operation: "record", cause })
+              )
+            )
+        )(parsed);
 
-            if (!next.has(key)) {
-              next.set(key, row);
+        const conflict = yield* Ref.modify(
+          state,
+          (current): [string | null, Map<string, StoredCatalogRow>] => {
+            const next = new Map(current);
+
+            for (const value of encodedRows) {
+              const key = `${value.row.stream}:${value.row.seq}`;
+              const previous = next.get(key);
+
+              if (
+                previous !== undefined &&
+                previous.encoded !== value.encoded
+              ) {
+                return [key, current];
+              }
+
+              next.set(key, value);
             }
-          }
 
-          return next;
-        });
+            return [null, next];
+          }
+        );
+
+        if (conflict !== null) {
+          return yield* new CatalogUnavailable({
+            operation: "record",
+            cause: new Error(`Divergent catalog replay at ${conflict}`),
+          });
+        }
+
+        return yield* Effect.void;
       }),
       rising: Effect.fn("CatalogMemory.rising")(function* rising(input, page) {
         yield* validateRisingInput(input);
         yield* validateCatalogPage(page, "rising");
         const scope = risingScope(input);
         const cursor = yield* readCatalogCursor("Rising", scope, page.after);
-        const allRows = [...(yield* Ref.get(state)).values()];
+
+        const allRows = [...(yield* Ref.get(state)).values()].map(
+          (value) => value.row
+        );
+
         const rows = observationsIn(allRows, input);
 
         const entries = risingEntries(
@@ -207,40 +264,68 @@ export const CatalogMemory = Layer.effect(
             page.after
           );
 
-          const excluded = new Set(input.excludedAuthors);
-          const authors = new Map<string, Set<string>>();
+          const excluded = new Set(
+            input.excludedAuthors.map(authorIdentityKey)
+          );
+
+          const authors = new Map<
+            string,
+            {
+              readonly source: string;
+              readonly author: string;
+              readonly items: Set<string>;
+            }
+          >();
 
           const rows = observationsIn(
-            [...(yield* Ref.get(state)).values()],
+            [...(yield* Ref.get(state)).values()].map((value) => value.row),
             input
           );
 
           for (const { item, event } of rows) {
-            if (event.author !== undefined && !excluded.has(event.author)) {
-              const items = authors.get(event.author) ?? new Set<string>();
-              items.add(item);
-              authors.set(event.author, items);
+            if (event.author === undefined) {
+              continue;
+            }
+
+            const identity = {
+              source: event.source,
+              author: normalizeAuthor(event.author),
+            };
+
+            const key = authorIdentityKey(identity);
+
+            if (!excluded.has(key)) {
+              const group = authors.get(key) ?? {
+                ...identity,
+                items: new Set<string>(),
+              };
+
+              group.items.add(item);
+              authors.set(key, group);
             }
           }
 
           const entries = [...authors]
-            .flatMap(([author, items]) => {
-              const count = items.size;
+            .flatMap(([key, group]) => {
+              const count = group.items.size;
 
               const follows =
                 cursor === null ||
                 count < cursor.rank ||
                 (count === cursor.rank &&
-                  compareCatalogText(author, cursor.key) > 0);
+                  compareCatalogText(key, cursor.key) > 0);
 
               return count >= input.minimumItems && follows
-                ? [{ author, items: count }]
+                ? [{ source: group.source, author: group.author, items: count }]
                 : [];
             })
             .toSorted(
               (left, right) =>
                 right.items - left.items ||
-                compareCatalogText(left.author, right.author)
+                compareCatalogText(
+                  authorIdentityKey(left),
+                  authorIdentityKey(right)
+                )
             );
 
           return catalogPage(
@@ -248,7 +333,7 @@ export const CatalogMemory = Layer.effect(
             scope,
             entries,
             page,
-            (entry) => ({ rank: entry.items, key: entry.author })
+            (entry) => ({ rank: entry.items, key: authorIdentityKey(entry) })
           );
         }
       ),

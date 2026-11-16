@@ -23,6 +23,10 @@ type ReadFailure =
 export class CatalogStore extends Context.Service<
   CatalogStore,
   {
+    readonly quarantine: (
+      row: typeof CatalogEventRow.Type,
+      reason: string
+    ) => Effect.Effect<void, CatalogUnavailable>;
     readonly record: (
       rows: readonly (typeof CatalogEventRow.Type)[]
     ) => Effect.Effect<void, CatalogUnavailable | InvalidCatalogInput>;

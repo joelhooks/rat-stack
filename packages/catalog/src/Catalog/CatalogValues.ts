@@ -8,6 +8,7 @@ import { ItemId } from "../Item/Item.id.ts";
 import { ItemKept } from "../Item/Keep.command.ts";
 import { SightingRecorded } from "../Item/RecordSighting.command.ts";
 import { ItemKind } from "../Item/Sighting.ts";
+import { AuthorIdentity } from "./AuthorIdentity.ts";
 import { InvalidCatalogInput } from "./InvalidCatalogInput.rejection.ts";
 import { InvalidWindow } from "./InvalidWindow.rejection.ts";
 
@@ -36,9 +37,7 @@ export const RisingInput = Schema.Struct({
 export const RepeatAuthorsInput = Schema.Struct({
   ...WindowFields,
   minimumItems: Schema.Int.check(Schema.isGreaterThan(0)),
-  excludedAuthors: Schema.Array(Schema.NonEmptyString).check(
-    Schema.isMaxLength(500)
-  ),
+  excludedAuthors: Schema.Array(AuthorIdentity).check(Schema.isMaxLength(500)),
 });
 
 export const EditorialDecision = Schema.Literals(["kept", "dropped", "none"]);
@@ -68,7 +67,7 @@ export const RisingEntry = Schema.Struct({
 });
 
 export const RepeatAuthorEntry = Schema.Struct({
-  author: Schema.NonEmptyString,
+  ...AuthorIdentity.fields,
   items: Schema.Int.check(Schema.isGreaterThan(0)),
 });
 

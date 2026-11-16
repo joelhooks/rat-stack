@@ -270,14 +270,16 @@ it.live(
       );
 
       expect(authors.entries).toEqual([
-        { author: "synthetic-author", items: 2 },
+        { source: "synthetic", author: "synthetic-author", items: 2 },
       ]);
 
       const excluded = yield* api.RepeatAuthors(
         {
           ...queryWindow,
           minimumItems: 2,
-          excludedAuthors: ["synthetic-author"],
+          excludedAuthors: [
+            { source: "synthetic", author: "SYNTHETIC-AUTHOR" },
+          ],
         },
         options
       );

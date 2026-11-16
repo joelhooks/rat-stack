@@ -12,7 +12,9 @@ import * as Schema from "effect/Schema";
 
 import { CatalogSqlRows, catalogSqlLayer } from "../src/Catalog/CatalogSql.ts";
 import type { CatalogSql } from "../src/Catalog/CatalogSql.ts";
-import { catalogMigrationDirectory } from "../src/Catalog/D1CatalogStore.ts";
+
+const catalogMigrationDirectory = new URL("../migrations/", import.meta.url)
+  .pathname;
 
 export const sqliteCatalogFixture = Effect.gen(
   function* sqliteCatalogFixture() {
@@ -44,8 +46,21 @@ export const sqliteCatalogFixture = Effect.gen(
       query: Effect.fn("SqliteCatalog.query")(
         function* query(operation, statement) {
           const rows = yield* Effect.try({
-            try: () =>
-              database.prepare(statement.sql).all(...statement.parameters),
+            try: () => {
+              const prepared = database.prepare(statement.sql);
+              prepared.setReadBigInts(true);
+
+              return prepared
+                .all(...statement.parameters)
+                .map((row) =>
+                  Object.fromEntries(
+                    Object.entries(row).map(([key, value]) => [
+                      key,
+                      Schema.is(Schema.BigInt)(value) ? Number(value) : value,
+                    ])
+                  )
+                );
+            },
             catch: (cause) => new CatalogUnavailable({ operation, cause }),
           });
 

@@ -1,25 +1,22 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { CatalogUnavailable } from "@rat-stack/catalog/Catalog/CatalogUnavailable.rejection";
-import { retain } from "alchemy/RemovalPolicy";
 import { RuntimeContext } from "alchemy/RuntimeContext";
-import { Stage } from "alchemy/Stage";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 
 import { CatalogSqlRows, catalogSqlLayer } from "./CatalogSql.ts";
 import type { CatalogSql } from "./CatalogSql.ts";
-
-export const catalogMigrationDirectory = new URL(
-  "../../migrations/",
-  import.meta.url
-).pathname;
+import { catalogWriteFailure } from "./CatalogWriteFailure.ts";
 
 export const D1CatalogStore = catalogSqlLayer(
   Effect.gen(function* makeD1CatalogStore() {
-    const database = yield* Cloudflare.D1.Database("CatalogIndexDatabase", {
-      migrations: catalogMigrationDirectory,
-    }).pipe(retain(Stage.pipe(Effect.map((stage) => stage === "prod"))));
+    const database = yield* Cloudflare.D1.Database(
+      "CatalogIndexDatabase",
+      Effect.sync(() => ({
+        migrations: new URL("../../migrations/", import.meta.url).pathname,
+      }))
+    );
 
     const client = yield* Cloudflare.D1.QueryDatabase(database);
 
@@ -56,9 +53,7 @@ export const D1CatalogStore = catalogSqlLayer(
           .pipe(
             Effect.provide(RuntimeContext.phantom),
             Effect.catchCause((cause) =>
-              Effect.fail(
-                new CatalogUnavailable({ operation: "record", cause })
-              )
+              Effect.fail(catalogWriteFailure(cause))
             )
           );
       }),

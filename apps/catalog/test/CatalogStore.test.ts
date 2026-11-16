@@ -31,7 +31,6 @@ const until = DateTime.makeUnsafe(epoch + 4 * day);
 const window = { from, until };
 
 const authorOrder = [
-  "Synthetic-author",
   "synthetic-author",
   "\uE000synthetic",
   "𐀀synthetic",
@@ -247,16 +246,32 @@ for (const { name, layer } of [
         const counts = new Map<string, number>();
 
         for (const item of generated) {
-          if (!item.anonymous && item.author !== "Synthetic-author") {
-            counts.set(item.author, (counts.get(item.author) ?? 0) + 1);
+          if (item.anonymous) {
+            continue;
+          }
+
+          for (const source of ["synthetic-a", "synthetic-b"]) {
+            const author = item.author.toLowerCase();
+
+            if (source === "synthetic-a" && author === "synthetic-author") {
+              continue;
+            }
+
+            const key = `${source}:${author}`;
+            counts.set(key, (counts.get(key) ?? 0) + 1);
           }
         }
 
         const expectedAuthors = [...counts]
-          .map(([author, items]) => ({ author, items }))
+          .map(([key, items]) => {
+            const [source = "", author = ""] = key.split(":");
+
+            return { source, author, items };
+          })
           .toSorted(
             (left, right) =>
               right.items - left.items ||
+              left.source.localeCompare(right.source) ||
               authorOrder.indexOf(left.author) -
                 authorOrder.indexOf(right.author)
           );
@@ -264,15 +279,21 @@ for (const { name, layer } of [
         const authors = [];
         let after: string | undefined;
 
-        for (let page = 0; page < 6; page += 1) {
+        for (let page = 0; page < 20; page += 1) {
           const result = yield* store.repeatAuthors(
             {
               ...window,
               minimumItems: 1,
               excludedAuthors:
                 page % 2 === 0
-                  ? ["Synthetic-author", "synthetic-absent"]
-                  : ["synthetic-absent", "Synthetic-author"],
+                  ? [
+                      { source: "synthetic-a", author: "Synthetic-author" },
+                      { source: "synthetic-a", author: "synthetic-absent" },
+                    ]
+                  : [
+                      { source: "synthetic-a", author: "synthetic-absent" },
+                      { source: "synthetic-a", author: "SYNTHETIC-AUTHOR" },
+                    ],
             },
             { take: 1, after }
           );
@@ -329,7 +350,10 @@ for (const { name, layer } of [
               {
                 ...window,
                 minimumItems: 1,
-                excludedAuthors: Array.from({ length: 501 }, () => "synthetic"),
+                excludedAuthors: Array.from({ length: 501 }, () => ({
+                  source: "synthetic",
+                  author: "synthetic",
+                })),
               },
               { take: 1, after: undefined }
             )
@@ -429,9 +453,11 @@ for (const { name, layer } of [
 
         expect(stars.entries).toEqual([]);
 
-        const excludedAuthors = Array.from({ length: 500 }, (_, index) =>
-          index === 0 ? "synthetic-metric" : `synthetic-excluded-${index}`
-        );
+        const excludedAuthors = Array.from({ length: 500 }, (_, index) => ({
+          source: "synthetic-metric",
+          author:
+            index === 0 ? "synthetic-metric" : `synthetic-excluded-${index}`,
+        }));
 
         const authors = yield* store.repeatAuthors(
           { ...window, minimumItems: 1, excludedAuthors },

@@ -16,6 +16,11 @@ sources:
     publisher: "Alchemy"
     note: "Projection-backed reads, pagination, authorization, and receipt consistency."
     accessed: "2026-11-15"
+  - url: https://developers.cloudflare.com/d1/platform/limits/
+    title: "D1 limits"
+    publisher: "Cloudflare"
+    note: "Invocation query calls, batch accounting, and row-size limits."
+    accessed: "2026-11-15"
   - url: https://github.com/joelhooks/rat-stack/blob/main/packages/catalog/src/Catalog.model.ts
     title: "Catalog model"
     publisher: "GitHub joelhooks/rat-stack"
@@ -41,13 +46,22 @@ The public site receives no catalog data.
 - Item kinds are repo, post, video, and news. An observed item's kind cannot change.
 - Keep and Drop require a sighting. An opposite decision can follow; repeating the current decision records nothing.
 - Unknown metrics stay absent. A missing measurement never becomes zero.
+- Author identity combines the source and lowercased handle. `RecordSighting` lowercases the handle before committing it.
 - Every command, history read, and Query requires the operator token. Missing or empty configuration denies access.
 - Domain's Api defines the [contract](/systems/capabilities). Its native projections expose the same schemas and authorization.
 
 `CatalogIndex` keys each row by `stream:seq`.
-A repeated delivery leaves the same row in place.
-D1 batches commit together; the Domain checkpoint advances separately after the write succeeds.
+A repeated identical delivery leaves the same row in place.
+Different event content at the same position fails loudly.
+
+Each D1 call commits its batch atomically.
+The Domain checkpoint advances after every row is written or durably quarantined.
 A retry between these commits adds no duplicate rows.
+
+Permanent invalid input goes to `catalog_quarantine` with its source position and reason.
+The checkpoint advances only after that row is durable.
+Transient store failures leave the checkpoint unchanged and Domain redrives the pending log.
+Inspect quarantined rows before treating index results as complete.
 
 ### Trend queries
 
@@ -65,15 +79,18 @@ Relative gain divides gain by `from`; a zero baseline returns null.
 The decision follows the latest indexed Keep/Drop event, even outside the observation window.
 Keep and Drop do not filter these results.
 
-`RepeatAuthors` counts distinct canonical item URLs per exact author handle.
+`RepeatAuthors` counts N distinct canonical item URLs per source and lowercased author handle.
 Repeated sightings of the same item do not increase that count.
-The caller supplies `minimumItems` and up to 500 `excludedAuthors`.
-Results sort by item count and then handle.
+The caller supplies `minimumItems` and up to 500 source-qualified `excludedAuthors`; handle matching is case-insensitive.
+Results sort by item count and then the encoded source/handle key.
 
 D1 uses indexed time-range reads.
 The page limit bounds returned rows; aggregation still scans observations inside the selected window.
 These initial bounds follow a local SQLite baseline.
 Deployed D1 latency remains unproven.
+
+Watch D1 rows read and query duration as the observation window grows denser.
+A rollup comes later.
 
 ### Known limits
 
@@ -85,6 +102,13 @@ The D1 index can lag committed events.
 Pass command receipts as `atLeast` to wait for their `CatalogIndex` checkpoints.
 Receipts cover only their streams.
 Results can change between pages as new observations arrive.
+
+Decision sequence ordering assumes one stream per canonical item.
+A stream reset or multiple streams for one item require an epoch or reconciliation.
+Equal observation timestamps use numeric sequence order within that stream.
+
+One corrupt result row fails the whole Query with `CatalogUnavailable`.
+Repair or rebuild the affected index data before retrying.
 
 History state holds the latest observation and decision; `ItemHistory.list` pages through earlier events.
 Operators pass an explicit `take` on each history list call.
@@ -98,6 +122,8 @@ Run `pnpm --filter @rat-stack/catalog test` for stories, declarations, and gener
 
 Run `pnpm --filter @rat-stack/catalog-server test` for both store implementations, replay, windows, authorization, and native HTTP smoke behavior.
 SQLite exercises the D1 [adapter](/lore/hexagonal-architecture)'s SQL and migrations locally; it does not prove deployed D1 behavior.
+The suite also boots the actual bundled [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) with local D1 through `@alchemy.run/test`.
+Run `pnpm --filter @rat-stack/site startup:check` to measure its entry and static startup graph.
 
 Review `pnpm infra:plan` before deployment.
 The owner supplies `CATALOG_OPERATOR_TOKEN` through deploy configuration; the [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) binds a supplied value as a redacted secret.
@@ -107,6 +133,8 @@ Provisioning or rotating this configuration requires a deploy.
 Run `pnpm --filter @rat-stack/catalog-server smoke <url>` with the token supplied securely through the environment.
 The smoke uses typed `ItemHistory.get` calls: no token must return Unauthorized; the configured token must succeed or report a missing item.
 It prints fixed results and sanitized failures, never the token.
+HTTPS is required except for HTTP on exact `localhost` or `127.0.0.1`.
+
 A raw GET is neither an authentication check nor a health probe: an empty native [RPC](/skills/learn-rat-stack) request returns an empty NDJSON response.
 
-Run `pnpm env:check`, then `pnpm turbo run check test build` for the full [fence](/lore/the-fence).
+Run `pnpm env:check`, then `TURBO_RUN_SUMMARY=true pnpm turbo run check test build --summarize` for the full [fence](/lore/the-fence).
