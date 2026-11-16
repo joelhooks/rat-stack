@@ -9,6 +9,7 @@ export default defineConfig({
       "scripts/**/*.test.ts",
       "exercises/**/*.test.ts",
     ],
+    setupFiles: ["./vitest.setup.ts"],
     hookTimeout: 30_000,
     testTimeout: 30_000,
   },

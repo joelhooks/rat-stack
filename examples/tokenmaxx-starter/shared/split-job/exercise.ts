@@ -11,6 +11,12 @@ import type { ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import { now } from "#shared/core/paths.ts";
 import {
+  detailsFlag,
+  reporter,
+  shortPath,
+  takeDetails,
+} from "#shared/core/report.ts";
+import {
   suppliedFolders,
   writesSemicolons,
 } from "#shared/first-package/fence.ts";
@@ -99,9 +105,6 @@ async function guestSemicolons(guestRoot: string, starterRoot: string) {
   );
   return writesSemicolons(sources);
 }
-
-const indent = (text: string) =>
-  text.split("\n").map((line) => `      ${line}`);
 
 export function splitExercise(
   opts: { readonly id: string; readonly title: string },
@@ -205,7 +208,13 @@ export function splitExercise(
       },
 
       /** The done check: PASS only when every claim holds. */
-      async done(ctx) {
+      async done(ctx, args) {
+        const r = reporter(out, {
+          id: opts.id,
+          title: opts.title,
+          command: `${ex("done")} ${detailsFlag}`,
+          details: takeDetails(args).details,
+        });
         const job = await loadJob(ctx);
         if (job === null) {
           return 1;
@@ -214,17 +223,21 @@ export function splitExercise(
           err(`${job.guestRoot} is gone. Run ${ex("setup")} again.`);
           return 1;
         }
+        r.header(`checking ${shortPath(job.guestRoot)}`);
+        r.line("");
         const stamps = await readStamps(ctx.stateDir, job.jobId);
         const claims = [
           ...judge(await observe(job, stamps)),
-          await deps.commit(ctx),
+          await r.during(
+            "Checking the step's commit with your commit hooks...",
+            () => deps.commit(ctx)
+          ),
         ];
         for (const claim of claims) {
-          out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
-          indent(claim.detail).forEach((line) => out(line));
+          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
         }
         const ok = claims.every((c) => c.ok);
-        out(
+        r.verdict(
           ok
             ? "Done: three workers in their own copies, the broken part turned down, its work kept, and the step committed."
             : "Not done yet."

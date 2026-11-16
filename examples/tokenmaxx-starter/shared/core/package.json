@@ -1,0 +1,26 @@
+{
+  "name": "@tokenmaxx/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The exercises' shared core: context, session records, state, catch-up.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "exports": {
+    "./*": "./*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -10,9 +10,10 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
+import { isolatedStarter } from "#shared/core/testing.ts";
 
 import { planLaunch } from "../../scripts/lib/pi.ts";
 import { catchUpArchive, unpackCatchUp } from "./catch-up.ts";
@@ -102,9 +103,19 @@ describe("reading what a fresh Pi sent", () => {
 const ignoreProject = (args: readonly string[]) =>
   args.map((arg) => (arg === "--approve" ? "--no-approve" : arg));
 
+// These run in a copy of the starter (`isolatedStarter`): Pi at this
+// checkout's root would read the guest's AGENTS.md, and the launcher their
+// live sessions.
 describe("a fresh Pi against the probe (live, no model)", () => {
+  let starter = "";
+  let cleanup: () => Promise<void> = async () => undefined;
+  beforeAll(async () => {
+    ({ root: starter, cleanup } = await isolatedStarter());
+  });
+  afterAll(() => cleanup());
+
   it("sees only Pi's own tools and no skill with nothing added", async () => {
-    const outcome = await probeFreshPi(repoRoot, {
+    const outcome = await probeFreshPi(starter, {
       env: cleanEnv,
       mapArgs: ignoreProject,
     });
@@ -117,7 +128,7 @@ describe("a fresh Pi against the probe (live, no model)", () => {
   it("sees a tool and a skill a package adds", async () => {
     const pkg = join(home, "catch-up");
     await unpackCatchUp(catchUpArchive(repoRoot), pkg);
-    const outcome = await probeFreshPi(repoRoot, {
+    const outcome = await probeFreshPi(starter, {
       env: cleanEnv,
       mapArgs: (args) => [
         "-e",
@@ -138,7 +149,8 @@ describe("a fresh Pi against the probe (live, no model)", () => {
 
   it("runs at the guest's root when the starter is a folder inside it", async () => {
     // The guest's repo, with its own extension, skill and AGENTS.md, and the
-    // starter in workshop/ (this checkout, linked).
+    // starter in workshop/ (the copy, linked, with an AGENTS.md of its own:
+    // the guest's edits to this checkout's never reach a test).
     const guest = join(home, "guest");
     mkdirSync(join(guest, ".pi", "extensions"), { recursive: true });
     mkdirSync(join(guest, ".pi", "skills", "guest-ritual"), {
@@ -159,10 +171,11 @@ describe("a fresh Pi against the probe (live, no model)", () => {
       join(guest, ".pi", "skills", "guest-ritual", "SKILL.md"),
       "---\nname: guest-ritual\ndescription: The guest's own.\n---\n\nSay it.\n"
     );
+    writeFileSync(join(starter, "AGENTS.md"), "STARTER-AGENTS-MARKER\n");
     const workshop = join(guest, "workshop");
     mkdirSync(workshop);
-    for (const name of ["node_modules", "exercises", "shared", ".pi"]) {
-      symlinkSync(join(repoRoot, name), join(workshop, name));
+    for (const name of ["node_modules", "exercises", "shared"]) {
+      symlinkSync(join(starter, name), join(workshop, name));
     }
     const server = await startProbeServer();
     try {
@@ -186,7 +199,7 @@ describe("a fresh Pi against the probe (live, no model)", () => {
       });
       const text = JSON.stringify(first);
       expect(text).toContain("GUEST-AGENTS-MARKER");
-      expect(text).toContain("This repo is a workshop starter");
+      expect(text).toContain("STARTER-AGENTS-MARKER");
     } finally {
       await server.close();
     }

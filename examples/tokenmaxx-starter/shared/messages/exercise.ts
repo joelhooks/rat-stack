@@ -5,6 +5,7 @@ import {
 } from "#shared/core/commit-line.ts";
 import type { Env, ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
+import { detailsFlag, reporter, takeDetails } from "#shared/core/report.ts";
 import {
   isTopLevel,
   readSessions,
@@ -239,7 +240,15 @@ export function messagesExercise(
       },
 
       /** The done check: PASS only when every claim holds. */
-      async done(ctx) {
+      async done(ctx, args) {
+        const r = reporter(out, {
+          id: opts.id,
+          title: opts.title,
+          command: `${ex(ctx, "done")} ${detailsFlag}`,
+          details: takeDetails(args).details,
+        });
+        r.header();
+        r.line("");
         const log = await readEvents(ctx.stateDir);
         const records = await deps.readSessions(ctx.repoRoot);
         const turns = new Map<string, TurnLine[] | null>();
@@ -265,17 +274,19 @@ export function messagesExercise(
         }
         const claims = [
           ...judge(log, records, turns, transcripts),
-          await deps.commit(ctx),
+          await r.during(
+            "Checking the step's commit with your commit hooks...",
+            () => deps.commit(ctx)
+          ),
         ];
         for (const claim of claims) {
-          out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
-          out(`      ${claim.detail}`);
+          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
         }
         for (const note of notes(log, records, transcripts)) {
-          out(note);
+          r.aside(note);
         }
         const ok = claims.every((c) => c.ok);
-        out(
+        r.verdict(
           ok
             ? `Done: one session got its answer from another with nobody carrying it, and a message to ${missingName} failed out loud.`
             : `Not done yet. Start over any time with ${ex(ctx, "setup")}.`

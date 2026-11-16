@@ -1,0 +1,26 @@
+{
+  "name": "@tokenmaxx/memory",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Piece 3's environment.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "exports": {
+    "./*": "./*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/core": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

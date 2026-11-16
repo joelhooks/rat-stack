@@ -50,12 +50,20 @@ Done when: a commit with a type error is refused, a clean commit goes through, o
 Then quit Pi, start it again the same way in that folder and accept the trust prompt. Give it this prompt to pull in the workshop tools:
 
 ```text
-Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v3 workshop`, run `pnpm install` in `workshop/`, add the two root scripts the workshop README's "In a folder of your own repo" section gives, and tell this repo's lint, format and pre-commit checks to skip `workshop/`. I'm the owner of this repo and I approve those changes. Then run `pnpm ex 00.1 check` and commit.
+Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter workshop`, run `pnpm install` in `workshop/`, add the two root scripts the workshop README's "In a folder of your own repo" section gives, and tell this repo's lint, format and pre-commit checks to skip `workshop/`. I'm the owner of this repo and I approve those changes. Then run `pnpm ex 00.1 check` and commit.
 ```
 
 Your agent may have written a rule that check changes need the owner's OK. The owner line answers it up front.
 
-Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first line, `a type-broken commit is refused`, shows `PASS`.
+Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first check, `a type-broken commit is refused`, shows `PASS`.
+
+## Updating your copy
+
+In the starter's folder:
+
+```sh
+npx -y tiged joelhooks/rat-stack/examples/tokenmaxx-starter .workshop-state/update --force && node .workshop-state/update/scripts/update.ts
+```
 
 ## Fallback folder
 
@@ -89,11 +97,12 @@ exercises/
   02-loop/02.1-wake-me-when-done/
   02-loop/02.2-survive-a-quit/
   03-memory/03.1-yesterdays-mistake/
-  04-several-agents/
-  05-messages/
-  06-split-the-work/
+  04-messages/04.1-no-copy-paste/
+  05-several-agents/05.1-who-needs-me/
+  06-split-the-work/06.1-split-three-ways/
 shared/          the environments each exercise runs in, imported as #shared/...
 scripts/         the exercise runner and the Pi launcher
+.githooks/       the commit hook: every commit runs pnpm check
 .workshop-state/ runtime state, one folder per exercise (git-ignored)
 ```
 
@@ -128,4 +137,4 @@ pnpm check:pi       # one real Pi turn with a tool call, and the pinned packages
 pnpm format         # format the supplied code
 ```
 
-`pnpm check` covers `scripts/`, `shared/`, `exercises/` and the root config. It never looks at your code.
+`pnpm check` covers `scripts/`, `shared/`, `exercises/` and the root config, through Turbo, cached in `.turbo/`. It never looks at your code. When this folder is its own git repository, every commit runs it first, and `git commit -n` doesn't skip that.

@@ -95,6 +95,8 @@ type Story = {
   nestedIn?: string;
   /** The guest's root named through a symlink to it, as macOS's /var is. */
   linkedGuest?: boolean;
+  /** Runs `done` without `--details`, as a guest first sees it. */
+  short?: boolean;
 };
 
 async function done(story: Story) {
@@ -124,7 +126,7 @@ async function done(story: Story) {
   if (run === undefined) {
     throw new Error("01.1 has no done command");
   }
-  const code = await run(ctx, []);
+  const code = await run(ctx, story.short === true ? [] : ["--details"]);
   const verdicts = lines
     .filter((l) => /^(PASS|FAIL|NOTE) /.test(l))
     .map(verdict);
@@ -142,7 +144,7 @@ async function done(story: Story) {
 /** `PASS` or `FAIL`; a note as `NOTE yes` or `NOTE no`. */
 function verdict(line: string): string {
   return line.startsWith("NOTE ")
-    ? `NOTE ${line.endsWith(": yes, not needed for done") ? "yes" : "no"}`
+    ? `NOTE ${line.endsWith(": yes") ? "yes" : "no"}`
     : line.slice(0, 4);
 }
 
@@ -171,6 +173,20 @@ describe("the 01.1 done check", () => {
     );
     expect(r.text).toContain("No VISION or WHY file");
     expect(r.text).not.toContain("STRETCH");
+  });
+
+  it("without --details, shows a FAIL's detail and hides the notes'", async () => {
+    const r = await done({
+      fence: tried({ broken: went }),
+      trusted: seen([]),
+      short: true,
+    });
+    expect(r.verdicts).toEqual(["FAIL", "NOTE no", "NOTE no"]);
+    expect(r.text).toContain("Went through");
+    expect(r.text).not.toContain("Tools from this repo");
+    expect(r.text).not.toContain("No VISION or WHY file");
+    expect(r.lines.at(-2)).toBe("Not done yet.");
+    expect(r.lines.at(-1)).toBe("More: pnpm ex 01.1 done --details");
   });
 
   it("fails a faked fence, even with an agent saying done", async () => {
@@ -211,11 +227,9 @@ describe("the 01.1 done check", () => {
     expect(r.text).not.toContain("Not done yet.");
     expect(r.text).toContain("Done: the fence holds.");
     expect(r.lines).toContain(
-      "NOTE  a fresh Pi session loads a tool and a skill from this repo: no, not needed for done"
+      "NOTE     a fresh Pi session loads a tool and a skill from this repo: no"
     );
-    expect(r.lines).toContain(
-      "NOTE  the repo says why it exists: no, not needed for done"
-    );
+    expect(r.lines).toContain("NOTE     the repo says why it exists: no");
     expect(r.text).toContain("Tools from this repo: none.");
     expect(r.text).toContain("No VISION or WHY file");
   });
@@ -283,7 +297,7 @@ describe("the 01.1 done check", () => {
         supplied: ["shared", "scripts", "exercises"],
       },
     ]);
-    expect(r.text).not.toContain("Checking your repo at");
+    expect(r.text).not.toContain("(tools in");
   });
 
   it("checks the guest's repo when the starter is a folder inside it", async () => {
@@ -301,8 +315,10 @@ describe("the 01.1 done check", () => {
     expect(r.fenced).toEqual([
       { root: r.ctx.guestRoot, supplied: ["workshop"] },
     ]);
-    expect(r.text).toContain(
-      `Checking your repo at ${r.ctx.guestRoot} (the workshop tools are in its workshop/ folder).`
+    // One header line or two, by the temp path's length.
+    const header = r.lines.slice(0, r.lines.indexOf("")).join(" · ");
+    expect(header).toBe(
+      `01.1 · t · checking ${r.ctx.guestRoot} (tools in workshop/)`
     );
     expect(r.text).toContain("VISION.md");
     expect(r.text).toContain(
@@ -444,8 +460,11 @@ describe("the 01.1 done check", () => {
         out: (l) => shown.push(l),
       }
     );
-    await again.commands.status(r.ctx, []);
-    expect(shown.slice(1)).toEqual(r.lines.slice(r.lines.indexOf("") + 1));
+    await again.commands.status(r.ctx, ["--details"]);
+    // From the blank line under the header on: status's header differs.
+    expect(shown.slice(shown.indexOf(""))).toEqual(
+      r.lines.slice(r.lines.indexOf(""))
+    );
     expect(
       shown.map(verdict).filter((v) => /^(PASS|FAIL|NOTE)/.test(v))
     ).toEqual(["PASS", "NOTE no", "NOTE yes"]);

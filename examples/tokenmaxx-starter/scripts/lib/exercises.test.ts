@@ -1,11 +1,14 @@
 import { execFile } from "node:child_process";
+import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
 import type { SessionRecord } from "#shared/core/sessions.ts";
+import { isolatedStarter } from "#shared/core/testing.ts";
 
 import {
   discoverExercises,
@@ -30,10 +33,15 @@ function capture() {
   };
 }
 
+// `status` reads the root's session records: an empty root, never this
+// checkout's `.workshop-state/`.
+const emptyRoot = realpathSync(mkdtempSync(join(tmpdir(), "tmx-ex-root-")));
+afterAll(() => rmSync(emptyRoot, { recursive: true, force: true }));
+
 function run(argv: string[]) {
   const c = capture();
   const done = runEx(argv, {
-    repoRoot,
+    repoRoot: emptyRoot,
     exercisesDir: fixtures,
     env: { TMX_STATE_DIR: "/nonexistent/unused" },
     io: c.io,
@@ -199,16 +207,21 @@ describe("workshopLine", () => {
   });
 });
 
+// In a copy of the starter (`isolatedStarter`), so `pnpm ex` neither reads
+// this checkout's `.workshop-state/` nor turns on its commit hook.
 describe("pnpm ex CLI", () => {
   it("fails an unknown id with the valid list", async () => {
+    const starter = await isolatedStarter();
     const result = await promisify(execFile)(
       process.execPath,
-      [join(repoRoot, "scripts", "ex.ts"), "99.9", "status"],
-      { cwd: repoRoot }
-    ).then(
-      () => ({ code: 0, stderr: "" }),
-      (error: { code: number; stderr: string }) => error
-    );
+      [join(starter.root, "scripts", "ex.ts"), "99.9", "status"],
+      { cwd: starter.root }
+    )
+      .then(
+        () => ({ code: 0, stderr: "" }),
+        (error: { code: number; stderr: string }) => error
+      )
+      .finally(() => starter.cleanup());
     expect(result.code).toBe(2);
     expect(result.stderr).toMatch(/Valid ids: 00\.1/);
   });
