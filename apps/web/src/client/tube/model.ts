@@ -4,6 +4,7 @@ import { TubeVideo, YoutubeVideoId } from "./data.js";
 
 export const Model = Schema.Struct({
   playing: Schema.OptionFromOptional(YoutubeVideoId),
+  selected: Schema.OptionFromOptional(YoutubeVideoId),
   videos: Schema.Array(TubeVideo),
 });
 

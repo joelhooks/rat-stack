@@ -1,3 +1,5 @@
+import { isTubeVideoPath } from "../../site/src/tube-routes.js";
+
 export const readerRoutePaths: readonly string[] = [
   "/",
   "/lore/services-capture-dependencies",
@@ -40,6 +42,7 @@ export const readerNoStoreRoutePaths: readonly string[] = ["/tokenmaxx"];
 
 export const isReaderRoutePath = (path: string) =>
   readerRoutePaths.includes(path) ||
+  isTubeVideoPath(path) ||
   isReaderBodyRoutePath(path) ||
   path === "/lore" ||
   path.startsWith("/lore/") ||

@@ -60,7 +60,7 @@ const notConfigured = new HelpUnavailable({
 
 const notAnAttendee = new NotAnAttendee({
   message:
-    "This email and workshop code don't match the attendee list. Use the email the workshop invite went to and the code from the prep email.",
+    "This email and workshop code don't match the attendee list. Use the email the workshop invite went to and the workshop code on your workshop calendar event.",
 });
 
 const signIn = Effect.fn("tokenmaxxHelp.signIn")(function* signIn(input: {
@@ -155,7 +155,7 @@ const scrubOptional = (text: string | undefined) =>
   text === undefined ? null : scrubSecrets(text);
 
 const nextStep = (matched: number) =>
-  `${matched === 0 ? "No known fix matches this yet." : "Try the fixes in guidance first."} A person at the workshop desk reads every report. Call setupProblemStatus with this reportId to see their answer, or reply to the workshop email.`;
+  `${matched === 0 ? "No known fix matches this yet." : "These known fixes matched words in your report. Check each fix's symptom against your error before trying it; some may not apply."} A person at the workshop desk reads every report. Call setupProblemStatus with this reportId to see their answer, or reply to the workshop email.`;
 
 const limitMessages = {
   "per-attendee":

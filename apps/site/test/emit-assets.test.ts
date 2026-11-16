@@ -3,6 +3,7 @@ import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Schema } from "effect";
 import { HttpRouter } from "effect/http";
 
+import { TubeData } from "../../web/src/client/tube/data.ts";
 import { ContentAssetManifest, emitAssets } from "../scripts/emit-assets.ts";
 import { buildWorkshop } from "../scripts/tokenmaxx-workshop.ts";
 import { mischiefRoutes } from "../src/app.js";
@@ -41,6 +42,14 @@ it.effect(
       const directory = path.resolve(import.meta.dirname, "../dist/content");
       const manifest = yield* manifestAt(directory);
 
+      const tube = yield* fs
+        .readFileString(
+          new URL("../../../.brain/data/tube.json", import.meta.url).pathname
+        )
+        .pipe(
+          Effect.flatMap(Schema.decodeEffect(Schema.fromJsonString(TubeData)))
+        );
+
       const workshop = yield* buildWorkshop(
         path.resolve(import.meta.dirname, "../../..")
       );
@@ -53,6 +62,9 @@ it.effect(
           "/news",
           "/directory",
           "/tube",
+          ...tube.videos.flatMap((video) =>
+            video.page === undefined ? [] : [`/tube/${video.slug}`]
+          ),
           "/search",
           "/systems",
           "/skills",
@@ -200,6 +212,12 @@ it.effect(
 
               expect(response.status).toBe(200);
 
+              if (image === "/tube/gaps.json") {
+                expect(response.headers.get("content-type")).toContain(
+                  "application/json"
+                );
+              }
+
               const bytes = yield* Effect.promise(
                 response.arrayBuffer.bind(response)
               );
@@ -257,6 +275,7 @@ it.effect(
           ...allStarsAvatarPaths,
           ...auditFiles.map((name) => `/skills/security-audit/${name}`),
           "/tokenmaxx/setup.md",
+          "/tube/gaps.json",
         ].toSorted()
       );
     }).pipe(Effect.provide(NodeServices.layer))

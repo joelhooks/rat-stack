@@ -1,4 +1,5 @@
 import { Effect, Option, Result, Schema, SchemaIssue } from "effect";
+import { DomUtils, parseDocument } from "htmlparser2";
 
 import {
   formatDuration,
@@ -8,6 +9,9 @@ import {
   tubeThemes,
   TubeVideo,
   watchUrl,
+  videoPagePath,
+  relatedVideos,
+  summaryLinks,
 } from "../../web/src/client/tube/data.ts";
 import type { TubeDataValue } from "../../web/src/client/tube/data.ts";
 import {
@@ -30,6 +34,29 @@ export const TubeFile = Schema.Struct({ videos: Schema.Array(Schema.Json) });
 export type TubeFileValue = typeof TubeFile.Type;
 
 const EntryId = Schema.Struct({ id: Schema.String });
+
+const EntrySlug = Schema.Struct({ slug: Schema.String });
+
+const duplicateSlugProblems = (entries: readonly Schema.Json[]) =>
+  entries.flatMap((entry, index) =>
+    Option.match(Schema.decodeUnknownOption(EntrySlug)(entry), {
+      onNone: () => [],
+      onSome: ({ slug }) => {
+        const first = entries.findIndex((candidate) =>
+          Option.exists(
+            Schema.decodeUnknownOption(EntrySlug)(candidate),
+            (other) => other.slug === slug
+          )
+        );
+
+        return first === index
+          ? []
+          : [
+              `${tubeDataPath} videos[${index}] repeats slug ${slug} from videos[${first}]. Each published video needs its own stable URL. Fix: assign a unique numeric suffix to \`slug\` in \`${tubeDataPath}\`.`,
+            ];
+      },
+    })
+  );
 
 const entryId = (entry: Schema.Json) =>
   Option.map(Schema.decodeUnknownOption(EntryId)(entry), ({ id }) => id);
@@ -78,12 +105,22 @@ const entryProblems = (
             issue.message
           )
         ),
-      onSuccess: (video) =>
-        video.url === watchUrl(video.id)
+      onSuccess: (video) => [
+        ...(video.url === watchUrl(video.id)
           ? []
           : [
               `${where}.url does not point at video ${video.id}. The link and the player must show the same video. Fix: set \`url\` to \`${watchUrl(video.id)}\`.`,
-            ],
+            ]),
+        ...(video.page?.sections.flatMap((section, sectionIndex) =>
+          section.at < video.durationSeconds &&
+          (sectionIndex === 0 ||
+            section.at > (video.page?.sections[sectionIndex - 1]?.at ?? -1))
+            ? []
+            : [
+                `${where}.page.sections[${sectionIndex}].at is outside the ordered video timeline. Section links must seek to distinct points within this video. Fix: use increasing seconds below \`durationSeconds\` in \`${tubeDataPath}\`.`,
+              ]
+        ) ?? []),
+      ],
     }
   );
 };
@@ -108,9 +145,115 @@ const duplicateProblems = (
     })
   );
 
+export const tubeConceptProblems = (
+  data: TubeDataValue,
+  routes: ReadonlySet<string>
+): readonly string[] =>
+  data.videos.flatMap((video) =>
+    (video.page?.concepts ?? []).flatMap((concept) =>
+      routes.has(concept.route)
+        ? []
+        : [
+            `${tubeDataPath} video ${video.id} links to unknown concept ${concept.route}. Concepts must resolve to a generated wiki page or glossary anchor. Fix: correct \`page.concepts\` for \`${video.id}\` in \`${tubeDataPath}\`.`,
+          ]
+    )
+  );
+
+export const validateTubeConcepts = (
+  data: TubeDataValue,
+  routes: ReadonlySet<string>,
+  documents: readonly { routePath: string; bodyHtml: string }[]
+) => {
+  const anchors = documents.flatMap(({ routePath, bodyHtml }) => {
+    const document = parseDocument(bodyHtml);
+
+    return DomUtils.findAll(
+      (element) => element.attribs.id !== undefined,
+      document.children
+    ).map((element) => `${routePath}#${element.attribs.id}`);
+  });
+
+  const problems = tubeConceptProblems(
+    data,
+    new Set([...routes, "/learn", ...anchors])
+  );
+
+  return problems.length === 0
+    ? Effect.void
+    : Effect.fail(
+        tubeBuildError(
+          new TubeDataInvalid({ message: problems.join("\n"), problems })
+        )
+      );
+};
+
+export const tubeGaps = (data: TubeDataValue) => ({
+  gaps: [...new Set(data.videos.flatMap((video) => video.page?.gaps ?? []))]
+    .toSorted()
+    .map((term) => ({
+      term,
+      videos: data.videos
+        .filter((video) => video.page?.gaps.includes(term) === true)
+        .map((video) => videoPagePath(video)),
+    })),
+});
+
+export const tubeVideoMarkdown = (
+  video: TubeDataValue["videos"][number],
+  videos: TubeDataValue["videos"]
+) =>
+  [
+    `# ${video.title}`,
+    "",
+    `[${linkText(video.channel)}](${video.channelUrl}) · Published ${video.published} · ${formatDuration(video.durationSeconds)} · ${tierLabel(video.tier)} · ${themeCopy[video.theme].name}`,
+    "",
+    `[Watch on YouTube](${video.url}) · [All ${tubeCopy.heading} videos](/tube)`,
+    "",
+    "## Summary",
+    "",
+    ...(video.page?.summary.flatMap((paragraph) => [
+      summaryLinks(paragraph, video)
+        .map((part) =>
+          part.route === undefined
+            ? part.text
+            : `[${linkText(part.text)}](${part.route})`
+        )
+        .join(""),
+      "",
+    ]) ?? []),
+    "## Section notes",
+    "",
+    ...(video.page?.sections.map(
+      ({ at, note }) =>
+        `- [${formatDuration(at)}](${video.url}&t=${at}s): ${note}`
+    ) ?? []),
+    "",
+    "## Key concepts",
+    "",
+    ...((video.page?.concepts.length ?? 0) === 0
+      ? ["No matching wiki page yet.", ""]
+      : []),
+    ...(video.page?.concepts.map(
+      ({ term, route }) => `- [${linkText(term)}](${route})`
+    ) ?? []),
+    "",
+    "## Our take",
+    "",
+    video.take,
+    "",
+    "## Related videos",
+    "",
+    ...relatedVideos(video, videos).map(
+      (related) => `- [${linkText(related.title)}](${videoPagePath(related)})`
+    ),
+    "",
+    `Summary based on the transcript. Written ${video.page?.written ?? ""}.`,
+  ].join("\n");
+
 export const tubeDataProblems = (file: TubeFileValue): readonly string[] => [
   ...file.videos.flatMap(entryProblems),
   ...duplicateProblems(file.videos),
+  ...duplicateSlugProblems(file.videos),
 ];
 
 export const unreadableTubeFile = `${tubeDataPath} is not a JSON object with a videos array. The content build reads every entry from \`videos\`. Fix: shape the file as \`{ "videos": [...] }\` and repair any syntax error that \`JSON.parse\` reports.`;
@@ -182,7 +325,7 @@ export const tubeMarkdown = (data: TubeDataValue) =>
             "",
             ...videos.map(
               (video) =>
-                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.url}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
+                `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video)}) by [${linkText(video.channel)}](${video.channelUrl}), ${formatDuration(video.durationSeconds)}, published ${video.published}, ${checkedLabel(video)}. ${video.take}`
             ),
             "",
           ];

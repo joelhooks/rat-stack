@@ -137,6 +137,10 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 
 Turbo and our `alchemy-turbo-cache` cartridge are core CI/CD infrastructure. Every CI/CD path must run build, check, and test work through Turbo and leave a run summary. Pass `--summarize` or set `TURBO_RUN_SUMMARY=true`. PR/main CI and the uncached nightly already enable summaries; deploy and local callers must currently enable them explicitly. Only trusted CI receives the writer token and signing key. Deploy, local and agent gates will take the read-only token (`pnpm turbo-cache:token --role reader`) with `TURBO_CACHE=remote:r`; see `packages/turbo-cache/README.md`. Consumer wiring is not implemented yet.
 
+Content generation caches its generated modules, document fences, content assets, reader source, and mentions report. Alchemy's local state and bundles are runtime artifacts, not source inputs. Root lint still waits for generation so a clean checkout has the generated modules.
+
+The flags compiler is cacheable. Its `check:expiry` prerequisite stays uncached and runs before every Turbo build that consumes flags, including check and test paths. Direct package builds keep the same check through `prebuild`. The check runs from typed source; TypeScript rewrites its relative `.ts` import when emitting the compiled entry.
+
 `pnpm turbo:summary --surface local` prints one JSON line per run. Use `pr`, `main`, or `nightly` for those surfaces. An optional directory replaces `.turbo/runs`; `--ref` supplies the current job's ref when Git checks out a detached head. Without it, each row keeps the summary's own Git branch and SHA.
 
 Rows include the run ID, SHA, ref, surface, task count, local and remote hits, misses, hit rate, wall time in milliseconds, exit code, and the five slowest tasks. Task times measure execution or cache replay, not estimated time saved. Tasks without commands do not count. Missing execution times remain unknown. Turbo can label a disabled-cache task as a miss; use the raw summary to inspect its cache setting.
