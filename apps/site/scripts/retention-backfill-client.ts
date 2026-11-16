@@ -3,6 +3,8 @@ import {
   JoinRetentionBackfill,
   JoinRetentionBackfillUnavailable,
   JoinRetentionCountsSchema,
+  JoinRetentionDiagnosticSchema,
+  JoinRetentionFailureResponseSchema,
   joinRetentionBackfillContract,
 } from "@rat-stack/core/join-interest";
 import { Cause, Effect, Layer, Logger, Option, Redacted, Schema } from "effect";
@@ -86,14 +88,30 @@ const requestPage = Effect.fnUntraced(function* requestPage(
       Effect.catchCause(() => Effect.succeed(""))
     );
 
+    const diagnostic =
+      response.status === 503 && !body.includes(Redacted.value(token))
+        ? Schema.decodeOption(
+            Schema.fromJsonString(JoinRetentionFailureResponseSchema)
+          )(body).pipe(
+            Option.flatMap(
+              Schema.decodeUnknownOption(JoinRetentionDiagnosticSchema)
+            )
+          )
+        : Option.none();
+
     const text = Option.getOrElse(
       Schema.decodeUnknownOption(RouteErrorText)(body.trim()),
       () => "Unrecognized response body (not displayed)."
     );
 
-    return yield* new JoinRetentionBackfillUnavailable({
-      reason: `Retention backfill HTTP ${response.status}: ${text} Fix: verify the operator endpoint and rerun a preview.`,
-    });
+    const reason = `Retention backfill HTTP ${response.status}: ${Option.isSome(diagnostic) ? `Applications unavailable. ${JSON.stringify(diagnostic.value)}` : text} Fix: verify the operator endpoint and rerun a preview.`;
+
+    return yield* new JoinRetentionBackfillUnavailable(
+      Option.match(diagnostic, {
+        onNone: () => ({ reason }),
+        onSome: (fields) => ({ reason, diagnostic: fields }),
+      })
+    );
   }
 
   return yield* response.json.pipe(

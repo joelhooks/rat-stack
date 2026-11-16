@@ -18,16 +18,28 @@ import { JoinRetentionBackfillUnavailable } from "./join-retention-unavailable.j
 
 type Counts = typeof JoinRetentionCountsSchema.Type;
 
+type FailureInfo = Pick<
+  JoinRetentionBackfillUnavailable,
+  "reason" | "diagnostic"
+>;
+
 type Outcome = Data.TaggedEnum<{
   Complete: { readonly counts: Counts };
-  Unavailable: { readonly reason: string };
+  Unavailable: FailureInfo;
 }>;
 
 const outcomes = Data.taggedEnum<Outcome>();
 
+const failureInfo = (
+  reason: string,
+  diagnostic: JoinRetentionBackfillUnavailable["diagnostic"]
+): FailureInfo =>
+  diagnostic === undefined ? { reason } : { reason, diagnostic };
+
 const unavailableOutcome = (
-  reason = "Retention backfill did not complete. Fix: verify the origin, operator token and page responses, then rerun a preview."
-) => outcomes.Unavailable({ reason });
+  reason = "Retention backfill did not complete. Fix: verify the origin, operator token and page responses, then rerun a preview.",
+  diagnostic?: JoinRetentionBackfillUnavailable["diagnostic"]
+) => outcomes.Unavailable(failureInfo(reason, diagnostic));
 
 const Input = Schema.Struct({
   apply: Schema.Boolean,
@@ -123,7 +135,7 @@ const readPage = Effect.fnUntraced(function* readPage(
 
 type PageResult = Data.TaggedEnum<{
   Page: { readonly counts: Counts };
-  Unavailable: { readonly reason: string };
+  Unavailable: FailureInfo;
 }>;
 
 const pageResults = Data.taggedEnum<PageResult>();
@@ -133,7 +145,11 @@ const page = createEffectLogic({
     readPage(input).pipe(
       Effect.map((counts) => pageResults.Page({ counts })),
       Effect.catchTag("JoinRetentionBackfillUnavailable", (failure) =>
-        Effect.succeed(pageResults.Unavailable({ reason: failure.reason }))
+        Effect.succeed(
+          pageResults.Unavailable(
+            failureInfo(failure.reason, failure.diagnostic)
+          )
+        )
       )
     ),
   schemas: { input: PageInput },
@@ -164,9 +180,9 @@ export const joinRetentionWalkMachine = setupEffect({
         }),
         onDone: ({ context, event }) =>
           pageResults.$match(event.output, {
-            Unavailable: ({ reason }) => ({
+            Unavailable: ({ reason, diagnostic }) => ({
               target: "unavailable",
-              context: { outcome: unavailableOutcome(reason) },
+              context: { outcome: unavailableOutcome(reason, diagnostic) },
             }),
             Page: ({ counts }) => {
               const total = addCounts(context.total, counts);
@@ -219,8 +235,10 @@ export const runJoinRetentionWalk = Effect.fn("runJoinRetentionWalk")(
 
     return yield* outcomes.$match(outcome, {
       Complete: ({ counts }) => Effect.succeed(counts),
-      Unavailable: ({ reason }) =>
-        Effect.fail(new JoinRetentionBackfillUnavailable({ reason })),
+      Unavailable: ({ reason, diagnostic }) =>
+        Effect.fail(
+          new JoinRetentionBackfillUnavailable(failureInfo(reason, diagnostic))
+        ),
     });
   },
   Effect.scoped

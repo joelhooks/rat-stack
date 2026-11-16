@@ -8,7 +8,7 @@ import {
   SubscriberIntake,
 } from "@rat-stack/core/interest";
 import { JoinContactStore } from "@rat-stack/core/join-interest";
-import { Effect, Layer, Redacted, Schema } from "effect";
+import { Effect, Layer, Logger, Redacted, Schema } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 
 import Interest from "../../src/interest/interest-durable-object.js";
@@ -17,6 +17,8 @@ import { joinRetentionBackfillLayer } from "../../src/interest/join-retention-ba
 import { interestRoutes } from "../../src/interest/routes.js";
 
 const legacyIds = ["synthetic-oldest", "synthetic-wrapped", "synthetic-fault"];
+
+export const SYNTHETIC_FAULT_SECRET = "synthetic-secret-in-fault-message";
 
 export default class RetentionBackfillWorker extends Cloudflare.Worker<RetentionBackfillWorker>()(
   "RetentionBackfillWorker",
@@ -102,9 +104,20 @@ export default class RetentionBackfillWorker extends Cloudflare.Worker<Retention
       }).pipe(Effect.orDie)
     );
 
+    const logs: unknown[] = [];
+
+    const logger = Logger.formatStructured.pipe(
+      Logger.map((record) => logs.push(record))
+    );
+
     const app = yield* HttpRouter.toHttpEffect(
       Layer.mergeAll(
         seed,
+        HttpRouter.add(
+          "GET",
+          "/logs",
+          Effect.sync(() => HttpServerResponse.jsonUnsafe(logs))
+        ),
         interestRoutes({ operatorToken: "synthetic-operator", services })
       )
     ).pipe(Effect.orDie);
@@ -125,15 +138,33 @@ export default class RetentionBackfillWorker extends Cloudflare.Worker<Retention
 
         const namedIds = ids.map((name) => `${prefix}-${name}`);
 
+        const operationalContacts: JoinContactStore["Service"] = query.has(
+          "secret"
+        )
+          ? {
+              ...contacts,
+              migrateRetention: (id, dryRun) =>
+                contacts
+                  .migrateRetention(id, dryRun)
+                  .pipe(
+                    Effect.andThen(
+                      Effect.die(new TypeError(SYNTHETIC_FAULT_SECRET))
+                    )
+                  ),
+            }
+          : contacts;
+
         return yield* app.pipe(
           Effect.provide(
             joinRetentionBackfillLayer(() => Effect.succeed(namedIds)).pipe(
-              Layer.provide(Layer.succeed(JoinContactStore, contacts))
+              Layer.provide(
+                Layer.succeed(JoinContactStore, operationalContacts)
+              )
             )
           ),
           Effect.scoped
         );
-      }),
+      }).pipe(Effect.provide(Logger.layer([logger, Logger.defaultLogger]))),
     };
   })
 ) {}

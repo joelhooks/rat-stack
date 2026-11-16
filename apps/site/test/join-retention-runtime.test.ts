@@ -1,6 +1,7 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Test from "@alchemy.run/test/Vitest";
 import { expect } from "@effect/vitest";
+import { JoinRetentionFailureResponseSchema } from "@rat-stack/core/join-interest";
 import { Effect, Option, Schema } from "effect";
 import * as SecureRandom from "effect/crypto/SecureRandom";
 import { HttpClient, HttpClientRequest } from "effect/http";
@@ -8,7 +9,9 @@ import { HttpClient, HttpClientRequest } from "effect/http";
 import { JOIN_CONTACT_KEY } from "../src/interest/join-contact-cell.js";
 import { localServices } from "./fixtures/flag-ledger-client.js";
 import { durableObjectStorage } from "./fixtures/local-storage.js";
-import RetentionBackfillWorker from "./fixtures/retention-backfill-worker.js";
+import RetentionBackfillWorker, {
+  SYNTHETIC_FAULT_SECRET,
+} from "./fixtures/retention-backfill-worker.js";
 import { deployScratch } from "./fixtures/scratch-deploy.js";
 
 const { test } = Test.make({
@@ -57,11 +60,11 @@ test.provider(
 
       const client = yield* HttpClient.HttpClient;
 
-      const preview = (fault = false) =>
+      const preview = (fault = false, secret = false) =>
         Effect.gen(function* previewPage() {
           const request = yield* HttpClientRequest.post(
             new URL(
-              `/operator/interest/applications/retention-backfill?prefix=${prefix}${fault ? "&fault=1" : ""}`,
+              `/operator/interest/applications/retention-backfill?prefix=${prefix}${fault ? "&fault=1" : ""}${secret ? "&secret=1" : ""}`,
               url
             )
           ).pipe(
@@ -105,10 +108,50 @@ test.provider(
         return yield* preview(true);
       }).pipe(Effect.scoped);
 
-      expect(failure).toEqual({
-        status: 503,
-        text: "Applications unavailable.\n",
+      expect(failure.status).toBe(503);
+
+      const nativeDiagnostic = yield* Schema.decodeEffect(
+        Schema.fromJsonString(JoinRetentionFailureResponseSchema)
+      )(failure.text);
+
+      expect(nativeDiagnostic).toMatchObject({
+        error: "applications_unavailable",
+        step: "migrate",
+        submissionId: oldest.id,
       });
+      expect(["RpcError", "DurableObjectError", "Defect"]).toContain(
+        nativeDiagnostic.kind
+      );
+
+      const secretFailure = yield* preview(true, true);
+      expect(secretFailure.status).toBe(503);
+      expect(JSON.parse(secretFailure.text)).toEqual({
+        error: "applications_unavailable",
+        step: "migrate",
+        submissionId: oldest.id,
+        kind: "Defect",
+        name: "TypeError",
+      });
+      expect(secretFailure.text).not.toContain(SYNTHETIC_FAULT_SECRET);
+
+      const serverLog = yield* client
+        .get(new URL("/logs", url))
+        .pipe(Effect.flatMap((logResponse) => logResponse.json));
+
+      expect(JSON.stringify(serverLog)).not.toContain(SYNTHETIC_FAULT_SECRET);
+      expect(serverLog).toContainEqual(
+        expect.objectContaining({
+          message: [
+            "Retention backfill failed",
+            {
+              step: "migrate",
+              submissionId: oldest.id,
+              kind: "Defect",
+              name: "TypeError",
+            },
+          ],
+        })
+      );
       expect((yield* preview(true)).status).toBe(200);
       expect(yield* storage.read(JOIN_CONTACT_KEY)).toEqual(
         Option.some(oldest.sealed)

@@ -163,6 +163,8 @@ export {
   JoinRetentionBackfill,
   JoinRetentionCountsSchema,
   JoinRetentionBackfillUnavailable,
+  JoinRetentionDiagnosticSchema,
+  JoinRetentionFailureResponseSchema,
   joinRetentionBackfill,
   joinRetentionBackfillContract,
 } from "./join-retention-backfill.js";

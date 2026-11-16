@@ -501,6 +501,22 @@ export const interestRoutes = (options: InterestOptions) => {
               headers: operatorHeaders,
             });
           }).pipe(
+            Effect.catchTag("JoinRetentionBackfillUnavailable", (failure) =>
+              Effect.succeed(
+                failure.diagnostic === undefined
+                  ? HttpServerResponse.text("Applications unavailable.\n", {
+                      headers: operatorHeaders,
+                      status: 503,
+                    })
+                  : HttpServerResponse.jsonUnsafe(
+                      {
+                        error: "applications_unavailable",
+                        ...failure.diagnostic,
+                      },
+                      { headers: operatorHeaders, status: 503 }
+                    )
+              )
+            ),
             Effect.catchCause(() =>
               Effect.succeed(
                 HttpServerResponse.text("Applications unavailable.\n", {
