@@ -24,7 +24,6 @@ const DEV_AUTH_SECRET = "rat-stack-dev-only-secret-never-deployed";
 
 const devAuth = Layer.unwrap(
   Config.option(Config.String("PORTLESS_URL")).pipe(
-    // oxlint-disable-next-line anti-slop-effect/no-ordie-in-service-construction -- Dev-only auth configuration is validated at server startup; invalid config must abort rather than serve a different auth origin.
     Effect.orDie,
     Effect.map((portlessUrl) =>
       Auth.memoryLayer(

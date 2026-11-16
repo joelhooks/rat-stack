@@ -27,7 +27,6 @@ export default class Interest extends Cloudflare.DurableObject<Interest>()(
 
     // @effect-diagnostics-next-line returnEffectInGen:off -- Alchemy's DurableObject contract returns the per-instance Effect.
     return Effect.gen(function* makeInstance() {
-      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Alchemy storage effects require the per-instance RuntimeContext; callbacks must retain that instance rather than the later request context.
       const runtime = yield* Effect.context<RuntimeContext>();
 
       const store = {

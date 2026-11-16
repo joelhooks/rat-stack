@@ -37,7 +37,6 @@ export const rpcWorkerProps = (main: string) => ({
   workersDev: false,
 });
 
-// oxlint-disable-next-line anti-slop-effect/no-service-parameters -- This Worker composition root selects a flag adapter once and builds the RPC request runtime from that instance.
 export const rpcRuntime = <R>(selectedFlags: Layer.Layer<Flags, never, R>) =>
   Effect.gen(function* makeFlagAwareRpc() {
     const flags = yield* Flags.pipe(Effect.provide(selectedFlags));

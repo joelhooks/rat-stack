@@ -173,7 +173,6 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
       invocation.finally.bind(invocation, undefined)
     );
 
-    // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Sandbox dispatch projects a generic capability tuple whose service tags are known only to the composition root.
     const context = yield* Effect.context<RequirementsOf<Caps>>();
 
     const byName = new Map(
@@ -391,7 +390,6 @@ export const toCodeMode = <
 
   const layer = toolkit.toLayer(
     Effect.gen(function* buildCodeModeHandlers() {
-      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Code-mode handlers close over the generic capability and approval environment before exposing requirement-free toolkit callbacks.
       const context = yield* Effect.context<
         RequirementsOf<Caps> | ApprovalRequirement<NeedsApprovalOf<Caps>>
       >();

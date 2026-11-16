@@ -528,7 +528,6 @@ const loadMcpSurface = Effect.promise(() => import("./mcp-surface.js"));
 const lazyMcpRoutes = (feedback: boolean) =>
   HttpRouter.use(
     Effect.fnUntraced(function* registerLazyMcp(router) {
-      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Lazy MCP construction must retain the parent router's inferred service environment while building a dynamically imported layer.
       const services =
         yield* Effect.context<
           Layer.Services<ReturnType<typeof modernMcpLayer>>
@@ -1255,8 +1254,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
         Layer.provideMerge(promptLibraryLayer),
         Layer.provideMerge(
           options.flags === undefined
-            ? // oxlint-disable-next-line anti-slop-effect/no-ordie-in-service-construction -- Invalid deploy-time flag configuration must fail Worker startup; the router exposes no recoverable configuration channel.
-              flagsLayer.pipe(Layer.orDie)
+            ? flagsLayer.pipe(Layer.orDie)
             : Layer.succeed(Flags, options.flags)
         ),
         Layer.provideMerge(cafeDirectoryLayer),

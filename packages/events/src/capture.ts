@@ -158,8 +158,7 @@ export const withEventCapture =
     });
 
 export const captureWith =
-  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- This request-capture composition boundary binds the provisioned visitor salt once without moving its acquisition into each request.
   (services: Context.Context<VisitorSalt>) =>
-    <RB>(options: CaptureOptions<RB>) =>
-    <E, R>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>) =>
-      withEventCapture(options)(app).pipe(Effect.provideContext(services));
+  <RB>(options: CaptureOptions<RB>) =>
+  <E, R>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>) =>
+    withEventCapture(options)(app).pipe(Effect.provideContext(services));

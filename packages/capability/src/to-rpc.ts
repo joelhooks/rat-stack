@@ -32,7 +32,6 @@ export const toRpc = <const Caps extends readonly AnyCapability[]>(
 
   const built = group.toLayer(
     Effect.gen(function* buildHandlers() {
-      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The RPC projection captures generic capability requirements so decoded handlers expose no unprovided service requirements.
       const context = yield* Effect.context<RequirementsOf<Caps>>();
 
       const handlers: Record<

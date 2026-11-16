@@ -174,7 +174,6 @@ const promptApproval = (description: string) =>
   Layer.effect(
     Approval,
     Effect.gen(function* captureApprovalPrompt() {
-      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- CLI approval callbacks retain the prompt library's environment captured when the projection layer is built.
       const environment =
         // @effect-diagnostics-next-line unstableApiUsage:off -- The CLI projection uses the workspace-pinned experimental prompt environment.
         yield* Effect.context<Prompt.Environment>();

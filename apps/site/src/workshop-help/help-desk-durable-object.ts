@@ -125,7 +125,6 @@ export const defineHelpDesk = (
 
       // @effect-diagnostics-next-line returnEffectInGen:off -- Alchemy's DurableObject contract returns the per-instance Effect.
       return Effect.gen(function* makeHelpDesk() {
-        // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Alchemy storage callbacks require the Durable Object instance RuntimeContext, not a later caller's environment.
         const runtime = yield* Effect.context<RuntimeContext>();
 
         const run = <A, E>(effect: Effect.Effect<A, E, RuntimeContext>) =>

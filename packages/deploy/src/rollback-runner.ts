@@ -163,7 +163,6 @@ export class RollbackRunner extends Context.Service<
           return { ...receipt, checks, outcome } satisfies RollbackReceipt;
         });
 
-        // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The rollback adapter closes over inferred health-check provider dependencies so its public service methods remain requirement-free.
         const services =
           yield* Effect.context<Effect.Services<ReturnType<typeof check>>>();
 

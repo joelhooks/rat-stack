@@ -18,28 +18,7 @@ await import(
 
 await import(
   new URL(
-    "../../../tools/oxlint/anti-slop/effect/rules/no-ordie-in-service-construction.test.ts",
-    import.meta.url
-  ).href
-);
-
-await import(
-  new URL(
-    "../../../tools/oxlint/anti-slop/effect/rules/no-service-parameters.test.ts",
-    import.meta.url
-  ).href
-);
-
-await import(
-  new URL(
     "../../../tools/oxlint/anti-slop/effect/rules/prefer-tagged-error-handling.test.ts",
-    import.meta.url
-  ).href
-);
-
-await import(
-  new URL(
-    "../../../tools/oxlint/anti-slop/effect/rules/prefer-yield-service.test.ts",
     import.meta.url
   ).href
 );

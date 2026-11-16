@@ -53,7 +53,6 @@ export const defineFlagLedger = (
 
       // @effect-diagnostics-next-line returnEffectInGen:off -- Alchemy constructs the per-instance program after resolving its infrastructure bindings.
       return Effect.gen(function* makeFlagLedgerInstance() {
-        // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- Durable Object storage and replica projection callbacks retain Alchemy's per-instance RuntimeContext across requests and alarms.
         const runtime = yield* Effect.context<RuntimeContext.RuntimeContext>();
 
         const storage = <A, E>(

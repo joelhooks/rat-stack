@@ -171,7 +171,6 @@ export const privateNativeTracerLayer = Layer.unwrap(
 
 export const privateTelemetry = Layer.unwrap(
   traceSettings.pipe(
-    // oxlint-disable-next-line anti-slop-effect/no-ordie-in-service-construction -- Invalid private telemetry configuration must fail initialization rather than silently change the trace privacy settings.
     Effect.orDie,
     Effect.map((settings) =>
       settings.enabled

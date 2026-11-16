@@ -78,7 +78,6 @@ export const contentLayerWithFlags = <E, R>(
     learnLayer,
     promptLibraryLayer,
     cafeDirectoryLayer,
-    // oxlint-disable-next-line anti-slop-effect/no-ordie-in-service-construction -- This composition boundary preserves fail-closed startup for the chosen flag adapter rather than silently serving default flag values.
     selectedFlags.pipe(Layer.orDie)
   ).pipe(Layer.provideMerge(ContentStore.layer));
 

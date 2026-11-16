@@ -96,7 +96,6 @@ export type RequestCapture = <RB>(
 
 export const makeMischief = (
   legacyMcp: NonNullable<MischiefRouteOptions["legacyMcp"]>,
-  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- The Worker composition root accepts the chosen directory adapter layer and provides it before exposing the request runtime.
   interestDirectory: Layer.Layer<InterestDirectory>,
   capture?: RequestCapture,
   agentSignup?: AgentSignupOptions,
