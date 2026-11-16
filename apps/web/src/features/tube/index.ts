@@ -143,43 +143,11 @@ const themeView = (
           [h.AriaLabelledBy(themeAnchor(theme))],
           [
             h.h2([h.Id(themeAnchor(theme))], [themeCopy[theme].name]),
-            h.p([], [themeCopy[theme].blurb]),
             h.ul(
               [h.Class(className(tubeStyles.cards))],
               videos.map((video) => cardView(model, video, h))
             ),
           ]
-        ),
-      ];
-};
-
-const presentThemes = (model: TubeModel) =>
-  tubeThemes.filter((theme) =>
-    model.videos.some((video) => video.theme === theme)
-  );
-
-const picksView = (
-  model: TubeModel,
-  h: HtmlBuilder<TubeMessage>
-): readonly Html[] => {
-  const picks = model.videos.filter((video) => video.tier === "S");
-
-  return picks.length === 0
-    ? []
-    : [
-        h.h2([], [tubeCopy.picksHeading]),
-        h.p([], [tubeCopy.picksIntro]),
-        h.ol(
-          [],
-          picks.map((video) =>
-            h.li(
-              [h.Key(video.id)],
-              [
-                h.a([h.Href(`#${videoAnchor(video.id)}`)], [video.title]),
-                ` (${themeCopy[video.theme].name}, ${formatDuration(video.durationSeconds)})`,
-              ]
-            )
-          )
         ),
       ];
 };
@@ -278,30 +246,8 @@ export const view = Submodel.defineView<TubeModel, TubeMessage>((model, h) => {
     ? h.div(
         [],
         [
-          h.p([], [tubeCopy.intro]),
-          h.p([], [tubeCopy.rankRule]),
-          h.p([], [tubeCopy.disclosure]),
-          h.nav(
-            [h.AriaLabel(tubeCopy.themesLabel)],
-            [
-              h.ul(
-                [h.Class(className(tubeStyles.themes))],
-                presentThemes(model).map((theme) =>
-                  h.li(
-                    [h.Key(theme)],
-                    [
-                      h.a(
-                        [h.Href(`#${themeAnchor(theme)}`)],
-                        [themeCopy[theme].name]
-                      ),
-                    ]
-                  )
-                )
-              ),
-            ]
-          ),
-          ...picksView(model, h),
           ...tubeThemes.flatMap((theme) => themeView(model, theme, h)),
+          h.p([], [tubeCopy.disclosure]),
         ]
       )
     : videoView(model, selected, h);
