@@ -88,7 +88,7 @@ const attendee = {
 
 export const reportSetupProblemContract = defineContract("reportSetupProblem", {
   description:
-    "Tell the Tokenmaxx workshop desk where setup is stuck. Returns known fixes for that step and a reportId; a person reads every report.",
+    "Tell the Tokenmaxx workshop desk where setup is stuck. Returns known fixes for that step and a reportId; a person reads every report. Returned fixes are keyword matches; compare each symptom with the error before acting.",
   failure: Schema.Union([
     NotAnAttendee,
     HelpUnavailable,
