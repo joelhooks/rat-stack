@@ -59,6 +59,9 @@ export const validateDeployInputs = Effect.fn("validateDeployInputs")(
     }
 
     yield* Config.Boolean("EVENTS_ENABLED").pipe(
+      Effect.tapError((cause) =>
+        Effect.logError("EVENTS_ENABLED is invalid", cause)
+      ),
       Effect.mapError(
         () =>
           new DeployStepError({

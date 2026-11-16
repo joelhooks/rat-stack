@@ -104,6 +104,7 @@ export class InterestTokens extends Context.Service<
 
           const claims = yield* decodeClaims(payload).pipe(
             Effect.mapError(
+              // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Token parse errors contain the signed address payload and must not expose it in responses or logs.
               () => new InvalidInterestToken({ reason: "malformed" })
             )
           );

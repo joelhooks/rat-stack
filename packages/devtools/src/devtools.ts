@@ -146,19 +146,22 @@ const summaryOf = ({ contract }: AnyCapability) => ({
 });
 
 const findCall = (snapshot: CallLogSnapshot, index: number) =>
-  Effect.fromOption(
+  // @effect-diagnostics-next-line optionMatchToFromOption:off -- A missing index is CallNotFound, not a transport failure with a meaningful upstream cause.
+  Option.match(
     Option.fromUndefinedOr(
       snapshot.entries.find((entry) => entry.index === index)
-    )
-  ).pipe(
-    Effect.mapError(
-      () =>
-        new CallNotFound({
-          firstIndex: snapshot.firstIndex,
-          index,
-          nextIndex: snapshot.nextIndex,
-        })
-    )
+    ),
+    {
+      onNone: () =>
+        Effect.fail(
+          new CallNotFound({
+            firstIndex: snapshot.firstIndex,
+            index,
+            nextIndex: snapshot.nextIndex,
+          })
+        ),
+      onSome: Effect.succeed,
+    }
   );
 
 const resultOf = (outcome: Outcome): Schema.Json =>

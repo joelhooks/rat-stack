@@ -42,6 +42,7 @@ export const basinIntakeEvents = (sink: IntakeRowSink) => {
     Effect.forEach(rows, (row) =>
       encodeRow(row).pipe(Effect.map((value) => ({ value })))
     ).pipe(
+      // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Intake row encoding errors can contain private contact fields and must not escape the adapter.
       Effect.mapError(() => new IntakeEventsUnavailable({})),
       Effect.flatMap((encoded) => sink.send(encoded))
     );

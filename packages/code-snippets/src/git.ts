@@ -57,7 +57,9 @@ export const gitLayer = (input: typeof RepositoryRegistry.Encoded) =>
         const inside = yield* spawner
           .exitCode(command(["rev-parse", "--git-dir"]))
           .pipe(
-            Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+            Effect.mapError(
+              (cause) => new SourceFault({ cause, kind: "unavailable" })
+            )
           );
 
         if (inside !== 0) {
@@ -67,14 +69,18 @@ export const gitLayer = (input: typeof RepositoryRegistry.Encoded) =>
         const exists = yield* spawner
           .exitCode(command(["cat-file", "-e", `${commit}^{commit}`]))
           .pipe(
-            Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+            Effect.mapError(
+              (cause) => new SourceFault({ cause, kind: "unavailable" })
+            )
           );
 
         if (exists !== 0) {
           const shallow = yield* spawner
             .string(command(["rev-parse", "--is-shallow-repository"]))
             .pipe(
-              Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+              Effect.mapError(
+                (cause) => new SourceFault({ cause, kind: "unavailable" })
+              )
             );
 
           return yield* new SourceFault({
@@ -87,7 +93,9 @@ export const gitLayer = (input: typeof RepositoryRegistry.Encoded) =>
         const type = yield* spawner
           .string(command(["cat-file", "-t", object]))
           .pipe(
-            Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+            Effect.mapError(
+              (cause) => new SourceFault({ cause, kind: "unavailable" })
+            )
           );
 
         if (type.trim() !== "blob") {
@@ -97,7 +105,9 @@ export const gitLayer = (input: typeof RepositoryRegistry.Encoded) =>
         const text = yield* spawner
           .string(command(["show", object]))
           .pipe(
-            Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+            Effect.mapError(
+              (cause) => new SourceFault({ cause, kind: "unavailable" })
+            )
           );
 
         if (pinned) {

@@ -157,6 +157,7 @@ export class LearnError extends Schema.TaggedError<
   LearnError,
   { readonly brand: unique symbol }
 >()("LearnError", {
+  cause: Schema.optionalKey(Schema.Defect()),
   id: Schema.String,
   reason: Schema.String,
 }) {}

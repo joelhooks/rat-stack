@@ -41,6 +41,7 @@ export const CurrentPersonMiddlewareLayer = Layer.effect(
           return Schema.decodeEffect(PersonIdSchema)(session.user.id).pipe(
             Effect.mapError(
               () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Only Unauthenticated crosses the auth wire; session identifiers and parse details remain private.
                 new Unauthenticated({
                   message: "The session has no valid person id",
                 })

@@ -739,6 +739,9 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
 
     return verdicts;
   },
+  Effect.tapError((cause) =>
+    Effect.logError("Post-deploy checks failed", cause)
+  ),
   Effect.mapError(
     () =>
       new DeployStepError({

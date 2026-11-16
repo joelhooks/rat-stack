@@ -71,6 +71,9 @@ export class ReceiptStore extends Context.Service<
 
             return path;
           },
+          Effect.tapError((cause) =>
+            Effect.logError("Receipt write failed", cause)
+          ),
           Effect.mapError(
             () =>
               new DeployStepError({
@@ -142,6 +145,9 @@ export class ReceiptStore extends Context.Service<
               ...receipt,
               profile,
             }).pipe(
+              Effect.tapError((cause) =>
+                Effect.logError("Apply receipt encoding failed", cause)
+              ),
               Effect.mapError(
                 () =>
                   new DeployStepError({
@@ -161,6 +167,9 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(RollbackReceiptSchema)
               )(receipt).pipe(
+                Effect.tapError((cause) =>
+                  Effect.logError("Rollback receipt encoding failed", cause)
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({
@@ -188,6 +197,9 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(DeployVerdictSchema, { space: 2 })
               )(verdict).pipe(
+                Effect.tapError((cause) =>
+                  Effect.logError("Verdict encoding failed", cause)
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({
@@ -217,6 +229,9 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(WatchReceiptSchema, { space: 2 })
               )(receipt).pipe(
+                Effect.tapError((cause) =>
+                  Effect.logError("Watch receipt encoding failed", cause)
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({

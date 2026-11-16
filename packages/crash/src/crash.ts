@@ -255,6 +255,7 @@ export const projectCrash = Effect.fn("projectCrash")(
 
     return yield* Schema.decodeEffect(CrashRecordSchema)(record);
   },
+  // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Trace processing can fail before redaction; raw request secrets must not survive in the error cause.
   Effect.mapError(() => new InvalidCrashTrace())
 );
 

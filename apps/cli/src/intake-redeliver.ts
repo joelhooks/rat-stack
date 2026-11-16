@@ -75,6 +75,7 @@ export const remoteIntakeRedeliveryLayer = (baseUrl: string) =>
             }),
             Effect.provide(Logger.layer([])),
             Effect.catchCause(() =>
+              // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Operator HTTP failures may contain bearer headers or private applications; the CLI error stays opaque.
               Effect.fail(new IntakeApplicationsUnavailable({}))
             )
           ),
@@ -111,6 +112,7 @@ export const intakeRedeliverCommand = Command.make(
           Console.error(
             "Redelivery unavailable. Check the base URL and INTEREST_OPERATOR_TOKEN. The request may have partially completed; read application states before retrying."
           ).pipe(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Redelivery failures must not expose private contact data or credentials after fixed recovery instructions.
             Effect.andThen(Effect.fail(new IntakeApplicationsUnavailable({})))
           )
         )

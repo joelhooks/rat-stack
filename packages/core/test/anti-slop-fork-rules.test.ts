@@ -32,6 +32,13 @@ await import(
 
 await import(
   new URL(
+    "../../../tools/oxlint/anti-slop/effect/rules/require-cause-when-narrowing.test.ts",
+    import.meta.url
+  ).href
+);
+
+await import(
+  new URL(
     "../../../tools/oxlint/anti-slop/rules/max-ternary-depth.test.ts",
     import.meta.url
   ).href

@@ -31,6 +31,7 @@ import type {
 } from "./contract.js";
 import { inputJsonSchemaOf } from "./input-json-schema.js";
 import type { RequirementsOf } from "./to-toolkit.js";
+import { wireFailureSchema } from "./wire-failure.js";
 
 export const GROUP = "capabilities";
 
@@ -112,8 +113,10 @@ const declaredFailuresOnly = (contract: AnyContract) => {
 };
 
 const httpFailure = (contract: AnyContract): readonly Schema.Top[] => [
-  ...membersOf(contract.failure).map(withFailureStatus),
-  ...(contract.needsApproval ? [ApprovalDenied] : []),
+  ...membersOf(contract.failure).map((failure) =>
+    withFailureStatus(wireFailureSchema(failure))
+  ),
+  ...(contract.needsApproval ? [wireFailureSchema(ApprovalDenied)] : []),
 ];
 
 type ParamFieldsOf<C, Path extends string> = Pick<
