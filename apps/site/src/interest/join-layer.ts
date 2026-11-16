@@ -42,6 +42,7 @@ export interface AgentSignupOptions {
 
 export const agentSignupLayer = (
   options: AgentSignupOptions,
+  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- Signup composition reuses the Worker's token and intake instances so public and agent submissions share the same single-use ticket authority.
   services: Context.Context<InterestTokens | SubscriberIntake>
 ) =>
   Layer.mergeAll(

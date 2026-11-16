@@ -15,5 +15,6 @@ export default class PreviewRpcBackend extends Cloudflare.Workers.RpcWorker<Prev
       Effect.orDie
     ),
   },
+  // oxlint-disable-next-line anti-slop-effect/no-ordie-in-service-construction -- Preview Worker initialization rejects invalid flag configuration; the RPC request runtime has no configuration recovery channel.
   rpcRuntime(flagsLayer.pipe(Layer.orDie))
 ) {}

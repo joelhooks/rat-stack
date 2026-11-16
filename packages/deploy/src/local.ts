@@ -792,6 +792,7 @@ export const localLayer = (
         return results;
       });
 
+      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The deployment adapter captures inferred Alchemy CLI dependencies once so runner methods do not require a second provider environment.
       const services =
         yield* Effect.context<
           Effect.Services<

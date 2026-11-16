@@ -8,6 +8,7 @@ import {
 import { Context, Effect } from "effect";
 
 export const callApprovalContext = <R>(
+  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- This context combinator replaces only Approval while preserving the generic provider environment for a capability invocation.
   services: Context.Context<R>,
   approval: ApprovalService
 ) => Context.add(services, Approval, approval);

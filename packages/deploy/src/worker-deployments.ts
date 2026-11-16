@@ -138,6 +138,7 @@ export class WorkerDeployments extends Context.Service<
                 Effect.asVoid
               );
 
+            // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The profile session retains Cloudflare SDK dependencies resolved under that profile for later list and restore callbacks.
             const services =
               yield* Effect.context<
                 Effect.Services<
@@ -169,6 +170,7 @@ export class WorkerDeployments extends Context.Service<
           }
         );
 
+        // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- This adapter binds Alchemy's inferred profile-construction environment before exposing requirement-free deployment sessions.
         const services =
           yield* Effect.context<
             Effect.Services<ReturnType<typeof forProfile>>

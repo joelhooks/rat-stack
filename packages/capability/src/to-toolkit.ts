@@ -103,6 +103,7 @@ export const toToolkit = <const Caps extends readonly AnyCapability[]>(
 
   const layer = toolkit.toLayer(
     Effect.gen(function* buildHandlers() {
+      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The toolkit projection captures a generic capability tuple's requirements; its service tags are unknown until composition.
       const context = yield* Effect.context<RequirementsOf<Caps>>();
 
       const handlers: Record<

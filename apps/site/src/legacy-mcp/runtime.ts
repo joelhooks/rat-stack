@@ -12,6 +12,7 @@ import type { StaticAssets } from "../static-assets.js";
 type WebHandler = (request: Request) => Promise<Response>;
 
 export const legacyMcpRuntime = <R>(
+  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- This composition root builds a scoped web runtime from the caller-selected sandbox and assets adapters.
   sandbox: Layer.Layer<Sandbox | StaticAssets, never, R>,
   flags?: Flags["Service"]
 ) =>

@@ -110,6 +110,7 @@ export const workshopRoutesFor = (router: LegacyMcpRouter) =>
 
 export const workshopRuntimeFor = <E, R>(
   router: LegacyMcpRouter,
+  // oxlint-disable-next-line anti-slop-effect/no-service-parameters -- This web runtime composition root provides the chosen workshop help adapter before converting the router to a fetch handler.
   help: Layer.Layer<WorkshopHelpServices, E, R>
 ) =>
   HttpRouter.toHttpEffect(

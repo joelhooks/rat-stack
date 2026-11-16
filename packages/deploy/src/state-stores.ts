@@ -48,6 +48,7 @@ export const stateStoresLayer = () =>
   Layer.effect(
     StateStores,
     Effect.gen(function* makeStateStores() {
+      // oxlint-disable-next-line anti-slop-effect/prefer-yield-service -- The state-store adapter captures Alchemy's inferred provider requirements but deliberately leaves Scope with each caller so opened stores have the caller's lifetime.
       const context =
         yield* Effect.context<
           Exclude<
