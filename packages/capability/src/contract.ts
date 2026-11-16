@@ -71,6 +71,7 @@ export interface Contract<
   NeedsApproval extends boolean = false,
   Http extends HttpRoute | undefined = undefined,
 > {
+  // oxlint-disable-next-line anti-slop-effect/no-manual-tagged-type -- Contracts contain schema objects and generic metadata, not serializable tagged domain values.
   readonly _tag: "Contract";
   readonly name: Name;
   readonly description: string;
@@ -95,6 +96,7 @@ export interface Capability<
   ContractType extends AnyContract,
   Requirements = never,
 > {
+  // oxlint-disable-next-line anti-slop-effect/no-manual-tagged-type -- The projection boundary pairs a generic contract with a handler; a Schema constructor cannot encode that function.
   readonly _tag: "Capability";
   readonly contract: ContractType;
   readonly handler: (
@@ -107,6 +109,7 @@ export interface Capability<
 }
 
 export interface AnyCapability {
+  // oxlint-disable-next-line anti-slop-effect/no-manual-tagged-type -- This erased projection interface retains only the capability discriminator and its callable boundary.
   readonly _tag: "Capability";
   readonly contract: AnyContract;
   readonly handler: (input: never) => Effect.Effect<unknown, unknown, unknown>;
@@ -116,7 +119,8 @@ export type ContractOf<Value> = Value extends {
   readonly contract: infer ContractType;
 }
   ? ContractType
-  : Value extends { readonly _tag: "Contract" }
+  : // oxlint-disable-next-line anti-slop-effect/no-manual-tagged-type -- This conditional type inspects an existing contract discriminator rather than declaring a new tagged value.
+    Value extends { readonly _tag: "Contract" }
     ? Value
     : never;
 

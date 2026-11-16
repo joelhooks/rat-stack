@@ -110,7 +110,9 @@ it.effect.prop(
       const isAtomicityRequired = Schema.is(FlagAtomicityRequired);
 
       const expectRefusal = (
-        refusal: { readonly _tag: string } | undefined
+        refusal:
+          | Effect.Error<ReturnType<FlagLedger["Service"]["flip"]>>
+          | undefined
       ) => {
         const atomicity = isAtomicityRequired(refusal) ? refusal : undefined;
 
