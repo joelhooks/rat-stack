@@ -3,6 +3,7 @@ import {
   JOIN_RETENTION_MAX_LIMIT,
   JoinContactStore,
   JoinRetentionBackfill,
+  JoinRetentionBackfillUnavailable,
   SWEEP_CONCURRENCY,
 } from "@rat-stack/core/join-interest";
 import { Effect, Layer } from "effect";
@@ -16,68 +17,78 @@ export const joinRetentionBackfillLayer = (
       const contacts = yield* JoinContactStore;
 
       return {
-        run: Effect.fn("JoinRetentionBackfill.run")(function* run(
-          dryRun: boolean,
-          after?: string,
-          limit = JOIN_RETENTION_DEFAULT_LIMIT
-        ) {
-          const remaining = [...new Set(yield* ids())]
-            .toSorted()
-            .filter((id) => after === undefined || id > after);
+        run: Effect.fn("JoinRetentionBackfill.run")(
+          function* run(
+            dryRun: boolean,
+            after?: string,
+            limit = JOIN_RETENTION_DEFAULT_LIMIT
+          ) {
+            const remaining = [...new Set(yield* ids())]
+              .toSorted()
+              .filter((id) => after === undefined || id > after);
 
-          const page = remaining.slice(
-            0,
-            Math.min(JOIN_RETENTION_MAX_LIMIT, Math.max(1, limit))
-          );
+            const page = remaining.slice(
+              0,
+              Math.min(JOIN_RETENTION_MAX_LIMIT, Math.max(1, limit))
+            );
 
-          const nextCursor =
-            remaining.length > page.length ? (page.at(-1) ?? null) : null;
+            const nextCursor =
+              remaining.length > page.length ? (page.at(-1) ?? null) : null;
 
-          const outcomes = yield* Effect.forEach(
-            page,
-            (id) =>
-              Effect.gen(function* migrateAndCountUnknownHandoff() {
-                const group = yield* contacts.migrateRetention(id, dryRun);
-                const handoff = yield* contacts.readHandoff(id);
+            const outcomes = yield* Effect.forEach(
+              page,
+              (id) =>
+                Effect.gen(function* migrateAndCountUnknownHandoff() {
+                  const group = yield* contacts.migrateRetention(id, dryRun);
+                  const handoff = yield* contacts.readHandoff(id);
 
-                const legacy =
-                  handoff === undefined &&
-                  ["pending", "finished", "erase"].includes(group);
+                  const legacy =
+                    handoff === undefined &&
+                    ["pending", "finished", "erase"].includes(group);
 
-                return {
-                  group,
-                  unknownHandoffTime:
-                    (handoff?.handedToDrovrAt ?? null) === null &&
-                    (handoff?.handedToDrovr === true ||
-                      legacy ||
-                      group === "unreadable" ||
-                      (group === "gone" && handoff === undefined)),
-                };
-              }),
-            { concurrency: SWEEP_CONCURRENCY }
-          );
+                  return {
+                    group,
+                    unknownHandoffTime:
+                      (handoff?.handedToDrovrAt ?? null) === null &&
+                      (handoff?.handedToDrovr === true ||
+                        legacy ||
+                        group === "unreadable" ||
+                        (group === "gone" && handoff === undefined)),
+                  };
+                }),
+              { concurrency: SWEEP_CONCURRENCY }
+            );
 
-          const counts = {
-            current: 0,
-            erase: 0,
-            finished: 0,
-            gone: 0,
-            legacyHandoffTimeUnknown: 0,
-            nextCursor,
-            pending: 0,
-            unreadable: 0,
-          };
+            const counts = {
+              current: 0,
+              erase: 0,
+              finished: 0,
+              gone: 0,
+              legacyHandoffTimeUnknown: 0,
+              nextCursor,
+              pending: 0,
+              unreadable: 0,
+            };
 
-          for (const outcome of outcomes) {
-            counts[outcome.group] += 1;
+            for (const outcome of outcomes) {
+              counts[outcome.group] += 1;
 
-            if (outcome.unknownHandoffTime) {
-              counts.legacyHandoffTimeUnknown += 1;
+              if (outcome.unknownHandoffTime) {
+                counts.legacyHandoffTimeUnknown += 1;
+              }
             }
-          }
 
-          return counts;
-        }),
+            return counts;
+          },
+          Effect.catchCause(() =>
+            Effect.fail(
+              new JoinRetentionBackfillUnavailable({
+                reason:
+                  "Retention backfill page unavailable. Fix: check index and contact storage availability, then rerun a preview.",
+              })
+            )
+          )
+        ),
       };
     })
   );

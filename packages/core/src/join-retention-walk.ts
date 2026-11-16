@@ -20,13 +20,14 @@ type Counts = typeof JoinRetentionCountsSchema.Type;
 
 type Outcome = Data.TaggedEnum<{
   Complete: { readonly counts: Counts };
-  Unavailable: { readonly reason: "page unavailable" };
+  Unavailable: { readonly reason: string };
 }>;
 
 const outcomes = Data.taggedEnum<Outcome>();
 
-const unavailableOutcome = () =>
-  outcomes.Unavailable({ reason: "page unavailable" });
+const unavailableOutcome = (
+  reason = "Retention backfill did not complete. Fix: verify the origin, operator token and page responses, then rerun a preview."
+) => outcomes.Unavailable({ reason });
 
 const Input = Schema.Struct({
   apply: Schema.Boolean,
@@ -120,8 +121,21 @@ const readPage = Effect.fnUntraced(function* readPage(
   return decoded;
 });
 
+type PageResult = Data.TaggedEnum<{
+  Page: { readonly counts: Counts };
+  Unavailable: { readonly reason: string };
+}>;
+
+const pageResults = Data.taggedEnum<PageResult>();
+
 const page = createEffectLogic({
-  effect: ({ input }) => readPage(input),
+  effect: ({ input }) =>
+    readPage(input).pipe(
+      Effect.map((counts) => pageResults.Page({ counts })),
+      Effect.catchTag("JoinRetentionBackfillUnavailable", (failure) =>
+        Effect.succeed(pageResults.Unavailable({ reason: failure.reason }))
+      )
+    ),
   schemas: { input: PageInput },
 });
 
@@ -148,22 +162,29 @@ export const joinRetentionWalkMachine = setupEffect({
           limit: context.limit,
           after: context.after,
         }),
-        onDone: ({ context, event }) => {
-          const total = addCounts(context.total, event.output);
+        onDone: ({ context, event }) =>
+          pageResults.$match(event.output, {
+            Unavailable: ({ reason }) => ({
+              target: "unavailable",
+              context: { outcome: unavailableOutcome(reason) },
+            }),
+            Page: ({ counts }) => {
+              const total = addCounts(context.total, counts);
 
-          return {
-            target: event.output.nextCursor === null ? "complete" : "fetching",
-            reenter: true,
-            context: {
-              after: event.output.nextCursor,
-              total,
-              outcome:
-                event.output.nextCursor === null
-                  ? outcomes.Complete({ counts: total })
-                  : unavailableOutcome(),
+              return {
+                target: counts.nextCursor === null ? "complete" : "fetching",
+                reenter: true,
+                context: {
+                  after: counts.nextCursor,
+                  total,
+                  outcome:
+                    counts.nextCursor === null
+                      ? outcomes.Complete({ counts: total })
+                      : unavailableOutcome(),
+                },
+              };
             },
-          };
-        },
+          }),
         onError: { target: "unavailable" },
       },
     },
@@ -198,13 +219,8 @@ export const runJoinRetentionWalk = Effect.fn("runJoinRetentionWalk")(
 
     return yield* outcomes.$match(outcome, {
       Complete: ({ counts }) => Effect.succeed(counts),
-      Unavailable: () =>
-        Effect.fail(
-          new JoinRetentionBackfillUnavailable({
-            reason:
-              "Retention backfill did not complete. Fix: verify the origin, operator token and page responses, then rerun a preview.",
-          })
-        ),
+      Unavailable: ({ reason }) =>
+        Effect.fail(new JoinRetentionBackfillUnavailable({ reason })),
     });
   },
   Effect.scoped

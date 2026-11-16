@@ -501,7 +501,7 @@ export const interestRoutes = (options: InterestOptions) => {
               headers: operatorHeaders,
             });
           }).pipe(
-            Effect.catchTag("JoinRetentionBackfillUnavailable", () =>
+            Effect.catchCause(() =>
               Effect.succeed(
                 HttpServerResponse.text("Applications unavailable.\n", {
                   headers: operatorHeaders,

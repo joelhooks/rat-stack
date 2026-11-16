@@ -167,13 +167,20 @@ export const durableObjectStorage = (className: string, key: string) =>
           })
       ),
       rejectWrites: rejectingWrites(database, "_cf_KV"),
-      write: (entry: string, text: string) =>
+      remove: (entry: string) =>
+        Effect.sync(() =>
+          database.prepare("delete from _cf_KV where key = ?").run(entry)
+        ),
+      write: (
+        entry: string,
+        value: string | { readonly sealed: string; readonly erase: boolean }
+      ) =>
         Effect.sync(() => {
           database
             .prepare(
               "insert into _cf_KV (key, value) values (?, ?) on conflict (key) do update set value = excluded.value"
             )
-            .run(entry, serialize(text));
+            .run(entry, serialize(value));
         }),
     }))
   );
