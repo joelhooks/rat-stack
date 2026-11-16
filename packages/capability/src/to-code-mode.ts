@@ -22,6 +22,7 @@ import type {
   SandboxLimits,
 } from "./sandbox-service.js";
 import type { RequirementsOf } from "./to-toolkit.js";
+import { wireFailureSchema } from "./wire-failure.js";
 
 export const SearchMatch = Schema.Struct({
   description: Schema.String,
@@ -200,7 +201,7 @@ export const invokerFor = <const Caps extends readonly AnyCapability[]>(
       const encodeOutput = Schema.encodeUnknownEffect(item.contract.output);
 
       const encodeFailure = Schema.encodeUnknownEffect(
-        failureSchemaOf(item.contract)
+        wireFailureSchema(failureSchemaOf(item.contract))
       );
 
       return Schema.decodeUnknownEffect(item.contract.input)(input).pipe(

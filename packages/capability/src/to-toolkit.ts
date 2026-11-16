@@ -14,6 +14,7 @@ import type {
   PlainSchema,
   RequirementsOf as CapabilityRequirementsOf,
 } from "./contract.js";
+import { wireFailureSchema } from "./wire-failure.js";
 
 const toolFor = <
   Name extends string,
@@ -30,7 +31,7 @@ const toolFor = <
 ) =>
   Tool.make(name, {
     description,
-    failure,
+    failure: wireFailureSchema(failure),
     needsApproval,
     parameters: input,
     success: output,
@@ -68,7 +69,7 @@ const hasNoInputFields = (contract: AnyCapability["contract"]) =>
 const emptyInputTool = (contract: AnyCapability["contract"]): Tool.Any =>
   Tool.dynamic(contract.name, {
     description: contract.description,
-    failure: failureSchemaOf(contract),
+    failure: wireFailureSchema(failureSchemaOf(contract)),
     needsApproval: contract.needsApproval,
     parameters: emptyObjectJsonSchema,
     success: contract.output,

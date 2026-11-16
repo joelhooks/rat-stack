@@ -277,14 +277,15 @@ export const renderCode = Effect.fn("renderCode")(function* renderCode(
     tokens,
   }).pipe(
     Effect.mapError(
-      () =>
-        new CodeHighlightFailed(
-          errorContext(
+      (cause) =>
+        new CodeHighlightFailed({
+          ...errorContext(
             request,
             "Highlighter returned invalid tokens; check the active engine version.",
             resolved.actualLength
-          )
-        )
+          ),
+          cause,
+        })
     )
   );
 
@@ -328,13 +329,14 @@ export const prepareCode = Effect.fn("prepareCode")(function* prepareCode(
           .tokens(request.body, canonicalLanguage, request.body)
           .pipe(
             Effect.mapError(
-              () =>
-                new CodeHighlightFailed(
-                  errorContext(
+              (cause) =>
+                new CodeHighlightFailed({
+                  ...errorContext(
                     request,
                     "Highlighter could not load this grammar; check the pinned engine version."
-                  )
-                )
+                  ),
+                  cause,
+                })
             )
           );
 

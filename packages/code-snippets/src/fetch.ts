@@ -1,5 +1,5 @@
 import type { Schema } from "effect";
-import { Effect, Stream } from "effect";
+import { Effect, Redacted, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { CodeBuildFailed, CodeUnknownRepo, formatCodeError } from "./errors.ts";
@@ -72,12 +72,13 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
         )
         .pipe(
           Effect.mapError(
-            () =>
-              new SourceFetchOffline(
-                context(
+            (cause) =>
+              new SourceFetchOffline({
+                ...context(
                   "Local Git is unavailable; install Git and check the configured repository."
-                )
-              )
+                ),
+                cause,
+              })
           )
         );
 
@@ -101,18 +102,19 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
             "fetch",
             "--depth=1",
             "--",
-            entry.remote,
+            Redacted.make(entry.remote),
             request.commit,
           ])
         )
         .pipe(
           Effect.mapError(
-            () =>
-              new SourceFetchOffline(
-                context(
+            (cause) =>
+              new SourceFetchOffline({
+                ...context(
                   "Fetch could not start; check Git, the configured remote and connectivity."
-                )
-              )
+                ),
+                cause,
+              })
           )
         );
 
@@ -120,23 +122,25 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
         Stream.decodeText(),
         Stream.mkString,
         Effect.mapError(
-          () =>
-            new SourceFetchOffline(
-              context(
+          (cause) =>
+            new SourceFetchOffline({
+              ...context(
                 "Could not read the fetch result; check Git and connectivity."
-              )
-            )
+              ),
+              cause,
+            })
         )
       );
 
       const status = yield* handle.exitCode.pipe(
         Effect.mapError(
-          () =>
-            new SourceFetchOffline(
-              context(
+          (cause) =>
+            new SourceFetchOffline({
+              ...context(
                 "Fetch did not exit normally; check connectivity and retry pnpm sources:fetch."
-              )
-            )
+              ),
+              cause,
+            })
         )
       );
 
@@ -171,12 +175,13 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
         )
         .pipe(
           Effect.mapError(
-            () =>
-              new SourceFetchOffline(
-                context(
+            (cause) =>
+              new SourceFetchOffline({
+                ...context(
                   "Could not verify fetched objects; check the local Git repository."
-                )
-              )
+                ),
+                cause,
+              })
           )
         );
 

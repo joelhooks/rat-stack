@@ -47,8 +47,9 @@ const remoteDeck = Effect.gen(function* remoteDeck() {
 }).pipe(
   Effect.provide(FetchHttpClient.layer),
   Effect.mapError(
-    () =>
+    (cause) =>
       new LearnError({
+        cause,
         id: "deck",
         reason:
           "Public deck unavailable; retry when the learning endpoint is reachable.",

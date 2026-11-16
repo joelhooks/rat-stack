@@ -93,5 +93,6 @@ export const unsealApplication = (rows: readonly SealedRow[], key: string) =>
     };
   }).pipe(
     Effect.withTracerEnabled(false),
+    // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Application reads can fail on plaintext contact fields; the operator failure must remain opaque.
     Effect.catchCause(() => Effect.fail(new IntakeApplicationsUnavailable({})))
   );

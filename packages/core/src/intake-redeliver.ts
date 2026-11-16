@@ -149,6 +149,7 @@ export class IntakeRedeliver extends Context.Service<
           return { notAttempted: [], rows };
         },
         Effect.catchCause(() =>
+          // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Redelivery failures may contain decrypted contacts and provider details; return only the opaque operator error.
           Effect.fail(new IntakeApplicationsUnavailable({}))
         )
       );

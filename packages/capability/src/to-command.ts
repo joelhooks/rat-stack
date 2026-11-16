@@ -192,6 +192,7 @@ const promptApproval = (description: string) =>
           const approved = yield* Prompt.run(prompt).pipe(
             Effect.mapError(
               () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Prompt.run maps input failures to an empty QuitError; approval failures keep fixed recovery text, not prompt details.
                 new ApprovalDenied({
                   capabilityName,
                   reason:

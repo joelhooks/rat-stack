@@ -103,6 +103,7 @@ const readPage = Effect.fnUntraced(function* readPage(
   ).pipe(
     Effect.mapError(
       () =>
+        // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Backfill page decode errors contain untrusted operator data; retain only the allowlisted diagnostic.
         new JoinRetentionBackfillUnavailable({
           reason:
             "Backfill page is invalid. Fix: check the operator endpoint and rerun a preview.",
@@ -212,6 +213,7 @@ export const runJoinRetentionWalk = Effect.fn("runJoinRetentionWalk")(
     const input = yield* Schema.decodeEffect(Options)(options).pipe(
       Effect.mapError(
         () =>
+          // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Backfill options are untrusted; the operator failure exposes only fixed recovery instructions.
           new JoinRetentionBackfillUnavailable({
             reason:
               "Backfill options are invalid. Fix: use preview or explicit apply with a limit between 1 and 50.",

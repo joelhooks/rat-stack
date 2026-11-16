@@ -73,6 +73,7 @@ export class WorkerDeployments extends Context.Service<
             const native = yield* profileCredential(profile, entrypoint).pipe(
               Effect.mapError(
                 () =>
+                  // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Profile decoding failures can contain credential material before redaction; the operator error must stay opaque.
                   new DeployStepError({
                     keys: [],
                     reason: "profile-credential-unavailable",
@@ -109,6 +110,7 @@ export class WorkerDeployments extends Context.Service<
                 Effect.timeout(30_000),
                 Effect.mapError(
                   () =>
+                    // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Credential-bearing provider failures can retain request headers before redaction; the operator error must stay opaque.
                     new DeployStepError({
                       keys: [],
                       reason: "worker-deployment-read-refused",
@@ -129,6 +131,7 @@ export class WorkerDeployments extends Context.Service<
                 Effect.timeout(30_000),
                 Effect.mapError(
                   () =>
+                    // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Credential-bearing provider failures can retain request headers before redaction; the operator error must stay opaque.
                     new DeployStepError({
                       keys: [],
                       reason: "worker-rollback-refused",

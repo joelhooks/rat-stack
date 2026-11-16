@@ -2,7 +2,7 @@ import { expect, it } from "@effect/vitest";
 import { ContactRefSchema } from "@rat-stack/core/intake";
 import { InterestTokens } from "@rat-stack/core/interest";
 import { JoinContactStore } from "@rat-stack/core/join-interest";
-import { Cause, Effect, Exit, Layer, Redacted, Schema } from "effect";
+import { Cause, Effect, Exit, Layer, Redacted, Result, Schema } from "effect";
 
 import {
   JOIN_CONTACT_KEY,
@@ -95,6 +95,8 @@ it.effect.prop(
       expect(Exit.isFailure(result)).toBe(true);
 
       if (Exit.isFailure(result)) {
+        const error = Result.getOrThrow(Cause.findError(result.cause));
+        expect(error).not.toHaveProperty("cause");
         const rendered = Cause.pretty(result.cause);
         expect(rendered).toContain("JoinContactUnreadable");
         expect(rendered).not.toContain(marker);

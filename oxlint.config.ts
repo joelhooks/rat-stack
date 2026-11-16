@@ -138,6 +138,7 @@ export default defineConfig({
     "anti-slop-effect/no-manual-tagged-type": "error",
     "anti-slop-effect/prefer-tagged-error-handling": "error",
     "anti-slop-effect/require-operation-span": "error",
+    "anti-slop-effect/require-cause-when-narrowing": "error",
     "anti-slop/max-ternary-depth": "error",
     "anti-slop/no-array-filter-map": "error",
     "anti-slop/no-chained-type-assertions": "error",

@@ -64,7 +64,10 @@ const readApplication = Effect.fnUntraced(function* readApplication(
     ...application,
     email: contact.email,
     state: contact.state === "accepted" ? "forwarded" : "held",
-  }).pipe(Effect.mapError(() => new IntakeApplicationsUnavailable({})));
+  }).pipe(
+    // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Application decoding can contain decrypted contact data; the operator response stays opaque.
+    Effect.mapError(() => new IntakeApplicationsUnavailable({}))
+  );
 });
 
 const listApplications = (
@@ -95,6 +98,7 @@ const listApplications = (
   }).pipe(
     Effect.withTracerEnabled(false),
     Effect.provide(Logger.layer([])),
+    // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Application reads must not expose contact data or storage failures in operator responses.
     Effect.catchCause(() => Effect.fail(new IntakeApplicationsUnavailable({})))
   );
 

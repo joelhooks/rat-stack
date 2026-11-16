@@ -264,8 +264,9 @@ export const decodeTubeData = Effect.fn("decodeTubeData")(
       text
     ).pipe(
       Effect.mapError(
-        () =>
+        (cause) =>
           new TubeDataInvalid({
+            cause,
             message: unreadableTubeFile,
             problems: [unreadableTubeFile],
           })

@@ -150,6 +150,7 @@ export const joinContactStoreLayer = (
           Schema.fromJsonString(SealedContact)
         )(sealed).pipe(
           Effect.mapError(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Contact envelopes must expose only the fixed unreadable reason, never encrypted contact details.
             () => new JoinContactUnreadable({ reason: "contact unreadable" })
           )
         );
@@ -175,6 +176,7 @@ export const joinContactStoreLayer = (
           Schema.fromJsonString(JoinContactSchema)
         )(decoder.decode(plaintext)).pipe(
           Effect.mapError(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Decrypted schema errors contain plaintext contact data and must never reach logs as a cause.
             () => new JoinContactUnreadable({ reason: "contact unreadable" })
           )
         );

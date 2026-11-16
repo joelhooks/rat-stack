@@ -1,7 +1,15 @@
 import { expect, it } from "@effect/vitest";
-import { Effect, Layer, Predicate, Schema, Sink, Stream } from "effect";
-import type { ChildProcess, CommandLine } from "effect/process";
-import { ChildProcessSpawner } from "effect/process";
+import {
+  Effect,
+  Layer,
+  Predicate,
+  Redacted,
+  Schema,
+  Sink,
+  Stream,
+} from "effect";
+import type { ChildProcess } from "effect/process";
+import { ChildProcessSpawner, CommandLine } from "effect/process";
 
 import { fetchSources } from "../src/fetch.ts";
 import { gitLayer } from "../src/git.ts";
@@ -208,7 +216,13 @@ it.layer(Layer.empty)("local Git and explicit bootstrap", (test) => {
       Effect.gen(function* explicitFetch() {
         const fake = yield* fixture("success");
 
-        const result = yield* fetchSources([job], config).pipe(
+        const remote =
+          "https://user:planted-remote-credential@example.test/repo.git";
+
+        const result = yield* fetchSources(
+          [job],
+          config.map((entry) => ({ ...entry, remote }))
+        ).pipe(
           Effect.provideService(
             ChildProcessSpawner.ChildProcessSpawner,
             fake.service
@@ -216,15 +230,17 @@ it.layer(Layer.empty)("local Git and explicit bootstrap", (test) => {
         );
 
         expect(result).toEqual([{ commit: sha, fetched: true, repo: "local" }]);
-        expect(fake.recorded[1]).toEqual([
-          "-C",
-          ".",
-          "fetch",
-          "--depth=1",
-          "--",
-          "https://example.test/repo.git",
-          sha,
-        ]);
+        const args = fake.recorded[1] ?? [];
+        const remoteArg = args.at(5);
+        expect(Redacted.isRedacted(remoteArg)).toBe(true);
+        expect(CommandLine.display(args, { format: "posix" })).not.toContain(
+          "planted-remote-credential"
+        );
+        expect(
+          args.map((word) =>
+            Redacted.isRedacted(word) ? Redacted.value(word) : word
+          )
+        ).toEqual(["-C", ".", "fetch", "--depth=1", "--", remote, sha]);
         expect(fake.recorded[2]).toContain("cat-file");
       })
   );
