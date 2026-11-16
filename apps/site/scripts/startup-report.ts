@@ -32,6 +32,11 @@ const PreviousMetrics = Schema.fromJsonString(
 );
 
 const workerEntries = {
+  CatalogWorker: {
+    build: {},
+    directory: "dist/startup-catalog",
+    main: "../../catalog/src/CatalogWorker.ts",
+  },
   LearnFeedbackAuth: {
     build: feedbackAuthBuild,
     directory: "dist/startup-auth",
@@ -211,7 +216,13 @@ const measureWorker = Effect.fn("measureWorker")(function* measureWorker(
 });
 
 const program = Effect.validate(
-  ["Mischief", "LearnFeedbackAuth", "Workshop", "TurboCache"] as const,
+  [
+    "CatalogWorker",
+    "Mischief",
+    "LearnFeedbackAuth",
+    "Workshop",
+    "TurboCache",
+  ] as const,
   measureWorker
 );
 
