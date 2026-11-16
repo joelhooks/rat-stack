@@ -16,12 +16,9 @@ export const tubeCopy = {
   heading: "RatTube",
   intro:
     "Videos worth your time if you are learning this stack, most of them by the people who build the tools. Each one comes with a short take on what you learn from it.",
-  picksHeading: "Start here",
-  picksIntro: "The S tier, in order:",
   playLabel: "Play here",
   rankRule:
     "Tiers run from S to F by how useful the video is to someone learning this stack. Within a tier, order is editorial. Titles, channels, durations and dates come from YouTube. Each entry shows the date we checked it and what its take was checked against.",
-  themesLabel: "Themes",
 };
 
 export const themeCopy = {
