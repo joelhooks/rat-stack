@@ -174,6 +174,13 @@
         "url": "https://github.com/agcty",
         "source": "https://github.com/agcty",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "oddlyalex",
+        "kind": "x",
+        "url": "https://x.com/oddlyalex",
+        "source": "https://github.com/agcty",
+        "verified": "2026-11-16"
       }
     ],
     "id": "agcty",
@@ -187,7 +194,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -375,6 +382,85 @@
   },
   {
     "avatar": {
+      "path": "/avatars/bjacobso.jpg",
+      "source": "https://github.com/bjacobso.png?size=240",
+      "verified": "2026-11-16"
+    },
+    "bio": [
+      {
+        "text": "Ben Jacobson's Forma is \"a typed, homoiconic Lisp for building domain-specific languages and portable artifacts\", built on Effect.",
+        "source": "https://github.com/bjacobso/forma/blob/main/package.json",
+        "verified": "2026-11-16"
+      },
+      {
+        "text": "GitHub describes bjacobso/triplex as \"An Effect-native fact database for applications that have to explain themselves.\"",
+        "source": "https://github.com/bjacobso/triplex",
+        "verified": "2026-11-16"
+      },
+      {
+        "text": "GitHub describes bjacobso/foldworks as \"Polished application primitives for Foldkit and StyleX.\"",
+        "source": "https://github.com/bjacobso/foldworks",
+        "verified": "2026-11-16"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/bjacobso/forma",
+      "source": "https://github.com/bjacobso/forma/blob/main/package.json",
+      "verified": "2026-11-16"
+    },
+    "handles": [
+      {
+        "handle": "bjacobso",
+        "kind": "github",
+        "url": "https://github.com/bjacobso",
+        "source": "https://github.com/bjacobso",
+        "verified": "2026-11-16"
+      },
+      {
+        "handle": "bjacobso",
+        "kind": "x",
+        "url": "https://x.com/bjacobso",
+        "source": "https://github.com/bjacobso",
+        "verified": "2026-11-16"
+      }
+    ],
+    "id": "bjacobso",
+    "kind": "person",
+    "name": "Ben Jacobson",
+    "repos": [
+      {
+        "description": "Forma is a typed, homoiconic Lisp for building domain-specific languages and portable artifacts.",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/bjacobso/forma/blob/main/package.json",
+            "verified": "2026-11-16"
+          }
+        ],
+        "repo": "bjacobso/forma",
+        "source": "https://github.com/bjacobso/forma",
+        "stars": 6,
+        "verified": "2026-11-16"
+      }
+    ],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/bjacobso/forma/blob/main/package.json",
+        "verified": "2026-11-16"
+      },
+      {
+        "topic": "foldkit",
+        "source": "https://github.com/bjacobso/foldworks",
+        "verified": "2026-11-16"
+      }
+    ],
+    "updated": "2026-11-16",
+    "videos": []
+  },
+  {
+    "avatar": {
       "path": "/avatars/blankparticle.png",
       "source": "https://github.com/BlankParticle.png?size=240",
       "verified": "2026-11-04"
@@ -403,6 +489,13 @@
         "url": "https://github.com/BlankParticle",
         "source": "https://github.com/BlankParticle",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "blankparticle",
+        "kind": "x",
+        "url": "https://x.com/blankparticle",
+        "source": "https://github.com/BlankParticle",
+        "verified": "2026-11-16"
       }
     ],
     "id": "blankparticle",
@@ -416,7 +509,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -508,6 +601,13 @@
         "url": "https://github.com/danieljvdm",
         "source": "https://github.com/danieljvdm",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "danieljvdm",
+        "kind": "x",
+        "url": "https://x.com/danieljvdm",
+        "source": "https://github.com/danieljvdm",
+        "verified": "2026-11-16"
       }
     ],
     "id": "danieljvdm",
@@ -526,7 +626,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -559,6 +659,13 @@
         "url": "https://github.com/davidkpiano",
         "source": "https://github.com/davidkpiano",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "davidkpiano",
+        "kind": "x",
+        "url": "https://x.com/davidkpiano",
+        "source": "https://github.com/davidkpiano",
+        "verified": "2026-11-16"
       }
     ],
     "id": "davidkpiano",
@@ -577,7 +684,76 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/davidnussio.jpg",
+      "source": "https://github.com/davidnussio.png?size=240",
+      "verified": "2026-11-16"
+    },
+    "bio": [
+      {
+        "text": "GitHub describes davidnussio/effect-cqrs as \"Effect v4: CQRS and event sourcing.\"",
+        "source": "https://github.com/davidnussio/effect-cqrs",
+        "verified": "2026-11-16"
+      },
+      {
+        "text": "On X, David Nussio wrote: \"Porting my old project to @EffectTS_ v4: one dependency goes a long way.\"",
+        "source": "https://x.com/davidnussio/status/2121142090721833322",
+        "verified": "2026-11-16"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://github.com/davidnussio/effect-cqrs",
+      "source": "https://github.com/davidnussio/effect-cqrs/blob/main/package.json",
+      "verified": "2026-11-16"
+    },
+    "handles": [
+      {
+        "handle": "davidnussio",
+        "kind": "github",
+        "url": "https://github.com/davidnussio",
+        "source": "https://github.com/davidnussio",
+        "verified": "2026-11-16"
+      },
+      {
+        "handle": "davidnussio",
+        "kind": "x",
+        "url": "https://x.com/davidnussio",
+        "source": "https://github.com/davidnussio",
+        "verified": "2026-11-16"
+      }
+    ],
+    "id": "davidnussio",
+    "kind": "person",
+    "name": "David Nussio",
+    "repos": [
+      {
+        "description": "Effect v4: CQRS and event sourcing",
+        "packages": [
+          {
+            "name": "effect",
+            "source": "https://github.com/davidnussio/effect-cqrs/blob/main/package.json",
+            "verified": "2026-11-16"
+          }
+        ],
+        "repo": "davidnussio/effect-cqrs",
+        "source": "https://github.com/davidnussio/effect-cqrs",
+        "stars": 4,
+        "verified": "2026-11-16"
+      }
+    ],
+    "topics": [
+      {
+        "topic": "effect",
+        "source": "https://github.com/davidnussio/effect-cqrs/blob/main/package.json",
+        "verified": "2026-11-16"
+      }
+    ],
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -735,6 +911,13 @@
         "url": "https://github.com/dmmulroy",
         "source": "https://github.com/dmmulroy",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "dillon_mulroy",
+        "kind": "x",
+        "url": "https://x.com/dillon_mulroy",
+        "source": "https://github.com/dmmulroy",
+        "verified": "2026-11-16"
       }
     ],
     "id": "dmmulroy",
@@ -753,7 +936,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -974,6 +1157,13 @@
         "url": "https://github.com/elianiva",
         "source": "https://github.com/elianiva",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "elianiva_",
+        "kind": "x",
+        "url": "https://x.com/elianiva_",
+        "source": "https://github.com/elianiva",
+        "verified": "2026-11-16"
       }
     ],
     "id": "elianiva",
@@ -987,7 +1177,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -1021,6 +1211,13 @@
         "url": "https://github.com/ethanniser",
         "source": "https://github.com/ethanniser",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "ethanniser",
+        "kind": "x",
+        "url": "https://x.com/ethanniser",
+        "source": "https://github.com/ethanniser",
+        "verified": "2026-11-16"
       }
     ],
     "id": "ethanniser",
@@ -1034,7 +1231,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -1067,6 +1264,13 @@
         "url": "https://github.com/filipfalcon",
         "source": "https://github.com/filipfalcon",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "filipfalcon",
+        "kind": "x",
+        "url": "https://x.com/filipfalcon",
+        "source": "https://github.com/filipfalcon",
+        "verified": "2026-11-16"
       }
     ],
     "id": "filipfalcon",
@@ -1080,7 +1284,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -1234,6 +1438,13 @@
         "url": "https://github.com/fubhy",
         "source": "https://github.com/fubhy",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "thefubhy",
+        "kind": "x",
+        "url": "https://x.com/thefubhy",
+        "source": "https://github.com/fubhy",
+        "verified": "2026-11-16"
       }
     ],
     "id": "fubhy",
@@ -1247,7 +1458,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -1280,6 +1491,13 @@
         "url": "https://github.com/gcanti",
         "source": "https://github.com/gcanti",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "GiulioCanti",
+        "kind": "x",
+        "url": "https://x.com/GiulioCanti",
+        "source": "https://github.com/gcanti",
+        "verified": "2026-11-16"
       }
     ],
     "id": "gcanti",
@@ -1298,7 +1516,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -1386,6 +1604,13 @@
         "url": "https://github.com/IMax153",
         "source": "https://github.com/IMax153",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "imax153",
+        "kind": "x",
+        "url": "https://x.com/imax153",
+        "source": "https://github.com/IMax153",
+        "verified": "2026-11-16"
       }
     ],
     "id": "imax153",
@@ -1404,7 +1629,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2098,6 +2323,13 @@
         "url": "https://github.com/kitlangton",
         "source": "https://github.com/kitlangton",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "kitlangton",
+        "kind": "x",
+        "url": "https://x.com/kitlangton",
+        "source": "https://github.com/kitlangton",
+        "verified": "2026-11-16"
       }
     ],
     "id": "kitlangton",
@@ -2111,7 +2343,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2145,6 +2377,13 @@
         "url": "https://github.com/letstri",
         "source": "https://github.com/letstri",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "letstri",
+        "kind": "x",
+        "url": "https://x.com/letstri",
+        "source": "https://github.com/letstri",
+        "verified": "2026-11-16"
       }
     ],
     "id": "letstri",
@@ -2158,7 +2397,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2647,6 +2886,13 @@
         "url": "https://github.com/Mkassabov",
         "source": "https://github.com/Mkassabov",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "MKassabov",
+        "kind": "x",
+        "url": "https://x.com/MKassabov",
+        "source": "https://github.com/Mkassabov",
+        "verified": "2026-11-16"
       }
     ],
     "id": "mkassabov",
@@ -2660,7 +2906,62 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/nathanflurry.jpg",
+      "source": "https://github.com/NathanFlurry.png?size=240",
+      "verified": "2026-11-16"
+    },
+    "bio": [
+      {
+        "text": "Nathan Flurry announced OpenOrange, which runs Cloudflare Workers, Durable Objects and Workflows unchanged on AWS, GCP, Azure or your own servers.",
+        "source": "https://x.com/NathanFlurry/status/2120915020355658240",
+        "verified": "2026-11-16"
+      },
+      {
+        "text": "Nathan Flurry announced durable-object-migrator, which moves Durable Object SQLite data to Postgres, files or Rivet Actors without downtime.",
+        "source": "https://x.com/NathanFlurry/status/2115789130911429006",
+        "verified": "2026-11-16"
+      }
+    ],
+    "entry": {
+      "kind": "news",
+      "rows": [
+        "https://github.com/rivet-dev/open-orange",
+        "https://github.com/rivet-dev/durable-object-migrator"
+      ]
+    },
+    "handles": [
+      {
+        "handle": "NathanFlurry",
+        "kind": "github",
+        "url": "https://github.com/NathanFlurry",
+        "source": "https://github.com/NathanFlurry",
+        "verified": "2026-11-16"
+      },
+      {
+        "handle": "NathanFlurry",
+        "kind": "x",
+        "url": "https://x.com/NathanFlurry",
+        "source": "https://github.com/NathanFlurry",
+        "verified": "2026-11-16"
+      }
+    ],
+    "id": "nathanflurry",
+    "kind": "person",
+    "name": "Nathan Flurry",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "cloudflare",
+        "source": "https://github.com/rivet-dev/open-orange",
+        "verified": "2026-11-16"
+      }
+    ],
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2751,6 +3052,13 @@
         "url": "https://github.com/rankincodes",
         "source": "https://github.com/rankincodes",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "rankintweets",
+        "kind": "x",
+        "url": "https://x.com/rankintweets",
+        "source": "https://github.com/rankincodes",
+        "verified": "2026-11-16"
       }
     ],
     "id": "rankincodes",
@@ -2764,7 +3072,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2798,6 +3106,13 @@
         "url": "https://github.com/RhysSullivan",
         "source": "https://github.com/RhysSullivan",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "RhysSullivan",
+        "kind": "x",
+        "url": "https://x.com/RhysSullivan",
+        "source": "https://github.com/RhysSullivan",
+        "verified": "2026-11-16"
       }
     ],
     "id": "rhyssullivan",
@@ -2811,7 +3126,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2843,6 +3158,13 @@
         "url": "https://github.com/rivet-dev",
         "source": "https://github.com/rivet-dev",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "rivet_dev",
+        "kind": "x",
+        "url": "https://x.com/rivet_dev",
+        "source": "https://github.com/rivet-dev",
+        "verified": "2026-11-16"
       }
     ],
     "id": "rivet-dev",
@@ -2861,7 +3183,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -2895,11 +3217,18 @@
         "url": "https://github.com/roninjin10",
         "source": "https://github.com/roninjin10",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "fucory",
+        "kind": "x",
+        "url": "https://x.com/fucory",
+        "source": "https://github.com/roninjin10",
+        "verified": "2026-11-16"
       }
     ],
     "id": "roninjin10",
     "kind": "person",
-    "name": "roninjin10",
+    "name": "Will Cory",
     "repos": [],
     "topics": [
       {
@@ -2908,7 +3237,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -3032,6 +3361,13 @@
         "url": "https://github.com/SandroMaglione",
         "source": "https://github.com/SandroMaglione",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "SandroMaglione",
+        "kind": "x",
+        "url": "https://x.com/SandroMaglione",
+        "source": "https://github.com/SandroMaglione",
+        "verified": "2026-11-16"
       }
     ],
     "id": "sandromaglione",
@@ -3045,7 +3381,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -3154,6 +3490,13 @@
         "url": "https://github.com/Tanner-Scadden",
         "source": "https://github.com/Tanner-Scadden",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "TannerSDev",
+        "kind": "x",
+        "url": "https://x.com/TannerSDev",
+        "source": "https://github.com/Tanner-Scadden",
+        "verified": "2026-11-16"
       }
     ],
     "id": "tanner-scadden",
@@ -3177,7 +3520,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -3256,6 +3599,13 @@
         "url": "https://github.com/wking-io",
         "source": "https://github.com/wking-io",
         "verified": "2026-11-04"
+      },
+      {
+        "handle": "willking",
+        "kind": "x",
+        "url": "https://x.com/willking",
+        "source": "https://github.com/wking-io",
+        "verified": "2026-11-16"
       }
     ],
     "id": "wking-io",
@@ -3274,7 +3624,7 @@
         "verified": "2026-11-04"
       }
     ],
-    "updated": "2026-11-04",
+    "updated": "2026-11-16",
     "videos": []
   },
   {
@@ -3321,6 +3671,53 @@
       }
     ],
     "updated": "2026-11-04",
+    "videos": []
+  },
+  {
+    "avatar": {
+      "path": "/avatars/yasuakiomokawa.jpg",
+      "source": "https://github.com/YasuakiOmokawa.png?size=240",
+      "verified": "2026-11-16"
+    },
+    "bio": [
+      {
+        "text": "Yasuaki Omokawa's Zenn article teaches React developers the Elm architecture, using Foldkit code as its examples.",
+        "source": "https://zenn.dev/yasuakiomokawa/articles/b52b532ffd16ff",
+        "verified": "2026-11-16"
+      },
+      {
+        "text": "Yasuaki Omokawa opened a public issue to move a web app to Foldkit and keep its coding rules in structure and types.",
+        "source": "https://github.com/taimei-code/taimei-auth/issues/381",
+        "verified": "2026-11-16"
+      }
+    ],
+    "entry": {
+      "kind": "work",
+      "project": "https://zenn.dev/yasuakiomokawa/articles/b52b532ffd16ff",
+      "source": "https://zenn.dev/yasuakiomokawa/articles/b52b532ffd16ff",
+      "verified": "2026-11-16"
+    },
+    "handles": [
+      {
+        "handle": "YasuakiOmokawa",
+        "kind": "github",
+        "url": "https://github.com/YasuakiOmokawa",
+        "source": "https://zenn.dev/yasuakiomokawa",
+        "verified": "2026-11-16"
+      }
+    ],
+    "id": "yasuakiomokawa",
+    "kind": "person",
+    "name": "Yasuaki Omokawa",
+    "repos": [],
+    "topics": [
+      {
+        "topic": "foldkit",
+        "source": "https://zenn.dev/yasuakiomokawa/articles/b52b532ffd16ff",
+        "verified": "2026-11-16"
+      }
+    ],
+    "updated": "2026-11-16",
     "videos": []
   },
   {
