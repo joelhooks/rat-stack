@@ -2047,7 +2047,7 @@ For signup, read the [interest rules](${originToken}/systems/interest) and the [
 
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
-Rat Stack gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working code for [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy). Ask it to build your project, or stop and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
+Rat Stack gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working code to [build your app](${originToken}/lore/effect-basics) and [set up its cloud services](${originToken}/skills/learn-alchemy). Ask it to build your project, or stop and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
 
 ${homeFeatured}
 
