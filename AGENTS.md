@@ -191,6 +191,10 @@ Mirrors are reference material, not runtime dependencies. Exclude them from type
 
 Preserve existing work. Inspect status before editing, stage only files changed for the current task, and do not commit generated output, secrets, or populated `.agent_sources/github.com/` trees. Use the repository's existing source-control tool; do not initialize or migrate one without approval. Never pass `--no-verify` to git.
 
+- When `.brain/data/git-snapshot.json` conflicts on a merge, run `pnpm install --frozen-lockfile`, then regenerate it with `pnpm git-snapshot`; never pick a side.
+- Stage the regenerated snapshot with the merge commit and run the full gate on the committed tree.
+- If the gate requires a post-merge refresh, regenerate and add a snapshot-only follow-up with full hooks.
+
 `.shitrat/public-allow.json` tells the ShitRat public-push guard that `.brain/` is public content here, because the site is built from it. A child project owns that file: narrow or delete it the day its `.brain` holds anything that isn't meant to be public.
 
 ## Project law
