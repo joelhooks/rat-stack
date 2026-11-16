@@ -2047,24 +2047,22 @@ For signup, read the [interest rules](${originToken}/systems/interest) and the [
 
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
-Rat Stack helps your agent build your project with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy). You can get your project running, then learn how it works at whatever depth you like.
-
-The site gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working examples to follow. You can read them too.
+Rat Stack gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working code for [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy). Ask it to build your project, or stop and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
 
 ${homeFeatured}
 
 ## Go as deep as you like
 
-- Get your project running. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
-- Understand the pieces. Ask your agent why the code looks the way it does, or read the [explanations](${originToken}/lore).
+- Build your project. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
+- Ask why. Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
 - Learn by building. Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
-- Choose what to keep. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
+- Take what you need. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
 - Check the work. The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
 - See what others are building. Browse the [news](${originToken}/news) and [project directory](${originToken}/directory).
 
 ## How it fits together
 
-Rat Stack describes [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
+The goal is [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
 
 Follow [a search through the app](${originToken}/lore/a-browser-send-follows-one-path) or [one action in several places](${originToken}/lore/one-capability-every-surface) to see the code. The [package guide](${originToken}/AGENTS.md#packages) lists the pieces.
 
