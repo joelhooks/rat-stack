@@ -29,6 +29,7 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/log",
   "/log.md",
   "/pins.md",
+  "/resources/bombadil-ui-property-tests",
   "/resources/effect-4-reference-projects",
   "/resources/lint-rule-limits",
   "/resources/peers",
