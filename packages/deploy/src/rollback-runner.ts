@@ -47,6 +47,7 @@ export class RollbackRunner extends Context.Service<
           receipts.saveRollback(receipt).pipe(
             Effect.mapError(
               () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Rollback failures expose a receipt only; upstream provider and receipt errors must not retain credential material.
                 new RollbackFailed({
                   receipt: { ...receipt, outcome: "unknown" },
                 })
@@ -71,9 +72,13 @@ export class RollbackRunner extends Context.Service<
 
           yield* record(receipt);
 
-          const session = yield* deployments
-            .forProfile(source.profile)
-            .pipe(Effect.mapError(() => new RollbackFailed({ receipt })));
+          const session = yield* deployments.forProfile(source.profile).pipe(
+            Effect.mapError(
+              () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Profile failures can contain credentials before redaction; the rollback error must stay opaque.
+                new RollbackFailed({ receipt })
+            )
+          );
 
           const completed: string[] = [];
           const confirmed: Record<string, string> = {};
@@ -117,9 +122,13 @@ export class RollbackRunner extends Context.Service<
         const check = Effect.fn("RollbackRunner.check")(function* check(
           receipt: RollbackReceipt
         ) {
-          const session = yield* deployments
-            .forProfile(receipt.profile)
-            .pipe(Effect.mapError(() => new RollbackFailed({ receipt })));
+          const session = yield* deployments.forProfile(receipt.profile).pipe(
+            Effect.mapError(
+              () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Profile failures can contain credentials before redaction; the rollback error must stay opaque.
+                new RollbackFailed({ receipt })
+            )
+          );
 
           const generation = receipt.source.receipt.previousContentGeneration;
 
@@ -135,7 +144,13 @@ export class RollbackRunner extends Context.Service<
                   baseUrl,
                   generation,
                   receipt.observedAt
-                ).pipe(Effect.mapError(() => new RollbackFailed({ receipt })));
+                ).pipe(
+                  Effect.mapError(
+                    () =>
+                      // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Rollback diagnostics are restricted to receipt checks; untrusted upstream HTTP details must not survive as causes.
+                      new RollbackFailed({ receipt })
+                  )
+                );
 
           for (const [worker, expected] of Object.entries(receipt.targets)) {
             checks.push(

@@ -59,13 +59,6 @@ export const tubeStyles = stylex.create({
   take: {
     margin: 0,
   },
-  themes: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: reader.spaceSmall,
-    listStyle: "none",
-    padding: 0,
-  },
   thumbnail: {
     aspectRatio: "16 / 9",
     backgroundColor: "#e6e9ef",

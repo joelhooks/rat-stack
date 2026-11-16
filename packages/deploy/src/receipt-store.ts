@@ -17,6 +17,7 @@ import type { ApplyReceipt, DeployVerdict } from "./contracts.js";
 import { RollbackReceiptSchema } from "./rollback-contracts.js";
 import type { RollbackReceipt } from "./rollback-contracts.js";
 import { RollbackRefused } from "./rollback-refused.js";
+import { logSafeDeployFailure } from "./safe-failure-log.js";
 import { WatchReceiptSchema } from "./watch-receipt.js";
 import type { WatchReceipt } from "./watch-receipt.js";
 
@@ -71,6 +72,9 @@ export class ReceiptStore extends Context.Service<
 
             return path;
           },
+          Effect.tapError((cause) =>
+            logSafeDeployFailure(cause, "apply", "receipt-write-refused")
+          ),
           Effect.mapError(
             () =>
               new DeployStepError({
@@ -142,6 +146,9 @@ export class ReceiptStore extends Context.Service<
               ...receipt,
               profile,
             }).pipe(
+              Effect.tapError((cause) =>
+                logSafeDeployFailure(cause, "apply", "receipt-encoding-refused")
+              ),
               Effect.mapError(
                 () =>
                   new DeployStepError({
@@ -161,6 +168,13 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(RollbackReceiptSchema)
               )(receipt).pipe(
+                Effect.tapError((cause) =>
+                  logSafeDeployFailure(
+                    cause,
+                    "apply",
+                    "receipt-encoding-refused"
+                  )
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({
@@ -188,6 +202,13 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(DeployVerdictSchema, { space: 2 })
               )(verdict).pipe(
+                Effect.tapError((cause) =>
+                  logSafeDeployFailure(
+                    cause,
+                    "checks",
+                    "verdict-encoding-refused"
+                  )
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({
@@ -217,6 +238,13 @@ export class ReceiptStore extends Context.Service<
               const text = yield* Schema.encodeEffect(
                 Schema.fromJsonString(WatchReceiptSchema, { space: 2 })
               )(receipt).pipe(
+                Effect.tapError((cause) =>
+                  logSafeDeployFailure(
+                    cause,
+                    "watch",
+                    "receipt-encoding-refused"
+                  )
+                ),
                 Effect.mapError(
                   () =>
                     new DeployStepError({

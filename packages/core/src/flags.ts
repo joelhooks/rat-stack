@@ -117,8 +117,9 @@ export const decodeFlag = <A>(flag: Flag<A>) =>
   Function.flow(
     Schema.decodeUnknownEffect(Schema.toType(flag.schema)),
     Effect.mapError(
-      () =>
+      (cause) =>
         new InvalidFlagValue({
+          cause,
           flag: flag.name,
           repair: `Set ${flag.name} to a value accepted by its declared schema.`,
         })

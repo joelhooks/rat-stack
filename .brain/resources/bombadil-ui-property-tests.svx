@@ -1,0 +1,172 @@
+---
+title: "Property tests for the UI with Bombadil"
+description: "Check search counts and video consent with generated browser actions, then choose the right test layer for server races."
+group: resource
+terms:
+  - "Bombadil"
+  - "UI property testing"
+sources:
+  - url: https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/01-introduction.md
+    title: "Bombadil 0.7.10: introduction"
+    publisher: "Antithesis"
+    note: "Generated actions and the capture, check, act loop."
+    accessed: "2026-11-15"
+  - url: https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/03-specification-language.md
+    title: "Bombadil 0.7.10: specification language"
+    publisher: "Antithesis"
+    note: "Extracted cells, temporal formulas and weighted generators."
+    accessed: "2026-11-15"
+  - url: https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/lib/bombadil/src/specification/browser/defaults/properties.ts
+    title: "Bombadil 0.7.10: browser default properties"
+    publisher: "Antithesis"
+    note: "Four defaults; the HTTP check reads navigation timing."
+    accessed: "2026-11-15"
+  - url: https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/04-workflows.md
+    title: "Bombadil 0.7.10: workflows"
+    publisher: "Antithesis"
+    note: "Best-effort replay, shrink calibration and browser inspect."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/22a222c9eb3f08746c1ea7867b744cf81544ff5d/.brain/data/examples/bombadil-ui-observations.json
+    title: "Scoped local UI experiment observations"
+    publisher: "rat-stack"
+    note: "Selected scalar observations from a local development run; no production guarantee or raw trace."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/22a222c9eb3f08746c1ea7867b744cf81544ff5d/.brain/data/examples/bombadil-ui.spec.txt
+    title: "Two UI properties and their extractors"
+    publisher: "rat-stack"
+    note: "Teaching extract of the final experiment specification; action generators omitted."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/apps/site/test/join-migration-concurrency.model.test.ts
+    title: "Migration concurrency property with barriers"
+    publisher: "rat-stack"
+    note: "Server-side overlap controlled with Deferred barriers."
+    accessed: "2026-11-15"
+---
+
+Bombadil checks UI rules while it generates browser actions. Use this guide to compare rendered search results and check video-player consent.
+
+Start with [property-based testing](/lore/property-based-testing). A property states a rule; generated actions search for a sequence that breaks it.
+[Bombadil's introduction](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/01-introduction.md) describes that loop.
+
+This is an optional tool, not a new rat-stack template dependency. The examples target Bombadil **0.7.10** and rat-stack at `60d73b434d6c62ac6a50eec2b4832003d1c01c9a`.
+
+## Choose the test scope
+
+Choose the scope that can observe the rule and control the failure.
+
+| Tool | Use it for | Boundary |
+| --- | --- | --- |
+| Effect `it.prop` or `it.effect.prop` with `Arbitrary` | Domain laws over generated inputs | No browser rendering unless the harness includes it |
+| Model tests over generated command sequences | Histories, retries and races; use barriers to force overlap | The model and adapter must represent the guarantees under test |
+| Bombadil | Browser sequences, hydration and consent rules over captured UI state | No controlled server-side scheduling or proof of backend atomicity |
+
+The table is a tool-selection guide. See the [events properties and models](https://github.com/joelhooks/rat-stack/tree/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/packages/events/test).
+The [migration concurrency test](https://github.com/joelhooks/rat-stack/blob/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/apps/site/test/join-migration-concurrency.model.test.ts#L20-L64) uses explicit `Deferred` barriers.
+
+Bombadil cannot establish whether a [Durable Object](/lore/workers-answer-requests-durable-objects-own-named-state) read-modify-write operation is race-free. A browser symptom is not a controlled server interleaving.
+Use a server-side [model test](/lore/model-based-testing) for that race. Keep the browser test for the visible behavior.
+
+## How the browser test works
+
+Bombadil captures state, checks properties, picks an action, performs it, and waits for another capture.
+An `extract` function reads browser state into a cell. A property reads the cell's `.current` value.
+
+The [specification language](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/03-specification-language.md#formulas) uses linear temporal logic, or LTL:
+
+- `always`: the condition holds in this state and every future state.
+- `next`: it holds in the next state.
+- `eventually`: it holds in this state or a future state.
+
+These checks cover captured executions. A passing run is not an exhaustive proof.
+
+[Weighted generators](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/03-specification-language.md#action-generators) give some actions more chances of selection.
+For these examples, favor search submissions and matching play clicks alongside general navigation. Random navigation alone is not a coverage target.
+
+Version 0.7.10 exports exactly four [browser default properties](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/lib/bombadil/src/specification/browser/defaults/properties.ts):
+
+- No uncaught exceptions.
+- No unhandled promise rejections.
+- No console errors.
+- Navigation response status below 400.
+
+The HTTP property reads `PerformanceNavigationTiming.responseStatus`. It does not check every fetch, [RPC](/skills/learn-rat-stack), image or iframe response.
+A swallowed RPC failure can pass that default. Add an observable UI rule when the defaults do not express the failure.
+
+## Search count matches rendered rows
+
+The teaching file keeps extractors and formulas only. Add action generators before using it as an exploration specification.
+
+The search view [renders a count and a list](https://github.com/joelhooks/rat-stack/blob/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/apps/web/src/features/app.ts#L150-L179).
+At this revision, the [handler](/systems/capabilities) [returns `total: matches.length`](https://github.com/joelhooks/rat-stack/blob/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/apps/site/src/capabilities/search.ts).
+
+Compare those two DOM outputs after the Matches region settles:
+
+```ts repo=rat-stack path=.brain/data/examples/bombadil-ui.spec.txt at=22a222c9eb3f08746c1ea7867b744cf81544ff5d lines=1-16 title="Count the rendered rows independently"
+
+```
+
+This property skips loading states and states without a count. It does not prove search relevance, freshness or eventual completion.
+A paginated search would need a different count rule.
+
+In one local run against rat-stack at `60d73b434d6c62ac6a50eec2b4832003d1c01c9a`, the planted bug displayed `result.total + 1`.
+Bombadil reported **11 announced / 10 listed**. The shrunk trace retained **one Wait action**.
+These are [local observations](https://github.com/joelhooks/rat-stack/blob/22a222c9eb3f08746c1ea7867b744cf81544ff5d/.brain/data/examples/bombadil-ui-observations.json), not a detection-time guarantee.
+
+## A player appears only after its own play click
+
+The [/tube](/tube) view [chooses between a player and a play button](https://github.com/joelhooks/rat-stack/blob/60d73b434d6c62ac6a50eec2b4832003d1c01c9a/apps/web/src/features/tube/index.ts#L37-L78).
+Check the rendered iframe titles against action history, rather than reading the application's `playing` field.
+
+First, collect player titles and the preceding click label. Normalize both action-label spellings:
+
+```ts repo=rat-stack path=.brain/data/examples/bombadil-ui.spec.txt at=22a222c9eb3f08746c1ea7867b744cf81544ff5d lines=18-29 title="Read DOM output and the last action"
+
+```
+
+Then require an empty initial player list. Each new title must follow its own play click, unless it already existed in the same document:
+
+```ts repo=rat-stack path=.brain/data/examples/bombadil-ui.spec.txt at=22a222c9eb3f08746c1ea7867b744cf81544ff5d lines=31-39 title="Check consent across captured states"
+
+```
+
+In one local run against rat-stack at `60d73b434d6c62ac6a50eec2b4832003d1c01c9a`, the planted bug replaced `isPlaying(model, video)` with `true`.
+Bombadil reported **58 initial player iframes**, before any click. Shrinking retained **zero actions**.
+After restoration and action-label normalization, a focused exercise recorded **137 iframe-bearing states with no violations**.
+The [observation record](https://github.com/joelhooks/rat-stack/blob/22a222c9eb3f08746c1ea7867b744cf81544ff5d/.brain/data/examples/bombadil-ui-observations.json) scopes those numbers to that local experiment.
+
+This is a DOM-level privacy property. It cannot see network requests or an iframe inserted and removed between captures.
+Thumbnails are outside its rule. Do not call it proof that no third-party request occurs before consent.
+
+Both examples use independent observations: DOM count against DOM rows, or DOM players against action history.
+Comparing a model field with itself is still a tautology when a fuzzer runs it.
+[Tests that earn their place](/lore/tests-that-earn-their-place) explains why planted bugs matter.
+
+## Vite friction and release drift
+
+The same local experiment found these problems against `pnpm dev`. They are [observations at the tested revision](https://github.com/joelhooks/rat-stack/blob/22a222c9eb3f08746c1ea7867b744cf81544ff5d/.brain/data/examples/bombadil-ui-observations.json), not general compatibility claims:
+
+- Stock JavaScript instrumentation crashed inside a Vite-optimized chunk: `__bombadil__` was undefined. Runs needed `--instrument-javascript ''`, which disables that instrumentation.
+- Click actions exposed `accessible_name` at runtime. The release's [TypeScript declaration](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/lib/bombadil/src/specification/browser/index.ts#L153-L171) says `accessibleName`. The extractor accepts both.
+- Defaults mainly found development-server noise: local 404s for `/llms.txt`, `/openapi.json` and `/news.xml`, plus an HMR console error.
+
+The docs also drifted. The [release workflow](https://github.com/antithesishq/bombadil/blob/832faf4d953e2c56d1d901aca1bb2c3c3170221d/docs/manual/src/04-workflows.md) uses output directories and `bombadil browser inspect`.
+A [later main-branch workflow](https://github.com/antithesishq/bombadil/blob/69a61bc473f7ee01ceda024216ebc6921b7ea753/docs/manual/src/04-workflows.md) uses trace files and adds `bombadil trace`.
+Read the release-tag manual and the installed command's help together.
+
+Replay is best-effort. Shrinking searches for a shorter failing sequence and calibrates reproduction first.
+A shorter trace is not necessarily minimal. Keep the original failure while you shrink it.
+
+## Try it without changing the template
+
+Recommendation: use an exact Bombadil version against an isolated **local production preview**, with signup and help delivery disabled.
+Do not point random clicks at a deployed site: clicks can submit real forms. Keep the browser sandbox enabled.
+
+1. Install exactly `@antithesishq/bombadil@0.7.10` in a separate experiment. Keep it out of the template's dependency graph.
+2. Start the local production preview. Check that its local RPC path works and delivery stays off before exploration.
+3. Export the two properties and add weighted generators that submit searches and click play buttons. Retain useful default properties.
+4. Plant each bug separately. Require a failure, restore the code, then require a healthy run that exercises the rule.
+5. Upload traces only on failure. Run shrinking outside the smoke-test budget, using the pinned release's workflow.
+
+The production-preview variant was not measured in this experiment. Validate its wiring before treating it as coverage.
+
+Next, use [model-based testing](/lore/model-based-testing) for server histories, or inspect the [RatTube player](/tube) to choose a browser rule.

@@ -1,6 +1,7 @@
 import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { DeployStepError } from "./contracts.js";
+import { logSafeDeployFailure } from "./safe-failure-log.js";
 
 export const requiredProdKeys = (schema: string): readonly string[] => {
   const keys: string[] = [];
@@ -59,6 +60,9 @@ export const validateDeployInputs = Effect.fn("validateDeployInputs")(
     }
 
     yield* Config.Boolean("EVENTS_ENABLED").pipe(
+      Effect.tapError((cause) =>
+        logSafeDeployFailure(cause, "preflight", "invalid-deploy-input")
+      ),
       Effect.mapError(
         () =>
           new DeployStepError({

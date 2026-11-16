@@ -75,6 +75,7 @@ export const remoteIntakeRedeliveryLayer = (baseUrl: string) =>
             }),
             Effect.provide(Logger.layer([])),
             Effect.catchCause(() =>
+              // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Operator HTTP failures may contain bearer headers or private applications; the CLI error stays opaque.
               Effect.fail(new IntakeApplicationsUnavailable({}))
             )
           ),
@@ -92,28 +93,32 @@ export const intakeRedeliverCommand = Command.make(
     includeRefused: Flag.Boolean("include-refused").pipe(
       Flag.withDefault(false)
     ),
+    releaseHeld: Flag.Boolean("release-held").pipe(Flag.withDefault(false)),
     submissionIds: Flag.String("submission-id").pipe(Flag.atLeast(1)),
   },
-  ({ baseUrl, dryRun, includeRefused, submissionIds }) =>
-    intakeRedeliver.handler({ dryRun, includeRefused, submissionIds }).pipe(
-      Effect.flatMap((result) => Console.log(JSON.stringify(result))),
-      Effect.provide(
-        remoteIntakeRedeliveryLayer(baseUrl).pipe(
-          Layer.provide(FetchHttpClient.layer)
-        )
-      ),
-      Effect.withTracerEnabled(false),
-      Effect.provide(Logger.layer([])),
-      Effect.catchCause(() =>
-        Console.error(
-          "Redelivery unavailable. Check the base URL and INTEREST_OPERATOR_TOKEN. The request may have partially completed; read application states before retrying."
-        ).pipe(
-          Effect.andThen(Effect.fail(new IntakeApplicationsUnavailable({})))
+  ({ baseUrl, dryRun, includeRefused, releaseHeld, submissionIds }) =>
+    intakeRedeliver
+      .handler({ dryRun, includeRefused, releaseHeld, submissionIds })
+      .pipe(
+        Effect.flatMap((result) => Console.log(JSON.stringify(result))),
+        Effect.provide(
+          remoteIntakeRedeliveryLayer(baseUrl).pipe(
+            Layer.provide(FetchHttpClient.layer)
+          )
+        ),
+        Effect.withTracerEnabled(false),
+        Effect.provide(Logger.layer([])),
+        Effect.catchCause(() =>
+          Console.error(
+            "Redelivery unavailable. Check the base URL and INTEREST_OPERATOR_TOKEN. The request may have partially completed; read application states before retrying."
+          ).pipe(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Redelivery failures must not expose private contact data or credentials after fixed recovery instructions.
+            Effect.andThen(Effect.fail(new IntakeApplicationsUnavailable({})))
+          )
         )
       )
-    )
 ).pipe(
   Command.withDescription(
-    "Redeliver ready applications by repeatable --submission-id; --dry-run inspects all ids without sending; --include-refused explicitly repairs named refusals"
+    "Redeliver ready applications by repeatable --submission-id; --dry-run inspects all ids without sending; --include-refused explicitly repairs named refusals; --release-held explicitly releases abuse holds"
   )
 );

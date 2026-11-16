@@ -55,6 +55,13 @@ export const lawSpecs: readonly SourceSpec[] = [
     title: "Learn rat-stack from your own agent",
   },
   {
+    description:
+      "Check search counts and video consent with generated browser actions, then choose the right test layer for server races.",
+    routePath: "/resources/bombadil-ui-property-tests",
+    sourcePath: ".brain/resources/bombadil-ui-property-tests.svx",
+    title: "Property tests for the UI with Bombadil",
+  },
+  {
     description: "How the current lint rules draw their syntax boundaries.",
     routePath: "/resources/lint-rule-limits",
     sourcePath: ".brain/resources/lint-rule-limits.svx",

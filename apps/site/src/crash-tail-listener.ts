@@ -17,6 +17,7 @@ export const registerCrashTail = Effect.gen(
         ? Schema.decodeUnknownEffect(Schema.Array(TraceSchema))(
             event.input
           ).pipe(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Raw tail validation errors can contain request secrets before crash redaction and must not be logged.
             Effect.mapError(() => new InvalidCrashTrace()),
             Effect.flatMap((traces) => captureCrashes(traces)),
             Effect.provideService(CrashArchive, archive),

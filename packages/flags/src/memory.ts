@@ -56,8 +56,9 @@ export const memoryFlagsLayer = (
                 position.value
               ).pipe(
                 Effect.mapError(
-                  () =>
+                  (cause) =>
                     new InvalidFlagValue({
+                      cause,
                       flag: flag.name,
                       repair:
                         "Repair the stored value using the flag's declared JSON encoding.",

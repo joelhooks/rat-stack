@@ -1,14 +1,11 @@
 import { expect, it } from "@effect/vitest";
 import { ContactRefSchema } from "@rat-stack/core/intake";
 import { InterestTokens } from "@rat-stack/core/interest";
-import {
-  JoinContactStore,
-  withPending,
-  withState,
-} from "@rat-stack/core/join-interest";
+import { JoinContactStore, withPending } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Option, Redacted, Ref, Schema } from "effect";
 
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
+import { withMemoryErasure } from "./join-erasure.fixture.js";
 
 it.effect(
   "keeps the sweep's pending index in step with each contact's marker and clears it on erase",
@@ -20,12 +17,12 @@ it.effect(
       const contacts = yield* JoinContactStore.pipe(
         Effect.provide(
           joinContactStoreLayer(
-            () => ({
+            withMemoryErasure(() => ({
               joinErase: () => Ref.set(stored, Option.none()),
               joinRead: () =>
                 Ref.get(stored).pipe(Effect.map(Option.getOrUndefined)),
               joinSave: (sealed) => Ref.set(stored, Option.some(sealed)),
-            }),
+            })),
             () => Effect.void,
             (submissionId, marked) =>
               Ref.update(pending, (ids) => {
@@ -66,14 +63,14 @@ it.effect(
 
       yield* contacts.setState(contact.submissionId, "accepted");
       expect(yield* Ref.get(pending)).toEqual(new Set());
-      expect(yield* contacts.read(contact.submissionId)).toEqual(
-        withState(contact, "accepted")
-      );
+      expect(yield* contacts.read(contact.submissionId)).toBeUndefined();
 
       yield* contacts.save(withPending(contact, "erase"));
       expect(yield* Ref.get(pending)).toEqual(new Set([contact.submissionId]));
 
       yield* contacts.erase(contact.submissionId);
+      expect(yield* Ref.get(pending)).toEqual(new Set([contact.submissionId]));
+      yield* contacts.completeErasure(contact.submissionId);
       expect(yield* Ref.get(pending)).toEqual(new Set());
       expect(yield* contacts.read(contact.submissionId)).toBeUndefined();
     })

@@ -22,7 +22,11 @@ const Snapshot = Schema.Struct({
 export class GitSnapshotError extends Schema.TaggedError<
   GitSnapshotError,
   { readonly brand: unique symbol }
->()("GitSnapshotError", { entry: Schema.String, reason: Schema.String }) {
+>()("GitSnapshotError", {
+  cause: Schema.optionalKey(Schema.Defect()),
+  entry: Schema.String,
+  reason: Schema.String,
+}) {
   override get message() {
     return `${this.reason}: ${this.entry}. The content build reads Git history only through this snapshot, so every checkout renders the same pages. Fix: run \`pnpm git-snapshot\` in a full checkout after your last commit, then commit \`.brain/data/git-snapshot.json\` on its own.`;
   }
@@ -85,8 +89,9 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       : yield* fs.readFileString(path.join(root, snapshotPath)).pipe(
           Effect.flatMap(Schema.decodeEffect(Schema.fromJsonString(Snapshot))),
           Effect.mapError(
-            () =>
+            (cause) =>
               new GitSnapshotError({
+                cause,
                 entry: snapshotPath,
                 reason: "Missing or invalid snapshot",
               })
@@ -120,14 +125,16 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
         return stored;
       }
 
-      const status = yield* spawner
-        .exitCode(command(args))
-        .pipe(
-          Effect.mapError(
-            () =>
-              new GitSnapshotError({ entry: key, reason: "Git query failed" })
-          )
-        );
+      const status = yield* spawner.exitCode(command(args)).pipe(
+        Effect.mapError(
+          (cause) =>
+            new GitSnapshotError({
+              cause,
+              entry: key,
+              reason: "Git query failed",
+            })
+        )
+      );
 
       if (status !== 0) {
         return yield* new GitSnapshotError({
@@ -136,14 +143,16 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
         });
       }
 
-      const actual = yield* spawner
-        .string(command(args))
-        .pipe(
-          Effect.mapError(
-            () =>
-              new GitSnapshotError({ entry: key, reason: "Git query failed" })
-          )
-        );
+      const actual = yield* spawner.string(command(args)).pipe(
+        Effect.mapError(
+          (cause) =>
+            new GitSnapshotError({
+              cause,
+              entry: key,
+              reason: "Git query failed",
+            })
+        )
+      );
 
       if (!regenerate && actual !== stored) {
         return yield* new GitSnapshotError({
@@ -165,8 +174,9 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
     ) {
       const text = yield* fs.readFileString(path.join(root, sourcePath)).pipe(
         Effect.mapError(
-          () =>
+          (cause) =>
             new GitSnapshotError({
+              cause,
               entry: sourcePath,
               reason: "Cannot read tracked source",
             })
@@ -235,7 +245,9 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
         repositories,
         resolve: (repo, commit, sourcePath) =>
           resolve(repo, commit, sourcePath).pipe(
-            Effect.mapError(() => new SourceFault({ kind: "unavailable" }))
+            Effect.mapError(
+              (cause) => new SourceFault({ cause, kind: "unavailable" })
+            )
           ),
       })
     );
@@ -249,8 +261,9 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
             )
             .pipe(
               Effect.mapError(
-                () =>
+                (cause) =>
                   new GitSnapshotError({
+                    cause,
                     entry: snapshotPath,
                     reason: "Snapshot write failed",
                   })

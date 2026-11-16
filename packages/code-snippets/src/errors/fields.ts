@@ -1,6 +1,7 @@
 import { Schema } from "effect";
 
 export const errorFields = {
+  cause: Schema.optionalKey(Schema.Defect()),
   actualLength: Schema.NullOr(Schema.Finite),
   commit: Schema.String,
   fix: Schema.String,

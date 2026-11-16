@@ -61,4 +61,6 @@ A second property with an independent list of sensitive keys closed the gap. The
 
 For sequences of actions, use [model-based testing](/lore/model-based-testing).
 
+For rendered search counts and video-player consent, read [Property tests for the UI with Bombadil](/resources/bombadil-ui-property-tests).
+
 See also: [Tests through supplied services](/lore/tests-that-earn-their-place).

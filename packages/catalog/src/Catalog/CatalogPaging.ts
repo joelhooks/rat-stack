@@ -61,6 +61,7 @@ export const readCatalogCursor = Effect.fn("readCatalogCursor")(
     }
 
     const cursor = yield* Schema.decodeEffect(Cursor)(after).pipe(
+      // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- The cursor is an opaque client token; this Domain rejection crosses the operator wire outside wireFailureSchema and deliberately says only that the cursor is invalid.
       Effect.mapError(() => new InvalidCatalogCursor())
     );
 

@@ -77,6 +77,7 @@ export const remoteIntakeApplicationsLayer = (baseUrl: string) =>
             }),
             Effect.provide(Logger.layer([])),
             Effect.catchCause(() =>
+              // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Operator transport errors may include bearer headers and private applications; never retain them in CLI errors.
               Effect.fail(new IntakeApplicationsUnavailable({}))
             )
           ),
@@ -119,6 +120,7 @@ export const intakeCommand = Command.make("intake").pipe(
                 "Applications unavailable. Check the base URL and INTEREST_OPERATOR_TOKEN."
               ).pipe(
                 Effect.andThen(
+                  // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Application output failures may contain private contact data; print only fixed recovery instructions.
                   Effect.fail(new IntakeApplicationsUnavailable({}))
                 )
               )

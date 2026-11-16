@@ -14,6 +14,9 @@ import {
   IntakeApplications,
   IntakeErasure,
   IntakeRedeliver,
+  JoinRetentionBackfill,
+  joinRetentionBackfill,
+  joinRetentionBackfillContract,
   intakeRedeliver,
   intakeRedeliverContract,
   intakeErase,
@@ -22,7 +25,16 @@ import {
   intakeApplicationsContract,
 } from "@rat-stack/core/join-interest";
 import * as AlchemyHttp from "alchemy/Http";
-import { Clock, Effect, Layer, Logger, Option, Schema, Stream } from "effect";
+import {
+  Cause,
+  Clock,
+  Effect,
+  Layer,
+  Logger,
+  Option,
+  Schema,
+  Stream,
+} from "effect";
 import type { Context } from "effect";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as HttpRouter from "effect/http/HttpRouter";
@@ -36,11 +48,13 @@ import {
   interestCapabilities,
   refusalMessage,
 } from "./handlers.js";
+import { retentionDiagnostic } from "./join-retention-diagnostic.js";
 import { confirmPage, resultPage } from "./pages.js";
 
 export interface InterestOptions {
   readonly applications?: IntakeApplications["Service"] | undefined;
   readonly erasure?: IntakeErasure["Service"] | undefined;
+  readonly backfill?: JoinRetentionBackfill["Service"] | undefined;
   readonly redelivery?: IntakeRedeliver["Service"] | undefined;
   readonly operatorToken?: string | undefined;
   readonly rateLimits?: RateLimits | undefined;
@@ -453,6 +467,84 @@ export const interestRoutes = (options: InterestOptions) => {
               })
             );
           })
+        ).pipe(
+          Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
+          Effect.withTracerEnabled(false),
+          Effect.provide(Logger.layer([]))
+        )
+    ),
+    HttpRouter.add(
+      "POST",
+      "/operator/interest/applications/retention-backfill",
+      (request) =>
+        guarded(request, () =>
+          Effect.gen(function* backfillRetention() {
+            const input = yield* request.json.pipe(
+              Effect.flatMap(
+                Schema.decodeUnknownEffect(joinRetentionBackfillContract.input)
+              ),
+              Effect.option
+            );
+
+            if (Option.isNone(input)) {
+              return HttpServerResponse.text("Bad request.\n", {
+                headers: operatorHeaders,
+                status: 400,
+              });
+            }
+
+            if (options.backfill === undefined) {
+              return HttpServerResponse.jsonUnsafe(
+                {
+                  error: "applications_unavailable",
+                  ...retentionDiagnostic(
+                    "route_not_configured",
+                    null,
+                    Cause.fail("not_configured")
+                  ),
+                },
+                { headers: operatorHeaders, status: 503 }
+              );
+            }
+
+            const counts = yield* joinRetentionBackfill
+              .handler(input.value)
+              .pipe(
+                Effect.provideService(JoinRetentionBackfill, options.backfill)
+              );
+
+            return HttpServerResponse.jsonUnsafe(counts, {
+              headers: operatorHeaders,
+            });
+          }).pipe(
+            Effect.catchTag("JoinRetentionBackfillUnavailable", (failure) =>
+              Effect.succeed(
+                HttpServerResponse.jsonUnsafe(
+                  {
+                    error: "applications_unavailable",
+                    ...(failure.diagnostic ??
+                      retentionDiagnostic(
+                        "route_unavailable",
+                        null,
+                        Cause.fail(failure)
+                      )),
+                  },
+                  { headers: operatorHeaders, status: 503 }
+                )
+              )
+            ),
+            Effect.catchCause((cause) =>
+              Effect.succeed(
+                HttpServerResponse.jsonUnsafe(
+                  {
+                    error: "applications_unavailable",
+                    ...retentionDiagnostic("route_defect", null, cause),
+                  },
+                  { headers: operatorHeaders, status: 503 }
+                )
+              )
+            )
+          )
         ).pipe(
           Effect.map(HttpServerResponse.setHeaders(operatorHeaders)),
           Effect.withTracerEnabled(false),

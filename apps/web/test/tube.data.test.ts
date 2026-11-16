@@ -42,6 +42,10 @@ const video = (generated: {
   checked: "2026-11-08",
   durationSeconds: 1617,
   id: generated.id,
+  slug: `talk-video-${generated.id
+    .split("")
+    .map((char) => char.codePointAt(0))
+    .join("-")}`,
   published: "2024-03-26",
   take: "A talk about typed failures. You learn how services compose.",
   theme: generated.theme,
@@ -69,6 +73,19 @@ const faults = {
     entry: { ...target, id: first.id, url: watchUrl(first.id) },
     expected: `${where} repeats id ${first.id} from videos[0]`,
   }),
+  duplicateSlug: (target: Video, first: Video, where: string) => ({
+    entry: { ...target, slug: first.slug },
+    expected: `${where} repeats slug ${first.slug} from videos[0]`,
+  }),
+  missingSlug: (target: Video, _first: Video, where: string) => {
+    const { slug: _slug, ...withoutSlug } = target;
+
+    return { entry: withoutSlug, expected: `${where}.slug is invalid` };
+  },
+  idSlug: (target: Video, _first: Video, where: string) => ({
+    entry: { ...target, slug: "abcdefghijk" },
+    expected: `${where}.slug is invalid`,
+  }),
   httpUrl: (target: Video, _first: Video, where: string) => ({
     entry: { ...target, url: `http://www.youtube.com/watch?v=${target.id}` },
     expected: `${where}.url is not an https URL`,
@@ -95,6 +112,9 @@ const faults = {
 const fault = Arbitrary.schema(
   Schema.Literals([
     "duplicateId",
+    "duplicateSlug",
+    "missingSlug",
+    "idSlug",
     "httpUrl",
     "longTake",
     "missingTake",
