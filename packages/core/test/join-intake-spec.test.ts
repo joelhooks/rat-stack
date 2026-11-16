@@ -74,11 +74,12 @@ const flips = [
     code: [
       {
         file: "apps/site/src/interest/join-contact-cell.ts",
-        guard: "if (eraseMarked && !erase) {",
+        guard: "if (Option.isSome(held) && held.value.erase && !erase) {",
       },
       {
         file: "apps/site/src/interest/join-contact-store.ts",
-        guard: 'contact.pending === "erase"\n        );',
+        guard:
+          'contact.pending === "erase",\n          contact.retentionDeadlineAt,',
       },
     ],
     guard:
@@ -116,7 +117,7 @@ const flips = [
     code: [
       {
         file: "packages/core/src/join-delivery-machine.ts",
-        guard: "submissionId: contact.submissionId,",
+        guard: "submissionId: input.submissionId,",
       },
     ],
     guard: "KeyFor(d) == Sub",
@@ -134,7 +135,8 @@ const flips = [
     code: [
       {
         file: "packages/core/src/join-delivery-machine.ts",
-        guard: 'contact.pending === "erase" ||',
+        guard:
+          "const erasure = yield* contacts.readErasure(input.submissionId);",
       },
     ],
     guard: 'IF rec \\in {"absent", "held"} \\/ pend = "erase"',
@@ -143,17 +145,17 @@ const flips = [
     twin: {
       file: "packages/core/test/intake-sweep.model.test.ts",
       title:
-        "the sweep finishes every pending delivery or erase; erase wins, tombstones land first, and nothing is sent after erase or acceptance",
+        "the sweep finishes pending work; sealed data goes first, erase markers survive until tombstones, and intake stops after erase or acceptance",
     },
   },
   {
-    bug: "the contact removed before its event tombstone",
+    bug: "the erase marker removed before its event tombstone",
     cfg: module,
     code: [
       {
         file: "packages/core/src/intake-erase.ts",
         guard:
-          "Effect.retry(RETRY_ERASE_TOMBSTONE),\n    Effect.andThen(contacts.erase(submissionId)),",
+          '.completeErasure(submissionId)\n            .pipe(Effect.as("erased" as const))',
       },
     ],
     guard: 'idx["eraser"] = "none"\n  /\\ epc\' = "tombstoning"',
@@ -162,7 +164,7 @@ const flips = [
     twin: {
       file: "packages/core/test/intake-sweep.model.test.ts",
       title:
-        "the sweep finishes every pending delivery or erase; erase wins, tombstones land first, and nothing is sent after erase or acceptance",
+        "the sweep finishes pending work; sealed data goes first, erase markers survive until tombstones, and intake stops after erase or acceptance",
     },
   },
   {
@@ -180,7 +182,7 @@ const flips = [
     twin: {
       file: "packages/core/test/intake-sweep.model.test.ts",
       title:
-        "the sweep finishes every pending delivery or erase; erase wins, tombstones land first, and nothing is sent after erase or acceptance",
+        "the sweep finishes pending work; sealed data goes first, erase markers survive until tombstones, and intake stops after erase or acceptance",
     },
   },
   {

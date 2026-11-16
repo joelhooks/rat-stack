@@ -35,8 +35,9 @@ export const getFlag = implement(getFlagContract, ({ name, context }) =>
 
     const encoded = yield* Schema.encodeEffect(flag.schema)(value).pipe(
       Effect.mapError(
-        () =>
+        (cause) =>
           new InvalidFlagValue({
+            cause,
             flag: name,
             repair: "Use a flag schema with a JSON encoding for getFlag.",
           })
@@ -45,8 +46,9 @@ export const getFlag = implement(getFlagContract, ({ name, context }) =>
 
     return yield* Schema.decodeUnknownEffect(Schema.Json)(encoded).pipe(
       Effect.mapError(
-        () =>
+        (cause) =>
           new InvalidFlagValue({
+            cause,
             flag: name,
             repair: "Use a flag schema with a JSON encoding for getFlag.",
           })

@@ -13,7 +13,7 @@ import { attachMotionDemo } from "../../site/scripts/reader-motion-flags.ts";
 import { readerPromptFlags } from "../../site/scripts/reader-prompt-flags.ts";
 import { readerSearchFlags } from "../../site/scripts/reader-search-flags.ts";
 import { readerSystemsSkillsFlags } from "../../site/scripts/reader-systems-skills-flags.ts";
-import { readerTubeFlags } from "../../site/scripts/reader-tube-flags.ts";
+import { readerTubePagesFlags } from "../../site/scripts/reader-tube-flags.ts";
 import { writeFileAtomically } from "../../site/scripts/write-file-atomically.ts";
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
@@ -87,7 +87,7 @@ const readerPages = Effect.gen(function* readerPages() {
 
   const cafe = yield* readerCafeFlags(origin);
   const search = yield* readerSearchFlags(origin);
-  const tube = yield* readerTubeFlags(origin);
+  const tubePages = yield* readerTubePagesFlags(origin);
 
   const pages = [
     home,
@@ -96,7 +96,7 @@ const readerPages = Effect.gen(function* readerPages() {
     ...prompts,
     ...cafe,
     search,
-    tube,
+    ...tubePages,
     ...systemsSkills,
     ...bodies,
   ];

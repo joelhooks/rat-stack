@@ -45,7 +45,9 @@
     "typecheck:tsc": "tsc --noEmit -p tsconfig.json",
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "build": "tsc -p tsconfig.build.json && node dist/check-expiry.js",
+    "build": "tsc -p tsconfig.build.json",
+    "prebuild": "pnpm run --silent check:expiry",
+    "check:expiry": "node src/check-expiry.ts",
     "check": "pnpm run typecheck",
     "pretest": "pnpm run --silent build"
   },

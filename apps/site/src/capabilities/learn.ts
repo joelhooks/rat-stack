@@ -12,8 +12,9 @@ export const learnLayer = Layer.unwrap(
       Learner.layer(
         store.learnDeck.pipe(
           Effect.mapError(
-            () =>
+            (cause) =>
               new LearnError({
+                cause,
                 id: "deck",
                 reason:
                   "Unable to read the public deck; retry after content assets recover.",

@@ -74,8 +74,9 @@ export const flagLedgerEngine = Layer.effect(
       const value = yield* Schema.encodeEffect(flag.schema)(flag.default).pipe(
         Effect.flatMap(Schema.decodeUnknownEffect(Schema.Json)),
         Effect.mapError(
-          () =>
+          (cause) =>
             new InvalidFlagValue({
+              cause,
               flag: name,
               repair: "Declare JSON-encoded rung values.",
             })
@@ -179,8 +180,9 @@ export const flagLedgerEngine = Layer.effect(
         const value = yield* Schema.encodeEffect(flag.schema)(next.value).pipe(
           Effect.flatMap(Schema.decodeUnknownEffect(Schema.Json)),
           Effect.mapError(
-            () =>
+            (cause) =>
               new InvalidFlagValue({
+                cause,
                 flag: input.name,
                 repair: "Declare JSON-encoded rung values.",
               })

@@ -21,8 +21,9 @@ export const decodeRepositories = Effect.fn("decodeRepositories")(
       input
     ).pipe(
       Effect.mapError(
-        () =>
+        (cause) =>
           new CodeRepositoryConfigInvalid({
+            cause,
             fix: "Configure repositories as {id, adapter, location, linkTemplate?}.",
           })
       )

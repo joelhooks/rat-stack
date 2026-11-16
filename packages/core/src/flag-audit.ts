@@ -199,8 +199,9 @@ export const auditFlagRun: Around<
     value: Schema.decodeUnknownEffect(Schema.Json)(input),
   }).pipe(
     Effect.mapError(
-      () =>
+      (cause) =>
         new InvalidFlagValue({
+          cause,
           flag: "flag attempt",
           repair: "Supply a declared name and a JSON value.",
         })

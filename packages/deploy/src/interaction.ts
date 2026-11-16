@@ -34,6 +34,7 @@ export const capabilityInteraction = Effect.gen(
               Effect.as(true),
               Effect.mapError(
                 () =>
+                  // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Alchemy renders this operator-facing approval error; upstream failures must not expose untrusted prompt details.
                   new NonInteractiveTerminal({
                     message:
                       "Alchemy confirmation requires approval through deployProd. Supply approval at the capability boundary.",

@@ -44,6 +44,7 @@ export const IntakeBasin = ({ name }: IntakeBasinOptions) =>
       const { backfill, events } = basinIntakeEvents({
         send: (rows) =>
           writer.send(rows.map((row) => ({ value: row.value }))).pipe(
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Pipeline errors may carry private intake rows or provider details; the intake error stays opaque.
             Effect.mapError(() => new IntakeEventsUnavailable({})),
             Effect.provide(RuntimeContext.RuntimeContext.phantom)
           ),

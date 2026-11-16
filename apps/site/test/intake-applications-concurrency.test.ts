@@ -150,7 +150,7 @@ const build = (
   });
 
 const expectedFor = (kind: Kind): string => {
-  if (kind === "live") {
+  if (kind === "live" || kind === "vault-erased") {
     return "forwarded-or-held";
   }
 

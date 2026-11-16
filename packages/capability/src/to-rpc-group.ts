@@ -9,6 +9,7 @@ import type {
   NameOf,
   OutputOf,
 } from "./contract.js";
+import { wireFailureSchema } from "./wire-failure.js";
 
 export type RpcOf<Value> = ReturnType<
   typeof Rpc.make<
@@ -29,7 +30,7 @@ export interface RpcGroupProjection<Contracts extends readonly AnyContract[]> {
 
 const rpcFor = (contract: AnyContract) =>
   Rpc.make(contract.name, {
-    error: failureSchemaOf(contract),
+    error: wireFailureSchema(failureSchemaOf(contract)),
     payload: contract.input,
     success: contract.output,
   });

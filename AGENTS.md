@@ -29,10 +29,10 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 
 - **`@rat-stack/catalog`**:
   - Path: `packages/catalog`
-  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
+  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. `CatalogIndex` writes replay-idempotent `stream:seq` rows through `CatalogStore`; native `Rising` and `RepeatAuthors` Queries read that derived index with bounded windows and keyset pages. The memory store runs in stories. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
 - **`@rat-stack/catalog-server`**:
   - Path: `apps/catalog`
-  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware. Missing or empty `CATALOG_OPERATOR_TOKEN` denies every Api call. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
+  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware, the D1 catalog index and its migrations. Worker props explicitly bind a configured `CATALOG_OPERATOR_TOKEN` as a redacted secret; missing or empty configuration denies every Api call. The `smoke <url>` script tests unauthenticated and authenticated reads through the native Api client without printing credentials. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
 
 - **`@rat-stack/capability`**:
   - Path: `packages/capability`
@@ -190,6 +190,10 @@ Mirrors are reference material, not runtime dependencies. Exclude them from type
 ## Source control
 
 Preserve existing work. Inspect status before editing, stage only files changed for the current task, and do not commit generated output, secrets, or populated `.agent_sources/github.com/` trees. Use the repository's existing source-control tool; do not initialize or migrate one without approval. Never pass `--no-verify` to git.
+
+- When `.brain/data/git-snapshot.json` conflicts on a merge, run `pnpm install --frozen-lockfile`, then regenerate it with `pnpm git-snapshot`; never pick a side.
+- Stage the regenerated snapshot with the merge commit and run the full gate on the committed tree.
+- If the gate requires a post-merge refresh, regenerate and add a snapshot-only follow-up with full hooks.
 
 `.shitrat/public-allow.json` tells the ShitRat public-push guard that `.brain/` is public content here, because the site is built from it. A child project owns that file: narrow or delete it the day its `.brain` holds anything that isn't meant to be public.
 

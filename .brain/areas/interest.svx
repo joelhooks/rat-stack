@@ -52,6 +52,16 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Neutral answers, mode choices, and delivery composition."
     accessed: "2026-10-01"
+  - url: https://github.com/joelhooks/rat-stack/commit/cfe7f3f2ff2b44a40c59396bb7643e610ffac8d8
+    title: "Sealed join-store production merge"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Start of the production window before application indexing."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/commit/2cf70e8ba42c2418b5dce70ded443c3f5cc42ef7
+    title: "Application-index production merge"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "End of the production window before application indexing."
+    accessed: "2026-11-15"
 ---
 
 ## What it does
@@ -81,7 +91,7 @@ See [hexagonal architecture](/lore/hexagonal-architecture). List signup is separ
 - Provider details remain outside core; `no-core-adapters` enforces that boundary.
 - An agent application needs a fresh page ticket, contact consent, and the person's approval of the exact application data. A ticket works once.
 - The normal path saves a ready contact before answering. Delivery runs after the response through `waitUntil`, within a default 25-second budget. The five-minute sweep retries indexed pending delivery with the same submission ID.
-- Erase writes the event tombstone before removing the contact. A tombstone failure keeps the erase pending. A deliverer that reads an erase marker refuses delivery.
+- Subject erasure recovers readable legacy contact references before deleting payloads. Unreadable payloads can still be deleted without decryption. A separate marker remains until the event tombstone succeeds. Delivery refuses an erase marker.
 - Record and sweep-index writes are separate. A failed index write can strand pending delivery or erase.
 - An erase during the first request can prevent its ready commit while the uniform response still leaves. These gaps remain open. See [`packages/core/spec/README.md`](https://github.com/joelhooks/rat-stack/blob/main/packages/core/spec/README.md#weaker-environments) and [Durability](/systems/durability).
 - For a stranded submission, an authorized operator can inspect its ID, then use `intake redeliver` or `intake erase`. A uniform submission response does not prove delivery or confirmation.
@@ -111,16 +121,16 @@ Set `INTEREST_OPERATOR_TOKEN` through the local environment schema. Keep its val
 
 - `rat-stack intake list --submission-id <id>` reads one application.
 - `rat-stack intake erase --submission-id <id>` erases local contact data and sealed answers.
-- `rat-stack intake redeliver --submission-id <id>` retries a ready application with its original submission ID.
+- `rat-stack intake redeliver --submission-id <id>` releases a held application or retries a ready one with its original submission ID.
 
 Repeat `--submission-id` to provide an ordered batch. Redelivery processes one ID at a time.
 
-- Only ready contacts without an abuse hold can be sent by default. Erased contacts appear as missing.
-- Add `--dry-run` to inspect every named ID without sending or changing state. Eligible rows say `would_send`.
+- Redelivery requires `--release-held` to clear an abuse hold. Held rows with `hold: false`, including event-capture outages, need no release flag. Held payloads otherwise expire at their 24-hour deadline. Erased contacts appear as missing.
+- Add `--dry-run` to inspect every named ID without sending or releasing holds. Reads can migrate legacy records. Eligible rows say `would_send`.
 - Add `--include-refused` only for explicitly approved IDs whose refusal came from a verified availability failure.
-  This per-call option repairs named refused contacts to ready before delivery. It never permits held or accepted contacts.
+  This per-call option repairs named refused contacts to ready before delivery. It does not permit accepted contacts.
 - The live batch stops at the first skipped, refused, or retry outcome. The result lists IDs not attempted.
-- Each row contains the pre-run state in `previousState` and the resulting `state`.
+- Each row contains the pre-run state in `previousState`, the pre-run `hold`, and the resulting `state`. A missing contact has `hold: null`.
 - The response contains submission IDs, outcomes, and states. It contains no email addresses or answers.
 
 The operator route is `POST /operator/interest/applications/redeliver`. It uses the same bearer token as erasure.
@@ -135,6 +145,27 @@ Real abuse holds and unknown signals keep the contact held, even with a scorer o
 Use redelivery after the outage is fixed. The saved submission ID stays unchanged.
 
 Rate refusals return a busy message and save nothing. The agent waits one minute and retries once.
+
+### Known gap in the application index
+
+Contacts saved between two production merges may be missing from the application index:
+
+- `cfe7f3f` added the sealed join store on October 1, 2026, at 14:35 PT.
+- `2cf70e8` added application indexing on October 2, 2026, at 07:28 PT.
+- The backfill reaches only indexed rows. A contact from that window may retain no deadline until it is found.
+
+The owner inventories the live objects against the application index before the apply pass.
+The retention bound cannot cover every historical row until that inventory accounts for the gap.
+See the [migration limits and source commits](https://github.com/joelhooks/rat-stack/blob/main/packages/core/spec/README.md#what-the-retention-bound-does-not-cover).
+
+A transient delivery failure now waits for the next eligible five-minute sweep instead of short in-process retries.
+This can delay the confirmation email. An event-capture outage leaves a held application available for operator release.
+Nothing alerts on held rows; their payload expires if no operator releases them within 24 hours.
+A held-row count remains slice 2 work because listing currently returns an array.
+
+An empty vault appears as `held` even when the stored contact is ready and its history disappeared.
+Migration has no compare-and-swap: a stale writer can replace a newer retry time or re-hold a released contact.
+The sticky erase guard prevents deleted payloads from returning.
 
 ## How to check
 

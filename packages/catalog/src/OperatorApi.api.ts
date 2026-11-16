@@ -9,7 +9,7 @@ export class OperatorApi extends Domain.Api(
     commands: ["RecordSighting", "Keep", "Drop"],
     views: ["ItemHistory"],
     streams: [],
-    queries: [],
+    queries: ["Rising", "RepeatAuthors"],
   },
   {
     description:

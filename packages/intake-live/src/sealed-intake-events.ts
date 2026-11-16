@@ -152,6 +152,7 @@ export const sealedIntakeEventsLayer = Layer.effect(
           recordContact(actor, grouped)
         ).pipe(
           Effect.asVoid,
+          // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Sealing failures may contain plaintext contacts; the public intake failure carries no cause.
           Effect.catchCause(() => Effect.fail(new IntakeEventsUnavailable({})))
         ),
     };

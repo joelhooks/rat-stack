@@ -19,6 +19,26 @@
       "import": "./dist/tokenmaxx-workshop.js",
       "default": "./dist/tokenmaxx-workshop.js"
     },
+    "./tokenmaxx-help": {
+      "types": "./src/tokenmaxx-help.ts",
+      "import": "./dist/tokenmaxx-help.js",
+      "default": "./dist/tokenmaxx-help.js"
+    },
+    "./tokenmaxx-help-contracts": {
+      "types": "./src/tokenmaxx-help-contracts.ts",
+      "import": "./dist/tokenmaxx-help-contracts.js",
+      "default": "./dist/tokenmaxx-help-contracts.js"
+    },
+    "./tokenmaxx-help-guide": {
+      "types": "./src/tokenmaxx-help-guide.ts",
+      "import": "./dist/tokenmaxx-help-guide.js",
+      "default": "./dist/tokenmaxx-help-guide.js"
+    },
+    "./tokenmaxx-help-store": {
+      "types": "./src/tokenmaxx-help-store.ts",
+      "import": "./dist/tokenmaxx-help-store.js",
+      "default": "./dist/tokenmaxx-help-store.js"
+    },
     "./workshop-contracts": {
       "types": "./src/workshop-contracts.ts",
       "import": "./dist/workshop-contracts.js",

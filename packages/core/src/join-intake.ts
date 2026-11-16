@@ -1,4 +1,12 @@
-import { Context, DateTime, Effect, Layer, Option, Schema } from "effect";
+import {
+  Clock,
+  Context,
+  DateTime,
+  Effect,
+  Layer,
+  Option,
+  Schema,
+} from "effect";
 import * as SecureRandom from "effect/crypto/SecureRandom";
 
 import { AbuseScore, SCORER_UNAVAILABLE } from "./abuse-score.js";
@@ -15,6 +23,7 @@ import { SubscriberIntake } from "./interest-intake.js";
 import { normalizeClientIp } from "./interest-ip.js";
 import { InterestTokens } from "./interest-token.js";
 import {
+  JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactStore,
   withPending,
   withState,
@@ -139,6 +148,8 @@ export const joinIntakeLayer = Layer.effect(
           contactRef,
           email: address.value,
           hold: held,
+          retentionDeadlineAt:
+            (yield* Clock.currentTimeMillis) + JOIN_CONTACT_RETENTION_MILLIS,
           score: verdict.score,
           signals: verdict.signals,
           state: "held",

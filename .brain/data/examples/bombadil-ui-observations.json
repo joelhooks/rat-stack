@@ -1,0 +1,38 @@
+{
+  "scope": "One local pnpm dev experiment, not a production-preview benchmark or a general guarantee.",
+  "rat_stack_at": "60d73b434d6c62ac6a50eec2b4832003d1c01c9a",
+  "bombadil_version": "0.7.10",
+  "bombadil_at": "832faf4d953e2c56d1d901aca1bb2c3c3170221d",
+  "method": "Selected scalar observations checked against retained traces and focused witness logs. Origins, screenshots, timestamps, video titles and stack paths are omitted. No raw trace is published.",
+  "search": {
+    "mutation": "resultCount(result.total + 1) replaces resultCount(result.total)",
+    "property": "searchCountMatchesRows",
+    "announced": 11,
+    "listed": 10,
+    "shrunk_actions": ["Wait"]
+  },
+  "player": {
+    "mutation": "true replaces isPlaying(model, video) in mediaView",
+    "property": "playerRequiresPlayClick",
+    "initial_iframes": 58,
+    "shrunk_action_count": 0
+  },
+  "restored_player": {
+    "states_with_iframes": 137,
+    "violations": 0,
+    "click_fingerprint_key_observed": "accessible_name",
+    "type_declaration_key": "accessibleName"
+  },
+  "instrumentation": {
+    "exception": "Cannot read properties of undefined (reading '__bombadil__')",
+    "module_kind": "Vite-optimized Array JavaScript chunk",
+    "shrunk_action_count": 0,
+    "workaround": "--instrument-javascript ''"
+  },
+  "defaults": {
+    "navigation_404_paths": ["/llms.txt", "/openapi.json", "/news.xml"],
+    "console_error": "SendBeforeConnectError: send was called before connect",
+    "context": "Development navigation/HMR findings, not demonstrated deployed failures."
+  },
+  "example": "bombadil-ui.spec.txt keeps the two formulas and their extractors from the final spike specification; action generators are omitted."
+}

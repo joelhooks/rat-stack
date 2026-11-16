@@ -12,16 +12,19 @@
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "check": "pnpm run typecheck",
     "build": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke": "node src/smoke-cli.ts"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",
     "@alchemy.run/domain": "2.0.0-beta.87",
+    "@effect/platform-node": "4.1.4",
     "@rat-stack/catalog": "workspace:*",
     "alchemy": "2.0.0-beta.87",
     "effect": "4.1.4"
   },
   "devDependencies": {
+    "@alchemy.run/test": "2.0.0-beta.87",
     "@effect/vitest": "4.1.4",
     "@types/node": "24.19.2",
     "typescript": "7.0.2",

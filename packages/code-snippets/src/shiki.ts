@@ -97,7 +97,11 @@ export const shikiLayer = (theme = "catppuccin-latte") =>
       ) {
         const canonical = yield* Schema.decodeUnknownEffect(Language)(
           aliases[language] ?? language
-        ).pipe(Effect.mapError(() => new HighlightFault({ kind: "language" })));
+        ).pipe(
+          Effect.mapError(
+            (cause) => new HighlightFault({ cause, kind: "language" })
+          )
+        );
 
         const contentKey = JSON.stringify([
           key,

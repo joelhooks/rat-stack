@@ -15,6 +15,7 @@ import { StaticAssets } from "../src/static-assets.js";
 import { workshopAssets } from "../src/workshop-assets.js";
 import { workshopDirectoryForGeneration } from "../src/workshop-directory.js";
 import { workshopRoutes } from "../src/workshop-runtime.js";
+import { workshopHelpForTest } from "./fixtures/workshop-help.js";
 
 it.effect(
   "Workshop MCP serves published exercises from its asset without exposing a draft",
@@ -54,7 +55,10 @@ it.effect(
 
       const records = yield* Schema.decodeUnknownEffect(
         Schema.Array(Schema.Struct({ path: Schema.String, value: Schema.Json }))
-      )([{ path: "/_content/workshop.json", value: data }]);
+      )([
+        { path: "/_content/workshop.json", value: data },
+        { path: "/_content/tokenmaxx-help.json", value: { rows: [] } },
+      ]);
 
       const { generation } = yield* emitAssets({
         data: records,
@@ -98,14 +102,23 @@ it.effect(
       );
 
       expect(
-        yield* fs.readDirectory(upload?.directory ?? "missing-upload", {
+        (yield* fs.readDirectory(upload?.directory ?? "missing-upload", {
           recursive: true,
-        })
-      ).toEqual(["_content", "_content/workshop.json"]);
+        })).toSorted()
+      ).toEqual([
+        "_content",
+        "_content/tokenmaxx-help.json",
+        "_content/workshop.json",
+      ]);
 
       const { handler, dispose } = HttpRouter.toWebHandler(
         workshopRoutes.pipe(
-          Layer.provide(workshopDirectoryForGeneration(generation)),
+          Layer.provide(
+            Layer.merge(
+              workshopDirectoryForGeneration(generation),
+              workshopHelpForTest(generation)
+            )
+          ),
           Layer.provide(assets)
         )
       );

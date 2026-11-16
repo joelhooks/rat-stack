@@ -100,6 +100,11 @@ export const readerMetadataHead = (
       (link) =>
         `<link rel="${escapeAttribute(link.rel)}" type="${escapeAttribute(link.type)}" href="${escapeAttribute(link.href)}">`
     ),
+    ...(metadata.video === undefined
+      ? []
+      : [
+          `<script type="application/ld+json">${JSON.stringify(metadata.video).replaceAll("<", "\\u003c")}</script>`,
+        ]),
     ...(metadata.jsonLd === "none"
       ? []
       : [data, ...(metadata.jsonLd === "TechArticle" ? [breadcrumbs] : [])].map(
