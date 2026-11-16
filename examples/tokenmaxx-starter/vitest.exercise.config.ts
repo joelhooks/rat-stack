@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     include: ["exercises/**/*.test.ts"],
     passWithNoTests: true,
+    setupFiles: ["./vitest.setup.ts"],
     hookTimeout: 30_000,
     testTimeout: 30_000,
   },

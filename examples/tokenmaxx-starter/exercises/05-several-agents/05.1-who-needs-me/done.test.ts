@@ -193,11 +193,17 @@ describe("the 05.1 done command", () => {
   async function run(
     args: string[],
     opts: { stdout?: string; committed?: boolean; env?: EnvState } = {}
-  ): Promise<{ code: number; lines: string[]; stopped: number }> {
+  ): Promise<{
+    code: number;
+    lines: string[];
+    stopped: number;
+    commands: string[];
+  }> {
     const temp = await tempContext({ exerciseId: "05.1" });
     cleanup = temp.cleanup;
     const lines: string[] = [];
     let stopped = 0;
+    const commands: string[] = [];
     const exercise = severalAgentsExercise(
       { id: "05.1", title: "test" },
       {
@@ -209,13 +215,16 @@ describe("the 05.1 done command", () => {
           stopped += 1;
           return null;
         },
-        runCommand: async () => ({
-          code: 0,
-          stdout: opts.stdout ?? correct,
-          stderr: "",
-          ms: 5,
-          timedOut: false,
-        }),
+        runCommand: async (command) => {
+          commands.push(command);
+          return {
+            code: 0,
+            stdout: opts.stdout ?? correct,
+            stderr: "",
+            ms: 5,
+            timedOut: false,
+          };
+        },
         commit: async () => ({
           name: commitClaimName,
           ok: opts.committed ?? true,
@@ -228,7 +237,7 @@ describe("the 05.1 done command", () => {
       throw new Error("05.1 has no done command");
     }
     const code = await done(temp.ctx, args);
-    return { code, lines, stopped };
+    return { code, lines, stopped, commands };
   }
 
   const verdicts = (lines: string[]) =>
@@ -239,7 +248,20 @@ describe("the 05.1 done command", () => {
     expect(code).toBe(0);
     expect(stopped).toBe(1);
     expect(verdicts(lines)).toEqual(Array(6).fill("PASS"));
-    expect(lines).toContain(`PASS  ${commitClaimName}`);
+    expect(lines).toContain(`PASS     ${commitClaimName}`);
+  });
+
+  it("takes --details only before the guest's command, never out of it", async () => {
+    const inside = await run(["pnpm", "sessions", "--details"]);
+    expect(inside.commands).toEqual(["pnpm sessions --details"]);
+    expect(inside.lines.join("\n")).not.toContain("Its output:");
+    const before = await run(["--details", "pnpm", "sessions"]);
+    expect(before.commands).toEqual(["pnpm sessions"]);
+    expect(before.lines.join("\n")).toContain("Its output:");
+    const plain = await run(["pnpm", "sessions"]);
+    expect(plain.lines.at(-1)).toBe(
+      "More: pnpm ex 05.1 done --details pnpm sessions"
+    );
   });
 
   it("fails on the commit line alone", async () => {
@@ -260,7 +282,7 @@ describe("the 05.1 done command", () => {
     const { code, lines } = await run(["pnpm sessions"], { env });
     expect(code).toBe(1);
     expect(lines).toContain(
-      "FAIL  the environment's sessions didn't start: no Pi"
+      "FAIL     the environment's sessions didn't start: no Pi"
     );
   });
 

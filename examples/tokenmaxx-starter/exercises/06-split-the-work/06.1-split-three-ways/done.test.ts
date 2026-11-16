@@ -240,7 +240,7 @@ async function story() {
 
 const passes = (lines: readonly string[]) =>
   lines
-    .filter((l) => /^(PASS|FAIL) {2}/.test(l))
+    .filter((l) => /^(PASS|FAIL) {5}/.test(l))
     .map((l) => l.startsWith("PASS"));
 
 describe("06.1 against a real repo", () => {
@@ -257,10 +257,18 @@ describe("06.1 against a real repo", () => {
     for (const path of [a, b, c]) {
       git(s.guest, "worktree", "remove", path);
     }
-    const done = await s.run("done");
+    const done = await s.run("done", "--details");
     expect(passes(done.lines)).toEqual([true, true, true, true, true, true]);
     expect(done.code).toBe(0);
     expect(done.lines.join("\n")).toMatch(/kept in stash@\{0\}/);
+
+    // As a guest first sees it: one line per check, the details behind a flag.
+    const short = await s.run("done");
+    expect(passes(short.lines)).toEqual([true, true, true, true, true, true]);
+    expect(short.code).toBe(0);
+    expect(short.lines.join("\n")).not.toMatch(/kept in stash@\{0\}/);
+    expect(short.lines.at(-2)).toMatch(/^Done: three workers/);
+    expect(short.lines.at(-1)).toBe("More: pnpm ex 06.1 done --details");
   });
 
   it("fails when the boss takes every done at its word", async () => {
@@ -274,7 +282,7 @@ describe("06.1 against a real repo", () => {
     for (const [, path] of copies) {
       git(s.guest, "worktree", "remove", path);
     }
-    const done = await s.run("done");
+    const done = await s.run("done", "--details");
     expect(passes(done.lines)).toEqual([true, true, true, false, true, true]);
     expect(done.code).toBe(1);
   });
@@ -295,12 +303,12 @@ describe("06.1 against a real repo", () => {
     }
     git(s.guest, "worktree", "remove", "--force", c);
     git(s.guest, "branch", "-q", "-D", "split/c");
-    const lost = await s.run("done");
+    const lost = await s.run("done", "--details");
     expect(passes(lost.lines)).toEqual([true, true, true, true, false, true]);
     expect(lost.lines.join("\n")).toMatch(/lost when its copy closed/);
 
     writeFileSync(join(s.guest, ".git", "part-c.patch"), patch);
-    const kept = await s.run("done");
+    const kept = await s.run("done", "--details");
     expect(passes(kept.lines)).toEqual([true, true, true, true, true, true]);
     expect(kept.lines.join("\n")).toMatch(/\.git\/part-c\.patch/);
   });
@@ -343,12 +351,12 @@ describe("06.1 against a real repo", () => {
     for (const path of [a, b, c]) {
       rmSync(path, { recursive: true });
     }
-    const open = await s.run("done");
+    const open = await s.run("done", "--details");
     expect(passes(open.lines).at(-1)).toBe(false);
     expect(open.lines.join("\n")).toMatch(/Not committed yet: .*c\.patch/);
     git(s.guest, "add", "-A");
     git(s.guest, "commit", "-q", "-m", "parts a and b, and c kept as a patch");
-    const done = await s.run("done");
+    const done = await s.run("done", "--details");
     expect(passes(done.lines)).toEqual([true, true, true, true, true, true]);
     expect(done.lines.join("\n")).toMatch(/\.copies\/a/);
   });
@@ -361,7 +369,7 @@ describe("06.1 against a real repo", () => {
     const refused = runWorker(s.guest, s.state, "c");
     expect(refused.code).toBe(1);
     expect(refused.stderr).toMatch(/is your repo itself/);
-    const done = await s.run("done");
+    const done = await s.run("done", "--details");
     expect(passes(done.lines)[0]).toBe(false);
   });
 });

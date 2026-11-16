@@ -28,6 +28,6 @@ It does three things:
 - Checks that the workshop's pinned packages are installed at their pinned commit.
 - Starts two Pi sessions at the same time. Later exercises run two agents side by side.
 
-Each line prints `PASS` or `FAIL`, the model that answered, and what to do next when something fails. `pnpm ex 00.1 status` shows the last result again.
+Each line prints `PASS` or `FAIL`. A `FAIL` adds the model that answered and what to do next; `--details` shows the model on a `PASS` too. `pnpm ex 00.1 status` shows the last result again.
 
 **Done when** `pnpm ex 00.1 check` shows `PASS` on all three lines and ends with `Ready for the workshop.`

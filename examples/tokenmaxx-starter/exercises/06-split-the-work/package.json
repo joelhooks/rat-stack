@@ -1,0 +1,22 @@
+{
+  "name": "@tokenmaxx/ex-06-split-the-work",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Exercises 06-split-the-work: readmes, done checks and their tests.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/split-job": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

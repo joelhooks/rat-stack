@@ -118,7 +118,9 @@ describe("the loop job", () => {
     expect((await run("consume", resultId)).code).toBe(0);
     const done = await run("done");
     expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(4);
-    expect(done.out[6]).toBe("PASS  committed");
+    expect(done.out.filter((l) => /^(PASS|FAIL) /.test(l)).at(-1)).toBe(
+      "PASS     committed"
+    );
     expect(done.code).toBe(0);
   });
 
@@ -131,7 +133,7 @@ describe("the loop job", () => {
     who.committed = false;
     const done = await run("done");
     expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(3);
-    expect(done.out).toContain("FAIL  committed");
+    expect(done.out).toContain("FAIL     committed");
     expect(done.code).toBe(1);
   });
 
@@ -145,7 +147,7 @@ describe("the loop job", () => {
     await run("consume", resultId);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL  its result was consumed exactly once");
+    expect(done.out).toContain("FAIL     its result was consumed exactly once");
   });
 
   it("consuming result.json's stale result fails done", async () => {
@@ -159,7 +161,7 @@ describe("the loop job", () => {
     await run("consume", fresh);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL  no stale result was consumed");
+    expect(done.out).toContain("FAIL     no stale result was consumed");
   });
 
   it("a superseded run still finishes late; its result is stale", async () => {
@@ -206,7 +208,7 @@ describe("the loop job", () => {
     await run("consume", resultId);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL  the current run finished");
+    expect(done.out).toContain("FAIL     the current run finished");
     expect(done.out.join("\n")).toMatch(
       /used the test-only window \(TMX_TEST_WITHIN_MINUTES=0\.5\); start a normal run/
     );
@@ -229,7 +231,8 @@ describe("the loop job", () => {
     await run("consume", resultId);
     const done = await run("done");
     expect(done.code).toBe(0);
-    expect(done.out.at(-2)).toBe(
+    // The note is the last line above the verdict's blank line.
+    expect(done.out[done.out.lastIndexOf("") - 1]).toBe(
       "Note: 1 consume from outside a top-level Pi session not counted"
     );
   });
@@ -308,7 +311,9 @@ describe("the loop job", () => {
     await practice.run("release");
     const resultId = resultIdIn((await practice.run("status")).out.slice(0, 1));
     expect((await practice.run("consume", resultId)).code).toBe(0);
-    expect((await practice.run("done")).out[1]).toMatch(/test-only window/);
+    expect((await practice.run("done", "--details")).out.join("\n")).toMatch(
+      /test-only window/
+    );
     expect((await real.run("status")).out).toContain("Consumed:     none");
     expect((await real.run("status")).out[0]).toBe("Current run:  none");
     expect((await real.run("done")).code).toBe(1);

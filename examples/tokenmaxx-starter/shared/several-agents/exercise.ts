@@ -2,6 +2,8 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 
+import { detailsFlag, reporter, shortPath } from "#shared/core/report.ts";
+
 import {
   type CommitClaim,
   commitLine,
@@ -161,56 +163,83 @@ export const defaultDeps: SeveralAgentsDeps = {
 
 async function done(
   ctx: ExerciseContext,
-  args: readonly string[],
-  deps: SeveralAgentsDeps
+  argv: readonly string[],
+  deps: SeveralAgentsDeps,
+  title: string
 ): Promise<number> {
   const { out } = deps;
-  const command = args.join(" ").trim();
+  // `--details` is ours only before the guest's command starts: after
+  // that, every word is theirs.
+  let first = 0;
+  while (argv[first] === detailsFlag) {
+    first += 1;
+  }
+  const details = first > 0;
+  const command = argv.slice(first).join(" ").trim();
   if (command === "") {
     deps.err("Give your command: pnpm ex 05.1 done <your command>");
     return 2;
   }
   const where = commandCwd(ctx);
-  const t0 = Date.now();
+  const r = reporter(out, {
+    id: ctx.exerciseId,
+    title,
+    command: `pnpm ex ${ctx.exerciseId} done --details ${command}`,
+    details,
+  });
+  r.header(`running \`${command}\` in ${shortPath(where)}`);
+  r.line("");
   let env: EnvState;
   try {
-    env = await deps.startSet(ctx, doneLifetimeMs, out);
+    env = await r.during("Starting the environment's five sessions...", () =>
+      deps.startSet(ctx, doneLifetimeMs, r.line)
+    );
   } catch (error) {
-    out(`FAIL  the environment's sessions didn't start: ${String(error)}`);
+    r.check(
+      "FAIL",
+      `the environment's sessions didn't start: ${String(error)}`
+    );
     return 1;
   }
   let ran: CommandRun;
   try {
     if (env.status !== "ready") {
-      out(
-        `FAIL  the environment's sessions didn't start: ${env.error ?? env.status}`
+      r.check(
+        "FAIL",
+        `the environment's sessions didn't start: ${env.error ?? env.status}`
       );
       return 1;
     }
-    out(
-      `Started the environment's five sessions in ${((Date.now() - t0) / 1000).toFixed(1)}s.`
+    ran = await r.during(`Running \`${command}\`...`, () =>
+      deps.runCommand(command, where)
     );
-    ran = await deps.runCommand(command, where);
   } finally {
     await deps.stopSet(ctx.stateDir);
   }
-  out(
-    `Ran \`${command}\` in ${where}: ${ran.timedOut ? `stopped after ${commandTimeoutMs / 1000}s` : `exit ${ran.code ?? "on a signal"}`}, ${(ran.ms / 1000).toFixed(1)}s. Its output:`
-  );
-  out(indent(ran.stdout === "" ? "(nothing on stdout)" : ran.stdout));
-  if (ran.stderr.trim() !== "") {
-    out("Its stderr:");
-    out(indent(ran.stderr, 10));
-  }
-  out("");
   const claims = judge(ran.stdout, env.sessions);
-  for (const claim of claims) {
-    out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.text}`);
+  const commit = await r.during(
+    "Checking the step's commit with your commit hooks...",
+    () => deps.commit(ctx)
+  );
+  const ok = claims.every((c) => c.ok) && commit.ok;
+  // What the command printed: the claims judge it, so it shows with any FAIL.
+  if (details || !claims.every((c) => c.ok)) {
+    r.line(
+      `Ran \`${command}\` in ${shortPath(where)}: ${ran.timedOut ? `stopped after ${commandTimeoutMs / 1000}s` : `exit ${ran.code ?? "on a signal"}`}, ${(ran.ms / 1000).toFixed(1)}s. Its output:`
+    );
+    r.line(indent(ran.stdout === "" ? "(nothing on stdout)" : ran.stdout));
+    if (ran.stderr.trim() !== "") {
+      r.line("Its stderr:");
+      r.line(indent(ran.stderr, 10));
+    }
+    r.line("");
   }
-  const commit = await deps.commit(ctx);
-  out(`${commit.ok ? "PASS" : "FAIL"}  ${commit.name}`);
-  out(`      ${commit.detail}`);
-  return claims.every((c) => c.ok) && commit.ok ? 0 : 1;
+  for (const claim of claims) {
+    r.check(claim.ok ? "PASS" : "FAIL", claim.text);
+  }
+  r.check(commit.ok ? "PASS" : "FAIL", commit.name, commit.detail);
+  r.verdict(ok ? "Done." : "Not done yet.");
+  return ok ? 0 : 1;
 }
 
 export function severalAgentsExercise(
@@ -250,7 +279,7 @@ export function severalAgentsExercise(
         printEnv(out, await deps.stopSet(ctx.stateDir));
         return 0;
       },
-      done: (ctx, args) => done(ctx, args, deps),
+      done: (ctx, args) => done(ctx, args, deps, opts.title),
     },
   });
 }

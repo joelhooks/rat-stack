@@ -10,6 +10,7 @@ import {
   type Exercise,
   type ExerciseCommand,
 } from "#shared/core/exercise.ts";
+import { detailsFlag, reporter, takeDetails } from "#shared/core/report.ts";
 import {
   readSessions,
   type SessionRecord,
@@ -286,19 +287,32 @@ export function ownLoopExercise(
       ...extra,
 
       /** The done check: PASS only when every claim holds. */
-      async done(ctx) {
+      async done(ctx, args) {
+        const r = reporter(out, {
+          id: opts.id,
+          title: opts.title,
+          command: `${ex(ctx, "done")} ${detailsFlag}`,
+          details: takeDetails(args).details,
+        });
+        r.header();
+        r.line("");
         const verdict = await judgeEvents(ctx, await readEvents(ctx.stateDir));
-        const claims = [...verdict.claims, await deps.commit(ctx)];
+        const claims = [
+          ...verdict.claims,
+          await r.during(
+            "Checking the step's commit with your commit hooks...",
+            () => deps.commit(ctx)
+          ),
+        ];
         const { notes } = verdict;
         for (const claim of claims) {
-          out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
-          out(`      ${claim.detail}`);
+          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
         }
         for (const note of notes) {
-          out(note);
+          r.aside(note);
         }
         const ok = claims.every((c) => c.ok);
-        out(
+        r.verdict(
           ok
             ? (opts.donePass ??
                 "Done: the current run's result was consumed once, and nothing stale was.")

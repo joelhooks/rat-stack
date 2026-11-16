@@ -1,7 +1,19 @@
-# One project: the starter. A guest's own Pi package with a package.json is
-# not a workspace project, so it never trips verifyDepsBeforeRun.
+# The starter's own packages, by name. A guest's own Pi package with a
+# package.json (under .pi/, or anywhere else) is not a workspace project, so
+# it never trips verifyDepsBeforeRun and the starter never checks it.
 packages:
-  - "."
+  - "shared/*"
+  - "scripts"
+  - "exercises/*"
+
+# One version of each shared dependency, for every package.
+catalog:
+  "@earendil-works/pi-coding-agent": 1.5.2
+  "@types/node": 24.19.2
+  effect: 4.1.4
+  typebox: 1.3.27
+  typescript: 7.0.2
+  vitest: 5.0.5
 
 verifyDepsBeforeRun: error
 

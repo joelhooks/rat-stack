@@ -8,6 +8,13 @@ import { catchUp } from "#shared/core/catch-up.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import { now } from "#shared/core/paths.ts";
+import {
+  detailsFlag,
+  type Reporter,
+  reporter,
+  shortPath,
+  takeDetails,
+} from "#shared/core/report.ts";
 import { tryReadJson, writeJsonAtomic } from "#shared/core/store.ts";
 
 import {
@@ -86,35 +93,31 @@ const real = (path: string) => {
   }
 };
 
-const indent = (text: string) =>
-  text.split("\n").map((line) => `      ${line}`);
-
-// DRAFT label for a line `done` still checks but doesn't need. Joel may
-// change the wording.
-const noteLine = (note: Claim) =>
-  `NOTE  ${note.name}: ${note.ok ? "yes" : "no"}, not needed for done`;
+// A NOTE line: a line `done` still checks but doesn't need.
+const noteLine = (note: Claim) => `${note.name}: ${note.ok ? "yes" : "no"}`;
 
 // DRAFT closing lines.
 const doneLine = (ok: boolean) =>
   ok ? "Done: the fence holds." : "Not done yet.";
 
 function print(
-  out: (line: string) => void,
+  report: Reporter,
   claims: readonly Claim[],
   notes: readonly Claim[],
   stretch: Stretch | null
 ) {
   for (const claim of claims) {
-    out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
-    indent(claim.detail).forEach((line) => out(line));
+    report.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
   }
   for (const note of notes) {
-    out(noteLine(note));
-    indent(note.detail).forEach((line) => out(line));
+    report.check("NOTE", noteLine(note), note.detail);
   }
   if (stretch !== null) {
-    out(`STRETCH  ${stretch.name}: ${stretch.held ? "held" : "not held"}`);
-    indent(stretch.detail).forEach((line) => out(line));
+    report.check(
+      "STRETCH",
+      `${stretch.name}: ${stretch.held ? "held" : "not held"}`,
+      stretch.detail
+    );
   }
 }
 
@@ -124,6 +127,13 @@ export function firstPackageExercise(
 ): Exercise {
   const { out } = deps;
   const ex = (command: string) => `pnpm ex ${opts.id} ${command}`;
+  const report = (command: string, args: readonly string[]) =>
+    reporter(out, {
+      id: opts.id,
+      title: opts.title,
+      command: `${ex(command)} ${detailsFlag}`,
+      details: takeDetails(args).details,
+    });
   return defineExercise({
     id: opts.id,
     title: opts.title,
@@ -137,15 +147,17 @@ export function firstPackageExercise(
       },
 
       /** The last `done` result, without running it again. */
-      async status(ctx) {
+      async status(ctx, args) {
         const saved = await tryReadJson(savedPath(ctx), SavedDone);
         if (!saved.ok) {
           out(`No result yet. Run ${ex("done")}.`);
           return 0;
         }
-        out(`Last ${ex("done")}, at ${saved.value.at}:`);
-        print(out, saved.value.claims, saved.value.notes, saved.value.stretch);
-        out(doneLine(saved.value.claims.every((c) => c.ok)));
+        const r = report("status", args);
+        r.header(`last done, at ${saved.value.at}`);
+        r.line("");
+        print(r, saved.value.claims, saved.value.notes, saved.value.stretch);
+        r.verdict(doneLine(saved.value.claims.every((c) => c.ok)));
         return 0;
       },
 
@@ -164,7 +176,8 @@ export function firstPackageExercise(
       },
 
       /** The done check: PASS when the fence holds. The notes never count. */
-      async done(ctx) {
+      async done(ctx, args) {
+        const r = report("done", args);
         // The guest's repo, which holds the starter when it was pulled in.
         // Compared by real path: TMX_GUEST_ROOT can name the starter itself
         // through a symlink (macOS's /var is one to /private/var).
@@ -173,31 +186,36 @@ export function firstPackageExercise(
         const supplied = nested
           ? [relative(real(root), real(ctx.repoRoot))]
           : suppliedFolders;
-        if (nested) {
-          out(
-            `Checking your repo at ${root} (the workshop tools are in its ${supplied.join("")}/ folder).`
-          );
-        }
-        out(
-          "Trying a commit with a type error in a throwaway copy of the repo, then a fresh Pi there trying to skip the hook..."
+        r.header(
+          nested
+            ? `checking ${shortPath(root)} (tools in ${supplied.join("")}/)`
+            : `checking ${shortPath(root)}`
         );
-        const fence = await deps.fence(root, supplied);
-        out("Starting a fresh Pi against a local fake model...");
-        const trusted = await deps.probe(ctx.repoRoot, true);
-        const untrusted = trusted.ok
-          ? await deps.probe(ctx.repoRoot, false)
-          : null;
+        r.line("");
+        const fence = await r.during(
+          "Trying a type-broken commit in a throwaway copy (about 30 s)...",
+          () => deps.fence(root, supplied)
+        );
+        const [trusted, untrusted] = await r.during(
+          "Starting a fresh Pi against a local fake model...",
+          async () => {
+            const withRepo = await deps.probe(ctx.repoRoot, true);
+            return [
+              withRepo,
+              withRepo.ok ? await deps.probe(ctx.repoRoot, false) : null,
+            ] as const;
+          }
+        );
         const claims = [fenceClaim(fence)];
         const notes = [
           packageClaim(trusted, untrusted),
           whyClaim(await findWhyFiles(root)),
         ];
         const stretch = stretchLine(fence);
-        out("");
-        print(out, claims, notes, stretch);
+        print(r, claims, notes, stretch);
         const warning = changedWarning(fence);
         if (warning !== null) {
-          out(warning);
+          r.aside(warning);
         }
         await writeJsonAtomic(savedPath(ctx), {
           at: now(),
@@ -206,7 +224,7 @@ export function firstPackageExercise(
           stretch,
         });
         const ok = claims.every((c) => c.ok);
-        out(doneLine(ok));
+        r.verdict(doneLine(ok));
         return ok ? 0 : 1;
       },
     },

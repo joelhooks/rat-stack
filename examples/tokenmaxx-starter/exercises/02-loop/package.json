@@ -1,0 +1,23 @@
+{
+  "name": "@tokenmaxx/ex-02-loop",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Exercises 02-loop: readmes, done checks and their tests.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/core": "workspace:*",
+    "@tokenmaxx/own-loop": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

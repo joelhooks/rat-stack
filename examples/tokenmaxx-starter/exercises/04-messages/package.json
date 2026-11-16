@@ -1,0 +1,23 @@
+{
+  "name": "@tokenmaxx/ex-04-messages",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Exercises 04-messages: readmes, done checks and their tests.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/core": "workspace:*",
+    "@tokenmaxx/messages": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
