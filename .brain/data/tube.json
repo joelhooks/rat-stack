@@ -1812,6 +1812,80 @@
       }
     },
     {
+      "id": "O_zcc6Xl12g",
+      "slug": "all-code-is-slop-except-mine-lauren-tan",
+      "url": "https://www.youtube.com/watch?v=O_zcc6Xl12g",
+      "title": "All Code Is Slop (Except Mine) — Lauren Tan, SpaceXSI",
+      "channel": "AI Engineer",
+      "channelUrl": "https://www.youtube.com/@aiDotEngineer",
+      "durationSeconds": 1051,
+      "published": "2026-11-14",
+      "theme": "agents",
+      "tier": "S",
+      "take": "Lauren Tan argues that every correction you give an agent should become a lint rule, a type, a test or a better API, not another line of prose. She shows rules that ban patterns agents misuse, a ban on most code comments, and verification that replaces most code review. It is the thinking behind rat-stack's own fence.",
+      "basis": "transcript",
+      "checked": "2026-11-16",
+      "page": {
+        "summary": [
+          "Lauren Tan describes how her team keeps code quality up while agents write most of it. She ranks where to spend effort as an inverse pyramid: code and API design first, then lint rules, types and tests, then runtime and formal verification, with prose rules last.",
+          "She treats the codebase as a garden that agents copy from, so workarounds and old patterns spread unless they are removed. She reports that her team ships thousands of pull requests a month with a revert rate near half a percent, while the app has become faster."
+        ],
+        "sections": [
+          {
+            "at": 0,
+            "note": "The talk asks how to ship thousands of pull requests without losing quality."
+          },
+          {
+            "at": 120,
+            "note": "An inverse pyramid ranks code, checks, verification and prose by where to spend effort."
+          },
+          {
+            "at": 180,
+            "note": "The codebase is the largest input, so each correction should become a deterministic check."
+          },
+          {
+            "at": 300,
+            "note": "Her framework bans a React hook agents misuse and blocks imports across directories."
+          },
+          {
+            "at": 420,
+            "note": "Agents use comments and docs to justify workarounds, so most comments are banned."
+          },
+          {
+            "at": 540,
+            "note": "Videos, screenshots and a feature map replace most code review."
+          },
+          {
+            "at": 640,
+            "note": "Formal verification and UI property tests with Bombadil catch more bugs."
+          },
+          {
+            "at": 780,
+            "note": "Her team's numbers: more pull requests, few reverts and a faster app."
+          },
+          {
+            "at": 900,
+            "note": "Fix the inner loop before automating it, or automation only makes more slop."
+          }
+        ],
+        "concepts": [
+          { "term": "No comments in code", "route": "/lore/no-comments" },
+          { "term": "The fence", "route": "/lore/the-fence" },
+          {
+            "term": "Property-based testing",
+            "route": "/lore/property-based-testing"
+          },
+          { "term": "Lauren Tan", "route": "/lore/lauren-tan" }
+        ],
+        "gaps": [
+          "Runtime verification with a feature map",
+          "Formal verification with TLA+ and Lean"
+        ],
+        "basis": "transcript",
+        "written": "2026-11-16"
+      }
+    },
+    {
       "id": "D7_ipDqhtwk",
       "slug": "building-effective-agents-barry-zhang",
       "url": "https://www.youtube.com/watch?v=D7_ipDqhtwk",
