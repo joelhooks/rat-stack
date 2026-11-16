@@ -1,5 +1,59 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/timhanlon/fluid-functionalism-foldkit",
+    "title": "Fluid Functionalism ported to Foldkit",
+    "summary": "A port of the Fluid Functionalism component set to Foldkit and Foldkit UI, with a live demo; smooth animation needs a pending Foldkit patch.",
+    "date": "2026-11-16",
+    "repo": "timhanlon/fluid-functionalism-foldkit",
+    "author": {
+      "github": "timhanlon",
+      "x": "timhnln"
+    },
+    "source": "https://x.com/timhnln/status/2122383624993694038",
+    "engagement": {
+      "stars": 2
+    }
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/0xblacklight/status/2122164674309521562",
+    "title": "anti-slop adds Effect rules and a Jev plugin",
+    "summary": "Update to an anti-slop lint repo: more Effect rules, a vendored oxlint Jev plugin for rules written as natural-language questions, and changed-code-only checks.",
+    "date": "2026-11-16",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": "0xblacklight"
+    },
+    "source": "https://x.com/0xblacklight/status/2122164674309521562",
+    "topReplies": [
+      {
+        "likes": 14,
+        "text": "@0xblacklight @EffectTS_ @typesafeai Check out @harrysolovay ‘s trait thing",
+        "url": "https://x.com/MichaelArnaldi/status/2122221723890368968",
+        "x": "MichaelArnaldi"
+      },
+      {
+        "likes": 6,
+        "text": "Some of the newer rules are a little more experimental and I’m going to have to decide whether to keep them or not",
+        "url": "https://x.com/0xblacklight/status/2122169441643589757",
+        "x": "0xblacklight"
+      },
+      {
+        "likes": 3,
+        "text": "@MichaelArnaldi @EffectTS_ @typesafeai @harrysolovay Seems cool will do",
+        "url": "https://x.com/0xblacklight/status/2122334923482886237",
+        "x": "0xblacklight"
+      }
+    ],
+    "engagement": {
+      "likes": 383,
+      "replies": 5,
+      "participants": 6
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.3",
     "title": "XState 6 beta.3 adds always transitions to xstate/fsm",
@@ -16,6 +70,51 @@
     }
   },
   {
+    "kind": "launch",
+    "url": "https://github.com/nanocodexyz/harnesslang",
+    "title": "harnesslang compiles agent harnesses to each platform's durability",
+    "summary": "A language for agent harnesses whose compiler proves a program against each target's crash guarantees, such as Durable Objects or native Rust, then emits code.",
+    "date": "2026-11-14",
+    "repo": "nanocodexyz/harnesslang",
+    "author": {
+      "github": "nanocodexyz",
+      "x": null
+    },
+    "source": "https://github.com/nanocodexyz/harnesslang",
+    "engagement": {
+      "stars": 22
+    }
+  },
+  {
+    "kind": "post",
+    "url": "https://zenn.dev/yasuakiomokawa/articles/de83bb4c4ea928",
+    "title": "Moving a React app to Foldkit one path at a time",
+    "summary": "Moves a frontend from React to Foldkit in 22 issues: each path boots the old or new app, and existing end-to-end tests gate each step.",
+    "date": "2026-11-14",
+    "repo": null,
+    "author": {
+      "github": "YasuakiOmokawa",
+      "x": null
+    },
+    "source": "https://zenn.dev/yasuakiomokawa/articles/de83bb4c4ea928"
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=O_zcc6Xl12g",
+    "title": "All Code Is Slop (Except Mine)",
+    "summary": "Talk on scaling coding agents with architecture, lint rules, automated tests, runtime and formal verification; reports 11,000 PRs in a month with about 0.5% reverts.",
+    "date": "2026-11-14",
+    "repo": null,
+    "author": {
+      "github": "poteto",
+      "x": "poteto"
+    },
+    "source": "https://www.youtube.com/watch?v=O_zcc6Xl12g",
+    "engagement": {
+      "views": 524716
+    }
+  },
+  {
     "kind": "video",
     "url": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
     "title": "Effect Module of the Week 7: Cluster workflows",
@@ -29,6 +128,22 @@
     "source": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
     "engagement": {
       "views": 428
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/davidnussio/effect-cqrs",
+    "title": "effect-cqrs brings CQRS and event sourcing to Effect v4",
+    "summary": "Trial port of a 2019 CQRS and event sourcing module to Effect v4: event store, projections, sagas, outbox, crypto-shredding and upcasting.",
+    "date": "2026-11-13",
+    "repo": "davidnussio/effect-cqrs",
+    "author": {
+      "github": "davidnussio",
+      "x": "davidnussio"
+    },
+    "source": "https://x.com/davidnussio/status/2121142090721833322",
+    "engagement": {
+      "stars": 4
     }
   },
   {
@@ -60,7 +175,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 587
+      "stars": 621
     }
   },
   {
@@ -103,6 +218,22 @@
     "source": "https://www.youtube.com/watch?v=fNpJ63QjK-k",
     "engagement": {
       "views": 332
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/artile/foldkit-bombadil-spike",
+    "title": "Bombadil fuzzes a real Foldkit app",
+    "summary": "Measured proof of concept: Bombadil drives a real Foldkit app through DOM actions, Messages sent over Foldkit's Port API, and headless property tests.",
+    "date": "2026-11-12",
+    "repo": "artile/foldkit-bombadil-spike",
+    "author": {
+      "github": "artile",
+      "x": null
+    },
+    "source": "https://github.com/artile/foldkit-bombadil-spike",
+    "engagement": {
+      "stars": 0
     }
   },
   {
@@ -186,6 +317,22 @@
     }
   },
   {
+    "kind": "launch",
+    "url": "https://github.com/archiboi69/domain-devtools",
+    "title": "Domain Devtools draws Alchemy Domain models",
+    "summary": "Generates Mermaid command diagrams and aggregate state overviews from Alchemy Domain models, to inspect their contracts, decisions, events and evolution.",
+    "date": "2026-11-10",
+    "repo": "archiboi69/domain-devtools",
+    "author": {
+      "github": "archiboi69",
+      "x": null
+    },
+    "source": "https://github.com/archiboi69/domain-devtools",
+    "engagement": {
+      "stars": 25
+    }
+  },
+  {
     "kind": "thread",
     "url": "https://x.com/devinjameson/status/2119871161265713420",
     "title": "Foldkit's creator goes full-time on Foldkit",
@@ -252,7 +399,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 215
+      "stars": 214
     }
   },
   {
@@ -333,6 +480,22 @@
     "source": "https://github.com/nstudio/ns-foldkit",
     "engagement": {
       "stars": 2
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/just-be-dev/cantrip",
+    "title": "Cantrip is a macOS command bar whose commands are Effect programs",
+    "summary": "A macOS command bar with a GPU-drawn Rust UI; its commands, called spells, are Effect programs that run on Bun.",
+    "date": "2026-11-06",
+    "repo": "just-be-dev/cantrip",
+    "author": {
+      "github": "just-be-dev",
+      "x": "just_be_dev"
+    },
+    "source": "https://github.com/just-be-dev/cantrip",
+    "engagement": {
+      "stars": 0
     }
   },
   {
@@ -488,7 +651,7 @@
     },
     "source": "https://silklang.org",
     "engagement": {
-      "stars": 80
+      "stars": 101
     }
   },
   {
@@ -594,6 +757,22 @@
     "source": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
     "engagement": {
       "views": 239
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/MapleTechLabs/changesets",
+    "title": "An Effect-based drop-in for Changesets",
+    "summary": "Replaces @changesets/cli add, version and status, reading and writing the same files; its only dependencies are effect and @effect/platform-node.",
+    "date": "2026-11-02",
+    "repo": "MapleTechLabs/changesets",
+    "author": {
+      "github": "MapleTechLabs",
+      "x": null
+    },
+    "source": "https://github.com/MapleTechLabs/changesets",
+    "engagement": {
+      "stars": 1
     }
   },
   {
@@ -927,22 +1106,6 @@
     "source": "https://github.com/acoyfellow/skin",
     "engagement": {
       "stars": 14
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/acoyfellow/hark",
-    "title": "hark",
-    "summary": "A voice agent on your own Cloudflare account: Workers AI for thinking, Deepgram and Aura for speech, with an Effect 4 and Foldkit UI.",
-    "date": "2026-10-16",
-    "repo": "acoyfellow/hark",
-    "author": {
-      "github": "acoyfellow",
-      "x": "acoyfellow"
-    },
-    "source": "https://github.com/acoyfellow/hark",
-    "engagement": {
-      "stars": 16
     }
   }
 ]
