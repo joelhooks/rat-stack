@@ -1,6 +1,14 @@
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Layer, Logger, Path, Schema } from "effect";
+import {
+  Effect,
+  FileSystem,
+  Layer,
+  Logger,
+  Path,
+  Predicate,
+  Schema,
+} from "effect";
 import { McpServer } from "effect/ai";
 import { CliOutput, Command } from "effect/cli";
 import { Etag, HttpPlatform, HttpRouter } from "effect/http";
@@ -23,12 +31,38 @@ import { RequiredCauseFailure } from "./required-cause-failure.js";
 
 const secret = "planted-cause-secret-8f173";
 
+const NestedFailure = Schema.Struct({
+  cause: Schema.Defect(),
+  detail: Schema.String,
+});
+
+const diagnostics = {
+  nested: { cause: new Error(secret), detail: "nested-detail" },
+  records: { entry: { cause: new Error(secret), detail: "record-detail" } },
+  array: [{ cause: new Error(secret), detail: "array-detail" }],
+  tuple: Schema.Tuple([NestedFailure]).make([
+    { cause: new Error(secret), detail: "tuple-detail" },
+  ]),
+  suspended: { cause: new Error(secret), detail: "suspended-detail" },
+  union: { cause: new Error(secret), detail: "union-detail" },
+};
+
 class PrivateFailure extends Schema.TaggedError<
   PrivateFailure,
   { readonly brand: unique symbol }
 >()("PrivateFailure", {
   cause: Schema.optionalKey(Schema.Defect()),
   detail: Schema.String,
+  diagnostics: Schema.optionalKey(
+    Schema.Struct({
+      nested: NestedFailure,
+      records: Schema.Record(Schema.String, NestedFailure),
+      array: Schema.Array(NestedFailure),
+      tuple: Schema.Tuple([NestedFailure]),
+      suspended: Schema.suspend(() => NestedFailure),
+      union: Schema.Union([Schema.String, NestedFailure]),
+    })
+  ),
 }) {}
 
 const RpcRequest = Schema.TaggedStruct("Request", {
@@ -55,6 +89,7 @@ const capability = implement(contract, ({ required }) =>
       : new PrivateFailure({
           cause: new Error(secret),
           detail: "retained-detail",
+          diagnostics,
         })
   )
 );
@@ -90,7 +125,7 @@ const surfaces = [
   },
   {
     name: "RPC",
-    response: (required: boolean) =>
+    response: (required: boolean, messages: unknown[]) =>
       Effect.gen(function* rpcResponse() {
         const projection = toRpc([capability]);
 
@@ -100,7 +135,14 @@ const surfaces = [
           protocol: "http",
         }).pipe(
           Layer.provideMerge(projection.layer),
-          Layer.provide(RpcSerialization.layerJson)
+          Layer.provide(RpcSerialization.layerJson),
+          Layer.provideMerge(
+            Logger.layer([
+              Logger.make(({ message }) => {
+                messages.push(message);
+              }),
+            ])
+          )
         );
 
         const { dispose, handler } = HttpRouter.toWebHandler(server, {
@@ -131,13 +173,20 @@ const surfaces = [
   },
   {
     name: "MCP toolkit",
-    response: (required: boolean) =>
+    response: (required: boolean, messages: unknown[]) =>
       Effect.gen(function* mcpResponse() {
         const projection = toToolkit([capability]);
 
         const server = McpServer.toolkit(projection.toolkit).pipe(
           Layer.provideMerge(projection.layer),
-          Layer.provide(serverLayer)
+          Layer.provide(serverLayer),
+          Layer.provideMerge(
+            Logger.layer([
+              Logger.make(({ message }) => {
+                messages.push(message);
+              }),
+            ])
+          )
         );
 
         const client = yield* makeMcpClient(server);
@@ -165,14 +214,95 @@ const surfaces = [
   },
 ];
 
+interface RecursiveFailureValue {
+  readonly cause: unknown;
+  readonly detail: string;
+  readonly children: readonly RecursiveFailureValue[];
+}
+
+const RecursiveFailure: Schema.Codec<RecursiveFailureValue> = Schema.suspend(
+  () =>
+    Schema.Struct({
+      cause: Schema.Unknown,
+      detail: Schema.String,
+      children: Schema.Array(RecursiveFailure),
+    })
+);
+
 describe("contract failure privacy", () => {
+  it.effect.prop(
+    "recursive suspended failures redact and restore every declared level",
+    { depth: Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 5 })) },
+    ({ depth }) =>
+      Effect.gen(function* recursiveFailure() {
+        let input: RecursiveFailureValue = {
+          cause: secret,
+          detail: "retained",
+          children: [],
+        };
+
+        for (let index = 0; index < depth; index += 1) {
+          input = { cause: secret, detail: "retained", children: [input] };
+        }
+
+        const schema = wireFailureSchema(RecursiveFailure);
+        const encoded = yield* Schema.encodeEffect(schema)(input);
+        expect(JSON.stringify(encoded)).not.toContain(secret);
+        const decoded = yield* Schema.decodeUnknownEffect(schema)(encoded);
+        let node = decoded;
+
+        for (let index = 0; index <= depth; index += 1) {
+          expect(node.cause).toBeNull();
+          expect(node.detail).toBe("retained");
+          node = node.children[0] ?? node;
+        }
+      }).pipe(Effect.provide(Logger.layer([]))),
+    { arbitrary: { runs: 10 } }
+  );
+
   for (const surface of surfaces) {
     for (const required of [false, true]) {
       it.effect(
         `${surface.name} strips ${required ? "required" : "optional"} causes without losing public fields`,
         () =>
           Effect.gen(function* publicResponse() {
-            const response = yield* surface.response(required);
+            const messages: unknown[] = [];
+
+            const response = yield* Effect.gen(function* request() {
+              return yield* surface.response(required, messages);
+            }).pipe(
+              Effect.provide(
+                Logger.layer([
+                  Logger.make(({ message }) => {
+                    messages.push(message);
+                  }),
+                ])
+              )
+            );
+
+            expect(
+              messages.filter(
+                (message) =>
+                  Array.isArray(message) &&
+                  message[0] === "Capability failure cause"
+              )
+            ).toHaveLength(1);
+
+            if (!required) {
+              for (const name of [
+                "nested",
+                "record",
+                "array",
+                "tuple",
+                "suspended",
+                "union",
+              ]) {
+                expect(response).toContain(`${name}-detail`);
+              }
+
+              expect(response).not.toContain('"cause":{"name"');
+            }
+
             expect(response).not.toContain(secret);
             expect(response).toContain(
               required ? "RequiredCauseFailure" : "PrivateFailure"
@@ -233,6 +363,26 @@ describe("contract failure privacy", () => {
           expect(encoded).toMatchObject({ detail: "retained-detail" });
           expect(JSON.stringify(encoded)).not.toContain(secret);
         }).pipe(Effect.provide(Logger.layer([])))
+    );
+  }
+
+  for (const opaque of [
+    Schema.Unknown,
+    Schema.Any,
+    Schema.declare((value): value is object => Predicate.isObject(value)),
+  ]) {
+    it.effect(
+      `${opaque.ast._tag} retains undeclared nested fields as a documented limit`,
+      () =>
+        Effect.gen(function* opaqueLimit() {
+          const schema = wireFailureSchema(Schema.Struct({ details: opaque }));
+
+          const encoded = yield* Schema.encodeEffect(schema)({
+            details: { child: { cause: secret } },
+          });
+
+          expect(JSON.stringify(encoded)).toContain(secret);
+        })
     );
   }
 

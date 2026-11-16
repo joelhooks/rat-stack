@@ -12,6 +12,7 @@ import * as RpcSerialization from "effect/rpc/RpcSerialization";
 
 import { DeployStepError } from "./contracts.js";
 import { runPoll } from "./poll-machine.js";
+import { logSafeDeployFailure } from "./safe-failure-log.js";
 
 const ToolsResponse = Schema.Struct({
   result: Schema.Struct({
@@ -740,7 +741,7 @@ export const postDeployChecks = Effect.fn("postDeployChecks")(
     return verdicts;
   },
   Effect.tapError((cause) =>
-    Effect.logError("Post-deploy checks failed", cause)
+    logSafeDeployFailure(cause, "checks", "content-version-retry-input-invalid")
   ),
   Effect.mapError(
     () =>

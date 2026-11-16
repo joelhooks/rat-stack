@@ -1,5 +1,5 @@
 import type { Schema } from "effect";
-import { Effect, Stream } from "effect";
+import { Effect, Redacted, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 import { CodeBuildFailed, CodeUnknownRepo, formatCodeError } from "./errors.ts";
@@ -102,7 +102,7 @@ export const fetchSources = Effect.fn("fetchSources")(function* fetchSources(
             "fetch",
             "--depth=1",
             "--",
-            entry.remote,
+            Redacted.make(entry.remote),
             request.commit,
           ])
         )

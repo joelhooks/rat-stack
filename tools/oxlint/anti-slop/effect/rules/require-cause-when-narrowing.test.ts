@@ -40,6 +40,15 @@ tester.run(
     invalid: [
       {
         code: `${imports}
+        const a = read.pipe(Effect.tapError(() => Effect.logError("failed")), Effect.mapError(() => new Failed()));
+        const b = read.pipe(Effect.tapError((error) => Effect.logError("failed")), Effect.mapError(() => new Failed()));`,
+        errors: [
+          missingCause("Effect.mapError", "Failed"),
+          missingCause("Effect.mapError", "Failed"),
+        ],
+      },
+      {
+        code: `${imports}
 			const a = decode(text).pipe(Effect.mapError(() => BadRequest.make({ reason: "Invalid JSON" })));`,
         errors: [missingCause("Effect.mapError", "BadRequest")],
       },

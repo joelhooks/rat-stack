@@ -136,12 +136,19 @@ function constructedErrors(
   return [...new Set(found)];
 }
 
-function isTapStep(node: ESTree.Node, names: EffectModuleNames): boolean {
+function isTapStep(
+  node: ESTree.Node,
+  names: EffectModuleNames,
+  sourceCode: SourceCode
+): boolean {
   const expression = unwrapNode(node);
-  const member =
-    moduleCallName(expression, names, "Effect") ??
-    moduleMemberName(expression, names, "Effect");
-  return member !== null && tapOperators.has(member);
+  if (expression.type !== "CallExpression") return false;
+  const member = moduleCallName(expression, names, "Effect");
+  if (member === null || !tapOperators.has(member)) return false;
+  const handler = expression.arguments.at(-1);
+  if (handler === undefined) return false;
+  if (isFunction(handler)) return !ignoresError(handler, sourceCode);
+  return moduleMemberName(unwrapNode(handler), names, "Effect") === "logError";
 }
 
 export const requireCauseWhenNarrowingRule = defineRule({
@@ -176,7 +183,8 @@ export const requireCauseWhenNarrowingRule = defineRule({
           dataFirstSource === undefined
             ? precedingSteps(node)
             : [dataFirstSource];
-        if (earlier.some((step) => isTapStep(step, names))) return;
+        if (earlier.some((step) => isTapStep(step, names, context.sourceCode)))
+          return;
         const callee = unwrapNode(constructed.callee);
         const errorName =
           callee.type === "MemberExpression"
