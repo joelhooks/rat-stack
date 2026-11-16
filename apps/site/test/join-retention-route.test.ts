@@ -104,5 +104,40 @@ it.effect(
       }
 
       expect(runs).toEqual([true, true, false, true]);
+
+      const brokenRoutes = interestRoutes({
+        operatorToken: "synthetic-operator",
+        services,
+      }).pipe(
+        Layer.provideMerge(
+          Layer.succeed(JoinRetentionBackfill, {
+            run: () => Effect.die("synthetic-private-defect"),
+          })
+        )
+      );
+
+      const broken = HttpRouter.toWebHandler(brokenRoutes, {
+        disableLogger: true,
+      });
+
+      yield* Effect.addFinalizer(() => Effect.promise(broken.dispose));
+
+      const failure = yield* Effect.promise(() =>
+        broken.handler(
+          new Request(
+            "https://ratstack.sh/operator/interest/applications/retention-backfill",
+            {
+              method: "POST",
+              headers: { authorization: "Bearer synthetic-operator" },
+              body: "{}",
+            }
+          )
+        )
+      );
+
+      expect(failure.status).toBe(503);
+      expect(yield* Effect.promise(() => failure.text())).toBe(
+        "Applications unavailable.\n"
+      );
     }).pipe(Effect.scoped)
 );

@@ -3,9 +3,11 @@ import {
   JoinRetentionBackfill,
   JoinRetentionBackfillUnavailable,
   JoinRetentionCountsSchema,
+  JoinRetentionDiagnosticSchema,
+  JoinRetentionFailureResponseSchema,
   joinRetentionBackfillContract,
 } from "@rat-stack/core/join-interest";
-import { Effect, Layer, Logger, Redacted, Schema } from "effect";
+import { Cause, Effect, Layer, Logger, Option, Redacted, Schema } from "effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 
 const unavailable = () =>
@@ -13,6 +15,24 @@ const unavailable = () =>
     reason:
       "Retention backfill page failed. Fix: verify the origin, operator token and endpoint, then rerun a preview.",
   });
+
+export const retentionBackfillFailure = <E>(
+  cause: Cause.Cause<E>,
+  fallback = unavailable()
+) => {
+  const error = Cause.findErrorOption(cause);
+
+  return Option.isSome(error) &&
+    Schema.is(JoinRetentionBackfillUnavailable)(error.value)
+    ? error.value
+    : fallback;
+};
+
+const RouteErrorText = Schema.Literals([
+  "Applications unavailable.",
+  "Bad request.",
+  "Unauthorized.",
+]);
 
 const operatorUrl = Effect.fnUntraced(function* operatorUrl(
   origin: string,
@@ -64,7 +84,34 @@ const requestPage = Effect.fnUntraced(function* requestPage(
   const response = yield* http.execute(request);
 
   if (response.status !== 200) {
-    return yield* unavailable();
+    const body = yield* response.text.pipe(
+      Effect.catchCause(() => Effect.succeed(""))
+    );
+
+    const diagnostic =
+      response.status === 503 && !body.includes(Redacted.value(token))
+        ? Schema.decodeOption(
+            Schema.fromJsonString(JoinRetentionFailureResponseSchema)
+          )(body).pipe(
+            Option.flatMap(
+              Schema.decodeUnknownOption(JoinRetentionDiagnosticSchema)
+            )
+          )
+        : Option.none();
+
+    const text = Option.getOrElse(
+      Schema.decodeUnknownOption(RouteErrorText)(body.trim()),
+      () => "Unrecognized response body (not displayed)."
+    );
+
+    const reason = `Retention backfill HTTP ${response.status}: ${Option.isSome(diagnostic) ? `Applications unavailable. ${JSON.stringify(diagnostic.value)}` : text} Fix: verify the operator endpoint and rerun a preview.`;
+
+    return yield* new JoinRetentionBackfillUnavailable(
+      Option.match(diagnostic, {
+        onNone: () => ({ reason }),
+        onSome: (fields) => ({ reason, diagnostic: fields }),
+      })
+    );
   }
 
   return yield* response.json.pipe(
@@ -109,7 +156,9 @@ export const remoteJoinRetentionBackfillLayer = (
                   redirect: "error",
                 }),
                 Effect.provide(Logger.layer([])),
-                Effect.catchCause(() => Effect.fail(unavailable()))
+                Effect.catchCause((cause) =>
+                  Effect.fail(retentionBackfillFailure(cause))
+                )
               ),
       };
     })

@@ -5,7 +5,11 @@ import { Context, Schema } from "effect";
 
 import { JoinRetentionBackfillUnavailable } from "./join-retention-unavailable.js";
 
-export { JoinRetentionBackfillUnavailable } from "./join-retention-unavailable.js";
+export {
+  JoinRetentionBackfillUnavailable,
+  JoinRetentionDiagnosticSchema,
+  JoinRetentionFailureResponseSchema,
+} from "./join-retention-unavailable.js";
 
 const Count = Schema.Int.check(Schema.isGreaterThanOrEqualTo(0));
 
