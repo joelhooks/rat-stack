@@ -3,6 +3,7 @@ import {
   implement,
   invokerFor,
   toCatalog,
+  wireFailureSchema,
 } from "@rat-stack/capability";
 import type { AnyCapability, AnyContract, Around } from "@rat-stack/capability";
 import { ActorWatch } from "@rat-stack/capability/actor-watch";
@@ -64,7 +65,7 @@ const outcomeOf = <A, E>(contract: AnyContract, exit: Exit.Exit<A, E>) =>
             OutcomeSchema.cases.Died.make({ message: Cause.pretty(exit.cause) })
           ),
         onSome: (error) =>
-          toJson(failureSchemaOf(contract), error).pipe(
+          toJson(wireFailureSchema(failureSchemaOf(contract)), error).pipe(
             Effect.map((failure) =>
               OutcomeSchema.cases.Failed.make({
                 failure,
