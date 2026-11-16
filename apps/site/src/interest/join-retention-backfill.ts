@@ -1,11 +1,15 @@
+import type { JoinRetentionDiagnosticSchema } from "@rat-stack/core/join-interest";
 import {
   JOIN_RETENTION_DEFAULT_LIMIT,
   JOIN_RETENTION_MAX_LIMIT,
   JoinContactStore,
   JoinRetentionBackfill,
+  JoinRetentionBackfillUnavailable,
   SWEEP_CONCURRENCY,
 } from "@rat-stack/core/join-interest";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Logger } from "effect";
+
+import { retentionDiagnostic } from "./join-retention-diagnostic.js";
 
 export const joinRetentionBackfillLayer = (
   ids: () => Effect.Effect<readonly string[]>
@@ -14,6 +18,30 @@ export const joinRetentionBackfillLayer = (
     JoinRetentionBackfill,
     Effect.gen(function* makeBackfill() {
       const contacts = yield* JoinContactStore;
+      const loggers = yield* Logger.CurrentLoggers;
+
+      const atStep = <A, E, R>(
+        step: typeof JoinRetentionDiagnosticSchema.Type.step,
+        submissionId: string | null,
+        task: Effect.Effect<A, E, R>
+      ) =>
+        task.pipe(
+          Effect.catchCause((cause) =>
+            Effect.gen(function* diagnose() {
+              const diagnostic = retentionDiagnostic(step, submissionId, cause);
+              yield* Effect.logError(
+                "Retention backfill failed",
+                diagnostic
+              ).pipe(Effect.provideService(Logger.CurrentLoggers, loggers));
+
+              return yield* new JoinRetentionBackfillUnavailable({
+                reason:
+                  "Retention backfill page unavailable. Fix: inspect the safe operator diagnostic, restore storage availability, then rerun a preview.",
+                diagnostic,
+              });
+            })
+          )
+        );
 
       return {
         run: Effect.fn("JoinRetentionBackfill.run")(function* run(
@@ -21,7 +49,9 @@ export const joinRetentionBackfillLayer = (
           after?: string,
           limit = JOIN_RETENTION_DEFAULT_LIMIT
         ) {
-          const remaining = [...new Set(yield* ids())]
+          const remaining = [
+            ...new Set(yield* atStep("index", null, Effect.suspend(ids))),
+          ]
             .toSorted()
             .filter((id) => after === undefined || id > after);
 
@@ -37,8 +67,17 @@ export const joinRetentionBackfillLayer = (
             page,
             (id) =>
               Effect.gen(function* migrateAndCountUnknownHandoff() {
-                const group = yield* contacts.migrateRetention(id, dryRun);
-                const handoff = yield* contacts.readHandoff(id);
+                const group = yield* atStep(
+                  "migrate",
+                  id,
+                  Effect.suspend(() => contacts.migrateRetention(id, dryRun))
+                );
+
+                const handoff = yield* atStep(
+                  "handoff",
+                  id,
+                  Effect.suspend(() => contacts.readHandoff(id))
+                );
 
                 const legacy =
                   handoff === undefined &&

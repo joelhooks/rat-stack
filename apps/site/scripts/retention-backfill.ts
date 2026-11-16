@@ -6,7 +6,10 @@ import {
 import { Config, Console, Effect, Layer, Logger, Schema } from "effect";
 import { FetchHttpClient } from "effect/http";
 
-import { remoteJoinRetentionBackfillLayer } from "./retention-backfill-client.ts";
+import {
+  remoteJoinRetentionBackfillLayer,
+  retentionBackfillFailure,
+} from "./retention-backfill-client.ts";
 
 const Arguments = Schema.Struct({
   origin: Schema.String,
@@ -35,12 +38,15 @@ const program = Effect.gen(function* retentionBackfill() {
   Effect.provide(Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer)),
   Effect.withTracerEnabled(false),
   Effect.provide(Logger.layer([])),
-  Effect.catchCause(() =>
+  Effect.catchCause((cause) =>
     Effect.fail(
-      new JoinRetentionBackfillUnavailable({
-        reason:
-          "Retention backfill failed; no complete totals were produced. Fix: set INTEREST_OPERATOR_TOKEN and run `pnpm --filter @rat-stack/site retention:backfill https://ratstack.sh [--apply]`; a different preview origin requires `--origin-override` and cannot apply. Verify endpoint availability and rerun a preview.",
-      })
+      retentionBackfillFailure(
+        cause,
+        new JoinRetentionBackfillUnavailable({
+          reason:
+            "Retention backfill failed; no complete totals were produced. Fix: set INTEREST_OPERATOR_TOKEN and run `pnpm --filter @rat-stack/site retention:backfill https://ratstack.sh [--apply]`; a different preview origin requires `--origin-override` and cannot apply. Verify endpoint availability and rerun a preview.",
+        })
+      )
     )
   )
 );
