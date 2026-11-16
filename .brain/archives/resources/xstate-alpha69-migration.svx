@@ -12,7 +12,7 @@ Historical record. Paths, versions, measurements and instructions below describe
 # XState alpha.69 migration
 
 This page started at `xstate@6.0.0-alpha.69` and `@xstate/effect@1.0.0-alpha.8`.
-The current pins are `xstate@6.0.0-beta.1` and `@xstate/effect@1.0.0-beta.0`; see the beta section.
+The current pins are `xstate@6.0.0-beta.3` and `@xstate/effect@1.0.0-beta.2`; see the beta.3 section.
 At alpha.69, Effect stayed at `4.0.0`. The bridge peers accepted Effect `^4.0.0` and XState `^6.0.0-alpha.68`.
 
 ## Upstream changes
@@ -121,3 +121,41 @@ Historical peer observations retain their original versions; refreshed peer data
 Consumers must move both pins and rerun their lifecycle tests.
 Apps that restore core actor snapshots must use `restoreActor`, migrate schema helpers, and audit child restoration and timers.
 Audit v5 configuration and literal transition targets before upgrading.
+
+## Beta.3 and bridge beta.2
+
+The 2026-11-16 update pairs `xstate@6.0.0-beta.3` with `@xstate/effect@1.0.0-beta.2`.
+Effect stays at `4.1.4`. The bridge requires XState `^6.0.0-beta.3`, Effect `^4.0.0`, and optional `@oxlint/plugins` `^1.76.0`.
+
+- [Core beta.2](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.2) changes serialized keys: `$actor` becomes `@actor`; timer and actor counters lose their leading underscores. System snapshots also rename `_stateInputs`, `$error`, `$stateNode`, and `$systemMapper`. Old snapshots still restore; new validating schemas must accept the new names. `snapshot.toJSON()` omits private counters.
+- Durable checkpoints now include the next transition index and pending root inbox. Independent executions keep separate runtimes, and long runs no longer retain earlier system views.
+- FSM context updates preserve new keys, signed zero, and unchanged NaN. FSM transition lookup ignores inherited state definitions.
+- Inline invokes without registered sources expose unknown output. `createInvoke` or a registered source restores exact typing. Literal invoke ids type children; empty event schemas preserve context and input types; Vue snapshot restore stays consistent.
+- Transitions that read `self` or `system` stop retaining earlier snapshots. State-key errors use plain punctuation. Inspectors stop retaining out-of-transition outgoing events.
+- [Core beta.3](https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.3) gives outgoing callback, event-observable, listener, subscription, and Effect event-stream events their own source transitions and subscriber notifications.
+- FSMs gain eventless transitions and require object transition targets, including transition-function returns.
+- Delayed events run before eventless transitions. Delayed sends no longer reevaluate the sender's eventless transitions first.
+- Targetless transitions with `reenter: true` keep active states without entry or exit behavior; context updates and transition effects still run.
+- [Bridge beta.1](https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-beta.1) shares the serialized-key migration. `sendAndAwait` moves to the main export; its receipt covers one event's transition and immediate effects, not child replies or background work.
+- Effect actor observers receive emitted events before snapshot notifications and terminal signals. `join` and emitted streams settle after final-transition emissions. Synchronous listener stops defer until the step ends; terminal receipts succeed with the final snapshot.
+- Transition descriptors retain registered Effect action keys.
+- [Bridge beta.2](https://github.com/statelyai/xstate/releases/tag/%40xstate%2Feffect%401.0.0-beta.2) shares outgoing-event source transitions. It exports `causeFromError` and `UnwrapEffectFailure`; ordinary errors become `Cause.fail`, while Effect failures retain their Cause.
+
+### Repository impact
+
+The inspection model imports `sendAndAwait` from the main bridge export.
+Our invokes already use registered actor sources. The retention walk's `reenter` transition has an explicit target.
+Runtime code uses no FSMs, durable hosts, persisted actor snapshots, snapshot codecs, or serialized-key schemas.
+Flags, deploy receipts, and learning logs remain domain data, not actor snapshots. Their persistence guarantees do not change.
+Existing lifecycle and model tests exercise completion, failure, retries, scoped cleanup, and event acknowledgment.
+The compiled inline-Effect rule source is unchanged; its severity remains `error`.
+No compatibility wrappers, new dependencies, or new persistence adapters are needed.
+
+Both npm tarballs match their registry SHA-512 integrity and advertise provenance records.
+They declare no lifecycle scripts or runtime dependencies.
+The releases are older than pnpm's default 24-hour age window, so both old exact exclusions are removed.
+Both release tags resolve to the same commit; the source mirror matches both package versions.
+Historical release and peer observations retain their original versions.
+
+Consumers must move both pins, audit serialized snapshot schemas and FSM string targets, and rerun lifecycle tests.
+Do not treat an event acknowledgment as completion of child or background work.
