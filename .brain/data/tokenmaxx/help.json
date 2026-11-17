@@ -2,7 +2,7 @@
   "rows": [
     {
       "steps": [1, 2],
-      "symptom": "On a Mac, `npx tiged …` fails with \"could not find commit hash for tokenmaxx-starter-v3\", or `git: command not found`.",
+      "symptom": "On a Mac, `npx tiged …` fails with \"could not find commit hash\", or `git: command not found`.",
       "fix": "The Mac has no git. Run `xcode-select --install`, accept the dialog, wait a few minutes, run the step again.",
       "tested": true,
       "keywords": [
@@ -31,7 +31,7 @@
     {
       "steps": [2],
       "symptom": "npm deprecation warnings or update notices during the download or install.",
-      "fix": "Harmless. Expect 129 files and an install of a few seconds.",
+      "fix": "Harmless. Expect 175 files and an install of a few seconds.",
       "tested": true,
       "keywords": [
         "deprecated",
@@ -113,7 +113,7 @@
     {
       "steps": [6],
       "symptom": "Unsure whether step 0 is done.",
-      "fix": "It's done when `pnpm ex 01.1 done`, run at the new repo's root, shows `PASS` on its first line, \"a type-broken commit is refused\". It then ends with `Done: the fence holds.` Notes and the stretch line never count.",
+      "fix": "It's done when `pnpm ex 01.1 done`, run at the new repo's root, shows `PASS` on its first check, \"a type-broken commit is refused\". It then ends with `Done: the fence holds.` Notes and the stretch line never count.",
       "tested": true,
       "keywords": [
         "step 0",
@@ -136,6 +136,20 @@
         "copied prompt",
         "pasted",
         "paste"
+      ]
+    },
+    {
+      "steps": [2],
+      "symptom": "The first commit in `tokenmaxx/` takes about a minute, or install prints \"Commit hook on\".",
+      "fix": "Expected. The starter's commit hook, `.githooks/prepare-commit-msg`, runs `pnpm check` on every commit. The first run is cold and takes about a minute on a Mac; later commits are faster.",
+      "tested": true,
+      "keywords": [
+        "commit hook",
+        "prepare-commit-msg",
+        "slow commit",
+        "first commit",
+        "githooks",
+        "pnpm check"
       ]
     }
   ]
