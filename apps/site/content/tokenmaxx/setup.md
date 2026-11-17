@@ -78,7 +78,7 @@ Pi builds it from two prompts. Open `tokenmaxx/README.md` at "Step 0, before the
 
 It takes 6 to 8 minutes of agent time.
 
-Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first check, `A commit with a type error gets refused.`, and ends with `Done: the fence holds.`
+Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first check, `A commit with a type error gets refused.`, and prints `Done: the fence holds.`
 
 ## 7. Report
 
