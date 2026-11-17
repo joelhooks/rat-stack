@@ -13,7 +13,7 @@ The schedule is public even though its original input says draft. The desk confi
 
 ## Exercise import and publication
 
-Run `pnpm tokenmaxx:sync <starter path>` from the repository root. It reads `exercises/NN-section/NN.N-name/explainer/readme.md` and writes `.brain/resources/tokenmaxx/exercises/<id>.svx`. A new exercise starts as draft. Resync preserves existing frontmatter, including publication status, while replacing the body. Invalid existing frontmatter fails rather than silently losing its status.
+Run `pnpm tokenmaxx:sync <starter path>` from the repository root. It reads `exercises/NN-section/NN.N-name/readme.md` and writes `.brain/resources/tokenmaxx/exercises/NN.N.svx`, so the id is the exercise number guests type (`02.1`) and the section is the folder name without its number (`loop`). A new exercise starts as draft. Resync preserves existing frontmatter, including publication status, while replacing the body. Invalid existing frontmatter fails rather than silently losing its status.
 
 The section drops its numeric prefix: `01-awakes` becomes `awakes`. Use a schedule block id as the section to associate exercises with that block. Exercise ids retain their directory names.
 
