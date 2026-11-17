@@ -29,12 +29,16 @@ A folder of exercises. Each one gives an agent a problem, a place to work and a 
 
 In the folder where the person keeps their projects:
 
-    npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v3 tokenmaxx
+    npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter tokenmaxx
     cd tokenmaxx
-    git init
+    git init -b main
     pnpm install
 
-Expect 129 files and an install of a few seconds. npm deprecation warnings and update notices are harmless.
+Expect 175 files and an install of a few seconds. npm deprecation warnings and update notices are harmless.
+
+Already have a `tokenmaxx` folder? Update it instead:
+
+    npx -y tiged joelhooks/rat-stack/examples/tokenmaxx-starter .workshop-state/update --force && node .workshop-state/update/scripts/update.ts
 
 ## 3. Herdr
 
@@ -74,7 +78,7 @@ Pi builds it from two prompts. Open `tokenmaxx/README.md` at "Step 0, before the
 
 It takes 6 to 8 minutes of agent time.
 
-Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first line, `a type-broken commit is refused`, and ends with `Done: the fence holds.`
+Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first check, `a type-broken commit is refused`, and ends with `Done: the fence holds.`
 
 ## 7. Report
 
