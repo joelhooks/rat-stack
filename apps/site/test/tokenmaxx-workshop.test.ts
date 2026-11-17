@@ -284,31 +284,33 @@ it.layer(NodeServices.layer)((nodeIt) => {
           const root = yield* fs.makeTempDirectoryScoped();
           const starter = path.join(root, "starter");
 
-          const explainer = path.join(
+          const exercise = path.join(
             starter,
-            "exercises/01-awakes/01.1-wake/explainer"
+            "exercises/02-loop/02.1-wake-me-when-done"
           );
 
-          yield* fs.makeDirectory(explainer, { recursive: true });
+          yield* fs.makeDirectory(exercise, { recursive: true });
           yield* fs.writeFileString(
-            path.join(explainer, "readme.md"),
+            path.join(exercise, "readme.md"),
             "# Wake\n\nFirst body.\n"
           );
           yield* syncExercises(starter, root);
 
           const target = path.join(
             root,
-            ".brain/resources/tokenmaxx/exercises/01.1-wake.svx"
+            ".brain/resources/tokenmaxx/exercises/02.1.svx"
           );
 
           const draft = yield* fs.readFileString(target);
           expect(draft).toContain("status: draft");
+          expect(draft).toContain('id: "02.1"');
+          expect(draft).toContain('section: "loop"');
           yield* fs.writeFileString(
             target,
             draft.replace("status: draft", "status: published")
           );
           yield* fs.writeFileString(
-            path.join(explainer, "readme.md"),
+            path.join(exercise, "readme.md"),
             "# Wake\n\nUpdated body.\n"
           );
           yield* syncExercises(starter, root);

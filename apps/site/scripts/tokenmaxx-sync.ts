@@ -31,14 +31,15 @@ export const syncExercises = Effect.fn("syncExercises")(function* syncExercises(
       .toSorted();
 
     for (const entry of entries) {
-      const sourcePath = path.join(sectionPath, entry, "explainer/readme.md");
+      const sourcePath = path.join(sectionPath, entry, "readme.md");
 
       if (!(yield* fs.exists(sourcePath))) {
         continue;
       }
 
       const source = yield* fs.readFileString(sourcePath);
-      const target = path.join(output, `${entry}.svx`);
+      const id = entry.replace(/-[a-z0-9-]+$/u, "");
+      const target = path.join(output, `${id}.svx`);
 
       const existing = (yield* fs.exists(target))
         ? yield* fs.readFileString(target)
@@ -48,7 +49,7 @@ export const syncExercises = Effect.fn("syncExercises")(function* syncExercises(
         /^#\s+(?<title>.+)$/mu.exec(source)?.groups?.title ?? entry;
 
       const metadata = {
-        id: entry,
+        id,
         section: section.replace(/^\d{2}-/u, ""),
         status: "draft",
         title: heading,
@@ -77,9 +78,9 @@ export const syncExercises = Effect.fn("syncExercises")(function* syncExercises(
         "exercise sync",
         "exercises",
         violation(
-          "No exercise explainers were found.",
+          "No exercise readmes were found.",
           "An empty import cannot update the workshop exercises.",
-          "run `pnpm tokenmaxx:sync <starter path>` with `exercises/NN-section/NN.N-name/explainer/readme.md` files."
+          "run `pnpm tokenmaxx:sync <starter path>` with `exercises/NN-section/NN.N-name/readme.md` files."
         )
       )
     );
