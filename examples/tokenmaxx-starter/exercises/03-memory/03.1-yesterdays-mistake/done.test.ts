@@ -196,7 +196,7 @@ describe("the 03.1 done check", () => {
       /no other session has handed in/
     );
     expect(notes(passing, nested)).toEqual([
-      "Note: 2 nested sessions seen and not counted",
+      "Note: 2 nested sessions seen, not counted.",
     ]);
     expect(notes(passing, sessions)).toEqual([]);
 

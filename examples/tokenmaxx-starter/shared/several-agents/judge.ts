@@ -118,8 +118,9 @@ const parked = (role: Role) =>
 
 function claimFor(role: Role, shown: Shown | undefined): Claim {
   const who = `${role.name} (${role.doing})`;
+  const shows = `The output shows ${who} as`;
   if (shown === undefined || shown.lines.length === 0) {
-    return { ok: false, text: `${who} isn't in the output: no line names it` };
+    return { ok: false, text: `No line of the output names ${who}.` };
   }
   const all = [...new Set(shown.words)];
   const sure = [...new Set(shown.sure)];
@@ -127,13 +128,13 @@ function claimFor(role: Role, shown: Shown | undefined): Claim {
   if (distinct.length === 0) {
     return {
       ok: false,
-      text: `${who} has none of ${words.join(", ")} on its line`,
+      text: `The line for ${who} has none of the words ${words.slice(0, -1).join(", ")} or ${words.at(-1) ?? ""}.`,
     };
   }
   if (distinct.length > 1) {
     return {
       ok: false,
-      text: `${who} shows both ${distinct.join(" and ")}; if one line is an older session with the same name, put the live one's PID or session ID on its line`,
+      text: `${shows} both ${distinct.join(" and ")}. If one line is an older session with the same name, put the live one's PID or session ID on its line.`,
     };
   }
   const word = distinct[0] as Word;
@@ -141,17 +142,20 @@ function claimFor(role: Role, shown: Shown | undefined): Claim {
     return {
       ok: true,
       text: parked(role)
-        ? `${who} shows ${word}, not waiting on you`
-        : `${who} shows ${word}`,
+        ? `${shows} ${word}, not waiting on you.`
+        : `${shows} ${word}.`,
     };
   }
   if (parked(role) && word === "waiting") {
     return {
       ok: false,
-      text: `${who} shows waiting, but nothing in it is waiting on you`,
+      text: `${shows} waiting, but nothing in it is waiting on you.`,
     };
   }
-  return { ok: false, text: `${who} shows ${word}, not ${role.expect}` };
+  return {
+    ok: false,
+    text: `${shows} ${word}. It should be ${role.expect}.`,
+  };
 }
 
 /** One claim per session in the cast, in cast order. */

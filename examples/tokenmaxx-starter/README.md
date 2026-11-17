@@ -55,7 +55,7 @@ Add the Tokenmaxx workshop tools to this repo: run `npx tiged joelhooks/rat-stac
 
 Your agent may have written a rule that check changes need the owner's OK. The owner line answers it up front.
 
-Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first check, `a type-broken commit is refused`, shows `PASS`.
+Last, run `pnpm ex 01.1 done` at your repo's root. Step 0 is done when its first check, `A commit with a type error gets refused.`, shows `PASS`.
 
 ## Updating your copy
 

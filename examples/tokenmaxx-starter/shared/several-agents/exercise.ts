@@ -2,11 +2,18 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 
-import { detailsFlag, reporter, shortPath } from "#shared/core/report.ts";
+import {
+  detailsFlag,
+  nextAfter,
+  reporter,
+  saysOf,
+  shortPath,
+} from "#shared/core/report.ts";
 
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "../core/commit-line.ts";
 import type { ExerciseContext } from "../core/context.ts";
@@ -195,9 +202,10 @@ async function done(
       deps.startSet(ctx, doneLifetimeMs, r.line)
     );
   } catch (error) {
-    r.check(
-      "FAIL",
-      `the environment's sessions didn't start: ${String(error)}`
+    r.check("FAIL", "The environment's sessions didn't start.", String(error));
+    r.end(
+      "Not done yet: the environment's sessions didn't start.",
+      "run this again."
     );
     return 1;
   }
@@ -206,7 +214,12 @@ async function done(
     if (env.status !== "ready") {
       r.check(
         "FAIL",
-        `the environment's sessions didn't start: ${env.error ?? env.status}`
+        "The environment's sessions didn't start.",
+        env.error ?? env.status
+      );
+      r.end(
+        "Not done yet: the environment's sessions didn't start.",
+        "run this again."
       );
       return 1;
     }
@@ -237,8 +250,17 @@ async function done(
   for (const claim of claims) {
     r.check(claim.ok ? "PASS" : "FAIL", claim.text);
   }
-  r.check(commit.ok ? "PASS" : "FAIL", commit.name, commit.detail);
-  r.verdict(ok ? "Done." : "Not done yet.");
+  r.check(
+    commit.ok ? "PASS" : "FAIL",
+    saysOf(commitSays, commit),
+    commit.detail,
+    commit.fix
+  );
+  if (ok) {
+    r.done("Done.", nextAfter(ctx.exerciseId));
+  } else {
+    r.notDone();
+  }
   return ok ? 0 : 1;
 }
 

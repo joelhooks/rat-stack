@@ -200,7 +200,14 @@ export type Claim = {
   readonly ok: boolean;
   readonly name: string;
   readonly detail: string;
+  /** What `done` prints for this case, when it's more than the name says. */
+  readonly says?: string;
+  /** What to do, when it's one plain step: waiting for the run, say. */
+  readonly fix?: string;
 };
+
+/** The fix for a line that only waits on the run. */
+export const waitFix = "wait for the run to finish, then run this again.";
 
 /**
  * A done check's answer: its claims, plus neutral notes about what it saw and
@@ -238,7 +245,7 @@ export function ignoredConsumesNote(ignored: number): readonly string[] {
   return ignored === 0
     ? []
     : [
-        `Note: ${plural(ignored, "consume")} from outside a top-level Pi session not counted`,
+        `Note: ${plural(ignored, "consume")} from outside a top-level Pi session, not counted.`,
       ];
 }
 
@@ -265,17 +272,25 @@ export function judge(
   const finishedName = "the current run finished";
   const finished: Claim =
     current === null
-      ? { ok: false, name: finishedName, detail: "no run yet" }
+      ? {
+          ok: false,
+          name: finishedName,
+          says: "No run has started yet.",
+          detail: "no run yet",
+        }
       : current.testWindow !== null
         ? {
             ok: false,
             name: finishedName,
+            says: "The current run is a test run, so it doesn't count.",
             detail: testWindowDetail(current.runId, current.testWindow),
           }
         : current.result === null
           ? {
               ok: false,
               name: finishedName,
+              says: "The current run is still running.",
+              fix: waitFix,
               detail: `${current.runId} is still running`,
             }
           : {
@@ -295,12 +310,30 @@ export function judge(
   const once: Claim = {
     ok: result !== null && times === 1,
     name: "its result was consumed exactly once",
+    ...(result === null
+      ? {
+          says: "There's nothing to consume until the run finishes.",
+          fix: waitFix,
+        }
+      : times === 1
+        ? {}
+        : times === 0 && elsewhere > 0
+          ? {
+              says: "The run's result was only consumed outside a Pi you started with pnpm pi.",
+            }
+          : times === 0
+            ? { says: "Nothing has consumed the run's result yet." }
+            : {
+                says: `The run's result was consumed ${times} times. It should be once.`,
+              }),
     detail:
       result === null
-        ? "nothing to consume yet"
+        ? "nothing to consume until the run finishes"
         : times === 0 && elsewhere > 0
           ? `${result.resultId} was consumed only from outside a top-level Pi session`
-          : `${result.resultId} consumed ${plural(times, "time")}`,
+          : times === 0
+            ? `nothing has consumed ${result.resultId} yet`
+            : `${result.resultId} consumed ${plural(times, "time")}`,
   };
   return {
     claims: [finished, once, freshClaim(consumed)],

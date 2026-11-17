@@ -1,11 +1,19 @@
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
-import { detailsFlag, reporter, takeDetails } from "#shared/core/report.ts";
+import {
+  detailsFlag,
+  nextAfter,
+  reporter,
+  type Says,
+  saysOf,
+  takeDetails,
+} from "#shared/core/report.ts";
 import {
   isTopLevel,
   readSessions,
@@ -13,7 +21,7 @@ import {
   sessionFromEnv,
 } from "#shared/core/sessions.ts";
 
-import { judge, notes, notFresh } from "./judge.ts";
+import { claimNames, judge, notes, notFresh } from "./judge.ts";
 import {
   appendEvent,
   type MemoryEvent,
@@ -53,6 +61,27 @@ export type MemoryDeps = {
   readonly readSessions: (repoRoot: string) => Promise<SessionRecord[]>;
   /** The commit line `done` ends with. */
   readonly commit: (ctx: ExerciseContext) => Promise<CommitClaim>;
+};
+
+/** What `done` prints for each check when the case adds nothing. */
+const says: Readonly<Record<string, Says>> = {
+  [claimNames.a]: {
+    yes: "A session broke the house rule, was told why, then passed.",
+    no: "No session has broken the house rule, been told why, then passed yet.",
+  },
+  [claimNames.b]: {
+    yes: "A fresh session passed on its first try.",
+    no: "No fresh session has passed on its first try yet.",
+  },
+  [claimNames.change]: {
+    yes: "The house rule changed after that.",
+    no: "The house rule hasn't changed after that yet.",
+  },
+  [claimNames.c]: {
+    yes: "A fresh session after the change followed the new rule on its first try.",
+    no: "No fresh session since the change has followed the new rule on its first try yet.",
+  },
+  ...commitSays,
 };
 
 const defaultDeps: MemoryDeps = {
@@ -414,17 +443,24 @@ export function memoryExercise(
 
       /** The done check: PASS only when every claim holds. */
       async done(ctx, args) {
+        const { details } = takeDetails(args);
         const r = reporter(out, {
           id: opts.id,
           title: opts.title,
           command: `${ex(ctx, "done")} ${detailsFlag}`,
-          details: takeDetails(args).details,
+          details,
         });
         r.header();
         r.line("");
         const events = await readEvents(ctx.stateDir);
+        // No house rule: setup hasn't run, and every line would say so.
+        const started = ruleSets(events).length > 0;
+        if (!started && !details) {
+          r.notStarted(ex(ctx, "setup"));
+          return 1;
+        }
         const sessions = await deps.readSessions(ctx.repoRoot);
-        const claims = [
+        const claims: readonly CommitClaim[] = [
           ...judge(events, sessions),
           await r.during(
             "Checking the step's commit with your commit hooks...",
@@ -432,17 +468,27 @@ export function memoryExercise(
           ),
         ];
         for (const claim of claims) {
-          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
+          r.check(
+            claim.ok ? "PASS" : "FAIL",
+            saysOf(says, claim),
+            claim.detail,
+            claim.fix
+          );
         }
         for (const note of notes(events, sessions)) {
           r.aside(note);
         }
         const ok = claims.every((c) => c.ok);
-        r.verdict(
-          ok
-            ? "Done: a lesson carried into a fresh session, and a changed one didn't come back."
-            : `Not done yet. Start over any time with ${ex(ctx, "setup")}.`
-        );
+        if (!started) {
+          r.notStarted(ex(ctx, "setup"));
+        } else if (ok) {
+          r.done(
+            "Done: a lesson carried into a fresh session, and a changed one didn't come back.",
+            nextAfter(opts.id)
+          );
+        } else {
+          r.notDone();
+        }
         return ok ? 0 : 1;
       },
     },

@@ -116,7 +116,7 @@ describe("the 02.1 done check", () => {
       expect(claims.map((c) => c.ok)).toEqual([true, false, true]);
       expect(claims[1]?.detail).toMatch(/only from outside a top-level Pi/);
       expect(notes).toEqual([
-        "Note: 1 consume from outside a top-level Pi session not counted",
+        "Note: 1 consume from outside a top-level Pi session, not counted.",
       ]);
     }
   });
@@ -137,7 +137,7 @@ describe("the 02.1 done check", () => {
     );
     expect(claims.map((c) => c.ok)).toEqual([true, true, true]);
     expect(notes).toEqual([
-      "Note: 2 consumes from outside a top-level Pi session not counted",
+      "Note: 2 consumes from outside a top-level Pi session, not counted.",
     ]);
     expect(judge([...seededOld], sessions).notes).toEqual([]);
   });

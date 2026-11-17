@@ -2,6 +2,7 @@ import { type CatchUpPackage, catchUp } from "#shared/core/catch-up.ts";
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
@@ -10,7 +11,14 @@ import {
   type Exercise,
   type ExerciseCommand,
 } from "#shared/core/exercise.ts";
-import { detailsFlag, reporter, takeDetails } from "#shared/core/report.ts";
+import {
+  detailsFlag,
+  nextAfter,
+  reporter,
+  type Says,
+  saysOf,
+  takeDetails,
+} from "#shared/core/report.ts";
 import {
   readSessions,
   type SessionRecord,
@@ -98,6 +106,39 @@ const defaultDeps: OwnLoopDeps = {
 export const defaultWithinMinutes = 5;
 export const defaultMinMinutes = 2;
 
+/** What `done` prints for each of 02.1's and 02.2's checks. */
+const says: Readonly<Record<string, Says>> = {
+  "the current run finished": {
+    yes: "The current run finished.",
+    no: "The current run hasn't finished yet.",
+  },
+  "its result was consumed exactly once": {
+    yes: "The run's result was consumed exactly once.",
+    no: "The run's result hasn't been consumed exactly once.",
+  },
+  "no stale result was consumed": {
+    yes: "No old result was consumed by mistake.",
+    no: "An old result was consumed by mistake.",
+  },
+  "the current run was started in a Pi session": {
+    yes: "The current run was started in a Pi session.",
+    no: "The current run wasn't started in a Pi session that counts.",
+  },
+  "that session quit before the run finished": {
+    yes: "That session quit before the run finished.",
+    no: "That session hasn't quit before the run finished.",
+  },
+  "its result was consumed exactly once, in a later session": {
+    yes: "The run's result was consumed exactly once, in a later session.",
+    no: "The run's result hasn't been consumed exactly once in a later session.",
+  },
+  "nobody prompted that session before the consume": {
+    yes: "Nobody prompted that later session before it consumed the result.",
+    no: "That later session was prompted before the consume, or there's none to check yet.",
+  },
+  ...commitSays,
+};
+
 const ex = (ctx: ExerciseContext, command: string) =>
   `pnpm ex ${ctx.exerciseId} ${command}`;
 
@@ -135,6 +176,8 @@ export type OwnLoopOptions = {
   readonly donePass?: string;
   /** Adds `catch-up`, which switches on `waitPackage`. */
   readonly catchUp?: boolean;
+  /** What to do after setup, from the readme. Defaults to 02.1's. */
+  readonly firstStep?: string;
 };
 
 export function ownLoopExercise(
@@ -142,6 +185,10 @@ export function ownLoopExercise(
   deps: OwnLoopDeps = defaultDeps
 ): Exercise {
   const { out, err } = deps;
+  // What comes after setup, from the readme; setup and done both say it.
+  const firstStep =
+    opts.firstStep ??
+    `start Pi with pnpm pi --exercise ${opts.id}, and have your agent start a run.`;
   const judgeEvents =
     opts.judge ??
     (async (ctx: ExerciseContext, events: readonly JobEvent[]) =>
@@ -165,7 +212,7 @@ export function ownLoopExercise(
         });
         await publish(ctx.stateDir, ctx.repoRoot, old, minutesAgo(22));
         out("Job reset. No run is going.");
-        out(`Next: ${ex(ctx, "start")}`);
+        out(`Next: ${firstStep}`);
         return 0;
       },
 
@@ -288,16 +335,29 @@ export function ownLoopExercise(
 
       /** The done check: PASS only when every claim holds. */
       async done(ctx, args) {
+        const { details } = takeDetails(args);
         const r = reporter(out, {
           id: opts.id,
           title: opts.title,
           command: `${ex(ctx, "done")} ${detailsFlag}`,
-          details: takeDetails(args).details,
+          details,
         });
         r.header();
         r.line("");
-        const verdict = await judgeEvents(ctx, await readEvents(ctx.stateDir));
-        const claims = [
+        const events = await readEvents(ctx.stateDir);
+        // No run yet: every line would say so. One line instead, which tells
+        // a fresh folder from one set up (setup leaves an old run behind).
+        const started = fold(events).current !== null;
+        const closeUnstarted = () =>
+          events.length === 0
+            ? r.notStarted(ex(ctx, "setup"))
+            : r.end("Set up. No run has started yet.", firstStep);
+        if (!started && !details) {
+          closeUnstarted();
+          return 1;
+        }
+        const verdict = await judgeEvents(ctx, events);
+        const claims: readonly CommitClaim[] = [
           ...verdict.claims,
           await r.during(
             "Checking the step's commit with your commit hooks...",
@@ -306,18 +366,28 @@ export function ownLoopExercise(
         ];
         const { notes } = verdict;
         for (const claim of claims) {
-          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
+          r.check(
+            claim.ok ? "PASS" : "FAIL",
+            saysOf(says, claim),
+            claim.detail,
+            claim.fix
+          );
         }
         for (const note of notes) {
           r.aside(note);
         }
         const ok = claims.every((c) => c.ok);
-        r.verdict(
-          ok
-            ? (opts.donePass ??
-                "Done: the current run's result was consumed once, and nothing stale was.")
-            : `Not done yet. Start over any time with ${ex(ctx, "setup")}.`
-        );
+        if (!started) {
+          closeUnstarted();
+        } else if (ok) {
+          r.done(
+            opts.donePass ??
+              "Done: the current run's result was consumed once, and nothing stale was.",
+            nextAfter(opts.id)
+          );
+        } else {
+          r.notDone();
+        }
         return ok ? 0 : 1;
       },
     },

@@ -11,6 +11,8 @@ import type { SkipTry } from "./skip.ts";
 export type Claim = {
   readonly name: string;
   readonly ok: boolean;
+  /** What `done` prints for it: one plain sentence about what is true now. */
+  readonly says: string;
   readonly detail: string;
 };
 
@@ -18,8 +20,31 @@ export type Claim = {
 export type Stretch = {
   readonly name: string;
   readonly held: boolean;
+  readonly says: string;
   readonly detail: string;
 };
+
+/** The sentences for each check, by name, for a result saved without them. */
+export const says = {
+  "a type-broken commit is refused": {
+    yes: "A commit with a type error gets refused.",
+    no: "A commit with a type error still goes through.",
+  },
+  "a fresh Pi session loads a tool and a skill from this repo": {
+    yes: "A fresh Pi session loads a tool and a skill from this repo.",
+    no: "A fresh Pi session doesn't load both a tool and a skill from this repo yet.",
+  },
+  "the repo says why it exists": {
+    yes: "The repo says why it exists.",
+    no: "The repo doesn't say why it exists yet.",
+  },
+  "an agent here can't skip the hook": {
+    yes: "An agent here can't skip the hook.",
+    no: "An agent here can still skip the hook: that's the stretch goal.",
+  },
+} as const;
+
+const couldntTry = "The check couldn't try a commit with a type error here.";
 
 const lastLine = (text: string) =>
   text
@@ -66,23 +91,27 @@ export function hookTime(
 
 export function fenceClaim(report: FenceReport): Claim {
   const name = "a type-broken commit is refused";
+  const fenceSays = says[name];
   switch (report._tag) {
     case "NotARepo":
       return {
         name,
         ok: false,
+        says: couldntTry,
         detail: `This folder isn't in a git repository, so there's no commit to refuse. (${report.detail})`,
       };
     case "InsideAnotherRepo":
       return {
         name,
         ok: false,
+        says: couldntTry,
         detail: `This folder isn't a git repository of its own: the nearest one is ${report.top}. The check only tests this folder's own repository.`,
       };
     case "NoCommit":
       return {
         name,
         ok: false,
+        says: couldntTry,
         detail:
           "The repository has no commit yet. Commit once, then run this again.",
       };
@@ -90,6 +119,7 @@ export function fenceClaim(report: FenceReport): Claim {
       return {
         name,
         ok: false,
+        says: couldntTry,
         detail: [
           "Couldn't install your dependencies offline in the throwaway copy; this usually means the repo was installed with a different pnpm. Run `pnpm install` again, then run this again.",
           `\`${report.command}\` said:`,
@@ -108,6 +138,7 @@ export function fenceClaim(report: FenceReport): Claim {
         return {
           name,
           ok: false,
+          says: "Your hook refuses a commit without a type error too, so it can't tell broken from fine.",
           detail: [
             "It also refused the same commit without the type error, so it can't tell broken from fine. It said:",
             ...said(report.control),
@@ -119,6 +150,7 @@ export function fenceClaim(report: FenceReport): Claim {
         return {
           name,
           ok: false,
+          says: fenceSays.no,
           detail: [
             `Went through: ${what}.`,
             ...hookTime(report.control, report.hooks),
@@ -128,6 +160,7 @@ export function fenceClaim(report: FenceReport): Claim {
       return {
         name,
         ok: true,
+        says: fenceSays.yes,
         detail: [
           `Refused ${what}, and let the same commit through without the error. It said: ${lastLine(report.broken.output)}`,
           ...hookTime(report.control, report.hooks),
@@ -174,12 +207,15 @@ export function stretchLine(report: FenceReport): Stretch | null {
     return {
       name,
       held: false,
+      says: "The check couldn't find out whether an agent here can skip the hook.",
       detail: `Couldn't find out: ${report.skips.reason}`,
     };
   }
+  const held = report.skips.tries.every((attempt) => attempt.refused);
   return {
     name,
-    held: report.skips.tries.every((attempt) => attempt.refused),
+    held,
+    says: held ? says[name].yes : says[name].no,
     detail: [
       "A fresh Pi in the throwaway copy ran each of these through its bash tool, on the type-broken commit:",
       ...report.skips.tries.map(skipVerdict),
@@ -205,10 +241,13 @@ export function packageClaim(
   untrusted: ProbeOutcome | null
 ): Claim {
   const name = "a fresh Pi session loads a tool and a skill from this repo";
+  const couldnt =
+    "The check couldn't see what a fresh Pi session loads from this repo.";
   if (!trusted.ok) {
     return {
       name,
       ok: false,
+      says: couldnt,
       detail: `Couldn't see what a fresh Pi loads: ${trusted.reason}`,
     };
   }
@@ -216,6 +255,7 @@ export function packageClaim(
     return {
       name,
       ok: false,
+      says: couldnt,
       detail: `Couldn't tell what comes from this repo: ${untrusted?.ok === false ? untrusted.reason : "no second Pi ran"}`,
     };
   }
@@ -256,9 +296,17 @@ export function packageClaim(
       `Note: your own Pi setup also adds ${parts.join(" and ")}. They don't count: a fresh Pi on another machine wouldn't load them.`
     );
   }
+  const ok = repoTools.length > 0 && repoSkills.length > 0;
   return {
     name,
-    ok: repoTools.length > 0 && repoSkills.length > 0,
+    ok,
+    says: ok
+      ? says[name].yes
+      : repoTools.length > 0
+        ? "A fresh Pi session loads a tool from this repo, but no skill yet."
+        : repoSkills.length > 0
+          ? "A fresh Pi session loads a skill from this repo, but no tool yet."
+          : "A fresh Pi session doesn't load a tool or a skill from this repo yet.",
     detail: lines.join("\n"),
   };
 }
@@ -289,15 +337,20 @@ export function whyClaim(files: readonly WhyFile[]): Claim {
     return {
       name,
       ok: true,
+      says: `The repo says why it exists, in ${written.name}.`,
       detail: `${written.name}: ${words} word${words === 1 ? "" : "s"}.`,
     };
   }
   return {
     name,
     ok: false,
+    says:
+      files.length === 0
+        ? "The repo doesn't say why it exists: no VISION or WHY file at its root."
+        : `The repo doesn't say why it exists: ${files.map((f) => f.name).join(", ")} ${files.length === 1 ? "is" : "are"} empty.`,
     detail:
       files.length === 0
         ? "No VISION or WHY file at the repo root."
-        : `${files.map((f) => f.name).join(", ")} is empty.`,
+        : `${files.map((f) => f.name).join(", ")} ${files.length === 1 ? "is" : "are"} empty.`,
   };
 }

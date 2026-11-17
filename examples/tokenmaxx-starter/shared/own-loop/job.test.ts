@@ -75,6 +75,7 @@ function harness(name: string, id = "02.1") {
         name: "committed",
         ok: who.committed,
         detail: "",
+        ...(who.committed ? {} : { fix: "commit it, then run this again." }),
       }),
     }
   );
@@ -92,6 +93,56 @@ const resultIdIn = (lines: readonly string[]) =>
   /res_[0-9a-f]{16}/.exec(lines.join("\n"))?.[0] ?? "";
 
 describe("the loop job", () => {
+  it("says not started before setup, and what comes next after it", async () => {
+    const { run } = harness("unstarted");
+    const fresh = await run("done");
+    expect(fresh.code).toBe(1);
+    expect(fresh.out).toEqual([
+      "02.1 · t",
+      "",
+      "Not started. Start it with: pnpm ex 02.1 setup",
+    ]);
+    // --details still shows every line.
+    const all = await run("done", "--details");
+    expect(all.out.filter((l) => l.startsWith("FAIL"))).toHaveLength(2);
+    expect(all.out.at(-1)).toBe(
+      "Not started. Start it with: pnpm ex 02.1 setup"
+    );
+    await run("setup");
+    const set = await run("done");
+    expect(set.code).toBe(1);
+    expect(set.out).toEqual([
+      "02.1 · t",
+      "",
+      "Set up. No run has started yet.",
+      "Next: start Pi with pnpm pi --exercise 02.1, and have your agent start a run.",
+    ]);
+    // --details after setup lists every line, then closes the same way.
+    const setAll = await run("done", "--details");
+    expect(setAll.out.filter((l) => l.startsWith("FAIL"))).toHaveLength(2);
+    expect(setAll.out.slice(-2)).toEqual(set.out.slice(-2));
+    // A run still going: the guest waits, nothing to paste into Pi.
+    await run("start");
+    expect((await run("done")).out.slice(-2, -1)).toEqual([
+      "Next: wait for the run to finish, then run this again.",
+    ]);
+  });
+
+  it("counts the lines that pass, and gives the one fix when it's only the commit", async () => {
+    const { run, who } = harness("only-commit");
+    await run("setup");
+    await run("start");
+    await run("release");
+    await run("consume", resultIdIn((await run("status")).out.slice(0, 1)));
+    who.committed = false;
+    const done = await run("done");
+    expect(done.code).toBe(1);
+    expect(done.out.slice(-3, -1)).toEqual([
+      "Not done yet: 3 of 4 checks pass.",
+      "Next: commit it, then run this again.",
+    ]);
+  });
+
   it("leaves an old run's result behind on setup, never as the current run", async () => {
     const { ctx, run } = harness("setup");
     expect((await run("setup")).code).toBe(0);
@@ -147,7 +198,9 @@ describe("the loop job", () => {
     await run("consume", resultId);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL     its result was consumed exactly once");
+    expect(done.out).toContain(
+      "FAIL     The run's result was consumed 2 times. It should be once."
+    );
   });
 
   it("consuming result.json's stale result fails done", async () => {
@@ -161,7 +214,9 @@ describe("the loop job", () => {
     await run("consume", fresh);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL     no stale result was consumed");
+    expect(done.out).toContain(
+      "FAIL     An old result was consumed by mistake."
+    );
   });
 
   it("a superseded run still finishes late; its result is stale", async () => {
@@ -208,8 +263,11 @@ describe("the loop job", () => {
     await run("consume", resultId);
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.out).toContain("FAIL     the current run finished");
-    expect(done.out.join("\n")).toMatch(
+    expect(done.out).toContain(
+      "FAIL     The current run is a test run, so it doesn't count."
+    );
+    // A wrapped detail joined up again.
+    expect(done.out.join("\n").replaceAll(/\n {9}/g, " ")).toMatch(
       /used the test-only window \(TMX_TEST_WITHIN_MINUTES=0\.5\); start a normal run/
     );
   });
@@ -225,7 +283,7 @@ describe("the loop job", () => {
     const nested = await run("done");
     expect(nested.code).toBe(1);
     expect(nested.out).toContain(
-      "Note: 1 consume from outside a top-level Pi session not counted"
+      "Note: 1 consume from outside a top-level Pi session, not counted."
     );
     who.session = TOP;
     await run("consume", resultId);
@@ -233,7 +291,7 @@ describe("the loop job", () => {
     expect(done.code).toBe(0);
     // The note is the last line above the verdict's blank line.
     expect(done.out[done.out.lastIndexOf("") - 1]).toBe(
-      "Note: 1 consume from outside a top-level Pi session not counted"
+      "Note: 1 consume from outside a top-level Pi session, not counted."
     );
   });
 

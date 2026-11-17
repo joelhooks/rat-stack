@@ -16,6 +16,7 @@ import {
   splitConsumes,
   testWindowDetail,
   type Verdict,
+  waitFix,
 } from "./job.ts";
 
 // The 02.2 done check: the same job as 02.1, read together with the
@@ -87,29 +88,38 @@ export function judgeSurvive(
   const startedName = "the current run was started in a Pi session";
   const started: Claim =
     current === null
-      ? { ok: false, name: startedName, detail: "no run yet" }
+      ? {
+          ok: false,
+          name: startedName,
+          says: "No run has started yet.",
+          detail: "no run yet",
+        }
       : current.session === null
         ? {
             ok: false,
             name: startedName,
+            says: "The current run wasn't started in a Pi you started with pnpm pi.",
             detail: `${current.runId} was started outside any Pi started with pnpm pi`,
           }
         : starter === null
           ? {
               ok: false,
               name: startedName,
+              says: "The current run was started in a Pi session with no record.",
               detail: `${current.runId} was started in ${current.session}, which has no session record`,
             }
           : a === null
             ? {
                 ok: false,
                 name: startedName,
+                says: "The current run was started in a Pi inside another Pi.",
                 detail: `${current.runId} was started in ${starter.session}, a Pi started from inside another Pi. Start the run from a Pi you started with pnpm pi`,
               }
             : current.testWindow !== null
               ? {
                   ok: false,
                   name: startedName,
+                  says: "The current run is a test run, so it doesn't count.",
                   detail: testWindowDetail(current.runId, current.testWindow),
                 }
               : {
@@ -121,12 +131,22 @@ export function judgeSurvive(
   const quitName = "that session quit before the run finished";
   const quit: Claim = (() => {
     if (a === null) {
-      return { ok: false, name: quitName, detail: "no session to check yet" };
+      return {
+        ok: false,
+        name: quitName,
+        says: "There's no session to check until a run starts in a Pi you started with pnpm pi.",
+        detail:
+          "no run started in a Pi session that counts, so no session to check yet",
+      };
     }
     if (a.ended !== "quit" || a.endedAt === null) {
       return {
         ok: false,
         name: quitName,
+        says:
+          a.ended === "signal" || a.ended === "error"
+            ? "The session that started the run ended without quitting."
+            : "The session that started the run is still open.",
         detail: `${a.session} ${describeEnd(a)}; it has to quit (/quit or Ctrl+D)`,
       };
     }
@@ -134,6 +154,8 @@ export function judgeSurvive(
       return {
         ok: false,
         name: quitName,
+        says: "That session quit, and the run hasn't finished yet.",
+        fix: waitFix,
         detail: `${a.session} quit at ${clock(a.endedAt)}; the run is still running`,
       };
     }
@@ -141,6 +163,7 @@ export function judgeSurvive(
       return {
         ok: false,
         name: quitName,
+        says: "That session quit after the run finished, not before.",
         detail: `${a.session} quit at ${clock(a.endedAt)}, after the run finished at ${clock(result.at)}`,
       };
     }
@@ -165,22 +188,37 @@ export function judgeSurvive(
   const laterName = "its result was consumed exactly once, in a later session";
   const later: Claim = (() => {
     if (result === null) {
-      return { ok: false, name: laterName, detail: "nothing to consume yet" };
+      return {
+        ok: false,
+        name: laterName,
+        says: "There's nothing to consume until the run finishes.",
+        fix: waitFix,
+        detail: "nothing to consume until the run finishes",
+      };
     }
     if (take === null) {
       return {
         ok: false,
         name: laterName,
+        says:
+          takes.length === 0 && elsewhere > 0
+            ? "The run's result was only consumed outside a Pi you started with pnpm pi."
+            : takes.length === 0
+              ? "Nothing in a later session has consumed the run's result yet."
+              : `The run's result was consumed ${takes.length} times. It should be once.`,
         detail:
           takes.length === 0 && elsewhere > 0
             ? `${result.resultId} was consumed only from outside a top-level Pi session`
-            : `${result.resultId} consumed ${plural(takes.length, "time")}`,
+            : takes.length === 0
+              ? `nothing in a top-level Pi session has consumed ${result.resultId} yet`
+              : `${result.resultId} consumed ${plural(takes.length, "time")}`,
       };
     }
     if (a !== null && take.session === a.session) {
       return {
         ok: false,
         name: laterName,
+        says: "The run's result was consumed in the session that started the run, not a later one.",
         detail: `${result.resultId} was consumed in ${a.session}, the session that started the run`,
       };
     }
@@ -188,6 +226,7 @@ export function judgeSurvive(
       return {
         ok: false,
         name: laterName,
+        says: "The run's result was consumed in a Pi session with no record.",
         detail: `${result.resultId} was consumed in ${take.session ?? "no session"}, which has no session record`,
       };
     }
@@ -195,6 +234,7 @@ export function judgeSurvive(
       return {
         ok: false,
         name: laterName,
+        says: "The run's result was consumed in a session that started before the first one quit.",
         detail: `${result.resultId} was consumed in ${b.session}, which started at ${clock(b.startedAt)}, before ${a?.session ?? "the starting session"} quit`,
       };
     }
@@ -211,6 +251,8 @@ export function judgeSurvive(
       return {
         ok: false,
         name: askedName,
+        says: "There's no consume in a later session to check yet.",
+        ...(result === null ? { fix: waitFix } : {}),
         detail: "no consume in a later session to check yet",
       };
     }
@@ -219,6 +261,7 @@ export function judgeSurvive(
       return {
         ok: false,
         name: askedName,
+        says: "That later session has no record of its prompts.",
         detail: `${b.session} has no prompt record; start Pi with pnpm pi`,
       };
     }
@@ -233,6 +276,7 @@ export function judgeSurvive(
       return {
         ok: false,
         name: askedName,
+        says: "Someone prompted that later session before it consumed the result.",
         detail: `${b.session} got ${prompts.length} prompt${prompts.length === 1 ? "" : "s"} from a person before the consume, the first at ${first === undefined ? "?" : clock(first.at)}`,
       };
     }
@@ -250,7 +294,7 @@ export function judgeSurvive(
 }
 
 /**
- * "Note: 2 nested sessions seen and not counted": the Pis started from inside
+ * "Note: 2 nested sessions seen, not counted.": the Pis started from inside
  * another Pi that started, finished or consumed a run. Then any other consume
  * the check ignored (a plain terminal, a session with no record).
  */
@@ -273,9 +317,7 @@ function survivalNotes(
   return [
     ...(nested.size === 0
       ? []
-      : [
-          `Note: ${plural(nested.size, "nested session")} seen and not counted`,
-        ]),
+      : [`Note: ${plural(nested.size, "nested session")} seen, not counted.`]),
     ...ignoredConsumesNote(ignoredConsumes - nestedConsumes),
   ];
 }

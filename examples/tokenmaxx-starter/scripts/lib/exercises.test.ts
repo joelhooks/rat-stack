@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { findRepoRoot } from "#shared/core/context.ts";
+import { exerciseOrder } from "#shared/core/report.ts";
 import type { SessionRecord } from "#shared/core/sessions.ts";
 import { isolatedStarter } from "#shared/core/testing.ts";
 
@@ -86,6 +87,12 @@ describe("discovery", () => {
     expect(entries.map((e) => e.id)).toContain("00.1");
     expect(entries.map((e) => e.id)).toContain("02.1");
     expect(entries.every((e) => e.runnable)).toBe(true);
+    // The order the Next line walks: every exercise, by its own title.
+    const titles = entries.map((e) => {
+      const source = readFileSync(join(e.dir, "exercise.ts"), "utf8");
+      return [e.id, /title: "([^"]+)"/.exec(source)?.[1] ?? ""] as const;
+    });
+    expect(exerciseOrder).toEqual(titles);
   });
 });
 

@@ -133,7 +133,8 @@ async function done(story: Story) {
   return {
     code,
     lines,
-    text: lines.join("\n"),
+    // A wrapped line joined up again, so a test can look for a sentence.
+    text: lines.join("\n").replaceAll(/\n {9}/g, " "),
     verdicts,
     exercise,
     ctx,
@@ -141,10 +142,14 @@ async function done(story: Story) {
   };
 }
 
-/** `PASS` or `FAIL`; a note as `NOTE yes` or `NOTE no`. */
+/** `PASS` or `FAIL`; a note as `NOTE yes` or `NOTE no`, by its sentence. */
 function verdict(line: string): string {
+  const yes = [
+    "NOTE     A fresh Pi session loads a tool and a skill from this repo.",
+    "NOTE     The repo says why it exists, in ",
+  ];
   return line.startsWith("NOTE ")
-    ? `NOTE ${line.endsWith(": yes") ? "yes" : "no"}`
+    ? `NOTE ${yes.some((y) => line.startsWith(y)) ? "yes" : "no"}`
     : line.slice(0, 4);
 }
 
@@ -166,7 +171,7 @@ describe("the 01.1 done check", () => {
     });
     expect(r.verdicts).toEqual(["FAIL", "NOTE no", "NOTE no"]);
     expect(r.code).toBe(1);
-    expect(r.text).toContain("Not done yet.");
+    expect(r.text).toContain("Not done yet: 0 of 1 checks pass.");
     expect(r.text).toContain("Went through");
     expect(r.text).toContain(
       "Tools from this repo: none. (Pi's own: read, bash, edit, write.)"
@@ -185,8 +190,11 @@ describe("the 01.1 done check", () => {
     expect(r.text).toContain("Went through");
     expect(r.text).not.toContain("Tools from this repo");
     expect(r.text).not.toContain("No VISION or WHY file");
-    expect(r.lines.at(-2)).toBe("Not done yet.");
-    expect(r.lines.at(-1)).toBe("More: pnpm ex 01.1 done --details");
+    expect(r.lines.slice(-3)).toEqual([
+      "Not done yet: 0 of 1 checks pass.",
+      "Next: paste the FAIL lines into Pi and ask it to fix them, then run this again.",
+      "More: pnpm ex 01.1 done --details",
+    ]);
   });
 
   it("fails a faked fence, even with an agent saying done", async () => {
@@ -216,7 +224,7 @@ describe("the 01.1 done check", () => {
     });
     expect(r.verdicts).toEqual(["FAIL", "NOTE yes", "NOTE yes"]);
     expect(r.code).toBe(1);
-    expect(r.text).toContain("Not done yet.");
+    expect(r.text).toContain("Not done yet: 0 of 1 checks pass.");
   });
 
   it("passes on the fence alone: no package, no why, both printed as notes", async () => {
@@ -224,12 +232,18 @@ describe("the 01.1 done check", () => {
     expect(r.verdicts).toEqual(["PASS", "NOTE no", "NOTE no"]);
     expect(r.code).toBe(0);
     expect(r.text).not.toMatch(/^FAIL/m);
-    expect(r.text).not.toContain("Not done yet.");
+    expect(r.text).not.toContain("Not done yet");
     expect(r.text).toContain("Done: the fence holds.");
+    expect(r.lines).toContain("Not required for this step:");
     expect(r.lines).toContain(
-      "NOTE     a fresh Pi session loads a tool and a skill from this repo: no"
+      "NOTE     A fresh Pi session doesn't load a tool or a skill from this repo yet."
     );
-    expect(r.lines).toContain("NOTE     the repo says why it exists: no");
+    expect(r.lines).toContain(
+      "NOTE     The repo doesn't say why it exists: no VISION or WHY file at its root."
+    );
+    expect(r.lines).toContain(
+      "Next: 02.1 · Wake me when it's done. Start it with: pnpm ex 02.1 setup"
+    );
     expect(r.text).toContain("Tools from this repo: none.");
     expect(r.text).toContain("No VISION or WHY file");
   });
@@ -273,7 +287,7 @@ describe("the 01.1 done check", () => {
     expect(r.text).toContain("VISION.md: 8 words.");
     expect(r.text).not.toContain("Note:");
     expect(r.text).toContain(
-      "STRETCH  an agent here can't skip the hook: not held"
+      "STRETCH  An agent here can still skip the hook: that's the stretch goal."
     );
     expect(r.text).toContain(
       'git commit -n -m "test: fence check": got through, a commit was made.'
@@ -321,9 +335,12 @@ describe("the 01.1 done check", () => {
       `01.1 · t · checking ${r.ctx.guestRoot} (tools in workshop/)`
     );
     expect(r.text).toContain("VISION.md");
-    expect(r.text).toContain(
-      "STRETCH  an agent here can't skip the hook: held"
-    );
+    expect(r.text).toContain("STRETCH  An agent here can't skip the hook.");
+    // 02.1 onward run in the starter's folder, not the repo 01.1 checked.
+    expect(r.lines.slice(-2)).toEqual([
+      "Next: 02.1 · Wake me when it's done, in your tokenmaxx folder:",
+      "      pnpm ex 02.1 setup",
+    ]);
     expect(r.text).toContain("refused by git. It said: error TS2322");
   });
 
@@ -357,7 +374,7 @@ describe("the 01.1 done check", () => {
     expect(r.verdicts).toEqual(["PASS", "NOTE yes", "NOTE yes"]);
     expect(r.code).toBe(0);
     expect(r.text).toContain(
-      "STRETCH  an agent here can't skip the hook: not held"
+      "STRETCH  The check couldn't find out whether an agent here can skip the hook."
     );
     expect(r.text).toContain(
       "Couldn't find out: a fresh Pi in your repo has no bash tool"
@@ -388,7 +405,7 @@ describe("the 01.1 done check", () => {
     expect(r.text).toContain(
       "Note: your own Pi setup also adds 2 tools (web_search, session_search) and 1 skill (tdd)."
     );
-    expect(r.text).toContain("can't skip the hook: held");
+    expect(r.text).toContain("STRETCH  An agent here can't skip the hook.");
     expect(r.text).toContain(
       "refused by your Pi before git ran. It said: Skipping the commit hook is not allowed here."
     );
@@ -468,10 +485,53 @@ describe("the 01.1 done check", () => {
     expect(
       shown.map(verdict).filter((v) => /^(PASS|FAIL|NOTE)/.test(v))
     ).toEqual(["PASS", "NOTE no", "NOTE yes"]);
-    expect(shown.at(-1)).toBe("Done: the fence holds.");
+    expect(shown.slice(-2)).toEqual([
+      "Done: the fence holds.",
+      "Next: 02.1 · Wake me when it's done. Start it with: pnpm ex 02.1 setup",
+    ]);
     await again.commands.setup(r.ctx, []);
     shown.length = 0;
     await again.commands.status(r.ctx, []);
     expect(shown[0]).toContain("No result yet");
+  });
+
+  it("replays a result 0.4.0 saved, before sentences, in the new words", async () => {
+    const r = await done({ fence: tried({}), trusted: seen([]), files: why });
+    const claim = (name: string, ok: boolean) => ({ name, ok, detail: "" });
+    writeFileSync(
+      join(r.ctx.stateDir, "done.json"),
+      JSON.stringify({
+        at: "2026-11-16T20:00:00.000Z",
+        claims: [claim("a type-broken commit is refused", true)],
+        notes: [
+          claim(
+            "a fresh Pi session loads a tool and a skill from this repo",
+            false
+          ),
+          claim("the repo says why it exists", true),
+        ],
+        stretch: {
+          name: "an agent here can't skip the hook",
+          held: false,
+          detail: "",
+        },
+      })
+    );
+    const shown: string[] = [];
+    await firstPackageExercise(
+      { id: "01.1", title: "t" },
+      {
+        fence: async () => tried({}),
+        probe: async () => seen([]),
+        out: (l) => shown.push(l),
+      }
+    ).commands.status(r.ctx, []);
+    expect(shown.filter((l) => /^[A-Z]{4,7} /.test(l))).toEqual([
+      "PASS     A commit with a type error gets refused.",
+      "NOTE     A fresh Pi session doesn't load both a tool and a skill from this repo",
+      "NOTE     The repo says why it exists.",
+      "STRETCH  An agent here can still skip the hook: that's the stretch goal.",
+    ]);
+    expect(shown).toContain("Done: the fence holds.");
   });
 });

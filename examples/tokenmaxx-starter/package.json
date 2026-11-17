@@ -1,6 +1,6 @@
 {
   "name": "tokenmaxx-starter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Tokenmaxx workshop starter: build your own agent factory, one piece at a time.",
   "license": "MIT",

@@ -10,8 +10,10 @@ import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import { now } from "#shared/core/paths.ts";
 import {
   detailsFlag,
+  nextAfter,
   type Reporter,
   reporter,
+  sentence,
   shortPath,
   takeDetails,
 } from "#shared/core/report.ts";
@@ -25,11 +27,10 @@ import {
 } from "./catch-up.ts";
 import {
   changedWarning,
-  type Claim,
   fenceClaim,
   findWhyFiles,
   packageClaim,
-  type Stretch,
+  says,
   stretchLine,
   whyClaim,
 } from "./claims.ts";
@@ -64,11 +65,14 @@ const defaultDeps: FirstPackageDeps = {
   out: (line) => console.log(line),
 };
 
+// `says` is new in 0.4.1: a result saved before it is shown by name.
 const SavedClaim = Schema.Struct({
   name: Schema.String,
   ok: Schema.Boolean,
+  says: Schema.optional(Schema.String),
   detail: Schema.String,
 });
+type SavedClaim = typeof SavedClaim.Type;
 
 const SavedDone = Schema.Struct({
   at: Schema.String,
@@ -78,6 +82,7 @@ const SavedDone = Schema.Struct({
     Schema.Struct({
       name: Schema.String,
       held: Schema.Boolean,
+      says: Schema.optional(Schema.String),
       detail: Schema.String,
     })
   ),
@@ -93,31 +98,61 @@ const real = (path: string) => {
   }
 };
 
-// A NOTE line: a line `done` still checks but doesn't need.
-const noteLine = (note: Claim) => `${note.name}: ${note.ok ? "yes" : "no"}`;
+const saysOf = (claim: { name: string; says?: string }, ok: boolean) =>
+  claim.says ?? sentence(says, claim.name, ok);
 
-// DRAFT closing lines.
-const doneLine = (ok: boolean) =>
-  ok ? "Done: the fence holds." : "Not done yet.";
-
+/** The checks, then the closing lines. NOTE and STRETCH lines don't count. */
 function print(
   report: Reporter,
-  claims: readonly Claim[],
-  notes: readonly Claim[],
-  stretch: Stretch | null
+  claims: readonly SavedClaim[],
+  notes: readonly SavedClaim[],
+  stretch: { name: string; held: boolean; says?: string; detail: string } | null
 ) {
   for (const claim of claims) {
-    report.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
+    report.check(
+      claim.ok ? "PASS" : "FAIL",
+      saysOf(claim, claim.ok),
+      claim.detail
+    );
   }
   for (const note of notes) {
-    report.check("NOTE", noteLine(note), note.detail);
+    report.check("NOTE", saysOf(note, note.ok), note.detail);
   }
   if (stretch !== null) {
-    report.check(
-      "STRETCH",
-      `${stretch.name}: ${stretch.held ? "held" : "not held"}`,
-      stretch.detail
-    );
+    report.check("STRETCH", saysOf(stretch, stretch.held), stretch.detail);
+  }
+}
+
+/**
+ * Where 01.1 looks, and where the next exercise runs when that's elsewhere:
+ * 01.1 checks the guest's own repo; the day runs 02.1 onward in the separate
+ * tokenmaxx folder every guest made in setup, whatever folder ran this.
+ */
+function placesFor(ctx: ExerciseContext) {
+  // The guest's repo, which holds the starter when it was pulled in.
+  // Compared by real path: TMX_GUEST_ROOT can name the starter itself
+  // through a symlink (macOS's /var is one to /private/var).
+  const root = ctx.guestRoot;
+  const nested = real(root) !== real(ctx.repoRoot);
+  const inside = relative(real(root), real(ctx.repoRoot));
+  return {
+    root,
+    nested,
+    supplied: nested ? [inside] : suppliedFolders,
+    nextIn: nested ? "your tokenmaxx folder" : undefined,
+  };
+}
+
+function close(
+  id: string,
+  report: Reporter,
+  ok: boolean,
+  nextIn: string | undefined
+) {
+  if (ok) {
+    report.done("Done: the fence holds.", nextAfter(id, nextIn));
+  } else {
+    report.notDone();
   }
 }
 
@@ -157,7 +192,12 @@ export function firstPackageExercise(
         r.header(`last done, at ${saved.value.at}`);
         r.line("");
         print(r, saved.value.claims, saved.value.notes, saved.value.stretch);
-        r.verdict(doneLine(saved.value.claims.every((c) => c.ok)));
+        close(
+          opts.id,
+          r,
+          saved.value.claims.every((c) => c.ok),
+          placesFor(ctx).nextIn
+        );
         return 0;
       },
 
@@ -178,14 +218,7 @@ export function firstPackageExercise(
       /** The done check: PASS when the fence holds. The notes never count. */
       async done(ctx, args) {
         const r = report("done", args);
-        // The guest's repo, which holds the starter when it was pulled in.
-        // Compared by real path: TMX_GUEST_ROOT can name the starter itself
-        // through a symlink (macOS's /var is one to /private/var).
-        const root = ctx.guestRoot;
-        const nested = real(root) !== real(ctx.repoRoot);
-        const supplied = nested
-          ? [relative(real(root), real(ctx.repoRoot))]
-          : suppliedFolders;
+        const { root, nested, supplied, nextIn } = placesFor(ctx);
         r.header(
           nested
             ? `checking ${shortPath(root)} (tools in ${supplied.join("")}/)`
@@ -224,7 +257,7 @@ export function firstPackageExercise(
           stretch,
         });
         const ok = claims.every((c) => c.ok);
-        r.verdict(doneLine(ok));
+        close(opts.id, r, ok, nextIn);
         return ok ? 0 : 1;
       },
     },
