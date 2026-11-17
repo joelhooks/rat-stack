@@ -38,6 +38,8 @@ export type Claim = {
   readonly ok: boolean;
   readonly name: string;
   readonly detail: string;
+  /** What `done` prints for this case, when it's more than the name says. */
+  readonly says?: string;
 };
 
 export const claimNames = {
@@ -104,29 +106,44 @@ function pairOf(
 }
 
 /** Why the pair was carried by hand, or null when nobody typed to carry it. */
-function typedIn(pair: Pair, turns: TurnsBySession): string | null {
+function typedIn(
+  pair: Pair,
+  turns: TurnsBySession
+): { readonly says: string; readonly detail: string } | null {
   const { answer, a, b } = pair;
   const revealedAt = answer.matched?.revealedAt ?? answer.at;
   const aLines = turns.get(a.session) ?? null;
   const bLines = turns.get(b.session) ?? null;
   if (aLines === null || bLines === null) {
-    return `${(aLines === null ? a : b).session} has no prompt record; start it with pnpm pi`;
+    return {
+      says: "A session has no record of its prompts.",
+      detail: `${(aLines === null ? a : b).session} has no prompt record; start it with pnpm pi`,
+    };
   }
   const question = humanPrompts(aLines)
     .filter((line) => ms(line.at) <= ms(answer.at))
     .at(-1);
   if (question === undefined) {
-    return `nothing was typed into ${who(a)} before it handed in; type the question into it`;
+    return {
+      says: "Nobody typed the question into the session that asked.",
+      detail: `nothing was typed into ${who(a)} before it handed in; type the question into it`,
+    };
   }
   if (ms(revealedAt) <= ms(question.at)) {
-    return `${who(a)} was typed into at ${clock(question.at)}, after ${who(b)} was shown its secret at ${clock(revealedAt)}: it could have been typed in`;
+    return {
+      says: "The question was typed in after the secret was shown, so the answer could have been typed too.",
+      detail: `${who(a)} was typed into at ${clock(question.at)}, after ${who(b)} was shown its secret at ${clock(revealedAt)}: it could have been typed in`,
+    };
   }
   const intoB = humanPrompts(bLines).filter(
     (line) => ms(line.at) > ms(question.at) && ms(line.at) <= ms(revealedAt)
   );
   const first = intoB[0];
   if (first !== undefined) {
-    return `${who(b)} was typed into at ${clock(first.at)}, after the question went into ${a.session} at ${clock(question.at)} and before it was shown its secret`;
+    return {
+      says: "Someone typed into the answering session to carry it.",
+      detail: `${who(b)} was typed into at ${clock(first.at)}, after the question went into ${a.session} at ${clock(question.at)} and before it was shown its secret`,
+    };
   }
   return null;
 }
@@ -151,10 +168,18 @@ function judgeAnswer(
         ? "nothing handed in yet"
         : (pairOf(last, byId) as string);
     return [
-      { ok: false, name: claimNames.answered, detail },
+      {
+        ok: false,
+        name: claimNames.answered,
+        detail,
+        ...(last === undefined
+          ? { says: "Nothing has been handed in yet." }
+          : {}),
+      },
       {
         ok: false,
         name: claimNames.untyped,
+        says: "There's no answer from another session to check yet.",
         detail: "no answer from another session to check yet",
       },
     ];
@@ -174,7 +199,7 @@ function judgeAnswer(
           name: claimNames.untyped,
           detail: `nothing was typed into ${a.session} after the question, or into ${b.session} before it was shown its secret`,
         }
-      : { ok: false, name: claimNames.untyped, detail: why };
+      : { ok: false, name: claimNames.untyped, ...why };
   return [answered, untyped];
 }
 
@@ -294,6 +319,7 @@ function judgeBounce(
     return {
       ok: false,
       name: claimNames.bounced,
+      says: "No session has handed in an answer yet, so there's no message to check.",
       detail: `no session has handed in an answer yet; ask the one that does to message ${missingName}`,
     };
   }
@@ -371,18 +397,16 @@ export function notes(
   return [
     ...(nested.size === 0
       ? []
-      : [
-          `Note: ${plural(nested.size, "nested session")} seen and not counted`,
-        ]),
+      : [`Note: ${plural(nested.size, "nested session")} seen, not counted.`]),
     ...(outside === 0
       ? []
       : [
-          `Note: ${plural(outside, "command")} run outside any Pi started with pnpm pi, not counted`,
+          `Note: ${plural(outside, "command")} run outside any Pi started with pnpm pi, not counted.`,
         ]),
     ...(unread.length === 0
       ? []
       : [
-          `Note: no Pi session file found for ${unread.map((s) => s.session).join(", ")}`,
+          `Note: no Pi session file found for ${unread.map((s) => s.session).join(", ")}.`,
         ]),
   ];
 }

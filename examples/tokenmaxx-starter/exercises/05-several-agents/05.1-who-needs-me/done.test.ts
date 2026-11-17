@@ -82,7 +82,7 @@ describe("the 05.1 done check", () => {
       .replace("newt  working", "newt  waiting");
     expect(verdict(output)).toEqual([true, true, false, false, true]);
     expect(texts(output)[2]).toBe(
-      "moth (parked its build on a wait) shows waiting, but nothing in it is waiting on you"
+      "The output shows moth (parked its build on a wait) as waiting, but nothing in it is waiting on you."
     );
   });
 
@@ -103,7 +103,7 @@ describe("the 05.1 done check", () => {
     const output = correct.replace("lark  waiting", "lark  working");
     expect(verdict(output)).toEqual([true, false, true, true, true]);
     expect(texts(output)[1]).toBe(
-      "lark (asked you a question) shows working, not waiting"
+      "The output shows lark (asked you a question) as working. It should be waiting."
     );
   });
 
@@ -116,14 +116,14 @@ describe("the 05.1 done check", () => {
     const output = correct.replace("orca  stopped  killed", "");
     expect(verdict(output)).toEqual([true, true, true, true, false]);
     expect(texts(output)[4]).toBe(
-      "orca (killed in the middle of a tool call) isn't in the output: no line names it"
+      "No line of the output names orca (killed in the middle of a tool call)."
     );
   });
 
   it("fails a session whose line has none of the three words", () => {
     const output = correct.replace("newt  working", "newt  idle");
     expect(texts(output)[3]).toBe(
-      "newt (waiting on another session's reply) has none of working, waiting, stopped on its line"
+      "The line for newt (waiting on another session's reply) has none of the words working, waiting or stopped."
     );
   });
 
@@ -132,7 +132,7 @@ describe("the 05.1 done check", () => {
     expect(verdict(output)).toEqual([true, true, true, true, true]);
     const twice = `${correct.replace("pid 101", "")}\nkiwi is waiting on you`;
     expect(texts(twice)[0]).toBe(
-      "kiwi (busy on a long tool call) shows both working and waiting; if one line is an older session with the same name, put the live one's PID or session ID on its line"
+      "The output shows kiwi (busy on a long tool call) as both working and waiting. If one line is an older session with the same name, put the live one's PID or session ID on its line."
     );
   });
 
@@ -248,7 +248,14 @@ describe("the 05.1 done command", () => {
     expect(code).toBe(0);
     expect(stopped).toBe(1);
     expect(verdicts(lines)).toEqual(Array(6).fill("PASS"));
-    expect(lines).toContain(`PASS     ${commitClaimName}`);
+    expect(lines).toContain(
+      "PASS     This step's work is committed, through your commit hook."
+    );
+    expect(lines.slice(-3)).toEqual([
+      "Done.",
+      "Next: 06.1 · Split three ways. Start it with: pnpm ex 06.1 setup",
+      "More: pnpm ex 05.1 done --details pnpm sessions",
+    ]);
   });
 
   it("takes --details only before the guest's command, never out of it", async () => {
@@ -282,8 +289,13 @@ describe("the 05.1 done command", () => {
     const { code, lines } = await run(["pnpm sessions"], { env });
     expect(code).toBe(1);
     expect(lines).toContain(
-      "FAIL     the environment's sessions didn't start: no Pi"
+      "FAIL     The environment's sessions didn't start."
     );
+    expect(lines).toContain("         No Pi.");
+    expect(lines.slice(-2)).toEqual([
+      "Not done yet: the environment's sessions didn't start.",
+      "Next: run this again.",
+    ]);
   });
 
   it("asks for a command when none is given", async () => {

@@ -1,11 +1,19 @@
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "#shared/core/commit-line.ts";
 import type { Env, ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
-import { detailsFlag, reporter, takeDetails } from "#shared/core/report.ts";
+import {
+  detailsFlag,
+  nextAfter,
+  reporter,
+  type Says,
+  saysOf,
+  takeDetails,
+} from "#shared/core/report.ts";
 import {
   isTopLevel,
   readSessions,
@@ -14,7 +22,13 @@ import {
 } from "#shared/core/sessions.ts";
 import { readTurns, type TurnLine } from "#shared/core/turns.ts";
 
-import { askingSessions, judge, missingName, notes } from "./judge.ts";
+import {
+  askingSessions,
+  claimNames,
+  judge,
+  missingName,
+  notes,
+} from "./judge.ts";
 import {
   appendEvent,
   type MessagesEvent,
@@ -66,6 +80,23 @@ export function transcriptReader(
       ? null
       : readTranscript(record.piSessionId, [ctx.guestRoot, ctx.repoRoot], env);
 }
+
+/** What `done` prints for each check when the case adds nothing. */
+const says: Readonly<Record<string, Says>> = {
+  [claimNames.answered]: {
+    yes: "The answer came back to the session that asked.",
+    no: "The answer hasn't come back to the session that asked yet.",
+  },
+  [claimNames.untyped]: {
+    yes: "Nobody typed into either session to carry it.",
+    no: "Someone typed into a session to carry it.",
+  },
+  [claimNames.bounced]: {
+    yes: `A message from that session to ${missingName}, a name nobody has, failed where it could see it.`,
+    no: `A message from that session to ${missingName}, a name nobody has, hasn't failed where it could see it yet.`,
+  },
+  ...commitSays,
+};
 
 const defaultDeps: MessagesDeps = {
   out: (line) => console.log(line),
@@ -241,15 +272,22 @@ export function messagesExercise(
 
       /** The done check: PASS only when every claim holds. */
       async done(ctx, args) {
+        const { details } = takeDetails(args);
         const r = reporter(out, {
           id: opts.id,
           title: opts.title,
           command: `${ex(ctx, "done")} ${detailsFlag}`,
-          details: takeDetails(args).details,
+          details,
         });
         r.header();
         r.line("");
         const log = await readEvents(ctx.stateDir);
+        // Nothing yet: setup hasn't run, and every line would say so.
+        const started = startedAt(log) !== null;
+        if (!started && !details) {
+          r.notStarted(ex(ctx, "setup"));
+          return 1;
+        }
         const records = await deps.readSessions(ctx.repoRoot);
         const turns = new Map<string, TurnLine[] | null>();
         const transcripts = new Map<string, TranscriptItem[] | null>();
@@ -272,7 +310,7 @@ export function messagesExercise(
             await deps.readTranscript(ctx, record).catch(() => null)
           );
         }
-        const claims = [
+        const claims: readonly CommitClaim[] = [
           ...judge(log, records, turns, transcripts),
           await r.during(
             "Checking the step's commit with your commit hooks...",
@@ -280,17 +318,27 @@ export function messagesExercise(
           ),
         ];
         for (const claim of claims) {
-          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
+          r.check(
+            claim.ok ? "PASS" : "FAIL",
+            saysOf(says, claim),
+            claim.detail,
+            claim.fix
+          );
         }
         for (const note of notes(log, records, transcripts)) {
           r.aside(note);
         }
         const ok = claims.every((c) => c.ok);
-        r.verdict(
-          ok
-            ? `Done: one session got its answer from another with nobody carrying it, and a message to ${missingName} failed out loud.`
-            : `Not done yet. Start over any time with ${ex(ctx, "setup")}.`
-        );
+        if (!started) {
+          r.notStarted(ex(ctx, "setup"));
+        } else if (ok) {
+          r.done(
+            `Done: one session got its answer from another with nobody carrying it, and a message to ${missingName} failed out loud.`,
+            nextAfter(opts.id)
+          );
+        } else {
+          r.notDone();
+        }
         return ok ? 0 : 1;
       },
     },

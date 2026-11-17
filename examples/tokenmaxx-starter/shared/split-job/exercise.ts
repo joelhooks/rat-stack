@@ -5,6 +5,7 @@ import { isAbsolute, join, posix, relative, sep } from "node:path";
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
@@ -12,7 +13,9 @@ import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import { now } from "#shared/core/paths.ts";
 import {
   detailsFlag,
+  nextAfter,
   reporter,
+  saysOf,
   shortPath,
   takeDetails,
 } from "#shared/core/report.ts";
@@ -33,7 +36,7 @@ import {
   stampsDir,
   writeJob,
 } from "./job.ts";
-import { judge } from "./judge.ts";
+import { judge, says } from "./judge.ts";
 import { observe } from "./observe.ts";
 
 // The commands for 06.1. `setup` makes a new job and says where its files
@@ -215,8 +218,12 @@ export function splitExercise(
           command: `${ex("done")} ${detailsFlag}`,
           details: takeDetails(args).details,
         });
-        const job = await loadJob(ctx);
+        const job = await readJob(ctx.stateDir);
         if (job === null) {
+          // No job: setup hasn't run, and there's nothing to check.
+          r.header();
+          r.line("");
+          r.notStarted(ex("setup"));
           return 1;
         }
         if (!existsSync(job.guestRoot)) {
@@ -226,7 +233,7 @@ export function splitExercise(
         r.header(`checking ${shortPath(job.guestRoot)}`);
         r.line("");
         const stamps = await readStamps(ctx.stateDir, job.jobId);
-        const claims = [
+        const claims: readonly CommitClaim[] = [
           ...judge(await observe(job, stamps)),
           await r.during(
             "Checking the step's commit with your commit hooks...",
@@ -234,14 +241,22 @@ export function splitExercise(
           ),
         ];
         for (const claim of claims) {
-          r.check(claim.ok ? "PASS" : "FAIL", claim.name, claim.detail);
+          r.check(
+            claim.ok ? "PASS" : "FAIL",
+            saysOf({ ...says, ...commitSays }, claim),
+            claim.detail,
+            claim.fix
+          );
         }
         const ok = claims.every((c) => c.ok);
-        r.verdict(
-          ok
-            ? "Done: three workers in their own copies, the broken part turned down, its work kept, and the step committed."
-            : "Not done yet."
-        );
+        if (ok) {
+          r.done(
+            "Done: three workers in their own copies, the broken part turned down, its work kept, and the step committed.",
+            nextAfter(opts.id)
+          );
+        } else {
+          r.notDone();
+        }
         return ok ? 0 : 1;
       },
     },

@@ -159,6 +159,11 @@ describe("the 06.1 done check", () => {
     };
     expect(verdict(facts)).toEqual([true, true, true, false, false]);
     expect(detail(facts, 3)).toMatch(/never done by the scripted worker/);
+    // The keep line doesn't repeat the turn-down line's sentence or detail.
+    expect(judge(facts)[4]?.says).toBe(
+      "Part c has no worker yet, so there's no closing to check."
+    );
+    expect(detail(facts, 4)).toBe("");
   });
 
   it("fails when the liar's file reaches the working tree, the index or the branch", () => {
@@ -267,8 +272,20 @@ describe("06.1 against a real repo", () => {
     expect(passes(short.lines)).toEqual([true, true, true, true, true, true]);
     expect(short.code).toBe(0);
     expect(short.lines.join("\n")).not.toMatch(/kept in stash@\{0\}/);
-    expect(short.lines.at(-2)).toMatch(/^Done: three workers/);
-    expect(short.lines.at(-1)).toBe("More: pnpm ex 06.1 done --details");
+    // The verdict wraps at 80 columns.
+    expect(short.lines.slice(-4)).toEqual([
+      "Done: three workers in their own copies, the broken part turned down, its work",
+      "kept, and the step committed.",
+      "Next: nothing. That was the last exercise.",
+      "More: pnpm ex 06.1 done --details",
+    ]);
+    // A line holding the repo's path is as long as the path: macOS temp
+    // paths alone pass 80 columns.
+    expect(
+      short.lines
+        .filter((l) => !l.includes("checking "))
+        .every((l) => l.length <= 80)
+    ).toBe(true);
   });
 
   it("fails when the boss takes every done at its word", async () => {

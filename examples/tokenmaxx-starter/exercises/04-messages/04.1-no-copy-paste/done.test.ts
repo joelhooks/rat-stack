@@ -398,9 +398,9 @@ describe("the 04.1 done check", () => {
       const seen = [...events, reveal(null, 30), reveal("C", 31)];
       const all = [...sessions, ses("C", "c", 3, "A")];
       expect(notes(seen, all, new Map())).toEqual([
-        "Note: 1 nested session seen and not counted",
-        "Note: 1 command run outside any Pi started with pnpm pi, not counted",
-        "Note: no Pi session file found for A",
+        "Note: 1 nested session seen, not counted.",
+        "Note: 1 command run outside any Pi started with pnpm pi, not counted.",
+        "Note: no Pi session file found for A.",
       ]);
     });
   });

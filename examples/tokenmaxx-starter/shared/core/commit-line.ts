@@ -35,6 +35,17 @@ import { tryReadJson, writeJsonAtomic } from "./store.ts";
 export const commitClaimName =
   "this step's work is committed, through your commit hook";
 
+/** What `done` prints for the commit line. */
+export const commitSays = {
+  [commitClaimName]: {
+    yes: "This step's work is committed, through your commit hook.",
+    no: "This step's work isn't committed through your commit hook yet.",
+  },
+};
+
+/** The commit line's fix when all it lacks is a commit. */
+export const commitFix = "commit this step's work, then run this again.";
+
 /** The commit hook events, the ones that can refuse a commit. */
 const commitHookEvents = [
   "pre-commit",
@@ -68,6 +79,10 @@ export type CommitClaim = {
   readonly name: string;
   readonly ok: boolean;
   readonly detail: string;
+  /** Set when the one thing missing is a commit. */
+  readonly fix?: string;
+  /** What `done` prints for this case, when it's more than the name says. */
+  readonly says?: string;
 };
 
 export type CommitContext = Pick<
@@ -298,14 +313,21 @@ export async function commitClaim(
   opts: { readonly env?: Env } = {}
 ): Promise<CommitClaim> {
   const env = gitEnv(opts.env ?? process.env);
-  const fail = (detail: string): CommitClaim => ({
+  const fail = (detail: string, says?: string): CommitClaim => ({
     name: commitClaimName,
     ok: false,
     detail,
+    ...(says === undefined ? {} : { says }),
   });
   const start = await tryReadJson(stepStartPath(ctx), StepStart);
   if (!start.ok) {
-    return fail(`Run ${ex(ctx, "setup")} first: this step starts there.`);
+    return {
+      ...fail(
+        `Run ${ex(ctx, "setup")} first: this step starts there.`,
+        "This step hasn't been set up yet."
+      ),
+      fix: `run ${ex(ctx, "setup")}, then run this again.`,
+    };
   }
   const head = await run(
     ctx.guestRoot,
@@ -316,7 +338,8 @@ export async function commitClaim(
   const [sha = "", ct = "", subject = ""] = head.output.trim().split("\0");
   if (head.code !== 0 || sha === "") {
     return fail(
-      `${ctx.guestRoot} has no commit yet: is it a git repository? (${tail(head.output, 1)})`
+      `${ctx.guestRoot} has no commit yet: is it a git repository? (${tail(head.output, 1)})`,
+      "Your repo has no commit yet."
     );
   }
   const short = sha.slice(0, 7);
@@ -334,7 +357,13 @@ export async function commitClaim(
     return fail(`git status failed: ${tail(dirty.output, 1)}`);
   }
   if (dirty.length > 0) {
-    return fail(`Not committed yet: ${listed(dirty)}.`);
+    return {
+      ...fail(
+        `Not committed yet: ${listed(dirty)}.`,
+        "This step's work isn't committed yet."
+      ),
+      fix: commitFix,
+    };
   }
   const committed = `${short} "${subject}" is committed${early === "" ? " after this step's setup" : ""}, with nothing left over`;
   if (env[hookRunEnv] !== undefined) {
@@ -357,7 +386,8 @@ export async function commitClaim(
   const outcome = await runCommitHooks(ctx.guestRoot, env, hooks);
   if (!outcome.ok) {
     return fail(
-      `${short} "${subject}" is committed, but your ${outcome.event} hook refuses it as it stands, so it didn't get in through that hook (git commit -n, or a hook changed since?). The hook said: ${outcome.output}`
+      `${short} "${subject}" is committed, but your ${outcome.event} hook refuses it as it stands, so it didn't get in through that hook (git commit -n, or a hook changed since?). The hook said: ${outcome.output}`,
+      "This step's last commit is one your commit hook refuses as it stands."
     );
   }
   await writeJsonAtomic(hookPassPath(ctx), {

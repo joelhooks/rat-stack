@@ -235,9 +235,7 @@ describe("the 02.2 done check", () => {
     ]);
     expect(both.claims[0]?.detail).toMatch(/started from inside another Pi/);
     expect(both.claims[2]?.detail).toMatch(/only from outside a top-level Pi/);
-    expect(both.notes).toEqual([
-      "Note: 2 nested sessions seen and not counted",
-    ]);
+    expect(both.notes).toEqual(["Note: 2 nested sessions seen, not counted."]);
 
     // The guest did it for real, after the agent tested in a nested Pi.
     const tested = judgeWithNotes(
@@ -257,9 +255,7 @@ describe("the 02.2 done check", () => {
       true,
       true,
     ]);
-    expect(tested.notes).toEqual([
-      "Note: 1 nested session seen and not counted",
-    ]);
+    expect(tested.notes).toEqual(["Note: 1 nested session seen, not counted."]);
   });
 
   it("notes a consume from a plain terminal, and nothing when all is top-level", () => {
@@ -270,7 +266,7 @@ describe("the 02.2 done check", () => {
         goodTurns
       ).notes
     ).toEqual([
-      "Note: 1 consume from outside a top-level Pi session not counted",
+      "Note: 1 consume from outside a top-level Pi session, not counted.",
     ]);
     expect(
       judgeWithNotes(

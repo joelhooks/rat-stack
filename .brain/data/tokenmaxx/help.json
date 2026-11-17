@@ -113,7 +113,7 @@
     {
       "steps": [6],
       "symptom": "Unsure whether step 0 is done.",
-      "fix": "It's done when `pnpm ex 01.1 done`, run at the new repo's root, shows `PASS` on its first check, \"a type-broken commit is refused\". It then ends with `Done: the fence holds.` Notes and the stretch line never count.",
+      "fix": "It's done when `pnpm ex 01.1 done`, run at the new repo's root, shows `PASS` on its first check, \"A commit with a type error gets refused.\" It then ends with `Done: the fence holds.` Notes and the stretch line never count.",
       "tested": true,
       "keywords": [
         "step 0",
