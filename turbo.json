@@ -88,6 +88,11 @@
       "inputs": ["scripts/turbo-summary*.ts", "package.json"],
       "outputs": []
     },
+    "//#check:landmines": {
+      "cache": false,
+      "passThroughEnv": ["LANDMINES_BASE"],
+      "outputs": []
+    },
     "//#check:turbo-inputs": {
       "cache": false,
       "outputs": []
@@ -98,6 +103,7 @@
     },
     "check": {
       "dependsOn": [
+        "//#check:landmines",
         "//#check:turbo-inputs",
         "//#lockfile:check",
         "typecheck",
@@ -297,6 +303,7 @@
     },
     "@rat-stack/site#check": {
       "dependsOn": [
+        "//#check:landmines",
         "//#check:turbo-inputs",
         "//#lockfile:check",
         "typecheck",
@@ -362,7 +369,8 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
-        "$TURBO_ROOT$/scripts/vcs-command-policy.*"
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
       ]
     },
     "@rat-stack/core#typecheck:tsc": {
@@ -372,7 +380,8 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
-        "$TURBO_ROOT$/scripts/vcs-command-policy.*"
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
       ]
     },
     "@rat-stack/core#typecheck:fast": {
@@ -382,7 +391,8 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
-        "$TURBO_ROOT$/scripts/vcs-command-policy.*"
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
       ]
     },
     "@rat-stack/cli#test": {
