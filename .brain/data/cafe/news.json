@@ -1,5 +1,78 @@
 [
   {
+    "kind": "release",
+    "url": "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.171.0",
+    "title": "Foldkit 0.171.0 requires result Message schemas",
+    "summary": "Breaking: createKeyedLazy now evicts keys absent from the latest render, and Command and Mount definitions require result Message schemas. Adds awaitable disposeAsync for embeds.",
+    "date": "2026-11-17",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/foldkit/foldkit/releases",
+    "engagement": {
+      "stars": 1241
+    }
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/mattpocockuk/status/2122618527840354327",
+    "title": "A prompt for assessing the XState v6 beta",
+    "summary": "Prompt for a coding agent: research the XState v6 beta, apply it to the app's gnarliest problem in a draft PR, verify and grade it.",
+    "date": "2026-11-17",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": "mattpocockuk"
+    },
+    "source": "https://x.com/mattpocockuk/status/2122618527840354327",
+    "topReplies": [
+      {
+        "likes": 19,
+        "text": "@mattpocockuk Thanks! Millions of tokens over many months went into it 😅",
+        "url": "https://x.com/DavidKPiano/status/2122659376531923055",
+        "x": "DavidKPiano"
+      },
+      {
+        "likes": 4,
+        "text": "@mattpocockuk It's even faster if you prompt @DavidKPiano: Is XState v6 beta good?",
+        "url": "https://x.com/betterbomb/status/2122690991807422793",
+        "x": "betterbomb"
+      },
+      {
+        "likes": 3,
+        "text": "@betterbomb @mattpocockuk Yes it's much better than v5 especially for agents",
+        "url": "https://x.com/DavidKPiano/status/2122697186710352089",
+        "x": "DavidKPiano"
+      }
+    ],
+    "engagement": {
+      "likes": 761,
+      "replies": 70,
+      "participants": 78
+    }
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/makisuo/status/2122818263490904221",
+    "title": "Superwall runs all production services on Effect",
+    "summary": "All of Superwall's production services now run on Effect, 29 APIs and services in total, after more than a year and a half of adoption.",
+    "date": "2026-11-17",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": "makisuo"
+    },
+    "source": "https://x.com/makisuo/status/2122818263490904221",
+    "topReplies": [],
+    "engagement": {
+      "likes": 12,
+      "replies": 0,
+      "participants": 0
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/timhanlon/fluid-functionalism-foldkit",
     "title": "Fluid Functionalism ported to Foldkit",
@@ -12,7 +85,7 @@
     },
     "source": "https://x.com/timhnln/status/2122383624993694038",
     "engagement": {
-      "stars": 2
+      "stars": 13
     }
   },
   {
@@ -143,7 +216,7 @@
     },
     "source": "https://x.com/davidnussio/status/2121142090721833322",
     "engagement": {
-      "stars": 4
+      "stars": 5
     }
   },
   {
@@ -175,7 +248,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 621
+      "stars": 659
     }
   },
   {
@@ -329,7 +402,7 @@
     },
     "source": "https://github.com/archiboi69/domain-devtools",
     "engagement": {
-      "stars": 25
+      "stars": 26
     }
   },
   {
@@ -399,7 +472,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 214
+      "stars": 249
     }
   },
   {
@@ -651,7 +724,7 @@
     },
     "source": "https://silklang.org",
     "engagement": {
-      "stars": 101
+      "stars": 103
     }
   },
   {
@@ -666,82 +739,6 @@
       "x": null
     },
     "source": "https://github.com/Effect-TS/effect/pull/10306"
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/MattiaManzati/status/2117330070842782057",
-    "title": "16 new Effect language service rules, also in tsrs and Oxlint",
-    "summary": "New rules spot Effect boilerplate and rewrite it to builtins such as mapBoth, fromResult and failSync, with quick fixes; they need type-aware linting.",
-    "date": "2026-11-02",
-    "repo": "Effect-TS/language-service",
-    "author": {
-      "github": null,
-      "x": "MattiaManzati"
-    },
-    "source": "https://x.com/MattiaManzati/status/2117330070842782057",
-    "engagement": {
-      "likes": 395,
-      "participants": 6,
-      "replies": 12
-    },
-    "topReplies": [
-      {
-        "likes": 1,
-        "text": "@m_salman_afzal @EffectTS_ Yup that’s kinda the point why we provide them as extension to TSGo as well",
-        "url": "https://x.com/MattiaManzati/status/2118340543747108867",
-        "x": "MattiaManzati"
-      },
-      {
-        "likes": 1,
-        "text": "@MattiaManzati @EffectTS_ Cheers",
-        "url": "https://x.com/stephen_rayner/status/2117697357890646516",
-        "x": "stephen_rayner"
-      },
-      {
-        "likes": 1,
-        "text": "@HellSatanS Most of the API already existed in v3 as well; for more info check the rules docs or the picture in the right corner reports dimmed if it supports v3/v4 :)",
-        "url": "https://x.com/MattiaManzati/status/2117540582880870584",
-        "x": "MattiaManzati"
-      }
-    ]
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/mattpocockuk/status/2117157362700058671",
-    "title": "What is the aha moment for Foldkit?",
-    "summary": "Asks for Foldkit's aha moment; replies cite explicit reducer transitions, agent devtools for state inspection, Scene tests, and the Elm Architecture in TypeScript.",
-    "date": "2026-11-02",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": null,
-      "x": "mattpocockuk"
-    },
-    "source": "https://x.com/mattpocockuk/status/2117157362700058671",
-    "engagement": {
-      "likes": 476,
-      "participants": 7,
-      "replies": 65
-    },
-    "topReplies": [
-      {
-        "likes": 2,
-        "text": "@mattpocockuk Constraints make agents successful. Strict Typing is a fantastic constraint that keeps the agent on rails. You have already seen that with @EffectTS_, @mattpocockuk. @foldkit is exactly that. Architectural constraints.",
-        "url": "https://x.com/waynemaurer/status/2117688439554359383",
-        "x": "waynemaurer"
-      },
-      {
-        "likes": 1,
-        "text": "@mattpocockuk Also @mattpocockuk here’s a cool video of creating a functional core imperative shell demo that renders foldkit logic in n different paradigms and syncs their data (including navigational state) in realtime amongst them: https://t.co/eGnfUbh4TL",
-        "url": "https://x.com/technoplato/status/2117891330672390154",
-        "x": "technoplato"
-      },
-      {
-        "likes": 0,
-        "text": "@mattpocockuk I'd like to love FoldKit, but the legacy of having an entire company built around React (with a comprehensive design system tightly bound to it) is a deal breaker. Then this popped up in my timeline: https://t.co/U6zfTtczSe. I'd like to dig into it more.",
-        "url": "https://x.com/Nitroin/status/2117872702333562888",
-        "x": "Nitroin"
-      }
-    ]
   },
   {
     "kind": "video",
@@ -872,22 +869,6 @@
     }
   },
   {
-    "kind": "release",
-    "url": "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.170.0",
-    "title": "Foldkit 0.170.0 moves to Effect 4.1",
-    "summary": "Foldkit and its companion packages move to Effect 4.1, using effect/crypto SecureRandom for UUIDs; the Node adapter and Vite plugin need Node 22.19.",
-    "date": "2026-10-29",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": null,
-      "x": null
-    },
-    "source": "https://github.com/foldkit/foldkit/releases",
-    "engagement": {
-      "stars": 1241
-    }
-  },
-  {
     "kind": "launch",
     "url": "https://github.com/rivet-dev/durable-object-migrator",
     "title": "durable-object-migrator moves Durable Object data off Cloudflare",
@@ -1009,7 +990,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 452
+      "stars": 536
     }
   },
   {
@@ -1090,22 +1071,6 @@
     "source": "https://x.com/joelhooks/status/2112382862502895983",
     "engagement": {
       "stars": 57
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/acoyfellow/skin",
-    "title": "skin",
-    "summary": "An app that rewrites its own code as you use it: Pi Durable builds each change in a Worker Loader isolate and checks it first.",
-    "date": "2026-10-17",
-    "repo": "acoyfellow/skin",
-    "author": {
-      "github": "acoyfellow",
-      "x": "acoyfellow"
-    },
-    "source": "https://github.com/acoyfellow/skin",
-    "engagement": {
-      "stars": 14
     }
   }
 ]
