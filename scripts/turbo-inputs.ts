@@ -604,10 +604,34 @@ const loadConfig = (
   }
 };
 
+const selectedVitestTests = (
+  root: string,
+  cwd: string,
+  task: Task,
+  vitest: string,
+  inspect: ReturnType<typeof inspector>,
+  failures: Set<string>
+) => {
+  if (!/^vitest run(?: --config(?:=| )\S+)?$/u.test(task.command)) {
+    return null;
+  }
+
+  const tests = inspect(vitest, cwd)?.selectedTests ?? null;
+
+  if (tests?.length === 0) {
+    failures.add(
+      `${task.taskId} selects no Vitest files. An empty shard cannot verify behavior. Fix: select existing tests in \`${path.relative(root, vitest)}\`.`
+    );
+  }
+
+  return tests;
+};
+
 const roots = (
   root: string,
   task: Task,
   snapshot: Snapshot,
+  inspect: ReturnType<typeof inspector>,
   requireFile: RequireFile,
   failures: Set<string>
 ) => {
@@ -665,6 +689,21 @@ const roots = (
   if (existsSync(vitest)) {
     pending.push(vitest);
     configFiles.add(vitest);
+  }
+
+  const selectedTests = selectedVitestTests(
+    root,
+    cwd,
+    task,
+    vitest,
+    inspect,
+    failures
+  );
+
+  if (selectedTests) {
+    pending.push(...selectedTests);
+
+    return { pending, configFiles, selectedVitest: vitest };
   }
 
   if (cwd === root) {
@@ -853,6 +892,14 @@ const recordDynamicReads = (
   }
 };
 
+const unfilteredVitestIncludes = (
+  file: string,
+  configFiles: ReadonlySet<string>,
+  selectedVitest: string | undefined,
+  info: ReturnType<typeof inspectSource>
+) =>
+  file !== selectedVitest && configFiles.has(file) ? info.includedTests : [];
+
 const inspectTask = (
   root: string,
   task: Task,
@@ -867,10 +914,11 @@ const inspectTask = (
   const cwd = path.resolve(root, task.directory);
   const [, taskName = ""] = task.taskId.split("#");
 
-  const { pending, configFiles } = roots(
+  const { pending, configFiles, selectedVitest } = roots(
     root,
     task,
     snapshot,
+    inspect,
     requireFile,
     failures
   );
@@ -1036,6 +1084,10 @@ const inspectTask = (
         );
       }
     }
+
+    pending.push(
+      ...unfilteredVitestIncludes(file, configFiles, selectedVitest, info)
+    );
 
     for (const loaded of info.configs) {
       requireFile(loaded, file, true);

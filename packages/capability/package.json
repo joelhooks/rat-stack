@@ -102,7 +102,7 @@
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json",
     "check": "pnpm run typecheck",
-    "pretest": "pnpm run --silent build"
+    "pretest": "test -n \"$TURBO_HASH\" || pnpm run --silent build"
   },
   "dependencies": {
     "effect": "4.1.4"

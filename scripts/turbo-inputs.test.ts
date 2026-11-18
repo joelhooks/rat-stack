@@ -140,6 +140,38 @@ await test("runtime fixture joins, directory reads and glob selectors retain the
   }
 });
 
+await test("literal runtime reads preserve brackets and braces in filenames", (context) => {
+  const { root, graph } = fixture();
+  context.after(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  for (const name of ["[id].ts", "{x}.json"]) {
+    const relative = `packages/probe/src/${name}`;
+    writeFileSync(path.join(root, relative), "");
+    writeFileSync(
+      path.join(root, "packages/probe/test/main.test.ts"),
+      `import { readFileSync } from "node:fs"; readFileSync(new URL(${JSON.stringify(`../src/${name}`)}, import.meta.url));`
+    );
+
+    const missing = graph();
+
+    const covered = {
+      tasks: missing.tasks.map((task) => ({
+        ...task,
+        inputs: { ...task.inputs, [`src/${name}`]: "hash" },
+      })),
+    };
+
+    assert.deepEqual(audit(root, covered).failures, []);
+    assert.ok(
+      audit(root, missing).failures.some((failure) =>
+        failure.includes(`does not hash ${relative}.`)
+      )
+    );
+  }
+});
+
 await test("an explicit Vitest config is hashed even when the default config remains present", (context) => {
   const { root, graph } = fixture();
 
@@ -399,6 +431,84 @@ await test("computed Vitest selectors fail closed instead of claiming coverage",
       failure.includes("has an unresolved Vitest file selector.")
     )
   );
+});
+
+await test("a flat Vitest shard can omit its excluded files, but not an active file or an import", (context) => {
+  const { root, graph } = fixture();
+  context.after(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  const config = path.join(root, "packages/probe/vitest.config.ts");
+  const runner = "packages/probe/test/runtime.test.ts";
+
+  const writeConfig = (exclude: string) => {
+    writeFileSync(
+      config,
+      `import { omit } from "./vitest-helper.js"; export default { test: { include: ["test/**/*.test.ts"], exclude: [${exclude}] } };`
+    );
+  };
+
+  writeFileSync(
+    path.join(root, "packages/probe/vitest-helper.ts"),
+    'export const omit = "test/{main,other}.test.ts";'
+  );
+  writeFileSync(path.join(root, runner), "export {};");
+
+  const missingExcluded = graph("packages/probe/test/main.test.ts");
+
+  const withRuntime = (sourceGraph: ReturnType<typeof graph>) => ({
+    tasks: sourceGraph.tasks.map((task) => ({
+      ...task,
+      inputs: { ...task.inputs, "test/runtime.test.ts": "hash" },
+    })),
+  });
+
+  const covered = withRuntime(missingExcluded);
+
+  writeConfig("omit");
+
+  assert.deepEqual(audit(root, covered).failures, []);
+  assert.ok(
+    audit(root, missingExcluded).failures.some((failure) =>
+      failure.includes(`does not hash ${runner}.`)
+    )
+  );
+
+  for (const file of ["vitest.config.ts", "vitest-helper.ts"]) {
+    const omitted = `packages/probe/${file}`;
+
+    assert.ok(
+      audit(root, withRuntime(graph(omitted))).failures.some((failure) =>
+        failure.includes(`does not hash ${omitted}.`)
+      )
+    );
+  }
+
+  writeFileSync(path.join(root, runner), 'import "./main.test.js";');
+  assert.ok(
+    audit(root, covered).failures.some((failure) =>
+      failure.includes("does not hash packages/probe/test/main.test.ts.")
+    )
+  );
+
+  writeFileSync(path.join(root, runner), "export {};");
+
+  for (const exclude of [
+    "omit.toLowerCase()",
+    '"!test/main.test.ts"',
+    '"test/@(main|other).test.ts"',
+    '"test/[mo]*.test.ts"',
+    '"test/mai?.test.ts"',
+  ]) {
+    writeConfig(exclude);
+    assert.ok(
+      audit(root, covered).failures.some((failure) =>
+        failure.includes("has an unresolved Vitest file selector.")
+      ),
+      exclude
+    );
+  }
 });
 
 await test("local import variants and query assets require real inputs", (context) => {

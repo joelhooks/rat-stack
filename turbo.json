@@ -238,7 +238,7 @@
       "outputs": []
     },
     "@rat-stack/site#test": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "test:runtime"],
       "outputs": [],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -269,8 +269,31 @@
         "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
         "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
         "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
-        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json",
+        "!test/{flag-control-runtime,flag-ledger-runtime,flag-read-runtime,join-contact-runtime,workshop-help-desk-runtime}.test.ts"
       ]
+    },
+    "@rat-stack/site#test:runtime": {
+      "dependsOn": [
+        "@rat-stack/core#build",
+        "@rat-stack/flags#build",
+        "@rat-stack/intake-live#build"
+      ],
+      "env": ["CI"],
+      "inputs": [
+        "package.json",
+        "tsconfig.json",
+        "vitest.runtime*.ts",
+        "src/**",
+        "!src/**/*.generated.*",
+        "test/fixtures/**",
+        "test/{flag-control-runtime,flag-ledger-runtime,flag-read-runtime,join-contact-runtime,workshop-help-desk-runtime}.test.ts",
+        ".env.schema",
+        "$TURBO_ROOT$/.env.schema",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tsconfig.json"
+      ],
+      "outputs": []
     },
     "@rat-stack/site#check": {
       "dependsOn": [

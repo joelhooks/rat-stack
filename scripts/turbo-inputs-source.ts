@@ -286,12 +286,17 @@ export const stringBinding = (ast: SourceFile, name: string): string | null => {
   return value;
 };
 
+interface SourceEvaluator {
+  readonly evaluate: Evaluate;
+  readonly evaluateSelector: (node: Node) => string | null;
+}
+
 const evaluator = (
   file: string,
   cwd: string,
   ast: SourceFile,
   importedValue: ImportValue
-): Evaluate => {
+): SourceEvaluator => {
   const bindings = new Map<string, Node>();
   const imports = new Map<string, { specifier: string; name: string }>();
 
@@ -454,7 +459,28 @@ const evaluator = (
     return null;
   };
 
-  return evaluate;
+  const evaluateSelector = (node: Node): string | null => {
+    if (isString(node)) {
+      return node.text;
+    }
+
+    if (!ts.isIdentifier(node)) {
+      return null;
+    }
+
+    const binding = bindings.get(node.text);
+    const imported = imports.get(node.text);
+
+    if (binding !== undefined) {
+      return literal(binding) ?? null;
+    }
+
+    return imported === undefined
+      ? null
+      : importedValue(imported.specifier, imported.name);
+  };
+
+  return { evaluate, evaluateSelector };
 };
 
 const exclusions = [
@@ -468,7 +494,8 @@ const expandAt = (
   root: string,
   base: string,
   input: string,
-  directories: boolean
+  directories: boolean,
+  selector: boolean
 ) => {
   const full = path.resolve(base, input);
 
@@ -476,10 +503,14 @@ const expandAt = (
     return [];
   }
 
-  if (full.includes("*")) {
-    return globSync(full, { exclude: exclusions }).filter((entry) =>
-      statSync(entry).isFile()
-    );
+  if (input.includes("*") || (selector && input.includes("{"))) {
+    const matches = globSync(input, { cwd: base, exclude: exclusions })
+      .map((entry) => path.resolve(base, entry))
+      .filter((entry) => statSync(entry).isFile());
+
+    if (matches.length > 0) {
+      return matches;
+    }
   }
 
   if (!existsSync(full)) {
@@ -499,6 +530,73 @@ const expandAt = (
   return [];
 };
 
+const vitestSelectorSegment =
+  /^(?:[\w.-]|\*(?!\*)|\{[\w.-]+(?:,[\w.-]+)+\})+$/u;
+
+const supportedVitestSelector = (pattern: string) =>
+  pattern
+    .split("/")
+    .every(
+      (segment) =>
+        segment !== "." &&
+        segment !== ".." &&
+        (segment === "**" ||
+          (!segment.includes("**") && vitestSelectorSegment.test(segment)))
+    );
+
+const flatVitestTestOptions = (ast: SourceFile) => {
+  const declaration = ast.statements.find(ts.isExportAssignment);
+  const config = declaration?.expression;
+
+  const object =
+    config &&
+    ts.isCallExpression(config) &&
+    config.expression.getText(ast) === "defineConfig" &&
+    ast.statements.some(
+      (entry) =>
+        ts.isImportDeclaration(entry) &&
+        literal(entry.moduleSpecifier) === "vitest/config" &&
+        entry.importClause?.namedBindings !== undefined &&
+        ts.isNamedImports(entry.importClause.namedBindings) &&
+        entry.importClause.namedBindings.elements.some(
+          (binding) =>
+            binding.name.text === "defineConfig" &&
+            binding.propertyName === undefined
+        )
+    )
+      ? config.arguments.at(0)
+      : config;
+
+  if (
+    !object ||
+    !ts.isObjectLiteralExpression(object) ||
+    object.properties.length !== 1
+  ) {
+    return null;
+  }
+
+  const [test] = object.properties;
+
+  if (
+    test === undefined ||
+    !ts.isPropertyAssignment(test) ||
+    test.name.getText(ast) !== "test" ||
+    !ts.isObjectLiteralExpression(test.initializer) ||
+    !test.initializer.properties.every(
+      (entry) =>
+        ts.isPropertyAssignment(entry) &&
+        ts.isIdentifier(entry.name) &&
+        !["dir", "includeSource", "projects", "root", "typecheck"].includes(
+          entry.name.text
+        )
+    )
+  ) {
+    return null;
+  }
+
+  return test.initializer;
+};
+
 export const inspectSource = (
   file: string,
   cwd: string,
@@ -506,7 +604,13 @@ export const inspectSource = (
   ast: SourceFile,
   importedValue: ImportValue
 ) => {
-  const evaluate = evaluator(file, cwd, ast, importedValue);
+  const { evaluate, evaluateSelector } = evaluator(
+    file,
+    cwd,
+    ast,
+    importedValue
+  );
+
   const imports = new Set<string>();
   const runtimeImports = new Set<string>();
   const reads = new Set<string>();
@@ -515,6 +619,16 @@ export const inspectSource = (
   const unresolvedReads = new Set<string>();
   const unresolvedImports = new Set<string>();
   const filesystemWrappers = new Set<string>();
+
+  const testOptions = flatVitestTestOptions(ast);
+  const includedTests = new Set<string>();
+  const excludedTestPatterns = new Set<string>();
+
+  const hasInclude =
+    testOptions?.properties.some(
+      (entry) =>
+        ts.isPropertyAssignment(entry) && entry.name.getText(ast) === "include"
+    ) ?? false;
 
   walk(ast, (node) => {
     if (
@@ -530,7 +644,8 @@ export const inspectSource = (
   const expand = (
     reference: string | null,
     bases = [cwd, path.dirname(file), root],
-    directories = false
+    directories = false,
+    selector = false
   ) => {
     if (reference === null || reference.length === 0) {
       return [];
@@ -542,17 +657,24 @@ export const inspectSource = (
 
     return [
       ...new Set(
-        bases.flatMap((base) => expandAt(root, base, input, directories))
+        bases.flatMap((base) =>
+          expandAt(root, base, input, directories, selector)
+        )
       ),
     ];
   };
 
   const selectors = (node: Node) => {
+    if (!ts.isPropertyAssignment(node)) {
+      return;
+    }
+
+    const name = node.name.getText(ast).replaceAll('"', "");
+    const flat = node.parent === testOptions;
+
     if (
-      !ts.isPropertyAssignment(node) ||
-      !["include", "setupFiles", "globalSetup", "projects"].includes(
-        node.name.getText(ast).replaceAll('"', "")
-      )
+      !["include", "setupFiles", "globalSetup", "projects"].includes(name) &&
+      !(flat && name === "exclude")
     ) {
       return;
     }
@@ -562,10 +684,23 @@ export const inspectSource = (
       : [node.initializer];
 
     for (const entry of nodes) {
-      if (
-        node.name.getText(ast) === "projects" &&
-        ts.isObjectLiteralExpression(entry)
-      ) {
+      if (name === "projects" && ts.isObjectLiteralExpression(entry)) {
+        continue;
+      }
+
+      if (flat && ["include", "exclude"].includes(name)) {
+        const reference = evaluateSelector(entry);
+
+        if (reference === null || !supportedVitestSelector(reference)) {
+          unresolvedConfigs.add(node.getText(ast));
+        } else if (name === "exclude") {
+          excludedTestPatterns.add(reference);
+        } else {
+          for (const loaded of expand(reference, [cwd], false, true)) {
+            includedTests.add(loaded);
+          }
+        }
+
         continue;
       }
 
@@ -574,7 +709,7 @@ export const inspectSource = (
 
       if (
         reference === null ||
-        (loadedFiles.length === 0 && node.name.getText(ast) !== "include")
+        (loadedFiles.length === 0 && name !== "include")
       ) {
         unresolvedConfigs.add(node.getText(ast));
       }
@@ -782,5 +917,15 @@ export const inspectSource = (
     unresolvedReads,
     unresolvedImports,
     runtimeImports,
+    includedTests,
+    selectedTests:
+      hasInclude && unresolvedConfigs.size === 0
+        ? [...includedTests].filter(
+            (selected) =>
+              ![...excludedTestPatterns].some((pattern) =>
+                path.matchesGlob(path.relative(cwd, selected), pattern)
+              )
+          )
+        : null,
   };
 };
