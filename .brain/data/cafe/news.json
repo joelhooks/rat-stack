@@ -1,5 +1,21 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/ismailkarsli/TypeSQL",
+    "title": "TypeSQL types raw SQL queries for Effect",
+    "summary": "@typesql/effect runs type-checked raw SQL as Effects on an Effect SqlClient; rows and parameters are typed from the query, with no codegen or database connection.",
+    "date": "2026-11-18",
+    "repo": "ismailkarsli/TypeSQL",
+    "author": {
+      "github": "ismailkarsli",
+      "x": "ismailkarsli54"
+    },
+    "source": "https://x.com/ismailkarsli54/status/2123062328664920190",
+    "engagement": {
+      "stars": 52
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/foldkit/foldkit/releases/tag/foldkit%400.171.0",
     "title": "Foldkit 0.171.0 requires result Message schemas",
@@ -155,7 +171,7 @@
     },
     "source": "https://github.com/nanocodexyz/harnesslang",
     "engagement": {
-      "stars": 22
+      "stars": 23
     }
   },
   {
@@ -248,7 +264,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 659
+      "stars": 679
     }
   },
   {
@@ -472,7 +488,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 249
+      "stars": 269
     }
   },
   {
@@ -724,7 +740,7 @@
     },
     "source": "https://silklang.org",
     "engagement": {
-      "stars": 103
+      "stars": 102
     }
   },
   {
@@ -990,7 +1006,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 536
+      "stars": 542
     }
   },
   {
