@@ -22,7 +22,7 @@
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json",
     "check": "pnpm run typecheck",
-    "pretest": "pnpm run --silent build"
+    "pretest": "test -n \"$TURBO_HASH\" || pnpm run --silent build"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",

@@ -11,10 +11,13 @@ const DryRun = Schema.fromJsonString(
   })
 );
 
+const newsInput = ".brain/data/cafe/news.json";
+
 const contentInputs = [
   ".brain/resources/lore/cache-probe.svx",
   ".brain/areas/cache-probe.svx",
   ".brain/data/peers.json",
+  newsInput,
   "skills/cache-probe/SKILL.md",
   "assets/fonts/cache-probe.ttf",
   "AGENTS.md",
@@ -30,6 +33,8 @@ const contentInputs = [
 ];
 
 const tasks = ["build", "typecheck", "test", "generate", "check"];
+
+const runtimeTask = "@rat-stack/site#test:runtime";
 
 it.layer(NodeServices.layer)("content task cache", (test) => {
   test.effect(
@@ -70,13 +75,19 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
           "apps/site/package.json",
           JSON.stringify({
             name: "@rat-stack/site",
-            scripts: Object.fromEntries(tasks.map((task) => [task, "echo ok"])),
+            scripts: Object.fromEntries(
+              [...tasks, "test:runtime"].map((task) => [task, "echo ok"])
+            ),
           })
         );
-        yield* write(
-          "packages/core/package.json",
-          JSON.stringify({ name: "@rat-stack/core" })
-        );
+
+        for (const pkg of ["core", "flags", "intake-live"]) {
+          yield* write(
+            `packages/${pkg}/package.json`,
+            JSON.stringify({ name: `@rat-stack/${pkg}` })
+          );
+        }
+
         yield* write(
           "turbo.json",
           yield* fileSystem.readFileString(path.join(root, "turbo.json"))
@@ -112,7 +123,8 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
         });
 
         const before = yield* hashes();
-        expect(Object.keys(before)).toHaveLength(tasks.length);
+        expect(Object.keys(before)).toHaveLength(tasks.length + 1);
+        expect(before[runtimeTask]).toBeDefined();
         yield* write("scratch/unrelated.txt", "after");
         const unrelated = yield* hashes();
         expect(unrelated["@rat-stack/site#build"]).toBe(
@@ -128,6 +140,10 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
               expect(after[taskId], `${input}: ${task}`).not.toBe(
                 before[taskId]
               );
+            }
+
+            if (input === newsInput) {
+              expect(after[runtimeTask], input).toBe(before[runtimeTask]);
             }
 
             yield* write(input, "before");
