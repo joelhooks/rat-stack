@@ -20,6 +20,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - Plain tsrs `0.25.0-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
 - `@effect/vitest` `4.1.4` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
 - `@oxlint/plugins` `1.93.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
+- Three MIT rules from Landmines live in `tools/oxlint/landmines/`, with no npm dependency. Retries and unsignaled polls fail lint. Fixed sleeps and explicit timeouts warn; `pnpm check:landmines` enforces exact, reasoned budget entries and requires stale entries to be removed.
 - Oxlint `1.93.0` with Ultracite `8.2.0`, Oxfmt `0.78.0`, and Turborepo `2.11.11`
 - varlock `1.25.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
 

@@ -1,11 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "@effect/language-service",
         "allowedUnstableApis": [
           "@effect/platform-node-shared/NodeCrypto",
+          "@effect/platform-node/NodeRuntime",
           "@effect/platform-node/NodeServices",
           "@effect/vitest",
           "effect/Arbitrary",
@@ -25,5 +27,5 @@
       }
     ]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts"]
 }

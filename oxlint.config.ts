@@ -44,6 +44,7 @@ export default defineConfig({
     ".claude/**",
     "scripts/hooks/**",
     "tools/oxlint/anti-slop/**",
+    "tools/oxlint/landmines/**",
     "skills/security-audit/**",
   ],
   jsPlugins: [
@@ -62,6 +63,7 @@ export default defineConfig({
       specifier: "./scripts/oxlint-plugin-patterns.ts",
     },
     { name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" },
+    { name: "landmines", specifier: "./tools/oxlint/landmines/index.ts" },
     {
       name: "anti-slop-effect",
       specifier: "./tools/oxlint/anti-slop/effect/index.ts",
@@ -161,6 +163,10 @@ export default defineConfig({
     "effect-tests/no-manual-effect-runtime-in-tests": "error",
     "jsdoc/require-param-description": "off",
     "jsdoc/require-returns-description": "off",
+    "landmines/no-fixed-sleep": "warn",
+    "landmines/no-flake-masking": "error",
+    "landmines/no-flake-masking-timeout": ["warn", { check: "timeout" }],
+    "landmines/no-unsignaled-poll": "error",
     "no-comments/directive-reason": "error",
     "no-comments/no-comments": "error",
     "oxc/no-accumulating-spread": "error",
