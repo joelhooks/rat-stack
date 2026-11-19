@@ -153,7 +153,7 @@ const readerCopyPrompt = (
   const control = readerCopyControl(model, h, id, primary);
 
   return Option.match(
-    Option.filter(promptOption, (prompt) => prompt.showText),
+    promptOption.pipe(Option.filter((prompt) => prompt.showText)),
     {
       onNone: () => control,
       onSome: (prompt) =>
