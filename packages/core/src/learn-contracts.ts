@@ -10,6 +10,7 @@ import {
   LearnPreferencesChangeSchema,
   LearnPreferencesSchema,
   LearnSelectionSchema,
+  PresentationSchema,
   ProgressSchema,
   SuppliedProgressSchema,
 } from "./learn-model.js";
@@ -30,7 +31,7 @@ export const learnCardContract = defineContract("learnCard", {
   description: "Read one concept card at the requested explanation depth.",
   failure: LearnError,
   input: Schema.Struct({ depth: LearnDepthSchema, id: CardSchema.fields.id }),
-  output: Schema.Struct({ card: CardSchema, depth: LearnDepthSchema }),
+  output: PresentationSchema,
 });
 
 export const learnNextContract = defineContract("learnNext", {
