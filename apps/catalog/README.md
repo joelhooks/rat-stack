@@ -27,12 +27,16 @@ A raw GET is not an auth or health check. The pinned native RPC server accepts a
 
 ```sh
 pnpm --filter @rat-stack/catalog-server backfill <directory> --dry-run
-pnpm --filter @rat-stack/catalog-server backfill <directory> --url <worker-url>
+pnpm --filter @rat-stack/catalog-server backfill <directory> --url <worker-url> [--concurrency <n>] [--from <file>]
 ```
 
 Start with the dry run. It needs no token and makes no requests. Both runs report counts by file and kind, ignored filenames, and the line numbers of malformed records. The summary never prints source rows or credentials. The real run reads `CATALOG_OPERATOR_TOKEN` securely from the environment and uses the same target rules as `smoke`. It sends all sightings before decisions, oldest day first and morning before evening within each pass. Sightings use the file's UTC day, not the item's publication date. Rows preserve known stars, YouTube views, and X likes and impressions (as post views). Missing measurements stay absent.
 
-Retry with the same filenames and line positions. Domain deduplicates command IDs derived from those coordinates within each item. Keep input files immutable once imported; renaming or reordering a file changes its command IDs. Group keys never reach the Api. An unseen decision is tallied and does not stop the run. A failed command defers later commands for the same item so a retry keeps their order. An unreadable file stops the run. Both failures exit nonzero after printing the partial summary.
+`--concurrency <n>` sets how many items can have requests in flight at once. It defaults to 8 and accepts integers of at least 1. A file drains before the next starts, and commands for each item run one at a time in source order. The default has not been measured against production. Use `--concurrency 1` for serial delivery if the Api is under pressure.
+
+Retry with the same filenames and line positions. Domain deduplicates command IDs derived from those coordinates within each item. Keep input files immutable once imported; renaming or reordering a file changes its command IDs. `ItemHistory` exposes event positions, not applied command IDs. To avoid resending a confirmed prefix, pass `--from <file>` with the exact filename of the first incomplete file. The start is inclusive, follows import order (not filename order), and works with `--dry-run` to check the proposed `skippedFiles` before sending. If you cannot verify which files completed, omit `--from` and replay safely.
+
+Group keys never reach the Api. An unseen decision is tallied and does not stop the run. A failed command defers later commands for the same item. An unreadable file or unexpected defect stops the run. These failures exit nonzero and print a partial summary with `firstIncompleteFile`. Parsed command counts can include rows not yet sent. Requests without a receipt may already have committed, so replay the entire incomplete file. A defect names the file and line when known, and prints a recognized error name and safe diagnostic. Unrecognized free-form messages and nested causes are withheld because they can contain request data.
 
 `sent` counts receipts that advance past the history cursor or a receipt already seen in this run. `skippedDuplicates` counts receipts that do not advance it (cached receipts or accepted no-ops). If `ItemHistory` is behind, a replay may still show `sent`; the command IDs prevent extra events. Run this importer as the only writer to the items it touches.
 
