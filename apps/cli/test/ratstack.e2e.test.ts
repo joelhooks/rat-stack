@@ -1,5 +1,5 @@
 // @effect-diagnostics nodeBuiltinImport:off asyncFunction:off newPromise:off globalTimers:off -- Black-box tests of the published ratstack package: they spawn dist/npm/ratstack as npm would install it and assert on its files, stdout, and an MCP stdio conversation. Node built-ins and a Promise-based stdio conversation are the right tools at that boundary.
-import { spawn, spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -19,6 +19,7 @@ const learnNames = localLearnCapabilities.map(
 );
 
 const PackEntry = Schema.Struct({
+  filename: Schema.String,
   files: Schema.Array(Schema.Struct({ path: Schema.String })),
   name: Schema.String,
   version: Schema.String,
@@ -73,10 +74,17 @@ const runRatstack = (arguments_: readonly string[], directory = packageDir) =>
     env: { ...process.env, RAT_LEARN_DIRECTORY: directory },
   });
 
-const listTools = async (): Promise<typeof toolsList.Type.tools> =>
+const listTools = async (
+  launcher: string,
+  cwd: string
+): Promise<typeof toolsList.Type.tools> =>
   // oxlint-disable-next-line promise/avoid-new -- A child process conversation has no library Promise to return.
   await new Promise<typeof toolsList.Type.tools>((resolve, reject) => {
-    const child = spawn(binPath, ["mcp"], { stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(launcher, ["mcp"], {
+      cwd,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
     let buffer = "";
 
     const timer = setTimeout(() => {
@@ -121,29 +129,6 @@ const listTools = async (): Promise<typeof toolsList.Type.tools> =>
   });
 
 describe("published ratstack package", () => {
-  it("packs the launcher, one self-contained bundle, its licenses, and the CLI version", () => {
-    const pack = decodePack(
-      spawnSync("npm", ["pack", "--dry-run", "--json"], {
-        cwd: packageDir,
-        encoding: "utf-8",
-      }).stdout
-    );
-
-    expect(pack.name).toBe("ratstack");
-    expect(pack.version).toBe(VERSION);
-    expect(pack.files.map((file) => file.path).toSorted()).toStrictEqual([
-      "README.md",
-      "THIRD_PARTY_LICENSES.md",
-      "package.json",
-      "ratstack",
-      "ratstack.js",
-    ]);
-    expect(
-      readFileSync(path.join(packageDir, "THIRD_PARTY_LICENSES.md"), "utf-8")
-    ).toContain("## effect@");
-    expect(runRatstack(["--version"]).stdout).toContain(VERSION);
-  });
-
   it("contains no devtools, test people, or code-mode sandbox", () => {
     const bundle = readFileSync(path.join(packageDir, "ratstack.js"), "utf-8");
 
@@ -193,16 +178,64 @@ describe("published ratstack package", () => {
     }
   });
 
-  it("serves exactly the local learn tools with card output schemas over MCP", async () => {
-    const tools = await listTools();
-    const names = tools.map((tool) => tool.name);
+  it("runs the installed tarball and serves exactly the local learn tools over MCP", async () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "ratstack-pack-"));
 
-    expect(names.toSorted()).toStrictEqual(learnNames.toSorted());
-
-    for (const name of ["learnCard", "learnNext"]) {
-      expect(tools.find((tool) => tool.name === name)?.outputSchema?.type).toBe(
-        "object"
+    try {
+      const pack = decodePack(
+        execFileSync(
+          "npm",
+          ["pack", "--json", "--pack-destination", directory],
+          {
+            cwd: packageDir,
+            encoding: "utf-8",
+          }
+        )
       );
+
+      expect(pack.name).toBe("ratstack");
+      expect(pack.version).toBe(VERSION);
+      expect(pack.files.map((file) => file.path)).toContain(
+        "THIRD_PARTY_LICENSES.md"
+      );
+      expect(
+        readFileSync(path.join(packageDir, "THIRD_PARTY_LICENSES.md"), "utf-8")
+      ).toContain("## effect@");
+
+      execFileSync(
+        "npm",
+        [
+          "install",
+          "--offline",
+          "--ignore-scripts",
+          "--no-audit",
+          "--no-fund",
+          "--no-package-lock",
+          path.join(directory, pack.filename),
+        ],
+        { cwd: directory }
+      );
+
+      const launcher = path.join(directory, "node_modules", ".bin", "ratstack");
+      expect(
+        execFileSync(launcher, ["--version"], {
+          cwd: directory,
+          encoding: "utf-8",
+        })
+      ).toContain(VERSION);
+
+      const tools = await listTools(launcher, directory);
+      expect(tools.map((tool) => tool.name).toSorted()).toStrictEqual(
+        learnNames.toSorted()
+      );
+
+      for (const name of ["learnCard", "learnNext"]) {
+        expect(
+          tools.find((tool) => tool.name === name)?.outputSchema?.type
+        ).toBe("object");
+      }
+    } finally {
+      rmSync(directory, { force: true, recursive: true });
     }
   });
 });
