@@ -48,11 +48,18 @@ const decodeJsonRpcResponse = Schema.decodeUnknownSync(
   )
 );
 
-const decodeToolsList = Schema.decodeUnknownSync(
-  Schema.Struct({
-    tools: Schema.Array(Schema.Struct({ name: Schema.String })),
-  })
-);
+const toolsList = Schema.Struct({
+  tools: Schema.Array(
+    Schema.Struct({
+      name: Schema.String,
+      outputSchema: Schema.optionalKey(
+        Schema.Struct({ type: Schema.optionalKey(Schema.String) })
+      ),
+    })
+  ),
+});
+
+const decodeToolsList = Schema.decodeUnknownSync(toolsList);
 
 const decodePreferences = Schema.decodeUnknownSync(
   Schema.fromJsonString(
@@ -66,9 +73,9 @@ const runRatstack = (arguments_: readonly string[], directory = packageDir) =>
     env: { ...process.env, RAT_LEARN_DIRECTORY: directory },
   });
 
-const toolNames = async (): Promise<readonly string[]> =>
+const listTools = async (): Promise<typeof toolsList.Type.tools> =>
   // oxlint-disable-next-line promise/avoid-new -- A child process conversation has no library Promise to return.
-  await new Promise<readonly string[]>((resolve, reject) => {
+  await new Promise<typeof toolsList.Type.tools>((resolve, reject) => {
     const child = spawn(binPath, ["mcp"], { stdio: ["pipe", "pipe", "pipe"] });
     let buffer = "";
 
@@ -89,9 +96,7 @@ const toolNames = async (): Promise<readonly string[]> =>
         if (message?.id === 2) {
           clearTimeout(timer);
           child.kill();
-          resolve(
-            decodeToolsList(message.result).tools.map((tool) => tool.name)
-          );
+          resolve(decodeToolsList(message.result).tools);
         }
       }
     });
@@ -188,9 +193,16 @@ describe("published ratstack package", () => {
     }
   });
 
-  it("serves exactly the local learn tools over MCP", async () => {
-    const names = await toolNames();
+  it("serves exactly the local learn tools with card output schemas over MCP", async () => {
+    const tools = await listTools();
+    const names = tools.map((tool) => tool.name);
 
     expect(names.toSorted()).toStrictEqual(learnNames.toSorted());
+
+    for (const name of ["learnCard", "learnNext"]) {
+      expect(tools.find((tool) => tool.name === name)?.outputSchema?.type).toBe(
+        "object"
+      );
+    }
   });
 });

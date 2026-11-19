@@ -10,6 +10,7 @@ import { Effect, Option, Ref } from "effect";
 
 import { evaluateConcept } from "./evaluate-concept.js";
 import type { Learner } from "./learner.js";
+import { presentCard } from "./presentation.js";
 import { recordConcept } from "./progress-machine.js";
 import { mergeProgress } from "./progress.js";
 
@@ -180,7 +181,7 @@ export const makeLearner = (
         );
 
         if (depth !== null) {
-          presentations.push({ card: found, depth });
+          presentations.push(presentCard(found, depth));
 
           if (defaultSelection) {
             break;

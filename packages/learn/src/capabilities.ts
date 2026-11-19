@@ -8,6 +8,7 @@ import {
 import { Clock, Effect } from "effect";
 
 import { Learner } from "./learner.js";
+import { presentCard } from "./presentation.js";
 
 export const learnDeck = implement(learnDeckContract, () =>
   Learner.use((learner) =>
@@ -22,7 +23,7 @@ export const learnDeck = implement(learnDeckContract, () =>
 
 export const learnCard = implement(learnCardContract, ({ id, depth }) =>
   Learner.use((learner) =>
-    Effect.map(learner.card(id), (card) => ({ card, depth }))
+    Effect.map(learner.card(id), (card) => presentCard(card, depth))
   )
 );
 

@@ -101,8 +101,8 @@ The default local store is `~/.rat-learn/`. `RAT_LEARN_DIRECTORY` selects anothe
 10. Follow the returned depth. Present one relevant concept at a time.
 
 - **walkthrough**: Show the `plain` line first, then the claim. Show the card's `snippet` as a TypeScript fence and its `diagram` as a text fence. Link the page.
-- **paragraph**: Give the source summary as a short paragraph. Link the page for more detail.
-- **line**: Give one source-grounded sentence.
+- **paragraph**: Give the source summary as a short paragraph. Link the page for more detail. This depth has no snippet or diagram.
+- **line**: Give one source-grounded sentence from `plain`. If the card has no `plain`, use its `summary` (at most 400 characters) as the source.
 - **none**: Say nothing. The tool omits concepts that need no presentation.
 
 Use the card's `snippet` and `diagram` exactly as served. The content build compiles every snippet against the pinned versions. Never write your own snippet or diagram for a card.
