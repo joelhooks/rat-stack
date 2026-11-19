@@ -39,6 +39,8 @@ const repo = "synthetic-org/synthetic-repo";
 
 const item = ItemId.make(`https://github.com/${repo}`);
 
+const otherRepo = "synthetic-org/other-repo";
+
 const starsPerDay = Schema.Array(
   Schema.Natural.check(Schema.isLessThan(1000))
 ).check(Schema.isMinLength(1), Schema.isMaxLength(4));
@@ -100,7 +102,10 @@ it.live.prop(
         );
         yield* write(
           `${day}-github.jsonl`,
-          `invalid json\r\n${lines([{ kind: "github", repo, stars: count }])}\r\n`
+          `invalid json\r\n${lines([
+            { kind: "github", repo, stars: count },
+            { kind: "github", repo: otherRepo, stars: count + 1 },
+          ])}\r\n`
         );
       }
 
@@ -112,11 +117,10 @@ it.live.prop(
       const preview = yield* backfillFiles(dir, inputs);
       const api = yield* OperatorApi.clientInProcess;
 
-      const first = yield* backfillFiles(
-        dir,
-        inputs,
-        backfillSender(api, token)
-      );
+      const first = yield* backfillFiles(dir, inputs, {
+        concurrency: 3,
+        send: backfillSender(api, token),
+      });
 
       const days = stars.length;
       expect(preview.delivery).toBeUndefined();
@@ -135,7 +139,7 @@ it.live.prop(
         days
       );
       expect(first.delivery).toEqual({
-        sent: days * 3,
+        sent: days * 4,
         skippedDuplicates: days,
         unseen: days,
         failed: 0,
@@ -164,15 +168,14 @@ it.live.prop(
         )
       ).toEqual(stars);
 
-      const replay = yield* backfillFiles(
-        dir,
-        inputs,
-        backfillSender(api, token)
-      );
+      const replay = yield* backfillFiles(dir, inputs, {
+        concurrency: 3,
+        send: backfillSender(api, token),
+      });
 
       expect(replay.delivery).toEqual({
         sent: 0,
-        skippedDuplicates: days * 4,
+        skippedDuplicates: days * 5,
         unseen: days,
         failed: 0,
         failedCommands: [],

@@ -21,7 +21,8 @@
           "effect/http/HttpClientRequest",
           "effect/http/HttpClientResponse",
           "effect/http/HttpServerRequest",
-          "effect/http/HttpServerResponse"
+          "effect/http/HttpServerResponse",
+          "effect/testing/TestConsole"
         ]
       }
     ]
