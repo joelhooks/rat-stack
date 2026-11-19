@@ -2,11 +2,14 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as DomainCloudflare from "@alchemy.run/domain/Cloudflare";
 import * as Test from "@alchemy.run/test/Vitest";
 import { expect } from "@effect/vitest";
+import { backfillFile, decodeBackfillLine } from "@rat-stack/catalog/Backfill";
 import { ItemId } from "@rat-stack/catalog/Item/Item.id";
 import { OperatorApi } from "@rat-stack/catalog/OperatorApi.api";
 import { ConfigProvider, DateTime, Effect, Layer } from "effect";
 import * as Redacted from "effect/Redacted";
+import * as Result from "effect/Result";
 
+import { backfillSender } from "../src/Backfill.ts";
 import CatalogWorker from "../src/CatalogWorker.ts";
 import { smokeCatalog } from "../src/Smoke.ts";
 
@@ -87,6 +90,46 @@ test.provider(
       expect(authors.entries).toEqual([
         { source: "synthetic", author: "synthetic-boot", items: 1 },
       ]);
+
+      const file = backfillFile("2026-01-02-github.jsonl");
+
+      if (file === null) {
+        return yield* Effect.die(
+          "Synthetic file must match the backfill schema"
+        );
+      }
+
+      const decoded = decodeBackfillLine(
+        file,
+        1,
+        '{"kind":"github","repo":"example/synthetic-worker","stars":17}'
+      );
+
+      if (decoded.tag !== "command") {
+        return yield* Effect.die(
+          "Synthetic row must map to a backfill command"
+        );
+      }
+
+      const { command } = decoded;
+      const send = backfillSender(api, Redacted.make(token));
+      expect(yield* send(command)).toEqual(Result.succeed("sent"));
+
+      const atLeast = { stream: `Item/${command.item}`, version: 1 };
+
+      const snapshot = yield* api.ItemHistory.snapshot(command.item, {
+        ...options,
+        atLeast,
+      });
+
+      expect(snapshot.state?.latestSighting?.metrics.stars).toBe(17);
+
+      const replay = backfillSender(api, Redacted.make(token));
+      expect(yield* replay(command)).toEqual(
+        Result.succeed("skippedDuplicates")
+      );
+
+      return yield* Effect.void;
     }).pipe(
       Effect.scoped,
       Effect.provideService(

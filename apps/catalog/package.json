@@ -13,7 +13,8 @@
     "check": "pnpm run typecheck",
     "build": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "smoke": "node src/smoke-cli.ts"
+    "smoke": "node src/smoke-cli.ts",
+    "backfill": "node src/backfill-cli.ts"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",

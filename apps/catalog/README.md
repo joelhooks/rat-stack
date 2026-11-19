@@ -23,6 +23,19 @@ The command reads `CATALOG_OPERATOR_TOKEN` from its environment through Effect C
 
 A raw GET is not an auth or health check. The pinned native RPC server accepts an empty NDJSON request without dispatching a model operation and returns an empty 200 response. No extra GET guard is installed because WebSocket reads legitimately use GET.
 
+## Backfill
+
+```sh
+pnpm --filter @rat-stack/catalog-server backfill <directory> --dry-run
+pnpm --filter @rat-stack/catalog-server backfill <directory> --url <worker-url>
+```
+
+Start with the dry run. It needs no token and makes no requests. Both runs report counts by file and kind, ignored filenames, and the line numbers of malformed records. The summary never prints source rows or credentials. The real run reads `CATALOG_OPERATOR_TOKEN` securely from the environment and uses the same target rules as `smoke`. It sends all sightings before decisions, oldest day first and morning before evening within each pass. Sightings use the file's UTC day, not the item's publication date. Rows preserve known stars, YouTube views, and X likes and impressions (as post views). Missing measurements stay absent.
+
+Retry with the same filenames and line positions. Domain deduplicates command IDs derived from those coordinates within each item. Keep input files immutable once imported; renaming or reordering a file changes its command IDs. Group keys never reach the Api. An unseen decision is tallied and does not stop the run. A failed command defers later commands for the same item so a retry keeps their order. An unreadable file stops the run. Both failures exit nonzero after printing the partial summary.
+
+`sent` counts receipts that advance past the history cursor or a receipt already seen in this run. `skippedDuplicates` counts receipts that do not advance it (cached receipts or accepted no-ops). If `ItemHistory` is behind, a replay may still show `sent`; the command IDs prevent extra events. Run this importer as the only writer to the items it touches.
+
 ## Index and query contract
 
 - Rows are immutable event copies keyed by `stream:seq`. Identical replay is harmless; divergent `event_json` at that position fails loudly without overwriting the original.
