@@ -609,7 +609,9 @@ it.effect(
           expect(markdown).not.toContain(removedSection);
         }
 
-        expect(markdown).toContain("[rules](https://ratstack.sh/AGENTS.md)");
+        expect(markdown).toContain(
+          "[project rules](https://ratstack.sh/AGENTS.md)"
+        );
         expect(markdown).toContain("https://ratstack.sh/VISION.md");
         expect(markdown).not.toContain("## Connect an agent");
         expect(html).toContain(
@@ -653,9 +655,7 @@ it.effect(
           '<meta name="twitter:card" content="summary_large_image"'
         );
         expect(skillsHtml).toContain('<h1 id="learn-the-stack">');
-        expect(skillsHtml).toContain(
-          "working app to teach the pieces inside it"
-        );
+        expect(skillsHtml).toContain("teach the stack through a working app");
         expect(skillHtml).toContain('<nav aria-label="Breadcrumb"');
         expect(skillHtml).toContain('<h1 id="learn-the-stack">');
         expect(skillHtml).toContain("Trace one action");

@@ -32,6 +32,9 @@ export const featuredVideos = <
 
 const linkText = (value: string) => value.replaceAll(/[[\]]/gu, "");
 
+const channelName = (value: string) =>
+  linkText(value.split(/\s*\|\s*/u).at(0) ?? value);
+
 const firstSentence = (text: string) =>
   text.split(/(?<=[.!?])\s+/u).at(0) ?? text;
 
@@ -51,17 +54,17 @@ export const homeFeaturedMarkdown = (
 
   const watch = featuredVideos(videos).map(
     (video) =>
-      `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video)}) by ${linkText(video.channel)}. ${firstSentence(video.take)}`
+      `- **${tierLabel(video.tier)}**: [${linkText(video.title)}](${video.page === undefined ? video.url : videoPagePath(video)}) by ${channelName(video.channel)}. ${firstSentence(video.take)}`
   );
 
   return [
     "## New and worth watching",
     "",
-    `The top of [CAFE news](${origin}/news) right now:`,
+    `Top of [CAFE news](${origin}/news) (Cloudflare, Alchemy, Foldkit, and Effect), ranked by activity and freshness:`,
     "",
     ...news,
     "",
-    `The newest top-tier picks on [RatTube](${origin}/tube):`,
+    `Newest top-tier talks on [RatTube](${origin}/tube):`,
     "",
     ...watch,
   ].join("\n");

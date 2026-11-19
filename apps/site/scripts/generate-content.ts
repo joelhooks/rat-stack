@@ -1971,7 +1971,7 @@ const program = Effect.gen(function* generateContent() {
   const loreIndexSourceMarkdown = [
     "# Rat Stack lore",
     "",
-    "Short, source-grounded notes on the ideas and decisions behind rat-stack.",
+    "Short, sourced notes on the ideas, patterns, and people behind rat-stack.",
     "",
     ...(["idea", "concept", "source", "person"] as const).flatMap((group) => {
       const pages = loreTexts.filter((lore) => lore.group === group);
@@ -1990,11 +1990,11 @@ const program = Effect.gen(function* generateContent() {
   const systemsIndexSourceMarkdown = [
     "# Rat Stack systems",
     "",
-    "Each shipped system has a page with its behavior, standard, and checks.",
+    "Every shipped system has one page covering what it does, the standard it keeps, and how to check it.",
     "",
     entryList(systemTexts),
     "",
-    "The [interest signup](/systems/interest) page separates submission, confirmation, and delivery. [Devtools](/systems/devtools) stays development-only. The [hosted agent front door](/systems/agent-front-door) records discovery, MCP versions, API, A2A, and sandbox limits; extracting it into a generic cartridge remains future work.",
+    "[Interest signup](/systems/interest) separates submission, confirmation, and delivery. [Devtools](/systems/devtools) stays development-only. The [hosted agent front door](/systems/agent-front-door) documents discovery, MCP versions, HTTP API, A2A, and sandbox limits.",
     "",
   ].join("\n");
 
@@ -2045,26 +2045,28 @@ For signup, read the [interest rules](${originToken}/systems/interest) and the [
 
 </AgentOnly>
 
-Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
+Rat Stack gives your coding agent working TypeScript code, step-by-step guides, and automated checks to build your app and its cloud services.
 
-Rat Stack gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working code to [build your app](${originToken}/lore/effect-basics) and [set up its cloud services](${originToken}/skills/learn-alchemy). Ask it to build your project, or stop and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
+Paste the prompt above to start with your own project. Ask your agent to build, or stop it and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
 
 ${homeFeatured}
 
 ## Go as deep as you like
 
-- Build your project. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
-- Ask why. Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
-- Learn by building. Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
-- Take what you need. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
-- Check the work. The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
-- See what others are building. Browse the [news](${originToken}/news) and [project directory](${originToken}/directory).
+- **Build with your agent.** Paste the prompt above and describe your project. Your agent follows the [guides](${originToken}/skills) and [project rules](${originToken}/AGENTS.md).
+- **Ask why.** Have your agent explain the code, or read the [lore](${originToken}/lore) yourself.
+- **Learn as you go.** Work through [learn mode](${originToken}/learn) with your agent, or watch a talk on [RatTube](${originToken}/tube).
+- **Take only what you need.** The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and how to cut it.
+- **Check the work.** [Systems pages](${originToken}/systems) list the checks each part runs. [Known gaps](${originToken}/debt.md) list what still needs work.
+- **Follow the ecosystem.** Browse [CAFE news](${originToken}/news) and the [project directory](${originToken}/directory).
 
 ## How it fits together
 
-The goal is [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
+The goal is [an app and its cloud as one typed program](${originToken}/VISION.md).
 
-Follow [a search through the app](${originToken}/lore/a-browser-send-follows-one-path) or [one action in several places](${originToken}/lore/one-capability-every-surface) to see the code. The [package guide](${originToken}/AGENTS.md#packages) lists the pieces.
+Trace [a browser request end to end](${originToken}/lore/a-browser-send-follows-one-path) or see [one action across every interface](${originToken}/lore/one-capability-every-surface). The [package guide](${originToken}/AGENTS.md#packages) lists every piece.
+
+Most of this site is for you to hand to your agent and use in your own setup. Much of it started generated, and I rewrite pages as I go. Send feedback or questions to [@joelhooks on X](https://x.com/joelhooks).
 
 _${linkedTagline}_
 
@@ -2074,15 +2076,13 @@ _${linkedTagline}_
 
   const skillIndexSourceMarkdown = `# Learn the stack
 
-These ${skillTexts.length} skills use a working app to teach the pieces inside it.
-
-Install them:
+These ${skillTexts.length} skills teach the stack through a working app. Load one per session, or install the set:
 
 \`npx skills add joelhooks/rat-stack\`
 
 ${groupedSkills()}
 
-Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundaries and [agent next actions](/lore/hateoas) for hypermedia guidance. [Systems](/systems) shows the running behavior.
+Read [ports and adapters](/lore/hexagonal-architecture) for provider boundaries and [agent next actions](/lore/hateoas) for hypermedia links. [Systems](/systems) shows each shipped part and its checks.
 `;
 
   const homeBody = yield* compileMarkdownBody(
@@ -3530,7 +3530,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     })
   )(promptTexts);
 
-  const promptsIndexMarkdown = `# Prompts\n\nCopyable agent prompts for rat-stack apps.\n\n${promptTexts.map((prompt) => `- [${prompt.title}](/prompts/${prompt.slug}): ${prompt.description}`).join("\n")}\n`;
+  const promptsIndexMarkdown = `# Prompts\n\nReady-to-copy prompts you can hand to your coding agent in any rat-stack app.\n\n${promptTexts.map((prompt) => `- [${prompt.title}](/prompts/${prompt.slug}): ${prompt.description}`).join("\n")}\n`;
 
   const promptsIndexBody = yield* compileMarkdownBody(
     promptsIndexMarkdown,

@@ -51,6 +51,7 @@ export const copyPrompts = {
     showLabel: true,
     showText: false,
     text: "Check out ratstack.sh and explain how it would be useful for my current project, and how I can learn more about it.",
+    variant: "primary",
   },
   cursor: {
     agentFence: false,

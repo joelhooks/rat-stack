@@ -143,10 +143,17 @@ const readerCopyPrompt = (
   h: HtmlBuilder<ReaderMessage>,
   id: string
 ) => {
-  const control = readerCopyControl(model, h, id, false);
+  const promptOption = findCopyPrompt(model, id);
+
+  const primary = Option.match(promptOption, {
+    onNone: () => false,
+    onSome: (prompt) => prompt.primary === true,
+  });
+
+  const control = readerCopyControl(model, h, id, primary);
 
   return Option.match(
-    Option.filter(findCopyPrompt(model, id), (prompt) => prompt.showText),
+    Option.filter(promptOption, (prompt) => prompt.showText),
     {
       onNone: () => control,
       onSome: (prompt) =>

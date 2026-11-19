@@ -20,6 +20,7 @@ export const SiteRoute = Route.defineRouteUnion({
   Skills: {},
   Systems: {},
   Tokenmaxx: {},
+  Tube: {},
 });
 
 export type SiteRouteState = typeof SiteRoute.Type;
@@ -59,6 +60,11 @@ export const systemsRouter = pipe(
 export const tokenmaxxRouter = pipe(
   Route.literal("tokenmaxx"),
   Route.mapTo(SiteRoute.Tokenmaxx)
+);
+
+export const tubeRouter = pipe(
+  Route.literal("tube"),
+  Route.mapTo(SiteRoute.Tube)
 );
 
 export const changeLogRouter = pipe(

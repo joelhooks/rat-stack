@@ -16,6 +16,7 @@ export const readerCopyPrompts = (origin: string) =>
   Object.entries(copyPrompts).map(([id, prompt]) => ({
     id,
     label: prompt.label,
+    primary: "variant" in prompt && prompt.variant === "primary",
     showText: prompt.showText,
     text: prompt.text.replaceAll("__RATSTACK_ORIGIN__", origin),
   }));

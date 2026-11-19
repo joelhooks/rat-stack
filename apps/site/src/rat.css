@@ -391,8 +391,15 @@ button {
   cursor: pointer;
 }
 
-main > pre:has(+ .copy-actions) {
+main > pre:has(+ .copy-actions),
+main > .reader-snippet:has(+ .copy-actions),
+main > .reader-snippet:has(+ .copy-actions) pre {
   margin-bottom: 0;
+}
+
+main > pre:has(+ .copy-actions),
+main > .reader-snippet:has(+ .copy-actions) pre {
+  white-space: pre-wrap;
 }
 
 .copy {
@@ -616,7 +623,7 @@ main[data-path="/lore/lauren-tan-skills"] ul ul {
   list-style: disc;
 }
 
-main > .copy-actions:has(.copy-primary) + p {
+main[data-path="/tokenmaxx"] > .copy-actions:has(.copy-primary) + p {
   color: #595959;
   font-size: 0.875em;
   margin-top: var(--space-tight);

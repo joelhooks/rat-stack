@@ -18,6 +18,7 @@ export { ReaderReferences } from "../../page-descriptor.js";
 export const CopyPrompt = Schema.Struct({
   id: Schema.String,
   label: Schema.String,
+  primary: Schema.optional(Schema.Boolean),
   showText: Schema.Boolean,
   text: Schema.String,
 });

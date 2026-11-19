@@ -30,7 +30,7 @@ export const readerPromptFlags = Effect.fn("readerPromptFlags")(
       terms: [],
     };
 
-    const indexMarkdown = `# Prompts\n\nCopyable agent prompts for rat-stack apps.\n\n${inputs.prompts.map((prompt) => `- [${prompt.title}](/prompts/${prompt.slug}): ${prompt.description}`).join("\n")}\n`;
+    const indexMarkdown = `# Prompts\n\nReady-to-copy prompts you can hand to your coding agent in any rat-stack app.\n\n${inputs.prompts.map((prompt) => `- [${prompt.title}](/prompts/${prompt.slug}): ${prompt.description}`).join("\n")}\n`;
 
     const indexFlags = {
       ...common,

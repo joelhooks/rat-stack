@@ -11,6 +11,7 @@ import {
   newsRouter,
   peersRouter,
   promptsRouter,
+  tubeRouter,
 } from "./site-route.js";
 
 export const readerNewsCallout = <Message>(
@@ -41,6 +42,7 @@ export const readerFooter = <Message>(
                 [],
                 [
                   h.li([], [h.a([h.Href(learnRouter())], ["learn mode"])]),
+                  h.li([], [h.a([h.Href(tubeRouter())], ["RatTube"])]),
                   h.li([], [h.a([h.Href(glossaryRouter())], ["glossary"])]),
                   ...(includePrompts
                     ? [h.li([], [h.a([h.Href(promptsRouter())], ["prompts"])])]
