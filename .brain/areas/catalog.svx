@@ -96,7 +96,8 @@ A rollup comes later.
 
 For `RepeatAuthors`, automatic exclusion of admitted people waits for the Person slice.
 The caller supplies exclusions until that source exists.
-There is no Person aggregate, `Feature` command, or JSONL importer yet.
+There is no Person aggregate or `Feature` command yet.
+The backfill script imports historical JSONL through the operator Api without adding events on replay.
 
 The D1 index can lag committed events.
 Pass command receipts as `atLeast` to wait for their `CatalogIndex` checkpoints.
