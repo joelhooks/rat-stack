@@ -1,6 +1,6 @@
 // @effect-diagnostics nodeBuiltinImport:off asyncFunction:off newPromise:off globalTimers:off -- Black-box tests of the published ratstack package: they spawn dist/npm/ratstack as npm would install it and assert on its files, stdout, and an MCP stdio conversation. Node built-ins and a Promise-based stdio conversation are the right tools at that boundary.
 import { execFileSync, spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -38,6 +38,43 @@ const decodePack = (stdout: string) => {
   const output = decodePackOutput(stdout);
 
   return "ratstack" in output ? output.ratstack : output[0];
+};
+
+const verifyPackedFiles = (archive: string, files: readonly string[]) => {
+  const chunkPath = /^assets\/[\w-]+\.js$/u;
+  const chunks = files.filter((file) => chunkPath.test(file));
+
+  expect(chunks.length).toBeGreaterThan(0);
+  expect(
+    files.filter((file) => !chunkPath.test(file)).toSorted()
+  ).toStrictEqual([
+    "README.md",
+    "THIRD_PARTY_LICENSES.md",
+    "package.json",
+    "ratstack",
+    "ratstack.js",
+  ]);
+
+  const readMember = (file: string) =>
+    execFileSync("tar", ["-xOf", archive, `package/${file}`], {
+      encoding: "utf-8",
+      maxBuffer: Number.POSITIVE_INFINITY,
+    });
+
+  expect(readMember("THIRD_PARTY_LICENSES.md")).toContain("## effect@");
+
+  for (const file of ["ratstack.js", ...chunks]) {
+    const source = readMember(file);
+
+    for (const marker of [
+      "packages/devtools",
+      "rat_call",
+      "rat_test_person",
+      "sandbox-subprocess",
+    ]) {
+      expect(source.includes(marker), `${file} contains ${marker}`).toBe(false);
+    }
+  }
 };
 
 const decodeJsonRpcResponse = Schema.decodeUnknownSync(
@@ -129,19 +166,6 @@ const listTools = async (
   });
 
 describe("published ratstack package", () => {
-  it("contains no devtools, test people, or code-mode sandbox", () => {
-    const bundle = readFileSync(path.join(packageDir, "ratstack.js"), "utf-8");
-
-    for (const marker of [
-      "packages/devtools",
-      "rat_call",
-      "rat_test_person",
-      "sandbox-subprocess",
-    ]) {
-      expect(bundle).not.toContain(marker);
-    }
-  });
-
   it("lists exactly the local learn commands and mcp", () => {
     const help = runRatstack(["--help"]).stdout;
 
@@ -195,12 +219,13 @@ describe("published ratstack package", () => {
 
       expect(pack.name).toBe("ratstack");
       expect(pack.version).toBe(VERSION);
-      expect(pack.files.map((file) => file.path)).toContain(
-        "THIRD_PARTY_LICENSES.md"
+
+      const archive = path.join(directory, pack.filename);
+
+      verifyPackedFiles(
+        archive,
+        pack.files.map((file) => file.path)
       );
-      expect(
-        readFileSync(path.join(packageDir, "THIRD_PARTY_LICENSES.md"), "utf-8")
-      ).toContain("## effect@");
 
       execFileSync(
         "npm",
@@ -211,7 +236,7 @@ describe("published ratstack package", () => {
           "--no-audit",
           "--no-fund",
           "--no-package-lock",
-          path.join(directory, pack.filename),
+          archive,
         ],
         { cwd: directory }
       );
