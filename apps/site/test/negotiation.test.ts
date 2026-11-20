@@ -6,7 +6,7 @@ import { acceptsHtml } from "../src/negotiation.js";
 const request = (headers: Record<string, string>) =>
   HttpServerRequest.fromWeb(new Request("https://ratstack.sh/", { headers }));
 
-it("chooses HTML for browsers and preview crawlers and Markdown for agents", () => {
+it("chooses HTML for browsers, preview crawlers and Google fetchers, and Markdown for agents", () => {
   for (const [headers, html] of [
     [{}, false],
     [{ accept: "text/html" }, true],
@@ -39,6 +39,19 @@ it("chooses HTML for browsers and preview crawlers and Markdown for agents", () 
       false,
     ],
     [{ accept: "*/*", "user-agent": "curl/8.7.1" }, false],
+    [{ accept: "*/*", "user-agent": "Google" }, true],
+    [{ "user-agent": "Google" }, true],
+    [{ accept: "*/*", "user-agent": "Google-Extended" }, true],
+    [
+      {
+        accept: "*/*",
+        "user-agent":
+          "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36 (compatible; GoogleOther)",
+      },
+      true,
+    ],
+    [{ accept: "*/*", "user-agent": "Google-CloudVertexBot" }, true],
+    [{ accept: "text/markdown", "user-agent": "Google" }, false],
     [
       {
         accept: "text/markdown",
