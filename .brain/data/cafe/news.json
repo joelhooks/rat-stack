@@ -1,5 +1,56 @@
 [
   {
+    "kind": "post",
+    "url": "https://foldkit.dev/blog/foldkit-joins-effect",
+    "title": "Foldkit joins Effect as its full-stack framework",
+    "summary": "Devin Jameson joins Effectful full time; Foldkit moves under Effect, becomes its full-stack framework on a rebuilt frontend foundation; current feature work pauses.",
+    "date": "2026-11-19",
+    "repo": "foldkit/foldkit",
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "source": "https://x.com/devinjameson/status/2123473797848424931"
+  },
+  {
+    "kind": "thread",
+    "url": "https://x.com/samgoodwin89/status/2123295778345202158",
+    "title": "Alchemy Domain proves a model's rules with Z3",
+    "summary": "Merged in alchemy#3260, unreleased: Domain models declare invariants, transition rules and eventually-goals; one test proves them with Z3 or finds a breaking command sequence.",
+    "date": "2026-11-19",
+    "repo": null,
+    "author": {
+      "github": "sam-goodwin",
+      "x": "samgoodwin89"
+    },
+    "source": "https://github.com/alchemy-run/alchemy/pull/3260",
+    "topReplies": [
+      {
+        "likes": 26,
+        "text": "Instead of writing tests for each case you can think of (although of course you should do that too), one test can verify the model implementation never violates the invariants. https://t.co/wiKwwugocm",
+        "url": "https://x.com/samgoodwin89/status/2123295780454953223",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 12,
+        "text": "Run the tests to see a report of what was proven and how far and wide a simulator searched.\n\nA mix of proof checking and simulation gives you a high baseline of confidence in correctness without tests. https://t.co/wJkzD5b9Ai",
+        "url": "https://x.com/samgoodwin89/status/2123295782543798712",
+        "x": "samgoodwin89"
+      },
+      {
+        "likes": 8,
+        "text": "Rules can span aggregates. A relation says what holds between two instances, and it is proved across every command and decision that writes to either one. https://t.co/zohSv9Y4ja",
+        "url": "https://x.com/samgoodwin89/status/2123295786649935950",
+        "x": "samgoodwin89"
+      }
+    ],
+    "engagement": {
+      "likes": 396,
+      "replies": 16,
+      "participants": 17
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/ismailkarsli/TypeSQL",
     "title": "TypeSQL types raw SQL queries for Effect",
@@ -12,7 +63,7 @@
     },
     "source": "https://x.com/ismailkarsli54/status/2123062328664920190",
     "engagement": {
-      "stars": 52
+      "stars": 61
     }
   },
   {
@@ -171,7 +222,7 @@
     },
     "source": "https://github.com/nanocodexyz/harnesslang",
     "engagement": {
-      "stars": 23
+      "stars": 24
     }
   },
   {
@@ -264,7 +315,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 679
+      "stars": 688
     }
   },
   {
@@ -488,7 +539,7 @@
     },
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
-      "stars": 269
+      "stars": 270
     }
   },
   {
@@ -620,82 +671,6 @@
     }
   },
   {
-    "kind": "thread",
-    "url": "https://x.com/MattiaManzati/status/2117933990246232387",
-    "title": "tsrs --lint replaces Oxlint's type-aware linter, now with Effect rules",
-    "summary": "tsrs --lint shipped as a drop-in replacement for Oxlint's type-aware tsgolint, and the Effect rules now run in it through a --tsrs-lint flag.",
-    "date": "2026-11-04",
-    "repo": "Effect-TS/tsgo",
-    "author": {
-      "github": null,
-      "x": "MattiaManzati"
-    },
-    "source": "https://x.com/MattiaManzati/status/2117933990246232387",
-    "engagement": {
-      "likes": 342,
-      "participants": 15,
-      "replies": 12
-    },
-    "topReplies": [
-      {
-        "likes": 7,
-        "text": "https://t.co/LpppVGHiuc",
-        "url": "https://x.com/MattiaManzati/status/2117934042444386481",
-        "x": "MattiaManzati"
-      },
-      {
-        "likes": 4,
-        "text": "@MattiaManzati @EffectTS_ i’m getting lost in the ecosystem, which tool to use, which is compatible with which, when to update what etc\n\nall the gains are exciting, i just struggle to find the best way to benefit",
-        "url": "https://x.com/theopomies/status/2117947882980696295",
-        "x": "theopomies"
-      },
-      {
-        "likes": 3,
-        "text": "@theopomies @MattiaManzati @EffectTS_ They are all semantically equivalent, pick one and stick with it",
-        "url": "https://x.com/MichaelArnaldi/status/2118023572673417479",
-        "x": "MichaelArnaldi"
-      }
-    ]
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/pkishorez/status/2118009748310438072",
-    "title": "kabuki brings a Foldkit-style API to React on Effect",
-    "summary": "kabuki 0.0.5 maps React components to actors, useReducer to model, message and update, and useEffect to declarative workers; React still renders.",
-    "date": "2026-11-04",
-    "repo": "pkishorez/monorepo",
-    "author": {
-      "github": "pkishorez",
-      "x": "pkishorez"
-    },
-    "source": "https://docs.kishore.app/kabuki",
-    "topReplies": [
-      {
-        "likes": 3,
-        "text": "I released (v0.0.5). And I am already happy about the results.\nFeedback very welcome.\n\nDocs: https://t.co/dzBm58zw2T\nRepo: https://t.co/Cefmnf8KkH (packages/kabuki)",
-        "url": "https://x.com/pkishorez/status/2118009755612643538",
-        "x": "pkishorez"
-      },
-      {
-        "likes": 3,
-        "text": "Incrementally adoptable.\nCan migrate a single component / whole app with it!\n\nThe entire https://t.co/3A0eJPX02G is built on kabuki start framework!\nEnd to end kabuki.\nWith static rendering!",
-        "url": "https://x.com/pkishorez/status/2118009753020612982",
-        "x": "pkishorez"
-      },
-      {
-        "likes": 2,
-        "text": "@HANGxue257306 Yes!\nEverything in kabuki is declarative.\nA worker can live for the lifetime of entire actor, a state or even a specific condition!\nWe do not start anything imperatively. That is what make it so easy to work with.",
-        "url": "https://x.com/pkishorez/status/2118185493716422659",
-        "x": "pkishorez"
-      }
-    ],
-    "engagement": {
-      "likes": 66,
-      "replies": 6,
-      "participants": 7
-    }
-  },
-  {
     "kind": "launch",
     "url": "https://github.com/smithersai/vibelang",
     "title": "VibeLang alpha spec",
@@ -740,7 +715,7 @@
     },
     "source": "https://silklang.org",
     "engagement": {
-      "stars": 102
+      "stars": 103
     }
   },
   {
@@ -1006,7 +981,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 542
+      "stars": 545
     }
   },
   {
@@ -1071,22 +1046,6 @@
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
       "stars": 337
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/joelhooks/potion-calendar",
-    "title": "Potion Calendar",
-    "summary": "A clean-room Google Calendar app built with Effect 4, Alchemy and Foldkit on Cloudflare Workers.",
-    "date": "2026-10-20",
-    "repo": "joelhooks/potion-calendar",
-    "author": {
-      "github": "joelhooks",
-      "x": "joelhooks"
-    },
-    "source": "https://x.com/joelhooks/status/2112382862502895983",
-    "engagement": {
-      "stars": 57
     }
   }
 ]
