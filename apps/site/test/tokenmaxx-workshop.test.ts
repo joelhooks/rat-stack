@@ -116,7 +116,7 @@ it.effect(
       expect(prep.status).toBe("published");
       expect(prep.items.map((item) => item.item)).toEqual(
         [
-          "Node, pnpm and git",
+          "Node, pnpm, git and Pi",
           "The workshop tools",
           "Herdr",
           "The person gives Pi a model",

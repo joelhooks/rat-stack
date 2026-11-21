@@ -11,10 +11,10 @@ Before the workshop starts, prove that Pi works on your machine with this repo.
 2. Start Pi once from the repo root:
 
    ```sh
-   pnpm pi
+   pi
    ```
 
-   Pi asks whether to trust this project. Say yes: that lets it install the workshop's pinned packages from `.pi/settings.json`. Then `/login` to any provider you can use, and pick one of its models with `/model`. Pi may already show a default model you have no plan for; you don't need that one. Quit with `/quit`.
+   Pi asks whether to trust this project. Say yes, don't cancel: an untrusted Pi skips the project's settings. Trust lets it install the workshop's pinned packages from `.pi/settings.json`. Then `/login` to any provider you can use, and pick one of its models with `/model`. Pi may already show a default model you have no plan for; you don't need that one. Quit with `/quit`.
 
 3. Run the check:
 

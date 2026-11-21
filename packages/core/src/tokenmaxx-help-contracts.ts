@@ -106,7 +106,7 @@ export const reportSetupProblemContract = defineContract("reportSetupProblem", {
     os: Schema.optionalKey(Schema.String.check(Schema.isMaxLength(100))),
     step: SetupStep.annotate({
       description:
-        "The setup step that is stuck: 1 Node, pnpm and git; 2 the workshop tools; 3 Herdr; 4 a model for Pi; 5 the check; 6 your own repo; 7 report.",
+        "The setup step that is stuck: 1 Node, pnpm, git and Pi; 2 the workshop tools; 3 Herdr; 4 a model for Pi; 5 the check; 6 your own repo; 7 report.",
     }),
     symptom: Schema.String.check(Schema.isBetweenLength(1, 500)).annotate({
       description: "One or two sentences on what went wrong.",
