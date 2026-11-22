@@ -52,7 +52,8 @@ Source: `packages/effect/src/Queue.ts`, `packages/effect/src/Effect.ts`, `packag
 
 Run a faster producer against a slower consumer. Check backlog and memory, plus the documented wait, reject, or drop behavior. This check is our proposal. The books do not prescribe it.
 
-Continue with [Admission control protects recovery](/lore/admission-controls-new-work), [Bulkheads isolate scarce capacity](/lore/bulkheads-isolate-capacity).
+For a permit check that returns without waiting, work through [the admission control example](/lore/admission-controls-new-work).
+Continue with [Bulkheads isolate scarce capacity](/lore/bulkheads-isolate-capacity).
 
 Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
 

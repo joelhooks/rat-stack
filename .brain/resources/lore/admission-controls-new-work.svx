@@ -1,54 +1,74 @@
 ---
 title: "Admission control protects recovery"
-description: "Refuse or defer work that cannot be served usefully under current load."
+description: "Accept work as capacity frees up and refuse work that cannot run."
+plain: "A busy service can accept work when a slot is free and refuse work when all slots are taken."
 group: concept
+prerequisites:
+  - /lore/effect-basics
 terms:
   - "admission control"
-  - "load shedding"
-  - "handshaking"
 sources:
-  - url: https://archive.org/details/releaseitdesignd0000nyga
-    title: "Nygard, Michael T. Release It!: Design and Deploy Production-Ready Software. Pragmatic Bookshelf, 2007."
-    publisher: "Pragmatic Bookshelf"
-    note: "§4.4 Unbounded Result Sets; Chapter 5 Stability Patterns: §5.1 Timeouts, §5.2 Circuit Breaker, §5.3 Bulkheads, §5.4 Steady State, §5.5 Fail Fast, §5.6 Handshaking, §5.7 Test Harness, §5.8 Decoupling Middleware."
-    accessed: "2026-10-23"
-  - url: https://sre.google/sre-book/table-of-contents/
-    title: "Beyer, Betsy; Jones, Chris; Petoff, Jennifer; Murphy, Niall Richard, editors. Site Reliability Engineering: How Google Runs Production Systems. O’Reilly, 2016."
-    publisher: "O’Reilly"
-    note: "Chapter 3 Embracing Risk; Chapter 22 Addressing Cascading Failures (Mike Ulrich); Chapter 26 General Principles of SRE as Applied to Data Integrity; Chapter 27 Reliable Product Launches at Scale. Section-only excerpts limit detailed attribution."
-    accessed: "2026-10-23"
-  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Queue.ts
-    title: "Effect contributors. Effect 4.0.0. Queue.ts"
-    publisher: "Effect-TS"
-    note: "Pinned source for our Effect mapping, not a claim from the book."
-    accessed: "2026-10-23"
-  - url: https://github.com/Effect-TS/effect/blob/67ba4e46a11ccda0b6761578bfd22c04ae00167d/packages/effect/src/Semaphore.ts
-    title: "Effect contributors. Effect 4.0.0. Semaphore.ts"
-    publisher: "Effect-TS"
-    note: "Pinned source for our Effect mapping, not a claim from the book."
-    accessed: "2026-10-23"
+  - url: https://sre.google/sre-book/handling-overload/
+    title: "Handling Overload, Site Reliability Engineering, Chapter 21"
+    publisher: "Google SRE"
+    note: "Accepting work as capacity frees up, graceful rejection, client-side throttling, and retry budgets."
+    accessed: "2026-11-15"
+  - url: https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Semaphore.ts#L69-L123
+    title: "Semaphore permit operations, Effect 4.1.4"
+    publisher: "Effect contributors"
+    note: "withPermit waits for capacity; withPermitsIfAvailable returns without running work when permits are unavailable."
+    accessed: "2026-11-15"
+  - url: https://github.com/Effect-TS/effect/blob/289a53f7b1fc40049219c6e69022db2fb859c356/packages/effect/src/Semaphore.ts#L358-L387
+    title: "Semaphore permit acquisition and release, Effect 4.1.4"
+    publisher: "Effect contributors"
+    note: "The local example uses one held permit to demonstrate refusal, then admission after release."
+    accessed: "2026-11-15"
 ---
 
-A busy [service](/lore/services-capture-dependencies) needs a way to reject incoming work. Callers must respect its signal instead of immediately amplifying the same overload.
+Admission control decides whether to accept incoming work.
+A busy [service](/lore/services-capture-dependencies) can accept requests as capacity frees up and gracefully reject the rest.
+[Google SRE](https://sre.google/sre-book/handling-overload/) warns against stopping all traffic when a backend becomes overloaded.
 
-Book basis: [B4](/lore/durability-bibliography#b4-release-it), [B12](/lore/durability-bibliography#b12-site-reliability-engineering).
+## Worked example: refuse while the permit is held
 
-## Failure it prevents
+A semaphore tracks permits, or slots for concurrent work.
+In [Effect](/lore/effect-basics) 4.1.4, `withPermit` waits for one permit and releases it when the wrapped effect finishes.
+`withPermitsIfAvailable` makes a different choice: it returns `Option.none` without running the work when the requested permits are unavailable.
 
-An overloaded service keeps accepting work and extends its own outage.
+This small example checks both outcomes:
 
-## Our Effect 4.0.0 reading
+```ts title="A local admission probe"
+import { Effect, Semaphore } from "effect";
 
-`Queue` and `Semaphore` offer local capacity controls. They do not choose the ingress response or implement caller cooperation. Model overload modes explicitly when needed.
+export const admissionProbe = Effect.gen(function* () {
+  const capacity = yield* Semaphore.make(1);
+  const work = Effect.succeed("served");
+  const busy = yield* capacity.withPermit(
+    capacity.withPermitsIfAvailable(1)(work),
+  );
+  const recovered = yield* capacity.withPermitsIfAvailable(1)(work);
+  return { busy, recovered };
+});
+```
 
-Source: `packages/effect/src/Queue.ts`, `packages/effect/src/Semaphore.ts`.
+1. The outer `withPermit` holds the only permit.
+2. The inner attempt returns `Option.none` without running `work`.
+3. The outer effect finishes and releases the permit. The next attempt returns `Option.some("served")`.
 
-## How to check
+This sequential probe checks local permit behavior.
+It does not test concurrent load.
+The single permit makes the example small; it is not a production capacity recommendation.
 
-Exceed capacity. Observe a truthful refusal or durable deferral, bounded backlog, and recovery after demand falls. This check is our proposal. The books do not prescribe it.
+## Carry the refusal to the caller
 
-Continue with [Retry load needs a budget](/lore/retry-load-needs-a-budget), [Backpressure reaches the producer](/lore/backpressure-reaches-the-producer).
+The semaphore returns a local result.
+It does not define an HTTP response or a caller retry policy.
+The caller must decide how to handle `Option.none`.
 
-Connect this to [the existing rat-stack guidance](/lore/concurrent-work-needs-an-owner).
+Rejection still costs resources.
+Google SRE describes client-side throttling that caps outgoing traffic when many requests are rejected.
+It also limits retries to avoid amplifying overload.
+A local capacity check and caller cooperation address different parts of that problem.
 
-Use [the durability skill](/skills/durability) for the full review. Return to [the durability index](/lore/durability).
+Read [backpressure](/lore/backpressure-reaches-the-producer) for producer cooperation, then [retry budgets](/lore/retry-load-needs-a-budget) for repeated attempts.
+Use [the durability skill](/skills/durability) to review the surrounding system.
