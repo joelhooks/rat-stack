@@ -351,6 +351,17 @@
       "reason": "Suite test allowance for workerd startup and batched Worker and Durable Object requests."
     }
   ],
+  "apps/web/test/all-stars.seam.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["every seed profile renders as prerendered HTML"],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Builds the full reader site inputs, then renders every All Stars profile and the index."
+    }
+  ],
   "apps/web/test/content-migration.test.ts": [
     {
       "budget": [
@@ -430,6 +441,19 @@
         "60000"
       ],
       "reason": "Waits for built reader pages and their assets to be loaded for CSP checks."
+    }
+  ],
+  "apps/web/test/reader-systems-skills.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "ReaderSiteParity preserves every systems and skills main, table and deep link"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Builds the full reader site inputs, then renders and compares every systems and skills page."
     }
   ],
   "apps/web/test/reader-worker-first-head.test.ts": [
