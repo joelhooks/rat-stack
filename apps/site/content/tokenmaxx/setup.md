@@ -34,6 +34,8 @@ In the folder where the person keeps their projects:
     git init -b main
     pnpm install
 
+Run the first line exactly as written. Don't create `tokenmaxx` first, and put nothing in it, such as an npm cache, until tiged has copied the starter: tiged stops if the folder isn't empty.
+
 Expect 175 files and an install of a few seconds. npm deprecation warnings and update notices are harmless.
 
 Already have a `tokenmaxx` folder? Update it instead:
