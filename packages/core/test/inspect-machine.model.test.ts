@@ -4,9 +4,9 @@ import {
   EffectFailure,
   join,
   send,
+  sendAndAwait,
   waitFor,
 } from "@xstate/effect";
-import { sendAndAwait } from "@xstate/effect/test";
 import { Cause, Deferred, Effect, Exit, Match, Result, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import type { SnapshotFrom } from "xstate";

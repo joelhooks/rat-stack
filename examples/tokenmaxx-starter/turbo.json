@@ -1,0 +1,100 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "ui": "stream",
+  "noUpdateNotifier": true,
+  "envMode": "loose",
+  "globalDependencies": [
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.base.json",
+    "vitest.package.ts",
+    "vitest.setup.ts"
+  ],
+  "globalEnv": ["HOME", "TMX_FENCE_TEST_PNPM"],
+  "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "typecheck": {
+      "dependsOn": ["transit"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["transit", "typecheck"],
+      "outputs": []
+    },
+    "@tokenmaxx/core#test": {
+      "dependsOn": ["transit", "typecheck"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!.turbo/**",
+        "$TURBO_ROOT$/.pi/settings.json"
+      ],
+      "outputs": []
+    },
+    "@tokenmaxx/own-loop#test": {
+      "dependsOn": ["transit", "typecheck"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!.turbo/**",
+        "$TURBO_ROOT$/.pi/settings.json"
+      ],
+      "outputs": []
+    },
+    "@tokenmaxx/first-package#test": {
+      "dependsOn": ["transit", "typecheck"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!.turbo/**",
+        "$TURBO_ROOT$/.pi/settings.json"
+      ],
+      "outputs": []
+    },
+    "@tokenmaxx/scripts#test": {
+      "dependsOn": ["transit", "typecheck"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!.turbo/**",
+        "$TURBO_ROOT$/exercises/**",
+        "!$TURBO_ROOT$/exercises/*/node_modules/**",
+        "!$TURBO_ROOT$/exercises/*/.turbo/**",
+        "$TURBO_ROOT$/.pi/settings.json"
+      ],
+      "outputs": []
+    },
+    "@tokenmaxx/several-agents#test": {
+      "dependsOn": ["transit", "typecheck"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!.turbo/**",
+        "$TURBO_ROOT$/exercises/*/*/exercise.ts"
+      ],
+      "outputs": []
+    },
+    "//#typecheck:root": {
+      "inputs": ["*.ts", "package.json", "tsconfig.json", "tsconfig.base.json"],
+      "outputs": []
+    },
+    "//#lint:root": {
+      "inputs": [
+        "*",
+        "shared/**",
+        "scripts/**",
+        "exercises/**",
+        ".pi/settings.json",
+        "!**/node_modules/**",
+        "!**/.turbo/**"
+      ],
+      "outputs": []
+    },
+    "//#history:root": {
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

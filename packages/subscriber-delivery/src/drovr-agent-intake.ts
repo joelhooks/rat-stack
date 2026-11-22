@@ -48,7 +48,15 @@ export const drovrAgentIntakeLayer = (settings: IntakeSettings) =>
             HttpClientRequest.bearerToken(
               Redacted.value(settings.credential.value)
             ),
-            HttpClientRequest.bodyJsonUnsafe(input)
+            HttpClientRequest.bodyJsonUnsafe({
+              agentRef: input.agentRef,
+              clientBucket: input.clientBucket,
+              email: input.email,
+              hold: input.hold,
+              score: input.score,
+              source: input.source,
+              submissionId: input.submissionId,
+            })
           );
 
           return yield* http.execute(request).pipe(

@@ -4,6 +4,7 @@ export class SourceFetchOffline extends Schema.TaggedError<
   SourceFetchOffline,
   { readonly brand: unique symbol }
 >()("SourceFetchOffline", {
+  cause: Schema.optionalKey(Schema.Defect()),
   commit: Schema.String,
   fix: Schema.String,
   line: Schema.Finite,

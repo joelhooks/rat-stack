@@ -71,6 +71,13 @@ for route in "${routes[@]}"; do
   printf '%s %s\n' "$status" "$route"
 done
 
+for agent in Google Google-Extended GoogleOther Google-CloudVertexBot; do
+  type="$(curl --fail --silent --show-error --max-time 20 --http1.1 --user-agent "$agent" --header 'accept: */*' \
+    --output /dev/null --write-out '%{content_type}' "${base_url}/lore/rat-king")"
+  case "$type" in text/html*) ;; *) fail "answer engine: $agent got $type for /lore/rat-king, not text/html; Gemini's fetcher cannot read it. Fix: keep Google fetchers on HTML in apps/site/src/negotiation.ts" ;; esac
+  printf 'answer engine HTML: %s\n' "$agent"
+done
+
 for accept in text/html text/markdown; do
   curl --fail --silent --show-error --max-time 20 --header "accept: $accept" \
     --dump-header "$tmp_dir/workshop.headers" --output "$tmp_dir/workshop.body" "${base_url}/tokenmaxx"

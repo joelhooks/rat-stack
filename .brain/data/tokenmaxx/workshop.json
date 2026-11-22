@@ -8,51 +8,100 @@
       "localNote": "8am to 1pm Pacific",
       "blocks": [
         {
-          "id": "arrive",
-          "name": "Arrive and setup check",
+          "id": "first-package",
+          "name": "Hello and setup",
           "start": "2026-11-17T16:00:00Z",
           "end": "2026-11-17T16:15:00Z",
           "kind": "block"
         },
         {
-          "id": "awakes",
-          "name": "Awakes",
+          "id": "loop",
+          "name": "Loop",
           "start": "2026-11-17T16:15:00Z",
-          "end": "2026-11-17T17:30:00Z",
+          "end": "2026-11-17T17:05:00Z",
           "kind": "block"
         },
         {
           "id": "break-1",
           "name": "Break",
-          "start": "2026-11-17T17:30:00Z",
-          "end": "2026-11-17T17:45:00Z",
+          "start": "2026-11-17T17:05:00Z",
+          "end": "2026-11-17T17:10:00Z",
           "kind": "break"
         },
         {
-          "id": "speaks",
-          "name": "Speaks",
-          "start": "2026-11-17T17:45:00Z",
-          "end": "2026-11-17T19:00:00Z",
+          "id": "memory",
+          "name": "Memory",
+          "start": "2026-11-17T17:10:00Z",
+          "end": "2026-11-17T17:40:00Z",
           "kind": "block"
         },
         {
           "id": "break-2",
-          "name": "Long break",
-          "start": "2026-11-17T19:00:00Z",
-          "end": "2026-11-17T19:30:00Z",
+          "name": "Break",
+          "start": "2026-11-17T17:40:00Z",
+          "end": "2026-11-17T17:55:00Z",
           "kind": "break"
         },
         {
-          "id": "remembers",
-          "name": "Remembers",
-          "start": "2026-11-17T19:30:00Z",
+          "id": "messages",
+          "name": "Communication",
+          "start": "2026-11-17T17:55:00Z",
+          "end": "2026-11-17T18:25:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-3",
+          "name": "Break",
+          "start": "2026-11-17T18:25:00Z",
+          "end": "2026-11-17T18:30:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "several-agents",
+          "name": "Several agents",
+          "start": "2026-11-17T18:30:00Z",
+          "end": "2026-11-17T19:05:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "lunch",
+          "name": "Lunch",
+          "start": "2026-11-17T19:05:00Z",
+          "end": "2026-11-17T19:35:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "split-the-work",
+          "name": "Subagents",
+          "start": "2026-11-17T19:35:00Z",
+          "end": "2026-11-17T20:10:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-4",
+          "name": "Break",
+          "start": "2026-11-17T20:10:00Z",
+          "end": "2026-11-17T20:25:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "inbox-demo",
+          "name": "The inbox demo",
+          "start": "2026-11-17T20:25:00Z",
           "end": "2026-11-17T20:40:00Z",
           "kind": "block"
         },
         {
-          "id": "show-and-tell",
-          "name": "Show and tell, where next",
+          "id": "break-5",
+          "name": "Break",
           "start": "2026-11-17T20:40:00Z",
+          "end": "2026-11-17T20:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "your-project",
+          "name": "Own project and close",
+          "start": "2026-11-17T20:45:00Z",
           "end": "2026-11-17T21:00:00Z",
           "kind": "block"
         }
@@ -66,50 +115,85 @@
       "localNote": "8am to 1pm Pacific",
       "blocks": [
         {
-          "id": "arrive",
-          "name": "Arrive and setup check",
+          "id": "first-package",
+          "name": "Hello and setup",
           "start": "2026-11-21T16:00:00Z",
-          "end": "2026-11-21T16:15:00Z",
+          "end": "2026-11-21T16:30:00Z",
           "kind": "block"
         },
         {
-          "id": "awakes",
-          "name": "Awakes",
-          "start": "2026-11-21T16:15:00Z",
-          "end": "2026-11-21T17:30:00Z",
+          "id": "loop",
+          "name": "Loop",
+          "start": "2026-11-21T16:30:00Z",
+          "end": "2026-11-21T17:20:00Z",
           "kind": "block"
         },
         {
           "id": "break-1",
           "name": "Break",
-          "start": "2026-11-21T17:30:00Z",
-          "end": "2026-11-21T17:45:00Z",
+          "start": "2026-11-21T17:20:00Z",
+          "end": "2026-11-21T17:25:00Z",
           "kind": "break"
         },
         {
-          "id": "speaks",
-          "name": "Speaks",
-          "start": "2026-11-21T17:45:00Z",
-          "end": "2026-11-21T19:00:00Z",
+          "id": "memory",
+          "name": "Memory",
+          "start": "2026-11-21T17:25:00Z",
+          "end": "2026-11-21T17:55:00Z",
           "kind": "block"
         },
         {
           "id": "break-2",
-          "name": "Long break",
-          "start": "2026-11-21T19:00:00Z",
-          "end": "2026-11-21T19:30:00Z",
+          "name": "Break",
+          "start": "2026-11-21T17:55:00Z",
+          "end": "2026-11-21T18:10:00Z",
           "kind": "break"
         },
         {
-          "id": "remembers",
-          "name": "Remembers",
-          "start": "2026-11-21T19:30:00Z",
-          "end": "2026-11-21T20:40:00Z",
+          "id": "messages",
+          "name": "Communication",
+          "start": "2026-11-21T18:10:00Z",
+          "end": "2026-11-21T18:40:00Z",
           "kind": "block"
         },
         {
-          "id": "show-and-tell",
-          "name": "Show and tell, where next",
+          "id": "break-3",
+          "name": "Break",
+          "start": "2026-11-21T18:40:00Z",
+          "end": "2026-11-21T18:45:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "several-agents",
+          "name": "Several agents, subagents and the inbox",
+          "start": "2026-11-21T18:45:00Z",
+          "end": "2026-11-21T19:05:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "lunch",
+          "name": "Lunch",
+          "start": "2026-11-21T19:05:00Z",
+          "end": "2026-11-21T19:35:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "split-the-work",
+          "name": "Several agents, subagents and the inbox, continued",
+          "start": "2026-11-21T19:35:00Z",
+          "end": "2026-11-21T20:25:00Z",
+          "kind": "block"
+        },
+        {
+          "id": "break-4",
+          "name": "Break",
+          "start": "2026-11-21T20:25:00Z",
+          "end": "2026-11-21T20:40:00Z",
+          "kind": "break"
+        },
+        {
+          "id": "your-project",
+          "name": "Own project and close",
           "start": "2026-11-21T20:40:00Z",
           "end": "2026-11-21T21:00:00Z",
           "kind": "block"
@@ -123,7 +207,7 @@
     "items": [
       {
         "id": "node-pnpm-git",
-        "item": "[Node, pnpm and git](https://ratstack.sh/tokenmaxx/setup.md)",
+        "item": "[Node, pnpm, git and Pi](https://ratstack.sh/tokenmaxx/setup.md)",
         "proof": null
       },
       {

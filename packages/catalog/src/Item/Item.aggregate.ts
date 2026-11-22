@@ -45,7 +45,7 @@ export class Item extends Domain.Aggregate(
                 source: command.source,
                 observedAt: command.observedAt,
                 metrics: command.metrics,
-                author: command.author,
+                author: command.author?.toLowerCase(),
                 sightingKey,
               }),
             ];

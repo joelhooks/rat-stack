@@ -45,18 +45,20 @@
     "typecheck:tsc": "tsc --noEmit -p tsconfig.json",
     "typecheck:fast": "tsrs --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "build": "tsc -p tsconfig.build.json && node dist/check-expiry.js",
+    "build": "tsc -p tsconfig.build.json",
+    "prebuild": "pnpm run --silent check:expiry",
+    "check:expiry": "node src/check-expiry.ts",
     "check": "pnpm run typecheck",
-    "pretest": "pnpm run --silent build"
+    "pretest": "test -n \"$TURBO_HASH\" || pnpm run --silent build"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",
     "@rat-stack/capability": "workspace:*",
     "@rat-stack/core": "workspace:*",
-    "@xstate/effect": "1.0.0-beta.0",
+    "@xstate/effect": "1.0.0-beta.2",
     "alchemy": "2.0.0-beta.87",
     "effect": "4.1.4",
-    "xstate": "6.0.0-beta.1"
+    "xstate": "6.0.0-beta.3"
   },
   "devDependencies": {
     "@effect/platform-node": "4.1.4",

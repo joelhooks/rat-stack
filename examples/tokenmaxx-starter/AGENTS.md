@@ -2,6 +2,8 @@
 
 This repo is a workshop starter. Each exercise's readme explains a problem, the environment it runs in, and how to know you're done.
 
+Reference: https://ratstack.sh/llms.txt. Read it before building anything here.
+
 ## The rule
 
 Don't edit the harness, the environments or the checks: `scripts/`, `shared/`, and the files in `exercises/`. Build your own code anywhere else. `.workshop-state/` is runtime state: read it to debug, and change it only through exercise commands.
@@ -16,6 +18,12 @@ pnpm ex <id> test                        # the done check's own tests
 pnpm pi [--role <name>] [--exercise <id>] [--fresh]   # start the pinned Pi; --fresh starts a new session
 pnpm check                               # typecheck + lint + test (supplied code only)
 ```
+
+## How work gets checked here
+
+- `pnpm check` runs every check on the supplied code through Turbo: each workspace package's typecheck and tests (`shared/<piece>`, `scripts`, `exercises/<NN-problem>`), plus the root's typecheck, lint and format. Results are cached in `.turbo/`, so a second run with nothing changed takes about a second, and a change reruns only what depends on it. A red check is real: fix it, never skip it.
+- When this folder is its own git repository, every commit runs `pnpm check` from `.githooks/prepare-commit-msg` and a red check refuses the commit. `git commit -n` doesn't skip it. Don't try to get around it: no `-c core.hooksPath=...`, no hook edits.
+- `pnpm check` doesn't look at your own code. Give your code its own checks.
 
 ## Runtime facts
 

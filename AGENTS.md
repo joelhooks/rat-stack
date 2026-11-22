@@ -11,8 +11,8 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - pnpm workspaces + Turborepo (`apps/*`, `packages/*`)
 - Node `>=24.18.0` and pnpm `11.3.0`; do not replace pnpm with Bun or npm for installs
 - Effect `4.1.4` and `@effect/platform-node` `4.1.4`. Foldkit `0.170.0` peers on `effect ~4.1.0`, so no peer allowances or patches remain. Every Effect package resolves to one runtime. Crypto lives in `effect/crypto/*`: `SecureRandom` and `Digest` replace the removed `effect/Crypto`, and `NodeServices` no longer provides them.
-- XState `6.0.0-beta.1` for finite lifecycles, retries, cancellation, and resumability
-- `@xstate/effect` `1.0.0-beta.0` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
+- XState `6.0.0-beta.3` for finite lifecycles, retries, cancellation, and resumability
+- `@xstate/effect` `1.0.0-beta.2` bridges the two: machines run as scoped Effects via `createEffectActor`, side effects are declared `createEffectLogic` actors. `vendor/README.md` keeps the rules for the next unpublished pin
 - Foldkit `0.170.0` with `@foldkit/ui` and `@foldkit/devtools` `0.170.0`, `@foldkit/markdown` `0.15.0`, and `@foldkit/vite-plugin` `0.29.0` for the web UI, server-rendered and prerendered by default
 - Alchemy `2.0.0-beta.87` with the `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql` providers (Infrastructure as Effects) for every cloud resource; declared in `apps/infra/alchemy.run.ts`, authenticated through Alchemy profiles, never through env vars in this repo. `@alchemy.run/test` `2.0.0-beta.87` runs the Worker runtime tests
 - TypeScript `7.0.2` in strict mode, patched by `@effect/tsgo` `0.69.0` in `prepare` so the Effect language service diagnostics in `tsconfig.base.json` fail `tsc`, not just the editor. Escape hatch for a real boundary: `// @effect-diagnostics-next-line <rule>:off` with a reason
@@ -20,6 +20,7 @@ Workspace `package.json` files declare the pinned stack. [README.md](./README.md
 - Plain tsrs `0.25.0-ts7.1.0-beta` stays in `typecheck:fast`, targeting TypeScript `7.1.0-beta`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
 - `@effect/vitest` `4.1.4` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
 - `@oxlint/plugins` `1.93.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic rules plus the Effect group, at `error`). The copy is ours; `UPSTREAM.md` there says where it came from and how to take upstream fixes
+- Three MIT rules from Landmines live in `tools/oxlint/landmines/`, with no npm dependency. Retries and unsignaled polls fail lint. Fixed sleeps and explicit timeouts warn; `pnpm check:landmines` enforces exact, reasoned budget entries and requires stale entries to be removed.
 - Oxlint `1.93.0` with Ultracite `8.2.0`, Oxfmt `0.78.0`, and Turborepo `2.11.11`
 - varlock `1.25.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
 
@@ -29,10 +30,10 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 
 - **`@rat-stack/catalog`**:
   - Path: `packages/catalog`
-  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
+  - Role: Private monitoring Domain model. `Item` owns observations and Keep/Drop decisions per canonical URL. Its event log is authoritative; `ItemHistory` is a rebuildable summary with cursor-paged event history. `CatalogIndex` writes replay-idempotent `stream:seq` rows through `CatalogStore`; native `Rising` and `RepeatAuthors` Queries read that derived index with bounded windows and keyset pages. The memory store runs in stories. The domain package imports only `@alchemy.run/domain` and `effect`; tests also use the test harness.
 - **`@rat-stack/catalog-server`**:
   - Path: `apps/catalog`
-  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware. Missing or empty `CATALOG_OPERATOR_TOKEN` denies every Api call. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
+  - Role: Cloudflare Worker hosting Catalog on Domain Durable Objects, with operator bearer-token middleware, the D1 catalog index and its migrations. Worker props explicitly bind a configured `CATALOG_OPERATOR_TOKEN` as a redacted secret; missing or empty configuration denies every Api call. The `smoke <url>` script tests unauthenticated and authenticated reads through the native Api client without printing credentials. `apps/infra` registers the Worker and Domain providers. No catalog contents reach the public site.
 
 - **`@rat-stack/capability`**:
   - Path: `packages/capability`
@@ -190,6 +191,10 @@ Mirrors are reference material, not runtime dependencies. Exclude them from type
 ## Source control
 
 Preserve existing work. Inspect status before editing, stage only files changed for the current task, and do not commit generated output, secrets, or populated `.agent_sources/github.com/` trees. Use the repository's existing source-control tool; do not initialize or migrate one without approval. Never pass `--no-verify` to git.
+
+- When `.brain/data/git-snapshot.json` conflicts on a merge, run `pnpm install --frozen-lockfile`, then regenerate it with `pnpm git-snapshot`; never pick a side.
+- Stage the regenerated snapshot with the merge commit and run the full gate on the committed tree.
+- If the gate requires a post-merge refresh, regenerate and add a snapshot-only follow-up with full hooks.
 
 `.shitrat/public-allow.json` tells the ShitRat public-push guard that `.brain/` is public content here, because the site is built from it. A child project owns that file: narrow or delete it the day its `.brain` holds anything that isn't meant to be public.
 

@@ -1,0 +1,81 @@
+---
+title: "Workshop setup help"
+description: "An attendee's agent reports where Tokenmaxx setup is stuck, gets known fixes for that step, and later reads the desk's answer."
+plain: "An attendee's agent files a setup report; it gets known fixes at once, and a person at the desk answers later."
+diagram: |-
+  attendee's agent
+    │ reportSetupProblem
+    ▼
+  sign-in: email hash + code
+    │ scrub secrets
+    ▼
+  WorkshopHelpDesk
+    │ desk lists, answers
+    ▼
+  setupProblemStatus
+group: system
+prerequisites:
+  - /systems/capabilities
+  - /lore/mcp-is-another-surface
+terms:
+  - "setup report"
+sources:
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/tokenmaxx-help-contracts.ts
+    title: "Setup help contracts"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Inputs, outputs, and typed failures for the five help capabilities."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/tokenmaxx-help-handlers.ts
+    title: "Setup help handlers"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Attendee sign-in, the operator token check, and guide matching."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/packages/core/src/tokenmaxx-help-scrub.ts
+    title: "Secret scrubbing"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Rules that remove keys, tokens, private key blocks, and email addresses before storage."
+    accessed: "2026-11-15"
+  - url: https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/workshop-help/help-desk-durable-object.ts
+    title: "Help desk Durable Object"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "SQLite storage, limits, newest-first pages, and the 14-day expiry alarm."
+    accessed: "2026-11-15"
+---
+
+## What it does
+
+A setup report says which of the seven setup steps is stuck and what went wrong. An attendee's agent files one with `reportSetupProblem` and gets back a `reportId`, the known fixes for that step, and what happens next. Each fix says whether we watched it work.
+
+The agent calls `setupProblemStatus` with the same `reportId` to read the desk's answer. Both capabilities take the attendee's email and the workshop code on their workshop calendar event. They are [MCP](/lore/mcp-is-another-surface) tools at `/tokenmaxx/mcp`, HTTP endpoints under `/tokenmaxx/api`, and [RPC](/skills/learn-rat-stack) calls at `/tokenmaxx/rpc`.
+
+The desk lists reports with `listSetupProblems` and answers one with `answerSetupProblem`. `setupHelpStatus` reports whether sign-in is configured and how many attendee and test hashes the [Worker](/lore/workers-answer-requests-durable-objects-own-named-state) holds. It returns counts only, never hashes or values. These three are HTTP only and need the operator bearer token. From a checkout:
+
+- `pnpm --filter @rat-stack/site help:check-hashes <file>` checks a hash list with the Worker's own [Schema](/lore/schemas-define-the-boundary) before it is provisioned, and prints the count.
+- `pnpm --filter @rat-stack/site help:reports <origin>` prints unanswered reports as JSON lines.
+- `pnpm --filter @rat-stack/site help:answer <id> <text-file> [origin]` answers one. The origin defaults to `https://ratstack.sh`.
+- `pnpm --filter @rat-stack/site help:proof <origin> <test-email> --expect-attendees <count>` checks the status first. It fails unless sign-in is configured and the attendee count matches. Then it files a test report over HTTP and one over MCP, lists them, answers one, and reads the answer back.
+
+The operator scripts accept only https origins. They read `TOKENMAXX_HELP_OPERATOR_TOKEN` from the environment and never print it. The proof also reads `TOKENMAXX_WORKSHOP_CODE`.
+
+Known fixes live in `.brain/data/tokenmaxx/help.json`. The content build validates the table and ships it with the Workshop's assets.
+
+## The standard
+
+- Only a listed attendee files or reads reports. The email must hash into `TOKENMAXX_ATTENDEE_HASHES` after trimming and lowercasing, and the trimmed code must equal `TOKENMAXX_WORKSHOP_CODE`. A missing list or code makes help unavailable and stores nothing.
+- A set attendee list that fails to decode also makes help unavailable, even when the test list is valid. A test list that fails to decode is ignored, and `setupHelpStatus` shows a test count of 0.
+- Reports keep the email's SHA-256 hash, never the address. The hash is pseudonymous. It is unsalted, so an operator holding the attendee list can match a report to an attendee. An attendee reads only reports filed under their own hash.
+- Secrets are removed from the symptom, error text, and OS before anything is stored or returned. The rules cover common key prefixes, bearer tokens, JWTs, and private key blocks. They also cover credentials in URLs, named key or token assignments, hex strings of 32 or more characters, and long random-looking strings. Email addresses become `[email]`, except `git@` remotes.
+- The MCP session object stores only the `initialize` request that opens a session, never a tool call. Emails and codes in tool arguments are not kept.
+- A storage fault, including a crashed [Durable Object](/lore/workers-answer-requests-durable-objects-own-named-state), answers as a 503 with reason `storage`.
+- Every report is stored, including reports that match no known fix.
+- Reports are deleted 14 days after filing. One email can file 30 reports a day, and the desk holds at most 2000.
+- Hashes in `TOKENMAXX_TEST_HASHES` file like attendees. Their reports are marked `test` and stay out of the default list.
+- Operator calls fail when the token is unset, missing, or different. Tokens and codes are compared through SHA-256 digests.
+- A guide row with a Zoom link, a meeting ID, or a passcode fails the content build. Join details go out only in the workshop email.
+
+## How to check
+
+- Run `pnpm --filter @rat-stack/core test` for the scrubbing, sign-in, isolation, operator-token, and status properties.
+- Run `pnpm --filter @rat-stack/site test`. `workshop-help-desk-runtime.test.ts` checks the real Durable Object against a model. It also checks that the alarm deletes expired rows from storage. `workshop-help.test.ts` files, answers, and reads one report over MCP, HTTP, and RPC.
+- `workshop-help-legacy-runtime.test.ts` runs the Workshop's own Worker code locally and files through an older MCP session. It then checks session storage for the email and code.
+- After a deploy, run `help:proof` with an email whose hash is in `TOKENMAXX_TEST_HASHES` and the number of attendees on the list.

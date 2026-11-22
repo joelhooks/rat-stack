@@ -39,6 +39,8 @@ jobs:
         run: pnpm sources:fetch
       - name: Check and test
         # 6882060, 4 cores/16 GB: median N1=479s, N2=265s, N4=271s; N2 worst test=39.13% of budget.
+        env:
+          LANDMINES_BASE: ${{ github.event.pull_request.base.sha }}
         run: pnpm turbo run check test build --concurrency=2
       - name: Report Turbo cache story
         if: always()

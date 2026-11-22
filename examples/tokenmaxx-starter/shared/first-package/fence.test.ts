@@ -1085,13 +1085,32 @@ function bytesChanged(
     .toSorted();
 }
 
-/** A writable temp folder on another disk than the fixtures, if there is one. */
+/**
+ * Whether a script written in `dir` can run there. Docker mounts `/dev/shm`
+ * `noexec`, and a copy's hook can't run from a folder like that.
+ */
+function runsScripts(dir: string): boolean {
+  const probeDir = mkdtempSync(join(dir, "exec-probe-"));
+  try {
+    const probe = join(probeDir, "probe.sh");
+    writeFileSync(probe, "#!/bin/sh\nexit 0\n");
+    chmodSync(probe, 0o755);
+    return spawnSync(probe, { stdio: "ignore" }).status === 0;
+  } finally {
+    rmSync(probeDir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * A writable temp folder on another disk than the fixtures, that scripts can
+ * run from, if there is one.
+ */
 const otherDisk = (() => {
   const here = statSync(scratch).dev;
   for (const dir of ["/dev/shm", "/tmp", "/private/tmp"]) {
     try {
       accessSync(dir, constants.W_OK);
-      if (statSync(dir).dev !== here) {
+      if (statSync(dir).dev !== here && runsScripts(dir)) {
         return dir;
       }
     } catch {

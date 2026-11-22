@@ -1,0 +1,23 @@
+{
+  "name": "@tokenmaxx/ex-01-first-package",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Exercises 01-first-package: readmes, done checks and their tests.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/core": "workspace:*",
+    "@tokenmaxx/first-package": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

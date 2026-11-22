@@ -5,11 +5,20 @@ import { isAbsolute, join, posix, relative, sep } from "node:path";
 import {
   type CommitClaim,
   commitLine,
+  commitSays,
   markStepStart,
 } from "#shared/core/commit-line.ts";
 import type { ExerciseContext } from "#shared/core/context.ts";
 import { defineExercise, type Exercise } from "#shared/core/exercise.ts";
 import { now } from "#shared/core/paths.ts";
+import {
+  detailsFlag,
+  nextAfter,
+  reporter,
+  saysOf,
+  shortPath,
+  takeDetails,
+} from "#shared/core/report.ts";
 import {
   suppliedFolders,
   writesSemicolons,
@@ -27,7 +36,7 @@ import {
   stampsDir,
   writeJob,
 } from "./job.ts";
-import { judge } from "./judge.ts";
+import { judge, says } from "./judge.ts";
 import { observe } from "./observe.ts";
 
 // The commands for 06.1. `setup` makes a new job and says where its files
@@ -99,9 +108,6 @@ async function guestSemicolons(guestRoot: string, starterRoot: string) {
   );
   return writesSemicolons(sources);
 }
-
-const indent = (text: string) =>
-  text.split("\n").map((line) => `      ${line}`);
 
 export function splitExercise(
   opts: { readonly id: string; readonly title: string },
@@ -205,30 +211,52 @@ export function splitExercise(
       },
 
       /** The done check: PASS only when every claim holds. */
-      async done(ctx) {
-        const job = await loadJob(ctx);
+      async done(ctx, args) {
+        const r = reporter(out, {
+          id: opts.id,
+          title: opts.title,
+          command: `${ex("done")} ${detailsFlag}`,
+          details: takeDetails(args).details,
+        });
+        const job = await readJob(ctx.stateDir);
         if (job === null) {
+          // No job: setup hasn't run, and there's nothing to check.
+          r.header();
+          r.line("");
+          r.notStarted(ex("setup"));
           return 1;
         }
         if (!existsSync(job.guestRoot)) {
           err(`${job.guestRoot} is gone. Run ${ex("setup")} again.`);
           return 1;
         }
+        r.header(`checking ${shortPath(job.guestRoot)}`);
+        r.line("");
         const stamps = await readStamps(ctx.stateDir, job.jobId);
-        const claims = [
+        const claims: readonly CommitClaim[] = [
           ...judge(await observe(job, stamps)),
-          await deps.commit(ctx),
+          await r.during(
+            "Checking the step's commit with your commit hooks...",
+            () => deps.commit(ctx)
+          ),
         ];
         for (const claim of claims) {
-          out(`${claim.ok ? "PASS" : "FAIL"}  ${claim.name}`);
-          indent(claim.detail).forEach((line) => out(line));
+          r.check(
+            claim.ok ? "PASS" : "FAIL",
+            saysOf({ ...says, ...commitSays }, claim),
+            claim.detail,
+            claim.fix
+          );
         }
         const ok = claims.every((c) => c.ok);
-        out(
-          ok
-            ? "Done: three workers in their own copies, the broken part turned down, its work kept, and the step committed."
-            : "Not done yet."
-        );
+        if (ok) {
+          r.done(
+            "Done: three workers in their own copies, the broken part turned down, its work kept, and the step committed.",
+            nextAfter(opts.id)
+          );
+        } else {
+          r.notDone();
+        }
         return ok ? 0 : 1;
       },
     },

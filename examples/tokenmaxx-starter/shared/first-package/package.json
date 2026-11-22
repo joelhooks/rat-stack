@@ -1,0 +1,28 @@
+{
+  "name": "@tokenmaxx/first-package",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Piece 1's environment: the fence test and the fresh-Pi probe.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "exports": {
+    "./*": "./*"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.package.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "catalog:",
+    "@tokenmaxx/core": "workspace:*",
+    "@tokenmaxx/scripts": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

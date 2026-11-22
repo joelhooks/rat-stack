@@ -75,6 +75,7 @@ export const remoteIntakeErasureLayer = (baseUrl: string) =>
             }),
             Effect.provide(Logger.layer([])),
             Effect.catchCause(() =>
+              // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Operator HTTP failures may contain bearer headers or private application details; the CLI error stays opaque.
               Effect.fail(new IntakeApplicationsUnavailable({}))
             )
           ),
@@ -104,6 +105,7 @@ export const intakeEraseCommand = Command.make(
         Console.error(
           "Erasure unavailable. Check the base URL and INTEREST_OPERATOR_TOKEN."
         ).pipe(
+          // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Erasure failures must not leak operator credentials or application data after the fixed recovery message.
           Effect.andThen(Effect.fail(new IntakeApplicationsUnavailable({})))
         )
       )

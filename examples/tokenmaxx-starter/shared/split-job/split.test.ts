@@ -102,7 +102,11 @@ describe("06.1 setup and the worker", () => {
     const state = join(scratch, "usage-state");
     expect(runWorker(guest, state, "a").stderr).toMatch(/No split job/);
     const { run } = exerciseFor(guest, state);
-    expect((await run("done")).lines.join("\n")).toMatch(/No split job yet/);
+    const none = await run("done");
+    expect(none.code).toBe(1);
+    expect(none.lines.at(-1)).toBe(
+      "Not started. Start it with: pnpm ex 06.1 setup"
+    );
     await run("setup");
     expect(runWorker(guest, state, "z").code).toBe(2);
     expect(runWorker(guest, state).stderr).toMatch(/Parts: a, b, c/);

@@ -1,6 +1,6 @@
 {
   "name": "tokenmaxx-starter",
-  "version": "0.1.0",
+  "version": "0.4.3",
   "private": true,
   "description": "Tokenmaxx workshop starter: build your own agent factory, one piece at a time.",
   "license": "MIT",
@@ -13,24 +13,30 @@
     "pi": "node scripts/pi.ts",
     "check:pi": "node scripts/check-pi.ts",
     "offline:prepare": "node scripts/offline-prepare.ts",
-    "test": "vitest run --config vitest.config.ts --maxWorkers=4",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "oxlint shared scripts exercises vitest.config.ts vitest.exercise.config.ts && oxfmt --check shared scripts exercises vitest.config.ts vitest.exercise.config.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
-    "format": "oxfmt shared scripts exercises vitest.config.ts vitest.exercise.config.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
-    "check": "pnpm typecheck && pnpm lint && pnpm test"
+    "check": "TURBO_TELEMETRY_DISABLED=1 turbo run --continue=dependencies-successful typecheck typecheck:root lint:root history:root test",
+    "typecheck": "TURBO_TELEMETRY_DISABLED=1 turbo run --continue=dependencies-successful typecheck typecheck:root",
+    "lint": "TURBO_TELEMETRY_DISABLED=1 turbo run --continue=dependencies-successful lint:root",
+    "test": "TURBO_TELEMETRY_DISABLED=1 turbo run --continue=dependencies-successful test",
+    "format": "oxfmt shared scripts exercises vitest.config.ts vitest.exercise.config.ts vitest.package.ts vitest.setup.ts package.json turbo.json tsconfig.json tsconfig.base.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
+    "typecheck:root": "tsc --noEmit -p tsconfig.json",
+    "lint:root": "oxlint shared scripts exercises vitest.config.ts vitest.exercise.config.ts vitest.package.ts vitest.setup.ts && oxfmt --check shared scripts exercises vitest.config.ts vitest.exercise.config.ts vitest.package.ts vitest.setup.ts package.json turbo.json tsconfig.json tsconfig.base.json .oxlintrc.json .oxfmtrc.json .pi/settings.json README.md AGENTS.md CONTRIBUTING.md PROVENANCE.md",
+    "prepare": "node scripts/install-hooks.ts",
+    "starter:history": "node scripts/starter-history.ts",
+    "history:root": "node scripts/starter-history.ts --check"
   },
   "dependencies": {
-    "effect": "4.1.4"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@earendil-works/pi-ai": "1.5.2",
-    "@earendil-works/pi-coding-agent": "1.5.2",
-    "@types/node": "24.19.2",
+    "@earendil-works/pi-coding-agent": "catalog:",
+    "@types/node": "catalog:",
     "oxfmt": "0.73.0",
     "oxlint": "1.88.0",
-    "typebox": "1.3.27",
-    "typescript": "7.0.2",
-    "vitest": "5.0.5"
+    "turbo": "2.11.11",
+    "typebox": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=24.18.0"

@@ -54,11 +54,14 @@ sources:
 The fence is the compiler checks, lint rules, and hooks that reject prohibited code and shortcuts. [The fence](/lore/the-fence) explains the idea.
 Effect describes work with typed failures and required services. A service is a named interface for one job.
 
-XState `6.0.0-beta.1` defines state machines: named states and the events that permit movement between them.
-`@xstate/effect` `1.0.0-beta.0` runs them as scoped Effects and supplies the compiled inline-Effect lint rule.
+XState `6.0.0-beta.3` defines state machines: named states and the events that permit movement between them.
+`@xstate/effect` `1.0.0-beta.2` runs them as scoped Effects and supplies the compiled inline-Effect lint rule.
 These checks enforce it today:
 
 - Type-aware Oxlint runs Ultracite's core rules and the repo's plugins in `scripts/oxlint-plugin-*.ts`. The plugins cover boundaries, patterns, no comments, Effect tests, and XState with Effect. Vendored anti-slop rules also run. All use `error` severity in `oxlint.config.ts`.
+- Landmines rules flag awaited promise timers, timer imports, `Bun.sleep`, and `scheduler.wait` in recognized test and hook callbacks. A local fake clock can exempt a promise timer. `Effect.sleep` in `it.live` and Alchemy's `test.provider` also warns. `it.effect` uses `TestClock` and does not match that check.
+- The poll rule rejects `expect.poll` and `vi.waitFor` on recognized spy matchers and recorder reads. The `eventually` helper in `apps/site/test/fixtures/flag-ledger-client.ts` checks bounded, observable state in real workerd and stays allowed.
+- Runner `retry` options and Effect's `flakyTest` fail lint. `retry: 0` passes. Explicit test timeouts and Vitest config `testTimeout` and `hookTimeout` warn. The rules trace calls to their runner imports. Property-test inputs and unrelated `test:` objects do not match.
 - `rat-stack-boundaries/no-core-adapters` keeps provider adapters out of core. An adapter implements an application-owned interface for a specific provider.
 - Ports, interfaces named for application jobs, stay in core. [Fixture tests](https://github.com/joelhooks/rat-stack/blob/main/packages/core/test/boundaries-rule.test.ts) prove the import boundary.
 - Effect language-service diagnostics, compiler messages about Effect code, are set to `error` in `tsconfig.base.json`. `effect-tsgo patch` runs in `prepare`, so both `tsc` and the editor report failures.
@@ -83,11 +86,14 @@ These checks enforce it today:
 - Every lint or diagnostic override names its rule and gives a reason.
 - Prefer fewer overrides; adding one is allowed with a one-line reason in the PR. The [debt ledger](/debt.md), a report counting lint and diagnostic exceptions, publishes the count by kind.
 - A new lint rule ships with a test that runs real Oxlint against fixtures.
+- The tracked Landmines baseline needs a reason for each fixed sleep and timeout. Remove an entry when its finding disappears. CI checks the PR base so a new or changed budget needs its own reason.
+- The check detects literal increases and changes through simple local constants. It does not evaluate values from imports or runtime settings.
 - Loosening any of this needs the owner's sign-off.
 
 ## How to check
 
 - `pnpm turbo run check test build` runs the main gate.
+- `pnpm check:landmines` compares current Oxlint warnings with `tools/oxlint/landmines/baseline.json`.
 - `pnpm typecheck` runs strict effect-tsrs diagnostics.
 - `pnpm typecheck:tsc` runs the patched compiler.
 - `pnpm typecheck:parity` compares checker errors and exit verdicts. `pnpm bump:checkers` runs it on every bump.

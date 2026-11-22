@@ -174,8 +174,9 @@ const promptApproval = (description: string) =>
   Layer.effect(
     Approval,
     Effect.gen(function* captureApprovalPrompt() {
-      // @effect-diagnostics-next-line unstableApiUsage:off -- The CLI projection uses the workspace-pinned experimental prompt environment.
-      const environment = yield* Effect.context<Prompt.Environment>();
+      const environment =
+        // @effect-diagnostics-next-line unstableApiUsage:off -- The CLI projection uses the workspace-pinned experimental prompt environment.
+        yield* Effect.context<Prompt.Environment>();
 
       return Approval.of({
         approve: Effect.fn("Cli.approve")(function* approve(
@@ -191,6 +192,7 @@ const promptApproval = (description: string) =>
           const approved = yield* Prompt.run(prompt).pipe(
             Effect.mapError(
               () =>
+                // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Prompt.run maps input failures to an empty QuitError; approval failures keep fixed recovery text, not prompt details.
                 new ApprovalDenied({
                   capabilityName,
                   reason:

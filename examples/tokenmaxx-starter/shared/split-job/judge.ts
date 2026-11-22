@@ -10,6 +10,8 @@ export type Claim = {
   readonly name: string;
   readonly ok: boolean;
   readonly detail: string;
+  /** What `done` prints for this case, when it's more than the name says. */
+  readonly says?: string;
 };
 
 export const claimNames = {
@@ -20,8 +22,38 @@ export const claimNames = {
   kept: "part c's work was kept when its worker closed",
 } as const;
 
+/** What `done` prints for each check when the case adds nothing. */
+export const says = {
+  [claimNames.copies]: {
+    yes: "Each part was done by a worker in its own copy.",
+    no: "Not every part was done by a worker in its own copy.",
+  },
+  [claimNames.owned]: {
+    yes: "No worker changed another part's file.",
+    no: "A worker changed another part's file.",
+  },
+  [claimNames.merged]: {
+    yes: "Parts a and b are in your repo.",
+    no: "Parts a and b aren't both in your repo as their workers left them.",
+  },
+  [claimNames.refused]: {
+    yes: "Part c, reported done, was turned down.",
+    no: "Part c, reported done, got into your repo.",
+  },
+  [claimNames.kept]: {
+    yes: "Part c's work was kept when its worker closed.",
+    no: "Part c's work was lost when its worker closed.",
+  },
+};
+
 const byPart = (stamps: readonly SeenStamp[], part: PartId) =>
   stamps.filter((s) => s.part === part);
+
+/** `a`, `a or b`, `a, b or c`. */
+const orList = (ids: readonly string[]) =>
+  ids.length <= 1
+    ? ids.join("")
+    : `${ids.slice(0, -1).join(", ")} or ${ids.at(-1) ?? ""}`;
 
 const stampHint = "each worker's last step is the stamp command in the job";
 
@@ -32,7 +64,8 @@ function copies(facts: Facts): Claim {
     return {
       name,
       ok: false,
-      detail: `No worker stamped part ${missing.join(", ")}: ${stampHint}.`,
+      says: `No worker has stamped part ${orList(missing)} yet.`,
+      detail: `No worker stamped part ${orList(missing)}: ${stampHint}.`,
     };
   }
   const problems: string[] = [];
@@ -84,7 +117,12 @@ const changedBy = (facts: Facts, stamp: SeenStamp) =>
 function owned(facts: Facts): Claim {
   const name = claimNames.owned;
   if (facts.stamps.length === 0) {
-    return { name, ok: false, detail: `No stamps yet: ${stampHint}.` };
+    return {
+      name,
+      ok: false,
+      says: "No worker has stamped a part yet.",
+      detail: `No stamps yet: ${stampHint}.`,
+    };
   }
   const problems: string[] = [];
   for (const stamp of facts.stamps) {
@@ -146,7 +184,12 @@ function refused(facts: Facts): Claim {
   const job = facts.job;
   const blobs = liarBlobs(job, facts.stamps);
   if (blobs.length === 0) {
-    return { name, ok: false, detail: noLiar(job) };
+    return {
+      name,
+      ok: false,
+      says: "No worker has reported part c done yet.",
+      detail: noLiar(job),
+    };
   }
   const path = ownedPath(job, "c");
   const reached: string[] = [];
@@ -181,13 +224,20 @@ function kept(facts: Facts): Claim {
   const job = facts.job;
   const liars = facts.stamps.filter((s) => s.scripted && s.part === "c");
   if (liars.length === 0) {
-    return { name, ok: false, detail: noLiar(job) };
+    // The line above says why; this one adds nothing to paste.
+    return {
+      name,
+      ok: false,
+      says: "Part c has no worker yet, so there's no closing to check.",
+      detail: "",
+    };
   }
   const open = [...new Set(liars.filter((s) => s.open).map((s) => s.copyRoot))];
   if (open.length > 0) {
     return {
       name,
       ok: false,
+      says: "Part c's worker hasn't been closed yet.",
       detail: `Part c's worker hasn't been closed: its copy is still at ${open.join(", ")}. Close it the way your boss closes workers, then check again.`,
     };
   }

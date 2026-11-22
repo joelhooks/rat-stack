@@ -5,6 +5,7 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import { acceptsHtml } from "./negotiation.js";
 import { readerContentSecurityPolicy, secureResponse } from "./security.js";
 import type { AssetBinding } from "./static-assets.js";
+import { isTubeVideoPath, tubeRedirectPath } from "./tube-routes.js";
 
 export const readerWebsiteAssetPrefixes: readonly string[] = [
   "/assets/",
@@ -28,6 +29,7 @@ export const readerWebsiteRoutes: readonly string[] = [
   "/log",
   "/log.md",
   "/pins.md",
+  "/resources/bombadil-ui-property-tests",
   "/resources/effect-4-reference-projects",
   "/resources/lint-rule-limits",
   "/resources/peers",
@@ -58,6 +60,7 @@ export const isReaderWebsiteRoute = (
   pathname: string,
   routes: readonly string[] = readerWebsiteRoutes
 ): boolean =>
+  (routes.includes("/tube") && isTubeVideoPath(pathname)) ||
   routes.some((route) =>
     route.endsWith("/*")
       ? pathname.startsWith(route.slice(0, -1))
@@ -112,7 +115,25 @@ export const withReaderWebsite =
   ) =>
     Effect.gen(function* routeReaderWebsite() {
       const request = yield* HttpServerRequest.HttpServerRequest;
-      const { pathname } = new URL(request.originalUrl, "https://ratstack.sh");
+
+      const { pathname, search } = new URL(
+        request.originalUrl,
+        "https://ratstack.sh"
+      );
+
+      const redirect = routes.includes("/tube")
+        ? tubeRedirectPath(pathname)
+        : undefined;
+
+      if (redirect !== undefined) {
+        return secureResponse(
+          HttpServerResponse.empty({
+            status: 301,
+            headers: { location: `${redirect}${search}` },
+          }),
+          readerContentSecurityPolicy
+        );
+      }
 
       const target = readerWebsiteTarget(
         pathname,

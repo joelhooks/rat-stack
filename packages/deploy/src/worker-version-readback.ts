@@ -98,6 +98,7 @@ export const readWorkerVersionSet = Effect.fn("readWorkerVersionSet")(
       ).pipe(
         Effect.mapError(
           () =>
+            // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Provider attributes can contain deployment secrets; the operator failure exposes only the fixed worker-name diagnostic.
             new DeployStepError({
               keys: [],
               reason: "worker-readback-name-invalid",

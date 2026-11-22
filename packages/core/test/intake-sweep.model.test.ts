@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
+import { Clock, Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 import { TestClock } from "effect/testing";
 
@@ -105,7 +105,13 @@ const makeWorld = Effect.fnUntraced(function* makeWorld(
           Duration.millis((answer?.latencySeconds ?? 0) * 1000 + 1)
         );
 
-        return answer?.outcome ?? ({ kind: "accepted" } as const);
+        const outcome = answer?.outcome ?? ({ kind: "accepted" } as const);
+
+        if (outcome.kind !== "retry") {
+          tracker.acceptedAt ??= tracker.sent.length;
+        }
+
+        return outcome;
       }),
     },
     submit: () => Effect.die("person intake must not run"),
@@ -116,12 +122,18 @@ const makeWorld = Effect.fnUntraced(function* makeWorld(
 
   const guardedContacts = Layer.succeed(JoinContactStore, {
     ...stored,
-    erase: (id) =>
-      Effect.flatMap(Ref.get(tombstones), (written) =>
-        written === 0
-          ? Effect.die("contact removed before its event tombstone")
-          : stored.erase(id)
-      ),
+    completeErasure: (id) =>
+      Effect.gen(function* guardExplicitErase() {
+        const written = yield* Ref.get(tombstones);
+
+        if (written === 0) {
+          return yield* Effect.die(
+            "erase marker removed before its event tombstone"
+          );
+        }
+
+        return yield* stored.completeErasure(id);
+      }),
   });
 
   const services = yield* Layer.build(
@@ -201,7 +213,11 @@ const deliveryInFlight = Effect.fnUntraced(function* deliveryInFlight(
 
   yield* TestClock.adjust(Duration.millis(step.eraseAfterMillis));
   yield* Ref.set(world.basinDown, step.basinDown);
-  tracker.eraseRequestedAt ??= tracker.sent.length;
+
+  if ((yield* world.contacts.read(submissionId)) !== undefined) {
+    tracker.eraseRequestedAt ??= tracker.sent.length;
+  }
+
   yield* world.erase;
   yield* Fiber.join(fiber);
 });
@@ -214,7 +230,10 @@ const runStep = Effect.fnUntraced(function* runStep(
   if (step.kind === "basin") {
     yield* Ref.set(world.basinDown, step.down);
   } else if (step.kind === "erase") {
-    tracker.eraseRequestedAt ??= tracker.sent.length;
+    if ((yield* world.contacts.read(submissionId)) !== undefined) {
+      tracker.eraseRequestedAt ??= tracker.sent.length;
+    }
+
     yield* world.erase;
   } else if (step.kind === "sweep") {
     yield* world.sweep;
@@ -247,6 +266,14 @@ const expectRecovered = Effect.fnUntraced(function* expectRecovered(
   tracker: Tracker
 ) {
   yield* Ref.set(world.basinDown, false);
+  const parked = yield* world.contacts.read(submissionId);
+
+  if (parked?.retryAt !== undefined) {
+    yield* TestClock.adjust(
+      Math.max(0, parked.retryAt - (yield* Clock.currentTimeMillis))
+    );
+  }
+
   const sentBeforeRecovery = tracker.sent.length;
   yield* world.sweep;
 
@@ -257,8 +284,9 @@ const expectRecovered = Effect.fnUntraced(function* expectRecovered(
       settled?.state === "ready" ? "delivery" : undefined
     );
     expect(
-      settled !== undefined &&
-        (settled.state !== "ready" || tracker.sent.length > sentBeforeRecovery)
+      settled === undefined ||
+        settled.state !== "ready" ||
+        tracker.sent.length > sentBeforeRecovery
     ).toBe(true);
   } else {
     expect(settled).toBeUndefined();
@@ -273,7 +301,7 @@ const expectRecovered = Effect.fnUntraced(function* expectRecovered(
 });
 
 it.effect.prop(
-  "the sweep finishes every pending delivery or erase; erase wins, tombstones land first, and nothing is sent after erase or acceptance",
+  "the sweep finishes pending work; sealed data goes first, erase markers survive until tombstones, and intake stops after erase or acceptance",
   {
     answers: Arbitrary.array(Arbitrary.schema(AnswerSchema), { maxLength: 8 }),
     steps: Arbitrary.array(Arbitrary.schema(StepSchema), {

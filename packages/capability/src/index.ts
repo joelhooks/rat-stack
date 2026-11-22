@@ -82,6 +82,8 @@ export { ExecuteError, ExecuteFailure } from "./execute-error.js";
 
 export { toCommand, type ToCommandOptions } from "./to-command.js";
 
+export { wireFailureSchema } from "./wire-failure.js";
+
 export {
   GROUP as HTTP_API_GROUP,
   toHttpApi,

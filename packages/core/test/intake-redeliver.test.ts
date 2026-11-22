@@ -23,11 +23,28 @@ const Entry = Schema.Struct({
   ]),
 });
 
+const storedStateAfterAttempt = (
+  canSend: boolean,
+  dryRun: boolean,
+  result: typeof Entry.Type.result,
+  state: string | undefined
+) => (canSend && !dryRun && result !== "retry" ? "missing" : state);
+
 const visitedCount = (length: number, dryRun: boolean, stop: number) =>
   dryRun || stop === -1 ? length : stop + 1;
 
+const eligibleEntry = (
+  entry: typeof Entry.Type,
+  includeRefused: boolean,
+  releaseHeld: boolean
+) =>
+  (!entry.hold || releaseHeld) &&
+  (entry.state === "ready" ||
+    entry.state === "held" ||
+    (includeRefused && entry.state === "refused"));
+
 it.effect.prop(
-  "redelivery sends only unheld ready contacts in order and stops at the first non-accepted outcome",
+  "redelivery releases held contacts only with abuse-hold approval, sends eligible contacts in order and stops at the first non-accepted outcome",
   {
     dryRun: Arbitrary.schema(Schema.Boolean),
     entries: Arbitrary.array(Arbitrary.schema(Entry), {
@@ -35,12 +52,13 @@ it.effect.prop(
       minLength: 1,
     }),
     includeRefused: Arbitrary.schema(Schema.Boolean),
+    releaseHeld: Arbitrary.schema(Schema.Boolean),
   },
-  ({ dryRun, entries, includeRefused }) =>
+  ({ dryRun, entries, includeRefused, releaseHeld }) =>
     Effect.gen(function* verifyRedelivery() {
       const contacts = yield* JoinContactStore;
       const sent: AgentIntakeRequest[] = [];
-      const eligibleStates = includeRefused ? ["ready", "refused"] : ["ready"];
+
       const ids = entries.map((_entry, index) => `synthetic-${index}`);
 
       const outcomes = new Map(
@@ -89,7 +107,7 @@ it.effect.prop(
       });
 
       const result = yield* intakeRedeliver
-        .handler({ dryRun, includeRefused, submissionIds: ids })
+        .handler({ dryRun, includeRefused, releaseHeld, submissionIds: ids })
         .pipe(
           Effect.provide(
             IntakeRedeliver.layer.pipe(
@@ -105,8 +123,7 @@ it.effect.prop(
 
       const stop = entries.findIndex(
         (entry) =>
-          !eligibleStates.includes(entry.state) ||
-          entry.hold ||
+          !eligibleEntry(entry, includeRefused, releaseHeld) ||
           entry.result !== "accepted"
       );
 
@@ -114,7 +131,7 @@ it.effect.prop(
       const attempted = entries.slice(0, count);
 
       const eligible = attempted.flatMap((entry, index) =>
-        !dryRun && eligibleStates.includes(entry.state) && !entry.hold
+        !dryRun && eligibleEntry(entry, includeRefused, releaseHeld)
           ? [ids[index]]
           : []
       );
@@ -126,7 +143,7 @@ it.effect.prop(
       for (const [index, entry] of attempted.entries()) {
         const row = result.rows[index];
 
-        const canSend = eligibleStates.includes(entry.state) && !entry.hold;
+        const canSend = eligibleEntry(entry, includeRefused, releaseHeld);
 
         const state = entry.state === "erased" ? "missing" : entry.state;
 
@@ -138,6 +155,10 @@ it.effect.prop(
 
         const sendOutcome = dryRun ? "would_send" : entry.result;
         expect(row).toEqual({
+          hold:
+            entry.state === "missing" || entry.state === "erased"
+              ? null
+              : entry.hold,
           outcome: canSend ? sendOutcome : "skipped",
           previousState: state,
           state: canSend && !dryRun ? deliveredState[entry.result] : state,
@@ -145,14 +166,18 @@ it.effect.prop(
         });
         expect(
           (yield* contacts.read(ids[index] ?? "missing"))?.state ?? "missing"
-        ).toBe(row?.state);
+        ).toBe(
+          storedStateAfterAttempt(canSend, dryRun, entry.result, row?.state)
+        );
       }
 
       expect(
         sent.every(
           (input) =>
             input.agentRef === "synthetic-agent" &&
-            input.ticket === "synthetic-ticket"
+            input.hold === false &&
+            input.ticket === undefined &&
+            input.signals === undefined
         )
       ).toBe(true);
       expect(JSON.stringify(result)).not.toContain("fictional@example.test");

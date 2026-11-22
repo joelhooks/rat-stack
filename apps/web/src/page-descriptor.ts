@@ -1,5 +1,17 @@
 import { Schema } from "effect";
 
+export const ReaderVideoMetadata = Schema.Struct({
+  "@context": Schema.Literal("https://schema.org"),
+  "@type": Schema.Literal("VideoObject"),
+  description: Schema.String,
+  duration: Schema.String,
+  embedUrl: Schema.String,
+  name: Schema.String,
+  thumbnailUrl: Schema.String,
+  uploadDate: Schema.String,
+  url: Schema.String,
+});
+
 export const ReaderMetadata = Schema.Struct({
   canonicalPath: Schema.String,
   dateModified: Schema.optional(Schema.String),
@@ -16,6 +28,7 @@ export const ReaderMetadata = Schema.Struct({
   ogImagePath: Schema.String,
   robots: Schema.Literals(["index", "noindex"]),
   title: Schema.String,
+  video: Schema.optional(ReaderVideoMetadata),
 });
 
 export const ReaderRoute = Schema.Struct({

@@ -1,0 +1,55 @@
+---
+id: "02.1"
+section: "loop"
+title: "02.1 Wake me when it's done"
+status: published
+---
+
+# 02.1 Wake me when it's done
+
+## The problem
+
+You give your agent a job that takes a while. It starts the job, its turn ends, and it stops. Nothing brings it back when the job finishes, so you sit there asking "done yet?". We want the agent to find out on its own, use the result once, and tell you.
+
+## The environment
+
+A job that takes a few minutes and finishes at a time nobody is told: not you, and not your agent. Start Pi with `pnpm pi --exercise 02.1`.
+
+```sh
+pnpm ex 02.1 setup               # reset the job
+pnpm ex 02.1 start               # start a run; it finishes on its own later
+pnpm ex 02.1 status              # the current run, result.json, and what was consumed
+pnpm ex 02.1 consume <resultId>  # use a result
+pnpm ex 02.1 release             # finish the current run now, from any terminal
+```
+
+A finished run publishes a result with an ID like `res_…`.
+
+Building this takes your agent about 15 minutes, so a long quiet stretch doesn't mean it hung.
+
+Your agent can practise without touching your real run. Put `TMX_STATE_DIR=<a scratch folder>` in front of any command above and it works on a separate copy of the job. Put `TMX_TEST_WITHIN_MINUTES=0.5` in front of `start` as well, and that run finishes on its own within 30 seconds; `done` never counts such a run. `done` counts only Pis you start with `pnpm pi`.
+
+When your agent adds or changes a Pi extension, `/reload` loads it into the Pi you have open, without a restart.
+
+## Done when
+
+`pnpm ex 02.1 done` shows `PASS` on all four lines:
+
+- the current run finished;
+- its result was consumed exactly once;
+- no stale result was consumed: nothing from a run before the current one;
+- this step's work is committed in your repo, and your commit hook passes it.
+
+Work committed before `setup` counts too, with a note, as long as nothing is left uncommitted; a commit your hook would refuse (made with `-n`) doesn't.
+
+Have your agent commit its work before it hands over to you.
+
+`pnpm ex 02.1 setup` starts over.
+
+Stretch: keep working with your agent while it waits.
+
+## From the last piece
+
+How Joel solved it for his workflow: [rat-stack](https://github.com/joelhooks/rat-stack). Behind? `pnpm ex 01.1 catch-up` switches on a starter package.
+
+In the group chat: what went wrong, and what would you do differently for your workflow?

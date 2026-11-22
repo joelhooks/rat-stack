@@ -1,0 +1,763 @@
+{
+  "apps/catalog/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for local SQLite catalog fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for catalog replay and SQLite projection reads."
+    }
+  ],
+  "apps/cli/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for spawned CLI and published package end-to-end checks."
+    }
+  ],
+  "apps/infra/test/retention.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "durable stage-owned resources destroy outside prod while shared production infrastructure retains"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for Alchemy to evaluate the resource retention model across generated stage and provider cases."
+    }
+  ],
+  "apps/infra/test/website-build.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "Alchemy selects the reader and RpcBackend evaluates without import.meta.url to serve native RPC"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for Alchemy to build the website and load RpcBackend before exercising native RPC."
+    }
+  ],
+  "apps/site/test/code-mode-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "content code mode discovers callable names but cannot submit an application"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd startup and HTTP calls to the code-mode Worker."
+    }
+  ],
+  "apps/site/test/flag-control-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "a journal page without a flag name fails as listChanges and names no partition"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd deployment and an operator RPC with an invalid journal scope."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "an unreachable object becomes a storage failure naming the flag and the operation"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd deployment and a failed Durable Object binding call to return through the operator RPC."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "each operation reaches its own name and scope partition, and an omitted scope is the global partition"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for repeated workerd RPCs across isolated flag name and scope partitions."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "every declared failure the object raises reaches the operator with its own tag, flag, repair, and message"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd to return every planted Durable Object failure through its operator RPC."
+    }
+  ],
+  "apps/site/test/flag-ledger-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "a corrupt authoritative position fails reads and writes with its partition and is never overwritten"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd, deliberate storage corruption, and flag read/write RPCs."
+    },
+    {
+      "budget": [
+        "test",
+        ["a failed completion write leaves its attempt pending"],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd, a planted completion-write failure, and journal readback."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "a full page of pending markers re-arms the alarm until every marker projects"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for successive workerd alarm deliveries to project all pending markers."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "a mismatched completion or a corrupt attempt fails its journal page instead of being skipped"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd and two journal queries over deliberately damaged rows."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "a replica failure keeps the committed receipt pending, and redrive converges once KV recovers"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for a planted KV write failure, operator redrive, and replica convergence."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "committed positions follow an independent ladder model, and failed commits never manufacture receipts"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for workerd RPCs across generated flag lifecycles and planted commit failures."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "concurrent redrives never let an older projection clear a newer commit"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for concurrent workerd projection redrives and a committed-position readback."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "deployment-only flags refuse evidence and kills without advancing their position"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd to reject deployment-only flag updates and read back the journal."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "journal pages resume without loss or duplication and keep each attempt's own outcome"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for repeated workerd RPCs to record attempts, then reads all journal pages."
+    }
+  ],
+  "apps/site/test/flag-read-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "live replica reads override Config per scope and keep each flag's declared failure policy"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for scoped KV writes and live flag-reader RPCs, including planted replica failures."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "the live read layer lists its declared registry, reads unscoped flags from the global key, and ignores the replica for deployment-only flags"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for local KV and flag registry RPCs from workerd."
+    }
+  ],
+  "apps/site/test/git-snapshot-shallow.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "snapshot history guard",
+          "accepts a template child that fetched pinned sources shallowly and refuses a truncated clone"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for Git subprocesses to create fixtures, fetch pinned objects, and verify shallow-clone rejection."
+    }
+  ],
+  "apps/site/test/interest-capture-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["retired submissions never reach Durable Object storage"],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd startup, request capture, and the Durable Object storage inspection."
+    }
+  ],
+  "apps/site/test/interest-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["retired submissions never reach Durable Object storage"],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for the local Interest Worker to reject retired submissions and for persisted storage inspection."
+    }
+  ],
+  "apps/site/test/join-contact-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "the real Interest alarm deletes unreadable bytes without creating or clearing subject erasure requests"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for workerd to deliver the Interest alarm and for storage readback after cleanup."
+    }
+  ],
+  "apps/site/test/join-retention-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "oldest raw and wrapped legacy rows preview through real Worker RPCs and storage defects remain typed operator failures"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for a workerd deployment and Worker RPCs that read legacy and planted-fault rows."
+    }
+  ],
+  "apps/site/test/workshop-help-desk-runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "every page and filter returns each matching report exactly once, newest first, and the caps refuse the rest"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for workerd to file reports, run filtered page queries, and check capacity limits."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "the alarm deletes each report from storage once its retention ends, and re-arms for the next one"
+        ],
+        "timeout",
+        "120000"
+      ],
+      "reason": "Waits for two workerd retention alarms and reads the rows and alarm state after each delivery."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "the help desk follows an independent model of filing, answering, limits and newest-first pages"
+        ],
+        "timeout",
+        "300000"
+      ],
+      "reason": "Waits for generated report, answer, and page RPC sequences against workerd."
+    },
+    {
+      "budget": [
+        "sleep",
+        [
+          "the alarm deletes each report from storage once its retention ends, and re-arms for the next one"
+        ],
+        "Effect.sleep",
+        "1500 millis"
+      ],
+      "reason": "Staggers two real workerd expiry deadlines so the test can observe the first alarm re-arm for the second row."
+    }
+  ],
+  "apps/site/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for site fixture and child-process setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for content generation, Worker responses, and subprocess tests."
+    }
+  ],
+  "apps/site/vitest.runtime.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for workerd fixture startup and teardown."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for workerd startup and batched Worker and Durable Object requests."
+    }
+  ],
+  "apps/web/test/all-stars.seam.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["every seed profile renders as prerendered HTML"],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Builds the full reader site inputs, then renders every All Stars profile and the index."
+    }
+  ],
+  "apps/web/test/content-migration.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "the hand page renders its source Document in apps/web and preserves the complete old Markdown response"
+        ],
+        "timeout",
+        "60000"
+      ],
+      "reason": "Waits for the full hand-page render pipeline and Markdown response readback."
+    }
+  ],
+  "apps/web/test/dev-server.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["vite dev", "answers search and read over /rpc in process"],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for Vite’s first compile and the search and read RPC responses."
+    },
+    {
+      "budget": [
+        "test",
+        ["vite dev", "records /rpc calls for the devtools at /__rat/rpc"],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for Vite’s first compile, the RPC request, and the devtools call-log readback."
+    },
+    {
+      "budget": [
+        "test",
+        ["vite dev", "serves the search page"],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for Vite’s first on-demand compile and the HTTP response."
+    }
+  ],
+  "apps/web/test/production-bundle.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "production bundle",
+          "statically renders home and excludes server devtools from browser and Worker output"
+        ],
+        "timeout",
+        "180000"
+      ],
+      "reason": "Waits for the real Vite build and inspection of its emitted assets."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "production bundle",
+          "would contain them in a development build, so the checks can fail"
+        ],
+        "timeout",
+        "180000"
+      ],
+      "reason": "Waits for the Vite development build that proves the devtools detector can fail."
+    }
+  ],
+  "apps/web/test/reader-csp.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "the reader policy allows what built pages load and nothing they do not need"
+        ],
+        "timeout",
+        "60000"
+      ],
+      "reason": "Waits for built reader pages and their assets to be loaded for CSP checks."
+    }
+  ],
+  "apps/web/test/reader-systems-skills.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "ReaderSiteParity preserves every systems and skills main, table and deep link"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Builds the full reader site inputs, then renders and compares every systems and skills page."
+    }
+  ],
+  "apps/web/test/reader-worker-first-head.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "a worker-first reader page answers with its prerendered head and body"
+        ],
+        "timeout",
+        "60000"
+      ],
+      "reason": "Waits for built Worker entry loading, Worker responses, and prerendered HTML reads."
+    }
+  ],
+  "apps/web/test/tube.pages.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "a generated video page carries canonical, VideoObject, summary, concepts and the existing click-to-play player"
+        ],
+        "timeout",
+        "60000"
+      ],
+      "reason": "Waits for a generated video page to render and return its metadata and player."
+    }
+  ],
+  "packages/basin/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for Basin resource declaration and binding inspection."
+    }
+  ],
+  "packages/capability/test/execute-failure.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "generated programs succeed or fail consistently through HTTP, MCP, RPC, and CLI"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for generated programs to run through HTTP, MCP, RPC, and CLI."
+    }
+  ],
+  "packages/capability/test/sandbox-lifetime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox lifetime",
+          "bounds a synchronous infinite loop inside the child"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for a real sandbox child to terminate an infinite synchronous computation."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox lifetime",
+          "enforces a child-side wall clock without a caller"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for a real sandbox child to enforce its own deadline after the caller is gone."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox lifetime",
+          "escalates interruption and kills resistant descendants"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for an interrupted sandbox subprocess and its resistant descendants to exit."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox lifetime",
+          "escalates scope close and kills resistant descendants"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for scope release to terminate a real sandbox subprocess and its resistant descendants."
+    },
+    {
+      "budget": [
+        "test",
+        ["sandbox lifetime", "exits on stdin EOF"],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for a real sandbox subprocess to exit after its input closes."
+    },
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox lifetime",
+          "survives SIGKILL of its parent without an orphan"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for a real sandbox subprocess to exit after its parent receives SIGKILL."
+    }
+  ],
+  "packages/capability/test/sandbox-orphan.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "sandbox parent lifetime",
+          "`exits after SIGKILL of its parent while ${ name }`"
+        ],
+        "timeout",
+        "15000"
+      ],
+      "reason": "Waits for a real parent to announce its child, then for SIGKILL and orphan-exit observation."
+    }
+  ],
+  "packages/check-harness/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for gate harness fixture setup and finalization."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for check-runner output, scope, and verdict fixtures."
+    }
+  ],
+  "packages/code-snippets/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for Git fixture subprocesses and Shiki rendering."
+    }
+  ],
+  "packages/core/test/content-cache.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "content task cache",
+          "invalidates content readers, not unrelated root files"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for temporary Git and Turbo subprocesses to report content input changes."
+    }
+  ],
+  "packages/core/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for core lint and content fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for Oxlint and checker subprocesses, content-cache fixtures, and model runs."
+    }
+  ],
+  "packages/core/vitest.parity.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for the Effect and TypeScript checker subprocess pair for each workspace."
+    }
+  ],
+  "packages/crash/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for trace capture and archive fixture collection."
+    }
+  ],
+  "packages/database/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for local SQLite and PGlite fixture setup and release."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for SQLite and PGlite migrations, startup, and queries."
+    }
+  ],
+  "packages/deploy/test/schema-import.test.ts": [
+    {
+      "budget": [
+        "test",
+        ["no imported schema supplies a value for a key production must set"],
+        "timeout",
+        "60000"
+      ],
+      "reason": "Waits for source and configuration reads while checking every imported schema."
+    }
+  ],
+  "packages/deploy/test/script-exit-codes.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "deploy script exit codes",
+          "every production deploy script hands the driver's exit code to CD unchanged"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Waits for three shell and varlock subprocesses to return the planted driver exit status."
+    }
+  ],
+  "packages/deploy/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for deployment fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for deploy subprocesses, artifact readback, and state and polling models."
+    }
+  ],
+  "packages/events/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for generated capture, visitor, and request redaction cases."
+    }
+  ],
+  "packages/flags/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for flag transition and concurrent projection model runs."
+    }
+  ],
+  "packages/intake-live/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for intake encryption and storage fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for intake model runs, encryption, and mirrored event writes."
+    }
+  ],
+  "packages/learn/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for learning store fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for learning lifecycle models and local-store reads and writes."
+    }
+  ],
+  "packages/lore/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for lore graph fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for public source reads and lore graph traversal."
+    }
+  ],
+  "packages/motion/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for generated motion cases and vendored source checks."
+    }
+  ],
+  "packages/subscriber-delivery/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "hookTimeout", "30000"],
+      "reason": "Suite hook allowance for subscriber fixture setup and cleanup."
+    },
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for subscriber adapter delivery and timeout fixtures."
+    }
+  ],
+  "packages/turbo-cache/test/runtime.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "the installed cartridge preserves rat-stack resource identities and the credential handoff"
+        ],
+        "timeout",
+        "180000"
+      ],
+      "reason": "Waits for the installed Turbo cache cartridge to deploy locally and serve its credential handoffs."
+    }
+  ],
+  "packages/turbo-cache/vitest.config.ts": [
+    {
+      "budget": ["config", ["test"], "testTimeout", "30000"],
+      "reason": "Suite test allowance for the real workerd cache cartridge and its credential handoffs."
+    }
+  ]
+}

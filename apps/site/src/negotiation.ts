@@ -3,8 +3,10 @@ import type * as HttpServerRequest from "effect/http/HttpServerRequest";
 const previewCrawler =
   /(?:Twitterbot|facebookexternalhit|Facebot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|Bluesky|Mastodon|Pinterestbot|redditbot|Applebot)/iu;
 
+const htmlOnlyFetcher = /(?:Google|Gemini)/u;
+
 const agentCrawler =
-  /(?:GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|PerplexityBot|Perplexity-User|Google-Extended|CCBot|Bytespider|Amazonbot|cohere-ai|Meta-ExternalAgent|MistralAI-User|DuckAssistBot|Applebot-Extended)/iu;
+  /(?:GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|PerplexityBot|Perplexity-User|CCBot|Bytespider|Amazonbot|cohere-ai|Meta-ExternalAgent|MistralAI-User|DuckAssistBot|Applebot-Extended)/iu;
 
 export const acceptedMediaTypes = (accept: string | undefined) =>
   (accept ?? "")
@@ -34,7 +36,7 @@ export const acceptsHtml = (request: HttpServerRequest.HttpServerRequest) => {
 
   const userAgent = request.headers["user-agent"] ?? "";
 
-  if (previewCrawler.test(userAgent)) {
+  if (previewCrawler.test(userAgent) || htmlOnlyFetcher.test(userAgent)) {
     return true;
   }
 

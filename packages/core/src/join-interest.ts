@@ -134,7 +134,10 @@ export const joinInterest = {
 
 export {
   JoinContactStore,
+  JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
+  JoinContactUnreadable,
+  JoinErasureSchema,
   withPending,
   withState,
 } from "./join-contact-store.js";
@@ -143,11 +146,33 @@ export type {
   JoinContact,
   JoinContactPending,
   JoinContactState,
+  JoinErasure,
+  JoinRetentionGroup,
 } from "./join-contact-store.js";
 
 export { JoinRequest, joinIntakeLayer } from "./join-intake.js";
 
-export { JoinDeliveryDeadline } from "./join-delivery-machine.js";
+export {
+  JoinDeliveryDeadline,
+  runJoinDelivery,
+} from "./join-delivery-machine.js";
+
+export {
+  JOIN_RETENTION_DEFAULT_LIMIT,
+  JOIN_RETENTION_MAX_LIMIT,
+  JoinRetentionBackfill,
+  JoinRetentionCountsSchema,
+  JoinRetentionBackfillUnavailable,
+  JoinRetentionDiagnosticSchema,
+  JoinRetentionFailureResponseSchema,
+  joinRetentionBackfill,
+  joinRetentionBackfillContract,
+} from "./join-retention-backfill.js";
+
+export {
+  joinRetentionWalkMachine,
+  runJoinRetentionWalk,
+} from "./join-retention-walk.js";
 
 export { IntakeSweep, SWEEP_CONCURRENCY } from "./intake-sweep.js";
 

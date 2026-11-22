@@ -5,9 +5,9 @@ import { join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import type { ExerciseContext } from "../core/context.ts";
+import { type ExerciseContext, exerciseContext } from "../core/context.ts";
 import { pidAlive, readSessions } from "../core/sessions.ts";
-import { tempContext } from "../core/testing.ts";
+import { isolatedStarter } from "../core/testing.ts";
 import { cast } from "./cast.ts";
 import {
   descendants,
@@ -52,9 +52,10 @@ function messages(
     .map((entry) => entry.message as { role?: string });
 }
 
-// Five real Pis on the scripted model, through the real launcher. Pi's
-// session files go to a temp dir; the launcher's records go to the repo's
-// `.workshop-state/sessions/` and are removed when the set stops.
+// Five real Pis on the scripted model, through the real launcher, in a copy
+// of the starter (`isolatedStarter`), so the guest's own `.pi` here never
+// loads. Pi's session files go to a temp dir; the launcher's records go to
+// the copy's `.workshop-state/sessions/` and are removed when the set stops.
 describe("the environment's sessions (live, no model)", () => {
   let cleanup: () => Promise<void> = async () => undefined;
   let ctx: ExerciseContext;
@@ -64,9 +65,13 @@ describe("the environment's sessions (live, no model)", () => {
   const saved = { ...process.env };
 
   beforeAll(async () => {
-    const temp = await tempContext({ exerciseId: "05.1" });
-    ctx = temp.ctx;
-    stateDir = ctx.stateDir;
+    const starter = await isolatedStarter();
+    stateDir = await mkdtemp(join(tmpdir(), "tmx-05.1-state-"));
+    ctx = exerciseContext({
+      exerciseId: "05.1",
+      repoRoot: starter.root,
+      env: { TMX_STATE_DIR: stateDir },
+    });
     piDir = await mkdtemp(join(tmpdir(), "tmx-05.1-pi-"));
     process.env["PI_CODING_AGENT_SESSION_DIR"] = piDir;
     process.env["TMX_STATE_DIR"] = stateDir;
@@ -75,7 +80,8 @@ describe("the environment's sessions (live, no model)", () => {
     cleanup = async () => {
       await stopEnv(stateDir);
       process.env = saved;
-      await temp.cleanup();
+      await starter.cleanup();
+      await rm(stateDir, { recursive: true, force: true });
       await rm(piDir, { recursive: true, force: true });
     };
     const run = spawnHost(ctx, 120_000);

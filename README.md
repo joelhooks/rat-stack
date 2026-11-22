@@ -104,8 +104,8 @@ Code mode is another projection. The model gets `search` for ranked matches with
 - **TypeScript `7.0.2`**: strict module and index-access checks.
 - **`@yielded/effect-tsrs` `0.2.3`**: runs TypeScript and Effect diagnostics in `typecheck` and `check`. `--type-check` includes ordinary TypeScript diagnostics; `--strict` makes Effect warnings fail. It bundles tsrs `8f135f106a63`, contained in plain tsrs `0.20.0`.
 - **tsrs `0.25.0-ts7.1.0-beta`**: experimental compiler targeting TypeScript `7.1.0-beta` for `typecheck:fast`. It still has no Effect diagnostics; use `typecheck` or `check` for those.
-- **XState `6.0.0-beta.1`**: real lifecycle states; do not replace those with boolean soup.
-- **`@xstate/effect` `1.0.0-beta.0`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `createEffectLogic` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
+- **XState `6.0.0-beta.3`**: real lifecycle states; do not replace those with boolean soup.
+- **`@xstate/effect` `1.0.0-beta.2`**: the official XState v6 to Effect 4 bridge: `createEffectActor` runs a machine as a scoped Effect, `createEffectLogic` makes Effects into actors with typed failures and requirements. `packages/core/src/inspect-machine.ts` is the example.
 - **Alchemy `2.0.0-beta.87`**: [Infrastructure as Effects](https://alchemy.run): `apps/infra/alchemy.run.ts` is the Stack; cloud providers come from `@alchemy.run/cloudflare`, `@alchemy.run/drizzle`, and `@alchemy.run/sql`; `pnpm infra:plan` / `infra:deploy` / `infra:destroy`; auth via `pnpm alchemy profile edit`.
 - **Foldkit `0.170.0` + `@foldkit/vite-plugin` `0.29.0`**: the web UI. Server rendering and prerendering are on by default. One `vite build` writes the browser bundle, a server `fetch` function, and an HTML file for every public page. `Cloudflare.Website.Foldkit` serves the files and sends every other request to that function. The browser hydrates the same view. `.brain/areas/web.svx` is the system page.
 - **Oxlint + Ultracite + Oxfmt**: native lint and format.
@@ -136,6 +136,10 @@ Every dependency is pinned exactly. Review pin upgrades as stack changes.
 ### Measure the CI/CD loop
 
 Turbo and our `alchemy-turbo-cache` cartridge are core CI/CD infrastructure. Every CI/CD path must run build, check, and test work through Turbo and leave a run summary. Pass `--summarize` or set `TURBO_RUN_SUMMARY=true`. PR/main CI and the uncached nightly already enable summaries; deploy and local callers must currently enable them explicitly. Only trusted CI receives the writer token and signing key. Deploy, local and agent gates will take the read-only token (`pnpm turbo-cache:token --role reader`) with `TURBO_CACHE=remote:r`; see `packages/turbo-cache/README.md`. Consumer wiring is not implemented yet.
+
+Content generation caches its generated modules, document fences, content assets, reader source, and mentions report. Alchemy's local state and bundles are runtime artifacts, not source inputs. Root lint still waits for generation so a clean checkout has the generated modules.
+
+The flags compiler is cacheable. Its `check:expiry` prerequisite stays uncached and runs before every Turbo build that consumes flags, including check and test paths. Direct package builds keep the same check through `prebuild`. The check runs from typed source; TypeScript rewrites its relative `.ts` import when emitting the compiled entry.
 
 `pnpm turbo:summary --surface local` prints one JSON line per run. Use `pr`, `main`, or `nightly` for those surfaces. An optional directory replaces `.turbo/runs`; `--ref` supplies the current job's ref when Git checks out a detached head. Without it, each row keeps the summary's own Git branch and SHA.
 

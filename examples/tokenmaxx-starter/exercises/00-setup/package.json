@@ -1,0 +1,23 @@
+{
+  "name": "@tokenmaxx/ex-00-setup",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Exercises 00-setup: readmes, done checks and their tests.",
+  "type": "module",
+  "imports": {
+    "#shared/*": "@tokenmaxx/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tokenmaxx/core": "workspace:*",
+    "@tokenmaxx/scripts": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

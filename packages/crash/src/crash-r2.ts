@@ -31,7 +31,10 @@ export const crashArchiveLayer = <E, IdError>(
     record: Effect.fn("CrashArchive.record")(function* recordCrash(input) {
       const record = yield* Schema.decodeUnknownEffect(CrashRecordSchema)(
         input
-      ).pipe(Effect.mapError(() => new InvalidCrashTrace()));
+      ).pipe(
+        // oxlint-disable-next-line anti-slop-effect/require-cause-when-narrowing -- Rejected archive records may contain unredacted secrets and must not reach logs through a schema cause.
+        Effect.mapError(() => new InvalidCrashTrace())
+      );
 
       const instant =
         record.eventTime === null
@@ -41,11 +44,11 @@ export const crashArchiveLayer = <E, IdError>(
       const day = DateTime.formatIsoDate(instant);
 
       const id = yield* freshId.pipe(
-        Effect.mapError(() => new CrashArchiveError())
+        Effect.mapError((cause) => new CrashArchiveError({ cause }))
       );
 
       yield* write(`crashes/${day}/${id}.json`, JSON.stringify(record)).pipe(
-        Effect.mapError(() => new CrashArchiveError())
+        Effect.mapError((cause) => new CrashArchiveError({ cause }))
       );
     }),
   });

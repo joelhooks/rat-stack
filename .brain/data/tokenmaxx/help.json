@@ -1,0 +1,156 @@
+{
+  "rows": [
+    {
+      "steps": [1, 2],
+      "symptom": "On a Mac, `npx tiged …` fails with \"could not find commit hash\", or `git: command not found`.",
+      "fix": "The Mac has no git. Run `xcode-select --install`, accept the dialog, wait a few minutes, run the step again.",
+      "tested": true,
+      "keywords": [
+        "could not find commit hash",
+        "git: command not found",
+        "command not found: git",
+        "no git",
+        "xcode-select",
+        "tiged"
+      ]
+    },
+    {
+      "steps": [1],
+      "symptom": "pnpm is newer than 11.3.",
+      "fix": "Fine. Inside the `tokenmaxx` folder pnpm switches itself to the pinned 11.3.0.",
+      "tested": true,
+      "keywords": [
+        "pnpm is newer",
+        "newer pnpm",
+        "pnpm version",
+        "packagemanager",
+        "11.3",
+        "11.3.0"
+      ]
+    },
+    {
+      "steps": [2],
+      "symptom": "npm deprecation warnings or update notices during the download or install.",
+      "fix": "Harmless. Expect 175 files and an install of a few seconds.",
+      "tested": true,
+      "keywords": [
+        "deprecated",
+        "deprecation",
+        "npm warn",
+        "npm notice",
+        "update available",
+        "new major version"
+      ]
+    },
+    {
+      "steps": [3],
+      "symptom": "`herdr: command not found`, but `herdr-app` or `hc` exists.",
+      "fix": "The desktop app installer was used. Run `curl -fsSL https://herdr.dev/install.sh | sh`, which installs the `herdr` command. Both can stay installed.",
+      "tested": true,
+      "keywords": [
+        "herdr: command not found",
+        "command not found: herdr",
+        "herdr-app",
+        "hc",
+        "desktop app"
+      ]
+    },
+    {
+      "steps": [3],
+      "symptom": "`herdr: command not found` right after the install; the installer printed that `~/.local/bin` is not in your PATH.",
+      "fix": "Ask the person, add `export PATH=\"$HOME/.local/bin:$PATH\"` to their shell startup file (`~/.zshrc` on a Mac, which may not exist yet), open a new terminal, run `herdr --version`.",
+      "tested": true,
+      "keywords": [
+        "herdr: command not found",
+        "command not found: herdr",
+        ".local/bin",
+        "not in your path",
+        "path"
+      ]
+    },
+    {
+      "steps": [4],
+      "symptom": "In Pi, `/model` shows \"Use /login to add providers\".",
+      "fix": "Pi has no provider yet. The person runs `/login`, picks a provider, then `/model`.",
+      "tested": false,
+      "keywords": [
+        "use /login to add providers",
+        "add providers",
+        "/login",
+        "/model",
+        "no provider",
+        "provider"
+      ]
+    },
+    {
+      "steps": [4],
+      "symptom": "The person's models go through their own proxy or custom endpoint, and Pi's `/login` only offers a subscription or an API key.",
+      "fix": "`/login` has no custom endpoint. With the person's approval, add a provider entry to `~/.pi/agent/models.json` with the proxy's `baseUrl` and an `apiKey`, then pick the model with `/model`. Pi's provider documentation has the shape. Don't print the key.",
+      "tested": true,
+      "keywords": ["proxy", "baseurl", "custom endpoint", "cliproxyapi"]
+    },
+    {
+      "steps": [5],
+      "symptom": "The two-sessions line of `pnpm ex 00.1 check` fails.",
+      "fix": "The person's model account may allow only one session at a time. Tell them; it's a question for the workshop email.",
+      "tested": false,
+      "keywords": [
+        "two-sessions",
+        "two sessions",
+        "second session",
+        "one session",
+        "session limit",
+        "concurrent"
+      ]
+    },
+    {
+      "steps": [6],
+      "symptom": "No trust prompt on Pi's first start in the new empty folder.",
+      "fix": "Expected. The trust prompt comes after the restart.",
+      "tested": true,
+      "keywords": ["trust prompt", "no trust", "trust"]
+    },
+    {
+      "steps": [6],
+      "symptom": "Unsure whether step 0 is done.",
+      "fix": "It's done when `pnpm ex 01.1 done`, run at the new repo's root, shows `PASS` on its first check, \"A commit with a type error gets refused.\" It then prints `Done: the fence holds.` Notes and the stretch line never count.",
+      "tested": true,
+      "keywords": [
+        "step 0",
+        "01.1",
+        "is it done",
+        "fence holds",
+        "type-broken",
+        "stretch"
+      ]
+    },
+    {
+      "steps": [1, 2, 3, 4, 5, 6, 7],
+      "symptom": "Prompts copied out of an agent's terminal arrive wrapped and indented.",
+      "fix": "Copy them from `tokenmaxx/README.md`.",
+      "tested": false,
+      "keywords": [
+        "wrapped",
+        "indented",
+        "line breaks",
+        "copied prompt",
+        "pasted",
+        "paste"
+      ]
+    },
+    {
+      "steps": [2],
+      "symptom": "The first commit in `tokenmaxx/` takes about a minute, or install prints \"Commit hook on\".",
+      "fix": "Expected. The starter's commit hook, `.githooks/prepare-commit-msg`, runs `pnpm check` on every commit. The first run is cold and takes about a minute on a Mac; later commits are faster.",
+      "tested": true,
+      "keywords": [
+        "commit hook",
+        "prepare-commit-msg",
+        "slow commit",
+        "first commit",
+        "githooks",
+        "pnpm check"
+      ]
+    }
+  ]
+}

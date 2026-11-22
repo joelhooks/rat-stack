@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect, Predicate, Schema, Struct } from "effect";
 
 export const ConceptIdSchema = Schema.String.check(
   Schema.isPattern(/^[a-z0-9]+(?:[-.][a-z0-9]+)*$/u)
@@ -118,10 +118,39 @@ export const LearnContextSchema = Schema.Struct({
   terms: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
-export const PresentationSchema = Schema.Struct({
-  card: CardSchema,
-  depth: LearnDepthSchema,
-});
+const lineFields = Struct.pick(CardSchema.fields, [
+  "claim",
+  "id",
+  "kind",
+  "references",
+  "routePath",
+  "version",
+]);
+
+export const PresentationSchema = Schema.Union([
+  Schema.Struct({
+    card: Schema.Union([
+      Schema.Struct({ ...lineFields, plain: PlainLineSchema }),
+      Schema.Struct({
+        ...lineFields,
+        summary: CardSchema.fields.summary,
+      }).annotate({
+        description:
+          "Uses the original summary (at most 400 characters) only when the card has no plain line.",
+      }),
+    ]),
+    depth: Schema.Literal("line"),
+  }),
+  Schema.Struct({
+    card: Schema.Struct(Struct.omit(CardSchema.fields, ["diagram", "snippet"])),
+    depth: Schema.Literal("paragraph"),
+  }),
+  Schema.Struct({ card: CardSchema, depth: Schema.Literal("walkthrough") }),
+]).check(
+  Schema.makeFilter(Predicate.isReadonlyObject, {
+    toJsonSchema: () => ({ type: "object" }),
+  })
+);
 
 export const LearnSelectionSchema = Schema.Struct({
   cards: Schema.Array(PresentationSchema),
@@ -157,6 +186,7 @@ export class LearnError extends Schema.TaggedError<
   LearnError,
   { readonly brand: unique symbol }
 >()("LearnError", {
+  cause: Schema.optionalKey(Schema.Defect()),
   id: Schema.String,
   reason: Schema.String,
 }) {}

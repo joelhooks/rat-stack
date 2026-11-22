@@ -11,6 +11,7 @@ import * as TestClock from "effect/testing/TestClock";
 import { expect } from "vitest";
 
 import { Catalog, CatalogHandlers } from "../src/Catalog.model.ts";
+import { CatalogMemory } from "../src/Catalog/CatalogMemory.ts";
 import { Item } from "../src/Item/Item.aggregate.ts";
 import { ItemId } from "../src/Item/Item.id.ts";
 import { ItemHistory } from "../src/Item/ItemHistory.view.ts";
@@ -27,7 +28,7 @@ const observations = Schema.Array(
 ).check(Schema.isMinLength(1), Schema.isMaxLength(16));
 
 const world = Catalog.layer(CatalogHandlers).pipe(
-  Layer.provide(Domain.InMemory)
+  Layer.provide(Layer.mergeAll(Domain.InMemory, CatalogMemory))
 );
 
 it.effect.prop(

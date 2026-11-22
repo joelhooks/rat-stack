@@ -1,0 +1,13 @@
+#!/bin/sh
+# The floor: no commit without a green `pnpm check`.
+#
+# This is prepare-commit-msg, not pre-commit, on purpose: `git commit -n`
+# (`--no-verify`) skips pre-commit and commit-msg, but git always runs this one.
+#
+# A new git worktree of this repo (a worker's copy) has no node_modules yet:
+# scripts/hook-deps.ts installs them first, so its commits are checked too.
+node scripts/hook-deps.ts || exit 1
+if ! pnpm check; then
+  echo "Commit refused: pnpm check failed. Fix what it says, then commit again." >&2
+  exit 1
+fi

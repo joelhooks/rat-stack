@@ -32,6 +32,15 @@ afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 const repoRoot = findRepoRoot();
 const off = { extensions: [], skills: [], prompts: [], themes: [] };
 
+describe("the repo's own settings", () => {
+  it("declares the package 01.1's catch-up switches on", () => {
+    expect(readDeclared(repoRoot, startedPackage.source)).toMatchObject({
+      source: startedPackage.source,
+      commit: null,
+    });
+  });
+});
+
 describe("the catch-up archive", () => {
   it("round-trips files, byte for byte, and packs the same bytes twice", () => {
     const files = [

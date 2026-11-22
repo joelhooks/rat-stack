@@ -164,11 +164,11 @@ describe("the 04.1 commands", () => {
       },
     ]);
     const done = await run("done");
-    expect(done.text.match(/^PASS {2}/gm)).toHaveLength(4);
+    expect(done.text.match(/^PASS {5}/gm)).toHaveLength(4);
     expect(done.code).toBe(0);
     committed = false;
     const uncommitted = await run("done");
-    expect(uncommitted.text.match(/^FAIL {2}committed/gm)).toHaveLength(1);
+    expect(uncommitted.text.match(/^FAIL {5}committed/gm)).toHaveLength(1);
     expect(uncommitted.code).toBe(1);
   });
 
@@ -181,11 +181,17 @@ describe("the 04.1 commands", () => {
     );
   });
 
-  it("done fails cleanly with nothing done", async () => {
+  it("done fails cleanly with nothing done: one line, or every line with --details", async () => {
     const done = await run("done");
     expect(done.code).toBe(1);
-    expect(done.text.match(/^FAIL {2}/gm)).toHaveLength(3);
-    expect(done.text.match(/^PASS {2}committed/gm)).toHaveLength(1);
+    expect(done.text).toMatch(
+      /^Not started\. Start it with: pnpm ex 04\.1 setup$/m
+    );
+    expect(done.text).not.toMatch(/^(PASS|FAIL) /m);
+    const all = await run("done", ["--details"]);
+    expect(all.code).toBe(1);
+    expect(all.text.match(/^FAIL {5}/gm)).toHaveLength(3);
+    expect(all.text.match(/^PASS {5}committed/gm)).toHaveLength(1);
   });
 });
 

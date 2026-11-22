@@ -67,14 +67,13 @@ export const listChannels = implement(listChannelsContract, (query) =>
 export const readPerson = implement(readPersonContract, ({ id }) =>
   withData((people, data) => people.findCafePerson(data, id)).pipe(
     Effect.flatMap((found) =>
-      Effect.fromOption(found).pipe(
-        Effect.mapError(
-          () =>
-            new UnknownPerson({
-              id,
-              message: "Choose an id returned by listPeople or searchPeople.",
-            })
-        )
+      Effect.fromOption(
+        found,
+        () =>
+          new UnknownPerson({
+            id,
+            message: "Choose an id returned by listPeople or searchPeople.",
+          })
       )
     )
   )

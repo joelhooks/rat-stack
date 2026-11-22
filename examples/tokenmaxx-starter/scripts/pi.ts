@@ -1,9 +1,11 @@
 import { findRepoRoot } from "#shared/core/context.ts";
 
+import { ensureHooks } from "./lib/hooks.ts";
 import { launchPi, planLaunch } from "./lib/pi.ts";
 
 // pnpm pi [--role <name>] [--exercise <id>] [--fresh] [...pi args]
 const repoRoot = findRepoRoot();
+ensureHooks(repoRoot, (line) => console.error(line));
 try {
   const launch = await planLaunch(process.argv.slice(2), repoRoot);
   if (launch.notice !== null) {

@@ -1,0 +1,39 @@
+import { always, now, next } from "@antithesishq/bombadil";
+import { extract } from "@antithesishq/bombadil/browser";
+
+const search = extract((state) => {
+  const section = state.document.querySelector('section[aria-label="Matches"]');
+  const count = section?.querySelector("p")?.textContent?.match(/^(\d+) results?$/);
+  return {
+    settled: section?.getAttribute("aria-busy") === "false" && count !== undefined && count !== null,
+    announced: count ? Number(count[1]) : null,
+    listed: section?.querySelectorAll("li").length ?? 0,
+  };
+});
+
+export const searchCountMatchesRows = always(() =>
+  !search.current.settled || search.current.announced === search.current.listed,
+);
+
+const page = extract((state) => {
+  const action = state.lastAction;
+  const label = action !== null && typeof action === "object" && "Click" in action
+    ? Reflect.get(action.Click.fingerprint, "accessible_name") ?? action.Click.fingerprint.accessibleName
+    : null;
+  return {
+    document: state.window.performance.timeOrigin,
+    frames: Array.from(state.document.querySelectorAll('iframe[src*="youtube"]'))
+      .map((frame) => frame.getAttribute("title") ?? ""),
+    playLabel: typeof label === "string" ? label : null,
+  };
+});
+
+export const playerRequiresPlayClick = now(() => page.current.frames.length === 0).and(
+  always(() => {
+    const before = page.current;
+    return next(() => page.current.frames.every((title) => {
+      if (page.current.document === before.document && before.frames.includes(title)) return true;
+      return page.current.playLabel === `Play here: ${title}`;
+    }));
+  }),
+);

@@ -7,6 +7,7 @@ export default ownLoopExercise({
   id: "02.2",
   title: "Survive a quit",
   judge: judgeSurviveFrom,
+  firstStep: "start Pi with pnpm pi --exercise 02.2, and start a run from it.",
   donePass:
     "Done: a later session picked up the result on its own, once, and nothing stale.",
 });

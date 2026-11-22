@@ -1,17 +1,29 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["tsconfig.base.json"],
+  "globalPassThroughEnv": ["pnpm_config_pm_on_fail"],
   "remoteCache": { "signature": true },
   "tasks": {
     "typecheck": {
       "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": []
     },
     "typecheck:tsc": {
       "dependsOn": ["^typecheck:tsc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": []
     },
     "//#typecheck:tsc-scripts": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.brain/**",
+        "!skills/**",
+        "!assets/**",
+        "!examples/**",
+        "!.agent_sources/**",
+        "!**/*.md"
+      ],
       "outputs": []
     },
     "@rat-stack/site#typecheck:tsc": {
@@ -24,9 +36,19 @@
     },
     "typecheck:fast": {
       "dependsOn": ["^typecheck:fast"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": []
     },
     "//#typecheck:fast-scripts": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.brain/**",
+        "!skills/**",
+        "!assets/**",
+        "!examples/**",
+        "!.agent_sources/**",
+        "!**/*.md"
+      ],
       "outputs": []
     },
     "@rat-stack/site#typecheck:fast": {
@@ -39,10 +61,12 @@
     },
     "build": {
       "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["dist/**"]
     },
     "test": {
       "dependsOn": ["build"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": []
     },
     "//#lint": {
@@ -50,9 +74,28 @@
       "outputs": []
     },
     "//#typecheck-scripts": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.brain/**",
+        "!skills/**",
+        "!assets/**",
+        "!examples/**",
+        "!.agent_sources/**",
+        "!**/*.md"
+      ],
       "outputs": []
     },
     "//#test:turbo-summary": {
+      "inputs": ["scripts/turbo-summary*.ts", "package.json"],
+      "outputs": []
+    },
+    "//#check:landmines": {
+      "cache": false,
+      "passThroughEnv": ["LANDMINES_BASE"],
+      "outputs": []
+    },
+    "//#check:turbo-inputs": {
+      "cache": false,
       "outputs": []
     },
     "//#lockfile:check": {
@@ -61,6 +104,8 @@
     },
     "check": {
       "dependsOn": [
+        "//#check:landmines",
+        "//#check:turbo-inputs",
         "//#lockfile:check",
         "typecheck",
         "//#lint",
@@ -71,16 +116,19 @@
     },
     "@rat-stack/site#generate": {
       "dependsOn": ["^build"],
-      "cache": false,
+      "cache": true,
       "outputs": [
         "src/bundled-content.generated.ts",
         "src/interest-pages.generated.ts",
         "src/rat-icons.generated.ts",
         "dist/content/**",
-        "dist/reader-source.json"
+        "dist/doc-fences/**",
+        "dist/reader-source.json",
+        "$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/*",
         "$TURBO_ROOT$/.brain/**",
         "$TURBO_ROOT$/skills/**",
         "$TURBO_ROOT$/assets/**",
@@ -102,7 +150,12 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/site#typecheck": {
@@ -131,12 +184,22 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/site#build": {
       "dependsOn": ["@rat-stack/site#generate", "^build"],
-      "outputs": ["dist/**", "!dist/content/**", "!dist/reader-source.json"],
+      "outputs": [
+        "dist/**",
+        "!dist/content/**",
+        "!dist/doc-fences/**",
+        "!dist/reader-source.json"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.brain/**",
@@ -160,23 +223,33 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     },
     "@rat-stack/infra#test": {
       "dependsOn": ["^build", "@rat-stack/web#build", "@rat-stack/web#test"],
       "outputs": [],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/web/src/**",
+        "$TURBO_ROOT$/apps/site/src/rpc-worker.ts"
+      ]
     },
     "@rat-stack/web#typecheck": {
       "dependsOn": ["^build", "^typecheck"],
       "outputs": []
     },
     "@rat-stack/site#test": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "test:runtime"],
       "outputs": [],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/*",
         "$TURBO_ROOT$/.brain/**",
         "$TURBO_ROOT$/skills/**",
         "$TURBO_ROOT$/assets/**",
@@ -198,11 +271,41 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json",
+        "!test/{flag-control-runtime,flag-ledger-runtime,flag-read-runtime,join-contact-runtime,workshop-help-desk-runtime}.test.ts"
       ]
+    },
+    "@rat-stack/site#test:runtime": {
+      "dependsOn": [
+        "@rat-stack/core#build",
+        "@rat-stack/flags#build",
+        "@rat-stack/intake-live#build"
+      ],
+      "env": ["CI"],
+      "inputs": [
+        "package.json",
+        "tsconfig.json",
+        "vitest.runtime*.ts",
+        "src/**",
+        "!src/**/*.generated.*",
+        "test/fixtures/**",
+        "test/{flag-control-runtime,flag-ledger-runtime,flag-read-runtime,join-contact-runtime,workshop-help-desk-runtime}.test.ts",
+        ".env.schema",
+        "$TURBO_ROOT$/.env.schema",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tsconfig.json"
+      ],
+      "outputs": []
     },
     "@rat-stack/site#check": {
       "dependsOn": [
+        "//#check:landmines",
+        "//#check:turbo-inputs",
         "//#lockfile:check",
         "typecheck",
         "//#lint",
@@ -233,7 +336,173 @@
         "!$TURBO_ROOT$/packages/**/.turbo/**",
         "!$TURBO_ROOT$/apps/**/*.generated.ts",
         "!$TURBO_ROOT$/packages/**/*.generated.ts",
-        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**"
+        "!$TURBO_ROOT$/tools/oxlint/anti-slop/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/apps/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/local/**",
+        "!$TURBO_ROOT$/packages/*/.alchemy/bundles/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
+      ]
+    },
+    "@rat-stack/core#test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/*",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/packages/*/package.json",
+        "$TURBO_ROOT$/apps/*/src/**",
+        "$TURBO_ROOT$/apps/site/test/join-contact*.test.ts",
+        "$TURBO_ROOT$/scripts/**",
+        "$TURBO_ROOT$/tools/**",
+        "$TURBO_ROOT$/vendor/README.md",
+        "$TURBO_ROOT$/.brain/data/learn-cards/**",
+        "$TURBO_ROOT$/.brain/data/cafe/*.json",
+        "$TURBO_ROOT$/.brain/data/peers.json",
+        "!$TURBO_ROOT$/apps/*/src/**/*.generated.ts"
+      ]
+    },
+    "@rat-stack/core#typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
+      ]
+    },
+    "@rat-stack/core#typecheck:tsc": {
+      "dependsOn": ["^typecheck:tsc"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
+      ]
+    },
+    "@rat-stack/core#typecheck:fast": {
+      "dependsOn": ["^typecheck:fast"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/scripts/checker-age-exceptions.ts",
+        "$TURBO_ROOT$/scripts/vcs-command-policy.*",
+        "$TURBO_ROOT$/tools/oxlint/landmines/{baseline,finding}.ts"
+      ]
+    },
+    "@rat-stack/cli#test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/README.md"]
+    },
+    "@rat-stack/cli#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "@rat-stack/catalog-server#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/site/src/observability.ts",
+        "$TURBO_ROOT$/apps/site/src/cloudflare-workers.d.ts"
+      ]
+    },
+    "@rat-stack/catalog-server#typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/apps/site/src/observability.ts",
+        "$TURBO_ROOT$/apps/site/src/cloudflare-workers.d.ts"
+      ]
+    },
+    "@rat-stack/catalog-server#typecheck:tsc": {
+      "dependsOn": ["^typecheck:tsc"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/apps/site/src/observability.ts",
+        "$TURBO_ROOT$/apps/site/src/cloudflare-workers.d.ts"
+      ]
+    },
+    "@rat-stack/catalog-server#typecheck:fast": {
+      "dependsOn": ["^typecheck:fast"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/apps/site/src/observability.ts",
+        "$TURBO_ROOT$/apps/site/src/cloudflare-workers.d.ts"
+      ]
+    },
+    "@rat-stack/catalog-server#test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/site/src/observability.ts"
+      ]
+    },
+    "@rat-stack/deploy#typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/packages/auth/src/unauthenticated.ts",
+        "$TURBO_ROOT$/packages/crash/src/invalid-crash-trace.ts"
+      ]
+    },
+    "@rat-stack/deploy#typecheck:tsc": {
+      "dependsOn": ["^typecheck:tsc"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/packages/auth/src/unauthenticated.ts",
+        "$TURBO_ROOT$/packages/crash/src/invalid-crash-trace.ts"
+      ]
+    },
+    "@rat-stack/deploy#typecheck:fast": {
+      "dependsOn": ["^typecheck:fast"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/packages/auth/src/unauthenticated.ts",
+        "$TURBO_ROOT$/packages/crash/src/invalid-crash-trace.ts"
+      ]
+    },
+    "@rat-stack/deploy#test": {
+      "dependsOn": ["build", "@rat-stack/site#generate"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/*",
+        "$TURBO_ROOT$/.env.schema",
+        "$TURBO_ROOT$/apps/site/.env.schema",
+        "$TURBO_ROOT$/packages/auth/src/unauthenticated.ts",
+        "$TURBO_ROOT$/packages/crash/src/invalid-crash-trace.ts"
+      ]
+    },
+    "@rat-stack/web#test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/*",
+        "$TURBO_ROOT$/.brain/**",
+        "!$TURBO_ROOT$/.brain/data/unlinked-mentions.generated.json"
       ]
     }
   }

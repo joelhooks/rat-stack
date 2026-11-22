@@ -5,7 +5,25 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "allowedUnstableApis": ["@effect/vitest", "effect/crypto/Mac"]
+        "allowedUnstableApis": [
+          "@effect/vitest",
+          "@effect/platform-node/NodeRuntime",
+          "@effect/platform-node/NodeServices",
+          "effect/Arbitrary",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/cli/Argument",
+          "effect/cli/Command",
+          "effect/cli/Flag",
+          "effect/crypto/Mac",
+          "effect/http/FetchHttpClient",
+          "effect/http/HttpClient",
+          "effect/http/HttpClientRequest",
+          "effect/http/HttpClientResponse",
+          "effect/http/HttpServerRequest",
+          "effect/http/HttpServerResponse",
+          "effect/testing/TestConsole"
+        ]
       }
     ]
   },

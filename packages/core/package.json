@@ -19,6 +19,26 @@
       "import": "./dist/tokenmaxx-workshop.js",
       "default": "./dist/tokenmaxx-workshop.js"
     },
+    "./tokenmaxx-help": {
+      "types": "./src/tokenmaxx-help.ts",
+      "import": "./dist/tokenmaxx-help.js",
+      "default": "./dist/tokenmaxx-help.js"
+    },
+    "./tokenmaxx-help-contracts": {
+      "types": "./src/tokenmaxx-help-contracts.ts",
+      "import": "./dist/tokenmaxx-help-contracts.js",
+      "default": "./dist/tokenmaxx-help-contracts.js"
+    },
+    "./tokenmaxx-help-guide": {
+      "types": "./src/tokenmaxx-help-guide.ts",
+      "import": "./dist/tokenmaxx-help-guide.js",
+      "default": "./dist/tokenmaxx-help-guide.js"
+    },
+    "./tokenmaxx-help-store": {
+      "types": "./src/tokenmaxx-help-store.ts",
+      "import": "./dist/tokenmaxx-help-store.js",
+      "default": "./dist/tokenmaxx-help-store.js"
+    },
     "./workshop-contracts": {
       "types": "./src/workshop-contracts.ts",
       "import": "./dist/workshop-contracts.js",
@@ -128,14 +148,14 @@
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json",
     "check": "pnpm run typecheck",
-    "pretest": "pnpm run --silent build"
+    "pretest": "test -n \"$TURBO_HASH\" || pnpm run --silent build"
   },
   "dependencies": {
     "@effect/platform-node": "4.1.4",
     "@rat-stack/capability": "workspace:*",
-    "@xstate/effect": "1.0.0-beta.0",
+    "@xstate/effect": "1.0.0-beta.2",
     "effect": "4.1.4",
-    "xstate": "6.0.0-beta.1"
+    "xstate": "6.0.0-beta.3"
   },
   "devDependencies": {
     "@effect/vitest": "4.1.4",

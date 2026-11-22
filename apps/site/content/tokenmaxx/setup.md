@@ -19,22 +19,28 @@ Analyze it structurally and from a core tooling perspective. Ignore the implemen
 
 We think about rat-stack for three things: the core agent surface for this project, the deterministic code-level TypeScript best practices around linting, and, very specifically, the agentic prompting surface. This repo is going to serve as the agentic context for the tool that's getting built.
 
-## 1. Node, pnpm and git
+## 1. Node, pnpm, git and Pi
 
-Run `node -v`, `pnpm -v` and `git --version`. The workshop needs Node 24.18 or newer, pnpm 11.3 and git. A newer pnpm is fine: inside the workshop folder it switches itself to the pinned 11.3.0. If one is missing or older, say so and ask the person how they want it installed. On a Mac with no git, the person installs Apple's Command Line Tools: `xcode-select --install`, then accept the dialog. It takes a few minutes.
+Run `node -v`, `pnpm -v`, `git --version` and `pi --version`. The workshop needs Node 24.18 or newer, pnpm 11.3, git, and Pi on the PATH, so `pi` starts in any folder. Pi is a prerequisite the person installs before the workshop, from [Pi's install instructions](https://pi.dev/). If `pi` isn't found, say so and point them there. A newer pnpm is fine: inside the workshop folder it switches itself to the pinned 11.3.0. If one is missing or older, say so and ask the person how they want it installed. On a Mac with no git, the person installs Apple's Command Line Tools: `xcode-select --install`, then accept the dialog. It takes a few minutes.
 
 ## 2. The workshop tools
 
-A folder of exercises. Each one gives an agent a problem, a place to work and a check that says when it's done. Pi is installed inside it.
+A folder of exercises. Each one gives an agent a problem, a place to work and a check that says when it's done. It also pins its own copy of Pi, which the exercises use.
 
 In the folder where the person keeps their projects:
 
-    npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter#tokenmaxx-starter-v3 tokenmaxx
+    npx tiged joelhooks/rat-stack/examples/tokenmaxx-starter tokenmaxx
     cd tokenmaxx
-    git init
+    git init -b main
     pnpm install
 
-Expect 129 files and an install of a few seconds. npm deprecation warnings and update notices are harmless.
+Run the first line exactly as written. Don't create `tokenmaxx` first, and put nothing in it, such as an npm cache, until tiged has copied the starter: tiged stops if the folder isn't empty.
+
+Expect 175 files and an install of a few seconds. npm deprecation warnings and update notices are harmless.
+
+Already have a `tokenmaxx` folder? Update it instead:
+
+    npx -y tiged joelhooks/rat-stack/examples/tokenmaxx-starter .workshop-state/update --force && node .workshop-state/update/scripts/update.ts
 
 ## 3. Herdr
 
@@ -54,9 +60,9 @@ The script puts `herdr` in `~/.local/bin` and edits no shell files. If `herdr` i
 
 You can't do this for them. Ask the person to run this in `tokenmaxx/`:
 
-    pnpm pi
+    pi
 
-Then they accept the project trust prompt. If Pi has no provider yet, `/login` connects a subscription or an API key. They pick a model with `/model` and give it one real prompt that makes it use a tool, such as "read package.json and tell me the package name". They wait for the answer, then `/quit`. Any model they like works.
+Then they accept the project trust prompt. Cancelling it carries on untrusted, without the workshop's settings. If Pi has no provider yet, `/login` connects a subscription or an API key. They pick a model with `/model` and give it one real prompt that makes it use a tool, such as "read package.json and tell me the package name". They wait for the answer, then `/quit`. Any model they like works.
 
 ## 5. The check
 
@@ -68,14 +74,14 @@ Passing is three `PASS` lines and `Ready for the workshop.` The check proves a r
 
 The person needs their own repository for their own project, on this machine: a basic monorepo in the rat-stack style. It is the context for the whole day. Turborepo is the suggested shape.
 
-Pi builds it from two prompts. Open `tokenmaxx/README.md` at "Step 0, before the day" and walk the person through it: a new folder beside `tokenmaxx/`, Pi started with `../tokenmaxx/node_modules/.bin/pi`, the first prompt, a restart, the second prompt. For Turborepo, the person adds this as the last line of the first prompt:
+Pi builds it from two prompts. Open `tokenmaxx/README.md` at "Step 0, before the day" and walk the person through it: a new folder beside `tokenmaxx/`, Pi started there with `pi`, the first prompt, a restart, the second prompt. For Turborepo, the person adds this as the last line of the first prompt:
 
     Make it a Turborepo monorepo.
 
 It takes 6 to 8 minutes of agent time.
 
-Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first line, `a type-broken commit is refused`, and ends with `Done: the fence holds.`
+Done when `pnpm ex 01.1 done`, run at the root of the new repo, shows `PASS` on its first check, `A commit with a type error gets refused.`, and prints `Done: the fence holds.`
 
 ## 7. Report
 
-Give the person one short list: each step and whether it passed. If a step failed, give the exact error with keys and tokens left out, so they can reply to the workshop email with it.
+Give the person one short list: each step and whether it passed. If a step failed, give the exact error with keys and tokens left out, so they can reply to the workshop email with it. You can also report it yourself: call `reportSetupProblem` on the MCP server at https://ratstack.sh/tokenmaxx/mcp with the person's invite email and the workshop code from their workshop calendar event. It returns known fixes for that step.

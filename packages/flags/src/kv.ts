@@ -157,8 +157,9 @@ export const kvFlagsLayer = <E>(
             ).pipe(
               Effect.flatMap(Schema.decodeUnknownEffect(Schema.Json)),
               Effect.mapError(
-                () =>
+                (cause) =>
                   new InvalidFlagValue({
+                    cause,
                     flag: flag.name,
                     repair: "Declare a flag with a JSON encoding.",
                   })
@@ -199,8 +200,9 @@ export const kvFlagsLayer = <E>(
               Schema.fromJsonString(flag.schema)
             )(stored).pipe(
               Effect.mapError(
-                () =>
+                (cause) =>
                   new InvalidFlagValue({
+                    cause,
                     flag: flag.name,
                     repair:
                       "Replace the stored KV value with its declared JSON encoding.",

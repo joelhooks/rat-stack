@@ -7,10 +7,7 @@ import type {
 } from "../client/reader-document.js";
 import { readerParagraph } from "./reader-paragraph.js";
 
-export type SnippetReference = Extract<
-  ReaderBlockValue,
-  { readonly _tag: "Snippet" }
->;
+export type SnippetReference = ReturnType<typeof ReaderBlock.Snippet>;
 
 export interface ReaderBlockRenderers {
   readonly anchors: readonly { readonly id: string; readonly text: string }[];

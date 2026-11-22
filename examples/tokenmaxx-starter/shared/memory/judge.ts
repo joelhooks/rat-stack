@@ -30,6 +30,8 @@ export type SessionFacts = Pick<
 export type Claim = {
   readonly ok: boolean;
   readonly name: string;
+  /** What `done` prints for this case, when it's more than the name says. */
+  readonly says?: string;
   readonly detail: string;
 };
 
@@ -93,7 +95,7 @@ function runsOf(
     .filter((run) => run.record === null || isTopLevel(run.record));
 }
 
-/** "Note: 2 nested sessions seen and not counted", when there were any. */
+/** "Note: 2 nested sessions seen, not counted.", when there were any. */
 export function notes(
   events: readonly MemoryEvent[],
   sessions: readonly SessionFacts[]
@@ -110,13 +112,14 @@ export function notes(
   }
   return nested.size === 0
     ? []
-    : [`Note: ${plural(nested.size, "nested session")} seen and not counted`];
+    : [`Note: ${plural(nested.size, "nested session")} seen, not counted.`];
 }
 
-const fail = (name: string, detail: string): Claim => ({
+const fail = (name: string, detail: string, says?: string): Claim => ({
   ok: false,
   name,
   detail,
+  ...(says === undefined ? {} : { says }),
 });
 const pass = (name: string, detail: string): Claim => ({
   ok: true,
@@ -131,7 +134,9 @@ export function judge(
   const rules = ruleSets(events);
   if (rules.length === 0) {
     const setup = "no house rule yet: run pnpm ex 03.1 setup";
-    return Object.values(claimNames).map((name) => fail(name, setup));
+    return Object.values(claimNames).map((name) =>
+      fail(name, setup, "There's no house rule yet.")
+    );
   }
   const runs = runsOf(events, sessions);
   const outside = events.filter(
@@ -163,11 +168,15 @@ export function judge(
           claimNames.a,
           `${a.session} was rejected at ${time(a.brokeAt)} with the reason, and passed at ${time(a.passedAt)}`
         )
-      : fail(claimNames.a, describeNoA(runs) + outsideNote);
+      : (() => {
+          const noA = describeNoA(runs);
+          return fail(claimNames.a, noA.detail + outsideNote, noA.says);
+        })();
 
   // 2. B: fresh, started after A was told why, first try accepted.
   let b: { session: string; at: string } | null = null;
   let bWhy = "";
+  let bSays: string | undefined;
   if (a !== null) {
     const aRun = a;
     const candidates = runs.filter(
@@ -184,6 +193,7 @@ export function judge(
     }
     if (candidates.length === 0) {
       bWhy = `no other session has handed in under the first rule yet${outsideNote}`;
+      bSays = "No other session has handed in under the first rule yet.";
     }
   }
   const bClaim: Claim =
@@ -192,7 +202,13 @@ export function judge(
           claimNames.b,
           `${b.session} passed at ${time(b.at)} without being told the rule in that session`
         )
-      : fail(claimNames.b, a === null ? "needs the line above first" : bWhy);
+      : a === null
+        ? fail(
+            claimNames.b,
+            "needs the line above first",
+            "No fresh session has passed yet: it needs the line above first."
+          )
+        : fail(claimNames.b, bWhy, bSays);
 
   // 3. The rule changed after B.
   const last = rules.at(-1) ?? rules[0];
@@ -207,13 +223,22 @@ export function judge(
         rules.length > 1
           ? "the rule changed before a fresh session passed under the first one. Run pnpm ex 03.1 setup to start over"
           : b === null
-            ? "needs the line above first, then pnpm ex 03.1 change-rule"
-            : "not yet: run pnpm ex 03.1 change-rule"
+            ? "when the line above passes, run pnpm ex 03.1 change-rule"
+            : "not yet: run pnpm ex 03.1 change-rule",
+        rules.length > 1
+          ? "The house rule changed too early, before a fresh session passed."
+          : b === null
+            ? "The house rule hasn't changed yet: it needs the line above first."
+            : "The house rule hasn't changed yet."
       );
 
   // 4. C: started after the change, fresh, first try follows the new rule,
   // never the old form.
-  let cClaim: Claim = fail(claimNames.c, "needs the line above first");
+  let cClaim: Claim = fail(
+    claimNames.c,
+    "needs the line above first",
+    "No session has followed a new rule yet: it needs the line above first."
+  );
   if (changed) {
     const changeAt = last.at;
     // A session started after the change only ever saw the new rule.
@@ -248,21 +273,36 @@ export function judge(
             claimNames.c,
             `${c.session} passed at ${time(c.attempts[0]?.at ?? "")} and never wrote the old form`
           )
-        : fail(claimNames.c, why);
+        : fail(
+            claimNames.c,
+            why,
+            candidates.length === 0
+              ? "No session started since the change has handed in yet."
+              : undefined
+          );
   }
 
   return [aClaim, bClaim, changeClaim, cClaim];
 }
 
-function describeNoA(runs: readonly Run[]): string {
+function describeNoA(runs: readonly Run[]): {
+  readonly says: string;
+  readonly detail: string;
+} {
   if (runs.length === 0) {
-    return "nothing handed in from a Pi session yet";
+    return {
+      says: "Nothing has been handed in from a Pi session yet.",
+      detail: "nothing handed in from a Pi session yet",
+    };
   }
   const brokeOnly = runs.find((run) =>
     run.attempts.some((s) => s.ruleVersion === 1 && s.verdict === "rule")
   );
   if (brokeOnly !== undefined) {
-    return `${brokeOnly.session} broke the rule but hasn't passed since`;
+    return {
+      says: "A session broke the house rule but hasn't passed since.",
+      detail: `${brokeOnly.session} broke the rule but hasn't passed since`,
+    };
   }
   const lucky = runs.find(
     (run) =>
@@ -270,9 +310,15 @@ function describeNoA(runs: readonly Run[]): string {
       run.attempts[0]?.verdict === "accepted"
   );
   if (lucky !== undefined) {
-    return `${lucky.session} passed without breaking the rule, so there was no mistake to learn from. Run pnpm ex 03.1 setup for a new rule`;
+    return {
+      says: "A session passed without breaking the rule, so there was no mistake to learn from.",
+      detail: `${lucky.session} passed without breaking the rule, so there was no mistake to learn from. Run pnpm ex 03.1 setup for a new rule`,
+    };
   }
-  return "no session has broken the house rule yet";
+  return {
+    says: "No session has broken the house rule yet.",
+    detail: "no session has broken the house rule yet",
+  };
 }
 
 function bProblem(

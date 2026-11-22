@@ -1,0 +1,1547 @@
+{
+  "files": {
+    ".githooks/prepare-commit-msg": [
+      "02d00f43e5039a8c",
+      "8e934ba0b06cc6eb",
+      "c4fe4e36bdf385f2"
+    ],
+    ".gitignore": [
+      "4342c10aa4961f52",
+      "8ec1728b863e6db5",
+      "9b3f7ec57a841a07",
+      "b0d48f3ecd6da9ef",
+      "b7f56ea9dac23ea5",
+      "eafdffc040970e4e"
+    ],
+    ".node-version": ["ca5c350055ccb6da"],
+    ".oxfmtrc.json": ["1dd1254dbbba2576", "4c80f0793e486bcd"],
+    ".oxlintrc.json": [
+      "9f82ff7dc7a15140",
+      "c017cd78a1bb04a2",
+      "c4ee69ca1f322e5c",
+      "ca939552ad8b422d",
+      "ea83e1caa55797b3"
+    ],
+    ".pi/extensions/.gitkeep": ["96e70ec5223da135"],
+    ".pi/extensions/workshop-mail.ts": [
+      "0cafdc89228d48fe",
+      "22648549a97c5aa5",
+      "3e41f968210feda8"
+    ],
+    ".pi/extensions/workshop-memory.ts": [
+      "21ebc73398c917fa",
+      "48280f2eff71d996"
+    ],
+    ".pi/settings.json": [
+      "2764a9d850ca6d28",
+      "4e04316e27b0a675",
+      "558dbb8b67bd5f53",
+      "9d849cf8c26c1e88",
+      "b11984619032eda4",
+      "ced4093b9e4c28aa"
+    ],
+    "AGENTS.md": [
+      "02b513025d175acd",
+      "05470d36fa12b293",
+      "10789f08a6b69723",
+      "267deb2039ed0331",
+      "3a4aee005a0afa82",
+      "3a9661c99aba61f9",
+      "6c9590590eae6c3d",
+      "6d20301f57b5a016",
+      "915d6d6f1f697566",
+      "a6adaa23270bdf53",
+      "b48a2cce3eb8704a",
+      "e04bbd4007df25df",
+      "f5a0df33f4106ce4",
+      "fdbf22bceff99e0b"
+    ],
+    "CONTRIBUTING.md": [
+      "586a79c669baeb5a",
+      "602ed4789499e502",
+      "78fa0a4f6ee18434",
+      "7f9bb0906dd62eee",
+      "8dd18c967bfed763",
+      "c6352fc20a48948b",
+      "f01cea299855d4c5"
+    ],
+    "domain/Awakes/AnnounceResult.command.ts": ["930ea61e496b9472"],
+    "domain/Awakes/AwaitResult.saga.ts": [
+      "5cac589ca27cb433",
+      "beea07c86d447723"
+    ],
+    "domain/Awakes/Awakes.api.ts": ["51e4cc4d772ec32e", "e14e017e450f30dd"],
+    "domain/Awakes/Awakes.finished.ts": ["d759451adf3e933a"],
+    "domain/Awakes/Awakes.model.ts": [
+      "3ffad7987909ac79",
+      "46c4b8b7d8809339",
+      "b835444313348dba",
+      "f13cf0273b2cbe45"
+    ],
+    "domain/Awakes/BeginStep.command.ts": [
+      "00313b338135c9ac",
+      "48a66b0941fa0349"
+    ],
+    "domain/Awakes/CompleteStep.command.ts": ["53fdae695ee81146"],
+    "domain/Awakes/ConsumeResult.command.ts": ["265d370948d4f5c8"],
+    "domain/Awakes/CurrentRun.view.ts": [
+      "2a58f400b8d0c893",
+      "75f5a30a640954e7",
+      "cbc3c949eb3fc6c8"
+    ],
+    "domain/Awakes/PublishResult.command.ts": ["9de424c7c80e8947"],
+    "domain/Awakes/ReleaseBarrier.command.ts": ["f839ebb470c3f86a"],
+    "domain/Awakes/Run.aggregate.ts": [
+      "02478a8b27c84a1c",
+      "02f321fce8f49e30",
+      "26e7681589436694",
+      "88c6ad2a8c0fdf62"
+    ],
+    "domain/Awakes/Run.id.ts": ["ae7d431e0b81fa8b"],
+    "domain/Awakes/RunNotStarted.rejection.ts": ["86bee118c3179260"],
+    "domain/Awakes/RunState.ts": ["993113c3830f30c2"],
+    "domain/Awakes/RunStatus.view.ts": [
+      "0ce973902f3d33b5",
+      "90310f4fb9965a2e",
+      "9ae857c2cc4ddacd",
+      "b42a5bf2b0471ae5"
+    ],
+    "domain/Awakes/RunWake.policy.ts": [
+      "214b6fe4fbe21e4b",
+      "377680b21044cf09",
+      "877ac09ddaa1addb"
+    ],
+    "domain/Awakes/StartRun.command.ts": ["48b510fb409b6ac4"],
+    "domain/Awakes/Stats.ts": ["9b9821eca7a31c5f"],
+    "domain/Awakes/StepAlreadyDone.rejection.ts": ["2cc11f353bafd5a0"],
+    "domain/Probe/ArmProbe.command.ts": ["1ae0fe76131159eb"],
+    "domain/Probe/CompleteProbe.command.ts": ["dccdb01a482b6282"],
+    "domain/Probe/Probe.aggregate.ts": ["7ee0d11091ebe295"],
+    "domain/Probe/Probe.api.ts": ["fed1ce6577ff0293"],
+    "domain/Probe/Probe.id.ts": ["da6769a967c4eafb"],
+    "domain/Probe/Probe.model.ts": ["6febb80c92146f0a"],
+    "domain/Probe/ProbeActor.context.ts": ["119bb939565c8ebe"],
+    "domain/Probe/ProbeFlow.policy.ts": ["77f75c84fed945e0"],
+    "domain/Probe/ProbeRole.middleware.ts": ["eb949bb942912f7d"],
+    "domain/Probe/ProbeStatus.view.ts": [
+      "7dcd3accb57ef2b5",
+      "8cdde5d907b2e1f2"
+    ],
+    "domain/Probe/RunProbe.saga.ts": ["54a73a681b23ba77"],
+    "domain/Probe/SignalProbe.command.ts": ["2cb08b0d5a14978d"],
+    "domain/Probe/StartProbe.command.ts": ["2dd71578405a4979"],
+    "domain/Remembers/AcceptCandidate.command.ts": ["a50bf6c6aaa37803"],
+    "domain/Remembers/ArmRecheck.command.ts": ["74be99909703ddf0"],
+    "domain/Remembers/Candidate.aggregate.ts": [
+      "cf67d57bcc7e72f4",
+      "f4b7e954e0fdf37b"
+    ],
+    "domain/Remembers/Candidate.rejections.ts": ["00f3a0ebf71c66ad"],
+    "domain/Remembers/Citation.ts": ["009218c39b14659d"],
+    "domain/Remembers/Ids.ts": ["c69ded9c519bb6ad"],
+    "domain/Remembers/InvalidateLesson.command.ts": ["9225a60d834ffe0a"],
+    "domain/Remembers/Judge.ts": ["369f6890b613d321"],
+    "domain/Remembers/JudgeVerdictIntake.policy.ts": [
+      "88d359467ae54a0b",
+      "a1f03a5199c86d2e",
+      "b05c81f9b7242edc"
+    ],
+    "domain/Remembers/Lesson.aggregate.ts": ["83b60211f27fef49"],
+    "domain/Remembers/LessonFromFailedVerdict.policy.ts": [
+      "7bfadf54377fed22",
+      "b8cbac05ad25c135",
+      "ee46c6ad27678c96"
+    ],
+    "domain/Remembers/LessonRules.ts": [
+      "301b60e57f7e9aa9",
+      "963e790eb2474c61",
+      "eac0af024208135d"
+    ],
+    "domain/Remembers/LessonsByTopic.view.ts": ["9140f2d266ebc0f1"],
+    "domain/Remembers/NoteJudgeVerdict.command.ts": [
+      "79dd0d67e94379eb",
+      "fbb4d21decba9dfb"
+    ],
+    "domain/Remembers/Recheck.aggregate.ts": ["76a79ea7b92f4f60"],
+    "domain/Remembers/RecheckCandidate.saga.ts": ["d3eb491f03860417"],
+    "domain/Remembers/RecheckOnRequest.policy.ts": ["119b85f6a19385d0"],
+    "domain/Remembers/RecheckQueue.view.ts": ["d64e5259202048fe"],
+    "domain/Remembers/RecordCheckResult.command.ts": ["c96620d12cba7ba8"],
+    "domain/Remembers/RecordLesson.command.ts": ["d3baee8a40b191e4"],
+    "domain/Remembers/RecordRefusal.command.ts": ["ec9f5cd304f62e5f"],
+    "domain/Remembers/RecordRequiredChecks.command.ts": ["68a541e6d13380f2"],
+    "domain/Remembers/Remembers.api.ts": [
+      "0903557b4439ad9a",
+      "188eff994651ab40"
+    ],
+    "domain/Remembers/Remembers.model.ts": [
+      "08694b77882e80c6",
+      "a8b6a1e3bd408d87",
+      "cb90d0c0113add68"
+    ],
+    "domain/Remembers/Replay.ts": ["87a36506f03aa7b1"],
+    "domain/Remembers/RequestAcceptance.command.ts": ["a296a5429e2ac8d6"],
+    "domain/Remembers/RequiredChecks.ts": ["38e4fa379969e599"],
+    "domain/Remembers/Review.aggregate.ts": ["0d8445aa203b210d"],
+    "domain/Remembers/speaks-placeholder/RecordVerdict.command.ts": [
+      "7abfd528dcb3223b"
+    ],
+    "domain/Remembers/speaks-placeholder/Review.aggregate.ts": [
+      "7b05cb2770ffc3b0"
+    ],
+    "domain/Remembers/speaks-placeholder/Review.id.ts": ["eb4e1f67b7f4d006"],
+    "domain/Remembers/Stats.ts": ["b2c157866920ed03"],
+    "domain/Remembers/SubmitCandidate.command.ts": ["daccdce86175e411"],
+    "domain/Remembers/Wake.ts": ["a3b282a014cb4598"],
+    "domain/Speaks/AcceptResult.command.ts": [
+      "b27be52c4e975e08",
+      "fab46bd3fee2e3ef"
+    ],
+    "domain/Speaks/acceptResultRule.ts": [
+      "669a902a0f2ad473",
+      "8569a268667669d8",
+      "f0779c73410d8cb0"
+    ],
+    "domain/Speaks/CurrentRole.context.ts": ["c47bbdf07ee34b52"],
+    "domain/Speaks/Evidence.ts": ["cb3a44b2c20bd88b"],
+    "domain/Speaks/NoSuchReview.rejection.ts": ["99669f241424627d"],
+    "domain/Speaks/RecordVerdict.command.ts": ["be083f7e97175e8a"],
+    "domain/Speaks/RequestReview.command.ts": ["039fb61422cc5d1b"],
+    "domain/Speaks/Review.aggregate.ts": [
+      "498d13baf957abc6",
+      "f3d6841497344e92"
+    ],
+    "domain/Speaks/Review.definition.ts": [
+      "2ba7cdd3a8bc421c",
+      "56881fefec2a0b9c"
+    ],
+    "domain/Speaks/Review.id.ts": ["f0a4443a92c1af26"],
+    "domain/Speaks/Review.state.ts": ["903e88c499ff2753"],
+    "domain/Speaks/ReviewDesk.definition.ts": [
+      "70a3a4605dac3f0f",
+      "9b511f4d60156776"
+    ],
+    "domain/Speaks/ReviewDesk.view.ts": [
+      "3ad329139a8e555d",
+      "b9e8c9afe6faa7c2",
+      "f34f140456ba3184"
+    ],
+    "domain/Speaks/Role.ts": ["5eefb4b83e22ecd3"],
+    "domain/Speaks/RoleSession.middleware.ts": ["2c554b8251865ef5"],
+    "domain/Speaks/Speaks.api.ts": ["50de2e85b4ac3242"],
+    "domain/Speaks/Speaks.model.ts": ["773d75dd9191e582"],
+    "domain/Speaks/speaksFor.ts": [
+      "b341f2285d989456",
+      "d6b2864ca8b94f2f",
+      "f86b28d35dcb21a6"
+    ],
+    "domain/test/Awakes.problem-imports.test.ts": [
+      "8368b3fceb4135e5",
+      "e79a466c5cc406ee"
+    ],
+    "domain/test/Awakes.story.test.ts": [
+      "27523d7c5efb867b",
+      "477652cfad3802f5",
+      "ad8c8e1995ab83d5",
+      "ccb514b088b0d214"
+    ],
+    "domain/test/Probe.story.test.ts": ["eac3445c3b8e7a4c"],
+    "domain/test/Remembers.story.test.ts": [
+      "289d25697a573c26",
+      "3d289b2a6f012f92",
+      "936b57815704d98d",
+      "976ae7f16e5dbd12",
+      "9cffeb7a608febe1",
+      "d74624ea88cf5140"
+    ],
+    "domain/test/Speaks.problem-imports.test.ts": [
+      "1f28a212b5abfec5",
+      "44899c18075dfada"
+    ],
+    "domain/test/Speaks.story.test.ts": [
+      "9db282ac4251ce09",
+      "cacd6b39e4f1488a",
+      "f67dc058a75b73ab"
+    ],
+    "domain/test/Speaks.variant.story.test.ts": ["c031ea696810cb32"],
+    "exercises/00-setup/00.1-check-your-pi/exercise.ts": [
+      "087007f45006691a",
+      "0d5c7914a4b117ac",
+      "6043faedb22da51c",
+      "dbfade5bc806bf3d",
+      "e511c36d6a59be9b"
+    ],
+    "exercises/00-setup/00.1-check-your-pi/explainer/exercise.ts": [
+      "13912919dd90417e",
+      "2e48685fdbec715c"
+    ],
+    "exercises/00-setup/00.1-check-your-pi/explainer/readme.md": [
+      "54752f4ea7b1ad7b",
+      "8c114f6c45cd4d8a",
+      "d94b822833125c3f"
+    ],
+    "exercises/00-setup/00.1-check-your-pi/readme.md": [
+      "0ad95f6801176630",
+      "32663bd63d32f376",
+      "32f7beef9aed26d2",
+      "54752f4ea7b1ad7b"
+    ],
+    "exercises/00-setup/package.json": ["921bcdfd988f8a91"],
+    "exercises/00-setup/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/01-awakes/.gitkeep": ["feaef6c5058144d8"],
+    "exercises/01-awakes/01.0-wake-me-when-done/problem/done.test.ts": [
+      "0008e0175805fe55"
+    ],
+    "exercises/01-awakes/01.0-wake-me-when-done/problem/exercise.ts": [
+      "84635295c2e914ea"
+    ],
+    "exercises/01-awakes/01.0-wake-me-when-done/problem/readme.md": [
+      "33e2bb238efc5d3a"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/consume.ts": [
+      "0fc6ed3a664af1de",
+      "3ef994c6af635a2c"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/exercise.ts": [
+      "3604c9aa89bfdacf",
+      "81b574272129b5f4",
+      "af61b92f2a2a12cb"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/host.ts": [
+      "43cfeecad2ab49e3",
+      "f491ff8f753c4bdd"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/readme.md": [
+      "149a60925391524f",
+      "3373c6292036b390",
+      "3696e2334ccb6248",
+      "80e1f5832b5ca558",
+      "b8114ca6a42453a5",
+      "d001cc2387e671dd",
+      "d7b5fac7fa765b12",
+      "dc2492e447c1e2fc"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/ready.ts": [
+      "09eba4c4cfd08305",
+      "4f102ddf13d508cf",
+      "9a6931c765a936ea"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/problem/wake.test.ts": [
+      "2b23fb9b8d147771",
+      "ac72a05c3978966f"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/solution/consume.ts": [
+      "14a56d2899aace5c",
+      "18339cf12f89c8db",
+      "72993e98f38a7426"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/solution/exercise.ts": [
+      "776b55241bee9548",
+      "81b574272129b5f4",
+      "af61b92f2a2a12cb",
+      "cd7862be89526664"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/solution/host.ts": [
+      "43cfeecad2ab49e3",
+      "f491ff8f753c4bdd"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/solution/ready.ts": [
+      "536e6c5fac2e3390",
+      "72955f78242e20c5",
+      "c29641bc7c086df7"
+    ],
+    "exercises/01-awakes/01.1-wake-and-resume/solution/wake.test.ts": [
+      "284e3f609116345c",
+      "2ad7b1d349013bc5",
+      "ac72a05c3978966f"
+    ],
+    "exercises/01-first-package/01.1-dont-take-its-word/done.test.ts": [
+      "1cfe445ac193224c",
+      "2a01bb1fab3a3d3b",
+      "3b592020497608c5",
+      "69a5ba9fc9b70e7f",
+      "7215b536b153ac30",
+      "7cb8ce4f97081810",
+      "7f1c35b82ba6dea1",
+      "82b58ccfc8340724",
+      "8a365159b0b08133",
+      "a1f3fa97a763b339",
+      "da21608e86d3d251",
+      "e0b099e0cba46526",
+      "f8fdae985fdf7deb",
+      "ff1a2da137cb4780"
+    ],
+    "exercises/01-first-package/01.1-dont-take-its-word/exercise.ts": [
+      "067e3259303366c8"
+    ],
+    "exercises/01-first-package/01.1-dont-take-its-word/readme.md": [
+      "15ab3bc1f9e70559",
+      "1f47e8d8825ceff2",
+      "30de1659549ad9f6",
+      "409a34b40eba8686",
+      "7d46242d0421c64e",
+      "a3a579e34e8617d4",
+      "defc6f14b9780dcd",
+      "ea530b75eb2417e5"
+    ],
+    "exercises/01-first-package/package.json": ["201237237e89f40d"],
+    "exercises/01-first-package/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/02-loop/02.1-wake-me-when-done/done.test.ts": [
+      "142b89cde125fb08",
+      "1cf041a6daa2292a",
+      "26f0a635a62b9697",
+      "5fd7c1d304ca7064"
+    ],
+    "exercises/02-loop/02.1-wake-me-when-done/exercise.ts": [
+      "1a51da106e6bf198",
+      "9b795d36e72bfed9"
+    ],
+    "exercises/02-loop/02.1-wake-me-when-done/readme.md": [
+      "057397ed32b75737",
+      "059b8eb09636d4a3",
+      "071877670bc62e8a",
+      "1c57aaf3b999df2d",
+      "392bcd7c4a54d81c",
+      "931dfdf194791968",
+      "b09d5ea7683ed0fd",
+      "de61c07b3a057df9",
+      "eb19d863d927e3c6",
+      "f313fad29f708157",
+      "f5c4b4c6eead272e"
+    ],
+    "exercises/02-loop/02.2-survive-a-quit/done.test.ts": [
+      "1560bc453e4ab1c4",
+      "287a66ad2251bfd6",
+      "684bd9384ef0a6c9",
+      "7ccd44badb379547",
+      "b3c827cc88118c75",
+      "c657eaacbd0d5eea"
+    ],
+    "exercises/02-loop/02.2-survive-a-quit/exercise.ts": [
+      "3f38a93f06f6aebb",
+      "7bbcf907e3d81fc9"
+    ],
+    "exercises/02-loop/02.2-survive-a-quit/readme.md": [
+      "41b839e33c204d19",
+      "47dd250c8446ac23",
+      "48f4122c6dd895e0",
+      "515d0f20c7b23397",
+      "5d9ed4eecc16f4a1",
+      "69322831d8dc6e7f",
+      "83e2bdbcaa04f706",
+      "94ebdf00e017377d",
+      "e43096267684446e",
+      "e97cdf3895760459"
+    ],
+    "exercises/02-loop/package.json": ["99b505056dfa4111"],
+    "exercises/02-loop/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/02-speaks/.gitkeep": ["feaef6c5058144d8"],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/accept-result.ts": [
+      "31a1e326fbad6d7e",
+      "9ef7d44d08cec7c2"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/builder.md": [
+      "17fb045afdfec381",
+      "68e1c74fdb3c4ab6",
+      "dabd93bd6d834863"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/exercise.ts": [
+      "3b6f318440459e59",
+      "ba12d891f9c76013",
+      "c9bfa7adb180f7fe"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/host.ts": [
+      "dc684d3f364921cd"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/judge-gate.ts": [
+      "aca0b13d8c213f9f"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/judge.md": [
+      "23c35297c3643acc",
+      "5f604dda2b396acf",
+      "9bde99eeed35f091"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/readme.md": [
+      "2eeacfeb0b8c3319",
+      "37f627a947f0aa87",
+      "43d6db0f5d3e389d",
+      "5a778f3563d02d1c",
+      "61752d300ebdb543",
+      "74b3159c8368e664"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/review.ts": [
+      "67b763335dbb2530",
+      "6cd8422fe7ba4374",
+      "9b1443d053ba8c86",
+      "c9b0827d40846542"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/problem/speaks.test.ts": [
+      "8dd209e6be8df2af",
+      "da675283d7251a03"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/accept-result.ts": [
+      "26b7680aadde2b2e",
+      "c5e2bc2c66a1f7db"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/builder.md": [
+      "13ca2af4945aea35",
+      "dabd93bd6d834863",
+      "f74a6287c9630ff4"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/exercise.ts": [
+      "3b6f318440459e59",
+      "ba12d891f9c76013",
+      "c9bfa7adb180f7fe"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/host.ts": [
+      "dc684d3f364921cd"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/judge-gate.ts": [
+      "1ec904720c8d3a1e"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/judge.md": [
+      "01ac064a39a4da30",
+      "23c35297c3643acc",
+      "29add8248e359df1"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/review.ts": [
+      "00c9c0a41ff9a27d",
+      "16af8ff12fde1f8b",
+      "5b90cdb0f742764b"
+    ],
+    "exercises/02-speaks/02.1-judge-by-mail/solution/speaks.test.ts": [
+      "8dd209e6be8df2af",
+      "da675283d7251a03"
+    ],
+    "exercises/03-memory/03.1-yesterdays-mistake/done.test.ts": [
+      "b2504fb0dbb7338d",
+      "f719c1a179dfa267",
+      "febea1f3d32d930c"
+    ],
+    "exercises/03-memory/03.1-yesterdays-mistake/exercise.ts": [
+      "96467c8fe8068b8d"
+    ],
+    "exercises/03-memory/03.1-yesterdays-mistake/readme.md": [
+      "1266bff7daa3591a",
+      "28b8d097d1367cbf",
+      "797702f16186e6db",
+      "984c6cb3ff8c6f87",
+      "9896e51ec6a6f229",
+      "a92173b738695421",
+      "b3a74d79cf5fdaaf"
+    ],
+    "exercises/03-memory/package.json": ["f98fdec4588df19d"],
+    "exercises/03-memory/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/03-remembers/.gitkeep": ["feaef6c5058144d8"],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/break.test.ts": [
+      "2c832c6fdd5b9a93",
+      "2e436beec1b28efe",
+      "6ea1d63adfccd03c",
+      "db61aa80fdda8e17",
+      "e8bf3c9df45c8b54"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/exercise.ts": [
+      "9eea39cd2b442a7c",
+      "bbfcd955ff3ea2ab",
+      "f98faafdb2aa7fbb"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/host.ts": [
+      "add480f7e7eb67db"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/lesson-to-check.test.ts": [
+      "1597bc2d4d1aa9da",
+      "7edbc748e0f5cafb"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/line-count-check.ts": [
+      "1b2a3e5c8a78c788",
+      "30822600bca6abb0"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/readme.md": [
+      "20e5bc7c27f9fb66",
+      "3affd435bcce3c7d",
+      "43d1c55e6bdacc50",
+      "50e49c6d5f4d003b",
+      "7a789821d942a419",
+      "95e39acb454f5a1d",
+      "bb2ce916ad616752"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/problem/recall-to-wake.ts": [
+      "c957004f566e69be",
+      "eb8b6b403aedf48d"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/break.test.ts": [
+      "7d78e1f95b97e436",
+      "94c32e90d6b9c3f8",
+      "c9ac358952a4708d",
+      "db61aa80fdda8e17"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/exercise.ts": [
+      "9eea39cd2b442a7c",
+      "bbfcd955ff3ea2ab",
+      "f98faafdb2aa7fbb"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/host.ts": [
+      "add480f7e7eb67db"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/lesson-to-check.test.ts": [
+      "1597bc2d4d1aa9da",
+      "7edbc748e0f5cafb"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/line-count-check.ts": [
+      "0b9253f7b363fe96",
+      "33d7c03e8c4f10d4"
+    ],
+    "exercises/03-remembers/03.1-lesson-to-check/solution/recall-to-wake.ts": [
+      "60d4f4c8dea8834b",
+      "e1939425f510d146"
+    ],
+    "exercises/04-messages/04.1-no-copy-paste/done.test.ts": [
+      "536e7bef3858c40c",
+      "a2baae9516815970",
+      "ead6ac0fe18e865f"
+    ],
+    "exercises/04-messages/04.1-no-copy-paste/exercise.ts": [
+      "eaa027355344fd0f"
+    ],
+    "exercises/04-messages/04.1-no-copy-paste/readme.md": [
+      "277e316ccbd9d44b",
+      "5c3187af0350175d",
+      "6fcfdec5199c7fc0",
+      "cc162f2423720085",
+      "dc682d743cba1692"
+    ],
+    "exercises/04-messages/package.json": ["a361323d20f5fc0b"],
+    "exercises/04-messages/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/05-several-agents/05.1-who-needs-me/done.test.ts": [
+      "186c2f697f2366e3",
+      "6d39f7401debf9e2",
+      "6dac2042a1ccc2e9",
+      "8bb3548943d26f50",
+      "971466b21459ec37",
+      "c82fab212cef1d6b",
+      "d98d4e5700ac995e",
+      "e3072cf2875214f9"
+    ],
+    "exercises/05-several-agents/05.1-who-needs-me/exercise.ts": [
+      "463ac661a3e79a6e"
+    ],
+    "exercises/05-several-agents/05.1-who-needs-me/readme.md": [
+      "08d9e7ba4d53c42c",
+      "1c496ca096ee0073",
+      "3777353e07c3bbcb",
+      "9d30670115d68179",
+      "ba57ce5972440940"
+    ],
+    "exercises/05-several-agents/package.json": ["c5a4d928260babd0"],
+    "exercises/05-several-agents/tsconfig.json": ["9b34b870f8014e58"],
+    "exercises/06-split-the-work/06.1-split-three-ways/done.test.ts": [
+      "1d040aa302e79457",
+      "28c57e5243dd5104",
+      "3fcf1144dc82c4da",
+      "42bdc575fce22a55",
+      "9064a80cf9a37bea",
+      "96b59873ea416505",
+      "9d7aed29863b3e2a"
+    ],
+    "exercises/06-split-the-work/06.1-split-three-ways/exercise.ts": [
+      "12709cd266111538"
+    ],
+    "exercises/06-split-the-work/06.1-split-three-ways/readme.md": [
+      "24230c1cdbcf6a6d",
+      "42730c0937b41279",
+      "782da5fcfaa1305c",
+      "dc631bc3fbb8487d"
+    ],
+    "exercises/06-split-the-work/package.json": ["c544c445e34df1af"],
+    "exercises/06-split-the-work/tsconfig.json": ["9b34b870f8014e58"],
+    "LICENSE": ["c38c6e1b87729a89"],
+    "package.json": [
+      "16e92b54bfcbd4ad",
+      "1f3007b4dfa55330",
+      "57b787ff45a28ad7",
+      "6b8d4ad44645e8f5",
+      "6c1d330275976b0a",
+      "6e453a9b5d52b2c8",
+      "79679b12d1140807",
+      "899a3356560fde33",
+      "8e3d4957f24c11ea",
+      "95766bd4f867c6f0",
+      "963c64dde81ff173",
+      "afa96bf49b76bdeb",
+      "cedc8c35147d7f5b",
+      "db74ae2178b892e8",
+      "dd2346d07707eb6a",
+      "e9d0e6eafd1363bf",
+      "f75bd8c9344b9557"
+    ],
+    "pnpm-lock.yaml": [
+      "1df23124745e4973",
+      "1f2152a6357aede6",
+      "78b9afbfb8672279",
+      "7ce46315c1b8042b",
+      "81df570433fc20d3",
+      "be275a0df6968193",
+      "c669c69d44fefc6f",
+      "dd795dc648c06e39",
+      "e941705d4b0df582",
+      "f75430681a7006c1"
+    ],
+    "pnpm-workspace.yaml": [
+      "06193e1b0be599bb",
+      "3a19d5851df6821e",
+      "405337a1f1e5802e",
+      "4b7059690825fb59",
+      "5459488b8c4f5ddf",
+      "83d84526b088d305",
+      "dd58ecfce547d187"
+    ],
+    "PROVENANCE.md": [
+      "0c350c9dab1f7f07",
+      "4b69ce30a3252e03",
+      "f4870efeb1a1ff84"
+    ],
+    "qa/awakes.md": [
+      "24c36b1bc8f5eac8",
+      "4d7e9dd47c4747d3",
+      "856c401a747e7d2e",
+      "cc2ba182bcaa7118",
+      "eca20cdcfa7460ee"
+    ],
+    "qa/dry-run.md": [
+      "0fbbb8170ba935ce",
+      "4ac7a3a27bd93090",
+      "582748bd90309c27",
+      "6b32fbb2ea3937df",
+      "85334e1fae2a9e20",
+      "b9f28b3eccbc0456"
+    ],
+    "qa/handoff-tmxawakes.md": ["73db67c7ed2be4ed"],
+    "qa/handoff-tmxremembers.md": ["d4481a01bd9e07a9"],
+    "qa/handoff-tmxspeaks.md": ["918c33abfae001a7", "cb8972fe4025da50"],
+    "qa/hosting-probe.md": ["7ecca668c67f644b"],
+    "qa/hosting-probe.run1.txt": ["fa70f1e87c8df489"],
+    "qa/hosting-probe.run2.txt": ["7e4eda004f82ae4d"],
+    "qa/hosting-probe.sh": ["05a14f37dd8e7b6f", "a76faa5b69e8dee5"],
+    "qa/hosting.md": ["395ed69e6c3e379b", "b36458cbe6638e1d"],
+    "qa/remembers.md": ["73ad53647df6c0b4"],
+    "qa/speaks.md": [
+      "6691ca4b9de9a640",
+      "ace3262e9d4a770e",
+      "e08050705546a480"
+    ],
+    "README.md": [
+      "0170e4bb2ed0d078",
+      "020695ad61557552",
+      "12d24ce7b8889ffc",
+      "13870a36346bcfac",
+      "1630c12792d31fb2",
+      "2576ad7a3cbd9d06",
+      "2e645c17f8321886",
+      "3258a02c8a6d5c55",
+      "543618aaa0f1450c",
+      "6bf7d0d7e89a903c",
+      "70f5c4f1ed22d73b",
+      "7199c283cb7b0786",
+      "8042c188e2599114",
+      "9bb7c0cca4bb8615",
+      "9dfa4c9a97ff7ed6",
+      "9e98fd3a0cc417fe",
+      "a10b1d83f9c78899",
+      "abf339e65f5724e7",
+      "d658cfd6220babd1",
+      "d937f877905271fa",
+      "e670e84523cea5ce",
+      "efa7665ca0cac109",
+      "f343a7b699aa3a60"
+    ],
+    "scripts/check-pi.ts": ["7f040db829604887", "890cc907d1a8b3c9"],
+    "scripts/ex.ts": [
+      "0b1975c72af14a50",
+      "36ae3665c5736790",
+      "4cc5b1396ad3f9db"
+    ],
+    "scripts/hook-deps.ts": ["5185e2f5a20ad23d"],
+    "scripts/install-hooks.ts": ["1090facfb04db52d"],
+    "scripts/lib/ancestry.test.ts": ["80884a84cb417dcd"],
+    "scripts/lib/ancestry.ts": ["b99936e9d0c5bfbe"],
+    "scripts/lib/exercises.test.ts": [
+      "202bd95fc94c8144",
+      "24339a25c73d6d0d",
+      "284fce1ab758091f",
+      "3ea6c4850e83e1fc",
+      "4e8dfaf765c03924",
+      "7cebd12aff1c325a",
+      "89e3b4fd884d2472",
+      "8cc4bc4e6dc108c1",
+      "c88eff5743400760"
+    ],
+    "scripts/lib/exercises.ts": [
+      "4c855dbbe924d9e0",
+      "56e7ab31ecc0c5ea",
+      "5a76a6e06e5cdb95",
+      "9cca3c05cc06195d",
+      "9d2facf56961f0f4",
+      "a94ef9b672988d57",
+      "aaf9941cc42d8ad9",
+      "d01fd6e5d853d0f9"
+    ],
+    "scripts/lib/fixtures/exercises/90-demo/90.1-demo/exercise.ts": [
+      "7f63985b41a964dc"
+    ],
+    "scripts/lib/fixtures/exercises/90-demo/90.1-demo/problem/exercise.ts": [
+      "189ddd4a42c9737e"
+    ],
+    "scripts/lib/fixtures/exercises/90-demo/90.1-demo/solution/exercise.ts": [
+      "5016c1dd35412d80"
+    ],
+    "scripts/lib/fixtures/exercises/90-demo/90.2-readme-only/problem/readme.md": [
+      "f6ad175a74c62319"
+    ],
+    "scripts/lib/fixtures/exercises/90-demo/90.2-readme-only/readme.md": [
+      "f6ad175a74c62319"
+    ],
+    "scripts/lib/fixtures/fake-pi.ts": [
+      "45d7d80d687e4f7a",
+      "a4fe2f78e2166d77",
+      "c9bf47d046cf17a2"
+    ],
+    "scripts/lib/hooks.ts": ["d1de1b59ce7509ab"],
+    "scripts/lib/offline.test.ts": [
+      "0144545200f11748",
+      "aa3d44d20d727fd5",
+      "deffb948827ec1cf"
+    ],
+    "scripts/lib/offline.ts": [
+      "0fc2f98bb18a4f96",
+      "3ff00421649dce2c",
+      "aa2b19f9a3f96ccc",
+      "dade09f2001d035c"
+    ],
+    "scripts/lib/pi-check.test.ts": [
+      "63b24a08950a81b5",
+      "672e1c07f7559b73",
+      "7b3e0afc2edd6e45",
+      "a2a5f3c52dff6f45",
+      "b292733b8cc94b37"
+    ],
+    "scripts/lib/pi-check.ts": [
+      "14f524d1b1f7e869",
+      "236c0cb88a911e2d",
+      "4a62ec61648cf6e9",
+      "c5f53771fb3a7908"
+    ],
+    "scripts/lib/pi.test.ts": [
+      "3211874c846da5fa",
+      "3f20e64b4d52d620",
+      "54c01deb5443d327",
+      "5544a20fd971a1b2",
+      "69c3649f41198102",
+      "7ddd4524148f2988",
+      "7fa064d3d7790d18",
+      "bf793042c1fdd204",
+      "c0d3474201c64de8",
+      "c1eb211edd87547a",
+      "c2dd1b5617befbdc",
+      "d83ca08b5fd80e7e",
+      "d8a19fdcdca64cc5",
+      "dfd25a2c99b6542e",
+      "f019ee36b5313281",
+      "fa2fb01a7f7a4873"
+    ],
+    "scripts/lib/pi.ts": [
+      "0b7ad9ecf3a0ca79",
+      "12f159c042bc5b3e",
+      "3210c69dded1b6a2",
+      "3609bee49d0e4b52",
+      "6ed22ef9133e8af5",
+      "7e285021706feeac",
+      "8d61ae08e45584b3",
+      "b8d1072a4652c403",
+      "cf519d669bf7bfbf",
+      "d113ec600bcd3416",
+      "e1e50cf9ac0bf471",
+      "f9658bed1241388d",
+      "fae4f5c3d889b732",
+      "fe2fe8df509ed1b2"
+    ],
+    "scripts/lib/update.test.ts": [
+      "c7aaadea6489b91a",
+      "e4bf7038da61185e",
+      "e5683c997d75d466"
+    ],
+    "scripts/lib/update.ts": [
+      "182d52533aa3d13a",
+      "591e6385d00460b0",
+      "7fff28776a950c06",
+      "b9b787384f1a999a"
+    ],
+    "scripts/offline-prepare.ts": ["2d064a318af63ae5", "64a548d97ff30fd0"],
+    "scripts/package.json": ["0c0518a8688e3889"],
+    "scripts/pi.ts": [
+      "48cfdd3ecf15ccaf",
+      "6ccf58237728cdcf",
+      "7fa53ef5f7a8a22e",
+      "ae0dfe686d77eb56",
+      "e228ff13d11f7672",
+      "ec76513e807880a1"
+    ],
+    "scripts/starter-history.ts": [
+      "0476e8808e249f89",
+      "7c7bdf9f593bbc04",
+      "a8aee922a820466f",
+      "d22690a7726b24fc"
+    ],
+    "scripts/tsconfig.json": ["5921b7abd01dc4fb"],
+    "scripts/update.ts": ["5df942459c93835d", "ad708d9587bca790"],
+    "server/alchemy.run.ts": ["7ffd402f2a389cb3"],
+    "server/Host.ts": ["98b830d0fef5f62e", "f5d77c6a34f0fb18"],
+    "server/Host.worker.ts": ["1386e9c8431a34fa", "b3631e7aa9f1ea51"],
+    "server/models.ts": [
+      "a09e8529b219bd6c",
+      "be9ca74aa6feae29",
+      "e68931fd2e025b1a"
+    ],
+    "server/Probe.host.ts": ["9f2b460958f2b907", "abc7e5a0974df88b"],
+    "server/README.md": [
+      "34d2e2101f3f60df",
+      "7691161ac761855a",
+      "7a50959e43bf27cd",
+      "c82fb46fe0b43518"
+    ],
+    "server/role.ts": ["b01232abe36ccb9d"],
+    "server/serve.ts": ["9819d8cc113f68d2"],
+    "server/stack.ts": ["469b4b28a224a192"],
+    "shared/awakes/.gitkeep": ["feaef6c5058144d8"],
+    "shared/awakes/awakes.test.ts": ["e64f61a3d6f03cf3"],
+    "shared/awakes/breaks.ts": ["5e7de2f747412678"],
+    "shared/awakes/client.ts": [
+      "1683c89d0406d896",
+      "635180cda8543f36",
+      "a97874efd4b1f385",
+      "d2cea84cd4d429ff"
+    ],
+    "shared/awakes/commands.ts": [
+      "22f4292136d9e730",
+      "2ad1a46e969a35aa",
+      "8a4396b4408b7f89"
+    ],
+    "shared/awakes/contract.ts": ["7a91d581ecf2178c"],
+    "shared/awakes/exercise.ts": [
+      "1c74b5eca49aae01",
+      "4c9af57d7805b76c",
+      "64209d48cad25959",
+      "6b7f229285e88cbf",
+      "71fb7fe5fd30481f",
+      "764066538278ca31",
+      "d22346dd6e4b3d08",
+      "d532485d2189872f",
+      "e9487acd17c04fa2"
+    ],
+    "shared/awakes/job-machine.ts": ["c4d5e13fd0284a74"],
+    "shared/awakes/job-main.ts": ["ece78698b6c025a4"],
+    "shared/awakes/job-store.ts": ["8f3decd3ad56dff8"],
+    "shared/awakes/job.ts": [
+      "09491bdc07be05bf",
+      "3a9800f247a8d808",
+      "4c57542c59e3b804"
+    ],
+    "shared/awakes/launch.ts": ["c65c4e7f608b220d"],
+    "shared/awakes/stale.ts": ["9aed1c37daf468bf"],
+    "shared/awakes/stats.ts": [
+      "3877d8441582572c",
+      "57d462494a4082a2",
+      "5f989d005c0be216"
+    ],
+    "shared/awakes/status.ts": ["9cac0c4c3278f263"],
+    "shared/awakes/testing.ts": ["fb6f0e8b8b08fa2d"],
+    "shared/core/accept.ts": ["9ae01edcfbcc9ab5"],
+    "shared/core/catch-up.ts": ["3652b74266c83949", "cc93f74abc8a2b5e"],
+    "shared/core/commit-line.test.ts": ["0f291c262a07f9b6", "ecfa441dccbe94e8"],
+    "shared/core/commit-line.ts": [
+      "4490e640792b5449",
+      "54386bb6d8e8c099",
+      "68db4e9998221056",
+      "89b025c12653eacd",
+      "9a5ff5ca322f25ed",
+      "d6a88537dfe5e8df"
+    ],
+    "shared/core/context.ts": [
+      "1ac5d92b8f378d7b",
+      "2a60720f26a541ea",
+      "4581d26899882d6a",
+      "99f770d542b83fb3",
+      "a9b9b6b88b0bf421"
+    ],
+    "shared/core/core.test.ts": [
+      "37a554ecf5dae424",
+      "5b2487611f565b30",
+      "a25ea8f8d465a6ff",
+      "a7e58333d3e47735",
+      "ad6d12b4280902e6"
+    ],
+    "shared/core/env-guard.test.ts": [
+      "65da4f5fd80c64f8",
+      "69c761faaafae470",
+      "77924a774dd16a00"
+    ],
+    "shared/core/env-guard.ts": ["7b9c3ba7354cc7ad", "c03e8d3d4040145f"],
+    "shared/core/exercise.ts": [
+      "06fe1aa007c0756f",
+      "1a91d8bbf1fac6d8",
+      "24e308377fc6f523"
+    ],
+    "shared/core/fixtures.ts": ["cc09ff7705d5cb16"],
+    "shared/core/fixtures/input.txt": ["280ab770deea26c5"],
+    "shared/core/git-env.test.ts": ["3768188010f78085"],
+    "shared/core/git-env.ts": ["69828fb80df9ed62"],
+    "shared/core/guest-root.test.ts": [
+      "01735f3d9284ccdf",
+      "13197b187b429180",
+      "afa63e074a210b01",
+      "f6da3dd08a124301"
+    ],
+    "shared/core/guest-root.ts": ["0e10d8ac388f7102", "eec00862ed9c09f7"],
+    "shared/core/ids.ts": ["2dca96cdf3b84ea6", "fef2604cafa6cb81"],
+    "shared/core/index.ts": [
+      "1cf81e9ff238fdb8",
+      "477bab1973a905bd",
+      "b0f6de2e212cd108",
+      "c1163e1a7e87675a",
+      "d729ba6349ce3133",
+      "e60b27b9f70d763b"
+    ],
+    "shared/core/ledger.ts": ["a33950e28675f274"],
+    "shared/core/lifecycle.ts": ["d62a607a0f0dbdf8"],
+    "shared/core/package.json": ["37372158047abd70"],
+    "shared/core/paths.ts": [
+      "669d675e5df9a66a",
+      "9d775eb4d044061b",
+      "d9e9de51b410fd54"
+    ],
+    "shared/core/pi-record.ts": ["30e2eec65a24cf24"],
+    "shared/core/pi-settings.test.ts": [
+      "0061e77b95601c0b",
+      "452a87005a306827",
+      "80e252823d89381c",
+      "c0309a324e70b980",
+      "c96a147e1a8a3989",
+      "cc1e8180a44f8252",
+      "e2578357c2e78000",
+      "f51f20af9bb96be7"
+    ],
+    "shared/core/pi-settings.ts": [
+      "47bf4771d4aa701c",
+      "cc85e233dd842bbd",
+      "ed9807bf66f2a0d8"
+    ],
+    "shared/core/repo-root.ts": ["2d3882d9747eb44f"],
+    "shared/core/report.test.ts": [
+      "0c9181e572313344",
+      "1c2581a9333007e8",
+      "2a4dc6eb471e3f2b",
+      "2fbb0fa15be5199e",
+      "4552552041dda517",
+      "8352a0e12823b6e6",
+      "9697da565ea57da8",
+      "ec6cd54a485f2afb",
+      "f59c44148ace859c"
+    ],
+    "shared/core/report.ts": [
+      "0ab6934315503a2c",
+      "0d421f9c8493d365",
+      "19d67a30b6ee7810",
+      "3b058e4a82a49646",
+      "4abd55e705248c00",
+      "54550d603f1b1004",
+      "5f160a1d54d3addb",
+      "bc5230a9678bae20",
+      "c5c8ad3e10d176e7",
+      "ca7fd24b7001d215",
+      "e2dc0bb62c5ef3ca"
+    ],
+    "shared/core/results.ts": ["5f49f550f4b70392"],
+    "shared/core/run.ts": ["50530c695cc6998b", "5c172fc66c4f94ff"],
+    "shared/core/sessions.test.ts": ["b608b5d061fd66bd"],
+    "shared/core/sessions.ts": [
+      "1393b2b3257a9483",
+      "a907523bc67f4d4b",
+      "d52aabbf8d2772e6"
+    ],
+    "shared/core/starter-context.test.ts": [
+      "8d4fa34682f72a3f",
+      "98616815d27a8cc3",
+      "c004cc56b3d2dfe9"
+    ],
+    "shared/core/starter-context.ts": [
+      "0d31c06c046f7ea3",
+      "3ed092f07f1bc0bc",
+      "77b430e30abe9fb9"
+    ],
+    "shared/core/store.ts": ["6beb2d1190eaeb8d"],
+    "shared/core/testing.ts": [
+      "00a13fa23e5cc0b4",
+      "0317cf21f82eb13a",
+      "305ae794943cd153",
+      "3449327664b03789",
+      "380bf6cd500fe4cd",
+      "7fa06bb6d23bdf3c",
+      "eac7c9fae064b412"
+    ],
+    "shared/core/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/core/turns-observer.ts": ["641714d64f127be9", "d8610ecacedd3d0d"],
+    "shared/core/turns.test.ts": ["a257d90b08188c3c"],
+    "shared/core/turns.ts": ["401b629a5437aed4"],
+    "shared/core/verdicts.ts": ["ef17c5f3635035a9"],
+    "shared/domain-client/cli.ts": [
+      "1a68ada2b579a2ad",
+      "9412a290cc37f615",
+      "f43d4bc6dd47672b"
+    ],
+    "shared/domain-client/client.test.ts": ["ddebe84b75046b43"],
+    "shared/domain-client/client.ts": [
+      "2688615be95569bb",
+      "82801ca1b6fa794f",
+      "e08da9b497168a37"
+    ],
+    "shared/domain-client/health.test.ts": [
+      "0766fd100805bf66",
+      "458f15eb5a9718d7",
+      "fd22f408aa8bdaa8"
+    ],
+    "shared/domain-client/health.ts": ["90da4b60e8c31659", "b063f681e597186d"],
+    "shared/domain-client/host.test.ts": ["737f01acb7d2c5d0"],
+    "shared/domain-client/host.ts": [
+      "3e24c82bf2fbd654",
+      "72980143ceb7a8da",
+      "bf06b786edf4436f",
+      "f8f05a13ce7d31cf"
+    ],
+    "shared/domain-client/probe.ts": ["051358c6b321f3da", "9fa33b1f99cf1e5b"],
+    "shared/domain-client/typed.ts": ["c85df04695a06dea"],
+    "shared/first-package/catch-up.md": [
+      "22f49f990fdd6551",
+      "58b0ab2529c55d2c",
+      "670bef67de45542d"
+    ],
+    "shared/first-package/catch-up.test.ts": [
+      "315d6dd26e2bcc38",
+      "5b6429c905dd468e",
+      "6b67994c0c1686ba",
+      "e0a1d21212c3dcac"
+    ],
+    "shared/first-package/catch-up.tgz": [
+      "1db3350f64a0142c",
+      "41feed5de8a25366",
+      "5f803fd73c892751"
+    ],
+    "shared/first-package/catch-up.ts": [
+      "50768f3fe7d665c1",
+      "e1d4b64642ca7452"
+    ],
+    "shared/first-package/claims.ts": [
+      "069dd6dc6e6b5ab1",
+      "06c85775231e65f7",
+      "25cbc4e93d6304d0",
+      "3ba4447016528c47",
+      "562a8dbbc400f5f5",
+      "5f9dcbf10a35f378",
+      "9bddc7ab0f591d4b",
+      "d5e4fe1170d8024b",
+      "e2a6ff3da5693dcc",
+      "f1da4ff8441d2885"
+    ],
+    "shared/first-package/exercise.ts": [
+      "0bdd7be547cfd630",
+      "2b9066ef3988681c",
+      "3fbfd31a10684ced",
+      "4a53325db32d2580",
+      "6443c5048178ee3a",
+      "656f786428ac091d",
+      "8c9b954a9120df04",
+      "8db94c1aad49e854",
+      "95cc83a9dddb02ab",
+      "bdca08aaf35b2ede",
+      "cd19502895b329b9"
+    ],
+    "shared/first-package/factory/extensions/typecheck.ts": [
+      "4c6a2a10db7be74c"
+    ],
+    "shared/first-package/factory/README.md": ["a55b7b304776f93f"],
+    "shared/first-package/factory/skills/check-before-done/SKILL.md": [
+      "1e1bf8c20d259128"
+    ],
+    "shared/first-package/fence.test.ts": [
+      "052afad34692e99b",
+      "0d0a1eaa85bf4e9b",
+      "346d925904dd94c8",
+      "3fb7d33b125e2da7",
+      "8406eab6a1b6d0ea",
+      "842596fa07cb5b48",
+      "baf03929797997a1",
+      "c397a3dadea144e4",
+      "c7ff7626f3c7af8b",
+      "d03b7fdcca645a48",
+      "dcd2016d5fea7dee",
+      "f2707684e0150a8f"
+    ],
+    "shared/first-package/fence.ts": [
+      "590b3d737d9d0dcd",
+      "679a76b65e407451",
+      "8789cebd2590baec",
+      "aec2d1fe5d528591",
+      "bba6a07772f2f513",
+      "e255da6ef66074f9",
+      "f15f704b219a3488"
+    ],
+    "shared/first-package/package.json": ["3b8b8ede5a391374"],
+    "shared/first-package/probe-provider.ts": ["6e3d2c9cf9074816"],
+    "shared/first-package/probe.test.ts": [
+      "30d14157b8f41606",
+      "39f8dc237fbacf1c",
+      "3ad6b4f6275f08af",
+      "56ed0f6225dfe49b",
+      "6aecf0c7ecd256d8",
+      "7a4bd73c4da6484c",
+      "949e81ec2c7d1a38",
+      "bb0b766628f669e8",
+      "cb27e3b1dda5512a",
+      "e0af524c29cb2df4"
+    ],
+    "shared/first-package/probe.ts": ["476818df5c568d5c", "b93af5dcbb3a58ff"],
+    "shared/first-package/skip.ts": [
+      "3484e6238787da30",
+      "7c2fd610ab39760e",
+      "966822b8b6e40af1"
+    ],
+    "shared/first-package/tgz.ts": ["5a2076eda5e05bc3"],
+    "shared/first-package/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/memory/exercise.ts": [
+      "0f9a2ad83578f625",
+      "183b5f009f718a34",
+      "3b45cc7221625e14",
+      "3ba5f127a805f1b2",
+      "6e335992ea71af2f",
+      "a36b14032b3abdf3",
+      "c7019d740f425032",
+      "df7322fefce15358",
+      "edd5a8dd3a8e72d9"
+    ],
+    "shared/memory/judge.ts": [
+      "504e25a2d13a9097",
+      "551d1b532cb0f3c9",
+      "78c0e4c1b1a20727",
+      "9073828ae6ee1b18",
+      "c41d01387861c2ec"
+    ],
+    "shared/memory/log.ts": ["beaa96bfc915cac5"],
+    "shared/memory/memory.test.ts": [
+      "36926c1d6d681857",
+      "73c1b888790a94e0",
+      "98069d05d944d8fc",
+      "bdf52c65033fcba7",
+      "c1f49572f5e9c2dc"
+    ],
+    "shared/memory/package.json": ["b998f035247e8d98"],
+    "shared/memory/rules.ts": ["b7ace0a4d9446dba"],
+    "shared/memory/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/messages/exercise.ts": [
+      "01f10e9165aa79e2",
+      "6eea541476c9fd6b",
+      "9e25012070ade2eb",
+      "a0bc3240709bc041",
+      "a94a29eaa432304e",
+      "ae7b558f8d496221",
+      "fb0b01482c7272ea"
+    ],
+    "shared/messages/guest-root-stub.ts": ["074db7a8e2767000"],
+    "shared/messages/judge.ts": [
+      "3f6ff4b4385b3a99",
+      "64cee24158857826",
+      "9849b50fbd8aa36d",
+      "9ce4437b36bc2bdf",
+      "b476792435a5863c"
+    ],
+    "shared/messages/log.ts": ["845c128d394f6bb0"],
+    "shared/messages/messages.test.ts": [
+      "1447506bd2851b92",
+      "1c2bf82f6b0d599b",
+      "59bc042bda246bb5",
+      "5b88a4c347ebfecb",
+      "6da39e3823f386ba"
+    ],
+    "shared/messages/package.json": ["5e5453a0bac87222"],
+    "shared/messages/transcript.ts": ["85e400013e54cbb0", "a6b6e2dff4964563"],
+    "shared/messages/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/own-loop/catch-up.test.ts": ["a8e4e0b12823fbfb"],
+    "shared/own-loop/exercise.ts": [
+      "0149521717534c99",
+      "032450e6a57d6f76",
+      "12cf9396e334489e",
+      "3612a01ab0fba89d",
+      "48e441934dec1ea8",
+      "5c4a69cf3daaf420",
+      "6b9ff6190531bf40",
+      "77642e9a5e716cba",
+      "80d90a0d13a8bcbd",
+      "99bc9910cf986d73",
+      "a13c129bce5f4dbd",
+      "aa275df043f06ea1",
+      "c6ab839332f8028a",
+      "cb5ccdfa645822ca",
+      "cf1731493f34dc31",
+      "e66946e20838dee3",
+      "f4196c3394e0e0a6"
+    ],
+    "shared/own-loop/finish-later.ts": [
+      "497d3ddf10b3dbcd",
+      "56f1e42f96337af1",
+      "90641f1c99f18a01",
+      "d469e4392f3f0cd3"
+    ],
+    "shared/own-loop/job.test.ts": [
+      "2624470839014859",
+      "2fdc37ba950bee6c",
+      "410becd93d2d24b6",
+      "435313a3f3633242",
+      "57f1abd1c83f5e58",
+      "79f6281fee49fc3f",
+      "8f1d1ef6ca1a2fc2",
+      "905287f7d94d39bc",
+      "951538bdd5999439",
+      "a1366ed810f6f916",
+      "abb55cbbcb20e9a8",
+      "b912a88d5e0fc918",
+      "c255ea76a91df815",
+      "caff9afb0d5303bc",
+      "d1fd33ff4cc45810",
+      "d9b152f30353b016",
+      "e9a61c778a9dac66"
+    ],
+    "shared/own-loop/job.ts": [
+      "1bbf351f0d29e750",
+      "6a5a01b9aa8af4bb",
+      "82c80dbb7bdeeff9",
+      "9aca1891819ee92e",
+      "a90de07cf4fe546a",
+      "ba3a9ff32b07f62b",
+      "c4fe1870c59646d3",
+      "ccdf9a9f3f371fa3",
+      "fc412f2fe4fafe56"
+    ],
+    "shared/own-loop/package.json": ["a024af5b4dc50e96"],
+    "shared/own-loop/stats.ts": ["d89954d48168f3bf"],
+    "shared/own-loop/survive.ts": [
+      "179a34bce56e1d89",
+      "683eb48900bb8d3b",
+      "697345844209b2e7",
+      "6ddfb97edb4d1be2",
+      "a8a1edee08bb6e49",
+      "db1f9e0236f290d8"
+    ],
+    "shared/own-loop/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/remembers/.gitkeep": ["feaef6c5058144d8"],
+    "shared/remembers/breaks.ts": [
+      "1269c4f4bccd489d",
+      "29cf49e4d14b750b",
+      "a37750abb1bac930",
+      "f84f19fc2977c85e"
+    ],
+    "shared/remembers/commands.ts": [
+      "0017ed04ff7192d6",
+      "1f9ba606f083b551",
+      "2a7374f304f78244",
+      "7ac6ae9995aa5ccc",
+      "e708add85ca975b9"
+    ],
+    "shared/remembers/failure-receipt.ts": ["ea0f10314e1703dc"],
+    "shared/remembers/fixtures/lesson-line-count.json": ["e4380bd774181a1d"],
+    "shared/remembers/fixtures/line-count-rejection.json": ["d4539372ac70f1bb"],
+    "shared/remembers/gate.ts": ["6f41e36b56b81d05"],
+    "shared/remembers/host.ts": [
+      "2da27d62170ea928",
+      "34b7972882620a23",
+      "755935466c80c919",
+      "a55b58d50b61c6dc"
+    ],
+    "shared/remembers/lessons.ts": ["768d187dffbd73f6"],
+    "shared/remembers/live.ts": ["201a2727ff425cc2", "e26b0d39488aa281"],
+    "shared/remembers/machine.ts": ["a32f70c91876ed7f"],
+    "shared/remembers/registry.ts": ["5819d0a0a90c7168"],
+    "shared/remembers/remembers.test.ts": ["793af6e365cadcb9"],
+    "shared/remembers/seed.ts": ["1a1e6b4ca20c2b41"],
+    "shared/remembers/stats.ts": ["1ebbb81594109e9d"],
+    "shared/remembers/steps.ts": [
+      "1d2d0f3c46954bc8",
+      "7a3654eac6535b60",
+      "c3740d14afe15e73",
+      "ea690623fcb9b693"
+    ],
+    "shared/remembers/watch.ts": ["9e1c204b76733fea"],
+    "shared/several-agents/cast.ts": ["80bcc6f4213ee1e6", "b23d6514038816ed"],
+    "shared/several-agents/environment.test.ts": [
+      "12cfeabc26e6cda3",
+      "3ca0a02f587ed66a",
+      "9a9fd12994a13f13",
+      "ecc188f7bed5a0e3"
+    ],
+    "shared/several-agents/environment.ts": ["a0e93dd89d6e8551"],
+    "shared/several-agents/exercise.ts": [
+      "1e976d047b6bf34e",
+      "314a76715feba7e2",
+      "366aec9b713c1cb8",
+      "4d4df7290cbcc403",
+      "66a96934fb51f8bf",
+      "ae92df3735753467",
+      "cfc94dfd6fbe0205",
+      "d21063fbd25f5e02"
+    ],
+    "shared/several-agents/judge.ts": [
+      "3634bffa0ac38159",
+      "68078dbb9dde4eea",
+      "878ad9681672105f"
+    ],
+    "shared/several-agents/package.json": [
+      "11cbaf0e38b0db64",
+      "6c8be1a3991a8f98",
+      "f2df9730afc0fdce"
+    ],
+    "shared/several-agents/scripted-model.ts": [
+      "e6bceada695bfb58",
+      "fff7c3a0cce7d757"
+    ],
+    "shared/several-agents/stand-ins.ts": [
+      "3be42cc700ac6a87",
+      "452c12b7332ba212"
+    ],
+    "shared/several-agents/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/speaks/commands.ts": [
+      "12faa818bab33ea6",
+      "3472f390853c5b09",
+      "415a74ee2ab21826",
+      "568d176bcbe5d235",
+      "b0235640fa118487",
+      "c128a7140ca11c6b",
+      "fab84259c80af2eb"
+    ],
+    "shared/speaks/host.ts": [
+      "2a7b97d8ca2dc8b5",
+      "2ecefb9728bc0139",
+      "f660082be59bd0c3"
+    ],
+    "shared/speaks/judge-gate.test.ts": ["5f24d4689a02afd9"],
+    "shared/speaks/judge-gate.ts": ["13d2a484bcd9cbb5"],
+    "shared/speaks/mail-tool.test.ts": [
+      "3f79ec331c23ffd8",
+      "4f72272d08428e00",
+      "caa112bfa9c09397"
+    ],
+    "shared/speaks/mail-tool.ts": [
+      "630bdd27f320d150",
+      "dcec8e2f816098e9",
+      "e40614b5f46e1100"
+    ],
+    "shared/speaks/mail.test.ts": ["068280a650c7f700"],
+    "shared/speaks/mail.ts": ["1e1dafd6e93be7a6"],
+    "shared/speaks/oracle.test.ts": ["ea478c40c68415ad"],
+    "shared/speaks/oracle.ts": [
+      "1fc0d470df9c36bd",
+      "b4555d9f45d33480",
+      "d68916534d4150a0"
+    ],
+    "shared/speaks/results.ts": ["bdec0cdd709adf37", "dd0cd558db5c0960"],
+    "shared/speaks/review-machine.test.ts": ["194d44f939b56db5"],
+    "shared/speaks/review-machine.ts": ["75218f352ecb442d"],
+    "shared/speaks/review-mail.test.ts": ["bb293dffae3653bf"],
+    "shared/speaks/review-mail.ts": ["80cc0f40a5d184fc"],
+    "shared/speaks/round.ts": [
+      "0489683dc9484a1e",
+      "a3df727175d48715",
+      "cd038f0d68ebc965",
+      "ec4fac8339561548"
+    ],
+    "shared/speaks/serve.ts": ["48041f5f96a2e666"],
+    "shared/speaks/testing/cases.ts": [
+      "328ad1b09fe480f4",
+      "352e0bb8380fcaf5",
+      "aef3fcdeee288155",
+      "e95b95717f774613"
+    ],
+    "shared/speaks/testing/mail-peer.ts": ["6f15b39289af53cd"],
+    "shared/split-job/exercise.ts": [
+      "0eaa4ce02cc27f24",
+      "1f1674448bd16a14",
+      "4098cc47c6f6372d",
+      "48823b064c8fe594",
+      "690ece97e409da1d",
+      "7697212987a21d5b",
+      "7af458bbe59f5862",
+      "e9118d0ff04dfaba"
+    ],
+    "shared/split-job/git.ts": [
+      "6066375736374599",
+      "64ee3a9461b61961",
+      "c4eece38a9ef93e1"
+    ],
+    "shared/split-job/job.ts": ["81d6150e8fc8abb6", "a770e66a08e9b50e"],
+    "shared/split-job/judge.ts": [
+      "67fec5088c2e6334",
+      "88213c041733b72a",
+      "d25bca2791d742e0",
+      "f55a0e582e92a740",
+      "fb98f497a01a3779"
+    ],
+    "shared/split-job/observe.ts": ["d53ca302358c5474"],
+    "shared/split-job/package.json": ["558ddebbbc87b94a"],
+    "shared/split-job/split.test.ts": [
+      "6c73824b4f7a2913",
+      "aee02583fb5587d6",
+      "c42aaa3bd659649c"
+    ],
+    "shared/split-job/testing.ts": [
+      "85607620c275c71f",
+      "889ce5597583e015",
+      "a24e6ce8dd9d229d"
+    ],
+    "shared/split-job/tsconfig.json": ["9b34b870f8014e58"],
+    "shared/split-job/worker.ts": ["678ba411392186fc", "da99632515c32ba8"],
+    "tsconfig.base.json": ["edaa5e25fce17b09"],
+    "tsconfig.json": [
+      "05ebd861e304f43d",
+      "08e1eaf30da8c362",
+      "0cd8b05241dcda09",
+      "18b45413053e2057",
+      "75578a00ebb86dd7",
+      "cc7378bf0aca300d"
+    ],
+    "turbo.json": [
+      "24ed0922420262ee",
+      "44c591d6e5ea523f",
+      "4f1a164d045e7a71",
+      "58f854fe62084cd4",
+      "702aaf4f87f82500",
+      "7457f9bd88e0bdae",
+      "75d485708ad474cb",
+      "75e4a12fd440b247",
+      "835dde849c88ed61",
+      "e066987b03a4d0df",
+      "e194a1b786276ce5",
+      "e357c5e161eb6672",
+      "e3b8626be1c134c2"
+    ],
+    "vitest.config.ts": [
+      "18c52b4192d45302",
+      "327af5045143b426",
+      "a1f6fada86eca512",
+      "dd7aca443d744e9e",
+      "f1d6b41dd76b0bf2"
+    ],
+    "vitest.exercise.config.ts": [
+      "b82a45ed3972a5ed",
+      "d0f0f90ce0376cd7",
+      "d81145d7af403fe8"
+    ],
+    "vitest.package.ts": ["69ffca5bf049e6b9"],
+    "vitest.problems.config.ts": ["c137096faf82fc50"],
+    "vitest.setup.ts": ["7c55995149c0d1c5", "b6f1f4d236a4e5b5"]
+  }
+}

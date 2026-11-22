@@ -11,9 +11,6 @@ import { join } from "node:path";
 
 import { afterAll, describe, expect, it } from "vitest";
 
-import { startedPackage } from "#shared/first-package/catch-up.ts";
-import { waitPackage } from "#shared/own-loop/exercise.ts";
-
 import { type CatchUpPackage, catchUp } from "./catch-up.ts";
 import { exerciseContext, findRepoRoot } from "./context.ts";
 import {
@@ -55,21 +52,9 @@ describe("the repo's own settings", () => {
     });
   });
 
-  it("declares the package 01.1's catch-up switches on", () => {
-    expect(readDeclared(repoRoot, startedPackage.source)).toMatchObject({
-      source: startedPackage.source,
-      commit: null,
-    });
-  });
-
-  it("declares the package 02.1's catch-up switches on", () => {
-    expect(waitPackage.source).toBe(loop);
-    expect(pinnedGitPackages(repoRoot)).toContainEqual({
-      repo: "github.com/joelhooks/pi-until",
-      commit: sha,
-      source: pinned,
-    });
-  });
+  // Each piece's own tests check that its catch-up package is declared
+  // here: shared/first-package/catch-up.test.ts and
+  // shared/own-loop/catch-up.test.ts.
 });
 
 describe("a declared package", () => {
@@ -151,21 +136,6 @@ describe("a declared package", () => {
 describe("catch-up", () => {
   const ctxFor = (repoRoot: string, exerciseId = "02.1") =>
     exerciseContext({ exerciseId, repoRoot, env: {} });
-
-  it("switches a git package on once and points at where to read it", async () => {
-    const repo = repoWith("catch-up", {
-      packages: [{ source: pinned, ...off }],
-    });
-    const lines: string[] = [];
-    const command = catchUp(waitPackage, { out: (line) => lines.push(line) });
-    expect(await command(ctxFor(repo), [])).toBe(0);
-    expect(readDeclared(repo, loop).switchedOn).toBe(true);
-    expect(lines.join("\n")).toContain(waitPackage.url);
-    expect(lines.join("\n")).not.toMatch(/reveal/i);
-    lines.length = 0;
-    expect(await command(ctxFor(repo), [])).toBe(0);
-    expect(lines[0]).toMatch(/already switched on/);
-  });
 
   it("switches a local package on when its folder is in the checkout", async () => {
     const pkg: CatchUpPackage = {

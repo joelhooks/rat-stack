@@ -344,7 +344,7 @@ describe("the memory environment", () => {
     await run("submit", await entry(second));
     const done = await run("done");
     expect(done.out.filter((l) => l.startsWith("PASS"))).toHaveLength(5);
-    expect(done.out).toContain("PASS  committed");
+    expect(done.out).toContain("PASS     committed");
     expect(done.code).toBe(0);
   });
 });

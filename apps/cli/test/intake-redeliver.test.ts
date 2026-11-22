@@ -15,12 +15,14 @@ it.effect(
         notAttempted: ["synthetic-third"],
         rows: [
           {
+            hold: true,
             outcome: "accepted",
             previousState: "refused",
             state: "accepted",
             submissionId: "synthetic-first",
           },
           {
+            hold: false,
             outcome: "retry",
             previousState: "ready",
             state: "ready",
@@ -46,6 +48,7 @@ it.effect(
           JSON.stringify({
             dryRun: false,
             includeRefused: true,
+            releaseHeld: true,
             submissionIds: ids,
           })
         );
@@ -56,7 +59,12 @@ it.effect(
       });
 
       const result = yield* intakeRedeliver
-        .handler({ dryRun: false, includeRefused: true, submissionIds: ids })
+        .handler({
+          dryRun: false,
+          includeRefused: true,
+          releaseHeld: true,
+          submissionIds: ids,
+        })
         .pipe(
           Effect.provide(
             remoteIntakeRedeliveryLayer("https://operator.example.test").pipe(

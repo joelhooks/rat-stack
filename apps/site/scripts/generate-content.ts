@@ -35,6 +35,12 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import satori from "satori";
 
 import {
+  videoObject,
+  videoPagePath,
+  videoPageDescription,
+  tubePageVideos,
+} from "../../web/src/client/tube/data.ts";
+import {
   allStarsCopy,
   directoryCopy,
   newsCopy,
@@ -160,8 +166,16 @@ import {
   stripHtmlComments,
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
+import { buildHelpGuide } from "./tokenmaxx-help.ts";
 import { buildWorkshop } from "./tokenmaxx-workshop.ts";
-import { decodeTubeData, tubeBuildError, tubeMarkdown } from "./tube-pages.ts";
+import {
+  decodeTubeData,
+  tubeBuildError,
+  tubeMarkdown,
+  validateTubeConcepts,
+  tubeGaps,
+  tubeVideoMarkdown,
+} from "./tube-pages.ts";
 import {
   collectUnlinkedProse,
   findUnlinkedMentions,
@@ -1115,6 +1129,7 @@ const program = Effect.gen(function* generateContent() {
   });
 
   const workshop = yield* buildWorkshop(root);
+  const helpGuide = yield* buildHelpGuide(root);
 
   const cafeData = yield* Effect.all({
     news: readText(cafeNewsFile),
@@ -1223,6 +1238,31 @@ const program = Effect.gen(function* generateContent() {
       decodeTubeData(text).pipe(Effect.mapError(tubeBuildError))
     )
   );
+
+  const tubePages = tubePageVideos(tubeData);
+  yield* Effect.forEach(
+    tubePages,
+    (video) =>
+      Effect.forEach(
+        wikiProseWarnings(
+          `${tubeDataPath} video ${video.id}`,
+          [
+            ...(video.page?.summary ?? []),
+            ...(video.page?.sections.map((section) => section.note) ?? []),
+          ].join("\n\n")
+        ),
+        (warning) => Effect.logWarning(wikiProseWarningText(warning)),
+        { discard: true }
+      ),
+    { discard: true }
+  );
+
+  const llmsTubeLinks = [
+    ...tubePages.map(
+      (video) => `- [${video.title}](${originToken}${videoPagePath(video)})`
+    ),
+    `- [Tube concept gaps](${originToken}/tube/gaps.json)`,
+  ].join("\n");
 
   const tubeSource = tubeMarkdown(tubeData);
 
@@ -2007,24 +2047,22 @@ For signup, read the [interest rules](${originToken}/systems/interest) and the [
 
 Most of this site is for you to hand to your agent and use in your own setup. A lot is generated, and some of it reads weird. I'm rewriting it as I go, so it's better to read for me and for you. Comments, feedback, and discussion are welcome: [@joelhooks on X](https://x.com/joelhooks).
 
-Rat Stack helps your agent build your project with [Effect](${originToken}/lore/effect-basics) and [Alchemy](${originToken}/skills/learn-alchemy). You can get your project running, then learn how it works at whatever depth you like.
-
-The site gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working examples to follow. You can read them too.
+Rat Stack gives your agent [rules](${originToken}/AGENTS.md), [guides](${originToken}/skills) and working code to [build your app](${originToken}/lore/effect-basics) and [set up its cloud services](${originToken}/skills/learn-alchemy). Ask it to build your project, or stop and ask why. The point is ["understanding at whatever depth you prefer"](https://x.com/joelhooks/status/2121306853401637212).
 
 ${homeFeatured}
 
 ## Go as deep as you like
 
-- Get your project running. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
-- Understand the pieces. Ask your agent why the code looks the way it does, or read the [explanations](${originToken}/lore).
+- Build your project. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
+- Ask why. Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
 - Learn by building. Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
-- Choose what to keep. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
+- Take what you need. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
 - Check the work. The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
 - See what others are building. Browse the [news](${originToken}/news) and [project directory](${originToken}/directory).
 
 ## How it fits together
 
-Rat Stack describes [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
+The goal is [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
 
 Follow [a search through the app](${originToken}/lore/a-browser-send-follows-one-path) or [one action in several places](${originToken}/lore/one-capability-every-surface) to see the code. The [package guide](${originToken}/AGENTS.md#packages) lists the pieces.
 
@@ -2298,7 +2336,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
-    "- [Ratstack Tube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
+    "- [RatTube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
+    llmsTubeLinks,
     "- [Docs search](__RATSTACK_ORIGIN__/search): search the rules, lore, skills, and prompts in a browser; `?q=` opens a query; agents call the `search` and `read` tools",
     "",
     agentNextActions(originToken, tokenmaxxTitle),
@@ -2343,6 +2382,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       profile.avatar.path,
     ]),
     tubeRoutePath,
+    ...tubePages.map((video) => videoPagePath(video)),
+    "/tube/gaps.json",
     "/search",
     "/",
     "/skills",
@@ -2394,6 +2435,14 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       ...skillTexts.map((skill) => skill.routePath),
       ...loreTexts.map((lore) => lore.routePath),
     ].map(ogImagePath),
+  ]);
+
+  yield* validateTubeConcepts(tubeData, knownRoutes, [
+    { routePath: "/glossary", bodyHtml: glossaryIndexBody.bodyHtml },
+    ...loreBodies.map(({ lore, bodyHtml }) => ({
+      routePath: lore.routePath,
+      bodyHtml,
+    })),
   ]);
 
   const documentsToCheck = [
@@ -3003,6 +3052,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       tokenmaxxAgentMarkdown,
       tokenmaxxBodyHtml,
       JSON.stringify(workshop.data),
+      JSON.stringify(helpGuide),
       ...workshop.pages.map((page) => page.source),
       interestResultBody,
       interestConfirmBody,
@@ -3073,6 +3123,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: tubeRoutePath,
       title: tubeCopy.heading,
     },
+    ...tubePages.map<OgPage>((video) => ({
+      description: videoPageDescription(video),
+      routePath: videoPagePath(video),
+      title: video.title,
+    })),
     ...allStarsProfiles.map<OgPage>((profile) => ({
       description: profile.bio[0].text,
       routePath: `/all-stars/${profile.id}`,
@@ -3608,6 +3663,45 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     contentVersion
   );
 
+  const tubeVideoSources = yield* Effect.forEach(
+    (video: (typeof tubePages)[number]) =>
+      Effect.gen(function* buildTubeVideo() {
+        const routePath = videoPagePath(video);
+        const source = tubeVideoMarkdown(video, tubeData.videos);
+
+        const body = yield* compileMarkdownBody(
+          source,
+          `${routePath}.md`,
+          highlighter,
+          emptyTargets,
+          [],
+          routePath
+        );
+
+        const document = yield* makeDocument(
+          body.bodyHtml,
+          {
+            description: videoPageDescription(video),
+            path: routePath,
+            title: pageTitle(video.title),
+          },
+          tubeDataPath,
+          contentVersion
+        );
+
+        const documentHtml = document.replace(
+          "</head>",
+          `<script type="application/ld+json">${JSON.stringify(videoObject(video)).replaceAll("<", "\\u003c")}</script></head>`
+        );
+
+        return {
+          documentHtml,
+          routePath,
+          text: renderAgentPage(source, routePath, video.title),
+        };
+      })
+  )(tubePages);
+
   const allStarsSources = yield* Effect.forEach(
     (page: (typeof allStarsPages)[number]) =>
       compileMarkdownBody(
@@ -3710,6 +3804,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/favicon.ico",
           "/apple-touch-icon.png",
           "/favicon.svg",
+          "/tube/gaps.json",
           "/tokenmaxx/four-comma-club.jpg",
           "/tokenmaxx/shitrat.jpg",
           "/lore/cartridges/snes-sfam-cartridges.jpg",
@@ -3718,6 +3813,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           ...avatarImages.map((image) => image.path),
         ],
         llmsAllStarsLinks,
+        llmsTubeLinks,
         llmsLoreLinks,
         loreIndexMarkdown: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
         pageRoutes: [
@@ -3733,6 +3829,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
           "/all-stars",
           ...allStarsProfiles.map((profile) => profile.route),
           tubeRoutePath,
+          ...tubePages.map((video) => videoPagePath(video)),
           ...workshop.pages.map((page) => page.routePath),
           "/search",
         ],
@@ -3754,6 +3851,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { path: "/_content/prompts.json", value: promptTexts },
     { path: "/_content/cafe.json", value: encodedCafeData },
     { path: "/_content/workshop.json", value: workshop.data },
+    { path: "/_content/tokenmaxx-help.json", value: helpGuide },
     { path: "/_content/tokenmaxx.json", value: tokenmaxxAgentMarkdown },
     ...resources.map((resource) => ({
       path: contentPagePath(resource.id),
@@ -3774,6 +3872,12 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     data,
     directory: path.join(root, "apps/site/dist/content"),
     images: [
+      {
+        path: "/tube/gaps.json",
+        base64: Buffer.from(JSON.stringify(tubeGaps(tubeData))).toString(
+          "base64"
+        ),
+      },
       ...securityAuditAssets,
       { base64: faviconIcoBase64, path: "/favicon.ico" },
       { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
@@ -3843,6 +3947,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         text: allStarsIndexText,
       },
       ...allStarsSources,
+      ...tubeVideoSources,
       {
         documentHtml: tubeDocument,
         routePath: tubeRoutePath,
@@ -3920,7 +4025,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       )
     );
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const agentPointerMarkdown = ${sourceLiteral(agentPointerMarkdown)} as const;\n\nexport const authMarkdown = ${sourceLiteral(authMarkdown)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const staticAssetGeneration = ${sourceLiteral(assetManifest.generation)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const agentPointerMarkdown = ${sourceLiteral(agentPointerMarkdown)} as const;\n\nexport const authMarkdown = ${sourceLiteral(authMarkdown)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const tubeRoutes = ${sourceLiteral(tubePages.map(({ id, slug }) => ({ id, slug, page: true })))} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const staticAssetGeneration = ${sourceLiteral(assetManifest.generation)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem

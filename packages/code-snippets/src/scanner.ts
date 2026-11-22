@@ -76,8 +76,11 @@ const scanValue = Effect.fn("scanValue")(function* scanValue(
         meta.slice(start, end + 1)
       ).pipe(
         Effect.mapError(
-          () =>
-            new CodeMalformedMeta(context(`Use a valid quoted ${key} string.`))
+          (cause) =>
+            new CodeMalformedMeta({
+              ...context(`Use a valid quoted ${key} string.`),
+              cause,
+            })
         )
       );
 
@@ -160,12 +163,13 @@ const parseRanges = Effect.fn("parseRanges")(function* parseRanges(
 
     const parsed = yield* Schema.decodeEffect(RangeSchema)({ end, start }).pipe(
       Effect.mapError(
-        () =>
-          new CodeInvalidRanges(
-            context(
+        (cause) =>
+          new CodeInvalidRanges({
+            ...context(
               `Use positive line numbers or ranges for ${label}, such as 3,5-7.`
-            )
-          )
+            ),
+            cause,
+          })
       )
     );
 
@@ -307,10 +311,11 @@ const scannedRequest = Effect.fn("scannedRequest")(function* scannedRequest(
     title: fields.title ?? fields.path?.split("/").at(-1) ?? "Code",
   }).pipe(
     Effect.mapError(
-      () =>
-        new CodeInvalidProps(
-          context("Use the documented fence metadata grammar.")
-        )
+      (cause) =>
+        new CodeInvalidProps({
+          ...context("Use the documented fence metadata grammar."),
+          cause,
+        })
     )
   );
 });
