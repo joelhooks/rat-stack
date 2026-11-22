@@ -111,7 +111,7 @@ it.effect("renders the seven approved steps on the workshop prep page", () =>
       expect(body).not.toContain("Coming soon.");
 
       for (const [index, label] of [
-        "Node, pnpm and git",
+        "Node, pnpm, git and Pi",
         "The workshop tools",
         "Herdr",
         "The person gives Pi a model",

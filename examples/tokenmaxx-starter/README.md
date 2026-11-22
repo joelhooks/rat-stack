@@ -4,11 +4,11 @@ The starter for the Tokenmaxx workshop. You build your own agent factory, one pi
 
 ## Setup
 
-You need Node 24.18 or newer and pnpm 11.3. Pi is installed with the repo, so you do not need a global one.
+You need Node 24.18 or newer, pnpm 11.3 and Pi on your PATH, so `pi` starts in any folder ([Pi's install instructions](https://pi.dev/)).
 
 ```sh
 pnpm install
-pnpm pi            # once: accept project trust, pick a model with /model, then /quit
+pi                 # once: accept project trust (don't cancel it), pick a model with /model, then /quit
 pnpm ex 00.1 check # proves a real model turn, a tool call, the pinned packages, and two Pi sessions at once
 ```
 
@@ -29,10 +29,10 @@ Then `pnpm pi` and `pnpm ex <id> <command>` work from your repo's root, and from
 
 Step 0 is a small repo of your own that refuses a broken commit. You build in it on the day, so do it before your day.
 
-Make a new folder beside `tokenmaxx/`. From inside it, start the Pi that came with the starter:
+Make a new folder beside `tokenmaxx/`. From inside it, start Pi:
 
 ```sh
-../tokenmaxx/node_modules/.bin/pi
+pi
 ```
 
 Give it this prompt:
