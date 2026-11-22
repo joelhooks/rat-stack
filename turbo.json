@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["tsconfig.base.json"],
+  "globalPassThroughEnv": ["pnpm_config_pm_on_fail"],
   "remoteCache": { "signature": true },
   "tasks": {
     "typecheck": {
