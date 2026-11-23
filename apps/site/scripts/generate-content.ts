@@ -2056,9 +2056,9 @@ ${homeFeatured}
 - Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
 - Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
 - Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
-- The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
-- The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
-- The [project directory](${originToken}/directory) shows what others are building.
+- Cut the parts you don't need. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs.
+- Read the [systems pages](${originToken}/systems) for the checks, and the [known gaps](${originToken}/debt.md) for what still needs work.
+- See what others are building in the [project directory](${originToken}/directory).
 
 ## How it fits together
 
