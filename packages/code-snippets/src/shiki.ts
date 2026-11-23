@@ -30,6 +30,10 @@ const latteColors = {
   "#fe640b": "#b74301",
 };
 
+const mochaColors = {
+  "#9399b2": "#949ab3",
+};
+
 const roleFor = (rawColor: string | undefined): Token["role"] => {
   const color = rawColor?.toLowerCase();
 
@@ -125,8 +129,13 @@ export const shikiLayer = (
       const lightColors =
         theme === "catppuccin-latte" && darkTheme !== theme ? latteColors : {};
 
+      const darkColors =
+        darkTheme === "catppuccin-mocha" && theme !== darkTheme
+          ? mochaColors
+          : {};
+
       const themeOptions = {
-        colorReplacements: { [theme]: lightColors },
+        colorReplacements: { [theme]: lightColors, [darkTheme]: darkColors },
         themes: { dark: darkTheme, light: theme },
       };
 
@@ -137,7 +146,7 @@ export const shikiLayer = (
         ])
       );
 
-      const fingerprint = `shiki@4.6.0:${theme}:${darkTheme}:${JSON.stringify(lightColors)}`;
+      const fingerprint = `shiki@4.6.0:${theme}:${darkTheme}:${JSON.stringify([lightColors, darkColors])}`;
       const cache = new Map<string, readonly (readonly Token[])[]>();
 
       const aliases = Object.fromEntries(
