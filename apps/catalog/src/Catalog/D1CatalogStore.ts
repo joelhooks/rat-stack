@@ -1,3 +1,7 @@
+// @effect-diagnostics-next-line nodeBuiltinImport:off -- This synchronous deploy prop must not require an additional Worker runtime service.
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import { CatalogUnavailable } from "@rat-stack/catalog/Catalog/CatalogUnavailable.rejection";
 import { RuntimeContext } from "alchemy/RuntimeContext";
@@ -9,12 +13,18 @@ import { CatalogSqlRows, catalogSqlLayer } from "./CatalogSql.ts";
 import type { CatalogSql } from "./CatalogSql.ts";
 import { catalogWriteFailure } from "./CatalogWriteFailure.ts";
 
+export const catalogMigrationDirectory = (): string =>
+  path.relative(
+    process.cwd(),
+    fileURLToPath(new URL("../../migrations/", import.meta.url))
+  );
+
 export const D1CatalogStore = catalogSqlLayer(
   Effect.gen(function* makeD1CatalogStore() {
     const database = yield* Cloudflare.D1.Database(
       "CatalogIndexDatabase",
       Effect.sync(() => ({
-        migrations: new URL("../../migrations/", import.meta.url).pathname,
+        migrations: catalogMigrationDirectory(),
       }))
     );
 
