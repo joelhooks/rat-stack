@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
-import { InterestTokens, SubscriberIntake } from "@rat-stack/core/interest";
+import { InterestTokens } from "@rat-stack/core/interest";
 import {
   IntakeErasure,
   IntakeSweep,
@@ -13,6 +13,8 @@ import {
 import { Effect, Layer, Redacted, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
+import { makeScriptedIntakeEvents } from "../../../packages/core/test/fixtures/scripted-intake-events.js";
+import { scriptedIntakeLayer } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import {
   JOIN_CONTACT_KEY,
   joinContactCell,
@@ -54,7 +56,6 @@ it.effect.prop(
       });
 
       const vault = yield* makeMemoryIntakeVault;
-      const tombstones: string[] = [];
 
       const originalEvents = yield* IntakeEvents.pipe(
         Effect.provide(sealedIntakeEventsLayer.pipe(Layer.provide(vault.layer)))
@@ -130,21 +131,15 @@ it.effect.prop(
       ]);
       expect((yield* vault.contents).size).toBe(1);
 
+      const events = yield* makeScriptedIntakeEvents({
+        erase: originalEvents.erase,
+      });
+
       const services = Layer.mergeAll(
         Layer.succeed(JoinContactStore, contacts),
-        Layer.succeed(IntakeEvents, {
-          ...originalEvents,
-          erase: (ref) =>
-            Effect.sync(() => {
-              tombstones.push(ref);
-            }).pipe(Effect.andThen(originalEvents.erase(ref))),
-        }),
-        Layer.succeed(SubscriberIntake, {
-          submit: () => Effect.die("erasure must not deliver"),
-          agent: {
-            enabled: true,
-            submit: () => Effect.die("erasure must not deliver"),
-          },
+        events.layer,
+        scriptedIntakeLayer({
+          agent: {},
         })
       );
 
@@ -155,7 +150,7 @@ it.effect.prop(
       ).pipe(Effect.provide(IntakeErasure.layer.pipe(Layer.provide(services))));
 
       expect(orphanedMarkers).toEqual([]);
-      expect(tombstones).toContain(actor);
+      expect(yield* events.eraseCalls).toContain(actor);
       expect((yield* vault.contents).size).toBe(0);
       expect(result).toMatchObject({
         failed: 0,

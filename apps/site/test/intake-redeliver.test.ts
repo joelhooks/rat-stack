@@ -10,7 +10,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { interestRoutes } from "../src/interest/routes.js";
-import { fakeIntakeLayer } from "./fixtures/fake-intake.js";
+import { acceptedIntakeLayer } from "./fixtures/fake-intake.js";
 
 it.effect.prop(
   "operator authorization guards redelivery and its private partial receipt",
@@ -28,7 +28,7 @@ it.effect.prop(
           InterestMode.layer("doi"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          fakeIntakeLayer
+          acceptedIntakeLayer
         )
       );
 

@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
-import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
-import { InterestTokens, SubscriberIntake } from "@rat-stack/core/interest";
+import { ContactRefSchema } from "@rat-stack/core/intake";
+import { InterestTokens } from "@rat-stack/core/interest";
 import {
   IntakeSweep,
   JoinContactStore,
@@ -9,6 +9,8 @@ import {
 } from "@rat-stack/core/join-interest";
 import { Deferred, Effect, Fiber, Layer, Redacted, Schema } from "effect";
 
+import { scriptedIntakeEventsLayer } from "../../../packages/core/test/fixtures/scripted-intake-events.js";
+import { makeScriptedIntake } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { sweepPendingIntake } from "../src/interest/intake-sweep.js";
 import {
   JOIN_CONTACT_KEY,
@@ -109,26 +111,17 @@ it.effect.prop(
       expect(sealed).toBeDefined();
       entries.set(JOIN_CONTACT_KEY, sealed);
       entries.delete("join-contact-meta");
-      const sent: string[] = [];
+
+      const intake = yield* makeScriptedIntake({
+        agent: {
+          submit: () => Effect.succeed({ kind: "retry", afterSeconds: 30 }),
+        },
+      });
 
       const base = Layer.mergeAll(
         Layer.succeed(JoinContactStore, contacts),
-        Layer.succeed(IntakeEvents, {
-          record: () => Effect.void,
-          erase: () => Effect.void,
-        }),
-        Layer.succeed(SubscriberIntake, {
-          submit: () => Effect.succeed({ kind: "refused" }),
-          agent: {
-            enabled: true,
-            submit: (request) =>
-              Effect.sync(() => {
-                sent.push(request.submissionId);
-
-                return { kind: "retry", afterSeconds: 30 } as const;
-              }),
-          },
-        })
+        scriptedIntakeEventsLayer(),
+        intake.layer
       );
 
       const delivery = runJoinDelivery({ submissionId: id }).pipe(
@@ -171,8 +164,9 @@ it.effect.prop(
       expect((yield* contacts.read(id))?.state).toBe("ready");
       expect(pending.has(id)).toBe(true);
       expect(entries.get("join-erased")).not.toBe(true);
+      const sent = yield* intake.agentCalls;
       expect(sent.length).toBeGreaterThan(0);
-      expect(sent.every((submissionId) => submissionId === id)).toBe(true);
+      expect(sent.every((request) => request.submissionId === id)).toBe(true);
       expect([...noted]).toEqual([id]);
     }).pipe(Effect.scoped)
 );

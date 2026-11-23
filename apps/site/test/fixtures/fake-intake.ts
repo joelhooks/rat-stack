@@ -1,22 +1,7 @@
-import { SubscriberIntake } from "@rat-stack/core/interest";
-import type { IntakeRequest, IntakeResult } from "@rat-stack/core/interest";
-import { Effect, Layer, Ref } from "effect";
+import { Effect } from "effect";
 
-export const fakeIntake = (script: readonly IntakeResult[]) =>
-  Effect.gen(function* makeFakeIntake() {
-    const calls = yield* Ref.make<readonly IntakeRequest[]>([]);
+import { scriptedIntakeLayer } from "../../../../packages/core/test/fixtures/scripted-intake.js";
 
-    const layer = Layer.succeed(SubscriberIntake, {
-      submit: (request: IntakeRequest) =>
-        Ref.modify(calls, (all) => [
-          script[all.length] ?? script.at(-1) ?? { kind: "refused" as const },
-          [...all, request],
-        ]),
-    });
-
-    return { calls: Ref.get(calls), layer } as const;
-  });
-
-export const fakeIntakeLayer = Layer.succeed(SubscriberIntake, {
-  submit: () => Effect.succeed<IntakeResult>({ kind: "accepted" }),
+export const acceptedIntakeLayer = scriptedIntakeLayer({
+  submit: () => Effect.succeed({ kind: "accepted" }),
 });

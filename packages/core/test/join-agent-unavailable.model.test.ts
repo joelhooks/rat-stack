@@ -2,13 +2,16 @@ import { expect, it } from "@effect/vitest";
 import { Clock, Effect, Schema } from "effect";
 import { TestClock } from "effect/testing";
 
-import { SubscriberIntake } from "../src/interest-intake.js";
 import {
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
   JoinContactStore,
 } from "../src/join-contact-store.js";
 import { runJoinDelivery } from "../src/join-delivery-machine.js";
+import {
+  makeScriptedIntake,
+  scriptedIntakeLayer,
+} from "./fixtures/scripted-intake.js";
 
 it.effect.prop(
   "a missing or disabled intake agent preserves signup, retry timing and the original deadline",
@@ -37,23 +40,13 @@ it.effect.prop(
         retentionDeadlineAt: deadline,
       });
 
-      const browser = {
-        submit: () => Effect.die("person intake must not run"),
-      };
-
-      const unavailable = disabled
-        ? {
-            ...browser,
-            agent: {
-              enabled: false,
-              submit: () => Effect.die("disabled intake must not run"),
-            },
-          }
-        : browser;
+      const unavailable = scriptedIntakeLayer(
+        disabled ? { agent: { enabled: false } } : undefined
+      );
 
       const missing = yield* runJoinDelivery({
         submissionId: contact.submissionId,
-      }).pipe(Effect.provideService(SubscriberIntake, unavailable));
+      }).pipe(Effect.provide(unavailable));
 
       expect(missing.kind).toBe("retry");
       expect((yield* contacts.read(contact.submissionId))?.retryAt).toBe(
@@ -67,30 +60,22 @@ it.effect.prop(
       ).toBe(false);
 
       yield* TestClock.adjust(elapsed * 1000);
-      const sent: string[] = [];
+
+      const intake = yield* makeScriptedIntake({
+        agent: { submit: () => Effect.succeed({ kind: "accepted" }) },
+      });
 
       const recovered = yield* runJoinDelivery({
         submissionId: contact.submissionId,
-      }).pipe(
-        Effect.provideService(SubscriberIntake, {
-          agent: {
-            enabled: true,
-            submit: (request) =>
-              Effect.sync(() => {
-                sent.push(request.submissionId);
-
-                return { kind: "accepted" } as const;
-              }),
-          },
-          submit: () => Effect.die("person intake must not run"),
-        })
-      );
+      }).pipe(Effect.provide(intake.layer));
 
       const pendingOrAccepted = elapsed < dueIn ? "retry" : "accepted";
       expect(recovered.kind).toBe(
         elapsed >= 86_400 ? "refused" : pendingOrAccepted
       );
-      expect(sent).toEqual(
+      expect(
+        (yield* intake.agentCalls).map((request) => request.submissionId)
+      ).toEqual(
         elapsed >= dueIn && elapsed < 86_400 ? [contact.submissionId] : []
       );
       expect((yield* contacts.read(contact.submissionId)) !== undefined).toBe(

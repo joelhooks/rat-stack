@@ -13,7 +13,7 @@ import {
   PAGE_TICKET_SOURCE,
   QuestionIdSchema,
 } from "../src/intake.js";
-import { InterestTokens, SubscriberIntake } from "../src/interest.js";
+import { InterestTokens } from "../src/interest.js";
 import type { AgentIntakeRequest, IntakeResult } from "../src/interest.js";
 import {
   JoinAnswers,
@@ -27,6 +27,11 @@ import {
   joinInterest,
   joinInterestContract,
 } from "../src/join-interest.js";
+import { scriptedIntakeEventsLayer } from "./fixtures/scripted-intake-events.js";
+import {
+  makeScriptedIntake,
+  scriptedIntakeLayer,
+} from "./fixtures/scripted-intake.js";
 
 const Scenario = Schema.Struct({
   enabled: Schema.Boolean,
@@ -86,10 +91,8 @@ const expectOperatorRelease = Effect.fnUntraced(function* expectOperatorRelease(
         Layer.provide(
           Layer.mergeAll(
             Layer.succeed(JoinContactStore, contacts),
-            Layer.succeed(SubscriberIntake, {
-              submit: () => Effect.succeed({ kind: "refused" }),
+            scriptedIntakeLayer({
               agent: {
-                enabled: true,
                 submit: (input) =>
                   Effect.sync(() => {
                     expect(input.hold).toBe(false);
@@ -160,14 +163,14 @@ it.effect.prop(
                   Effect.andThen(tickets.verify(value, id))
                 ),
             }),
-            Layer.succeed(IntakeEvents, {
+            scriptedIntakeEventsLayer({
               erase: events.erase,
               record: (statements) =>
                 Effect.sync(() => steps.push("events")).pipe(
                   Effect.andThen(events.record(statements))
                 ),
             }),
-            Layer.succeed(SubscriberIntake, {
+            scriptedIntakeLayer({
               agent: {
                 enabled: scenario.enabled,
                 submit: (input) =>
@@ -178,7 +181,6 @@ it.effect.prop(
                     return { kind: "accepted" } as const;
                   }),
               },
-              submit: () => Effect.succeed({ kind: "refused" } as const),
             })
           )
         )
@@ -412,9 +414,8 @@ it.effect.prop(
               },
             }),
             AbuseScore.testLayer(verdict),
-            Layer.succeed(SubscriberIntake, {
+            scriptedIntakeLayer({
               agent: {
-                enabled: true,
                 submit: (input) =>
                   Effect.sync(() => {
                     sent.push(input.submissionId);
@@ -422,7 +423,6 @@ it.effect.prop(
                     return delivery;
                   }),
               },
-              submit: () => Effect.die("person intake must not run"),
             })
           )
         )
@@ -532,9 +532,8 @@ it.effect.prop(
                 ),
             }),
             AbuseScore.testLayer(),
-            Layer.succeed(SubscriberIntake, {
+            scriptedIntakeLayer({
               agent: {
-                enabled: true,
                 submit: Effect.fn("crashingIntake")(function* crashingIntake(
                   input: AgentIntakeRequest
                 ) {
@@ -545,7 +544,6 @@ it.effect.prop(
                   return yield* Effect.die("generated seam delivery crash");
                 }),
               },
-              submit: () => Effect.die("person intake must not run"),
             })
           )
         )
@@ -593,9 +591,20 @@ it.effect.prop(
   { responses },
   ({ responses: generated }) =>
     Effect.gen(function* replaySubmission() {
-      const sent: AgentIntakeRequest[] = [];
       const tickets = yield* IntakeTicket;
       const ticket = yield* tickets.mint(PAGE_TICKET_SOURCE);
+
+      const intake = yield* makeScriptedIntake({
+        agent: {
+          submit: (_input, index) => {
+            const kind = generated[index] ?? "refused";
+
+            return Effect.succeed<IntakeResult>(
+              kind === "retry" ? { afterSeconds: 0, kind } : { kind }
+            );
+          },
+        },
+      });
 
       const layer = joinIntakeLayer.pipe(
         Layer.provide(
@@ -604,21 +613,7 @@ it.effect.prop(
             IntakeEvents.testLayer,
             Layer.succeed(IntakeTicket, tickets),
             AbuseScore.testLayer(),
-            Layer.succeed(SubscriberIntake, {
-              agent: {
-                enabled: true,
-                submit: (input) =>
-                  Effect.sync((): IntakeResult => {
-                    const kind = generated[sent.length] ?? "refused";
-                    sent.push(input);
-
-                    return kind === "retry"
-                      ? { afterSeconds: 0, kind }
-                      : { kind };
-                  }),
-              },
-              submit: () => Effect.succeed({ kind: "refused" } as const),
-            })
+            intake.layer
           )
         )
       );
@@ -636,6 +631,7 @@ it.effect.prop(
       const first = yield* submit;
 
       const expectedAttempts = 1;
+      const sent = yield* intake.agentCalls;
 
       expect(sent.length).toBe(expectedAttempts);
       expect(
@@ -650,7 +646,7 @@ it.effect.prop(
       expect(first.message).toBe(JOIN_ANSWER);
       expect(second.message).toBe(JOIN_ANSWER);
       expect(second.statusRef).not.toBe(first.statusRef);
-      expect(sent.length).toBe(expectedAttempts);
+      expect(yield* intake.agentCalls).toHaveLength(expectedAttempts);
     }).pipe(Effect.provide(base))
 );
 
@@ -668,12 +664,10 @@ it.effect(
             Layer.succeed(IntakeTicket, tickets),
             AbuseScore.testLayer(),
             IntakeEvents.testLayer,
-            Layer.succeed(SubscriberIntake, {
+            scriptedIntakeLayer({
               agent: {
-                enabled: true,
                 submit: () => Effect.succeed({ kind: "accepted" } as const),
               },
-              submit: () => Effect.succeed({ kind: "refused" } as const),
             })
           )
         )

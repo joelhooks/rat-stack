@@ -42,7 +42,7 @@ import { privateHttpTracingLayer } from "../src/http-privacy.js";
 import { intakeApplicationsLayer } from "../src/interest/applications.js";
 import { joinContactStoreLayer } from "../src/interest/join-contact-store.js";
 import { interestRoutes } from "../src/interest/routes.js";
-import { fakeIntakeLayer } from "./fixtures/fake-intake.js";
+import { acceptedIntakeLayer } from "./fixtures/fake-intake.js";
 import { withMemoryErasure } from "./join-erasure.fixture.js";
 
 const call = (
@@ -367,7 +367,7 @@ it.effect(
           InterestMode.layer("drovr"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          fakeIntakeLayer
+          acceptedIntakeLayer
         )
       );
 
@@ -604,7 +604,7 @@ it.effect("disables the route when no operator token is configured", () =>
         InterestMode.layer("drovr"),
         InterestTokens.layer(Redacted.make("synthetic-secret")),
         SubscriberConfirm.unconfigured,
-        fakeIntakeLayer
+        acceptedIntakeLayer
       )
     );
 

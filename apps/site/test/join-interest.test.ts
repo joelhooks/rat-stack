@@ -7,7 +7,7 @@ import {
   IntakeTicket,
   PAGE_TICKET_SOURCE,
 } from "@rat-stack/core/intake";
-import { InterestTokens, SubscriberIntake } from "@rat-stack/core/interest";
+import { InterestTokens } from "@rat-stack/core/interest";
 import type { AgentIntakeRequest } from "@rat-stack/core/interest";
 import {
   JOIN_ANSWER,
@@ -18,6 +18,7 @@ import {
 import { Clock, Effect, Layer, Logger, Redacted, Schema, Tracer } from "effect";
 import { HttpRouter } from "effect/http";
 
+import { scriptedIntakeLayer } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { apiProjection, mischiefRoutes } from "../src/app.js";
 import { memoryEvents } from "../src/events.js";
 import { toolkitProjection } from "../src/mcp-surface.js";
@@ -60,9 +61,8 @@ it.effect(
             },
           })
         ),
-        Layer.succeed(SubscriberIntake, {
+        scriptedIntakeLayer({
           agent: {
-            enabled: true,
             submit: (request) =>
               Effect.sync(() => {
                 forwarded.push(request);
@@ -70,7 +70,6 @@ it.effect(
                 return { kind: "accepted" } as const;
               }),
           },
-          submit: () => Effect.succeed({ kind: "refused" } as const),
         })
       );
 
