@@ -71,10 +71,12 @@ The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands ca
 - Readable content and links work before browser JavaScript runs.
 - A missing page returns a real 404. It never falls back to the home page.
 - Production builds contain no development modules, devtools code, or test people.
+- Pages follow the reader's light or dark system setting from the first paint. `apps/site/src/rat.css` declares `color-scheme: light dark` and holds every colour token, with the dark values under `prefers-color-scheme: dark`. No script picks the theme. Code blocks render Catppuccin Latte in light mode and Mocha in dark mode.
 
 ## How to check
 
 - Run `pnpm --filter @rat-stack/web build`. Read `apps/web/dist/server/foldkit.build.json`. It names `fetch.js` as the server entry and lists the prerendered paths.
 - Run `pnpm --filter @rat-stack/web test` for page parity and the production-bundle exclusion test.
+- Run `pnpm --filter @rat-stack/site test -- contrast`. It reads the served stylesheet and checks every text and accent token pair against WCAG AA in both palettes. It also checks the shipped code colours.
 - Run `pnpm --filter @rat-stack/infra test`. The Website build test builds through [Alchemy](/skills/learn-alchemy), reads prerendered pages, and serves them, `/rpc`, and a 404 from the server bundle in workerd.
 - On a preview, request a prerendered page and an unknown path with `curl`. The page returns complete HTML with `X-Preview-Commit`. The unknown path returns 404.

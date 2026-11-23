@@ -4,7 +4,7 @@ import { reader } from "../tokens.stylex.js";
 
 export const tubeStyles = stylex.create({
   badge: {
-    border: "1px solid #6c6f85",
+    border: "1px solid var(--rule-strong)",
     borderRadius: "4px",
     display: "inline-block",
     fontWeight: 700,
@@ -13,7 +13,7 @@ export const tubeStyles = stylex.create({
     padding: "0 0.25em",
   },
   card: {
-    border: "1px solid #ccd0da",
+    border: "1px solid var(--rule)",
     display: "flex",
     flexDirection: "column",
     gap: reader.spaceTight,
@@ -34,7 +34,7 @@ export const tubeStyles = stylex.create({
     width: "100%",
   },
   meta: {
-    color: "#5c5f77",
+    color: "var(--text-muted)",
     fontSize: "0.875em",
     margin: 0,
   },
@@ -48,9 +48,9 @@ export const tubeStyles = stylex.create({
     width: "100%",
   },
   playLabel: {
-    backgroundColor: "#4c4f69",
+    backgroundColor: "var(--pressed)",
     bottom: reader.spaceTight,
-    color: "#ffffff",
+    color: "var(--on-pressed)",
     fontSize: "0.875em",
     left: reader.spaceTight,
     padding: "0 0.375em",
@@ -61,7 +61,7 @@ export const tubeStyles = stylex.create({
   },
   thumbnail: {
     aspectRatio: "16 / 9",
-    backgroundColor: "#e6e9ef",
+    backgroundColor: "var(--code-highlight)",
     display: "block",
     objectFit: "cover",
     width: "100%",

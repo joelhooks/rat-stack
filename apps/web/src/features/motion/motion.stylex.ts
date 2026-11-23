@@ -17,7 +17,7 @@ export const motionStyles = stylex.create({
     fill: reader.codeInk,
   },
   figure: {
-    border: "1px solid #ccd0da",
+    border: "1px solid var(--rule)",
     margin: 0,
     padding: reader.spaceTight,
   },
@@ -30,7 +30,7 @@ export const motionStyles = stylex.create({
     padding: 0,
   },
   guide: {
-    stroke: "#ccd0da",
+    stroke: "var(--rule)",
     strokeDasharray: "3 3",
     strokeWidth: 1,
   },
@@ -41,7 +41,7 @@ export const motionStyles = stylex.create({
   },
   marker: {
     fill: "none",
-    stroke: "#9ca0b0",
+    stroke: "var(--chart-marker)",
     strokeWidth: 1,
   },
   plot: {
@@ -56,7 +56,7 @@ export const motionStyles = stylex.create({
     fill: reader.codeKeyword,
   },
   stage: {
-    border: "1px solid #ccd0da",
+    border: "1px solid var(--rule)",
     display: "block",
     height: "auto",
     maxWidth: "36rem",

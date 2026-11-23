@@ -978,7 +978,9 @@ it.layer(contentServices)("generated content", (test) => {
           (page) => page.routePath === "/skills/learn-rat-stack"
         )?.documentHtml ?? "";
 
-      expect(setupHtml).toContain('class="shiki catppuccin-latte"');
+      expect(setupHtml).toContain(
+        'class="shiki shiki-themes catppuccin-latte catppuccin-mocha"'
+      );
       expect(documentHtml).toMatch(/<figure role="img"[^>]*>\s*<pre><code>/u);
       expect(documentHtml).not.toMatch(
         /<figure role="img"[^>]*>\s*<pre[^>]*style=/u

@@ -622,15 +622,25 @@ it.effect(
         expect(skillHtml).toContain("<strong>🐀 Rat Stack</strong>");
         expect(skillHtml.match(/<h1\b/gu)).toHaveLength(1);
         expect(html).toContain("<pre><code>");
-        expect(skillHtml).toContain('<pre class="shiki catppuccin-latte"');
+        expect(skillHtml).toContain(
+          '<pre class="shiki shiki-themes catppuccin-latte catppuccin-mocha"'
+        );
         expect(skillHtml).not.toContain('<link rel="stylesheet"');
         expect(html).not.toContain("│  defineContract");
         expect(html).toContain('class="copy-label">Copy prompt</span>');
         expect(markdown).not.toContain("Copy prompt");
         expect(markdown).not.toContain("<button");
         expect(markdown).not.toContain("<CopyPrompt");
-        expect(html).not.toContain("prefers-color-scheme");
-        expect(html).not.toMatch(/(?:html|body)\s*\{[^}]*background/u);
+        expect(html).toMatch(/:root\s*\{\s*color-scheme:\s*light dark;/u);
+        expect(html).toMatch(
+          /@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{[^}]*--page:/u
+        );
+        expect(
+          html.replaceAll(
+            /@media \(prefers-color-scheme: dark\)\s*\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}/gu,
+            ""
+          )
+        ).not.toMatch(/(?:html|body)\s*\{[^}]*background/u);
         expect(html).toContain(
           '<link rel="icon" href="/favicon.ico" sizes="48x48"'
         );

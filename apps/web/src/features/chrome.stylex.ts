@@ -22,7 +22,7 @@ export const styles = stylex.create({
   },
   header: {
     alignItems: "center",
-    borderBottom: "1px solid #ccd0da",
+    borderBottom: "1px solid var(--rule)",
     display: "flex",
     flexWrap: "wrap",
     gap: "10px",

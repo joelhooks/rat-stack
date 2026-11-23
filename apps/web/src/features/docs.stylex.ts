@@ -22,7 +22,7 @@ export const docsStyles = stylex.create({
     marginBlockEnd: reader.spaceSmall,
   },
   meta: {
-    color: "#5c5f77",
+    color: "var(--text-muted)",
     fontSize: "0.875em",
   },
   results: {
