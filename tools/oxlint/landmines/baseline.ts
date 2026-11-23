@@ -26,10 +26,12 @@ const decodeLint = Schema.decodeUnknownSync(
     Schema.Struct({ diagnostics: Schema.Array(Diagnostic) })
   )
 );
-const budgetRules = new Set([
-  "landmines(no-flake-masking-timeout)",
-  "landmines(no-fixed-sleep)",
-]);
+export const budgetRuleIds = [
+  "no-fixed-sleep",
+  "no-flake-masking-timeout",
+  "no-test-doubles",
+] as const;
+const budgetRules = new Set(budgetRuleIds.map((id) => `landmines(${id})`));
 
 export function budgetFindings(output: string) {
   const observed = new Map<string, Budget[]>();
