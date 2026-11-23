@@ -1,5 +1,53 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/rivet-dev/rivet-effect-cluster",
+    "title": "Effect Cluster runs on Rivet Actors",
+    "summary": "Experimental: Effect Cluster entities, workflows, queues and singletons run as Rivet Actors, each with its own SQLite database, with no Postgres or shard ring.",
+    "date": "2026-11-22",
+    "repo": "rivet-dev/rivet-effect-cluster",
+    "author": {
+      "github": "rivet-dev",
+      "x": "NathanFlurry"
+    },
+    "source": "https://x.com/NathanFlurry/status/2124538395682853187",
+    "engagement": {
+      "stars": 0
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/potion-run/emulate",
+    "title": "@potion.run/emulate runs third-party APIs as Effect layers",
+    "summary": "Local GitHub, Vercel, Google, Slack and Stripe emulators as Effect platform layers with typed errors, plus an Alchemy resource for alchemy dev.",
+    "date": "2026-11-22",
+    "repo": "potion-run/emulate",
+    "author": {
+      "github": "potion-run",
+      "x": "NFS__21"
+    },
+    "source": "https://x.com/NFS__21/status/2124510714358276399",
+    "engagement": {
+      "stars": 0
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
+    "title": "A Minecraft server that runs entirely on Cloudflare",
+    "summary": "Spectrum hands player TCP to a Worker and Durable Object that wakes a Paper container; the world saves to R2. Deployed with Alchemy.",
+    "date": "2026-11-21",
+    "repo": "sshkeda/minecraft-server-on-orange-cloud",
+    "author": {
+      "github": "sshkeda",
+      "x": null
+    },
+    "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
+    "engagement": {
+      "stars": 383
+    }
+  },
+  {
     "kind": "release",
     "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.5",
     "title": "effect@4.1.5 sharpens property-test failures",
@@ -44,7 +92,7 @@
     },
     "source": "https://github.com/southpolesteve/workers-dns-tcp",
     "engagement": {
-      "stars": 45
+      "stars": 51
     }
   },
   {
@@ -389,7 +437,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 701
+      "stars": 706
     }
   },
   {
@@ -1023,7 +1071,7 @@
     },
     "source": "https://x.com/alchemy_run/status/2115960599893164244",
     "engagement": {
-      "stars": 545
+      "stars": 549
     }
   },
   {
