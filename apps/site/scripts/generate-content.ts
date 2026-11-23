@@ -2062,9 +2062,9 @@ ${homeFeatured}
 
 ## How it fits together
 
-The goal is [an app and its cloud as one typed program](${originToken}/VISION.md). The [systems pages](${originToken}/systems) show what each part does and how to check it.
+Start with [what happens when you search the docs](${originToken}/lore/a-browser-send-follows-one-path). Then see how [a command and an agent tool use the same code to inspect a file](${originToken}/lore/one-capability-every-surface).
 
-Follow [a search through the app](${originToken}/lore/a-browser-send-follows-one-path) or [one action in several places](${originToken}/lore/one-capability-every-surface) to see the code. The [package guide](${originToken}/AGENTS.md#packages) lists the pieces.
+The goal is [an app and its cloud as one typed program](${originToken}/VISION.md). The [package guide](${originToken}/AGENTS.md#packages) shows where each piece lives.
 
 _${linkedTagline}_
 
