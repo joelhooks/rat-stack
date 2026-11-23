@@ -5,7 +5,6 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  SubscriberIntake,
 } from "@rat-stack/core/interest";
 import {
   JoinContactStore,
@@ -14,6 +13,7 @@ import {
 import { Effect, Layer, Logger, Redacted, Schema } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 
+import { scriptedIntakeLayer } from "../../../../packages/core/test/fixtures/scripted-intake.js";
 import Interest from "../../src/interest/interest-durable-object.js";
 import { joinContactStoreLayer } from "../../src/interest/join-contact-store.js";
 import { joinRetentionBackfillLayer } from "../../src/interest/join-retention-backfill.js";
@@ -59,9 +59,7 @@ export default class RetentionBackfillWorker extends Cloudflare.Worker<Retention
         InterestMode.layer("drovr"),
         tokens,
         SubscriberConfirm.unconfigured,
-        Layer.succeed(SubscriberIntake, {
-          submit: () => Effect.die("preview must not deliver"),
-        })
+        scriptedIntakeLayer()
       )
     );
 

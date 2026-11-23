@@ -5,9 +5,8 @@ import { TestClock } from "effect/testing";
 
 import { IntakeErasure } from "../src/intake-erase.js";
 import { IntakeEventsUnavailable } from "../src/intake-events-unavailable.js";
-import { ContactRefSchema, IntakeEvents } from "../src/intake-events.js";
+import { ContactRefSchema } from "../src/intake-events.js";
 import { IntakeSweep } from "../src/intake-sweep.js";
-import { SubscriberIntake } from "../src/interest-intake.js";
 import type { AgentIntakeRequest } from "../src/interest-intake.js";
 import {
   JoinContactStore,
@@ -18,6 +17,8 @@ import {
   deliveryStateFor,
   runJoinDelivery,
 } from "../src/join-delivery-machine.js";
+import { scriptedIntakeEventsLayer } from "./fixtures/scripted-intake-events.js";
+import { scriptedIntakeLayer } from "./fixtures/scripted-intake.js";
 
 const AnswerSchema = Schema.Struct({
   latencySeconds: Schema.Int.check(
@@ -85,19 +86,17 @@ const makeWorld = Effect.fnUntraced(function* makeWorld(
   const basinDown = yield* Ref.make(false);
   const tombstones = yield* Ref.make(0);
 
-  const events = Layer.succeed(IntakeEvents, {
+  const events = scriptedIntakeEventsLayer({
     erase: () =>
       Effect.flatMap(Ref.get(basinDown), (down) =>
         down
           ? Effect.fail(new IntakeEventsUnavailable({}))
           : Ref.update(tombstones, (count) => count + 1)
       ),
-    record: () => Effect.void,
   });
 
-  const drovr = Layer.succeed(SubscriberIntake, {
+  const drovr = scriptedIntakeLayer({
     agent: {
-      enabled: true,
       submit: Effect.fnUntraced(function* slowDrovr(input: AgentIntakeRequest) {
         const answer = answers[tracker.sent.length];
         tracker.sent.push(input);
@@ -114,7 +113,6 @@ const makeWorld = Effect.fnUntraced(function* makeWorld(
         return outcome;
       }),
     },
-    submit: () => Effect.die("person intake must not run"),
   });
 
   const memory = yield* Layer.build(JoinContactStore.testLayer);

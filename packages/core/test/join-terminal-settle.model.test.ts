@@ -2,9 +2,9 @@ import { expect, it } from "@effect/vitest";
 import { Effect, Layer, Schema } from "effect";
 
 import { ContactRefSchema } from "../src/intake-events.js";
-import { SubscriberIntake } from "../src/interest-intake.js";
 import { JoinContactStore } from "../src/join-contact-store.js";
 import { runJoinDelivery } from "../src/join-delivery-machine.js";
+import { scriptedIntakeLayer } from "./fixtures/scripted-intake.js";
 
 it.effect.prop(
   "terminal delivery results erase without reading the payload again",
@@ -40,10 +40,8 @@ it.effect.prop(
                   ? Effect.die("synthetic terminal read trap")
                   : contacts.read(submissionId),
             }),
-            Layer.succeed(SubscriberIntake, {
-              submit: () => Effect.succeed({ kind: "refused" }),
+            scriptedIntakeLayer({
               agent: {
-                enabled: true,
                 submit: () =>
                   Effect.sync(() => {
                     answered = true;

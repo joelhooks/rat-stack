@@ -14,15 +14,15 @@ import { TestClock } from "effect/testing";
 
 import { IntakeErasure } from "../src/intake-erase.js";
 import { IntakeEventsUnavailable } from "../src/intake-events-unavailable.js";
-import { IntakeEvents } from "../src/intake-events.js";
 import type { IntakeResult } from "../src/interest-intake.js";
-import { SubscriberIntake } from "../src/interest-intake.js";
 import {
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
   JoinContactStore,
 } from "../src/join-contact-store.js";
 import { runJoinDelivery } from "../src/join-delivery-machine.js";
+import { scriptedIntakeEventsLayer } from "./fixtures/scripted-intake-events.js";
+import { scriptedIntakeLayer } from "./fixtures/scripted-intake.js";
 
 it.effect.prop(
   "erasure before, during or after every delivery result removes sealed data, retains its marker until the tombstone, and stops intake",
@@ -49,7 +49,7 @@ it.effect.prop(
       const down = yield* Ref.make(true);
       const sent: string[] = [];
 
-      const events = Layer.succeed(IntakeEvents, {
+      const events = scriptedIntakeEventsLayer({
         erase: () =>
           Ref.get(down).pipe(
             Effect.flatMap((unavailable) =>
@@ -58,7 +58,6 @@ it.effect.prop(
                 : Effect.void
             )
           ),
-        record: () => Effect.void,
       });
 
       const erasure = yield* IntakeErasure.pipe(
@@ -94,23 +93,23 @@ it.effect.prop(
       const delivery = runJoinDelivery({
         submissionId: contact.submissionId,
       }).pipe(
-        Effect.provideService(SubscriberIntake, {
-          agent: {
-            enabled: true,
-            submit: (request) =>
-              Effect.sync(() => {
-                sent.push(request.submissionId);
-              }).pipe(
-                Effect.andThen(Deferred.await(completion)),
-                Effect.flatMap((answer) =>
-                  outcome === "crash"
-                    ? Effect.die("synthetic crash before response")
-                    : Effect.succeed(answer)
-                )
-              ),
-          },
-          submit: () => Effect.die("person intake must not run"),
-        })
+        Effect.provide(
+          scriptedIntakeLayer({
+            agent: {
+              submit: (request) =>
+                Effect.sync(() => {
+                  sent.push(request.submissionId);
+                }).pipe(
+                  Effect.andThen(Deferred.await(completion)),
+                  Effect.flatMap((answer) =>
+                    outcome === "crash"
+                      ? Effect.die("synthetic crash before response")
+                      : Effect.succeed(answer)
+                  )
+                ),
+            },
+          })
+        )
       );
 
       if (order === "before") {
@@ -206,9 +205,8 @@ it.effect.prop(
               ? Effect.die("synthetic unreadable contact")
               : contacts.requestErase(id),
         }),
-        Layer.succeed(IntakeEvents, {
+        scriptedIntakeEventsLayer({
           erase: () => Effect.void,
-          record: () => Effect.void,
         })
       );
 
@@ -255,18 +253,18 @@ it.effect.prop(
           markHandedToDrovr: () =>
             Effect.die("synthetic handoff write unavailable"),
         }),
-        Effect.provideService(SubscriberIntake, {
-          agent: {
-            enabled: true,
-            submit: () =>
-              Effect.sync(() => {
-                sent += 1;
+        Effect.provide(
+          scriptedIntakeLayer({
+            agent: {
+              submit: () =>
+                Effect.sync(() => {
+                  sent += 1;
 
-                return { kind: "accepted" } as const;
-              }),
-          },
-          submit: () => Effect.die("person intake must not run"),
-        }),
+                  return { kind: "accepted" } as const;
+                }),
+            },
+          })
+        ),
         Effect.exit
       );
 

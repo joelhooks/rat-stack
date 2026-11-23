@@ -16,6 +16,7 @@ import { Clock, Effect, Layer, Redacted, Ref, Schema } from "effect";
 import type { Context } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
+import { makeScriptedIntake } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { copyPrompts } from "../scripts/component-data.ts";
 import { htmlTokens } from "../scripts/svx-ast.ts";
 import { agentNextActions } from "../src/agent-guide.js";
@@ -34,7 +35,7 @@ import {
   searchContent,
   sitemapXml,
 } from "./content-fixture.js";
-import { fakeIntake, fakeIntakeLayer } from "./fixtures/fake-intake.js";
+import { acceptedIntakeLayer } from "./fixtures/fake-intake.js";
 import { generatedTokenmaxxPage } from "./generated-content.js";
 import { TestSandbox } from "./test-sandbox.js";
 
@@ -45,7 +46,7 @@ const withInterest = <A, E, R>(
   confirmation: Layer.Layer<SubscriberConfirm> = SubscriberConfirm.unconfigured
 ) =>
   Effect.gen(function* routeFixture() {
-    const intake = yield* fakeIntake([{ kind: "accepted" }]);
+    const intake = yield* makeScriptedIntake();
 
     const services = yield* Layer.build(
       Layer.mergeAll(
@@ -434,7 +435,7 @@ const withLiveInterest = <A, E, R>(
           InterestDirectory.memory,
           InterestTokens.layer(tokenSecret),
           InterestMode.layer(options.mode ?? "doi"),
-          options.intake ?? fakeIntakeLayer,
+          options.intake ?? acceptedIntakeLayer,
           options.confirm ?? SubscriberConfirm.unconfigured,
           requestFixture,
           Layer.succeed(Clock.Clock, yield* Clock.Clock)

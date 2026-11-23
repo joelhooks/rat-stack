@@ -7,13 +7,13 @@ import type {
   AgentIntakeRequest,
   IntakeResult,
 } from "../src/interest-intake.js";
-import { SubscriberIntake } from "../src/interest-intake.js";
 import {
   JOIN_CONTACT_RETENTION_MILLIS,
   JoinContactSchema,
   JoinContactStore,
 } from "../src/join-contact-store.js";
 import { runJoinDelivery } from "../src/join-delivery-machine.js";
+import { scriptedIntakeLayer } from "./fixtures/scripted-intake.js";
 
 const Step = Schema.Struct({
   advance: Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 86_401 })),
@@ -91,20 +91,20 @@ const replay = Effect.fnUntraced(function* replay(
     const fiber = yield* runJoinDelivery({
       submissionId: contact.submissionId,
     }).pipe(
-      Effect.provideService(SubscriberIntake, {
-        agent: {
-          enabled: true,
-          submit: (request) =>
-            Effect.gen(function* submit() {
-              requests.push(request);
+      Effect.provide(
+        scriptedIntakeLayer({
+          agent: {
+            submit: (request) =>
+              Effect.gen(function* submit() {
+                requests.push(request);
 
-              return yield* step.outcome === "timeout"
-                ? Effect.never
-                : Effect.succeed(outcome);
-            }),
-        },
-        submit: () => Effect.die("person intake must not run"),
-      }),
+                return yield* step.outcome === "timeout"
+                  ? Effect.never
+                  : Effect.succeed(outcome);
+              }),
+          },
+        })
+      ),
       Effect.forkScoped
     );
 

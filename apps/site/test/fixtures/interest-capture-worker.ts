@@ -12,7 +12,7 @@ import Interest from "../../src/interest/interest-durable-object.js";
 import InterestIndex from "../../src/interest/interest-index-durable-object.js";
 import { retiredInterestRoutes } from "../../src/interest/retired-routes.js";
 import { interestRoutes } from "../../src/interest/routes.js";
-import { fakeIntakeLayer } from "./fake-intake.js";
+import { acceptedIntakeLayer } from "./fake-intake.js";
 
 export default class InterestCaptureWorker extends Cloudflare.Worker<InterestCaptureWorker>()(
   "InterestCaptureWorker",
@@ -33,7 +33,7 @@ export default class InterestCaptureWorker extends Cloudflare.Worker<InterestCap
           () => index.getByName("index")
         ),
         InterestTokens.layer(Redacted.make("local-token-secret")),
-        fakeIntakeLayer,
+        acceptedIntakeLayer,
         SubscriberConfirm.unconfigured,
         InterestMode.layer("capture")
       )

@@ -4,9 +4,8 @@ import * as Arbitrary from "effect/Arbitrary";
 
 import { ContactRefSchema } from "../src/intake-events.js";
 import { IntakeRedeliver, intakeRedeliver } from "../src/intake-redeliver.js";
-import { SubscriberIntake } from "../src/interest-intake.js";
-import type { AgentIntakeRequest } from "../src/interest-intake.js";
 import { JoinContactStore } from "../src/join-contact-store.js";
+import { makeScriptedIntake } from "./fixtures/scripted-intake.js";
 
 const contactRef = Schema.decodeSync(ContactRefSchema)("synthetic-contact");
 
@@ -57,7 +56,6 @@ it.effect.prop(
   ({ dryRun, entries, includeRefused, releaseHeld }) =>
     Effect.gen(function* verifyRedelivery() {
       const contacts = yield* JoinContactStore;
-      const sent: AgentIntakeRequest[] = [];
 
       const ids = entries.map((_entry, index) => `synthetic-${index}`);
 
@@ -90,20 +88,16 @@ it.effect.prop(
         }
       }
 
-      const intake = Layer.succeed(SubscriberIntake, {
+      const intake = yield* makeScriptedIntake({
         agent: {
-          enabled: true,
-          submit: (input) =>
-            Effect.sync(() => {
-              sent.push(input);
-              const kind = outcomes.get(input.submissionId) ?? "refused";
+          submit: ({ submissionId }) => {
+            const kind = outcomes.get(submissionId) ?? "refused";
 
-              return kind === "retry"
-                ? ({ afterSeconds: 60, kind } as const)
-                : { kind };
-            }),
+            return Effect.succeed(
+              kind === "retry" ? { afterSeconds: 60, kind } : { kind }
+            );
+          },
         },
-        submit: () => Effect.die("browser intake must not run"),
       });
 
       const result = yield* intakeRedeliver
@@ -114,7 +108,7 @@ it.effect.prop(
               Layer.provide(
                 Layer.mergeAll(
                   Layer.succeed(JoinContactStore, contacts),
-                  intake
+                  intake.layer
                 )
               )
             )
@@ -136,6 +130,7 @@ it.effect.prop(
           : []
       );
 
+      const sent = yield* intake.agentCalls;
       expect(sent.map((input) => input.submissionId)).toEqual(eligible);
       expect(result.notAttempted).toEqual(ids.slice(count));
       expect(result.rows).toHaveLength(count);

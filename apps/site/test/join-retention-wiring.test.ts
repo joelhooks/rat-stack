@@ -5,11 +5,11 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  SubscriberIntake,
 } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
+import { scriptedIntakeLayer } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { mischiefRoutes } from "../src/app.js";
 import { agentSignupLayer } from "../src/interest/join-layer.js";
 import { interestOperatorOptions } from "../src/interest/operator-options.js";
@@ -26,9 +26,7 @@ it.effect(
           InterestMode.layer("drovr"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          Layer.succeed(SubscriberIntake, {
-            submit: () => Effect.die("preview must not deliver"),
-          })
+          scriptedIntakeLayer()
         )
       );
 
