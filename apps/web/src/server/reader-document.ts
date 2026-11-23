@@ -12,6 +12,7 @@ import { readerMetadataHead } from "../reader-metadata.js";
 const ReaderDocumentHead = Schema.Struct({ readerHead: Schema.String });
 
 const iconHead = [
+  '<meta name="color-scheme" content="light dark">',
   `<link rel="icon" sizes="48x48" href="data:image/x-icon;base64,${faviconIcoBase64}">`,
   `<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,${encodeURIComponent(ratSvg)}">`,
   `<link rel="apple-touch-icon" href="data:image/png;base64,${appleTouchIconPngBase64}">`,

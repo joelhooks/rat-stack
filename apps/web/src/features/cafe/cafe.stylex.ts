@@ -4,7 +4,7 @@ import { reader } from "../tokens.stylex.js";
 
 export const cafeStyles = stylex.create({
   avatar: {
-    border: "1px solid #ccd0da",
+    border: "1px solid var(--rule)",
     borderRadius: "4px",
     display: "block",
     flexShrink: 0,
@@ -12,7 +12,7 @@ export const cafeStyles = stylex.create({
     width: "4rem",
   },
   badge: {
-    border: "1px solid #6c6f85",
+    border: "1px solid var(--rule-strong)",
     borderRadius: "4px",
     display: "inline-block",
     fontWeight: 700,
@@ -29,7 +29,7 @@ export const cafeStyles = stylex.create({
   },
   card: {
     alignItems: "flex-start",
-    border: "1px solid #ccd0da",
+    border: "1px solid var(--rule)",
     display: "flex",
     gap: reader.spaceSmall,
     padding: reader.spaceSmall,
@@ -56,18 +56,18 @@ export const cafeStyles = stylex.create({
     paddingInlineStart: "2.5em",
   },
   meta: {
-    color: "#5c5f77",
+    color: "var(--text-muted)",
     fontSize: "0.875em",
   },
   pressed: {
-    backgroundColor: "#4c4f69",
-    color: "#ffffff",
+    backgroundColor: "var(--pressed)",
+    color: "var(--on-pressed)",
   },
   replies: {
     fontSize: "0.875em",
   },
   tag: {
-    color: "#5c5f77",
+    color: "var(--text-muted)",
     marginInlineEnd: reader.spaceTight,
   },
 });

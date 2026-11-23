@@ -45,6 +45,8 @@ The existing manifest guard fences both Mischief and RpcBackend builds. Runtime 
 
 `apps/mischief/src/document.svelte` is a man page, not a marketing site. Monospace everywhere so box-drawing diagrams line up, an 80ch measure, light only (Joel rejected dark mode: no `prefers-color-scheme`, no `background`, no colour variables), default link colours, and `<hr>` rules above and below the nav. There is no logo in the header; `🐀 Rat Stack` is the single h1 on the home page and a small link back home elsewhere. The logo is the 🐀 emoji: `assets/emoji/1f400.svg` is served as `/favicon.svg` and rendered at build time into `/favicon.ico` (16, 32, 48) and a 180px `/apple-touch-icon.png`; nothing else is fetched.
 
+2026-11-23: the light-only rule was replaced. Joel: "fire up some peons to add a dark mode and use system preferences for the ratstack.sh site so it doesn't flashback people." Pages now follow the system preference with CSS alone; `.brain/areas/web.svx` records the current standard.
+
 Tables stack on phones. A build-time rehype plugin writes each cell's column header into `data-label`, and under 40rem the CSS hides `thead`, turns rows and cells into blocks, and prints the label before each value.
 
 Diagrams use one fenced `text` block, Unicode box drawing, and fewer than 80 columns. Give each visual one or two nearby sentences. Add a **What to notice** line only when the point is not obvious from those sentences.

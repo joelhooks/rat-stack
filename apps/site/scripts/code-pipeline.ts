@@ -54,6 +54,7 @@ const tokenColor = (role: string) => {
 const tokenStyle = (token: Token) =>
   [
     `color:${token.color ?? tokenColor(token.role)}`,
+    token.darkColor === undefined ? "" : `--shiki-dark:${token.darkColor}`,
     token.fontStyle % 2 === 1 ? "font-style:italic" : "",
     Math.floor(token.fontStyle / 2) % 2 === 1 ? "font-weight:bold" : "",
     Math.floor(token.fontStyle / 4) % 2 === 1
