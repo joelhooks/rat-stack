@@ -5,6 +5,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import {
   baselineDrift,
   budgetFindings,
+  budgetRuleIds,
   growthWithoutReason,
   readBaseline,
 } from "../../../tools/oxlint/landmines/baseline.ts";
@@ -90,10 +91,7 @@ const check = Effect.gen(function* checkLandmines() {
     "oxlint.config.ts",
     "-A",
     "all",
-    "-W",
-    "landmines/no-fixed-sleep",
-    "-W",
-    "landmines/no-flake-masking-timeout",
+    ...budgetRuleIds.flatMap((id) => ["-W", `landmines/${id}`]),
     "--format",
     "json",
   ]);
