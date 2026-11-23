@@ -193,16 +193,18 @@ it.effect("every light token pair meets WCAG AA", () =>
 );
 
 it.effect(
-  "every shipped Mocha code colour meets WCAG AA on the dark code surface",
+  "every shipped Mocha code colour meets WCAG AA on both dark code backgrounds",
   () =>
     Effect.sync(() => {
       expect(highlightedColors.length).toBeGreaterThan(0);
-      expect(
-        failingOn(
-          highlightedColors.map(({ dark }) => dark),
-          palettes.dark.get("surface")
-        )
-      ).toStrictEqual([]);
+      const colors = highlightedColors.map(({ dark }) => dark);
+
+      for (const ground of ["surface", "code-highlight"]) {
+        expect(
+          failingOn(colors, palettes.dark.get(ground)),
+          `Mocha code colours on ${ground}`
+        ).toStrictEqual([]);
+      }
     })
 );
 
