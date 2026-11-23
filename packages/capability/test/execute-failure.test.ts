@@ -154,32 +154,35 @@ it.effect.prop(
     )
 );
 
-it.effect(
-  "the projected execute command exits non-zero only for a failed program",
-  () =>
-    Effect.gen(function* processExit() {
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+it.effect.each([
+  {
+    outcome: "zero for a successful program",
+    program: "return 2",
+    exitsZero: true,
+  },
+  {
+    outcome: "non-zero for a failed program",
+    program: 'throw new Error("boom")',
+    exitsZero: false,
+  },
+])("the projected execute command exits $outcome", ({ program, exitsZero }) =>
+  Effect.gen(function* processExit() {
+    const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-      for (const fails of [false, true]) {
-        const script = `
+    const script = `
         import { NodeRuntime, NodeServices } from '@effect/platform-node';
         import { Effect, Schema } from 'effect';
         import { Command } from 'effect/cli';
         import { defineContract, implement, toExecuteCapability, toCommand, layerSubprocess } from './dist/index.js';
         const echo = implement(defineContract('echo', { description: 'echo', input: Schema.Struct({}), output: Schema.Json, failure: Schema.Never }), () => Effect.succeed(null));
         const execute = toExecuteCapability([echo]).capability;
-        NodeRuntime.runMain(Command.runWith(toCommand(execute), { version: '0.0.0' })(['--code', ${JSON.stringify(fails ? 'throw new Error("boom")' : "return 2")}]).pipe(Effect.provide(layerSubprocess()), Effect.provide(NodeServices.layer)));
+        NodeRuntime.runMain(Command.runWith(toCommand(execute), { version: '0.0.0' })(['--code', ${JSON.stringify(program)}]).pipe(Effect.provide(layerSubprocess()), Effect.provide(NodeServices.layer)));
       `;
 
-        const code = yield* spawner.exitCode(
-          ChildProcess.make(process.execPath, [
-            "--input-type=module",
-            "-e",
-            script,
-          ])
-        );
+    const code = yield* spawner.exitCode(
+      ChildProcess.make(process.execPath, ["--input-type=module", "-e", script])
+    );
 
-        expect(Number(code) === 0).toBe(!fails);
-      }
-    }).pipe(Effect.provide(NodeServices.layer))
+    expect(Number(code) === 0).toBe(exitsZero);
+  }).pipe(Effect.provide(NodeServices.layer))
 );
