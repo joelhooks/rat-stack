@@ -3,10 +3,10 @@ import { Effect, Schema } from "effect";
 import * as Arbitrary from "effect/Arbitrary";
 
 import {
+  generatedReaderPage,
+  generatedTokenmaxxPage,
   homeDocumentHtml,
-  lawSources,
-  loreSources,
-  skillSources,
+  staticAssetPageRoutes,
 } from "./generated-content.js";
 
 const servedStylesheet =
@@ -105,23 +105,12 @@ const accentRequirements = ["page", "surface"].map((ground) => ({
   minimum: nonText,
 }));
 
-const latteDebt = new Set([
-  "#04a5e5",
-  "#179299",
-  "#1e66f5",
-  "#40a02b",
-  "#7c7f93",
-  "#df8e1d",
-  "#e64553",
-  "#ea76cb",
-  "#fe640b",
-]);
-
-const highlightedColors = [...lawSources, ...loreSources, ...skillSources]
-  .flatMap((page) => [
-    ...page.documentHtml.matchAll(
-      /style="(?<style>[^"]*--shiki-dark:[^"]*)"/gu
-    ),
+const highlightedColors = [
+  ...staticAssetPageRoutes.map(generatedReaderPage),
+  generatedTokenmaxxPage,
+]
+  .flatMap((html) => [
+    ...html.matchAll(/style="(?<style>[^"]*--shiki-dark:[^"]*)"/gu),
   ])
   .map((match) => {
     const entries = new Map(
@@ -218,22 +207,16 @@ it.effect(
 );
 
 it.effect(
-  "Latte code colours below WCAG AA stay inside the shrinking debt list",
+  "every shipped Latte code colour meets WCAG AA on both light code backgrounds",
   () =>
     Effect.sync(() => {
-      const failing = failingOn(
-        highlightedColors.map(({ light }) => light),
-        palettes.light.get("surface")
-      );
+      const colors = highlightedColors.map(({ light }) => light);
 
-      expect(failing.filter((color) => !latteDebt.has(color))).toStrictEqual(
-        []
-      );
-      expect(
-        [...latteDebt].filter(
-          (color) =>
-            contrast(color, palettes.light.get("surface") ?? "#000000") >= text
-        )
-      ).toStrictEqual([]);
+      for (const ground of ["surface", "code-highlight"]) {
+        expect(
+          failingOn(colors, palettes.light.get(ground)),
+          `Latte code colours on ${ground}`
+        ).toStrictEqual([]);
+      }
     })
 );

@@ -16,6 +16,20 @@ const Language = Schema.declare<BundledLanguage | "text">(
     (value === "text" || Object.hasOwn(bundledLanguages, value))
 );
 
+const latteColors = {
+  "#04a5e5": "#03709c",
+  "#179299": "#12747a",
+  "#1e66f5": "#0f5bf4",
+  "#40a02b": "#307820",
+  "#7c7f93": "#66687b",
+  "#8839ef": "#8737ef",
+  "#d20f39": "#d00f39",
+  "#df8e1d": "#935d13",
+  "#e64553": "#ce1c2b",
+  "#ea76cb": "#bf1d94",
+  "#fe640b": "#b74301",
+};
+
 const roleFor = (rawColor: string | undefined): Token["role"] => {
   const color = rawColor?.toLowerCase();
 
@@ -108,6 +122,22 @@ export const shikiLayer = (
           })
       );
 
+      const lightColors =
+        theme === "catppuccin-latte" && darkTheme !== theme ? latteColors : {};
+
+      const themeOptions = {
+        colorReplacements: { [theme]: lightColors },
+        themes: { dark: darkTheme, light: theme },
+      };
+
+      const originalLightColors = new Map(
+        Object.entries(lightColors).map(([original, replacement]) => [
+          replacement,
+          original,
+        ])
+      );
+
+      const fingerprint = `shiki@4.6.0:${theme}:${darkTheme}:${JSON.stringify(lightColors)}`;
       const cache = new Map<string, readonly (readonly Token[])[]>();
 
       const aliases = Object.fromEntries(
@@ -133,9 +163,7 @@ export const shikiLayer = (
           key,
           source,
           canonical,
-          theme,
-          darkTheme,
-          "shiki@3.23.0",
+          fingerprint,
         ]);
 
         const cached = cache.get(contentKey);
@@ -159,17 +187,24 @@ export const shikiLayer = (
           try: () =>
             engine
               .codeToTokensWithThemes(source, {
+                ...themeOptions,
                 lang: canonical,
-                themes: { dark: darkTheme, light: theme },
               })
               .map((line) =>
-                line.map((token) => ({
-                  color: token.variants.light?.color,
-                  darkColor: token.variants.dark?.color,
-                  fontStyle: token.variants.light?.fontStyle ?? 0,
-                  role: roleFor(token.variants.light?.color),
-                  text: token.content,
-                }))
+                line.map((token) => {
+                  const color = token.variants.light?.color;
+
+                  return {
+                    color,
+                    darkColor: token.variants.dark?.color,
+                    fontStyle: token.variants.light?.fontStyle ?? 0,
+                    role: roleFor(
+                      originalLightColors.get(color?.toLowerCase() ?? "") ??
+                        color
+                    ),
+                    text: token.content,
+                  };
+                })
               ),
         });
 
@@ -180,7 +215,7 @@ export const shikiLayer = (
 
       const port = Highlighter.of({
         aliases: () => aliases,
-        fingerprint: `shiki@3.23.0:${theme}:${darkTheme}`,
+        fingerprint,
         languages: () => [...Object.keys(bundledLanguages), "text"],
         themes: () => [theme, darkTheme],
         tokens,
@@ -198,9 +233,9 @@ export const shikiLayer = (
         }
 
         return engine.codeToHtml(source, {
+          ...themeOptions,
           defaultColor: "light",
           lang: canonical,
-          themes: { dark: darkTheme, light: theme },
           transformers: [lightFontStyles],
         });
       };
