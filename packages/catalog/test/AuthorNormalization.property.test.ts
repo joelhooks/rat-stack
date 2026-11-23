@@ -1,32 +1,27 @@
-import * as Domain from "@alchemy.run/domain";
 import { expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 
-import { Catalog, CatalogHandlers } from "../src/Catalog.model.ts";
-import { CatalogMemory } from "../src/Catalog/CatalogMemory.ts";
 import { Item } from "../src/Item/Item.aggregate.ts";
 import { ItemId } from "../src/Item/Item.id.ts";
 import { ItemHistory } from "../src/Item/ItemHistory.view.ts";
 import { RecordSighting } from "../src/Item/RecordSighting.command.ts";
 import { Operator } from "../src/Operator.context.ts";
-
-const world = Catalog.layer(CatalogHandlers).pipe(
-  Layer.provide(Layer.mergeAll(Domain.InMemory, CatalogMemory))
-);
+import { makeCatalogPropertyWorld } from "./catalog-property-world.ts";
 
 it.effect.prop(
   "RecordSighting commits the canonical lowercase author rather than merely folding the derived index",
   {
     author: Arbitrary.schema(Schema.NonEmptyString),
   },
-  ({ author }) =>
-    Effect.gen(function* commitCanonicalAuthor() {
+  ({ author }) => {
+    const { drain, world } = makeCatalogPropertyWorld();
+
+    return Effect.gen(function* commitCanonicalAuthor() {
       const items = yield* Item;
       const histories = yield* ItemHistory;
       const id = ItemId.make("https://example.test/canonical-author");
@@ -42,6 +37,7 @@ it.effect.prop(
         })
       );
 
+      yield* drain;
       const history = yield* histories.get(Item.ref(id), { atLeast: receipt });
       expect(Option.getOrThrow(history).latestSighting?.author).toBe(
         author.toLowerCase()
@@ -50,6 +46,7 @@ it.effect.prop(
       Effect.provideService(Operator, { authenticated: true }),
       Effect.provide(world),
       TestClock.withLive
-    ),
+    );
+  },
   { arbitrary: { runs: 100 } }
 );

@@ -1,23 +1,20 @@
-import * as Domain from "@alchemy.run/domain";
 import { it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 import { expect } from "vitest";
 
-import { Catalog, CatalogHandlers } from "../src/Catalog.model.ts";
-import { CatalogMemory } from "../src/Catalog/CatalogMemory.ts";
 import { Item } from "../src/Item/Item.aggregate.ts";
 import { ItemId } from "../src/Item/Item.id.ts";
 import { ItemHistory } from "../src/Item/ItemHistory.view.ts";
 import { RecordSighting } from "../src/Item/RecordSighting.command.ts";
 import type { Sighting } from "../src/Item/Sighting.ts";
 import { Operator } from "../src/Operator.context.ts";
+import { makeCatalogPropertyWorld } from "./catalog-property-world.ts";
 
 const observations = Schema.Array(
   Schema.Struct({
@@ -27,15 +24,13 @@ const observations = Schema.Array(
   })
 ).check(Schema.isMinLength(1), Schema.isMaxLength(16));
 
-const world = Catalog.layer(CatalogHandlers).pipe(
-  Layer.provide(Layer.mergeAll(Domain.InMemory, CatalogMemory))
-);
-
 it.effect.prop(
   "records exactly the first sighting per source and UTC day, including retries with new command ids",
   { observations: Arbitrary.schema(observations) },
-  ({ observations: generated }) =>
-    Effect.gen(function* deduplicateGeneratedSightings() {
+  ({ observations: generated }) => {
+    const { drain, world } = makeCatalogPropertyWorld();
+
+    return Effect.gen(function* deduplicateGeneratedSightings() {
       const items = yield* Item;
       const histories = yield* ItemHistory;
       const id = ItemId.make("https://example.test/generated");
@@ -72,6 +67,8 @@ it.effect.prop(
         );
       }
 
+      yield* drain;
+
       const history = yield* histories.get(
         Item.ref(id),
         lastReceipt === undefined ? {} : { atLeast: lastReceipt }
@@ -102,6 +99,7 @@ it.effect.prop(
       Effect.provideService(Operator, { authenticated: true }),
       Effect.provide(world),
       TestClock.withLive
-    ),
+    );
+  },
   { arbitrary: { runs: 100 } }
 );
