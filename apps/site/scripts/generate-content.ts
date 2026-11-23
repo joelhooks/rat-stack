@@ -2053,12 +2053,12 @@ ${homeFeatured}
 
 ## Go as deep as you like
 
-- Build your project. Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
-- Ask why. Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
-- Learn by building. Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
-- Take what you need. The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
-- Check the work. The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
-- See what others are building. Browse the [news](${originToken}/news) and [project directory](${originToken}/directory).
+- Paste the prompt above and describe what you're building. Your agent can follow the [guides](${originToken}/skills).
+- Have your agent explain the code, or read the [explanations](${originToken}/lore) yourself.
+- Work through [learn mode](${originToken}/learn) with your agent, or watch a [video](${originToken}/tube).
+- The [removal guides](${originToken}/README.md#keep-or-cut) show what each part needs and what you can cut.
+- The [systems pages](${originToken}/systems) describe the checks. [Known gaps](${originToken}/debt.md) show what still needs work.
+- The [project directory](${originToken}/directory) shows what others are building.
 
 ## How it fits together
 
