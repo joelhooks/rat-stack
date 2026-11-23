@@ -166,6 +166,7 @@ export default defineConfig({
     "landmines/no-fixed-sleep": "warn",
     "landmines/no-flake-masking": "error",
     "landmines/no-flake-masking-timeout": ["warn", { check: "timeout" }],
+    "landmines/no-test-doubles": "warn",
     "landmines/no-unsignaled-poll": "error",
     "no-comments/directive-reason": "error",
     "no-comments/no-comments": "error",

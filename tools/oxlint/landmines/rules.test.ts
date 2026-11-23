@@ -2,6 +2,7 @@ import { RuleTester } from "oxlint/plugins-dev";
 
 import { noFixedSleep } from "./rules/no-fixed-sleep.ts";
 import { noFlakeMasking } from "./rules/no-flake-masking.ts";
+import { noTestDoubles } from "./rules/no-test-doubles.ts";
 import { noUnsignaledPoll } from "./rules/no-unsignaled-poll.ts";
 
 const tester = new RuleTester({
@@ -196,6 +197,71 @@ tester.run("landmines/no-flake-masking timeouts", noFlakeMasking, {
       code: `${config} export default config({ test: { testTimeout: 30_000, hookTimeout: 60_000 } });`,
       options: [{ check: "timeout" }],
       errors: [{ messageId: "timeout" }, { messageId: "timeout" }],
+    },
+  ],
+});
+
+const layer = 'import { Effect, Layer } from "effect";';
+const doubled = (code: string) => reported(code, "double");
+
+tester.run("landmines/no-test-doubles", noTestDoubles, {
+  valid: [
+    `${js} test('x', () => { const onSave = vi.fn(); save(onSave); expect(onSave).toHaveBeenCalledOnce(); });`,
+    `${js} test('x', () => { const onSave = vi.fn(undefined); save(onSave); });`,
+    `${js} test('x', () => { const log = vi.spyOn(console, 'log'); run(); expect(log).toHaveBeenCalled(); });`,
+    `${js} ${layer} const store = Layer.succeed(Store, memoryStore);`,
+    `${js} ${layer} const gate = Layer.succeed(Gate, { allow: () => Effect.succeed(true) });`,
+    `${js} ${layer} const sink = Layer.succeed(Sink, { send: () => Effect.fail(new SinkDown()) });`,
+    `${js} import * as Layer from "effect/Layer"; const store = Layer.succeed(Store, memoryStore);`,
+    `${js} test('x', () => { globalThis.__ALCHEMY_RUNTIME__ = true; });`,
+    `${js} test('x', () => { let fetch = real; fetch = other; });`,
+    `${js} test('x', (globalThis) => { globalThis.fetch = canned; });`,
+    `${js} test('x', () => { Object.defineProperty(request, 'cf', { value: edge }); });`,
+    `${js} test('x', () => { Object.assign(globalThis, { __probe: bindings }); });`,
+    `${js} test('x', () => { const vi = { fn: (f) => f }; vi.fn(() => 1); });`,
+    `import { vi } from "./clock.ts"; vi.fn(() => 1); vi.stubGlobal('fetch', canned);`,
+    {
+      code: "globalThis.fetch = instrumentedFetch;",
+      filename: "apps/site/src/asset-deployment.ts",
+    },
+    'import { mock } from "./fixtures.ts"; mock(Store, {});',
+  ],
+  invalid: [
+    ...[
+      `${js} test('x', () => { const save = vi.fn(() => 'saved'); });`,
+      `${js} test('x', () => { const save = vi.fn(async () => ({ ok: true })); });`,
+      `import { vi as v } from "@effect/vitest"; v.fn(handler);`,
+      `import * as V from "vitest"; V.vi.fn(handler);`,
+      `${js} test('x', () => { vi.spyOn(api, 'load').mockResolvedValue([]); });`,
+      `${js} test('x', () => { save.mockImplementation(() => 1); });`,
+      `${js} test('x', () => { save.mockReturnValueOnce(2); });`,
+      `${js} test('x', () => { save.withImplementation(() => 1, run); });`,
+      `${js} beforeEach(() => { vi.stubGlobal('fetch', canned); });`,
+      `${js} test('x', () => { vi.mockObject(api); });`,
+      `${js} test('x', async () => { await vi.importMock('./api.ts'); });`,
+      `${layer} const users = Layer.mock(UserService, { getUser: () => Effect.succeed(user) });`,
+      `${layer} const users = Layer.mock(UserService)({ getUser: () => Effect.succeed(user) });`,
+      `import * as Layer from "effect/Layer"; Layer.mock(UserService, {});`,
+      `import { mock } from "effect/Layer"; mock(UserService, {});`,
+      `${js} test('x', () => { globalThis.fetch = () => Promise.resolve(new Response('ok')); });`,
+      `${js} test('x', () => { window.matchMedia = () => query; });`,
+      `${js} test('x', () => { fetch = canned; });`,
+      `${js} test('x', () => { Date.now = () => 0; });`,
+      `${js} test('x', () => { Math.random = () => 0.5; });`,
+      `${js} test('x', () => { globalThis.crypto.randomUUID = () => 'id'; });`,
+      `${js} test('x', () => { navigator.clipboard.writeText = write; });`,
+      `${js} test('x', () => { localStorage.getItem = () => null; });`,
+      `${js} test('x', () => { HTMLElement.prototype.scrollIntoView = () => {}; });`,
+      `${js} test('x', () => { Object.defineProperty(globalThis, 'fetch', { value: canned }); });`,
+      `${js} test('x', () => { Reflect.set(navigator, 'onLine', false); });`,
+      `${js} test('x', () => { Object.defineProperties(document, { hidden: { value: true } }); });`,
+      `${js} test('x', () => { Object.assign(globalThis, { fetch: canned }); });`,
+      `${js} test('x', () => { delete globalThis.navigator; });`,
+    ].map(doubled),
+    {
+      code: "globalThis.fetch = canned;",
+      filename: "packages/core/test/fixtures/network.ts",
+      errors: [{ messageId: "double" }],
     },
   ],
 });

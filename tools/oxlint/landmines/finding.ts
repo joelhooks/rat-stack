@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
 export const Budget = Schema.Tuple([
-  Schema.Literals(["test", "config", "sleep"]),
+  Schema.Literals(["test", "config", "sleep", "double"]),
   Schema.Array(Schema.String),
   Schema.String,
   Schema.String,
