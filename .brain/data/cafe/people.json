@@ -1218,6 +1218,13 @@
         "url": "https://x.com/ethanniser",
         "source": "https://github.com/ethanniser",
         "verified": "2026-11-16"
+      },
+      {
+        "handle": "@ethanniser",
+        "kind": "youtube",
+        "url": "https://www.youtube.com/@ethanniser",
+        "source": "https://github.com/ethanniser",
+        "verified": "2026-11-23"
       }
     ],
     "id": "ethanniser",
