@@ -19,7 +19,7 @@ import {
   IntakeTicket,
   PAGE_TICKET_SOURCE,
 } from "../src/intake.js";
-import { InterestTokens, SubscriberIntake } from "../src/interest.js";
+import { InterestTokens } from "../src/interest.js";
 import type { AgentIntakeRequest, IntakeResult } from "../src/interest.js";
 import {
   JoinContactStore,
@@ -29,6 +29,7 @@ import {
   joinInterest,
 } from "../src/join-interest.js";
 import type { JoinContactState } from "../src/join-interest.js";
+import { scriptedIntakeLayer } from "./fixtures/scripted-intake.js";
 
 const DrovrOutcomeSchema = Schema.Union([
   Schema.Struct({ kind: Schema.Literal("accepted") }),
@@ -100,9 +101,8 @@ it.effect.prop(
       const afterResponse: Effect.Effect<void>[] = [];
       const drovrCalled = yield* Deferred.make<"drovr called first">();
 
-      const drovr = Layer.succeed(SubscriberIntake, {
+      const drovr = scriptedIntakeLayer({
         agent: {
-          enabled: true,
           submit: Effect.fnUntraced(function* slowDrovr(
             input: AgentIntakeRequest
           ) {
@@ -120,7 +120,6 @@ it.effect.prop(
             return outcome;
           }),
         },
-        submit: () => Effect.die("person intake must not run"),
       });
 
       const services = yield* Layer.build(

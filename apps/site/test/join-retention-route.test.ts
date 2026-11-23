@@ -4,11 +4,11 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  SubscriberIntake,
 } from "@rat-stack/core/interest";
 import { Effect, Layer, Redacted } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
+import { scriptedIntakeLayer } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { interestRoutes } from "../src/interest/routes.js";
 
 it.effect(
@@ -34,9 +34,7 @@ it.effect(
           InterestMode.layer("drovr"),
           InterestTokens.layer(Redacted.make("synthetic-secret")),
           SubscriberConfirm.unconfigured,
-          Layer.succeed(SubscriberIntake, {
-            submit: () => Effect.succeed({ kind: "refused" } as const),
-          })
+          scriptedIntakeLayer()
         )
       );
 

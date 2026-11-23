@@ -6,13 +6,13 @@ import {
   InterestMode,
   InterestTokens,
   SubscriberConfirm,
-  SubscriberIntake,
 } from "@rat-stack/core/interest";
 import { JoinRetentionBackfillUnavailable } from "@rat-stack/core/join-interest";
 import type { JoinRetentionBackfill } from "@rat-stack/core/join-interest";
 import { Effect, Layer, Logger, Redacted, Tracer } from "effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
+import { scriptedIntakeLayer } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { mischiefRoutes } from "../src/app.js";
 import { interestOperatorOptions } from "../src/interest/operator-options.js";
 import { TestSandbox } from "./test-sandbox.js";
@@ -31,7 +31,7 @@ it.effect(
           InterestMode.layer("drovr"),
           InterestTokens.layer(Redacted.make(secret)),
           SubscriberConfirm.unconfigured,
-          Layer.succeed(SubscriberIntake, { submit: () => Effect.die(secret) })
+          scriptedIntakeLayer({ submit: () => Effect.die(secret) })
         )
       );
 

@@ -1,7 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { ActorWatch } from "@rat-stack/capability/actor-watch";
-import { ContactRefSchema, IntakeEvents } from "@rat-stack/core/intake";
-import { SubscriberIntake } from "@rat-stack/core/interest";
+import { ContactRefSchema } from "@rat-stack/core/intake";
 import {
   IntakeApplications,
   IntakeSweep,
@@ -11,6 +10,8 @@ import {
 } from "@rat-stack/core/join-interest";
 import { Clock, Effect, Layer, Logger, Schema } from "effect";
 
+import { makeScriptedIntakeEvents } from "../../../packages/core/test/fixtures/scripted-intake-events.js";
+import { makeScriptedIntake } from "../../../packages/core/test/fixtures/scripted-intake.js";
 import { intakeApplicationsLayer } from "../src/interest/applications.js";
 import { sweepPendingIntake } from "../src/interest/intake-sweep.js";
 
@@ -73,31 +74,20 @@ it.effect.prop(
               : contacts.read(id),
         };
 
-        const sent: string[] = [];
-        const erased: string[] = [];
+        const events = yield* makeScriptedIntakeEvents({
+          erase: () => Effect.void,
+        });
+
+        const intake = yield* makeScriptedIntake({
+          agent: { submit: () => Effect.succeed({ kind: "accepted" }) },
+        });
+
         let dispatches = 0;
 
         const services = Layer.mergeAll(
           Layer.succeed(JoinContactStore, port),
-          Layer.succeed(IntakeEvents, {
-            record: () => Effect.void,
-            erase: (ref) =>
-              Effect.sync(() => {
-                erased.push(ref);
-              }),
-          }),
-          Layer.succeed(SubscriberIntake, {
-            agent: {
-              enabled: true,
-              submit: (request) =>
-                Effect.sync(() => {
-                  sent.push(request.submissionId);
-
-                  return { kind: "accepted" } as const;
-                }),
-            },
-            submit: () => Effect.die("person intake must not run"),
-          })
+          events.layer,
+          intake.layer
         );
 
         const sweeper = yield* IntakeSweep.pipe(
@@ -144,8 +134,10 @@ it.effect.prop(
 
         return {
           counts,
-          sent: sent.toSorted(),
-          erased: erased.toSorted(),
+          sent: (yield* intake.agentCalls)
+            .map((request) => request.submissionId)
+            .toSorted(),
+          erased: (yield* events.eraseCalls).toSorted(),
           pending: [...pending].toSorted(),
           rows,
           damagedStored: (yield* contacts.read(damaged)) !== undefined,
