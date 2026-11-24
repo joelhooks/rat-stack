@@ -17,6 +17,7 @@ import {
   tubeContentSecurityPolicy,
   tubePagePath,
 } from "../src/security.js";
+import { withWebMcpOriginTrials } from "../src/web-mcp-origin-trials.js";
 
 const browserHeaders = [
   "cross-origin-opener-policy",
@@ -83,8 +84,13 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
 
   test.effect.prop(
     "every forwarded HTML or asset response carries Mischief's security and discovery headers, and a Website 404 falls back to Mischief",
-    { path: forwardedPath, upstream: websiteResponse },
-    ({ path: generated, upstream }) =>
+    {
+      chromeToken: Schema.Literals(["", "ChromeA=="]),
+      edgeToken: Schema.Literals(["", "EdgeB=="]),
+      path: forwardedPath,
+      upstream: websiteResponse,
+    },
+    ({ chromeToken, edgeToken, path: generated, upstream }) =>
       Effect.gen(function* checkForwardedHeaders() {
         const store = yield* ContentStore;
         const catalog = yield* store.catalog;
@@ -110,7 +116,10 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
 
         const response = yield* withReaderWebsite(
           website,
-          readerResponseHeaders(store)
+          withWebMcpOriginTrials(
+            [chromeToken, edgeToken],
+            readerResponseHeaders(store)
+          )
         )(
           Effect.succeed(
             HttpServerResponse.text("Mischief", {
@@ -131,6 +140,18 @@ it.layer(ContentStore.layer.pipe(Layer.provide(nodeAssetsLayer)))((test) => {
 
         expect(response.headers["x-mischief-fallback"]).toBe(
           upstream.status === 404 ? "rendered" : undefined
+        );
+
+        const trials = [chromeToken, edgeToken]
+          .filter((token) => token !== "")
+          .join(", ");
+
+        expect(response.headers["origin-trial"]).toBe(
+          upstream.status !== 404 &&
+            upstream.contentType.startsWith("text/html") &&
+            trials !== ""
+            ? trials
+            : undefined
         );
 
         if (upstream.status === 404) {

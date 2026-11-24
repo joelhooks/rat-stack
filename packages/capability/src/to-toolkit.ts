@@ -14,6 +14,7 @@ import type {
   PlainSchema,
   RequirementsOf as CapabilityRequirementsOf,
 } from "./contract.js";
+import { emptyInputJsonSchema, hasNoInputFields } from "./tool-input-schema.js";
 import { wireFailureSchema } from "./wire-failure.js";
 
 const toolFor = <
@@ -57,21 +58,12 @@ export interface ToolkitProjection<Caps extends readonly AnyCapability[]> {
   >;
 }
 
-const emptyObjectJsonSchema = {
-  additionalProperties: false,
-  properties: {},
-  type: "object",
-} as const;
-
-const hasNoInputFields = (contract: AnyCapability["contract"]) =>
-  Object.keys(contract.input.fields).length === 0;
-
 const emptyInputTool = (contract: AnyCapability["contract"]): Tool.Any =>
   Tool.dynamic(contract.name, {
     description: contract.description,
     failure: wireFailureSchema(failureSchemaOf(contract)),
     needsApproval: contract.needsApproval,
-    parameters: emptyObjectJsonSchema,
+    parameters: emptyInputJsonSchema,
     success: contract.output,
   });
 
