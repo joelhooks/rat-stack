@@ -362,6 +362,7 @@
         "$TURBO_ROOT$/apps/*/package.json",
         "$TURBO_ROOT$/packages/*/package.json",
         "$TURBO_ROOT$/apps/*/src/**",
+        "$TURBO_ROOT$/examples/*/AGENTS.md",
         "$TURBO_ROOT$/apps/site/test/join-contact*.test.ts",
         "$TURBO_ROOT$/scripts/**",
         "$TURBO_ROOT$/tools/**",
