@@ -13,8 +13,10 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
+import { declarativeToolNames } from "../../site/scripts/web-mcp-forms.js";
 import { ContentAssetManifest } from "../../site/src/asset-manifest.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
+import { webMcpContracts } from "../src/client/web-mcp-contracts.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
 const webRoot = path.resolve(import.meta.dirname, "..");
@@ -72,6 +74,21 @@ const build = (nodeEnv: "development" | "production") => {
     expect(readFileSync(path.join(outDir, "index.html"), "utf-8")).toMatch(
       /<h1(?: [^>]*)?>Rat Stack<\/h1>/u
     );
+
+    const allowedToolNames = new Set<string>(
+      webMcpContracts.map(({ name }) => name)
+    );
+
+    for (const file of globSync("**/*.html", { cwd: outDir })) {
+      const undeclared = declarativeToolNames(
+        readFileSync(path.join(outDir, file), "utf-8")
+      ).filter((name) => !allowedToolNames.has(name));
+
+      expect(
+        undeclared,
+        `${file} declares a WebMCP form without a public contract. Fix: use a name from \`webMcpContracts\`.`
+      ).toEqual([]);
+    }
 
     const contentRoot = path.resolve(webRoot, "../site/dist/content");
 

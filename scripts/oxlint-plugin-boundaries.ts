@@ -51,6 +51,7 @@ const surfaceConstructorNames = new Set([
 
 const browserContractModules = new Set([
   "packages/capability/rpc-group",
+  "packages/capability/web-mcp",
   "packages/core/contracts",
   "packages/devtools/contracts",
 ]);
@@ -1005,7 +1006,7 @@ const noBrowserServerImports = defineRule({
     },
     messages: {
       capabilityImport:
-        "Feature and client modules can import only browser-safe contract entry points. Capability handlers and domain implementation would ship server code to the browser. Fix: import from `@rat-stack/core/contracts` or `@rat-stack/capability/rpc-group`, and reach the handler through the `RpcClient`.",
+        "Feature and client modules can import only browser-safe contract entry points. Capability handlers and domain implementation would ship server code to the browser. Fix: import from `@rat-stack/core/contracts`, `@rat-stack/capability/rpc-group`, or `@rat-stack/capability/web-mcp`, and reach the handler through the `RpcClient`.",
       serverImport:
         "Feature and client modules cannot import Node, Alchemy, Worker, infra, or server-only modules. The browser bundle would fail to build or leak server code. Fix: put the work behind a capability and call it from a named `Command.define` in `apps/web/src/client`.",
     },
@@ -1266,12 +1267,34 @@ const surfaceCallName = (
 
 const noHandRolledSurface = defineRule({
   create(context) {
-    if (isCapabilityPackage(workspacePath(context.filename))) {
-      return {};
-    }
+    const filename = workspacePath(context.filename);
 
     return {
+      MemberExpression(node) {
+        if (
+          filename !== "packages/capability/src/to-web-mcp.ts" &&
+          staticPropertyName(node) === "registerTool"
+        ) {
+          context.report({ messageId: "webMcp", node });
+        }
+      },
+      Property(node) {
+        if (
+          filename !== "packages/capability/src/to-web-mcp.ts" &&
+          node.parent?.type === "ObjectPattern" &&
+          ((!node.computed &&
+            node.key.type === "Identifier" &&
+            node.key.name === "registerTool") ||
+            (node.key.type === "Literal" && node.key.value === "registerTool"))
+        ) {
+          context.report({ messageId: "webMcp", node });
+        }
+      },
       CallExpression(node) {
+        if (isCapabilityPackage(filename)) {
+          return;
+        }
+
         let callee = unwrapExpression(node.callee);
 
         if (
@@ -1300,9 +1323,11 @@ const noHandRolledSurface = defineRule({
   meta: {
     docs: {
       description:
-        "Build RPC, HTTP, and MCP surfaces from contracts through packages/capability projections.",
+        "Build RPC, HTTP, MCP, and WebMCP surfaces from contracts through packages/capability projections.",
     },
     messages: {
+      webMcp:
+        "registerTool hand-rolls a browser surface. WebMCP tools must share the capability schemas and approval metadata. Fix: project the action with `toWebMcp`.",
       handRolled:
         "{{call}} hand-rolls a surface. A hand-built surface drifts from the schemas every other surface shares. Fix: declare the action with `defineContract`, bind it with `implement`, and project it with `toRpcGroup`, `toRpc`, `toHttpApi`, or `toToolkit`.",
     },

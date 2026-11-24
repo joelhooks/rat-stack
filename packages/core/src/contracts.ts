@@ -395,7 +395,7 @@ export const peopleForContract = defineContract("peopleFor", {
 });
 
 export const searchContract = defineContract("search", {
-  annotations: { idempotent: true, readOnly: true },
+  annotations: { idempotent: true, readOnly: true, title: "Search Rat Stack" },
   description:
     "Search rat-stack repository law and skills. Returns stable resource ids for read.",
   failure: AssetReadError,
@@ -407,7 +407,11 @@ export const searchContract = defineContract("search", {
 });
 
 export const readContract = defineContract("read", {
-  annotations: { idempotent: true, readOnly: true },
+  annotations: {
+    idempotent: true,
+    readOnly: true,
+    title: "Read a Rat Stack document",
+  },
   description:
     "Read one exact rat-stack law or skill document by the resource id returned from search.",
   failure: Schema.Union([ResourceNotFound, AssetReadError]),

@@ -1,17 +1,16 @@
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { readContract, searchContract } from "@rat-stack/core/contracts";
 import { Cache, Context, Effect, Layer } from "effect";
-import { FetchHttpClient } from "effect/http";
-import { RpcClient, RpcSerialization } from "effect/rpc";
+import { RpcClient } from "effect/rpc";
+
+import { readerRpcProtocol } from "../rpc.js";
 
 const { group } = toRpcGroup([searchContract, readContract]);
 
-const protocol = RpcClient.layerProtocolHttp({ url: "/rpc" }).pipe(
-  Layer.provide([FetchHttpClient.layer, RpcSerialization.layerJson])
-);
-
 const make = Effect.gen(function* makeDocumentQueries() {
-  const client = yield* RpcClient.make(group).pipe(Effect.provide(protocol));
+  const client = yield* RpcClient.make(group).pipe(
+    Effect.provide(readerRpcProtocol)
+  );
 
   const search = yield* Cache.make({
     capacity: Number.POSITIVE_INFINITY,

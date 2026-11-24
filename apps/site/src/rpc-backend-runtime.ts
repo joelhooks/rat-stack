@@ -6,13 +6,13 @@ import { RpcSerialization, RpcServer } from "effect/rpc";
 
 import { staticAssetGeneration } from "./bundled-content.generated.js";
 import {
+  contentCapabilities,
   contentLayerWithFlags,
-  readerCapabilities,
 } from "./capabilities/index.js";
 import { privateTelemetry, traceSettings } from "./observability.js";
 import { workerAssetsLayer } from "./worker-content.js";
 
-export const rpcProjection = toRpc(readerCapabilities);
+export const rpcProjection = toRpc(contentCapabilities);
 
 export const rpcContentDirectory = () =>
   new URL(`../dist/content/assets/${staticAssetGeneration}/`, import.meta.url)

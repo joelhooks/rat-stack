@@ -66,6 +66,11 @@ import { observeRequestLog } from "./request-log.js";
 import { layerWorkerLoader, sandboxLimits } from "./sandbox-loader.js";
 import type { WorkerLoaderBinding } from "./sandbox-worker-loader.js";
 import { AssetBindingSchema, StaticAssets } from "./static-assets.js";
+import {
+  chromeWebMcpTrialToken,
+  edgeWebMcpTrialToken,
+  withWebMcpOriginTrials,
+} from "./web-mcp-origin-trials.js";
 
 const cloudflareStaticCache = {
   match: (request: Request) => caches.default.match(request),
@@ -307,9 +312,15 @@ export const makeMischief = (
       Effect.provideService(ErrorPageRenderer, websiteErrorPages(website))
     );
 
+    const chromeToken = yield* chromeWebMcpTrialToken;
+    const edgeToken = yield* edgeWebMcpTrialToken;
+
     const readerApp = withReaderWebsite(
       website.pipe(Effect.orDie),
-      readerResponseHeaders(contentStore)
+      withWebMcpOriginTrials(
+        [chromeToken, edgeToken],
+        readerResponseHeaders(contentStore)
+      )
     )(app);
 
     return {
@@ -453,7 +464,11 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       compatibility: { date: traces.enabled ? "2026-07-28" : "2026-05-28" },
       dev: { port: 1337 },
       domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
-      env: { MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint },
+      env: {
+        MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint,
+        WEB_MCP_CHROME_TRIAL_TOKEN: chromeWebMcpTrialToken,
+        WEB_MCP_EDGE_TRIAL_TOKEN: edgeWebMcpTrialToken,
+      },
       main: import.meta.url,
       observability: traceObservability(traces),
       tailConsumers: [yield* CrashTail],
