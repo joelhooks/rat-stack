@@ -1,5 +1,37 @@
 [
   {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=BA1lV8JgUqM",
+    "title": "Devin Jameson: Frontend for Agents & Humans",
+    "summary": "Foldkit's author, who has just joined Effect, gives a 39-minute talk at Effect Miami #3.",
+    "date": "2026-11-23",
+    "repo": null,
+    "author": {
+      "github": "devinjameson",
+      "x": "devinjameson"
+    },
+    "source": "https://www.youtube.com/watch?v=BA1lV8JgUqM",
+    "engagement": {
+      "views": 1289
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/dmmulroy/rex-sdk",
+    "title": "rex-sdk: an Effect-native SDK for the Rex server API",
+    "summary": "Every Rex method is a typed Effect with Schema codecs generated from the server's JSON Schemas; live events and terminal output are Streams.",
+    "date": "2026-11-23",
+    "repo": "dmmulroy/rex-sdk",
+    "author": {
+      "github": "dmmulroy",
+      "x": "dillon_mulroy"
+    },
+    "source": "https://github.com/dmmulroy/rex-sdk",
+    "engagement": {
+      "stars": 34
+    }
+  },
+  {
     "kind": "launch",
     "url": "https://github.com/rivet-dev/rivet-effect-cluster",
     "title": "Effect Cluster runs on Rivet Actors",
@@ -12,7 +44,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2124538395682853187",
     "engagement": {
-      "stars": 0
+      "stars": 2
     }
   },
   {
@@ -28,7 +60,7 @@
     },
     "source": "https://x.com/NFS__21/status/2124510714358276399",
     "engagement": {
-      "stars": 0
+      "stars": 2
     }
   },
   {
@@ -44,7 +76,7 @@
     },
     "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
     "engagement": {
-      "stars": 383
+      "stars": 420
     }
   },
   {
@@ -109,6 +141,22 @@
     "source": "https://www.youtube.com/watch?v=xB3YKYwoqxM",
     "engagement": {
       "views": 826
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/bjacobso/effect-datastar",
+    "title": "effect-datastar: a Datastar app with an all-Effect server",
+    "summary": "Schema-driven CRUD with live updates across tabs, sign-in and organizations; the form widgets derive from the schemas, and the server is Effect 4 throughout.",
+    "date": "2026-11-20",
+    "repo": "bjacobso/effect-datastar",
+    "author": {
+      "github": "bjacobso",
+      "x": "bjacobso"
+    },
+    "source": "https://github.com/bjacobso/effect-datastar",
+    "engagement": {
+      "stars": 0
     }
   },
   {
@@ -187,6 +235,22 @@
       "x": "samgoodwin89"
     },
     "source": "https://x.com/samgoodwin89/status/2123851816505111035"
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/rivet-dev/code-mode-language-benchmark",
+    "title": "Rivet measures scripting runtimes for code mode",
+    "summary": "Memory, startup and tool-call cost per instance for embedded runtimes and processes: embedded Starlark takes 6.82 KiB, a V8 isolate 1.11 MiB.",
+    "date": "2026-11-19",
+    "repo": "rivet-dev/code-mode-language-benchmark",
+    "author": {
+      "github": "rivet-dev",
+      "x": null
+    },
+    "source": "https://github.com/rivet-dev/code-mode-language-benchmark",
+    "engagement": {
+      "stars": 13
+    }
   },
   {
     "kind": "launch",
@@ -377,6 +441,22 @@
     }
   },
   {
+    "kind": "launch",
+    "url": "https://github.com/SandroMaglione/tabletop-grand-prix",
+    "title": "Tabletop Grand Prix: a browser racer on Effect and Alchemy",
+    "summary": "A time-attack racer with a global leaderboard and ghost laps, built on Effect 4.1.4 with Alchemy beta.87's Cloudflare provider.",
+    "date": "2026-11-14",
+    "repo": "SandroMaglione/tabletop-grand-prix",
+    "author": {
+      "github": "SandroMaglione",
+      "x": "SandroMaglione"
+    },
+    "source": "https://tabletop-grand-prix.typeonce.games",
+    "engagement": {
+      "stars": 3
+    }
+  },
+  {
     "kind": "video",
     "url": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
     "title": "Effect Module of the Week 7: Cluster workflows",
@@ -437,7 +517,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 706
+      "stars": 725
     }
   },
   {
@@ -560,44 +640,6 @@
     "source": "https://github.com/archiboi69/domain-devtools",
     "engagement": {
       "stars": 26
-    }
-  },
-  {
-    "kind": "thread",
-    "url": "https://x.com/devinjameson/status/2119871161265713420",
-    "title": "Foldkit's creator goes full-time on Foldkit",
-    "summary": "Foldkit's creator is now working on the framework full-time, citing the project's momentum. Foldkit began in June 2025 to combine Elm and Effect.",
-    "date": "2026-11-09",
-    "repo": "foldkit/foldkit",
-    "author": {
-      "github": "devinjameson",
-      "x": "devinjameson"
-    },
-    "source": "https://x.com/devinjameson/status/2119871161265713420",
-    "topReplies": [
-      {
-        "likes": 92,
-        "text": "I started working on Foldkit in June of 2025. The idea was to bring together Elm and Effect and make the frontend framework of my dreams.\n\nI've spent the vast majority of my free time on the framework since the start of this year. Even when I'm not sitting at my computer or",
-        "url": "https://x.com/devinjameson/status/2119871164281745591",
-        "x": "devinjameson"
-      },
-      {
-        "likes": 25,
-        "text": "@devinjameson lmk how i can help\n\ni've already decided im your unofficial devrel fyi\n\nlfg",
-        "url": "https://x.com/joelhooks/status/2119873612849315888",
-        "x": "joelhooks"
-      },
-      {
-        "likes": 10,
-        "text": "@devinjameson This is huge, congrats on taking the leap! Let me know how I can help",
-        "url": "https://x.com/DavidKPiano/status/2119956038883455119",
-        "x": "DavidKPiano"
-      }
-    ],
-    "engagement": {
-      "likes": 410,
-      "replies": 58,
-      "participants": 64
     }
   },
   {
@@ -1056,22 +1098,6 @@
     "source": "https://github.com/codician-team/diffinery",
     "engagement": {
       "stars": 84
-    }
-  },
-  {
-    "kind": "post",
-    "url": "https://alchemy.run/blog/2026-10-24-optimizing-distilled/",
-    "title": "Hillclimbing distilled",
-    "summary": "An agent optimized distilled, Alchemy's Effect cloud SDKs: 33% smaller bundles, 79% less latency per call and 74% less memory on import.",
-    "date": "2026-10-24",
-    "repo": "alchemy-run/distilled",
-    "author": {
-      "github": null,
-      "x": "alchemy_run"
-    },
-    "source": "https://x.com/alchemy_run/status/2115960599893164244",
-    "engagement": {
-      "stars": 549
     }
   },
   {
