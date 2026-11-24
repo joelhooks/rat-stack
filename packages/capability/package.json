@@ -54,6 +54,11 @@
       "import": "./dist/implement.js",
       "default": "./dist/implement.js"
     },
+    "./skill-bundle": {
+      "types": "./src/skill-bundle.ts",
+      "import": "./dist/skill-bundle.js",
+      "default": "./dist/skill-bundle.js"
+    },
     "./toolkit": {
       "types": "./src/toolkit.ts",
       "import": "./dist/toolkit.js",

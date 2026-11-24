@@ -80,6 +80,7 @@ const parameterizedReadBoundaries = new Map(
     "apps/site/scripts/learn-snippets.ts": hashed(".brain/data/learn-cards/**"),
     "apps/site/scripts/migration-inputs.ts": contentRoots,
     "apps/site/scripts/migration-writer.ts": temporary(),
+    "apps/site/scripts/portable-skills.ts": hashed("skills/**"),
     "apps/site/scripts/reader-learn-flags.ts": hashed(".brain/**"),
     "apps/site/scripts/reader-site-inputs.ts": hashed(
       "apps/site/dist/content/**"

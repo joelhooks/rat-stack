@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { NodeCrypto, NodeRuntime, NodeServices } from "@effect/platform-node";
+import { skillBundlePath } from "@rat-stack/capability/skill-bundle";
 import { Drift, prepareCode } from "@rat-stack/code-snippets";
 import type { Diagnostics } from "@rat-stack/code-snippets";
 import { FenceHighlighter, shikiLayer } from "@rat-stack/code-snippets/shiki";
@@ -150,6 +151,7 @@ import {
   withNewsPointer,
 } from "./news-callout.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
+import { portableSkills } from "./portable-skills.ts";
 import { validatePromptSources } from "./prompt-source.ts";
 import {
   groupUnlinkedMentions,
@@ -3783,7 +3785,13 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     yield* collectLearnSnippets(root)
   );
 
+  const skillBundle = yield* portableSkills(
+    root,
+    skillTexts.map(({ name }) => name)
+  );
+
   const contentData = [
+    { path: skillBundlePath, value: skillBundle },
     {
       path: "/_content/learn.json",
       value: { cards: learnCards, version: 1 },
