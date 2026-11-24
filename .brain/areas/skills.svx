@@ -1,0 +1,72 @@
+---
+title: "Portable skills come from one folder"
+description: "The portable rat-stack skill bundle reaches MCP clients and Executor from the same source files."
+plain: "Read a skill and its companion files over MCP or load them from the Executor index."
+group: system
+terms: ["skill bundle"]
+sources:
+  - url: https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640
+    title: "SEP-2640: Skills Extension"
+    publisher: "Model Context Protocol"
+    note: "Methods and resource manifests for the Skills extension."
+    accessed: "2026-11-24"
+  - url: https://agentskills.io/.well-known/agent-skills/index.json
+    title: "Agent Skills discovery index"
+    publisher: "Agent Skills"
+    note: "An example of the 0.2.0 discovery index."
+    accessed: "2026-11-24"
+  - url: https://github.com/RhysSullivan/executor/blob/95d1a0f9e9d89ef78e772fb66739a2868066470e/packages/apps/src/implementation/skills.ts#L585-L656
+    title: "Executor's well-known skills loader"
+    publisher: "Executor"
+    note: "The index decoder and the path used to fetch each file."
+    accessed: "2026-11-24"
+  - url: https://x.com/RhysSullivan/status/2125320816418316589
+    title: "Executor now supports skills over MCP!"
+    publisher: "Rhys Sullivan"
+    note: "The announcement Joel shared for this integration."
+    accessed: "2026-11-24"
+---
+
+## What it does
+
+A skill bundle is a set of skill documents and their companion files. The site builds one bundle from `skills/`. The site and workspace CLI read the same generated asset.
+
+- The [discovery index](/.well-known/agent-skills/index.json) still lists the site's skill pages.
+- The [Executor index](/.well-known/agent-skills/executor/index.json) describes the portable bundle. Supply that full URL to Executor's `wellKnownSkills` loader.
+- The workspace CLI's `mcp` command and the site's [MCP](/lore/mcp-is-another-surface) endpoint serve the portable bundle through the Skills extension.
+- The published `ratstack` npm command still serves only learn tools.
+- The portable bundle omits `security-audit`. Its `HUNTING.md` workflow and reproduction guidance can help agents develop exploits.
+
+## The standard
+
+The original index keeps the agentskills.io discovery shape. Its `Link` header points to the Executor index as an alternate.
+
+Each Executor entry lists `SKILL.md` first, then its companion paths. Every path resolves under the entry's named directory beside the index. The version is a SHA-256 digest of the ordered paths and their contents.
+
+[SEP-2640](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640) defines how MCP clients list skills and read their resources. Each manifest records a SHA-256 digest for each file. Each digest hashes the exact bytes both servers serve.
+
+## How to check
+
+Fetch the index and one skill:
+
+```sh
+curl -fsS https://ratstack.sh/.well-known/agent-skills/executor/index.json
+curl -fsS https://ratstack.sh/.well-known/agent-skills/executor/durability/SKILL.md
+```
+
+The client must support the Skills extension. Use this server URL:
+
+```text
+https://ratstack.sh/mcp
+```
+
+1. Call `skills/list`.
+2. Call `skills/get` with `skill://rat-stack/durability/SKILL.md`.
+3. Call `resources/read` with that URI. Compute the SHA-256 of the returned text and compare it with the manifest's `digest`.
+
+For the workspace CLI, build before connecting the same client over standard input and output:
+
+```sh
+pnpm turbo run build --filter=@rat-stack/cli --summarize
+node apps/cli/dist/cli.js mcp
+```

@@ -2,9 +2,11 @@
 import { spawn, spawnSync } from "node:child_process";
 import path from "node:path";
 
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { CallEntrySchema, OutcomeSchema } from "@rat-stack/devtools";
-import { Schema } from "effect";
+import { Effect, FileSystem, Schema } from "effect";
+import * as McpSchema from "effect/ai/McpSchema";
 
 const cliDir = path.resolve(import.meta.dirname, "..");
 
@@ -186,6 +188,50 @@ const initialize = [
 ] as const;
 
 describe("built MCP server", () => {
+  it.effect(
+    "lists and reads portable skills from the workspace MCP server",
+    () =>
+      Effect.gen(function* testSkillsOverStdio() {
+        const uri = "skill://rat-stack/durability/SKILL.md";
+
+        const responses = yield* Effect.promise(() =>
+          mcpConversation([
+            ...initialize,
+            { id: 2, jsonrpc: "2.0", method: "skills/list", params: {} },
+            { id: 3, jsonrpc: "2.0", method: "skills/get", params: { uri } },
+            {
+              id: 4,
+              jsonrpc: "2.0",
+              method: "resources/read",
+              params: { uri },
+            },
+          ])
+        );
+
+        const { skills } = yield* Schema.decodeUnknownEffect(
+          Schema.Struct({ skills: Schema.Array(McpSchema.Skill) })
+        )(responses.find(({ id }) => id === 2)?.result);
+
+        expect(skills).toHaveLength(22);
+
+        const { skill } = yield* Schema.decodeUnknownEffect(
+          Schema.Struct({ skill: McpSchema.Skill })
+        )(responses.find(({ id }) => id === 3)?.result);
+
+        expect(skill).toEqual(skills.find((entry) => entry.uri === uri));
+
+        const fs = yield* FileSystem.FileSystem;
+
+        const original = yield* fs.readFileString(
+          path.join(repoRoot, "skills/durability/SKILL.md")
+        );
+
+        expect(responses.find(({ id }) => id === 4)?.result).toEqual({
+          contents: [{ mimeType: "text/markdown", text: original, uri }],
+        });
+      }).pipe(Effect.provide(NodeServices.layer))
+  );
+
   it("runs a program against the capabilities in code mode", async () => {
     const responses = await mcpConversation(
       [

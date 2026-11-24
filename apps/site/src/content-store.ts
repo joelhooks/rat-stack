@@ -1,3 +1,7 @@
+import {
+  SkillBundle,
+  skillBundlePath,
+} from "@rat-stack/capability/skill-bundle";
 import { CafeData, ResourceNotFound } from "@rat-stack/core/contracts";
 import { CardSchema } from "@rat-stack/core/learn";
 import type { Card } from "@rat-stack/core/learn";
@@ -18,6 +22,7 @@ import { AssetReadError } from "./static-assets-error.js";
 import { StaticAssets } from "./static-assets.js";
 
 interface ContentStoreService {
+  readonly skills: Effect.Effect<typeof SkillBundle.Type, AssetReadError>;
   readonly tokenmaxx: Effect.Effect<string, AssetReadError>;
   readonly cafe: Effect.Effect<typeof CafeData.Type, AssetReadError>;
   readonly learnDeck: Effect.Effect<readonly Card[], AssetReadError>;
@@ -109,6 +114,10 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
     readData(assets, "/_content/catalog.json", ContentCatalog, generation)
   );
 
+  const skills = yield* cacheCompletedData(
+    readData(assets, skillBundlePath, SkillBundle, generation)
+  );
+
   const tokenmaxx = yield* cacheCompletedData(
     readData(assets, "/_content/tokenmaxx.json", Schema.String, generation)
   );
@@ -184,6 +193,7 @@ const makeStore = Effect.fn("ContentStore.make")(function* makeStore(
       index.pipe(
         Effect.map((resources) => searchContent(resources, query, limit))
       ),
+    skills,
     tokenmaxx,
   } satisfies ContentStoreService;
 });

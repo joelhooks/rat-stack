@@ -20,6 +20,7 @@ import { HttpRouter } from "effect/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 
 import { mcpProtocols } from "./mcp-protocols.js";
+import { mcpSkills } from "./mcp-skills.js";
 import { VERSION } from "./version.js";
 
 export const capabilities = [
@@ -61,6 +62,7 @@ export const webServer = (port: number) =>
 const stdio = McpServer.layerStdio({
   name: "rat-stack",
   protocols: mcpProtocols,
+  registrations: mcpSkills,
   version: VERSION,
 });
 

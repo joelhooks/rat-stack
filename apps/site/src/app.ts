@@ -62,6 +62,10 @@ import {
 import { ErrorPageRenderer } from "./error-page-renderer.js";
 import { renderErrorPage } from "./error-page.js";
 import type { ErrorPage } from "./error-page.js";
+import {
+  executorSkillRoutes,
+  executorSkillsIndexPath,
+} from "./executor-skills.js";
 import { flagsLayer } from "./flags.js";
 import { privateHttpTracingLayer } from "./http-privacy.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
@@ -688,6 +692,7 @@ const contentRoutes = () =>
             Effect.map((catalog) => json(agentSkillsIndex(catalog)))
           )
         ),
+        executorSkillRoutes(store),
         HttpRouter.add("GET", "/.well-known/ai-catalog.json", (request) =>
           Effect.succeed(json(ardManifest(originOf(request))))
         ),
@@ -968,14 +973,21 @@ const discoveryLink = (
   pagePath: string,
   status: number,
   origin: string
-) =>
-  status >= 500 || machinePath(pagePath)
+) => {
+  if (pagePath === "/.well-known/agent-skills/index.json" && status === 200) {
+    return Effect.succeed(
+      `${linkHeaderForPage("/", origin)}, <${executorSkillsIndexPath}>; rel="alternate"; type="application/json"`
+    );
+  }
+
+  return status >= 500 || machinePath(pagePath)
     ? Effect.succeed(linkHeaderForPage("/", origin))
     : store.catalog.pipe(
         Effect.map((catalog) =>
           linkHeaderForPage(discoveryPath(pagePath, catalog), origin)
         )
       );
+};
 
 const linkHeaders = (store: ContentStore["Service"]) =>
   HttpRouter.middleware(
