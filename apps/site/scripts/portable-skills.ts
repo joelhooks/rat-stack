@@ -57,16 +57,20 @@ export const portableSkills = Effect.fnUntraced(function* buildSkills(
           );
         }
 
-        const files = yield* Effect.forEach(
-          [
-            "SKILL.md",
-            ...paths.filter((file) => file !== "SKILL.md").toSorted(),
-          ],
+        const main = {
+          path: "SKILL.md",
+          text: yield* fs.readFileString(path.join(directory, "SKILL.md")),
+        } as const;
+
+        const companions = yield* Effect.forEach(
+          paths.filter((file) => file !== "SKILL.md").toSorted(),
           (relative) =>
             fs
               .readFileString(path.join(directory, relative))
               .pipe(Effect.map((text) => ({ path: relative, text })))
         );
+
+        const files = [main, ...companions] as const;
 
         const version = createHash("sha256")
           .update(JSON.stringify(files))

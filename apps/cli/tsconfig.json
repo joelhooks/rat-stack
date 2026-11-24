@@ -12,6 +12,7 @@
           "effect/FileSystem",
           "effect/Path",
           "effect/ai/McpProtocol",
+          "effect/ai/McpSchema",
           "effect/ai/McpServer",
           "effect/cli/Command",
           "effect/cli/Flag",

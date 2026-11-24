@@ -2413,6 +2413,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/.well-known/agent-card.json",
     "/.well-known/agent.json",
     "/.well-known/agent-skills/index.json",
+    "/.well-known/agent-skills/executor/index.json",
     ...securityAuditAssets.map((asset) => asset.path),
     "/.well-known/ai-catalog.json",
     "/.well-known/api-catalog",

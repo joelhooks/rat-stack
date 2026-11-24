@@ -399,10 +399,14 @@
     "@rat-stack/cli#test": {
       "dependsOn": ["build"],
       "outputs": [],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/README.md"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/skills/durability/SKILL.md"
+      ]
     },
     "@rat-stack/cli#build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "@rat-stack/site#generate"],
       "outputs": ["dist/**"],
       "inputs": ["$TURBO_DEFAULT$"]
     },

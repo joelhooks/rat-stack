@@ -16,6 +16,7 @@ import {
 import { Effect, FileSystem, Layer, Schema } from "effect";
 import * as McpSchema from "effect/ai/McpSchema";
 import * as Arbitrary from "effect/Arbitrary";
+import { forEach as forEachEffect } from "effect/Effect";
 import * as HttpRouter from "effect/http/HttpRouter";
 
 import { parseContentMarkdown } from "../scripts/svx-ast.js";
@@ -2013,11 +2014,13 @@ it.effect(
 
         const toolNames = tools?.map((tool) => tool.name);
 
-        const resourceNames = (yield* Schema.decodeUnknownEffect(
+        const resourceUris = (yield* Schema.decodeUnknownEffect(
           NamedListResponse
-        )(yield* readJson(resourcesList))).result.resources?.map(
-          (resource) => resource.name
-        );
+        )(yield* readJson(resourcesList))).result.resources;
+
+        const resourceNames = resourceUris
+          ?.filter(({ uri }) => !uri.startsWith("skill://"))
+          .map(({ name }) => name);
 
         const promptNames = (yield* Schema.decodeUnknownEffect(
           NamedListResponse
@@ -2075,6 +2078,140 @@ it.effect(
         expect(promptNames?.toSorted()).toEqual(
           skills.map((skill) => skill.name).toSorted()
         );
+      })
+    )
+);
+
+const PortableSkillsIndex = Schema.Struct({
+  skills: Schema.Array(
+    Schema.Struct({
+      files: Schema.Array(Schema.String),
+      name: Schema.String,
+      version: Schema.String,
+    })
+  ),
+});
+
+it.effect(
+  "serves the portable index and MCP Skills with matching file digests",
+  () =>
+    withHandler((handler) =>
+      Effect.gen(function* testPortableSkills() {
+        const discovery = yield* Effect.promise(() =>
+          handler(
+            new Request("http://localhost/.well-known/agent-skills/index.json")
+          )
+        );
+
+        const root = "http://localhost/.well-known/agent-skills/executor";
+        expect(discovery.headers.get("link")).toContain(
+          '</.well-known/agent-skills/executor/index.json>; rel="alternate"'
+        );
+
+        const indexResponse = yield* Effect.promise(() =>
+          handler(new Request(`${root}/index.json`))
+        );
+
+        const index = yield* Schema.decodeUnknownEffect(PortableSkillsIndex)(
+          yield* readJson(indexResponse)
+        );
+
+        const original = yield* Schema.decodeUnknownEffect(
+          Schema.Struct({
+            skills: Schema.Array(Schema.Struct({ name: Schema.String })),
+          })
+        )(yield* readJson(discovery));
+
+        const discoveryNames = original.skills.map(({ name }) => name);
+        const portableNames = index.skills.map(({ name }) => name);
+        const excluded = new Set(["security-audit"]);
+        const expected = discoveryNames.filter((name) => !excluded.has(name));
+        expect(discoveryNames).toEqual(expect.arrayContaining([...excluded]));
+        expect(portableNames.toSorted()).toEqual(expected.toSorted());
+
+        const listing = yield* postMcp(handler, "skill-list", "skills/list");
+
+        const { result } = yield* Schema.decodeUnknownEffect(
+          Schema.Struct({
+            result: Schema.Struct({ skills: Schema.Array(McpSchema.Skill) }),
+          })
+        )(yield* readJson(listing));
+
+        expect(
+          result.skills.map(({ frontmatter }) => frontmatter.name).toSorted()
+        ).toEqual(portableNames.toSorted());
+
+        for (const { files, name, version } of index.skills) {
+          expect(files[0]).toBe("SKILL.md");
+          const prefix = `skill://rat-stack/${name}`;
+
+          const contents = yield* forEachEffect(files, (path) =>
+            responseText(handler, new Request(`${root}/${name}/${path}`)).pipe(
+              Effect.map((text) => ({ path, text }))
+            )
+          );
+
+          expect(version).toBe(yield* sha256(JSON.stringify(contents)));
+
+          const manifest = yield* forEachEffect(contents, ({ path, text }) =>
+            sha256(text).pipe(
+              Effect.map((digest) => ({
+                digest: `sha256:${digest}`,
+                size: new TextEncoder().encode(text).byteLength,
+                uri: `${prefix}/${path}`,
+              }))
+            )
+          );
+
+          expect(
+            result.skills.find((skill) => skill.uri === `${prefix}/SKILL.md`)
+              ?.resources
+          ).toEqual(
+            manifest.toSorted((left, right) =>
+              left.uri < right.uri ? -1 : Number(left.uri !== right.uri)
+            )
+          );
+        }
+
+        const uri = "skill://rat-stack/durability/SKILL.md";
+
+        const fetched = yield* postMcp(
+          handler,
+          "skill-get",
+          "skills/get",
+          { uri },
+          uri
+        );
+
+        const skill = yield* Schema.decodeUnknownEffect(
+          Schema.Struct({ result: Schema.Struct({ skill: McpSchema.Skill }) })
+        )(yield* readJson(fetched));
+
+        expect(skill.result.skill).toEqual(
+          result.skills.find((entry) => entry.uri === uri)
+        );
+
+        const read = yield* postMcp(
+          handler,
+          "skill-read",
+          "resources/read",
+          { uri },
+          uri
+        );
+
+        const resource = yield* Schema.decodeUnknownEffect(
+          ReadResourceResponse
+        )(yield* readJson(read));
+
+        expect(resource.result.contents).toEqual([
+          {
+            text: yield* responseText(
+              handler,
+              new Request(`${root}/durability/SKILL.md`)
+            ),
+            uri,
+          },
+        ]);
       })
     )
 );

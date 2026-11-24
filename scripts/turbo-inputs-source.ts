@@ -59,6 +59,7 @@ const contentRoots = hashed(
 const parameterizedReadBoundaries = new Map(
   Object.entries<readonly ReadBoundary[]>({
     "apps/catalog/test/SqliteCatalog.ts": hashed("apps/catalog/migrations/**"),
+    "apps/cli/src/mcp-skills.ts": hashed("apps/site/dist/content/**"),
     "apps/infra/test/preview-content.test.ts": hashed("apps/web/dist/**"),
     "apps/infra/test/website-build.test.ts": hashed("apps/web/dist/**"),
     "apps/infra/test/website-manifest.test.ts": hashed(

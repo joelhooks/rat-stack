@@ -343,6 +343,7 @@ it.effect(
 
         expect(calls.slice(before)).toEqual([
           "/_content/tokenmaxx.json",
+          "/_content/skills.json",
           "/_content/search.json",
         ]);
       })
