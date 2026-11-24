@@ -9,6 +9,7 @@ import { Message } from "./reader/message.js";
 import { Model, ReaderFlags } from "./reader/model.js";
 import { subscriptions } from "./reader/subscriptions.js";
 import { update } from "./reader/update.js";
+import { installReaderTools } from "./web-mcp-boot.js";
 
 import "../../../site/src/rat.css";
 import "./reader.css";
@@ -26,5 +27,7 @@ const application = Runtime.makeApplication({
 });
 
 installOverlay();
+
+installReaderTools();
 
 Runtime.hydrate(application);

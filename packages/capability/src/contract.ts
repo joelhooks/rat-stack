@@ -9,6 +9,7 @@ export interface Annotations {
   readonly destructive: boolean;
   readonly idempotent: boolean;
   readonly openWorld: boolean;
+  readonly title?: string;
 }
 
 export type PlainSchema = Schema.Top & {

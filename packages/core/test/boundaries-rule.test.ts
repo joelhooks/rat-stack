@@ -605,6 +605,19 @@ describe("architecture boundary rules", () => {
     expect.soft(computedIdentifier.status).toBe(0);
   });
 
+  it("blocks direct, computed, and aliased WebMCP registrations outside the projection", () => {
+    for (const registration of [
+      "document.modelContext?.registerTool(tool);",
+      'navigator.modelContext["registerTool"](tool);',
+      "const { registerTool: register } = context; register(tool);",
+    ]) {
+      expectRule(
+        lintFixture("apps/web/src/client", registration),
+        "registerTool hand-rolls a browser surface."
+      );
+    }
+  });
+
   it("lets packages/capability build surfaces", () => {
     const result = lintFixture(
       "packages/capability/src",

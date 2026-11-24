@@ -79,6 +79,11 @@
       "import": "./dist/rpc-group.js",
       "default": "./dist/rpc-group.js"
     },
+    "./web-mcp": {
+      "types": "./src/to-web-mcp.ts",
+      "import": "./dist/to-web-mcp.js",
+      "default": "./dist/to-web-mcp.js"
+    },
     "./sandbox-port": {
       "types": "./src/sandbox-port.ts",
       "import": "./dist/sandbox-port.js",

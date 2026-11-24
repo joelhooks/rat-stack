@@ -1,0 +1,97 @@
+---
+title: "WebMCP"
+description: "Rat Stack exposes public read tools to browser agents through the same contracts used by HTTP, MCP, and RPC."
+plain: "A browser agent can search Rat Stack or read a document without leaving the page."
+group: system
+terms:
+  - "WebMCP"
+sources:
+  - url: https://webmachinelearning.github.io/webmcp/
+    title: "WebMCP"
+    publisher: "W3C Web Machine Learning Community Group"
+    note: "Draft API for registration, discovery, execution, and removal."
+    accessed: "2026-11-24"
+  - url: https://github.com/webmachinelearning/webmcp/blob/main/README.md
+    title: "WebMCP explainer"
+    publisher: "W3C Web Machine Learning Community Group"
+    note: "Discovery, cancellation, and the scope of the imperative API."
+    accessed: "2026-11-24"
+  - url: https://developer.chrome.com/docs/ai/webmcp
+    title: "Get started with WebMCP"
+    publisher: "Chrome for Developers"
+    note: "Chrome origin trial and local testing flag."
+    accessed: "2026-11-24"
+  - url: https://chromestatus.com/feature/5117755740913664
+    title: "WebMCP platform status"
+    publisher: "Chrome Platform Status"
+    note: "Proposed status and origin trial record."
+    accessed: "2026-11-24"
+  - url: https://github.com/webmachinelearning/webmcp/blob/main/implementation-status.md
+    title: "Browser and agent implementation status"
+    publisher: "W3C Web Machine Learning Community Group"
+    note: "Records supported agents, trials, and browser positions."
+    accessed: "2026-11-24"
+  - url: https://developer.microsoft.com/en-us/microsoft-edge/origin-trials/trials/0b76fe60-b266-458e-a285-04e375c0c31a
+    title: "Microsoft Edge WebMCP origin trial"
+    publisher: "Microsoft Edge"
+    note: "Edge issues its own WebMCP origin trial tokens."
+    accessed: "2026-11-24"
+  - url: https://github.com/mozilla/standards-positions/issues/1412
+    title: "Mozilla standards position on WebMCP"
+    publisher: "Mozilla"
+    note: "Mozilla marks its position neutral."
+    accessed: "2026-11-24"
+  - url: https://github.com/WebKit/standards-positions/issues/670
+    title: "WebKit standards position on WebMCP"
+    publisher: "WebKit"
+    note: "WebKit opposes the draft."
+    accessed: "2026-11-24"
+---
+
+## What it does
+
+A [capability contract](/lore/one-capability-every-surface) gives `search` one name and one set of input and output rules.
+That contract becomes an HTTP route, an [MCP](/lore/mcp-is-another-surface) tool, and a WebMCP tool.
+The browser tool calls the same server handler through the reader's RPC connection.
+
+Every reader page offers the public tools for search, reading, lore, flags, prompts, the directory, and the public learning deck.
+The learning tools work on data supplied by the caller. They save nothing on the server.
+The browser does not register `execute`, subscriber signup, authenticated feedback, or local devtools.
+
+Leaving the document removes its tools.
+
+## The standard
+
+WebMCP is a [Community Group draft](https://webmachinelearning.github.io/webmcp/). We read it on November 24, 2026.
+The reader checks `document.modelContext` first, then checks the older Chrome location, `navigator.modelContext`.
+It gives each tool the same input rules that the public MCP server advertises.
+
+[Chrome's guide](https://developer.chrome.com/docs/ai/webmcp) lists a trial from Chrome 149 and a local testing flag.
+[Chrome Platform Status](https://chromestatus.com/feature/5117755740913664) still lists the feature as proposed.
+[Edge runs a separate trial](https://developer.microsoft.com/en-us/microsoft-edge/origin-trials/trials/0b76fe60-b266-458e-a285-04e375c0c31a) from Edge 150.
+
+The [implementation tracker](https://github.com/webmachinelearning/webmcp/blob/main/implementation-status.md) lists ChatGPT Desktop support and a future Brave Leo release.
+Mozilla records a [neutral position](https://github.com/mozilla/standards-positions/issues/1412). WebKit records [opposition](https://github.com/WebKit/standards-positions/issues/670).
+A browser without the API still renders the same pages.
+
+Set `WEB_MCP_CHROME_TRIAL_TOKEN` or `WEB_MCP_EDGE_TRIAL_TOKEN` only after the respective browser issues a token for the site origin.
+The site sends configured tokens with HTML responses and omits the header when both are unset.
+
+## How to check
+
+1. Build the reader and serve it on loopback with its `/rpc` backend.
+2. Launch Playwright Chromium with `--enable-features=WebMCP`. On Chromium 158, also pass `--enable-blink-features=WebMCP` to enable the draft API.
+3. Open the home page. Use the `toolchange` event to wait until `getTools()` lists `search`.
+4. Run this in `page.evaluate`.
+
+```js
+const context = document.modelContext;
+const tools = await context.getTools();
+const search = tools.find((tool) => tool.name === "search");
+const raw = await context.executeTool(search, { query: "capability", limit: 1 });
+const result = typeof raw === "string" ? JSON.parse(raw) : raw;
+return { names: tools.map((tool) => tool.name), result };
+```
+
+5. Check for `search` and `read` in the names and a document match in the result. There must be no `rat_*` tools.
+6. Run the production bundle test. It rejects forms with an undeclared `toolname` and checks that browser code excludes devtools.

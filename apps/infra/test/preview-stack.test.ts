@@ -108,6 +108,10 @@ it.effect.prop(
                 "readPerson",
                 "searchPeople",
                 "peopleFor",
+                "learnDeck",
+                "learnCard",
+                "learnNext",
+                "learnRecord",
               ].includes(name)
             )
           ).toBe(true);
