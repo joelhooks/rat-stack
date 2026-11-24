@@ -19,16 +19,29 @@ const Snapshot = Schema.Struct({
   version: Schema.Literal(1),
 });
 
+const refreshFix =
+  "run `pnpm git-snapshot` in a full checkout after your last commit, then commit `.brain/data/git-snapshot.json` on its own.";
+
+const fetchPinsFix =
+  "import missing pinned source commits with `pnpm sources:fetch`, then rerun `pnpm git-snapshot`.";
+
+const fullHistoryFix =
+  "clone again without `--depth` or run `git fetch --unshallow`, then `pnpm git-snapshot`.";
+
+const checkoutFix =
+  "run the command inside a full Git checkout, for example after `git clone` without `--depth`.";
+
 export class GitSnapshotError extends Schema.TaggedError<
   GitSnapshotError,
   { readonly brand: unique symbol }
 >()("GitSnapshotError", {
   cause: Schema.optionalKey(Schema.Defect()),
   entry: Schema.String,
+  fix: Schema.optionalKey(Schema.String),
   reason: Schema.String,
 }) {
   override get message() {
-    return `${this.reason}: ${this.entry}. The content build reads Git history only through this snapshot, so every checkout renders the same pages. Fix: run \`pnpm git-snapshot\` in a full checkout after your last commit, then commit \`.brain/data/git-snapshot.json\` on its own.`;
+    return `${this.reason}: ${this.entry}. The content build reads Git history only through this snapshot, so every checkout renders the same pages. Fix: ${this.fix ?? refreshFix}`;
   }
 }
 
@@ -52,6 +65,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
     if (regenerate && !checkout) {
       return yield* new GitSnapshotError({
         entry: snapshotPath,
+        fix: checkoutFix,
         reason: "Snapshot generation requires Git",
       });
     }
@@ -79,6 +93,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       if (ancestry.some((code) => code === 0)) {
         return yield* new GitSnapshotError({
           entry: snapshotPath,
+          fix: fullHistoryFix,
           reason: "Full Git history is required",
         });
       }
@@ -131,6 +146,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
             new GitSnapshotError({
               cause,
               entry: key,
+              fix: fetchPinsFix,
               reason: "Git query failed",
             })
         )
@@ -139,6 +155,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
       if (status !== 0) {
         return yield* new GitSnapshotError({
           entry: key,
+          fix: fetchPinsFix,
           reason: "Git query failed",
         });
       }
@@ -149,6 +166,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
             new GitSnapshotError({
               cause,
               entry: key,
+              fix: fetchPinsFix,
               reason: "Git query failed",
             })
         )
@@ -305,6 +323,7 @@ export const openGitSnapshot = Effect.fn("openGitSnapshot")(
         if (failures.length > 0) {
           return yield* new GitSnapshotError({
             entry: failures.join("\n"),
+            fix: fetchPinsFix,
             reason: "Code snapshot preflight failed",
           });
         }

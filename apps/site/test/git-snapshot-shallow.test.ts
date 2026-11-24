@@ -3,6 +3,7 @@ import { expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
+import { fenceMessage } from "../../../packages/core/test/fixtures/fence-message.js";
 import { openGitSnapshot } from "../scripts/git-snapshot.ts";
 
 const services = Layer.mergeAll(NodeServices.layer, NodeCrypto.layerDigest);
@@ -66,7 +67,14 @@ it.layer(services)("snapshot history guard", (test) => {
         expect(
           (yield* git(child, ["rev-parse", "--is-shallow-repository"])).trim()
         ).toBe("true");
-        yield* openGitSnapshot(child, true);
+        const snapshot = yield* openGitSnapshot(child, true);
+
+        const missing = yield* snapshot
+          .query(["show", "0000000000000000000000000000000000000000:pinned.ts"])
+          .pipe(Effect.flip);
+
+        expect(missing.message).toContain("pnpm sources:fetch");
+        expect(fenceMessage(missing.message)).toBeDefined();
 
         yield* git(root, [
           "clone",
@@ -79,6 +87,8 @@ it.layer(services)("snapshot history guard", (test) => {
         const refused = yield* openGitSnapshot(clone, true).pipe(Effect.flip);
 
         expect(refused.message).toContain("Full Git history is required");
+        expect(refused.message).toContain("git fetch --unshallow");
+        expect(fenceMessage(refused.message)).toBeDefined();
       }),
     { timeout: 30_000 }
   );
