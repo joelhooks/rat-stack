@@ -123,6 +123,13 @@ it.effect(
           .toSorted()
       ).toEqual(auditFiles.map((name) => `skills/security-audit/${name}`));
 
+      expect(
+        deployed.filter((file) => file.includes("security-audit-full"))
+      ).toEqual([]);
+      expect(
+        yield* fs.readFileString(`${deployedRoot}/_content/skills.json`)
+      ).not.toContain('"name":"security-audit-full"');
+
       for (const file of deployed.filter(
         (entry) => entry.endsWith(".json") || entry.endsWith(".md")
       )) {

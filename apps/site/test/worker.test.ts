@@ -2174,7 +2174,9 @@ it.effect(
         const discoveryNames = original.skills.map(({ name }) => name);
         const portableNames = index.skills.map(({ name }) => name);
         expect(portableNames.toSorted()).toEqual(discoveryNames.toSorted());
+        expect(portableNames).not.toContain("security-audit-full");
         expect(portableNames).toHaveLength(23);
+        expect(index.skills.flatMap(({ files }) => files)).toHaveLength(87);
         expect(
           index.skills.find(({ name }) => name === "security-audit")?.files
         ).toEqual([
@@ -2189,12 +2191,14 @@ it.effect(
           "/llms.txt",
           "/llms-full.txt",
           "/sitemap.xml",
+          "/systems/skills.md",
         ]) {
           const body = yield* responseText(
             handler,
             new Request(`http://localhost${pathname}`)
           );
 
+          expect(body).not.toContain("security-audit-full");
           expect(body).not.toContain("HUNTING.md");
           expect(body).not.toContain("/skills/security-hunting");
         }
@@ -2202,6 +2206,9 @@ it.effect(
         for (const url of [
           "http://localhost/skills/security-audit/HUNTING.md",
           `${root}/security-audit/HUNTING.md`,
+          "http://localhost/skills/security-audit-full",
+          "http://localhost/skills/security-audit-full.md",
+          `${root}/security-audit-full/SKILL.md`,
         ]) {
           const response = yield* Effect.promise(() =>
             handler(new Request(url))

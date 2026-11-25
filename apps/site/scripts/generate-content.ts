@@ -153,6 +153,7 @@ import {
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import { portableSkills } from "./portable-skills.ts";
 import { validatePromptSources } from "./prompt-source.ts";
+import { isPublicSkillFile } from "./public-skill-files.ts";
 import {
   groupUnlinkedMentions,
   linkedFromComponent,
@@ -1453,10 +1454,9 @@ const program = Effect.gen(function* generateContent() {
       Effect.mapError((cause) => buildError("read directory", "skills", cause))
     );
 
-  const skillDirectories = (yield* directoryNames(
-    "skills",
-    skillEntries
-  )).toSorted();
+  const skillDirectories = (yield* directoryNames("skills", skillEntries))
+    .filter((name) => isPublicSkillFile(`skills/${name}/SKILL.md`))
+    .toSorted();
 
   const skillBundle = yield* portableSkills(root, skillDirectories);
 

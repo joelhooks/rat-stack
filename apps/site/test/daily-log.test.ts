@@ -148,6 +148,19 @@ it("keeps the public audit log on current routes and omits unpublished companion
   expect(markdown).not.toContain("/commit/");
 });
 
+it("omits repo-only skills and their commits from the public log", () => {
+  const hash = "a".repeat(40);
+
+  const markdown = dailyLogMarkdown(
+    `\u001E${hash}\t2026-09-21\t1\t\tAdd an internal skill\nA\tskills/security-audit-full/SKILL.md\nA\tskills/security-audit-full/publication-probe.md`,
+    []
+  );
+
+  expect(markdown).not.toContain("Add an internal skill");
+  expect(markdown).not.toContain("security-audit-full");
+  expect(markdown).not.toContain(hash);
+});
+
 it("keeps one generated log on both public routes and advertises its markdown variant", () => {
   const log = readContent("/log");
   const markdown = readContent("/log.md");

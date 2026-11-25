@@ -1,5 +1,7 @@
 export const auditSkillDirectory = "skills/security-audit/";
 
+const repoOnlySkillDirectory = "skills/security-audit-full/";
+
 const publicAuditFiles = new Set([
   "LICENSE",
   "RAT-STACK.md",
@@ -9,5 +11,6 @@ const publicAuditFiles = new Set([
 ]);
 
 export const isPublicSkillFile = (sourcePath: string) =>
-  !sourcePath.startsWith(auditSkillDirectory) ||
-  publicAuditFiles.has(sourcePath.slice(auditSkillDirectory.length));
+  !sourcePath.startsWith(repoOnlySkillDirectory) &&
+  (!sourcePath.startsWith(auditSkillDirectory) ||
+    publicAuditFiles.has(sourcePath.slice(auditSkillDirectory.length)));
