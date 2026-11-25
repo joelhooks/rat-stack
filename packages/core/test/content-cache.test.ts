@@ -76,12 +76,15 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
           JSON.stringify({
             name: "@rat-stack/site",
             scripts: Object.fromEntries(
-              [...tasks, "test:runtime"].map((task) => [task, "echo ok"])
+              [...tasks, "test:runtime", "check:git-history"].map((task) => [
+                task,
+                "echo ok",
+              ])
             ),
           })
         );
 
-        for (const pkg of ["core", "flags", "intake-live"]) {
+        for (const pkg of ["code-snippets", "core", "flags", "intake-live"]) {
           yield* write(
             `packages/${pkg}/package.json`,
             JSON.stringify({ name: `@rat-stack/${pkg}` })
@@ -123,7 +126,8 @@ it.layer(NodeServices.layer)("content task cache", (test) => {
         });
 
         const before = yield* hashes();
-        expect(Object.keys(before)).toHaveLength(tasks.length + 1);
+        expect(Object.keys(before)).toHaveLength(tasks.length + 2);
+        expect(before["@rat-stack/site#check:git-history"]).toBeDefined();
         expect(before[runtimeTask]).toBeDefined();
         yield* write("scratch/unrelated.txt", "after");
         const unrelated = yield* hashes();
