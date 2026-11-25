@@ -1,6 +1,6 @@
 # Foldkit UI
 
-These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/client/`, and `dev/features/`. Server and infrastructure modules follow the root `AGENTS.md`.
+These rules cover browser code under `client/`, `features/`, `dev/client/`, and `dev/features/`. Server and infrastructure modules follow the root `AGENTS.md`.
 
 ## Keep one direction of data flow
 
@@ -29,11 +29,11 @@ These rules cover browser code under `apps/web/src/client/`, `features/`, `dev/c
 | `client/reader/model.ts` and `client/reader/message.ts` | Reader flags, clipboard Model, and Messages |
 | `client/reader/update.ts` | Pure reader transitions |
 | `client/reader/init.ts` and `client/reader/command.ts` | Server and browser initialization and named clipboard Commands |
-| `client/motion/` and `features/motion/` | The `/systems/motion` demo Submodel: a `@rat-stack/motion` clock, tweens and spring in the Model, `ClickedTarget` and `ClickedReplayCurves`, and the curve gallery view. `client/reader/subscriptions.ts` lifts its animation-frame and reduced-motion subscriptions into the reader |
+| `client/motion/` and `features/motion/` | `/systems/motion` demo Submodel: `@rat-stack/motion` clock, tween and spring Messages, curve gallery view; `client/reader/subscriptions.ts` lifts its animation-frame and reduced-motion subscriptions into the reader |
 | `server/` and `entry.server.ts` | Server rendering and RPC forwarding; never import them into browser features |
 | `website.ts` | Cloudflare composition through Alchemy's `Cloudflare.Website.Foldkit`; the deployed Worker is the entry `@foldkit/vite-plugin` generates from `entry.server.ts`. Never import it into browser features |
 
-The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status. Its Messages pass through `client/reader/update.ts`; its view lives in `features/reader.ts`. Test those interactions at that pair. The document browser is a Submodel of the reader program, mounted only on `/search`. The reader build gives that page a `docs` flag; `client/reader/update.ts` folds `GotDocsMessage` into it, `features/reader.ts` renders its slot, and `client/entry.ts` provides `DocumentQueries` as the runtime's `resources`. The browser boot reads `location` with `ReadLocation`, so `/search?q=` preloads matches and a submitted search replaces the URL. A match links to its `routePath` reader page. Test the browser through `features/app.ts` update and view, and the mounted route through the reader update and view (`test/docs.scene.test.ts`).
+The reader receives generated content as flags. Its local Model tracks clipboard availability and copy status; its Messages pass through `client/reader/update.ts` and its view lives in `features/reader.ts`. The document browser is a Submodel of the reader program mounted only on `/search`: the reader build gives that page a `docs` flag, `update.ts` folds `GotDocsMessage` into it, `features/reader.ts` renders its slot, and `client/entry.ts` provides `DocumentQueries` as `resources`. Boot reads `location` with `ReadLocation`, so `/search?q=` preloads matches and a submitted search replaces the URL. Test the browser through `features/app.ts`, and the mounted route through the reader update and view (`test/docs.scene.test.ts`).
 
 A feature never performs transport. It reads the Model and sends Messages; `update` returns named Commands. A Command calls an Effect `RpcClient` built from the contracts' `toRpcGroup` and returns a result Message. Remote state lives in the Model, as Foldkit `AsyncData` or a `foldkit/experimental` `Query`. Foldkit has no Atom layer.
 
@@ -48,9 +48,9 @@ A feature never performs transport. It reads the Model and sends Messages; `upda
 - Use stable Model identifiers for list keys. Never key rows by position or displayed text.
 - Use `h.empty` for an empty branch. Use exhaustive union matches for state-dependent views.
 - Use Foldkit `Dom` for DOM effects and Effect APIs for time and randomness.
-- Use `Subscription.persistentEntry` with `Dom.streamFromKeyBindings` for keyboard subscriptions.
-- Use `@foldkit/ui` render helpers for buttons, inputs, and textareas. Pass the feature's builder last. Render their attribute groups through `toView`; keep our classes and accessible names.
-- SSR and SSG use `ssr.clientEntry`, with CSS imports in that browser entry. Export `renderDocument` from `entry.server.ts`; use `Server.renderDocument` with trusted metadata and favicon `head` markup. Keep one title, canonical link, and Open Graph URL. There is no source `index.html` or browser shell transform.
+- Use `Subscription.persistentEntry` with `Dom.streamFromKeyBindings` for keys.
+- Use `@foldkit/ui` render helpers for buttons, inputs, and textareas. Pass the feature's builder last and render attribute groups through `toView`; keep our classes and accessible names.
+- SSR and SSG use `ssr.clientEntry`, with CSS imports in that entry. Export `renderDocument` from `entry.server.ts`; use `Server.renderDocument` with trusted metadata and favicon `head` markup. Keep one title, canonical link, and Open Graph URL; there is no source `index.html` or browser shell transform.
 - Bind each update result to its operation name and read its fields through dot access. Use `Update.combine` for dependent steps and `Update.withOutMessage` for an existing result.
 - The root no-comments rule wins over upstream section comments and `NOTE` comments.
 - StyleX and the root hot-pink rule remain the styling contract. Do not add Tailwind or foldcn.
@@ -70,12 +70,9 @@ A feature never performs transport. It reads the Model and sends Messages; `upda
 
 Refresh these conventions in the same change as a Foldkit bump. Dependency changes need owner sign-off.
 
-1. Read the installed version from `apps/web/node_modules/foldkit/package.json`.
-2. Read `packages/create-foldkit-app/templates/base/FOLDKIT.md` at `foldkit@<installed-version>` in [Foldkit](https://github.com/foldkit/foldkit).
-3. For a canary, resolve the commit named by the installed version instead of using a release tag.
-4. Check examples and API signatures at that same revision. Installed source wins over drifting online prose.
-5. Refresh the conventions above. Preserve this project's folders, privacy rules, styling, and test runner.
-6. Omit scaffolder ownership, subtree installation, and upstream dependency instructions.
-7. Update the checked version and `PROVENANCE.md`. Run `pnpm turbo run check test build`.
+1. Read the installed version from `apps/web/node_modules/foldkit/package.json` (for a canary, resolve the named commit instead of a tag).
+2. Read `packages/create-foldkit-app/templates/base/FOLDKIT.md` at that revision in [Foldkit](https://github.com/foldkit/foldkit), plus its examples and API signatures; installed source wins over online prose.
+3. Refresh the conventions above, preserving this project's folders, privacy rules, styling, and test runner, and omitting scaffolder ownership and upstream install instructions.
+4. Update the checked version and `PROVENANCE.md`. Run `pnpm turbo run check test build`.
 
-Reference: [FOLDKIT.md at foldkit@0.167.0](https://github.com/foldkit/foldkit/blob/foldkit%400.167.0/packages/create-foldkit-app/templates/base/FOLDKIT.md). API source and examples live in `packages/foldkit/src/` and `examples/` at that tag.
+Reference: [FOLDKIT.md at foldkit@0.167.0](https://github.com/foldkit/foldkit/blob/foldkit%400.167.0/packages/create-foldkit-app/templates/base/FOLDKIT.md) (`packages/foldkit/src/`, `examples/`).
