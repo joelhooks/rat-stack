@@ -24,7 +24,8 @@ import {
   cleanOgEmoji,
   ogAssets,
   ogImagePath,
-  renderOgImage,
+  renderOgPng,
+  renderOgSvg,
   renderRatPng,
 } from "@rat-stack/og";
 import type { OgPage } from "@rat-stack/og";
@@ -3098,8 +3099,14 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     (page) =>
       Effect.tryPromise({
         catch: (cause) => buildError("og image", page.routePath, cause),
-        try: () => renderOgImage(page, emojiSvg, regularFont, boldFont),
+        try: () => renderOgSvg(page, emojiSvg, regularFont, boldFont),
       }).pipe(
+        Effect.flatMap((svg) =>
+          Effect.try({
+            catch: (cause) => buildError("og image", page.routePath, cause),
+            try: () => renderOgPng(svg),
+          })
+        ),
         Effect.map((png) => ({
           pngBase64: Buffer.from(png).toString("base64"),
           routePath: page.routePath,

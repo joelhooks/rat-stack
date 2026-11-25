@@ -80,14 +80,13 @@ const makeOgElement = (page: OgPage, emojiDataUrl: string) => ({
   type: "div",
 });
 
-// @effect-diagnostics-next-line asyncFunction:off -- satori and resvg own this Promise boundary.
-export const renderOgImage = async (
+export const renderOgSvg = (
   page: OgPage,
   emojiSvg: string,
   regularFont: Buffer,
   boldFont: Buffer
-) => {
-  const svg = await satori(
+) =>
+  satori(
     makeOgElement(
       page,
       `data:image/png;base64,${Buffer.from(new Resvg(emojiSvg, { fitTo: { mode: "width", value: 96 } }).render().asPng()).toString("base64")}`
@@ -103,8 +102,8 @@ export const renderOgImage = async (
     }
   );
 
-  return new Resvg(svg, { font: { loadSystemFonts: false } }).render().asPng();
-};
+export const renderOgPng = (svg: string) =>
+  new Resvg(svg, { font: { loadSystemFonts: false } }).render().asPng();
 
 export const renderRatPng = (
   ratSvg: string,
