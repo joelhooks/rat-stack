@@ -4,7 +4,7 @@ Vendored from [cloudflare/security-audit-skill](https://github.com/cloudflare/se
 
 MIT licensed. Copyright (c) 2025-2026 Cloudflare, Inc. The full notice is in `LICENSE`.
 
-This copy is ours. All 20 files from upstream's `skills/security-audit/` remain byte-for-byte unchanged. `LICENSE` is copied from the upstream root. `RAT-STACK.md` and this file are local additions.
+The entry point `SKILL.md` is adapted for defensive review. The other upstream files are unchanged. `LICENSE` is copied from the upstream root. `RAT-STACK.md` and this file are local additions.
 
 ## Take upstream fixes
 
@@ -17,6 +17,6 @@ This copy is ours. All 20 files from upstream's `skills/security-audit/` remain 
 
 ## Integration
 
-The content build adds this attribution and the rat-stack guide to the published skill page. It rebases companion links for the page and publishes the original files as static downloads under `/skills/security-audit/`. The existing agent discovery endpoint serves the rendered Markdown with these absolute companion links. The source `SKILL.md` is unchanged.
+The website, well-known indexes, and MCP servers publish the defensive entry point and its approved companions: the license, upstream credit, boundary map, and report schema. The publisher selects these paths before reading their bytes. The other files in this directory are not part of the published bundle.
 
 The root lint and format configs exclude this vendored directory, following the scoped lint exclusion for `tools/oxlint/anti-slop/`. No rule severity changes. `pnpm test:security-audit` runs the unmodified Node validator suites without new dependencies; `pnpm test` includes it.

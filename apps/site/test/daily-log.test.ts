@@ -133,6 +133,21 @@ it("links removed content to its last revision", () => {
   );
 });
 
+it("keeps the public audit log on current routes and omits unpublished companions", () => {
+  const hash = "a".repeat(40);
+
+  const markdown = dailyLogMarkdown(
+    `\u001E${hash}\t2026-09-21\t1\t\tImport audit docs\nA\tskills/security-audit/SKILL.md\nA\tskills/security-audit/LICENSE\nA\tskills/security-audit/publication-probe.md`,
+    []
+  );
+
+  expect(markdown).toContain("[SKILL.md](/skills/security-audit)");
+  expect(markdown).toContain("[LICENSE](/skills/security-audit/LICENSE)");
+  expect(markdown).not.toContain("publication-probe.md");
+  expect(markdown).not.toContain("/blob/");
+  expect(markdown).not.toContain("/commit/");
+});
+
 it("keeps one generated log on both public routes and advertises its markdown variant", () => {
   const log = readContent("/log");
   const markdown = readContent("/log.md");

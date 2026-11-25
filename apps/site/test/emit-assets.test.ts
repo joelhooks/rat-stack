@@ -88,7 +88,19 @@ it.effect(
         "../../../skills/security-audit"
       );
 
-      const auditFiles = yield* fs.readDirectory(auditDirectory);
+      const auditFiles = [
+        "LICENSE",
+        "RAT-STACK.md",
+        "SKILL.md",
+        "UPSTREAM.md",
+        "report-schema.json",
+      ];
+
+      expect(
+        manifest.images
+          .filter((entry) => entry.startsWith("/skills/security-audit/"))
+          .toSorted()
+      ).toEqual(auditFiles.map((name) => `/skills/security-audit/${name}`));
 
       for (const name of auditFiles) {
         const source = yield* fs.readFile(path.join(auditDirectory, name));
@@ -105,6 +117,11 @@ it.effect(
       });
 
       expect(deployed.filter((file) => file.endsWith(".html"))).toEqual([]);
+      expect(
+        deployed
+          .filter((file) => file.startsWith("skills/security-audit/"))
+          .toSorted()
+      ).toEqual(auditFiles.map((name) => `skills/security-audit/${name}`));
 
       for (const file of deployed.filter(
         (entry) => entry.endsWith(".json") || entry.endsWith(".md")

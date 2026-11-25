@@ -192,7 +192,7 @@ describe("built MCP server", () => {
     "lists and reads portable skills from the workspace MCP server",
     () =>
       Effect.gen(function* testSkillsOverStdio() {
-        const uri = "skill://rat-stack/durability/SKILL.md";
+        const uri = "skill://rat-stack/security-audit/SKILL.md";
 
         const responses = yield* Effect.promise(() =>
           mcpConversation([
@@ -212,7 +212,7 @@ describe("built MCP server", () => {
           Schema.Struct({ skills: Schema.Array(McpSchema.Skill) })
         )(responses.find(({ id }) => id === 2)?.result);
 
-        expect(skills).toHaveLength(22);
+        expect(skills).toHaveLength(23);
 
         const { skill } = yield* Schema.decodeUnknownEffect(
           Schema.Struct({ skill: McpSchema.Skill })
@@ -223,7 +223,7 @@ describe("built MCP server", () => {
         const fs = yield* FileSystem.FileSystem;
 
         const original = yield* fs.readFileString(
-          path.join(repoRoot, "skills/durability/SKILL.md")
+          path.join(repoRoot, "skills/security-audit/SKILL.md")
         );
 
         expect(responses.find(({ id }) => id === 4)?.result).toEqual({

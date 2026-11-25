@@ -73,7 +73,8 @@ A skill is a directory with a `SKILL.md` instruction file and any companion file
 
 - The site serves the bundle over [MCP](/lore/mcp-is-another-surface) at `/mcp`. [Effect](/lore/effect-basics) 4.1.4 registers the skills with `McpServer.registerSkill`. The workspace CLI serves the same bundle over standard input and output.
 - The [Executor index](/.well-known/agent-skills/executor/index.json) serves the same files over HTTP. Each entry lists `SKILL.md` first, then companion paths, with a version digest for the whole entry.
-- The bundle excludes `security-audit` from both channels. Its `HUNTING.md` workflow and linked reproduction guidance can assist exploit development. The [original discovery index](/.well-known/agent-skills/index.json) retains its existing shape and points to the Executor index with a `Link` header.
+- Both channels publish the defensive [security audit skill](/skills/security-audit). The site leaves out supporting files that can assist exploit development.
+- The [original discovery index](/.well-known/agent-skills/index.json) points to the Executor index with a `Link` header.
 
 [joel.build](https://joel.build/mcp) is a second live example. Its server serves three skills over MCP.
 
@@ -107,8 +108,10 @@ pnpm dlx --package @modelcontextprotocol/inspector@2.16.0 mcp-inspector \
 Expect exit code zero and this summary:
 
 ```text
-Verified 22 skills and 82 files: no conformance errors.
+Verified 23 skills and 87 files: no conformance errors.
 ```
+
+An immediate repeat can hit the per-IP API limit. On `/mcp`, the server returns a JSON-RPC error that names `API_PER_IP`, with `Retry-After: 60` in the HTTP response. Wait a full minute before running the command again.
 
 For the second channel, fetch the index and one file the index names:
 

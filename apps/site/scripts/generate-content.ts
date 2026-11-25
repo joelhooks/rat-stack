@@ -1453,13 +1453,18 @@ const program = Effect.gen(function* generateContent() {
       Effect.mapError((cause) => buildError("read directory", "skills", cause))
     );
 
-  const skillDirectories = yield* directoryNames("skills", skillEntries);
+  const skillDirectories = (yield* directoryNames(
+    "skills",
+    skillEntries
+  )).toSorted();
+
+  const skillBundle = yield* portableSkills(root, skillDirectories);
 
   const { assets: securityAuditAssets, published: publishedSecurityAudit } =
-    yield* securityAuditContent(root);
+    yield* securityAuditContent(skillBundle);
 
   const skillTexts = yield* Effect.forEach(
-    skillDirectories.toSorted(),
+    skillDirectories,
     (directoryName) =>
       Effect.gen(function* readSkill() {
         const sourcePath = `skills/${directoryName}/SKILL.md`;
@@ -3784,11 +3789,6 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     skillTexts,
     learnCoverage,
     yield* collectLearnSnippets(root)
-  );
-
-  const skillBundle = yield* portableSkills(
-    root,
-    skillTexts.map(({ name }) => name)
   );
 
   const contentData = [

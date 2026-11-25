@@ -411,7 +411,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/README.md",
-        "$TURBO_ROOT$/skills/durability/SKILL.md"
+        "$TURBO_ROOT$/skills/security-audit/SKILL.md"
       ]
     },
     "@rat-stack/cli#build": {
