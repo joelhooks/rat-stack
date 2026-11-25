@@ -114,8 +114,17 @@
       ],
       "outputs": []
     },
+    "@rat-stack/site#check:git-history": {
+      "dependsOn": ["@rat-stack/code-snippets#build"],
+      "cache": false,
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.brain/data/git-snapshot.json"
+      ]
+    },
     "@rat-stack/site#generate": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "check:git-history"],
       "cache": true,
       "outputs": [
         "src/bundled-content.generated.ts",

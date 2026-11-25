@@ -1,72 +1,118 @@
 ---
-title: "Portable skills come from one folder"
-description: "The portable rat-stack skill bundle reaches MCP clients and Executor from the same source files."
-plain: "Read a skill and its companion files over MCP or load them from the Executor index."
+title: "Agents can list skills before they load them"
+description: "How rat-stack publishes Agent Skills over MCP and how a host verifies the files it loads."
+plain: "List what a skill contains, load the files you need, and check their bytes against the manifest."
 group: system
 terms: ["skill bundle"]
 sources:
-  - url: https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640
-    title: "SEP-2640: Skills Extension"
+  - url: https://github.com/modelcontextprotocol/ext-skills/blob/main/specification/beta/skills.mdx
+    title: "Skills extension specification, Beta revision"
     publisher: "Model Context Protocol"
-    note: "Methods and resource manifests for the Skills extension."
+    note: "The wire format, verification rules, and content-bound approval."
     accessed: "2026-11-24"
-  - url: https://agentskills.io/.well-known/agent-skills/index.json
-    title: "Agent Skills discovery index"
-    publisher: "Agent Skills"
-    note: "An example of the 0.2.0 discovery index."
+  - url: https://modelcontextprotocol.io/extensions/skills/overview
+    title: "Skills over MCP overview"
+    publisher: "Model Context Protocol"
+    note: "SEP-2640 and the steps a host takes to load a skill."
+    accessed: "2026-11-24"
+  - url: https://code.claude.com/docs/en/mcp#use-skills-from-mcp-servers
+    title: "Use skills from MCP servers"
+    publisher: "Anthropic"
+    note: "Claude Code version, sign-in, and connection requirements."
+    accessed: "2026-11-24"
+  - url: https://claude.com/resources/articles/skills-over-mcp-tasks-and-more
+    title: "MCP servers can now ship skills, run tasks, and more with Claude"
+    publisher: "Anthropic"
+    note: "Public beta announcement and plan availability."
+    accessed: "2026-11-24"
+  - url: https://code.visualstudio.com/updates/v1_147#_skills-over-mcp
+    title: "Visual Studio Code 1.147: Skills over MCP"
+    publisher: "Microsoft"
+    note: "The release notes confirm support and the default setting."
+    accessed: "2026-11-24"
+  - url: https://github.com/modelcontextprotocol/inspector/blob/2.16.0/clients/cli/README.md#skill-verification---verify
+    title: "MCP Inspector 2.16.0 skill verification"
+    publisher: "Model Context Protocol"
+    note: "The command and its digest, size, and frontmatter checks."
+    accessed: "2026-11-24"
+  - url: https://github.com/evalstate/fast-agent/blob/main/docs/docs/mcp/skills-over-mcp.md
+    title: "fast-agent: Skills over MCP"
+    publisher: "fast-agent"
+    note: "Registry discovery and installation of verified local copies."
+    accessed: "2026-11-24"
+  - url: https://github.com/modelcontextprotocol/typescript-sdk/pull/3047
+    title: "Skills support in the TypeScript SDK"
+    publisher: "Model Context Protocol"
+    note: "The SDK client and server extension."
+    accessed: "2026-11-24"
+  - url: https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md
+    title: "Skills extension implementations"
+    publisher: "Model Context Protocol"
+    note: "TypeScript SDK release and the reported ChatGPT and Codex import rollback."
+    accessed: "2026-11-24"
+  - url: https://modelcontextprotocol.io/extensions/client-matrix
+    title: "MCP extension client matrix"
+    publisher: "Model Context Protocol"
+    note: "The matrix provides no Skills support entry for Cursor."
+    accessed: "2026-11-24"
+  - url: https://github.com/Effect-TS/effect/pull/10082
+    title: "Skills support in Effect MCP"
+    publisher: "Effect"
+    note: "The server registration and client implementation."
     accessed: "2026-11-24"
   - url: https://github.com/RhysSullivan/executor/blob/95d1a0f9e9d89ef78e772fb66739a2868066470e/packages/apps/src/implementation/skills.ts#L585-L656
     title: "Executor's well-known skills loader"
     publisher: "Executor"
     note: "The index decoder and the path used to fetch each file."
     accessed: "2026-11-24"
-  - url: https://x.com/RhysSullivan/status/2125320816418316589
-    title: "Executor now supports skills over MCP!"
-    publisher: "Rhys Sullivan"
-    note: "The announcement Joel shared for this integration."
-    accessed: "2026-11-24"
 ---
 
 ## What it does
 
-A skill bundle is a set of skill documents and their companion files. The site builds one bundle from `skills/`. The site and workspace CLI read the same generated asset.
+A skill is a directory with a `SKILL.md` instruction file and any companion files. A skill bundle collects those directories for publication. Rat-stack builds one bundle from `skills/`.
 
-- The [discovery index](/.well-known/agent-skills/index.json) still lists the site's skill pages.
-- The [Executor index](/.well-known/agent-skills/executor/index.json) describes the portable bundle. Supply that full URL to Executor's `wellKnownSkills` loader.
-- The workspace CLI's `mcp` command and the site's [MCP](/lore/mcp-is-another-surface) endpoint serve the portable bundle through the Skills extension.
-- The published `ratstack` npm command still serves only learn tools.
-- The portable bundle omits `security-audit`. Its `HUNTING.md` workflow and reproduction guidance can help agents develop exploits.
+- The site serves the bundle over [MCP](/lore/mcp-is-another-surface) at `/mcp`. [Effect](/lore/effect-basics) 4.1.4 registers the skills with `McpServer.registerSkill`. The workspace CLI serves the same bundle over standard input and output.
+- The [Executor index](/.well-known/agent-skills/executor/index.json) serves the same files over HTTP. Each entry lists `SKILL.md` first, then companion paths, with a version digest for the whole entry.
+- The bundle excludes `security-audit` from both channels. Its `HUNTING.md` workflow and linked reproduction guidance can assist exploit development. The [original discovery index](/.well-known/agent-skills/index.json) retains its existing shape and points to the Executor index with a `Link` header.
+
+[joel.build](https://joel.build/mcp) is a second live example. Its server serves three skills over MCP.
 
 ## The standard
 
-The original index keeps the agentskills.io discovery shape. Its `Link` header points to the Executor index as an alternate.
+[SEP-2640](https://modelcontextprotocol.io/extensions/skills/overview) defines Skills over [MCP](/lore/mcp-is-another-surface). The Beta specification for `io.modelcontextprotocol/skills` is written against base protocol revision `2026-07-28`.
 
-Each Executor entry lists `SKILL.md` first, then its companion paths. Every path resolves under the entry's named directory beside the index. The version is a SHA-256 digest of the ordered paths and their contents.
+1. In `server/discover`, the server declares `capabilities.extensions["io.modelcontextprotocol/skills"]` and declares base `resources` support. The optional `directoryRead` setting enables directory listing.
+2. `skills/list` returns entries without downloading file bodies. Each rat-stack entry includes the `SKILL.md` frontmatter as written, represented as JSON. Its manifest lists every file URI, `sha256:` digest, and byte size.
+3. `skills/get` returns a single entry by its `SKILL.md` URI. A host can refresh an entry or retrieve one it has never listed.
+4. The host loads files on demand with ordinary `resources/read` requests to `skill://rat-stack/<name>/<file>`. It verifies byte size and digest, and checks the loaded `SKILL.md` frontmatter against the entry.
 
-[SEP-2640](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640) defines how MCP clients list skills and read their resources. Each manifest records a SHA-256 digest for each file. Each digest hashes the exact bytes both servers serve.
+For saved user approval, a version is the set of file URIs and their digests. Any change to that set revokes the approval. Matching a digest proves the bytes match the manifest. It does not tell you whether the instructions are safe.
+
+### Client support on November 24, 2026
+
+- [Claude Code](https://code.claude.com/docs/en/mcp#use-skills-from-mcp-servers): Public beta from 2.1.331. Use an interactive session and `/login` on an eligible plan. You need a supported model and a direct Anthropic connection. It excludes `claude -p`, the Agent SDK, custom base URLs, and `apiKeyHelper`.
+- [VS Code](https://code.visualstudio.com/updates/v1_147#_skills-over-mcp): Enabled by default in 1.147.
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector/blob/2.16.0/clients/cli/README.md#skill-verification---verify) verifies catalogs from its CLI. [fast-agent](https://github.com/evalstate/fast-agent/blob/main/docs/docs/mcp/skills-over-mcp.md) verifies and installs local copies. The [TypeScript SDK 2.4](https://github.com/modelcontextprotocol/typescript-sdk/pull/3047) offers `SkillsClient` in `ext/skills`.
+- [Cursor](https://modelcontextprotocol.io/extensions/client-matrix) has no listed Skills extension support. The [extension's implementation list](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md) reports that ChatGPT and Codex rolled back skill import at plugin submission.
 
 ## How to check
 
-Fetch the index and one skill:
+Run the Inspector in verification mode. It downloads the listed files and checks them against the manifest and frontmatter.
+
+```sh
+pnpm dlx --package @modelcontextprotocol/inspector@2.16.0 mcp-inspector \
+  --cli https://ratstack.sh/mcp --method skills/list --verify --require-digests
+```
+
+Expect exit code zero and this summary:
+
+```text
+Verified 22 skills and 82 files: no conformance errors.
+```
+
+For the second channel, fetch the index and one file the index names:
 
 ```sh
 curl -fsS https://ratstack.sh/.well-known/agent-skills/executor/index.json
 curl -fsS https://ratstack.sh/.well-known/agent-skills/executor/durability/SKILL.md
-```
-
-The client must support the Skills extension. Use this server URL:
-
-```text
-https://ratstack.sh/mcp
-```
-
-1. Call `skills/list`.
-2. Call `skills/get` with `skill://rat-stack/durability/SKILL.md`.
-3. Call `resources/read` with that URI. Compute the SHA-256 of the returned text and compare it with the manifest's `digest`.
-
-For the workspace CLI, build before connecting the same client over standard input and output:
-
-```sh
-pnpm turbo run build --filter=@rat-stack/cli --summarize
-node apps/cli/dist/cli.js mcp
 ```

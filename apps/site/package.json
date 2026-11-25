@@ -43,6 +43,7 @@
   },
   "scripts": {
     "generate": "node scripts/generate-content.ts",
+    "check:git-history": "node scripts/check-git-history.ts",
     "help:answer": "node scripts/help-answer.ts",
     "help:check-hashes": "node scripts/help-check-hashes.ts",
     "help:proof": "node scripts/help-proof.ts",
