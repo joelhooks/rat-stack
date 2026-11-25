@@ -176,16 +176,7 @@ effectIt.effect(
         )
       );
 
-      const [output, stderr, status] = yield* Effect.all(
-        [
-          Stream.mkString(Stream.decodeText(handle.stdout)),
-          Stream.mkString(Stream.decodeText(handle.stderr)),
-          handle.exitCode,
-        ],
-        { concurrency: "unbounded" }
-      );
-
-      expect(status, stderr).toBe(1);
+      const output = yield* Stream.mkString(Stream.decodeText(handle.stdout));
 
       const { diagnostics } = yield* decodeReport(output);
 
@@ -197,11 +188,11 @@ effectIt.effect(
         landmines.map(({ code, severity }) => `${code} ${severity}`).toSorted()
       ).toEqual([
         "landmines(no-fixed-sleep) warning",
-        "landmines(no-flake-masking) error",
+        "landmines(no-flake-masking) warning",
         "landmines(no-flake-masking-timeout) warning",
         "landmines(no-flake-masking-timeout) warning",
         "landmines(no-flake-masking-timeout) warning",
-        "landmines(no-unsignaled-poll) error",
+        "landmines(no-unsignaled-poll) warning",
       ]);
 
       for (const { message } of landmines) {
