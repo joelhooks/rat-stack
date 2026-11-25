@@ -19,6 +19,10 @@ rat-stack bans comments in code (see AGENTS.md). Credit for borrowed code lives 
 | `apps/site/scripts/document-html.ts` (`arrowIcon`) | [Heroicons](https://heroicons.com) v2 24px outline `arrow-right`, MIT, Copyright (c) Tailwind Labs, Inc. | The arrow path is inlined as SVG; the package is not a dependency. |
 | `apps/site/scripts/document-html.ts` (copy prompt) | [Hugeicons](https://hugeicons.com) `@hugeicons/core-free-icons@4.3.5`, `Tick02Icon`, MIT, Copyright (c) 2025 Hugeicons | The checkmark path is inlined as SVG; the package is not a dependency. |
 
+## Open Graph cards (`packages/og`)
+
+The bundled JetBrains Mono Regular and Bold fonts come from the [JetBrains Mono Project Authors](https://github.com/JetBrains/JetBrainsMono) under the [SIL Open Font License](packages/og/assets/fonts/OFL.txt). The rat emoji (`1f400.svg`) comes from [Twemoji](https://github.com/jdecked/twemoji) under [CC BY 4.0](packages/og/assets/emoji/LICENSE.md).
+
 ## Turbo remote cache
 
 `packages/turbo-cache` now configures the MIT [alchemy-turbo-cache](https://github.com/joelhooks/alchemy-turbo-cache/tree/b38115bee650aceb6e7dd1eb503209a4d32a5381) package at `v0.1.0`, pinned as `github:joelhooks/alchemy-turbo-cache#b38115bee650aceb6e7dd1eb503209a4d32a5381`. That package was extracted from rat-stack. The duplicated protocol, state reader and credential handoff source and tests have been removed here; a local adoption test exercises the installed cartridge.

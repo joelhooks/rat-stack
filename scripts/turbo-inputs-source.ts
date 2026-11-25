@@ -47,7 +47,7 @@ const unbounded = (reason: string): readonly ReadBoundary[] => [
 const contentRoots = hashed(
   ".brain/**",
   "skills/**",
-  "assets/**",
+  "packages/og/assets/**",
   "apps/site/content/**",
   "packages/*/src/**",
   "apps/*/src/**",
@@ -123,6 +123,7 @@ const parameterizedReadBoundaries = new Map(
     "apps/site/test/fixtures/local-storage.ts": temporary(),
     "apps/site/test/generated-content.ts": hashed("apps/site/dist/content/**"),
     "apps/site/test/migration-writer.test.ts": temporary(),
+    "apps/site/test/og-route-gate.test.ts": hashed("apps/site/dist/content/**"),
     "apps/site/test/reader-asset-headers.test.ts": temporary(
       "<test-created reader output>/**"
     ),
@@ -138,9 +139,10 @@ const parameterizedReadBoundaries = new Map(
     "apps/web/scripts/migration-hand-page.ts": hashed(
       "apps/site/dist/content/**"
     ),
-    "apps/web/scripts/reader-build.ts": temporary(
-      "<test-created reader output>/**"
-    ),
+    "apps/web/scripts/reader-build.ts": [
+      ...hashed("apps/site/dist/content/**"),
+      ...temporary("<reader build output>/**"),
+    ],
     "apps/web/test/accent.test.ts": hashed("apps/web/src/**"),
     "apps/web/test/built-images.test.ts": hashed("apps/web/dist/**"),
     "apps/web/test/production-bundle.test.ts": hashed(

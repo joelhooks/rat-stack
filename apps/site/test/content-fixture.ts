@@ -13,12 +13,13 @@ export {
   mcpServerCard,
   mcpToolsListExample,
   mcpVersionText,
-  ogImagePath,
   robotsText,
   staticAssetGeneration,
   staticContentVersion,
   tokenmaxxMarkdown,
 } from "../src/content.js";
+
+export { ogImagePath } from "@rat-stack/og/coverage";
 
 export { contentResources } from "./generated-content.js";
 

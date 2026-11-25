@@ -19,7 +19,7 @@ const contentInputs = [
   ".brain/data/peers.json",
   newsInput,
   "skills/cache-probe/SKILL.md",
-  "assets/fonts/cache-probe.ttf",
+  "packages/og/assets/fonts/cache-probe.ttf",
   "AGENTS.md",
   "VISION.md",
   "README.md",

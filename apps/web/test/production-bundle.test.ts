@@ -46,6 +46,13 @@ const forbiddenModules = [
   "htmlparser2",
   "code-snippets",
   "shiki",
+  "../../packages/og/",
+  "@rat-stack/og/",
+  "satori/",
+  "satori@",
+  "@resvg/",
+  "@resvg+resvg-js@",
+  "../site/scripts/og-route-gate",
   "../site/scripts/reader-body-document",
   "../site/scripts/reader-site-inputs",
 ];

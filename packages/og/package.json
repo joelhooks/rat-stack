@@ -1,0 +1,17 @@
+{
+  "name": "@rat-stack/og",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/render.ts",
+    "./coverage": "./src/coverage.ts"
+  },
+  "scripts": {
+    "check": "effect-tsrs diagnostics --project tsconfig.json --strict --type-check"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "satori": "0.63.2"
+  }
+}

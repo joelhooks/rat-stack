@@ -9,6 +9,7 @@ import type {
   ContentMetadata,
 } from "./content-data.js";
 import { markdownDiscoveryLinks } from "./content-links.js";
+import { agentSkillPath, sitemapPaths } from "./content-routes.js";
 import { tokenmaxxTitle } from "./house-ad-copy.js";
 import { canonicalMarkdownLinks } from "./markdown-links.js";
 
@@ -20,8 +21,7 @@ export {
   tokenmaxxMarkdown,
 } from "./bundled-content.generated.js";
 
-export const ogImagePath = (routePath: string): `/${string}` =>
-  `/og${routePath === "/" ? "/home" : routePath}.png`;
+export { agentSkillPath, publicPaths } from "./content-routes.js";
 
 const entryList = (resources: readonly (typeof ContentMetadata.Type)[]) =>
   resources
@@ -234,47 +234,13 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 Sitemap: https://ratstack.sh/sitemap.xml
 `;
 
-export const agentSkillPath = (name: string) =>
-  `/.well-known/agent-skills/${name}/SKILL.md` as const;
-
-export const publicPaths = (catalog: ContentCatalog) =>
-  [
-    "/",
-    "/auth.md",
-    "/llms.txt",
-    "/llms-full.txt",
-    "/openapi.json",
-    "/robots.txt",
-    "/sitemap.xml",
-    "/tokenmaxx",
-    "/skills",
-    "/lore",
-    "/systems",
-    "/glossary",
-    "/.well-known/agent-card.json",
-    "/.well-known/agent.json",
-    "/.well-known/agent-skills/index.json",
-    "/.well-known/ai-catalog.json",
-    "/.well-known/api-catalog",
-    "/.well-known/mcp.json",
-    ...catalog.resources.flatMap((resource) =>
-      resource.kind === "skill"
-        ? [resource.routePath, agentSkillPath(resource.name)]
-        : [resource.routePath]
-    ),
-  ] as const;
-
 export const sitemapXml = (
   origin: string,
   catalog: ContentCatalog
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...new Set([...catalog.pageRoutes, "/tokenmaxx"])]
-  .flatMap((path) => {
-    if (path === "/log.md" || path.startsWith("/tokenmaxx/")) {
-      return [];
-    }
-
+${sitemapPaths(catalog.pageRoutes)
+  .map((path) => {
     const resource = catalog.resources.find(
       (entry) => entry.routePath === path
     );
