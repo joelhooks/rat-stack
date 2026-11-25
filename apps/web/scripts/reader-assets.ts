@@ -8,7 +8,8 @@ export const copyReaderAssets = Effect.fn("reader.copyAssets")(
   function* copyReaderAssets(
     pages: readonly ReaderPageFlags[],
     clientDirectory: string,
-    sourcePath: string
+    sourcePath: string,
+    ogImages?: readonly string[]
   ) {
     const fs = yield* FileSystem.FileSystem;
     const paths = yield* Path.Path;
@@ -26,10 +27,11 @@ export const copyReaderAssets = Effect.fn("reader.copyAssets")(
 
     const images = [
       ...new Set([
-        ...pages.map(
-          (page) =>
-            new URL(page.page.metadata.ogImagePath, page.origin).pathname
-        ),
+        ...(ogImages ??
+          pages.map(
+            (page) =>
+              new URL(page.page.metadata.ogImagePath, page.origin).pathname
+          )),
         ...manifest.images.filter((image) =>
           pages.some(
             (page) =>

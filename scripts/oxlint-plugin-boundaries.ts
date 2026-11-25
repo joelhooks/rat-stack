@@ -1531,6 +1531,17 @@ const noCodeSnippetsInRuntime = defineRule({
       const snippets =
         target !== null && isWithin(target, "packages/code-snippets");
 
+      const og =
+        (target !== null && isWithin(target, "packages/og")) ||
+        specifier === "satori" ||
+        specifier.startsWith("satori/") ||
+        specifier === "@resvg/resvg-js" ||
+        specifier.startsWith("@resvg/resvg-js/");
+
+      if (runtime && og && !isWithin(filename, "packages/og")) {
+        context.report({ messageId: "ogBuildOnly", node });
+      }
+
       const engine =
         specifier === "shiki" ||
         specifier.startsWith("shiki/") ||
@@ -1558,13 +1569,15 @@ const noCodeSnippetsInRuntime = defineRule({
   meta: {
     docs: {
       description:
-        "Keep code snippets build-only and Shiki behind its adapter.",
+        "Keep OG images and code snippets build-only and Shiki behind its adapter.",
     },
     messages: {
       adapterOnly:
         "Code-snippets core cannot import Shiki. Core stays adapter-free so the highlighter can be swapped or removed. Fix: depend on the `Highlighter` port and provide the adapter from `@rat-stack/code-snippets/shiki`.",
       buildOnly:
         "Code snippets and Shiki are build-only and cannot reach runtime src modules. They would add megabytes to the Worker startup bundle. Fix: run the import from a build script under `apps/site/scripts` and read its generated output at runtime.",
+      ogBuildOnly:
+        "OG rendering is build-only and cannot reach runtime src modules. Workers serve the prebuilt cards and cannot load the native renderer. Fix: move the import to a build script under `apps/site/scripts`.",
     },
     type: "problem",
   },

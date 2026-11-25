@@ -1,6 +1,8 @@
 import { NodeServices } from "@effect/platform-node";
+import { FoldkitBuildManifest } from "@foldkit/vite-plugin";
 import { Config, Effect, FileSystem, Option, Schema } from "effect";
 
+import { validateOgRoutes } from "../../site/scripts/og-route-gate.ts";
 import { rawReaderTables } from "../../site/scripts/raw-reader-tables.ts";
 import { readerBodyFlags } from "../../site/scripts/reader-body-flags.ts";
 import { readerCafeFlags } from "../../site/scripts/reader-cafe-flags.ts";
@@ -12,6 +14,7 @@ import { readerLoreFlags } from "../../site/scripts/reader-lore-flags.ts";
 import { attachMotionDemo } from "../../site/scripts/reader-motion-flags.ts";
 import { readerPromptFlags } from "../../site/scripts/reader-prompt-flags.ts";
 import { readerSearchFlags } from "../../site/scripts/reader-search-flags.ts";
+import { readerAssetInputs } from "../../site/scripts/reader-site-inputs.ts";
 import { readerSystemsSkillsFlags } from "../../site/scripts/reader-systems-skills-flags.ts";
 import { readerTubePagesFlags } from "../../site/scripts/reader-tube-flags.ts";
 import { writeFileAtomically } from "../../site/scripts/write-file-atomically.ts";
@@ -29,7 +32,7 @@ const encodeFlags = Effect.forEach((page: ReaderPageFlags) =>
   Schema.encodeEffect(ReaderFlags)(page)
 );
 
-const readerPages = Effect.gen(function* readerPages() {
+const readerBuildOrigin = Effect.gen(function* readerBuildOrigin() {
   const previewCommit = yield* Config.option(
     Config.schema(
       Schema.String.check(Schema.isPattern(/^[0-9a-f]{40}$/u)),
@@ -74,6 +77,12 @@ const readerPages = Effect.gen(function* readerPages() {
     );
   }
 
+  return { origin, preview: Option.isSome(previewCommit) };
+});
+
+const readerPages = Effect.gen(function* readerPages() {
+  const { origin, preview } = yield* readerBuildOrigin;
+
   const home = yield* readerHomeFlags(origin);
   const lore = yield* Effect.flatMap(readerLoreFlags(origin), encodeFlags);
   const prompts = yield* readerPromptFlags(origin);
@@ -110,9 +119,7 @@ const readerPages = Effect.gen(function* readerPages() {
         ...page.page,
         metadata: {
           ...page.page.metadata,
-          robots: Option.isSome(previewCommit)
-            ? "noindex"
-            : page.page.metadata.robots,
+          robots: preview ? "noindex" : page.page.metadata.robots,
         },
       },
     })
@@ -162,8 +169,64 @@ const readerRouteHeaders = (
     })
     .join("");
 
+const prerenderHtmlPath = (directory: string, route: string) =>
+  `${directory}${route === "/" ? "" : decodeURIComponent(route)}/index.html`;
+
+export const finalizePrerender = Effect.fn("reader.finalizePrerender")(
+  function* finalizePrerender(
+    root: string,
+    clientDirectory: string,
+    serverDirectory: string
+  ) {
+    const fs = yield* FileSystem.FileSystem;
+    const { origin } = yield* readerBuildOrigin;
+
+    const manifest = yield* Schema.decodeEffect(
+      Schema.fromJsonString(FoldkitBuildManifest)
+    )(yield* fs.readFileString(`${serverDirectory}/foldkit.build.json`));
+
+    const readIfPresent = <A, E, R>(
+      path: string,
+      read: (path: string) => Effect.Effect<A, E, R>
+    ) =>
+      fs
+        .exists(path)
+        .pipe(
+          Effect.flatMap((present) =>
+            present ? read(path) : Effect.succeed(null)
+          )
+        );
+
+    const { directory, manifest: assets } = yield* readerAssetInputs;
+    const imagePaths = new Set(assets.images);
+
+    const ogImages = yield* validateOgRoutes({
+      html: (route) =>
+        readIfPresent(
+          prerenderHtmlPath(clientDirectory, route),
+          fs.readFileString
+        ),
+      metadataFile: "apps/web/src/reader-metadata.ts",
+      origin,
+      png: (path) =>
+        imagePaths.has(path)
+          ? readIfPresent(`${directory}${path}`, fs.readFile)
+          : Effect.succeed(null),
+      routes: manifest.prerendered,
+      surface: "Foldkit prerender",
+    });
+
+    yield* finalizeReader(root, clientDirectory, ogImages);
+  },
+  Effect.provide(NodeServices.layer)
+);
+
 export const finalizeReader = Effect.fn("reader.finalize")(
-  function* finalizeReader(root: string, clientDirectory: string) {
+  function* finalizeReader(
+    root: string,
+    clientDirectory: string,
+    ogImages?: readonly string[]
+  ) {
     const fs = yield* FileSystem.FileSystem;
     const source = yield* fs.readFileString(`${root}/dist/reader-pages.json`);
 
@@ -174,7 +237,8 @@ export const finalizeReader = Effect.fn("reader.finalize")(
     yield* copyReaderAssets(
       pages,
       clientDirectory,
-      `${root}/dist/reader-pages.json`
+      `${root}/dist/reader-pages.json`,
+      ogImages
     );
 
     yield* Effect.forEach((page: (typeof pages)[number]) =>
@@ -189,10 +253,7 @@ export const finalizeReader = Effect.fn("reader.finalize")(
           });
         }
 
-        const path =
-          route === "/"
-            ? `${clientDirectory}/index.html`
-            : `${clientDirectory}${route}/index.html`;
+        const path = prerenderHtmlPath(clientDirectory, route);
 
         if (!(yield* fs.exists(path))) {
           return yield* new ReaderInputError({

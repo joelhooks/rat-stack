@@ -47,6 +47,11 @@ const workerEntries = {
     directory: "dist/startup",
     main: "../src/worker.ts",
   },
+  RpcBackend: {
+    build: {},
+    directory: "dist/startup-rpc",
+    main: "../src/rpc-worker.ts",
+  },
   TurboCache: {
     build: {},
     directory: "dist/startup-turbo-cache",
@@ -220,6 +225,7 @@ const program = Effect.validate(
     "CatalogWorker",
     "Mischief",
     "LearnFeedbackAuth",
+    "RpcBackend",
     "Workshop",
     "TurboCache",
   ] as const,

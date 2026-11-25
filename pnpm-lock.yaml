@@ -445,9 +445,9 @@ importers:
       '@rat-stack/code-snippets':
         specifier: workspace:*
         version: link:../../packages/code-snippets
-      '@resvg/resvg-js':
-        specifier: 2.6.2
-        version: 2.6.2
+      '@rat-stack/og':
+        specifier: workspace:*
+        version: link:../../packages/og
       '@types/mdast':
         specifier: 4.0.4
         version: 4.0.4
@@ -472,9 +472,6 @@ importers:
       remark-stringify:
         specifier: 11.0.0
         version: 11.0.0
-      satori:
-        specifier: 0.63.2
-        version: 0.63.2
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -1101,6 +1098,15 @@ importers:
       vitest:
         specifier: 5.1.0
         version: 5.1.0(@types/node@24.19.2)(jsdom@31.0.0(@noble/hashes@2.4.0))(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/og:
+    dependencies:
+      '@resvg/resvg-js':
+        specifier: 2.6.2
+        version: 2.6.2
+      satori:
+        specifier: 0.63.2
+        version: 0.63.2
 
   packages/subscriber-delivery:
     dependencies:

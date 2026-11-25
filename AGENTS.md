@@ -65,6 +65,9 @@ The base Effect plugin owns diagnostic severity. Child configs may add exact `al
 - **`@rat-stack/learn`**:
   - Path: `packages/learn`
   - Role: Source-derived public concept deck and the learning lifecycle. Stateless capabilities return compact progress; `@rat-stack/learn/local` owns the local JSONL adapter and capabilities. The CLI provides the filesystem platform for core's `LearnerProgress` port.
+- **`@rat-stack/og`**:
+  - Path: `packages/og`
+  - Role: Build-only social cards. Renders 1200×630 PNGs with bundled fonts and emoji. The site export and Foldkit prerender builds check cards and HTML metadata against their published routes. Workers serve generated assets and never import the package.
 - **`@rat-stack/motion`**:
   - Path: `packages/motion`
   - Role: Motion for Foldkit apps. The `src/*.pure.ts` core (Penner and CSS easings, tweens, fixed-step springs, number, tuple, OKLab colour and 2D transform interpolation) imports nothing, so consumers can vendor it. `@rat-stack/motion/foldkit` adds the Model schemas, the `Motion.Message` union, `advance`, and subscriptions for animation frames and `prefers-reduced-motion`; Foldkit and Effect are optional peers. No Worker graph imports it

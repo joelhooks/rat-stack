@@ -1,7 +1,11 @@
 import { NodeRuntime } from "@effect/platform-node";
 
-import { finalizeReader } from "./reader-build.ts";
+import { finalizePrerender } from "./reader-build.ts";
 
 NodeRuntime.runMain(
-  finalizeReader(process.cwd(), `${process.cwd()}/dist/client`)
+  finalizePrerender(
+    process.cwd(),
+    `${process.cwd()}/dist/client`,
+    `${process.cwd()}/dist/server`
+  )
 );
