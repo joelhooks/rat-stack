@@ -20,7 +20,15 @@ import { unlistedAuthors } from "@rat-stack/core/cafe-people";
 import { CafeData } from "@rat-stack/core/contracts";
 import { buildLoreGraph, LoreGraphSnapshotSchema } from "@rat-stack/lore/build";
 import type { LoreBuildPage } from "@rat-stack/lore/build";
-import { Resvg } from "@resvg/resvg-js";
+import {
+  cleanOgEmoji,
+  ogAssets,
+  ogImagePath,
+  renderOgPng,
+  renderOgSvg,
+  renderRatPng,
+} from "@rat-stack/og";
+import type { OgPage } from "@rat-stack/og";
 import {
   Array as Arr,
   Effect,
@@ -33,7 +41,6 @@ import {
   Stream,
 } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
-import satori from "satori";
 
 import {
   videoObject,
@@ -60,6 +67,7 @@ import {
 } from "../src/content-data.ts";
 import { markdownDiscoveryLinks } from "../src/content-links.ts";
 import { contentWithOrigin } from "../src/content-origin.ts";
+import { publicPaths, sitemapPaths } from "../src/content-routes.ts";
 import { tokenmaxxTitle } from "../src/house-ad-copy.ts";
 import {
   addInboundCounts,
@@ -150,6 +158,7 @@ import {
   renderNewsCallout,
   withNewsPointer,
 } from "./news-callout.ts";
+import { validateOgRoutes } from "./og-route-gate.ts";
 import { peerPins, PeerRows, renderPeers } from "./peers.ts";
 import { portableSkills } from "./portable-skills.ts";
 import { validatePromptSources } from "./prompt-source.ts";
@@ -165,7 +174,6 @@ import {
   contentRoot,
   countHtmlElements,
   stringifyContentMarkdown,
-  stripHtmlComments,
   normalizeHtmlAttributeNewlines,
 } from "./svx-ast.ts";
 import { buildHelpGuide } from "./tokenmaxx-help.ts";
@@ -237,12 +245,6 @@ const escapeHtml = (value: string) =>
 interface PublicSpec extends SourceSpec {
   readonly rawText: string;
   readonly text: string;
-}
-
-interface OgPage {
-  readonly description: string;
-  readonly routePath: `/${string}`;
-  readonly title: string;
 }
 
 interface DocumentProps {
@@ -423,120 +425,6 @@ The rat looks disappointed. The hook still runs.
 
 Read [the fence](/lore/the-fence) and [the command policy](https://github.com/joelhooks/rat-stack/blob/main/scripts/vcs-command-policy.js).
 `;
-
-const ogImagePath = (routePath: string) =>
-  `/og${routePath === "/" ? "/home" : routePath}.png`;
-
-const makeOgElement = (page: OgPage, emojiDataUrl: string) => ({
-  key: null,
-  props: {
-    children: [
-      {
-        key: null,
-        props: {
-          children: page.title,
-          style: {
-            fontSize: 64,
-            fontWeight: 700,
-            lineHeight: 1.1,
-          },
-        },
-        type: "div",
-      },
-      {
-        key: null,
-        props: {
-          children: page.description,
-          style: {
-            fontSize: 30,
-            lineHeight: 1.35,
-            marginTop: 24,
-            maxWidth: 1000,
-          },
-        },
-        type: "div",
-      },
-      {
-        key: null,
-        props: {
-          src: emojiDataUrl,
-          style: {
-            bottom: 64,
-            height: 96,
-            position: "absolute",
-            right: 64,
-            width: 96,
-          },
-        },
-        type: "img",
-      },
-    ],
-    style: {
-      backgroundColor: "#ffffff",
-      boxSizing: "border-box",
-      color: "#000000",
-      display: "flex",
-      flexDirection: "column",
-      height: 630,
-      padding: 80,
-      position: "relative",
-      width: 1200,
-    },
-  },
-  type: "div",
-});
-
-const renderOgImage = (
-  page: OgPage,
-  emojiSvg: string,
-  regularFont: Buffer,
-  boldFont: Buffer
-) =>
-  Effect.tryPromise({
-    catch: (cause) => buildError("og image", page.routePath, cause),
-    // @effect-diagnostics-next-line asyncFunction:off -- satori and resvg own this Promise boundary.
-    try: async () => {
-      const svg = await satori(
-        makeOgElement(
-          page,
-          `data:image/png;base64,${Buffer.from(new Resvg(emojiSvg, { fitTo: { mode: "width", value: 96 } }).render().asPng()).toString("base64")}`
-        ),
-        {
-          embedFont: true,
-          fonts: [
-            { data: regularFont, name: "JetBrains Mono", weight: 400 },
-            { data: boldFont, name: "JetBrains Mono", weight: 700 },
-          ],
-          height: 630,
-          width: 1200,
-        }
-      );
-
-      return new Resvg(svg, {
-        font: { loadSystemFonts: false },
-      })
-        .render()
-        .asPng();
-    },
-  });
-
-const renderRatPng = (ratSvg: string, size: number, background?: string) =>
-  Effect.try({
-    catch: (cause) => buildError("icon", "assets/emoji/1f400.svg", cause),
-    try: () => {
-      const options = {
-        fitTo: { mode: "width", value: size },
-        font: { loadSystemFonts: false },
-      } as const;
-
-      return new Resvg(
-        ratSvg,
-        background === undefined ? options : { ...options, background }
-      )
-        .render()
-        .asPng();
-    },
-  });
 
 const renderPromptHtml = (spec: CopyPromptSpec) =>
   normalizeHtmlAttributeNewlines(renderCopyPrompt(spec), "data-text");
@@ -1083,25 +971,18 @@ const program = Effect.gen(function* generateContent() {
 
   const stylesheet = yield* readText("apps/site/src/rat.css");
 
-  const emojiSvg = stripHtmlComments(
-    yield* readText("assets/emoji/1f400.svg")
-  ).trim();
-
-  const regularFont = yield* fileSystem
-    .readFile(path.join(root, "assets/fonts/JetBrainsMono-Regular.ttf"))
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("og image", "assets/fonts/JetBrainsMono-Regular.ttf", cause)
-      )
+  const readOgFont = (asset: URL) =>
+    fileSystem.readFile(fileURLToPath(asset)).pipe(
+      Effect.mapError((cause) => buildError("og image", asset.pathname, cause)),
+      Effect.map((bytes) => Buffer.from(bytes))
     );
 
-  const boldFont = yield* fileSystem
-    .readFile(path.join(root, "assets/fonts/JetBrainsMono-Bold.ttf"))
-    .pipe(
-      Effect.mapError((cause) =>
-        buildError("og image", "assets/fonts/JetBrainsMono-Bold.ttf", cause)
-      )
-    );
+  const emojiSvg = cleanOgEmoji(
+    yield* readText(path.relative(root, fileURLToPath(ogAssets.emoji)))
+  );
+
+  const regularFont = yield* readOgFont(ogAssets.regular);
+  const boldFont = yield* readOgFont(ogAssets.bold);
 
   const peerSourcePath = ".brain/resources/peers.svx";
   const peerDataPath = ".brain/data/peers.json";
@@ -1453,13 +1334,18 @@ const program = Effect.gen(function* generateContent() {
       Effect.mapError((cause) => buildError("read directory", "skills", cause))
     );
 
-  const skillDirectories = yield* directoryNames("skills", skillEntries);
+  const skillDirectories = (yield* directoryNames(
+    "skills",
+    skillEntries
+  )).toSorted();
+
+  const skillBundle = yield* portableSkills(root, skillDirectories);
 
   const { assets: securityAuditAssets, published: publishedSecurityAudit } =
-    yield* securityAuditContent(root);
+    yield* securityAuditContent(skillBundle);
 
   const skillTexts = yield* Effect.forEach(
-    skillDirectories.toSorted(),
+    skillDirectories,
     (directoryName) =>
       Effect.gen(function* readSkill() {
         const sourcePath = `skills/${directoryName}/SKILL.md`;
@@ -3211,12 +3097,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const ogImages = yield* Effect.forEach(
     ogPages,
     (page) =>
-      renderOgImage(
-        page,
-        emojiSvg,
-        Buffer.from(regularFont),
-        Buffer.from(boldFont)
-      ).pipe(
+      Effect.tryPromise({
+        catch: (cause) => buildError("og image", page.routePath, cause),
+        try: () => renderOgSvg(page, emojiSvg, regularFont, boldFont),
+      }).pipe(
+        Effect.flatMap((svg) =>
+          Effect.try({
+            catch: (cause) => buildError("og image", page.routePath, cause),
+            try: () => renderOgPng(svg),
+          })
+        ),
         Effect.map((png) => ({
           pngBase64: Buffer.from(png).toString("base64"),
           routePath: page.routePath,
@@ -3225,10 +3115,16 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     { concurrency: 4 }
   );
 
+  const renderIcon = (size: number, background?: string) =>
+    Effect.try({
+      catch: (cause) => buildError("icon", ogAssets.emoji.pathname, cause),
+      try: () => renderRatPng(emojiSvg, size, background),
+    });
+
   const faviconIcoBase64 = Buffer.from(
     encodeIco(
       yield* Effect.forEach([16, 32, 48], (size) =>
-        renderRatPng(emojiSvg, size).pipe(
+        renderIcon(size).pipe(
           Effect.map((bytes) => ({ bytes: new Uint8Array(bytes), size }))
         )
       )
@@ -3236,7 +3132,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   ).toString("base64");
 
   const appleTouchIconPngBase64 = Buffer.from(
-    yield* renderRatPng(emojiSvg, 180, "white")
+    yield* renderIcon(180, "white")
   ).toString("base64");
 
   const lawSources = yield* Effect.forEach(
@@ -3786,10 +3682,23 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     yield* collectLearnSnippets(root)
   );
 
-  const skillBundle = yield* portableSkills(
-    root,
-    skillTexts.map(({ name }) => name)
-  );
+  const pageRoutes = [
+    ...resources.map((resource) => resource.routePath),
+    "/",
+    "/lore",
+    "/systems",
+    "/skills",
+    "/glossary",
+    "/prompts",
+    "/news",
+    "/directory",
+    "/all-stars",
+    ...allStarsProfiles.map((profile) => profile.route),
+    tubeRoutePath,
+    ...tubePages.map((video) => videoPagePath(video)),
+    ...workshop.pages.map((page) => page.routePath),
+    "/search",
+  ];
 
   const contentData = [
     { path: skillBundlePath, value: skillBundle },
@@ -3825,23 +3734,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
         llmsTubeLinks,
         llmsLoreLinks,
         loreIndexMarkdown: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
-        pageRoutes: [
-          ...resources.map((resource) => resource.routePath),
-          "/",
-          "/lore",
-          "/systems",
-          "/skills",
-          "/glossary",
-          "/prompts",
-          "/news",
-          "/directory",
-          "/all-stars",
-          ...allStarsProfiles.map((profile) => profile.route),
-          tubeRoutePath,
-          ...tubePages.map((video) => videoPagePath(video)),
-          ...workshop.pages.map((page) => page.routePath),
-          "/search",
-        ],
+        pageRoutes,
         resources: resources.map(
           ({ bodyMarkdown: _bodyMarkdown, text: _text, ...metadata }) =>
             metadata
@@ -3877,123 +3770,158 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     )
   )(contentData);
 
+  const exportedImages = [
+    {
+      path: "/tube/gaps.json",
+      base64: Buffer.from(JSON.stringify(tubeGaps(tubeData))).toString(
+        "base64"
+      ),
+    },
+    ...securityAuditAssets,
+    { base64: faviconIcoBase64, path: "/favicon.ico" },
+    { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
+    {
+      base64: Buffer.from(emojiSvg).toString("base64"),
+      path: "/favicon.svg",
+    },
+    ...ogImages.map((image) => ({
+      base64: image.pngBase64,
+      path: ogImagePath(image.routePath),
+    })),
+    {
+      base64: Buffer.from(
+        yield* fileSystem
+          .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
+          .pipe(
+            Effect.mapError((cause) =>
+              buildError("read", "apps/site/content/tokenmaxx/setup.md", cause)
+            )
+          )
+      ).toString("base64"),
+      path: "/tokenmaxx/setup.md",
+    },
+    {
+      base64: tokenmaxxImageJpegBase64,
+      path: "/tokenmaxx/four-comma-club.jpg",
+    },
+    {
+      base64: tokenmaxxShitratJpegBase64,
+      path: "/tokenmaxx/shitrat.jpg",
+    },
+    {
+      base64: cartridgesImageJpegBase64,
+      path: "/lore/cartridges/snes-sfam-cartridges.jpg",
+    },
+    ...infrastructureImages,
+    { base64: dillonPosterJpegBase64, path: dillonPosterRoutePath },
+    ...avatarImages,
+  ];
+
+  const exportedPages = [
+    ...lawSources,
+    ...loreSources,
+    ...skillSources,
+    ...promptSources,
+    {
+      documentHtml: promptsIndexDocument,
+      routePath: "/prompts",
+      text: promptsIndexMarkdown,
+    },
+    {
+      documentHtml: cafeNewsDocument,
+      routePath: "/news",
+      text: cafeNewsText,
+    },
+    {
+      documentHtml: cafeDirectoryDocument,
+      routePath: "/directory",
+      text: cafeDirectoryText,
+    },
+    {
+      documentHtml: allStarsIndexDocument,
+      routePath: "/all-stars",
+      text: allStarsIndexText,
+    },
+    ...allStarsSources,
+    ...tubeVideoSources,
+    {
+      documentHtml: tubeDocument,
+      routePath: tubeRoutePath,
+      text: tubeText,
+    },
+    ...workshopSources,
+    {
+      documentHtml: searchPageDocument,
+      routePath: "/search",
+      text: searchPageText,
+    },
+    {
+      documentHtml: homeDocumentHtml,
+      routePath: "/",
+      text: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
+    },
+    {
+      documentHtml: loreIndexDocumentHtml,
+      routePath: "/lore",
+      text: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
+    },
+    {
+      documentHtml: systemsIndexDocumentHtml,
+      routePath: "/systems",
+      text: `${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`,
+    },
+    {
+      documentHtml: skillIndexDocumentHtml,
+      routePath: "/skills",
+      text: `${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`,
+    },
+    {
+      documentHtml: glossaryIndexDocumentHtml,
+      routePath: "/glossary",
+      text: glossaryIndexMarkdown,
+    },
+  ];
+
+  const exportedByRoute = new Map<string, string>([
+    ...exportedPages.map(
+      (page) => [page.routePath, page.documentHtml] as const
+    ),
+    [tokenmaxxRoutePath, tokenmaxxDocumentHtml],
+  ]);
+
+  const imagesByPath = new Map<string, string>(
+    exportedImages.map(({ base64, path: imagePath }) => [imagePath, base64])
+  );
+
+  const ogOrigin = "https://ratstack.sh";
+  yield* validateOgRoutes({
+    html: (route) => {
+      const html = exportedByRoute.get(route);
+
+      return Effect.succeed(html?.replaceAll(originToken, ogOrigin) ?? null);
+    },
+    metadataFile: "apps/site/scripts/generate-content.ts",
+    origin: ogOrigin,
+    png: (imagePath) => {
+      const base64 = imagesByPath.get(imagePath);
+
+      return Effect.succeed(
+        base64 === undefined ? null : Buffer.from(base64, "base64")
+      );
+    },
+    routes: [
+      ...exportedByRoute.keys(),
+      ...sitemapPaths(pageRoutes),
+      ...publicPaths({ resources }),
+    ],
+    surface: "Site export",
+  });
+
   const assetManifest = yield* emitAssets({
     data,
     directory: path.join(root, "apps/site/dist/content"),
-    images: [
-      {
-        path: "/tube/gaps.json",
-        base64: Buffer.from(JSON.stringify(tubeGaps(tubeData))).toString(
-          "base64"
-        ),
-      },
-      ...securityAuditAssets,
-      { base64: faviconIcoBase64, path: "/favicon.ico" },
-      { base64: appleTouchIconPngBase64, path: "/apple-touch-icon.png" },
-      {
-        base64: Buffer.from(emojiSvg).toString("base64"),
-        path: "/favicon.svg",
-      },
-      ...ogImages.map((image) => ({
-        base64: image.pngBase64,
-        path: ogImagePath(image.routePath),
-      })),
-      {
-        base64: Buffer.from(
-          yield* fileSystem
-            .readFile(path.join(root, "apps/site/content/tokenmaxx/setup.md"))
-            .pipe(
-              Effect.mapError((cause) =>
-                buildError(
-                  "read",
-                  "apps/site/content/tokenmaxx/setup.md",
-                  cause
-                )
-              )
-            )
-        ).toString("base64"),
-        path: "/tokenmaxx/setup.md",
-      },
-      {
-        base64: tokenmaxxImageJpegBase64,
-        path: "/tokenmaxx/four-comma-club.jpg",
-      },
-      {
-        base64: tokenmaxxShitratJpegBase64,
-        path: "/tokenmaxx/shitrat.jpg",
-      },
-      {
-        base64: cartridgesImageJpegBase64,
-        path: "/lore/cartridges/snes-sfam-cartridges.jpg",
-      },
-      ...infrastructureImages,
-      { base64: dillonPosterJpegBase64, path: dillonPosterRoutePath },
-      ...avatarImages,
-    ],
-    pages: [
-      ...lawSources,
-      ...loreSources,
-      ...skillSources,
-      ...promptSources,
-      {
-        documentHtml: promptsIndexDocument,
-        routePath: "/prompts",
-        text: promptsIndexMarkdown,
-      },
-      {
-        documentHtml: cafeNewsDocument,
-        routePath: "/news",
-        text: cafeNewsText,
-      },
-      {
-        documentHtml: cafeDirectoryDocument,
-        routePath: "/directory",
-        text: cafeDirectoryText,
-      },
-      {
-        documentHtml: allStarsIndexDocument,
-        routePath: "/all-stars",
-        text: allStarsIndexText,
-      },
-      ...allStarsSources,
-      ...tubeVideoSources,
-      {
-        documentHtml: tubeDocument,
-        routePath: tubeRoutePath,
-        text: tubeText,
-      },
-      ...workshopSources,
-      {
-        documentHtml: searchPageDocument,
-        routePath: "/search",
-        text: searchPageText,
-      },
-      {
-        documentHtml: homeDocumentHtml,
-        routePath: "/",
-        text: `${homeMarkdownTemplate}${pageFooterMarkdown("/")}`,
-      },
-      {
-        documentHtml: loreIndexDocumentHtml,
-        routePath: "/lore",
-        text: `${loreIndexMarkdown}${pageFooterMarkdown("/lore")}`,
-      },
-      {
-        documentHtml: systemsIndexDocumentHtml,
-        routePath: "/systems",
-        text: `${systemsIndexMarkdown}${pageFooterMarkdown("/systems")}`,
-      },
-      {
-        documentHtml: skillIndexDocumentHtml,
-        routePath: "/skills",
-        text: `${skillIndexMarkdown}${pageFooterMarkdown("/skills")}`,
-      },
-      {
-        documentHtml: glossaryIndexDocumentHtml,
-        routePath: "/glossary",
-        text: glossaryIndexMarkdown,
-      },
-    ],
+    images: exportedImages,
+    pages: exportedPages,
   });
 
   const readerSourcePath = path.join(root, "apps/site/dist/reader-source.json");
@@ -4034,7 +3962,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       )
     );
 
-  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const agentPointerMarkdown = ${sourceLiteral(agentPointerMarkdown)} as const;\n\nexport const authMarkdown = ${sourceLiteral(authMarkdown)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const tubeRoutes = ${sourceLiteral(tubePages.map(({ id, slug }) => ({ id, slug, page: true })))} as const;\n\nexport const ogImagePath = (routePath: string) => "/og" + (routePath === "/" ? "/home" : routePath) + ".png";\n\nexport const staticAssetGeneration = ${sourceLiteral(assetManifest.generation)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n`;
+  const generated = `// Generated by scripts/generate-content.ts. Do not edit by hand.\n\nexport const originToken = ${sourceLiteral(originToken)} as const;\n\nexport const agentPointerMarkdown = ${sourceLiteral(agentPointerMarkdown)} as const;\n\nexport const authMarkdown = ${sourceLiteral(authMarkdown)} as const;\n\nexport const staticContentVersion = ${sourceLiteral(staticContentVersion)} as const;\n\nexport const tubeRoutes = ${sourceLiteral(tubePages.map(({ id, slug }) => ({ id, slug, page: true })))} as const;\n\nexport const staticAssetGeneration = ${sourceLiteral(assetManifest.generation)} as const;\n\nexport const noVerifyMarkdown = ${sourceLiteral(`${noVerifyAgentMarkdown}${pageFooterMarkdown(trapRoutePath)}`)} as const;\n\nexport const tokenmaxxMarkdown = ${sourceLiteral(tokenmaxxAgentMarkdown)} as const;\n\nexport const tokenmaxxDocumentHtml = ${sourceLiteral(tokenmaxxDocumentHtml)} as const;\n`;
 
   yield* Effect.gen(function* writeOutput() {
     const temporaryDirectory = yield* fileSystem

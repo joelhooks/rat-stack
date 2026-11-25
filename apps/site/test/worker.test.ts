@@ -1824,6 +1824,55 @@ it.effect("returns 429 after API_PER_IP denies a client IP", () => {
   }, bindings);
 });
 
+it.effect(
+  "tells an MCP skill reader how long to wait when its API budget is exhausted",
+  () => {
+    const apiPerIp = new FakeRateLimitBinding([true, false]);
+    const bindings = fakeRateLimitBindings({ API_PER_IP: apiPerIp });
+    const uri = "skill://rat-stack/security-audit/SKILL.md";
+
+    return withHandler(
+      (handler) =>
+        Effect.gen(function* testSkillReadRateLimit() {
+          const first = yield* postMcp(
+            handler,
+            "allowed-read",
+            "resources/read",
+            { uri },
+            uri
+          );
+
+          const refused = yield* postMcp(
+            handler,
+            "limited-read",
+            "resources/read",
+            { uri },
+            uri
+          );
+
+          expect(first.status).toBe(200);
+          expect(refused.status).toBe(200);
+          expect(refused.headers.get("retry-after")).toBe("60");
+
+          const rejection = yield* Schema.decodeUnknownEffect(ErrorResponse)(
+            yield* readJson(refused)
+          );
+
+          expect(rejection).toEqual({
+            error: {
+              code: -32_000,
+              message:
+                "API_PER_IP rate limit exceeded; retry after 60 seconds.",
+            },
+            id: "limited-read",
+          });
+          expect(apiPerIp.keys).toHaveLength(2);
+        }),
+      bindings
+    );
+  }
+);
+
 it.effect("returns 429 before a second execute worker is created", () => {
   const executePerIp = new FakeRateLimitBinding([true, false]);
   const executeGlobal = new FakeRateLimitBinding();
@@ -2124,10 +2173,42 @@ it.effect(
 
         const discoveryNames = original.skills.map(({ name }) => name);
         const portableNames = index.skills.map(({ name }) => name);
-        const excluded = new Set(["security-audit"]);
-        const expected = discoveryNames.filter((name) => !excluded.has(name));
-        expect(discoveryNames).toEqual(expect.arrayContaining([...excluded]));
-        expect(portableNames.toSorted()).toEqual(expected.toSorted());
+        expect(portableNames.toSorted()).toEqual(discoveryNames.toSorted());
+        expect(portableNames).toHaveLength(23);
+        expect(
+          index.skills.find(({ name }) => name === "security-audit")?.files
+        ).toEqual([
+          "SKILL.md",
+          "LICENSE",
+          "RAT-STACK.md",
+          "UPSTREAM.md",
+          "report-schema.json",
+        ]);
+
+        for (const pathname of [
+          "/llms.txt",
+          "/llms-full.txt",
+          "/sitemap.xml",
+        ]) {
+          const body = yield* responseText(
+            handler,
+            new Request(`http://localhost${pathname}`)
+          );
+
+          expect(body).not.toContain("HUNTING.md");
+          expect(body).not.toContain("/skills/security-hunting");
+        }
+
+        for (const url of [
+          "http://localhost/skills/security-audit/HUNTING.md",
+          `${root}/security-audit/HUNTING.md`,
+        ]) {
+          const response = yield* Effect.promise(() =>
+            handler(new Request(url))
+          );
+
+          expect(response.status).toBe(404);
+        }
 
         const listing = yield* postMcp(handler, "skill-list", "skills/list");
 
@@ -2173,7 +2254,7 @@ it.effect(
           );
         }
 
-        const uri = "skill://rat-stack/durability/SKILL.md";
+        const uri = "skill://rat-stack/security-audit/SKILL.md";
 
         const fetched = yield* postMcp(
           handler,
@@ -2207,7 +2288,7 @@ it.effect(
           {
             text: yield* responseText(
               handler,
-              new Request(`${root}/durability/SKILL.md`)
+              new Request(`${root}/security-audit/SKILL.md`)
             ),
             uri,
           },

@@ -1,4 +1,5 @@
 // @effect-diagnostics nodeBuiltinImport:off -- These tests build the app with the real Vite binary and read the emitted source maps from disk.
+import { Buffer } from "node:buffer";
 import { spawnSync } from "node:child_process";
 import {
   globSync,
@@ -10,8 +11,8 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { Schema } from "effect";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "@effect/vitest";
+import { Clock, DateTime, Duration, Effect, Schema } from "effect";
 
 import { declarativeToolNames } from "../../site/scripts/web-mcp-forms.js";
 import { ContentAssetManifest } from "../../site/src/asset-manifest.js";
@@ -31,6 +32,62 @@ const decodeReaderPages = Schema.decodeSync(
   Schema.fromJsonString(Schema.Array(ReaderFlags))
 );
 
+const chromeTrialScriptPath = "/assets/webmcp-origin-trial.js";
+
+const chromeTrialScriptTag = `<script src="${chromeTrialScriptPath}">`;
+
+const ChromeTrialPayload = Schema.Struct({
+  expiry: Schema.Int,
+  feature: Schema.Literal("WebMCP"),
+  isSubdomain: Schema.Literal(true),
+  isThirdParty: Schema.Literal(true),
+  origin: Schema.Literal("https://ratstack.sh:443"),
+});
+
+const checkChromeTrialAsset = (outDir: string) => {
+  const script = readFileSync(
+    path.join(outDir, chromeTrialScriptPath.slice(1)),
+    "utf-8"
+  );
+
+  const token = Schema.decodeUnknownSync(Schema.NonEmptyString)(
+    /\bmeta\.content\s*=\s*"(?<token>[A-Za-z0-9+/]+={0,2})"/u.exec(script)
+      ?.groups?.token
+  );
+
+  const bytes = Buffer.from(token, "base64");
+  const payloadLengthOffset = 1 + 64;
+  const payloadOffset = payloadLengthOffset + 4;
+
+  expect(bytes[0]).toBe(3);
+  expect(bytes.readUInt32BE(payloadLengthOffset)).toBe(
+    bytes.length - payloadOffset
+  );
+
+  return Schema.decodeSync(Schema.fromJsonString(ChromeTrialPayload))(
+    bytes.toString("utf-8", payloadOffset)
+  );
+};
+
+const checkChromeTrialHead = (html: string, file: string) => {
+  const scripts = [...html.matchAll(/<script\b[^>]*>/gu)];
+
+  const trialScripts = scripts.filter(([tag]) =>
+    tag.includes(chromeTrialScriptPath)
+  );
+
+  const offset = trialScripts[0]?.index ?? -1;
+  const firstModule = scripts.find(([tag]) => tag.includes('type="module"'));
+
+  expect(
+    trialScripts.map(([tag]) => tag),
+    file
+  ).toEqual([chromeTrialScriptTag]);
+  expect(offset, file).toBeGreaterThan(html.indexOf("<head>"));
+  expect(offset, file).toBeLessThan(html.indexOf("</head>"));
+  expect(firstModule?.index ?? -1, file).toBeGreaterThan(offset);
+};
+
 const forbiddenStrings = [
   "rat_call",
   "rat_test_person",
@@ -46,6 +103,13 @@ const forbiddenModules = [
   "htmlparser2",
   "code-snippets",
   "shiki",
+  "../../packages/og/",
+  "@rat-stack/og/",
+  "satori/",
+  "satori@",
+  "@resvg/",
+  "@resvg+resvg-js@",
+  "../site/scripts/og-route-gate",
   "../site/scripts/reader-body-document",
   "../site/scripts/reader-site-inputs",
 ];
@@ -79,10 +143,19 @@ const build = (nodeEnv: "development" | "production") => {
       webMcpContracts.map(({ name }) => name)
     );
 
+    const chromeTrial =
+      nodeEnv === "production" ? checkChromeTrialAsset(outDir) : undefined;
+
     for (const file of globSync("**/*.html", { cwd: outDir })) {
-      const undeclared = declarativeToolNames(
-        readFileSync(path.join(outDir, file), "utf-8")
-      ).filter((name) => !allowedToolNames.has(name));
+      const html = readFileSync(path.join(outDir, file), "utf-8");
+
+      if (nodeEnv === "production") {
+        checkChromeTrialHead(html, file);
+      }
+
+      const undeclared = declarativeToolNames(html).filter(
+        (name) => !allowedToolNames.has(name)
+      );
 
       expect(
         undeclared,
@@ -139,6 +212,7 @@ const build = (nodeEnv: "development" | "production") => {
     });
 
     return {
+      chromeTrial,
       sources: new Set(sources),
       strings: forbiddenStrings.filter((text) =>
         emitted.some((code) =>
@@ -162,15 +236,32 @@ const devtoolsModules = (sources: ReadonlySet<string>) =>
 const BUILD = 180_000;
 
 describe("production bundle", () => {
-  it(
+  it.live(
     "statically renders home and excludes server devtools from browser and Worker output",
-    () => {
-      const { sources, strings } = build("production");
+    () =>
+      Effect.gen(function* checkProductionBuild() {
+        const { chromeTrial, sources, strings } = yield* Effect.sync(() =>
+          build("production")
+        );
 
-      expect(sources.has("src/entry.server.ts")).toBe(true);
-      expect(devtoolsModules(sources)).toEqual([]);
-      expect(strings).toEqual([]);
-    },
+        expect(sources.has("src/entry.server.ts")).toBe(true);
+        expect(devtoolsModules(sources)).toEqual([]);
+        expect(strings).toEqual([]);
+
+        if (chromeTrial !== undefined) {
+          const expiresAt = Duration.toMillis(
+            Duration.seconds(chromeTrial.expiry)
+          );
+
+          const now = yield* Clock.currentTimeMillis;
+
+          if (expiresAt - now <= Duration.toMillis(Duration.days(45))) {
+            yield* Effect.logWarning(
+              `Chrome WebMCP origin-trial expiry: ${DateTime.formatIso(DateTime.makeUnsafe(expiresAt))}. Renew the token in apps/web/public${chromeTrialScriptPath}.`
+            );
+          }
+        }
+      }),
     BUILD
   );
 

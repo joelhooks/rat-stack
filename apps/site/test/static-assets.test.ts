@@ -363,9 +363,9 @@ it.effect(
 
         for (const view of [html, markdown]) {
           expect(view).toContain("2025-2026 Cloudflare, Inc.");
-          expect(view).toContain("c1c8a8c1471069fb0e188eeaff69b8e8db6564a8");
+          expect(view).toContain("/skills/security-audit/UPSTREAM.md");
           expect(view).toContain("rat-stack audit boundaries");
-          expect(view).toContain("/skills/security-audit/HUNTING.md");
+          expect(view).not.toContain("HUNTING.md");
         }
 
         expect(html.match(/<h1[ >]/gu)).toHaveLength(1);
@@ -381,15 +381,13 @@ it.effect(
         expect(discovery.status).toBe(200);
         const discovered = yield* Effect.promise(() => discovery.text());
         expect(discovered).toContain("2025-2026 Cloudflare, Inc.");
-        expect(discovered).toContain("/skills/security-audit/HUNTING.md");
+        expect(discovered).not.toContain("HUNTING.md");
 
         for (const [name, contentType] of [
-          ["HUNTING.md", "text/markdown"],
           ["RAT-STACK.md", "text/markdown"],
           ["LICENSE", "text/plain"],
           ["report-schema.json", "application/json"],
-          ["validate-findings.cjs", "text/plain"],
-          ["validate-coverage-ledger.cjs", "text/plain"],
+          ["UPSTREAM.md", "text/markdown"],
         ]) {
           const path = `/skills/security-audit/${name}`;
 

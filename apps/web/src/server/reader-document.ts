@@ -11,6 +11,9 @@ import { readerMetadataHead } from "../reader-metadata.js";
 
 const ReaderDocumentHead = Schema.Struct({ readerHead: Schema.String });
 
+const webMcpOriginTrialScript =
+  '<script src="/assets/webmcp-origin-trial.js"></script>';
+
 const iconHead = [
   '<meta name="color-scheme" content="light dark">',
   `<link rel="icon" sizes="48x48" href="data:image/x-icon;base64,${faviconIcoBase64}">`,
@@ -28,5 +31,5 @@ export const withReaderHead = (
 
 export const renderDocument: Server.DocumentRenderer = (application, assets) =>
   Server.renderDocument(application, assets, {
-    head: `${iconHead}\n${Schema.decodeUnknownSync(ReaderDocumentHead)(application).readerHead}`,
+    head: `${iconHead}\n${webMcpOriginTrialScript}\n${Schema.decodeUnknownSync(ReaderDocumentHead)(application).readerHead}`,
   });

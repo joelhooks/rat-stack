@@ -1,6 +1,11 @@
 import { Effect } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
+import {
+  auditSkillDirectory,
+  isPublicSkillFile,
+} from "./public-skill-files.ts";
+
 export interface LogPage {
   readonly sourcePath: string;
   readonly routePath: string;
@@ -40,6 +45,25 @@ const publicLabel = (text: string) =>
       (character) => `&#${character.codePointAt(0)};`
     );
 
+const historyLinks = (
+  sourcePath: string,
+  title: string,
+  subject: string,
+  commit: string,
+  fallbackHref: string
+) => {
+  if (sourcePath.startsWith(auditSkillDirectory)) {
+    const href = `/${sourcePath}`.replace(/\/SKILL\.md$/u, "");
+
+    return { changeLabel: subject, label: `[${title}](${href})` };
+  }
+
+  return {
+    changeLabel: `[${subject}](${repository}/commit/${commit})`,
+    label: `[${title}](${fallbackHref})`,
+  };
+};
+
 export const dailyLogMarkdown = (
   history: string,
   pages: readonly LogPage[],
@@ -73,6 +97,7 @@ export const dailyLogMarkdown = (
           sourcePath === undefined ||
           sourcePath === "" ||
           !contentPath.test(sourcePath) ||
+          !isPublicSkillFile(sourcePath) ||
           !["A", "M", "T", "D"].includes(status ?? "")
         ) {
           return [];
@@ -87,14 +112,19 @@ export const dailyLogMarkdown = (
         const revision =
           status === "D" ? fields.parents?.split(" ")[0] : fields.hash;
 
-        const href =
-          page?.routePath ?? `${repository}/blob/${revision}/${sourcePath}`;
+        const { changeLabel, label } = historyLinks(
+          sourcePath,
+          title,
+          publicLabel(fields.subject ?? ""),
+          fields.hash ?? "",
+          page?.routePath ?? `${repository}/blob/${revision}/${sourcePath}`
+        );
 
         return [
           {
             day: fields.day ?? "",
             hash: fields.hash ?? "",
-            line: `- [${title}](${href}) — ${status === "A" ? "new page" : "edited"}: [${publicLabel(fields.subject ?? "")}](${repository}/commit/${fields.hash})`,
+            line: `- ${label} — ${status === "A" ? "new page" : "edited"}: ${changeLabel}`,
             time: Number(fields.time),
           },
         ];

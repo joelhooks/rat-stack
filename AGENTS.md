@@ -21,8 +21,8 @@ Workspace `package.json` files declare the pinned stack; [README.md](./README.md
 - `@yielded/effect-tsrs` `0.2.3` runs `typecheck` and `check` (`diagnostics --project tsconfig.json --strict --type-check`: TypeScript diagnostics plus Effect warnings as failures; bundles tsrs `8f135f106a63`, in plain tsrs `0.20.0`). Keep `ignoreEffectWarningsInTscExitCode` false. Patched `tsc` runs through `typecheck:tsc` and `typecheck:parity` on checker bumps (`pnpm bump:checkers`), not every CI run. Report any checker disagreement.
 - Plain tsrs `0.25.0-ts7.1.0-beta` stays in `typecheck:fast` (TypeScript `7.1.0-beta`); no Effect diagnostics, so `typecheck` or `check` still gates.
 - `@effect/vitest` `4.1.4` for every Effect test: `it.effect` and `it.layer(layer)`; `Effect.run*` and `ManagedRuntime.make` in test files are a lint error
-- `@oxlint/plugins` `1.93.0` for `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (generic plus Effect, at `error`); `UPSTREAM.md` covers upstream fixes
-- Three MIT Landmines rules live in `tools/oxlint/landmines/`: retries and unsignaled polls fail lint; fixed sleeps and explicit timeouts warn; `pnpm check:landmines` enforces reasoned budget entries
+- `@oxlint/plugins` `1.93.0` for the two typed lint rules in `scripts/oxlint-plugin-*.ts` and the vendored [anti-slop](https://github.com/dmmulroy/anti-slop) rules in `tools/oxlint/anti-slop/` (all generic plus Effect, at `error`); `UPSTREAM.md` covers upstream fixes
+- The MIT Landmines rules live in `tools/oxlint/landmines/`. Retries and unsignaled polls warn, like fixed sleeps and explicit timeouts; loosening any other fence rule needs owner sign-off. `pnpm check:landmines` enforces exact, reasoned entries and requires stale entries to be removed.
 - Oxlint `1.93.0` with Ultracite `8.2.0`, Oxfmt `0.78.0`, and Turborepo `2.11.11`
 - varlock `1.25.0`: declare every env var in `.env.schema`, never read `.env.local` directly, run `pnpm env:check` after schema edits
 
@@ -44,6 +44,7 @@ Full role notes live in `skills/rat-stack-mode/references/packages.md`.
 - **`@rat-stack/crash`** (`packages/crash`): private crash-trace archive
 - **`@rat-stack/subscriber-delivery`** (`packages/subscriber-delivery`): external subscriber intake adapter
 - **`@rat-stack/learn`** (`packages/learn`): public concept deck and the learning lifecycle
+- **`@rat-stack/og`** (`packages/og`): build-only social cards; Workers serve generated assets and never import the package
 - **`@rat-stack/motion`** (`packages/motion`): motion core for Foldkit apps
 - **`@rat-stack/lore`** (`packages/lore`): public content graph and traversal
 - **`@rat-stack/devtools`** (`packages/devtools`): 🐀 `CallLog`, `record`, and the `rat_*` capabilities

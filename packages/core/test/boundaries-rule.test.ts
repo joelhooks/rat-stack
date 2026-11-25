@@ -96,6 +96,21 @@ describe("architecture boundary rules", () => {
     );
   });
 
+  it("keeps the OG cartridge and its engines in build scripts", () => {
+    for (const source of [
+      'export * from "@rat-stack/og/coverage";',
+      'const renderer = import("@rat-stack/og");',
+      'import satori from "satori";',
+      'import { Resvg } from "@resvg/resvg-js";',
+    ]) {
+      expectRuleSoft(
+        lintFixture("apps/site/src", source),
+        "OG rendering is build-only"
+      );
+      expect(lintFixture("apps/site/scripts", source).status).toBe(0);
+    }
+  });
+
   it("keeps clients and vendor adapters out of core through every import form", () => {
     const sources = [
       'import { HttpClient } from "effect/unstable/http";',
