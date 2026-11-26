@@ -13,6 +13,12 @@
     "source": "https://effect.website/blog/module-of-the-week/event-log",
     "engagement": {
       "views": 1580
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "effect-motw",
+      "why": "How EventLog syncs offline devices"
     }
   },
   {
@@ -29,6 +35,12 @@
     "source": "https://x.com/tim_smart/status/2125536797413556397",
     "engagement": {
       "stars": 53
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "chad",
+      "why": "Tim Smart's self-extending Effect assistant"
     }
   },
   {
@@ -42,7 +54,13 @@
       "github": "rivet-dev",
       "x": "rivet_dev"
     },
-    "source": "https://x.com/rivet_dev/status/2125256628358283486"
+    "source": "https://x.com/rivet_dev/status/2125256628358283486",
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "rivet-alchemy",
+      "why": "Rivet ships its self-hosting on Alchemy"
+    }
   },
   {
     "kind": "video",
@@ -58,6 +76,12 @@
     "source": "https://www.youtube.com/watch?v=HFVyms5LHzk",
     "engagement": {
       "views": 1
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "alchemy-intro",
+      "why": "Academind teaches Alchemy 2"
     }
   },
   {
@@ -74,6 +98,12 @@
     "source": "https://www.youtube.com/watch?v=BA1lV8JgUqM",
     "engagement": {
       "views": 1289
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "foldkit-effect-ui",
+      "why": "Foldkit's author on frontends for agents"
     }
   },
   {
@@ -90,6 +120,12 @@
     "source": "https://github.com/dmmulroy/rex-sdk",
     "engagement": {
       "stars": 74
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "rex-sdk",
+      "why": "SDK generated from JSON Schemas"
     }
   },
   {
@@ -106,6 +142,12 @@
     "source": "https://x.com/NathanFlurry/status/2124538395682853187",
     "engagement": {
       "stars": 2
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "cluster-rivet",
+      "why": "Effect Cluster entities as Rivet Actors"
     }
   },
   {
@@ -122,6 +164,12 @@
     "source": "https://x.com/NFS__21/status/2124510714358276399",
     "engagement": {
       "stars": 5
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "emulate",
+      "why": "Third-party APIs as local Effect layers"
     }
   },
   {
@@ -138,6 +186,12 @@
     "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
     "engagement": {
       "stars": 440
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "workers-tcp",
+      "why": "Minecraft on Workers TCP and Containers"
     }
   },
   {
@@ -154,6 +208,12 @@
     "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.5",
     "engagement": {
       "stars": 17648
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "effect-release",
+      "why": "Sharper property-test shrinking"
     }
   },
   {
@@ -170,6 +230,12 @@
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.4",
     "engagement": {
       "stars": 30530
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "xstate-v6",
+      "why": "Timer fix in the v6 beta"
     }
   },
   {
@@ -186,6 +252,12 @@
     "source": "https://github.com/southpolesteve/workers-dns-tcp",
     "engagement": {
       "stars": 54
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 0,
+      "topic": "workers-tcp",
+      "why": "A DNS server on Workers TCP"
     }
   },
   {
@@ -202,6 +274,12 @@
     "source": "https://www.youtube.com/watch?v=xB3YKYwoqxM",
     "engagement": {
       "views": 826
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "effect-motw",
+      "why": "Protocol-first HTTP with HttpApi"
     }
   },
   {
@@ -218,6 +296,12 @@
     "source": "https://github.com/bjacobso/effect-datastar",
     "engagement": {
       "stars": 0
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 0,
+      "topic": "datastar",
+      "why": "A full app with an all-Effect server"
     }
   },
   {
@@ -231,7 +315,13 @@
       "github": "devinjameson",
       "x": "devinjameson"
     },
-    "source": "https://x.com/devinjameson/status/2123473797848424931"
+    "source": "https://x.com/devinjameson/status/2123473797848424931",
+    "interest": {
+      "substance": "announcement",
+      "editorial": 3,
+      "topic": "foldkit-effect-ui",
+      "why": "Foldkit becomes Effect's frontend"
+    }
   },
   {
     "kind": "thread",
@@ -268,7 +358,15 @@
     "engagement": {
       "likes": 396,
       "replies": 16,
-      "participants": 17
+      "participants": 17,
+      "bookmarks": 328,
+      "peers": ["MKassabov"]
+    },
+    "interest": {
+      "substance": "proof",
+      "editorial": 2,
+      "topic": "domain-z3",
+      "why": "Domain model rules proved with Z3"
     }
   },
   {
@@ -282,7 +380,13 @@
       "github": null,
       "x": "cfchangelog"
     },
-    "source": "https://x.com/cfchangelog/status/2123899414255394834"
+    "source": "https://x.com/cfchangelog/status/2123899414255394834",
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "workers-tcp",
+      "why": "Workers accept raw TCP"
+    }
   },
   {
     "kind": "post",
@@ -295,7 +399,13 @@
       "github": "sam-goodwin",
       "x": "samgoodwin89"
     },
-    "source": "https://x.com/samgoodwin89/status/2123851816505111035"
+    "source": "https://x.com/samgoodwin89/status/2123851816505111035",
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "domain-example",
+      "why": "One Domain model serves people and agents"
+    }
   },
   {
     "kind": "launch",
@@ -311,6 +421,12 @@
     "source": "https://github.com/rivet-dev/code-mode-language-benchmark",
     "engagement": {
       "stars": 13
+    },
+    "interest": {
+      "substance": "proof",
+      "editorial": 1,
+      "topic": "code-mode",
+      "why": "Measured cost of code-mode runtimes"
     }
   },
   {
@@ -327,6 +443,12 @@
     "source": "https://x.com/ismailkarsli54/status/2123062328664920190",
     "engagement": {
       "stars": 63
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "typesql",
+      "why": "Typed raw SQL as Effects"
     }
   },
   {
@@ -343,6 +465,12 @@
     "source": "https://github.com/foldkit/foldkit/releases",
     "engagement": {
       "stars": 1241
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "foldkit-release",
+      "why": "Breaking: result Message schemas"
     }
   },
   {
@@ -380,7 +508,15 @@
     "engagement": {
       "likes": 761,
       "replies": 70,
-      "participants": 78
+      "participants": 78,
+      "bookmarks": 1243,
+      "peers": []
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "xstate-v6",
+      "why": "The XState v6 thread 78 people joined"
     }
   },
   {
@@ -399,7 +535,15 @@
     "engagement": {
       "likes": 12,
       "replies": 0,
-      "participants": 0
+      "participants": 0,
+      "bookmarks": 12,
+      "peers": []
+    },
+    "interest": {
+      "substance": "announcement",
+      "editorial": 1,
+      "topic": "adoption",
+      "why": "29 production services on Effect"
     }
   },
   {
@@ -416,6 +560,12 @@
     "source": "https://x.com/timhnln/status/2122383624993694038",
     "engagement": {
       "stars": 13
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 0,
+      "topic": "foldkit-ui",
+      "why": "A component set ported to Foldkit"
     }
   },
   {
@@ -453,7 +603,15 @@
     "engagement": {
       "likes": 383,
       "replies": 5,
-      "participants": 6
+      "participants": 6,
+      "bookmarks": 558,
+      "peers": []
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "anti-slop",
+      "why": "Effect lint rules and a Jev plugin"
     }
   },
   {
@@ -470,6 +628,12 @@
     "source": "https://github.com/nanocodexyz/harnesslang",
     "engagement": {
       "stars": 25
+    },
+    "interest": {
+      "substance": "proof",
+      "editorial": 1,
+      "topic": "harnesslang",
+      "why": "A compiler that proves crash guarantees"
     }
   },
   {
@@ -483,7 +647,13 @@
       "github": "YasuakiOmokawa",
       "x": null
     },
-    "source": "https://zenn.dev/yasuakiomokawa/articles/de83bb4c4ea928"
+    "source": "https://zenn.dev/yasuakiomokawa/articles/de83bb4c4ea928",
+    "interest": {
+      "substance": "technique",
+      "editorial": 2,
+      "topic": "foldkit-migration",
+      "why": "React to Foldkit, one path at a time"
+    }
   },
   {
     "kind": "video",
@@ -499,6 +669,12 @@
     "source": "https://www.youtube.com/watch?v=O_zcc6Xl12g",
     "engagement": {
       "views": 524716
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "agent-guardrails",
+      "why": "Half a million views on agent guardrails"
     }
   },
   {
@@ -515,6 +691,12 @@
     "source": "https://tabletop-grand-prix.typeonce.games",
     "engagement": {
       "stars": 4
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "game-demo",
+      "why": "A full game on Effect and Alchemy"
     }
   },
   {
@@ -531,6 +713,12 @@
     "source": "https://www.youtube.com/watch?v=fM5FDXIjlaY",
     "engagement": {
       "views": 428
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "effect-motw",
+      "why": "Workflows replace crash bookkeeping"
     }
   },
   {
@@ -547,6 +735,12 @@
     "source": "https://x.com/davidnussio/status/2121142090721833322",
     "engagement": {
       "stars": 5
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "cqrs",
+      "why": "Event sourcing ported to Effect v4"
     }
   },
   {
@@ -563,6 +757,12 @@
     "source": "https://api.github.com/repos/alchemy-run/alchemy/releases",
     "engagement": {
       "stars": 1968
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 2,
+      "topic": "alchemy-release",
+      "why": "Rivet and Cluster providers, Domain changes"
     }
   },
   {
@@ -579,6 +779,12 @@
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
       "stars": 873
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "workers-anywhere",
+      "why": "Workers and Durable Objects on any cloud"
     }
   },
   {
@@ -592,7 +798,13 @@
       "github": "sam-goodwin",
       "x": "samgoodwin89"
     },
-    "source": "https://github.com/alchemy-run/alchemy/pull/3260"
+    "source": "https://github.com/alchemy-run/alchemy/pull/3260",
+    "interest": {
+      "substance": "proof",
+      "editorial": 1,
+      "topic": "domain-z3",
+      "why": "Open PR: aggregate invariants proved"
+    }
   },
   {
     "kind": "post",
@@ -605,7 +817,13 @@
       "github": "devinjameson",
       "x": "devinjameson"
     },
-    "source": "https://x.com/devinjameson/status/2121017721211036124"
+    "source": "https://x.com/devinjameson/status/2121017721211036124",
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "foldkit-cloudflare",
+      "why": "Cloudflare documents Foldkit with Alchemy"
+    }
   },
   {
     "kind": "video",
@@ -621,6 +839,12 @@
     "source": "https://www.youtube.com/watch?v=fNpJ63QjK-k",
     "engagement": {
       "views": 332
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "effect-motw",
+      "why": "Making Cluster delivery idempotent"
     }
   },
   {
@@ -637,6 +861,12 @@
     "source": "https://github.com/artile/foldkit-bombadil-spike",
     "engagement": {
       "stars": 0
+    },
+    "interest": {
+      "substance": "proof",
+      "editorial": 1,
+      "topic": "bombadil",
+      "why": "Measured fuzzing of a real Foldkit app"
     }
   },
   {
@@ -653,6 +883,12 @@
     "source": "https://www.youtube.com/watch?v=JcY0th6QuMg",
     "engagement": {
       "views": 254
+    },
+    "interest": {
+      "substance": "announcement",
+      "editorial": 0,
+      "topic": "alchemy-talk",
+      "why": "A conversation on Alchemy"
     }
   },
   {
@@ -669,6 +905,12 @@
     "source": "https://github.com/aidenybai/tla-ts/releases/tag/tla-ts%400.0.10",
     "engagement": {
       "stars": 267
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "tla-ts",
+      "why": "TypeScript models checked as TLA+"
     }
   },
   {
@@ -685,6 +927,12 @@
     "source": "https://www.youtube.com/watch?v=YOZF2tN8YmY",
     "engagement": {
       "views": 579
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 0,
+      "topic": "effect-lsp",
+      "why": "Effect language service rules"
     }
   },
   {
@@ -701,6 +949,12 @@
     "source": "https://github.com/archiboi69/domain-devtools",
     "engagement": {
       "stars": 26
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "domain-devtools",
+      "why": "Diagrams from Domain models"
     }
   },
   {
@@ -717,6 +971,12 @@
     "source": "https://www.youtube.com/watch?v=kU2FpNm65-k",
     "engagement": {
       "views": 238
+    },
+    "interest": {
+      "substance": "announcement",
+      "editorial": 0,
+      "topic": "durable-execution",
+      "why": "Office Hours on durable execution"
     }
   },
   {
@@ -733,6 +993,12 @@
     "source": "https://github.com/littledivy/tailnet-do",
     "engagement": {
       "stars": 270
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "tailnet-do",
+      "why": "A Durable Object joins a tailnet"
     }
   },
   {
@@ -749,6 +1015,12 @@
     "source": "https://github.com/clavia-labs/tardigrade/releases",
     "engagement": {
       "stars": 475
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "tardigrade",
+      "why": "Tardigrade moves to Effect 4.1"
     }
   },
   {
@@ -765,6 +1037,12 @@
     "source": "https://x.com/devinjameson/status/2119175626066104745",
     "engagement": {
       "stars": 1241
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "foldkit-blocks",
+      "why": "Blocks built through Layers"
     }
   },
   {
@@ -781,6 +1059,12 @@
     "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.1",
     "engagement": {
       "stars": 30476
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 2,
+      "topic": "xstate-v6",
+      "why": "XState v6 beta freezes the API"
     }
   },
   {
@@ -797,6 +1081,12 @@
     "source": "https://github.com/RhysSullivan/effect-discord-perms",
     "engagement": {
       "stars": 18
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "discord",
+      "why": "Discord permissions as compile errors"
     }
   },
   {
@@ -813,6 +1103,12 @@
     "source": "https://github.com/nstudio/ns-foldkit",
     "engagement": {
       "stars": 2
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "foldkit-native",
+      "why": "Foldkit apps on iOS and Android"
     }
   },
   {
@@ -829,6 +1125,12 @@
     "source": "https://github.com/just-be-dev/cantrip",
     "engagement": {
       "stars": 0
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 0,
+      "topic": "cantrip",
+      "why": "Command bar spells are Effect programs"
     }
   },
   {
@@ -845,6 +1147,12 @@
     "source": "https://github.com/joelhooks/alchemy-turbo-cache",
     "engagement": {
       "stars": 25
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "turbo-cache",
+      "why": "Turbo cache declared by Alchemy"
     }
   },
   {
@@ -861,6 +1169,12 @@
     "source": "https://executor.sh",
     "engagement": {
       "stars": 4600
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "executor",
+      "why": "Agents call APIs in a sandbox"
     }
   },
   {
@@ -877,6 +1191,12 @@
     "source": "https://vibelang.sh/spec",
     "engagement": {
       "stars": 23
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "vibelang",
+      "why": "Effect programs in a new syntax"
     }
   },
   {
@@ -893,6 +1213,12 @@
     "source": "https://registry.npmjs.org/mutant-cafe",
     "engagement": {
       "stars": 65
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "mutation-testing",
+      "why": "Mutation testing aimed at Effect errors"
     }
   },
   {
@@ -909,6 +1235,12 @@
     "source": "https://silklang.org",
     "engagement": {
       "stars": 103
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "silk",
+      "why": "Effect's ideas in a low-level language"
     }
   },
   {
@@ -922,7 +1254,13 @@
       "github": "tim-smart",
       "x": null
     },
-    "source": "https://github.com/Effect-TS/effect/pull/10306"
+    "source": "https://github.com/Effect-TS/effect/pull/10306",
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "typescript-7",
+      "why": "Effect ready for TypeScript 7.1"
+    }
   },
   {
     "kind": "video",
@@ -938,6 +1276,12 @@
     "source": "https://www.youtube.com/watch?v=ugEBQBL1TtA",
     "engagement": {
       "views": 239
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 0,
+      "topic": "effect-mcp",
+      "why": "Long-running MCP tools in Effect"
     }
   },
   {
@@ -954,6 +1298,12 @@
     "source": "https://github.com/MapleTechLabs/changesets",
     "engagement": {
       "stars": 1
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 0,
+      "topic": "changesets",
+      "why": "Changesets rebuilt on Effect"
     }
   },
   {
@@ -970,6 +1320,12 @@
     "source": "https://www.youtube.com/watch?v=rAE_2kiEfvA",
     "engagement": {
       "views": 1930
+    },
+    "interest": {
+      "substance": "announcement",
+      "editorial": 0,
+      "topic": "cause-effect-podcast",
+      "why": "John De Goes on engineering with AI"
     }
   },
   {
@@ -986,6 +1342,12 @@
     "source": "https://github.com/julia-script/foldkit-serverfn",
     "engagement": {
       "stars": 1
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "foldkit-serverfn",
+      "why": "Typed server functions for Foldkit"
     }
   },
   {
@@ -1002,6 +1364,12 @@
     "source": "https://github.com/Manzanita-Research/terrarium-v2",
     "engagement": {
       "stars": 1
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "domain-sim",
+      "why": "Agent simulations on Alchemy Domain"
     }
   },
   {
@@ -1018,6 +1386,12 @@
     "source": "https://github.com/Tanner-Scadden/munch-manor",
     "engagement": {
       "stars": 16
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "game-demo",
+      "why": "An open-source game on Foldkit and Effect"
     }
   },
   {
@@ -1034,6 +1408,12 @@
     "source": "https://github.com/lroy-stack/admin-os",
     "engagement": {
       "stars": 35
+    },
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "capabilities",
+      "why": "One capability set for screens and MCP"
     }
   },
   {
@@ -1050,6 +1430,12 @@
     "source": "https://github.com/nanami-0713/relay-kit",
     "engagement": {
       "stars": 199
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "relay-kit",
+      "why": "An encrypted relay on Durable Objects"
     }
   },
   {
@@ -1066,6 +1452,12 @@
     "source": "https://x.com/NathanFlurry/status/2115789130911429006",
     "engagement": {
       "stars": 47
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "workers-anywhere",
+      "why": "Durable Object data moves without downtime"
     }
   },
   {
@@ -1079,7 +1471,13 @@
       "github": "artile",
       "x": null
     },
-    "source": "https://github.com/alchemy-run/alchemy/pull/2700"
+    "source": "https://github.com/alchemy-run/alchemy/pull/2700",
+    "interest": {
+      "substance": "release",
+      "editorial": 2,
+      "topic": "domain-foldkit",
+      "why": "Domain Apis become Foldkit Commands"
+    }
   },
   {
     "kind": "launch",
@@ -1095,6 +1493,12 @@
     "source": "https://github.com/foldkit/foldkit-domains",
     "engagement": {
       "stars": 29
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "foldkit-example",
+      "why": "Static HTML that accepts edits early"
     }
   },
   {
@@ -1111,6 +1515,12 @@
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
       "stars": 209
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "rat-stack-checkers",
+      "why": "rat-stack checker pins"
     }
   },
   {
@@ -1127,6 +1537,12 @@
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.0",
     "engagement": {
       "stars": 209
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "rat-stack-checkers",
+      "why": "Effect diagnostics on tsrs"
     }
   },
   {
@@ -1143,6 +1559,12 @@
     "source": "https://blog.cloudflare.com/typescript-rust-port/",
     "engagement": {
       "stars": 209
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "rat-stack-checkers",
+      "why": "tsrs as the fast typecheck"
     }
   },
   {
@@ -1159,6 +1581,12 @@
     "source": "https://github.com/Effect-TS/tsgo/releases",
     "engagement": {
       "stars": 337
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "effect-tsgo",
+      "why": "The language service tracks the TypeScript beta"
     }
   }
 ]

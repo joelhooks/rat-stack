@@ -1,6 +1,7 @@
 import {
   CafeLetter,
   CafeNewsItem,
+  CafeNewsSort,
   CafePersonSummary,
   CafeProject,
   IsoDate,
@@ -26,6 +27,7 @@ export const Model = defineTaggedUnion({
     items: Schema.Array(CafeNewsItem),
     profiles: Schema.Array(NewsProfileLink),
     rankedAt: IsoDate,
+    sort: CafeNewsSort,
   },
 });
 

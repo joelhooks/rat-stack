@@ -2471,6 +2471,17 @@ it.effect(
           new Request("http://localhost/news")
         );
 
+        const latest = yield* responseText(
+          handler,
+          new Request("http://localhost/news/latest")
+        );
+
+        const latestUrls = [
+          ...latest.matchAll(
+            /^\d+\. +\\\[[^\]]+\] \[[^\]]+\]\((?<url>\S+)\) \(/gmu
+          ),
+        ].map((match) => match.groups?.url);
+
         const directory = yield* responseText(
           handler,
           new Request("http://localhost/directory")
@@ -2483,16 +2494,43 @@ it.effect(
         expect(feedIds).toStrictEqual(
           listed.items.map((entry) => entry.item.url)
         );
+        expect(latestUrls.slice(0, listed.items.length)).toStrictEqual(feedIds);
+        expect(latestUrls).toHaveLength(listed.total);
         expect(news).toContain("## How this list is sorted");
+        expect(news).toContain("[Latest first](/news/latest)");
+        expect(latest).toContain("[Ranked by interest](/news)");
+        expect(latest).not.toContain("## How this list is sorted");
+
+        const first = listed.items.at(0);
+        expect(first?.why).toBe(first?.item.interest?.why);
+        expect(first?.why).toBeTruthy();
+        expect(news).toContain(first?.why ?? "");
+        expect(latest).toContain(first?.why ?? "");
         expect(directory).toContain("# Ratstack directory");
 
-        for (const route of ["/news", "/directory", "/llms.txt"]) {
+        const sitemap = yield* responseText(
+          handler,
+          new Request("http://localhost/sitemap.xml")
+        );
+
+        expect(sitemap).toContain("/news/latest</loc>");
+
+        for (const route of [
+          "/news",
+          "/news/latest",
+          "/directory",
+          "/llms.txt",
+        ]) {
           const agentView = yield* responseText(
             handler,
             new Request(`http://localhost${route}`, {
               headers: { accept: "text/markdown" },
             })
           );
+
+          if (route === "/llms.txt") {
+            expect(agentView).toContain("/news/latest)");
+          }
 
           expect(agentView).toContain("cafe-news.yml");
           expect(agentView).toContain("cafe-project.yml");

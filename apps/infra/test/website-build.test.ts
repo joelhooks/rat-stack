@@ -159,6 +159,7 @@ it.layer(NodeServices.layer)((test) => {
             "/",
             "/lore/services-capture-dependencies",
             "/news",
+            "/news/latest",
             "/directory",
           ])
         );
@@ -206,6 +207,12 @@ it.layer(NodeServices.layer)((test) => {
             "/news",
             yield* fs.readFileString(
               path.join(result.clientDirectory, "news/index.html")
+            ),
+          ],
+          [
+            "/news/latest",
+            yield* fs.readFileString(
+              path.join(result.clientDirectory, "news/latest/index.html")
             ),
           ],
           [

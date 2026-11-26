@@ -108,7 +108,7 @@ Alchemy, Foldkit, the cartridges and the content build are optional. Add each on
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
 - [MCP server](${origin}/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment
 - [Code mode](${origin}/api/execute): run a program instead of several calls; POST JSON with a \`code\` string, or call the MCP \`execute\` tool
-- [Ratstack news](${origin}/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
+- [Ratstack news](${origin}/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by interest; also [latest first](${origin}/news/latest), an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
 - [Ratstack directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool. Suggest entries through GitHub with the approval steps below.
 ${catalog.llmsAllStarsLinks.replaceAll(originToken, origin)}
 - [RatTube](${origin}/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each

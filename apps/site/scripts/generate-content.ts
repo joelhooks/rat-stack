@@ -53,6 +53,7 @@ import {
   directoryCopy,
   newsCopy,
 } from "../../web/src/features/cafe/copy.ts";
+import { newsOrder } from "../../web/src/features/cafe/news-order.ts";
 import { searchCopy } from "../../web/src/features/docs-copy.ts";
 import {
   tubeCopy,
@@ -1100,13 +1101,25 @@ const program = Effect.gen(function* generateContent() {
   const withNewsCallout = (markdown: string, routePath: string) =>
     withNewsPointer(markdown, routePath, newsTitle);
 
-  const cafeNewsSource = cafeNewsMarkdown(cafeData, allStarsList);
+  const cafeNewsPages = [
+    {
+      ...newsOrder.rank,
+      description: newsCopy.description,
+      heading: newsCopy.heading,
+      sort: "rank",
+    },
+    { ...newsOrder.newest, sort: "newest" },
+  ] as const;
 
-  const cafeNewsText = renderAgentPage(
-    cafeNewsSource,
-    "/news",
-    newsCopy.heading
-  );
+  const cafeNewsSources = cafeNewsPages.map((page) => {
+    const source = cafeNewsMarkdown(cafeData, allStarsList, page.sort);
+
+    return {
+      ...page,
+      source,
+      text: renderAgentPage(source, page.href, page.heading),
+    };
+  });
 
   const cafeDirectorySource = cafeDirectoryMarkdown(cafeData);
 
@@ -2223,7 +2236,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [Public content corpus](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
     "- [HTTP API](__RATSTACK_ORIGIN__/openapi.json): routes, inputs, outputs, and errors",
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
-    "- [Ratstack news](__RATSTACK_ORIGIN__/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
+    "- [Ratstack news](__RATSTACK_ORIGIN__/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by interest; also [latest first](__RATSTACK_ORIGIN__/news/latest), an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
     "- [Ratstack directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
     "- [RatTube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
@@ -2262,7 +2275,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     dillonPosterRoutePath,
     "/glossary",
     "/og/glossary.png",
-    "/news",
+    ...cafeNewsPages.map((page) => page.href),
     "/news.xml",
     "/directory",
     "/all-stars",
@@ -2930,7 +2943,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   const contentVersion = digest(
     [
       learnCoverageText,
-      cafeNewsText,
+      ...cafeNewsSources.map((page) => page.text),
       cafeDirectoryText,
       allStarsIndexText,
       ...allStarsPages.map((page) => page.text),
@@ -2994,11 +3007,11 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
   } as const;
 
   const ogPages: readonly OgPage[] = [
-    {
-      description: newsCopy.description,
-      routePath: "/news",
-      title: newsCopy.heading,
-    },
+    ...cafeNewsPages.map((page) => ({
+      description: page.description,
+      routePath: page.href,
+      title: page.heading,
+    })),
     {
       description: directoryCopy.description,
       routePath: "/directory",
@@ -3484,25 +3497,32 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       })
   )(workshop.pages);
 
-  const cafeNewsBody = yield* compileMarkdownBody(
-    cafeNewsSource,
-    "cafe-news.md",
-    highlighter,
-    emptyTargets,
-    [],
-    "/news"
-  );
+  const cafeNewsDocuments = yield* Effect.forEach(
+    (page: (typeof cafeNewsSources)[number]) =>
+      Effect.gen(function* makeCafeNewsDocument() {
+        const body = yield* compileMarkdownBody(
+          page.source,
+          `cafe-news-${page.sort}.md`,
+          highlighter,
+          emptyTargets,
+          [],
+          page.href
+        );
 
-  const cafeNewsDocument = yield* makeDocument(
-    cafeNewsBody.bodyHtml,
-    {
-      description: newsCopy.description,
-      path: "/news",
-      title: pageTitle(newsCopy.heading),
-    },
-    cafeNewsFile,
-    contentVersion
-  );
+        const documentHtml = yield* makeDocument(
+          body.bodyHtml,
+          {
+            description: page.description,
+            path: page.href,
+            title: pageTitle(page.heading),
+          },
+          cafeNewsFile,
+          contentVersion
+        );
+
+        return { documentHtml, routePath: page.href, text: page.text };
+      })
+  )(cafeNewsSources);
 
   const cafeDirectoryBody = yield* compileMarkdownBody(
     cafeDirectorySource,
@@ -3692,7 +3712,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "/skills",
     "/glossary",
     "/prompts",
-    "/news",
+    ...cafeNewsPages.map((page) => page.href),
     "/directory",
     "/all-stars",
     ...allStarsProfiles.map((profile) => profile.route),
@@ -3829,11 +3849,7 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
       routePath: "/prompts",
       text: promptsIndexMarkdown,
     },
-    {
-      documentHtml: cafeNewsDocument,
-      routePath: "/news",
-      text: cafeNewsText,
-    },
+    ...cafeNewsDocuments,
     {
       documentHtml: cafeDirectoryDocument,
       routePath: "/directory",

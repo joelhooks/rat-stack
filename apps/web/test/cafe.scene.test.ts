@@ -11,7 +11,12 @@ import { directoryHome, fullStack } from "./cafe-fixture.js";
 it("CAFE pages show the short prompt instead of the agent filing instructions", () => {
   for (const model of [
     directoryHome,
-    Model.News({ items: [], profiles: [], rankedAt: fullStack.date }),
+    Model.News({
+      items: [],
+      profiles: [],
+      rankedAt: fullStack.date,
+      sort: "rank",
+    }),
   ]) {
     scene(
       { update, view },
@@ -136,6 +141,7 @@ it("a news row whose author has a profile links to it", () => {
         items: [row],
         profiles: [{ name: "Ada", route: "/all-stars/ada", url: row.url }],
         rankedAt: row.date,
+        sort: "rank",
       })
     ),
     expect(role("link", { name: "Ada on all stars" })).toHaveAttr(

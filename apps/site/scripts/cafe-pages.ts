@@ -3,7 +3,8 @@ import {
   cafeDomain,
   cafeLetterInitial,
   githubProfileUrl,
-  selectCafeNews,
+  rankCafeNews,
+  sortCafeNewsNewest,
   sortCafeProjects,
   verifiedLetters,
   xProfileUrl,
@@ -37,9 +38,11 @@ import {
   sortSources,
   threadCounts,
 } from "../../web/src/features/cafe/copy.ts";
+import {
+  newsOrder,
+  otherNewsOrder,
+} from "../../web/src/features/cafe/news-order.ts";
 import { cafeSubmissionGuide } from "../src/agent-guide.ts";
-
-const pageLimit = 100;
 
 const submissionSource = [
   "<HumanOnly>",
@@ -93,40 +96,55 @@ const newsItemMarkdown =
     [
       `${index + 1}. [${newsKindLabels[item.kind]}] [${linkText(item.title)}](${item.url}) (${cafeDomain(item.url)})`,
       ...(item.summary === null ? [] : [`   ${item.summary}`]),
+      ...(item.interest === undefined ? [] : [`   ${item.interest.why}`]),
       `   ${item.date} by ${authorMarkdown(item.author, cafeDomain(item.url))}${profileLink(people, item)}`,
       ...threadMarkdown(item),
     ].join("\n");
 
+export const cafeNewsPageItems = (
+  data: CafeDataValue,
+  sort: keyof typeof newsOrder
+) =>
+  sort === "rank"
+    ? rankCafeNews(data.news, data.rankedAt, data.people).map(
+        (entry) => entry.item
+      )
+    : sortCafeNewsNewest(data.news);
+
+const sortMarkdown = [
+  `## ${newsCopy.sortHeading}`,
+  "",
+  sortSignalsLead,
+  "",
+  ...sortSignals.map((signal) => `- ${signal}`),
+  "",
+  sortRulesLead,
+  "",
+  ...sortRules.map((rule) => `- ${rule}`),
+  "",
+  `Prior art: ${sortSources.map((source) => `[${source.label}](${source.href})`).join(", ")}.`,
+  "",
+];
+
 export const cafeNewsMarkdown = (
   data: CafeDataValue,
-  people: typeof CafePeopleList.Type
+  people: typeof CafePeopleList.Type,
+  sort: keyof typeof newsOrder
 ) => {
-  const list = selectCafeNews(data, { limit: pageLimit, sort: "rank" });
-  const itemMarkdown = newsItemMarkdown(people.people);
+  const other = otherNewsOrder(sort);
 
   return [
-    `# ${newsCopy.heading}`,
+    `# ${sort === "rank" ? newsCopy.heading : newsOrder.newest.heading}`,
     "",
     newsCopy.intro,
     "",
-    `[${newsCopy.feedLabel}](/news.xml)`,
+    `[${other.label}](${other.href}) · [${newsCopy.feedLabel}](/news.xml)`,
     "",
-    list.items
-      .map((entry, index) => itemMarkdown(entry.item, index))
+    cafeNewsPageItems(data, sort)
+      .map(newsItemMarkdown(people.people))
       .join("\n\n"),
     "",
-    `## ${newsCopy.sortHeading}`,
-    "",
-    sortSignalsLead,
-    "",
-    ...sortSignals.map((signal) => `- ${signal}`),
-    "",
-    sortRulesLead,
-    "",
-    ...sortRules.map((rule) => `- ${rule}`),
-    "",
-    `Prior art: ${sortSources.map((source) => `[${source.label}](${source.href})`).join(", ")}.`,
-    "",
+    ...(sort === "rank" ? sortMarkdown : []),
     submissionSource,
   ].join("\n");
 };

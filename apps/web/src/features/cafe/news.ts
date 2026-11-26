@@ -28,6 +28,7 @@ import {
   sortSources,
   threadCounts,
 } from "./copy.js";
+import { otherNewsOrder } from "./news-order.js";
 
 const shownReplies = 3;
 
@@ -135,6 +136,14 @@ const itemView = (
           ...Option.toArray(Option.fromNullishOr(item.summary)).map((summary) =>
             h.p([], [summary])
           ),
+          ...(item.interest === undefined
+            ? []
+            : [
+                h.p(
+                  [h.Class(stylex.props(cafeStyles.meta).className ?? "")],
+                  [item.interest.why]
+                ),
+              ]),
           h.p(
             [h.Class(stylex.props(cafeStyles.meta).className ?? "")],
             [
@@ -179,17 +188,27 @@ const sortSectionView = (h: HtmlBuilder<CafeMessage>): Html =>
     ]
   );
 
-export const view = (model: NewsModel, h: HtmlBuilder<CafeMessage>): Html =>
-  h.div(
+export const view = (model: NewsModel, h: HtmlBuilder<CafeMessage>): Html => {
+  const other = otherNewsOrder(model.sort);
+
+  return h.div(
     [],
     [
       h.p([], [newsCopy.intro]),
-      h.p([], [h.a([h.Href(newsFeedRouter())], [newsCopy.feedLabel])]),
+      h.p(
+        [],
+        [
+          h.a([h.Href(other.href)], [other.label]),
+          " · ",
+          h.a([h.Href(newsFeedRouter())], [newsCopy.feedLabel]),
+        ]
+      ),
       h.ol(
         [h.Class(stylex.props(cafeStyles.list).className ?? "")],
         model.items.map((item) => itemView(h, model.profiles, item))
       ),
-      sortSectionView(h),
+      ...(model.sort === "rank" ? [sortSectionView(h)] : []),
       h.p([], [cafeSubmissionPrompt]),
     ]
   );
+};
