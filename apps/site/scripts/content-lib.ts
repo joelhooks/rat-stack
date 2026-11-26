@@ -1179,6 +1179,12 @@ const glossaryDefinitions: readonly GlossaryEntry[] = [
       "The browser UI framework in rat-stack. A program keeps a Model, handles Messages in update, and runs side effects as named Commands.",
     term: "Foldkit",
   },
+  {
+    routePath: "/systems/web",
+    summary:
+      "The frontend library built on Effect and the Elm Architecture that continues Foldkit 0.x. It will be the frontend of the future full-stack Foldkit.",
+    term: "Effect UI",
+  },
 ];
 
 export const glossaryEntries = (

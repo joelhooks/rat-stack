@@ -97,7 +97,7 @@
   {
     "url": "https://github.com/Effect-TS/cafe",
     "title": "cafe",
-    "summary": "A minimal chat app built with the CAFE stack, tested by agents against real Cloudflare.",
+    "summary": "A minimal chat app built with Cloudflare, Alchemy, Foldkit and Effect, tested by agents against real Cloudflare.",
     "date": "2026-10-08",
     "repo": "Effect-TS/cafe",
     "author": {
@@ -755,7 +755,7 @@
       "foldkit": "apps/web/package.json: foldkit catalog: (0.138.0)"
     },
     "stars": 33,
-    "summary": "Effect's GitHub triage bot, with a Foldkit UI, deployed to Cloudflare via Alchemy; full CAFE verified.",
+    "summary": "Effect's GitHub triage bot, with a Foldkit UI, deployed to Cloudflare via Alchemy. All four stack parts are verified.",
     "title": "slopcop",
     "url": "https://github.com/Effect-TS/slopcop"
   },
@@ -1021,7 +1021,7 @@
       "foldkit": "apps/gpu/package.json: \"foldkit\": \"^0.163.0\""
     },
     "stars": 3,
-    "summary": "Monorepo of Cloudflare Worker apps, a Foldkit app in apps/gpu, and Alchemy at the root; full CAFE verified.",
+    "summary": "Monorepo of Cloudflare Worker apps, a Foldkit app in apps/gpu, and Alchemy at the root. All four stack parts are verified.",
     "title": "guidefari/here_hugo",
     "url": "https://github.com/guidefari/here_hugo"
   },
@@ -1572,7 +1572,7 @@
       "foldkit": "root package.json: foldkit 0.165.0"
     },
     "stars": 0,
-    "summary": "Party planning app with Foldkit, an Effect HTTP API and Cloudflare D1; full CAFE verified.",
+    "summary": "Party planning app with Foldkit, an Effect HTTP API and Cloudflare D1. All four stack parts are verified.",
     "title": "Party Planner",
     "url": "https://github.com/Matthieusz/party-planner"
   },

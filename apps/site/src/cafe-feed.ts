@@ -54,8 +54,8 @@ export const cafeAtomFeed = (
   list: typeof CafeNewsList.Type
 ) => `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>CAFE news</title>
-  <subtitle>Reviewed news from people who build with Cloudflare, Alchemy, Foldkit and Effect.</subtitle>
+  <title>Ratstack news</title>
+  <subtitle>News from people who build with Cloudflare, Alchemy, Foldkit and Effect.</subtitle>
   <link rel="self" href="${xmlText(origin)}/news.xml"/>
   <link rel="alternate" href="${xmlText(origin)}/news"/>
   <id>${xmlText(origin)}/news</id>

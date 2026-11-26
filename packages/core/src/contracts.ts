@@ -341,7 +341,7 @@ export const getPromptContract = defineContract("getPrompt", {
 export const listCafeNewsContract = defineContract("listCafeNews", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "List reviewed CAFE stack news: Cloudflare, Alchemy, Foldkit and Effect releases, posts, videos, launches and X threads. Sort by interest rank or newest, and filter by kind. Each reviewed entry includes its reason for appearing.",
+    "List Ratstack news: Cloudflare, Alchemy, Foldkit and Effect releases, posts, videos, launches and X threads. Sort by interest rank or newest, and filter by kind. Each reviewed entry includes its reason for appearing.",
   failure: AssetReadError,
   input: CafeNewsQuery,
   output: CafeNewsList,
@@ -350,7 +350,7 @@ export const listCafeNewsContract = defineContract("listCafeNews", {
 export const listCafeProjectsContract = defineContract("listCafeProjects", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "List reviewed projects built on the CAFE stack, with per-letter stack evidence. Filter to projects that use every given letter and sort by last update or stars.",
+    "List reviewed projects built with Cloudflare, Alchemy, Foldkit and Effect, with per-letter stack evidence. Filter to projects that use every given letter and sort by last update or stars.",
   failure: AssetReadError,
   input: CafeProjectQuery,
   output: CafeProjectList,
@@ -359,7 +359,7 @@ export const listCafeProjectsContract = defineContract("listCafeProjects", {
 export const listPeopleContract = defineContract("listPeople", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "List CAFE all stars: people and channels with public CAFE work, with stable ids for readPerson.",
+    "List Ratstack all stars: people and channels with public work with Cloudflare, Alchemy, Foldkit or Effect, with stable ids for readPerson.",
   failure: AssetReadError,
   input: CafePeopleQuery,
   output: CafePeopleList,
@@ -368,7 +368,7 @@ export const listPeopleContract = defineContract("listPeople", {
 export const listChannelsContract = defineContract("listChannels", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "List CAFE all-star channels: YouTube channels, GitHub orgs and blogs.",
+    "List Ratstack all-star channels: YouTube channels, GitHub orgs and blogs.",
   failure: AssetReadError,
   input: Schema.Struct({ limit: CafePeopleQuery.fields.limit }),
   output: CafePeopleList,
@@ -377,7 +377,7 @@ export const listChannelsContract = defineContract("listChannels", {
 export const readPersonContract = defineContract("readPerson", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "Read one CAFE all-star profile by id. Every fact has a source URL and a verified date; newsRows are newest first.",
+    "Read one Ratstack all-star profile by id. Every fact has a source URL and a verified date; newsRows are newest first.",
   failure: Schema.Union([UnknownPerson, AssetReadError]),
   input: Schema.Struct({ id: Schema.String }),
   output: CafeProfile,
@@ -386,7 +386,7 @@ export const readPersonContract = defineContract("readPerson", {
 export const searchPeopleContract = defineContract("searchPeople", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    "Search CAFE all stars by name, handle, topic, package, repo, bio or video words.",
+    "Search Ratstack all stars by name, handle, topic, package, repo, bio or video words.",
   failure: AssetReadError,
   input: CafePeopleSearchQuery,
   output: CafePeopleMatches,
@@ -395,7 +395,7 @@ export const searchPeopleContract = defineContract("searchPeople", {
 export const peopleForContract = defineContract("peopleFor", {
   annotations: { idempotent: true, readOnly: true },
   description:
-    'Find CAFE all stars whose topics or packages cover every term, such as ["foldkit", "d1"], with sourced evidence.',
+    'Find Ratstack all stars whose topics or packages cover every term, such as ["foldkit", "d1"], with sourced evidence.',
   failure: AssetReadError,
   input: CafePeopleForQuery,
   output: CafePeopleForList,

@@ -230,7 +230,7 @@ const entryBasisMarkdown = (entry: CafeProfileValue["entry"]) => {
     }
 
     case "work": {
-      return `Public [CAFE work](${entry.project}), with [stack evidence](${entry.source}) (checked ${entry.verified})`;
+      return `Public [work on the stack](${entry.project}), with [stack evidence](${entry.source}) (checked ${entry.verified})`;
     }
 
     default: {

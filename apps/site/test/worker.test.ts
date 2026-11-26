@@ -2506,7 +2506,7 @@ it.effect(
         expect(first?.why).toBeTruthy();
         expect(news).toContain(first?.why ?? "");
         expect(latest).toContain(first?.why ?? "");
-        expect(directory).toContain("# CAFE directory");
+        expect(directory).toContain("# Ratstack directory");
 
         const sitemap = yield* responseText(
           handler,
@@ -2578,7 +2578,7 @@ it.effect(
           ])
         );
         expect(llms).toContain("/all-stars)");
-        expect(index).toContain("# CAFE all stars");
+        expect(index).toContain("# Ratstack all stars");
         expect(index).toContain("To be removed from this page");
 
         for (const person of listed.people) {

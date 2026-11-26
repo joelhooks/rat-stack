@@ -100,7 +100,7 @@ for route in /news /directory /llms.txt; do
   for required in 'cafe-news.yml' 'cafe-project.yml' 'File only after the person approves that exact issue.' 'Listing is not guaranteed.'; do
     grep --fixed-strings --quiet "$required" "$tmp_dir/cafe-guide.md" || fail "${route} agent view lacks: ${required}"
   done
-  printf 'CAFE submission guide: %s\n' "$route"
+  printf 'Ratstack submission guide: %s\n' "$route"
 done
 
 curl --fail --silent --show-error --request POST "${base_url}/mcp" \

@@ -1,6 +1,6 @@
-name: Suggest CAFE news
+name: Suggest Ratstack news
 description: Suggest a release, post, video or launch for ratstack.sh/news.
-title: "CAFE news: "
+title: "Ratstack news: "
 labels: [cafe-submission]
 body:
   - type: markdown
@@ -60,7 +60,7 @@ body:
   - type: textarea
     id: evidence
     attributes:
-      label: Why it is CAFE
+      label: How it relates to the stack
       description: Explain the connection to Cloudflare, Alchemy, Foldkit or Effect. Cite source repository file paths and links.
     validations:
       required: true

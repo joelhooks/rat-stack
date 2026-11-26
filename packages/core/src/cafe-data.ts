@@ -38,7 +38,7 @@ export const describeCafeDataError = (issue: CafeDataError) =>
 const invalid = (errors: readonly CafeDataError[]) =>
   new CafeDataInvalid({
     errors,
-    message: `CAFE data has ${errors.length} invalid ${errors.length === 1 ? "field" : "fields"}; fix each entry named below, then rebuild:\n${errors.map(describeCafeDataError).join("\n")}`,
+    message: `News and directory data has ${errors.length} invalid ${errors.length === 1 ? "field" : "fields"}; fix each entry named below, then rebuild:\n${errors.map(describeCafeDataError).join("\n")}`,
   });
 
 const duplicateKeys = <A>(
@@ -146,7 +146,7 @@ const noEntries = new CafeDataError({
   file: cafeNewsFile,
   index: null,
   message:
-    "CAFE data has no entries; add at least one approved news item or project",
+    "News and directory data has no entries; add at least one approved news item or project",
 });
 
 export const decodeCafeData = Effect.fnUntraced(

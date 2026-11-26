@@ -57,7 +57,7 @@ export const homeFeaturedMarkdown = (
   return [
     "## New and worth watching",
     "",
-    `The top of [CAFE news](${origin}/news) right now:`,
+    `The top of [Ratstack news](${origin}/news) right now:`,
     "",
     ...news,
     "",

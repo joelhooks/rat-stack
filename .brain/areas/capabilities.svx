@@ -69,7 +69,7 @@ The projections in `packages/capability` provide:
 - Code mode, which combines capability calls in one program inside a restricted environment.
 See [one capability, every surface](/lore/one-capability-every-surface) for why.
 
-The hosted registry includes content search and graph traversal, flags, prompts, CAFE news and profiles, learning, code mode, and `joinInterest`.
+The hosted registry includes content search and graph traversal, flags, prompts, Ratstack news and profiles, learning, code mode, and `joinInterest`.
 [`apps/site/src/capabilities/index.ts`](https://github.com/joelhooks/rat-stack/blob/main/apps/site/src/capabilities/index.ts) composes that registry.
 [Live OpenAPI](/openapi.json) lists its HTTP operations. Optional feedback operations depend on the auth configuration.
 

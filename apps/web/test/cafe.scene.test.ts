@@ -22,9 +22,11 @@ it("CAFE pages show the short prompt instead of the agent filing instructions", 
       { update, view },
       given(model),
       expect(
-        text("Know a CAFE project or story? Ask your agent to suggest it.")
+        text(
+          "Know a project or story about the stack? Ask your agent to suggest it."
+        )
       ).toExist(),
-      expect(text("Suggest a CAFE entry through your agent")).toBeAbsent()
+      expect(text("Suggest a story or project through your agent")).toBeAbsent()
     );
   }
 });

@@ -35,15 +35,15 @@ export const newsKindLabels = {
 } as const satisfies Record<CafeNewsKindValue, string>;
 
 export const cafeSubmissionPrompt =
-  "Know a CAFE project or story? Ask your agent to suggest it.";
+  "Know a project or story about the stack? Ask your agent to suggest it.";
 
 export const newsCopy = {
   description:
-    "Reviewed news from people who build with Cloudflare, Alchemy, Foldkit and Effect.",
+    "News from people who build with Cloudflare, Alchemy, Foldkit and Effect.",
   feedLabel: "Atom feed",
-  heading: "CAFE news",
+  heading: "Ratstack news",
   intro:
-    "News from people who build with Cloudflare, Alchemy, Foldkit and Effect. A person reviews each entry before it appears.",
+    "News from people who build with Cloudflare, Alchemy, Foldkit and Effect. The ratstack desk agent picks and checks entries from public sources each day.",
   repliesLabel: "Top replies",
   sortHeading: "How this list is sorted",
 };
@@ -91,7 +91,7 @@ export const directoryCopy = {
   description:
     "Reviewed projects built with Cloudflare, Alchemy, Foldkit and Effect, with stack evidence.",
   filterLegend: "Show projects that use",
-  heading: "CAFE directory",
+  heading: "Ratstack directory",
   intro:
     "Projects built with Cloudflare, Alchemy, Foldkit and Effect. A letter badge appears only when the repository shows evidence for it.",
 };
@@ -107,11 +107,11 @@ export const allStarsCopy = {
   description:
     "People and channels whose public work builds with Cloudflare, Alchemy, Foldkit and Effect. Every fact links to its source.",
   entryRule:
-    "A person or channel enters through a /news row, contributions to a pinned CAFE stack package, CAFE code rat-stack vendors or credits, or sourced public work built on or teaching the CAFE stack.",
+    "A person or channel enters through a /news row, contributions to a pinned stack package, code on the stack that rat-stack vendors or credits, or sourced public work built on or teaching the stack.",
   feedLabel: "Atom feed",
-  heading: "CAFE all stars",
+  heading: "Ratstack all stars",
   intro:
-    "People and channels with a /news row, pinned CAFE stack contributions, CAFE code rat-stack vendors or credits, or sourced public CAFE work. Every fact links to its source and the date we checked it.",
+    "People and channels with a /news row, contributions to pinned stack packages, code on the stack that rat-stack vendors or credits, or sourced public work on the stack. Every fact links to its source and the date we checked it.",
   newsHeading: "On /news",
   noNews: "No /news rows yet.",
   peopleHeading: "People",

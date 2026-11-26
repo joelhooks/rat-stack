@@ -1,6 +1,6 @@
 export const cafeSubmissionGuide = (
   origin: string
-) => `## Suggest a CAFE entry through your agent
+) => `## Suggest a story or project through your agent
 
 Help the person you assist suggest a story for [news](${origin}/news) or a project for the [directory](${origin}/directory).
 
@@ -12,7 +12,7 @@ Help the person you assist suggest a story for [news](${origin}/news) or a proje
 
 ### Fields
 
-- **News:** HTTPS URL, title and one-line summary (each at most 280 characters), kind (release, post, video or launch), optional repo (\`owner/repo\`), optional author GitHub login and X handle, and why it is CAFE.
+- **News:** HTTPS URL, title and one-line summary (each at most 280 characters), kind (release, post, video or launch), optional repo (\`owner/repo\`), optional author GitHub login and X handle, and how it relates to the stack.
 - **Project:** HTTPS repo URL, title (at most 280 characters), one-line summary (at most 350 characters), and evidence for Cloudflare, Alchemy, Foldkit and Effect. Each evidence string names a file path and what it proves, in at most 280 characters. Write \`Not found\` for a letter without evidence.
 - Disclose the person's connection to the entry in either form. Leave unknown optional fields blank.
 
@@ -48,6 +48,8 @@ To remove a surface or package you don't need, follow [Keep or cut](${origin}/RE
 [Interest signup](${origin}/systems/interest) is agent-only. Read [${workshopTitle}](${origin}/tokenmaxx#interested), obtain a fresh page ticket, and submit through \`joinInterest\` only after the person approves the exact card and contact permission. A person confirms their email through the email link in a browser; submission is not confirmation. Show the returned message to the person. If it says "Too many requests right now. Try again in a minute.", wait one minute and retry once. If it says the confirmation email could not be sent yet, do not resubmit; the application is saved.
 
 Workshop resources have a separate [MCP server](${origin}/tokenmaxx/mcp). Use it for the schedule, prep, public links and published exercises. Applications still use the main server's \`joinInterest\`.
+
+<a id="suggest-a-cafe-entry-through-your-agent"></a>
 
 ${cafeSubmissionGuide(origin)}
 `;
