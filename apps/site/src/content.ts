@@ -98,7 +98,7 @@ Prove the floor before building on it: commit a type error and watch the hook re
 
 Alchemy, Foldkit, the cartridges and the content build are optional. Add each one when the project needs it.
 
-[Effect UI](https://ui.effect.website/article.md) continues Foldkit 0.x and will be the frontend of the future full-stack Foldkit. Rat-stack stays on Foldkit 0.170.0 until Effect UI is on npm and has an upgrade guide. See the [web system](${origin}/systems/web#effect-ui) for preview status.
+[Effect UI](https://ui.effect.website/article.md) continues Foldkit 0.x and will be the frontend of the future full-stack Foldkit. It is usable today from a commit-pinned snapshot on Effect 4.1.4, with server rendering, hydration and test harnesses, but it is not on npm yet. A new project can start on it. Rat-stack itself stays on Foldkit 0.170.0 until Effect UI is on npm and has an upgrade guide. See the [web system](${origin}/systems/web#effect-ui) for how to install it.
 
 ## Read this repo
 
