@@ -145,6 +145,9 @@ const parameterizedReadBoundaries = new Map(
     ],
     "apps/web/test/accent.test.ts": hashed("apps/web/src/**"),
     "apps/web/test/built-images.test.ts": hashed("apps/web/dist/**"),
+    "apps/web/test/news-effect-ui.test.ts": hashed(
+      "apps/web/dist/client/assets/**"
+    ),
     "apps/web/test/production-bundle.test.ts": hashed(
       "apps/web/dist/**",
       "apps/site/dist/content/**"

@@ -1,28 +1,23 @@
 import { Effect, Layer, Option, Schema } from "effect";
-import {
-  Rendered,
-  Responded,
-  renderToString,
-} from "foldkit/experimental/server";
-import newsEntry from "virtual:news-effect-ui-entry";
+import { Rendered, Responded } from "foldkit/experimental/server";
+import newsAssets from "virtual:news-effect-ui-entry";
 import { readerErrorTemplate } from "virtual:reader-error";
 
 import {
   ReaderErrorPage,
   readerErrorPath,
 } from "../../site/src/reader-error-page.js";
-import { Model as CafeModel } from "./client/cafe/model.js";
 import { findPage } from "./client/reader-pages.js";
-import { init } from "./client/reader/init.js";
-import { ReaderFlags } from "./client/reader/model.js";
 import type { ReaderPageFlags } from "./client/reader/model.js";
 import { newsOrder } from "./features/cafe/news-order.js";
-import { view } from "./features/reader.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
-import { withReaderHead } from "./server/reader-document.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
-import { readerErrorFlags } from "./server/reader-error.js";
+import {
+  renderNewsOrError,
+  renderReaderApplication,
+  renderReaderError,
+} from "./server/reader-render.js";
 import { WebsiteBindingError } from "./server/website-binding-error.js";
 import {
   WebsiteBindings,
@@ -109,45 +104,34 @@ const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
       );
     }
 
-    const flags = readerErrorFlags(errorTemplate, errorPage.value);
-
-    const application = yield* renderToString(
-      { Flags: ReaderFlags, init, view },
-      { flags }
+    const application = yield* renderReaderError(
+      errorTemplate,
+      errorPage.value
     );
 
     const headers = yield* previewHeaders(request);
 
-    return Rendered(withReaderHead(application, flags), {
-      headers,
-      status: errorPage.value.code,
-    });
+    return Rendered(application, { headers, status: errorPage.value.code });
   }
 );
 
-const renderReaderHtml = Effect.fn("reader.renderHtml")(
-  function* renderReaderHtml(page: ReaderPageFlags) {
-    const { path } = page.page;
+const renderErrorApplication = (error: typeof ReaderErrorPage.Type) =>
+  renderReaderError(errorTemplate, error);
 
-    if (path === newsOrder.rank.href || path === newsOrder.newest.href) {
-      const news = yield* page.cafe.pipe(
-        Option.filter(CafeModel.guards.News),
-        Effect.fromOption
+const renderReaderHtml = (page: ReaderPageFlags) => {
+  const { path, status } = page.page;
+
+  return path === newsOrder.rank.href || path === newsOrder.newest.href
+    ? renderNewsOrError(
+        page,
+        newsAssets,
+        () => import("./server/news-effect-ui.js"),
+        renderErrorApplication
+      )
+    : renderReaderApplication(page).pipe(
+        Effect.map((application) => ({ application, status }))
       );
-
-      const { renderNewsPage } = yield* Effect.promise(
-        () => import("./server/news-effect-ui.js")
-      );
-
-      return yield* renderNewsPage(page, news, newsEntry);
-    }
-
-    return yield* renderToString(
-      { Flags: ReaderFlags, init, view },
-      { flags: page }
-    );
-  }
-);
+};
 
 export const renderReaderPage = Effect.fn("reader.renderPage")(
   function* renderReaderPage(request: Request) {
@@ -224,13 +208,9 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       headers.set("Vary", "Accept");
     }
 
-    const responseOptions = prerender
-      ? { status: page.page.status }
-      : { headers, status: page.page.status };
+    const { application, status } = yield* renderReaderHtml(page);
 
-    const application = yield* renderReaderHtml(page);
-
-    return Rendered(withReaderHead(application, page), responseOptions);
+    return Rendered(application, prerender ? { status } : { headers, status });
   }
 );
 

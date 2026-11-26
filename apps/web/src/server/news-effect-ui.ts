@@ -13,12 +13,13 @@ import { init } from "../client/reader/init.js";
 import { ReaderFlags } from "../client/reader/model.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerViewWithCafe } from "../features/reader.js";
+import type { NewsDocumentAssets } from "./reader-document.js";
 
 export const renderNewsPage = Effect.fn("reader.renderNewsPage")(
   function* renderNewsPage(
     page: ReaderPageFlags,
     props: NewsPageProps,
-    entryScript: string
+    assets: typeof NewsDocumentAssets.Type
   ) {
     const rendered = yield* HtmlServer.renderToHtml(NewsPage, props);
 
@@ -41,8 +42,8 @@ export const renderNewsPage = Effect.fn("reader.renderNewsPage")(
     return {
       ...application,
       news: {
-        entryScript,
-        head: `${rendered.head}<script type="application/json" id="${newsHandoffId}">${HtmlServer.serializeState(handoff)}</script>`,
+        assets,
+        handoff: `<script type="application/json" id="${newsHandoffId}">${HtmlServer.serializeState(handoff)}</script>`,
       },
     };
   }

@@ -8,8 +8,13 @@ const entryName = "news-effect-ui";
 
 const assetModule = "virtual:news-effect-ui-entry";
 
+interface NewsAssets {
+  readonly entryScript: string;
+  readonly modulePreloads: readonly string[];
+}
+
 export const newsEffectUiPlugin = (): Plugin => {
-  const entry = { url: browserEntry };
+  let builtAssets: NewsAssets | undefined;
 
   return {
     config: () => ({
@@ -31,18 +36,56 @@ export const newsEffectUiPlugin = (): Plugin => {
           output.type === "chunk" && output.isEntry && output.name === entryName
       );
 
-      if (chunk === undefined) {
+      if (chunk?.type !== "chunk") {
         this.error(
           "Missing Effect UI news entry. Fix: check `newsEffectUiPlugin` client input."
         );
       }
 
-      entry.url = `${this.environment.config.base}${chunk.fileName}`;
+      const visited = new Set([chunk.fileName]);
+
+      const transitiveImports = (imports: readonly string[]) => {
+        for (const fileName of imports) {
+          const imported = bundle[fileName];
+
+          if (visited.has(fileName) || imported === undefined) {
+            continue;
+          }
+
+          if (imported.type === "chunk" && "imports" in imported) {
+            visited.add(fileName);
+            transitiveImports(imported.imports);
+          }
+        }
+      };
+
+      transitiveImports(chunk.imports);
+
+      const assetUrl = (fileName: string) =>
+        `${this.environment.config.base}${fileName}`;
+
+      builtAssets = {
+        entryScript: assetUrl(chunk.fileName),
+        modulePreloads: [...visited].slice(1).map(assetUrl),
+      };
     },
     load(id) {
-      return id === `\0${assetModule}`
-        ? `export default ${JSON.stringify(entry.url)}`
-        : undefined;
+      if (id !== `\0${assetModule}`) {
+        return null;
+      }
+
+      const assets =
+        this.environment.config.command === "serve"
+          ? { entryScript: browserEntry, modulePreloads: [] }
+          : builtAssets;
+
+      if (assets === undefined) {
+        this.error(
+          "Effect UI news server build has no emitted client entry. Fix: run the full `@rat-stack/web` build so its client environment finishes before SSR."
+        );
+      }
+
+      return `export default ${JSON.stringify(assets)}`;
     },
     name: "reader-news-effect-ui",
     resolveId(id) {

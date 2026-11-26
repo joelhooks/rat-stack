@@ -9,9 +9,14 @@ import {
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerMetadataHead } from "../reader-metadata.js";
 
+export const NewsDocumentAssets = Schema.Struct({
+  entryScript: Schema.String,
+  modulePreloads: Schema.Array(Schema.String),
+});
+
 const ReaderDocumentHead = Schema.Struct({
   news: Schema.optionalKey(
-    Schema.Struct({ entryScript: Schema.String, head: Schema.String })
+    Schema.Struct({ assets: NewsDocumentAssets, handoff: Schema.String })
   ),
   readerHead: Schema.String,
 });
@@ -43,11 +48,9 @@ export const renderDocument: Server.DocumentRenderer = (
 
   return Server.renderDocument(
     application,
-    news === undefined
-      ? assets
-      : { ...assets, entryScript: news.entryScript, modulePreloads: [] },
+    news === undefined ? assets : { ...assets, ...news.assets },
     {
-      head: `${iconHead}\n${webMcpOriginTrialScript}\n${readerHead}${news?.head ?? ""}`,
+      head: `${iconHead}\n${webMcpOriginTrialScript}\n${readerHead}${news?.handoff ?? ""}`,
     }
   );
 };
