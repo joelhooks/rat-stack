@@ -142,4 +142,4 @@ Then read [One capability, every surface](/lore/one-capability-every-surface) fo
 
 The [stack's original example](/lore/cafe-stack) shows where Foldkit sits between the browser and the cloud.
 
-[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend. For preview status and rat-stack's upgrade policy, see the [web system page](/systems/web#effect-ui).
+[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend. For how to use it today and rat-stack's upgrade policy, see the [web system page](/systems/web#effect-ui).

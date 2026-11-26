@@ -73,9 +73,11 @@ The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands ca
 
 [Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend.
 
-As of 26 November 2026, [Effect UI](https://github.com/Effect-TS/ui) is in public preview. The `@effect/ui` and `@effect/ui-kit` packages are available as [snapshots on pkg.pr.new](https://pkg.pr.new/~/Effect-TS/ui), with no npm release or upgrade guide yet. The authors say the move “will be an upgrade, not a rewrite.” Foldkit 0.x gets critical bug fixes until Effect UI ships with an upgrade guide.
+Effect UI is usable today. As of 26 November 2026, its packages install from [commit snapshots on pkg.pr.new](https://pkg.pr.new/~/Effect-TS/ui), not npm. Take every Effect UI package from the same commit, as the [README](https://github.com/Effect-TS/ui/blob/e2cb60ec65f2f2bd37813c5c5dc5378c42b03c85/README.md#snapshots) says. `@effect/ui` runs on Effect 4.1.4, the version rat-stack pins: its [peer range](https://github.com/Effect-TS/ui/blob/e2cb60ec65f2f2bd37813c5c5dc5378c42b03c85/packages/ui/package.json) is `^4.1.4`.
 
-Rat-stack stays on [Foldkit 0.170.0](https://github.com/joelhooks/rat-stack/blob/b633555b638cd44f4dfe9d16aa7b9d4b45f9a122/AGENTS.md#stack-contract) until Effect UI is on npm and has an upgrade guide.
+The framework covers components, routing, server rendering, hydration, and test harnesses ([README](https://github.com/Effect-TS/ui/blob/e2cb60ec65f2f2bd37813c5c5dc5378c42b03c85/README.md#packages)). The README marks the packages experimental. There is no upgrade guide from Foldkit 0.x yet; the authors say the move “will be an upgrade, not a rewrite.” Foldkit 0.x gets critical bug fixes until Effect UI ships with an upgrade guide.
+
+A new project can start on Effect UI from a pinned snapshot. Rat-stack itself stays on [Foldkit 0.170.0](https://github.com/joelhooks/rat-stack/blob/b633555b638cd44f4dfe9d16aa7b9d4b45f9a122/AGENTS.md#stack-contract) until Effect UI is on npm and has an upgrade guide, because its pins are exact npm versions.
 
 ## The standard
 

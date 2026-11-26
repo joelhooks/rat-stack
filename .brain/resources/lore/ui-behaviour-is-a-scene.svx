@@ -46,7 +46,7 @@ A Foldkit program has a Model, Messages, an `update` function, and a view.
 A Command is a named side effect. Its result comes back as a Message.
 A Scene runs `update`, the view, and subscriptions together, without a browser.
 
-[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend. For preview status and rat-stack's upgrade policy, see the [web system page](/systems/web#effect-ui).
+[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend. For how to use it today and rat-stack's upgrade policy, see the [web system page](/systems/web#effect-ui).
 
 ## Input and time are data
 
