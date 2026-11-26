@@ -1,5 +1,37 @@
 [
   {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=mZENB_CjK5M",
+    "title": "Effect Module of the Week 9: EventLog",
+    "summary": "Each offline device writes events to its local log; EventLog syncs the logs through an encrypted remote and resolves conflicts per event or per field.",
+    "date": "2026-11-25",
+    "repo": null,
+    "author": {
+      "github": "IMax153",
+      "x": "maxwellbrown"
+    },
+    "source": "https://effect.website/blog/module-of-the-week/event-log",
+    "engagement": {
+      "views": 1580
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/tim-smart/chad",
+    "title": "chad: a self-modifying assistant written with Effect",
+    "summary": "Tim Smart's assistant can author its own plugins; setup includes long-term memory and a browser. Built on Effect's AI, SQLite and Discord packages.",
+    "date": "2026-11-25",
+    "repo": "tim-smart/chad",
+    "author": {
+      "github": "tim-smart",
+      "x": "tim_smart"
+    },
+    "source": "https://x.com/tim_smart/status/2125536797413556397",
+    "engagement": {
+      "stars": 53
+    }
+  },
+  {
     "kind": "post",
     "url": "https://rivet.dev/changelog/2026-11-24-self-host-rivet-on-any-cloud-with-alchemy/",
     "title": "Rivet self-hosts on any cloud through Alchemy",
@@ -57,7 +89,7 @@
     },
     "source": "https://github.com/dmmulroy/rex-sdk",
     "engagement": {
-      "stars": 60
+      "stars": 74
     }
   },
   {
@@ -89,7 +121,7 @@
     },
     "source": "https://x.com/NFS__21/status/2124510714358276399",
     "engagement": {
-      "stars": 4
+      "stars": 5
     }
   },
   {
@@ -105,7 +137,7 @@
     },
     "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
     "engagement": {
-      "stars": 428
+      "stars": 440
     }
   },
   {
@@ -153,7 +185,7 @@
     },
     "source": "https://github.com/southpolesteve/workers-dns-tcp",
     "engagement": {
-      "stars": 52
+      "stars": 54
     }
   },
   {
@@ -546,7 +578,7 @@
     },
     "source": "https://x.com/NathanFlurry/status/2120915020355658240",
     "engagement": {
-      "stars": 865
+      "stars": 873
     }
   },
   {
@@ -828,7 +860,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4458
+      "stars": 4600
     }
   },
   {
@@ -1079,38 +1111,6 @@
     "source": "https://www.npmjs.com/package/@yielded/effect-tsrs/v/0.2.2",
     "engagement": {
       "stars": 209
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/aidenybai/tla-ts",
-    "title": "tla-ts",
-    "summary": "A TLA+ interpreter and model checker in TypeScript that runs in Node or the browser; 0.0.8 shipped on 2026-11-05.",
-    "date": "2026-10-26",
-    "repo": "aidenybai/tla-ts",
-    "author": {
-      "github": "aidenybai",
-      "x": "aidenybai"
-    },
-    "source": "https://tla-ts.aidenybai.com/",
-    "engagement": {
-      "stars": 267
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/me-shaon/mailswitch",
-    "title": "mailswitch",
-    "summary": "A transactional email library for Cloudflare Workers with one API over Resend, Postmark, Amazon SES and SMTP; providers switch without a redeploy.",
-    "date": "2026-10-26",
-    "repo": "me-shaon/mailswitch",
-    "author": {
-      "github": "me-shaon",
-      "x": "me_shaon"
-    },
-    "source": "https://github.com/me-shaon/mailswitch",
-    "engagement": {
-      "stars": 23
     }
   },
   {
