@@ -49,7 +49,8 @@ export const localCafeDirectoryLayer = Layer.effect(
             (envelope) => envelope.generation === generation,
             () =>
               new AssetReadError({
-                cause: "CAFE data generation differs from manifest",
+                cause:
+                  "News and directory data generation differs from manifest",
                 path,
                 reason: "generation",
               })

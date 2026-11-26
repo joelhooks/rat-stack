@@ -2484,7 +2484,7 @@ it.effect(
           listed.items.map((entry) => entry.item.url)
         );
         expect(news).toContain("## How this list is sorted");
-        expect(directory).toContain("# CAFE directory");
+        expect(directory).toContain("# Ratstack directory");
 
         for (const route of ["/news", "/directory", "/llms.txt"]) {
           const agentView = yield* responseText(
@@ -2540,7 +2540,7 @@ it.effect(
           ])
         );
         expect(llms).toContain("/all-stars)");
-        expect(index).toContain("# CAFE all stars");
+        expect(index).toContain("# Ratstack all stars");
         expect(index).toContain("To be removed from this page");
 
         for (const person of listed.people) {

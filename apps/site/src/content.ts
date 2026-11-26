@@ -98,6 +98,8 @@ Prove the floor before building on it: commit a type error and watch the hook re
 
 Alchemy, Foldkit, the cartridges and the content build are optional. Add each one when the project needs it.
 
+[Effect UI](https://ui.effect.website/article.md) continues Foldkit 0.x and will be the frontend of the future full-stack Foldkit. Rat-stack stays on Foldkit 0.170.0 until Effect UI is on npm and has an upgrade guide. See the [web system](${origin}/systems/web#effect-ui) for preview status.
+
 ## Read this repo
 
 - [Home](${origin}/): short overview
@@ -106,8 +108,8 @@ Alchemy, Foldkit, the cartridges and the content build are optional. Add each on
 - [HTTP API](${origin}/openapi.json): routes, inputs, outputs, and errors
 - [MCP server](${origin}/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment
 - [Code mode](${origin}/api/execute): run a program instead of several calls; POST JSON with a \`code\` string, or call the MCP \`execute\` tool
-- [CAFE news](${origin}/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
-- [CAFE directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool. Suggest entries through GitHub with the approval steps below.
+- [Ratstack news](${origin}/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](${origin}/news.xml) and the \`listCafeNews\` tool
+- [Ratstack directory](${origin}/directory): reviewed projects with per-letter stack evidence; also the \`listCafeProjects\` tool. Suggest entries through GitHub with the approval steps below.
 ${catalog.llmsAllStarsLinks.replaceAll(originToken, origin)}
 - [RatTube](${origin}/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each
 ${catalog.llmsTubeLinks.replaceAll(originToken, origin)}

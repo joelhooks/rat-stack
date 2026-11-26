@@ -53,6 +53,11 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "implement binds searchContract to the content store on the server."
     accessed: "2026-11-08"
+  - url: https://ui.effect.website/article.md
+    title: "Introducing Effect UI"
+    publisher: "Effect UI"
+    note: "The Foldkit 0.x successor and the future full-stack Foldkit."
+    accessed: "2026-11-26"
 ---
 
 **Goal:** trace one user action from a click to the server and back, and know which file owns each step.
@@ -135,4 +140,6 @@ Each step has one owner, so each step can be tested alone.
 Read [UI behaviour is a scene](/lore/ui-behaviour-is-a-scene) to test this program without a browser.
 Then read [One capability, every surface](/lore/one-capability-every-surface) for the server half of the contract.
 
-[CAFE](/lore/cafe-stack) names where Foldkit sits in the stack.
+The [stack's original example](/lore/cafe-stack) shows where Foldkit sits between the browser and the cloud.
+
+[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend. For preview status and rat-stack's upgrade policy, see the [web system page](/systems/web#effect-ui).

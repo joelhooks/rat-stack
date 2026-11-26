@@ -61,7 +61,7 @@ it.effect(
         (candidate) => candidate.page.path === "/all-stars"
       );
 
-      expect(index?.heading).toBe("CAFE all stars");
+      expect(index?.heading).toBe("Ratstack all stars");
 
       if (index === undefined) {
         return;

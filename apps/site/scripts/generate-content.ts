@@ -1927,7 +1927,7 @@ Poll \`learnFeedbackPoll\` at the returned interval. After approval, use the ret
 
 Approval returns a [feedback-only credential](${originToken}/systems/auth). The person's sign-in session stays in their browser. See the [feedback sign-in flow](${originToken}/systems/learn#feedback-sign-in).
 
-For other feedback, point the person to Joel's contact link in the intro. To suggest a CAFE story or project, follow the [agent guide's approval steps](${originToken}/llms.txt#suggest-a-cafe-entry-through-your-agent). Draft the exact GitHub issue for the person to approve, then submit it once.
+For other feedback, point the person to Joel's contact link in the intro. To suggest a story or project, follow the [agent guide's approval steps](${originToken}/llms.txt#suggest-a-story-or-project-through-your-agent). Draft the exact GitHub issue for the person to approve, then submit it once.
 
 For signup, read the [interest rules](${originToken}/systems/interest) and the [signup instructions](${originToken}/llms.txt#choose-the-next-action) before calling \`joinInterest\`. Submission needs the person's approval of the exact card and contact permission. Email confirmation happens separately in their browser.
 
@@ -2214,6 +2214,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "",
     "Alchemy, Foldkit, the cartridges and the content build are optional. Add each one when the project needs it.",
     "",
+    "[Effect UI](https://ui.effect.website/article.md) continues Foldkit 0.x and will be the frontend of the future full-stack Foldkit. Rat-stack stays on Foldkit 0.170.0 until Effect UI is on npm and has an upgrade guide. See the [web system](__RATSTACK_ORIGIN__/systems/web#effect-ui) for preview status.",
+    "",
     "## Read this repo",
     "",
     "- [Home](__RATSTACK_ORIGIN__/): short overview",
@@ -2221,8 +2223,8 @@ Follow [ports and adapters](/lore/hexagonal-architecture) for provider boundarie
     "- [Public content corpus](__RATSTACK_ORIGIN__/llms-full.txt): rules, lore, and skills in one response",
     "- [HTTP API](__RATSTACK_ORIGIN__/openapi.json): routes, inputs, outputs, and errors",
     "- [MCP server](__RATSTACK_ORIGIN__/mcp): Model Context Protocol tools for search, reading, and code in a restricted environment",
-    "- [CAFE news](__RATSTACK_ORIGIN__/news): reviewed Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
-    "- [CAFE directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
+    "- [Ratstack news](__RATSTACK_ORIGIN__/news): Cloudflare, Alchemy, Foldkit and Effect news, ranked by engagement and freshness; also an [Atom feed](__RATSTACK_ORIGIN__/news.xml) and the `listCafeNews` tool",
+    "- [Ratstack directory](__RATSTACK_ORIGIN__/directory): reviewed projects with per-letter stack evidence; also the `listCafeProjects` tool",
     llmsAllStarsLinks,
     "- [RatTube](__RATSTACK_ORIGIN__/tube): curated videos for learning Effect, Alchemy, XState, TypeScript, agents and MCP, Cloudflare, and systems thinking, ranked S to F with a short take on each",
     llmsTubeLinks,

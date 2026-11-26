@@ -43,7 +43,7 @@ it.prop(
         links: [source],
       },
       {
-        basis: "Public [CAFE work]",
+        basis: "Public [work on the stack]",
         entry: { kind: "work", project, ...verified },
         links: [project, source, verified.verified],
       },

@@ -19,6 +19,7 @@ terms:
   - "server rendering"
   - "prerendering"
   - "hydration"
+  - "Effect UI"
 sources:
   - url: https://github.com/joelhooks/rat-stack/blob/main/apps/web/vite.config.ts
     title: "Web Vite configuration"
@@ -40,6 +41,11 @@ sources:
     publisher: "GitHub joelhooks/rat-stack"
     note: "Builds the Website through Alchemy and serves it from workerd."
     accessed: "2026-10-25"
+  - url: https://ui.effect.website/article.md
+    title: "Introducing Effect UI"
+    publisher: "Effect UI"
+    note: "The Foldkit 0.x successor, public preview, and upgrade plans."
+    accessed: "2026-11-26"
 ---
 
 ## What it does
@@ -62,6 +68,14 @@ One `vite build` makes three outputs:
 [Tube video pages](/systems/tube) use this reader to prerender transcript summaries and load a video player only after the reader presses play.
 
 The server forwards `/rpc` to the private RpcBackend Worker. Browser Commands call capabilities through that path.
+
+## Effect UI
+
+[Effect UI](/glossary#e) continues the work of Foldkit 0.x. The [announcement](https://ui.effect.website/article.md) says the future full-stack Foldkit will use Effect UI as its frontend.
+
+As of 26 November 2026, [Effect UI](https://github.com/Effect-TS/ui) is in public preview. The `@effect/ui` and `@effect/ui-kit` packages are available as [snapshots on pkg.pr.new](https://pkg.pr.new/~/Effect-TS/ui), with no npm release or upgrade guide yet. The authors say the move “will be an upgrade, not a rewrite.” Foldkit 0.x gets critical bug fixes until Effect UI ships with an upgrade guide.
+
+Rat-stack stays on [Foldkit 0.170.0](https://github.com/joelhooks/rat-stack/blob/b633555b638cd44f4dfe9d16aa7b9d4b45f9a122/AGENTS.md#stack-contract) until Effect UI is on npm and has an upgrade guide.
 
 ## The standard
 
