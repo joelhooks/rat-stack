@@ -53,7 +53,7 @@ sources:
   - url: https://github.com/just-be-dev/effect-cloudflare-foldkit-template
     title: "just-be-dev/effect-cloudflare-foldkit-template · GitHub"
     publisher: "GitHub just-be-dev"
-    note: "Repository description; used for the other CAFE apps table."
+    note: "Justin Bennett's template and its repository description."
     accessed: "2026-10-09"
   - url: https://github.com/NigelThorne/foldkit-demo
     title: "NigelThorne/foldkit-demo · GitHub"
@@ -75,6 +75,16 @@ sources:
     publisher: "GitHub foldhub"
     note: "Community list for Foldkit libraries and apps."
     accessed: "2026-10-09"
+  - url: https://effect.website/blog/this-week-in-effect/139
+    title: "This Week in Effect 139"
+    publisher: "Effect"
+    note: "Preserves Maxwell Brown's naming poll, with CAFE as one of the options."
+    accessed: "2026-11-26"
+  - url: https://github.com/joelhooks/rat-stack/commit/04ef9b1afcf22c254a70f27edac80eda383c065c
+    title: "Credit the people behind the CAFE name"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "Ratstack's original credits for the name, the template, the build stream, and the explainer."
+    accessed: "2026-11-26"
   - url: https://github.com/joelhooks/rat-stack/commit/42ab7e2707ae66d7d8a4486d59c3a9cd9591d973
     title: "First ratstack lore page on CAFE"
     publisher: "GitHub joelhooks/rat-stack"
@@ -98,6 +108,10 @@ sources:
 ---
 
 CAFE stood for Cloudflare, Alchemy, Foldkit and Effect. The [Effect-TS/cafe example](https://github.com/Effect-TS/cafe) gives the name to that combination in its README.
+
+## Where the name came from
+
+[Maxwell Brown](https://github.com/IMax153) coined the name; [Justin Bennett](https://github.com/just-be-dev) spread it with his template on 8 October 2026. That day, [Devin Jameson](https://github.com/devinjameson), Maxwell and [Sam Goodwin](https://github.com/sam-goodwin) streamed a CAFE build, and [Sebastian Lorenz](https://github.com/fubhy) wrote the explainer people share.
 
 ## When ratstack used the name
 
