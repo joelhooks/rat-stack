@@ -443,7 +443,7 @@
     "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"skills/uncomplect/SKILL.md\"]": "2026-11-08\tc11e2936c0fe50773adc6d090e15cf82f3b04287\n",
     "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"skills/use-a-prompt/SKILL.md\"]": "2026-10-07\tf77853d42e2561d5c2c37e0f6ba46c5a2e6a2bf2\n",
     "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"skills/write-a-wiki-page/SKILL.md\"]": "2026-11-15\t87fe4d414240083ee203a425a7e78b1beca41f67\n",
-    "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"vendor/README.md\"]": "2026-11-16\t95207c81c835352ded9108edc449f374de7a33c6\n",
+    "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"vendor/README.md\"]": "2026-11-26\tb2d80511ca5e0b039a5cd1bfe7959103641023d8\n",
     "[\"rat-stack\",\"log\",\"-n\",\"1\",\"--date=short\",\"--format=%ad%x09%H\",\"--\",\"VISION.md\"]": "2026-11-14\t31132fb994c12294d53a151c7909ff233c0ab686\n",
     "[\"rat-stack\",\"rev-parse\",\"1d4d3252326a216909ccec05e93312d1ab0eaf84:apps/web/test/reader.scene.test.ts\"]": "46712bf67ff6accb0029f7293035af897564dde8\n",
     "[\"rat-stack\",\"rev-parse\",\"1d4d3252326a216909ccec05e93312d1ab0eaf84:packages/core/test/file-inspector.test.ts\"]": "e891382d3730be43a3671d6404618a6218bd718f\n",
