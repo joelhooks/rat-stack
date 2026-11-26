@@ -47,6 +47,14 @@ sources:
     accessed: "2026-10-07"
 ---
 
+## Requirements stay visible
+
+An `Effect<A, E, R>` describes its result, failure, and required services. The `R` type tracks those requirements. The compiler rejects execution while a required service remains in `R`.
+
+A service gives callers a typed interface. A Layer builds its implementation and declares its construction requirements. Shared Layer identity reuses construction within the same memoization context.
+
+## Why practitioners choose it
+
 Matt Pocock puts dependency injection first:
 
 > Now, what I think people get wrong is that they think that error handling and the type-safe nature of Effect is the reason you go for Effect. I think the reason you go for Effect is dependency injection, actually. It allows you to create these beautiful small modules that you can just swap out as needed and create these really nice looking tests with Effect too.
@@ -67,12 +75,6 @@ Dillon Mulroy compares Effect with Spring and NestJS:
 [Watch Dillon's one-minute clip](https://player.mux.com/nB8qFbdBBHVU6zUfXsbtHFR2tKgEnjYEiPd4bL4Jny4).
 
 </AgentOnly>
-
-## Requirements stay visible
-
-An `Effect<A, E, R>` describes its result, failure, and required services. The `R` type tracks those requirements. The compiler rejects execution while a required service remains in `R`.
-
-A service gives callers a typed interface. A Layer builds its implementation and declares its construction requirements. Shared Layer identity reuses construction within the same memoization context.
 
 ## A service captures its dependencies
 
