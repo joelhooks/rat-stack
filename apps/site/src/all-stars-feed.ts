@@ -47,7 +47,7 @@ const profileEntries = (
     category: profile.kind,
     date: profile.updated,
     summary: profile.bio[0].text,
-    title: `${profile.name} on CAFE all stars`,
+    title: `${profile.name} on Ratstack all stars`,
     url: `${origin}${profile.route}`,
   },
   ...profile.newsRows.map((item) => ({
@@ -78,7 +78,7 @@ export const allStarsAtomFeed = (
 
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>CAFE all stars</title>
+  <title>Ratstack all stars</title>
   <link rel="self" href="${xmlText(origin)}/all-stars.xml"/>
   <link rel="alternate" href="${xmlText(origin)}/all-stars"/>
   <id>${xmlText(origin)}/all-stars</id>

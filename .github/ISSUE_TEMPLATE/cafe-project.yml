@@ -1,6 +1,6 @@
-name: Suggest a CAFE project
+name: Suggest a project for the Ratstack directory
 description: Suggest a project with repository evidence for ratstack.sh/directory.
-title: "CAFE project: "
+title: "Ratstack project: "
 labels: [cafe-submission]
 body:
   - type: markdown

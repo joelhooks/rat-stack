@@ -1,7 +1,7 @@
 ---
-title: "CAFE names the Cloudflare, Alchemy, Foldkit and Effect stack"
-description: "CAFE is a named stack: Cloudflare runs the app, Alchemy declares it, Foldkit draws the UI, and Effect does the typed work."
-plain: "CAFE is Cloudflare, Alchemy, Foldkit and Effect. Cloudflare runs it, Alchemy declares it, Foldkit is the UI, and Effect types the work."
+title: "CAFE is ratstack's former stack name"
+description: "CAFE was ratstack's name for Cloudflare, Alchemy, Foldkit and Effect until 26 November 2026."
+plain: "Ratstack retired the name CAFE, short for Cloudflare, Alchemy, Foldkit and Effect."
 diagram: |-
   Alchemy Stack
   ┌──────────────────────────┐
@@ -75,13 +75,39 @@ sources:
     publisher: "GitHub foldhub"
     note: "Community list for Foldkit libraries and apps."
     accessed: "2026-10-09"
+  - url: https://github.com/joelhooks/rat-stack/commit/42ab7e2707ae66d7d8a4486d59c3a9cd9591d973
+    title: "First ratstack lore page on CAFE"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The first commit that explains the name on the site."
+    accessed: "2026-11-26"
+  - url: https://github.com/joelhooks/rat-stack/commit/d202ff2e3c56d85237a67011203a5ecbe7a940b7
+    title: "First CAFE news and directory data"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The commit that gives the news and directory the CAFE name."
+    accessed: "2026-11-26"
+  - url: https://github.com/joelhooks/rat-stack/commit/ffd123336d7c890915fd83ce21e976c2807083bf
+    title: "First CAFE all stars pages and profiles"
+    publisher: "GitHub joelhooks/rat-stack"
+    note: "The commit that extends the name to All Stars."
+    accessed: "2026-11-26"
+  - url: https://ui.effect.website/article.md
+    title: "Introducing Effect UI"
+    publisher: "Effect UI"
+    note: "The Foldkit 0.x successor, public preview, and upgrade plans."
+    accessed: "2026-11-26"
 ---
 
-CAFE is a named stack. Each letter has one job.
+CAFE stood for Cloudflare, Alchemy, Foldkit and Effect. The [Effect-TS/cafe example](https://github.com/Effect-TS/cafe) gives the name to that combination in its README.
 
-Read the [CAFE news](/news) and browse the [project directory](/directory).
+## When ratstack used the name
 
-[Maxwell Brown](https://github.com/IMax153) coined the name; [Justin Bennett](https://github.com/just-be-dev) spread it with his template on 8 October 2026. That day, [Devin Jameson](https://github.com/devinjameson), Maxwell and [Sam Goodwin](https://github.com/sam-goodwin) streamed a CAFE build, and [Sebastian Lorenz](https://github.com/fubhy) wrote the explainer people share.
+On 9 October 2026, ratstack [added this lore page](https://github.com/joelhooks/rat-stack/commit/42ab7e2707ae66d7d8a4486d59c3a9cd9591d973) and [used the name for news and the project directory](https://github.com/joelhooks/rat-stack/commit/d202ff2e3c56d85237a67011203a5ecbe7a940b7). The site [added All Stars profiles under the same name](https://github.com/joelhooks/rat-stack/commit/ffd123336d7c890915fd83ce21e976c2807083bf) on 2 November 2026.
+
+Joel Hooks retired the name in favor of ratstack on 26 November 2026. The F no longer names one line of work. [Effect UI continues the work of Foldkit 0.x](https://ui.effect.website/article.md) and will be the frontend for the future full-stack Foldkit. See the [web system page](/systems/web#effect-ui) for what rat-stack runs today.
+
+The [news](/news), [directory](/directory) and [All Stars](/all-stars) still cover the same parts.
+
+## What the letters meant
 
 - **C**:
   - Part: Cloudflare
@@ -164,7 +190,7 @@ foldkit-dials is a clear example of the Foldkit rule that every change is a Mess
 
 ## Where rat-stack sits
 
-rat-stack is a CAFE stack with [the fence](/lore/the-fence) around it. The table compares it with cafe at rat-stack commit `3fb103b`.
+Rat-stack uses the same four parts and adds [the fence](/lore/the-fence). This comparison is from rat-stack commit `3fb103b`.
 
 - **Alchemy Worker shape**:
   - rat-stack: Class form: `Cloudflare.Worker<Mischief>()`, `Cloudflare.Workers.RpcWorker`, `Cloudflare.Website.Foldkit`
