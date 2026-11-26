@@ -9,7 +9,17 @@ import {
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerMetadataHead } from "../reader-metadata.js";
 
-const ReaderDocumentHead = Schema.Struct({ readerHead: Schema.String });
+export const NewsDocumentAssets = Schema.Struct({
+  entryScript: Schema.String,
+  modulePreloads: Schema.Array(Schema.String),
+});
+
+const ReaderDocumentHead = Schema.Struct({
+  news: Schema.optionalKey(
+    Schema.Struct({ assets: NewsDocumentAssets, handoff: Schema.String })
+  ),
+  readerHead: Schema.String,
+});
 
 const webMcpOriginTrialScript =
   '<script src="/assets/webmcp-origin-trial.js"></script>';
@@ -29,7 +39,18 @@ export const withReaderHead = (
   readerHead: readerMetadataHead(page.page.metadata, page.origin),
 });
 
-export const renderDocument: Server.DocumentRenderer = (application, assets) =>
-  Server.renderDocument(application, assets, {
-    head: `${iconHead}\n${webMcpOriginTrialScript}\n${Schema.decodeUnknownSync(ReaderDocumentHead)(application).readerHead}`,
-  });
+export const renderDocument: Server.DocumentRenderer = (
+  application,
+  assets
+) => {
+  const { news, readerHead } =
+    Schema.decodeUnknownSync(ReaderDocumentHead)(application);
+
+  return Server.renderDocument(
+    application,
+    news === undefined ? assets : { ...assets, ...news.assets },
+    {
+      head: `${iconHead}\n${webMcpOriginTrialScript}\n${readerHead}${news?.handoff ?? ""}`,
+    }
+  );
+};

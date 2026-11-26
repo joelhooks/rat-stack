@@ -5,6 +5,27 @@
     "plugins": [
       {
         "name": "@effect/language-service",
+        "allowedExperimentalApis": [
+          "@effect/ui/html/Html#H",
+          "@effect/ui/html/Html#component",
+          "@effect/ui/html/HtmlHydrate#hydrateEffect",
+          "@effect/ui/html/HtmlServer#renderToHtml",
+          "@effect/ui/html/HtmlServer#serializeState"
+        ],
+        "overrides": [
+          {
+            "include": ["test/news-effect-ui.test.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/html/testing#ssr",
+                "@effect/ui/html/testing/HtmlLocator#role",
+                "@effect/ui/html/testing/HtmlScene#make",
+                "@effect/ui/testing/Locator#text",
+                "@effect/ui/testing/TestHost#layer"
+              ]
+            }
+          }
+        ],
         "allowedUnstableApis": [
           "@effect/platform-node-shared/NodeCrypto",
           "@effect/platform-node/NodeFileSystem",

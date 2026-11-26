@@ -25,6 +25,7 @@
   "dependencies": {
     "@alchemy.run/cloudflare": "2.0.0-beta.87",
     "@effect/platform-browser": "4.1.4",
+    "@effect/ui": "https://pkg.pr.new/Effect-TS/ui/@effect/ui@e2cb60ec",
     "@foldkit/ui": "0.170.0",
     "@rat-stack/auth": "workspace:*",
     "@rat-stack/capability": "workspace:*",

@@ -43,6 +43,7 @@ minimumReleaseAgeExclude:
   - "@effect/sql-d1@4.1.4"
   - "@effect/sql-sqlite-do@4.1.4"
   - "@effect/vitest@4.1.4"
+  - "@effect/ui@0.0.0"
   - better-auth@1.7.23
   - "@alchemy.run/cloudflare-runtime@2.0.0-beta.87"
   - "@alchemy.run/node-utils@2.0.0-beta.87"
