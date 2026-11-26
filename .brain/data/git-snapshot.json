@@ -195,7 +195,7 @@
     "packages/code-snippets/src/pipeline.ts": "e746b13e1ffd662ffa786b0b878f7a100087c89e8ce470d7ed7bd4054c487813",
     "packages/code-snippets/src/scanner.ts": "7c31b488f025d2cefe09acefb4f97b7607ab12fe153ea78ab1d6639a63ad1ff8",
     "packages/core/src/app-config.ts": "9da50a4d16cfb2ef1acc3d28c22dfd86633dbd9fda293273587b008e6e9fe893",
-    "packages/core/src/contracts.ts": "7cf7b1dbfcdd5eae1097dffcc141044d063b36893a880b2d6934ba96190c78e0",
+    "packages/core/src/contracts.ts": "60b52b9b8d2522d58607d63096337710642bc7ba0c6e28a681a3e138500e20ce",
     "packages/core/src/events-off.ts": "2ff9e4afefc3c0d9df19fce8a472779974495910f4088cc775d07817cf4326cc",
     "packages/core/src/file-inspector.ts": "81825ea07b0b71b34c3b541a4d7e8262e91591e57c72123c173750d56751b332",
     "packages/core/src/flag-journal.ts": "537af612a19da62b604d801581bb9a5070ea6c82b476d24f469ea8082985894a",

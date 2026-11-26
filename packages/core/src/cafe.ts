@@ -103,8 +103,10 @@ export const CafeProject = Schema.Struct({
 export type CafeProjectValue = typeof CafeProject.Type;
 
 export const CafeEngagement = Schema.Struct({
+  bookmarks: Schema.optionalKey(Count),
   likes: Schema.optionalKey(Count),
   participants: Schema.optionalKey(Count),
+  peers: Schema.optionalKey(Schema.Array(XHandle)),
   pushedAt: Schema.optionalKey(IsoDate),
   replies: Schema.optionalKey(Count),
   seen: Schema.optionalKey(Count),
@@ -121,10 +123,35 @@ export const CafeReply = Schema.Struct({
   x: XHandle,
 });
 
+export const CafeTopic = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
+).pipe(Schema.brand("CafeTopic"));
+
+export const CAFE_EDITORIAL_MAX = 3;
+
+const CafeWhy = OneLine.check(Schema.isMinLength(3), Schema.isMaxLength(60));
+
+export const CafeInterest = Schema.Struct({
+  editorial: Schema.Int.check(
+    Schema.isBetween({ minimum: 0, maximum: CAFE_EDITORIAL_MAX })
+  ),
+  substance: Schema.Literals([
+    "proof",
+    "technique",
+    "demo",
+    "release",
+    "tool",
+    "announcement",
+  ]),
+  topic: CafeTopic,
+  why: CafeWhy,
+});
+
 const storyFields = {
   author: CafeAuthor,
   date: IsoDate,
   engagement: Schema.optionalKey(CafeEngagement),
+  interest: Schema.optionalKey(CafeInterest),
   repo: Schema.NullOr(RepoName),
   source: HttpsUrl,
   summary: OneLine,
@@ -173,6 +200,7 @@ export const CafeProjectSort = Schema.Literals(["updated", "stars"]);
 export const RankedCafeNewsItem = Schema.Struct({
   item: CafeNewsItem,
   score: Schema.Finite,
+  why: Schema.NullOr(CafeWhy),
 });
 
 export type RankedCafeNewsItemValue = typeof RankedCafeNewsItem.Type;
@@ -180,10 +208,6 @@ export type RankedCafeNewsItemValue = typeof RankedCafeNewsItem.Type;
 export const PersonId = Schema.String.check(
   Schema.isPattern(/^[a-z0-9](?:[a-z0-9-]{0,38})$/u)
 ).pipe(Schema.brand("PersonId"));
-
-export const CafeTopic = Schema.String.check(
-  Schema.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
-).pipe(Schema.brand("CafeTopic"));
 
 export const PackageName = Schema.String.check(
   Schema.isPattern(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/u)
@@ -282,42 +306,36 @@ export const CafeData = Schema.Struct({
 
 export type CafeDataValue = typeof CafeData.Type;
 
-export const CAFE_FRESHNESS_HOURS = 72;
+export const CAFE_AGE_DAYS_PER_POINT = 7;
 
 export const CAFE_DIVERSITY_PENALTY = 0.5;
 
-export const CafeSignal = Schema.Literals([
-  "likes",
-  "replies",
-  "participants",
-  "seen",
-  "stars",
-  "views",
-]);
+export const CAFE_TOPIC_PENALTY = 0.75;
 
-export type CafeSignalValue = typeof CafeSignal.Type;
+export const CAFE_POPULARITY_POINTS = 2;
 
-export const cafeSignalWeights = {
-  likes: 1,
-  participants: 1,
-  replies: 1,
-  seen: 1,
-  stars: 1,
-  views: 0.5,
-} as const satisfies Record<CafeSignalValue, number>;
+export const CAFE_NEUTRAL_PERCENTILE = 0.5;
 
-export const cafeSignals = (
-  engagement: CafeEngagementValue | undefined
-): Record<CafeSignalValue, number> => ({
-  likes: engagement?.likes ?? 0,
-  participants: engagement?.participants ?? 0,
-  replies: engagement?.replies ?? 0,
-  seen: engagement?.seen ?? 0,
-  stars: engagement?.stars ?? 0,
-  views: engagement?.views ?? 0,
-});
+export const CAFE_MIDRANK_SHARE = 0.5;
 
-const hoursPerMillisecond = 1 / 3_600_000;
+export const CAFE_AUTHOR_MINIMUM = 3;
+
+export const CAFE_PEER_POINTS = 0.5;
+
+export const CAFE_PEER_LIMIT = 2;
+
+export const CAFE_DEFAULT_SUBSTANCE = 0.5;
+
+export const CAFE_DEFAULT_EDITORIAL = 0;
+
+export const cafeSubstancePoints = {
+  announcement: 0.25,
+  demo: 0.75,
+  proof: 1,
+  release: 0.5,
+  technique: 1,
+  tool: 0.5,
+} as const satisfies Record<(typeof CafeInterest.Type)["substance"], number>;
 
 const dayStart = (date: IsoDateValue) =>
   DateTime.toEpochMillis(DateTime.makeUnsafe(`${date}T00:00:00Z`));
@@ -325,36 +343,144 @@ const dayStart = (date: IsoDateValue) =>
 const freshestDate = (item: CafeNewsItemValue) =>
   Math.max(
     dayStart(item.date),
-    item.engagement?.pushedAt === undefined
-      ? Number.NEGATIVE_INFINITY
-      : dayStart(item.engagement.pushedAt)
+    dayStart(item.engagement?.pushedAt ?? item.date)
   );
-
-export const cafeNewsScore = (
-  item: CafeNewsItemValue,
-  now: IsoDateValue
-): number => {
-  const signals = cafeSignals(item.engagement);
-
-  const engagement = Arr.reduce(
-    CafeSignal.literals,
-    0,
-    (total, signal) =>
-      total + cafeSignalWeights[signal] * Math.log10(1 + signals[signal])
-  );
-
-  const ageHours = Math.max(
-    0,
-    (dayStart(now) - freshestDate(item)) * hoursPerMillisecond
-  );
-
-  return engagement - ageHours / CAFE_FRESHNESS_HOURS;
-};
 
 export const cafeDomain = (url: string) => new URL(url).hostname;
 
 const authorKey = (item: CafeNewsItemValue) =>
-  item.author.x ?? item.author.github ?? cafeDomain(item.url);
+  (item.author.x ?? item.author.github ?? cafeDomain(item.url)).toLowerCase();
+
+const logCount = (value = 0) => Math.log10(1 + value);
+
+const rawPopularity = (item: CafeNewsItemValue) => {
+  if (item.kind === "thread") {
+    return (
+      logCount(item.engagement.likes) +
+      logCount(item.engagement.replies) +
+      logCount(item.engagement.participants) +
+      logCount(item.engagement.bookmarks)
+    );
+  }
+
+  if (item.kind === "video") {
+    return logCount(item.engagement?.views);
+  }
+
+  if (item.kind === "launch") {
+    return logCount(item.engagement?.stars);
+  }
+
+  return null;
+};
+
+const percentile = (value: number, pool: readonly number[]) =>
+  Arr.reduce(pool, 0, (rank, candidate) => {
+    if (candidate < value) {
+      return rank + 1;
+    }
+
+    return candidate === value ? rank + CAFE_MIDRANK_SHARE : rank;
+  }) / pool.length;
+
+const peerHandles = (people: readonly Pick<CafePersonValue, "handles">[]) =>
+  new Set(
+    people.flatMap((person) =>
+      person.handles
+        .filter((handle) => handle.kind === "x")
+        .map((handle) => handle.handle.toLowerCase())
+    )
+  );
+
+const peerPoints = (item: CafeNewsItemValue, allStars: ReadonlySet<string>) => {
+  const peers = new Set(
+    (item.engagement?.peers ?? []).map((handle) => handle.toLowerCase())
+  );
+
+  if (item.kind === "thread") {
+    for (const reply of item.topReplies) {
+      const handle = reply.x.toLowerCase();
+
+      if (allStars.has(handle)) {
+        peers.add(handle);
+      }
+    }
+  }
+
+  if (item.author.x !== null) {
+    peers.delete(item.author.x.toLowerCase());
+  }
+
+  return CAFE_PEER_POINTS * Math.min(peers.size, CAFE_PEER_LIMIT);
+};
+
+const editorial = (item: CafeNewsItemValue) =>
+  item.interest?.editorial ?? CAFE_DEFAULT_EDITORIAL;
+
+const topic = (item: CafeNewsItemValue) => item.interest?.topic ?? item.url;
+
+const scoreCafeNews = (
+  items: readonly CafeNewsItemValue[],
+  now: IsoDateValue,
+  people: readonly Pick<CafePersonValue, "handles">[]
+): readonly RankedCafeNewsItemValue[] => {
+  const rankedAt = dayStart(now);
+  const allStars = peerHandles(people);
+
+  const pools = Arr.groupBy(
+    items.flatMap((item) => {
+      const value = rawPopularity(item);
+
+      return value === null
+        ? []
+        : [{ author: authorKey(item), kind: item.kind, value }];
+    }),
+    (row) => row.kind
+  );
+
+  return items.map((item) => {
+    const value = rawPopularity(item);
+    const pool = pools[item.kind] ?? [];
+    const author = authorKey(item);
+    const own = pool.filter((row) => row.author === author);
+
+    const field =
+      value === null
+        ? CAFE_NEUTRAL_PERCENTILE
+        : percentile(
+            value,
+            pool.map((row) => row.value)
+          );
+
+    const popularity =
+      value !== null && own.length >= CAFE_AUTHOR_MINIMUM
+        ? (field +
+            percentile(
+              value,
+              own.map((row) => row.value)
+            )) /
+          2
+        : field;
+
+    const substance =
+      item.interest === undefined
+        ? CAFE_DEFAULT_SUBSTANCE
+        : cafeSubstancePoints[item.interest.substance];
+
+    const ageDays = Math.max(0, (rankedAt - freshestDate(item)) / 86_400_000);
+
+    return {
+      item,
+      score:
+        CAFE_POPULARITY_POINTS * popularity +
+        substance +
+        editorial(item) +
+        peerPoints(item, allStars) -
+        ageDays / CAFE_AGE_DAYS_PER_POINT,
+      why: item.interest?.why ?? null,
+    };
+  });
+};
 
 const newestFirst = Order.combine(
   Order.flip(
@@ -377,47 +503,67 @@ export const sortCafeNewsNewest = (
   items: readonly CafeNewsItemValue[]
 ): readonly CafeNewsItemValue[] => Arr.sort(items, newestFirst);
 
+const rankScoredCafeNews = (
+  scored: readonly RankedCafeNewsItemValue[]
+): readonly RankedCafeNewsItemValue[] => {
+  const ranked: RankedCafeNewsItemValue[] = [];
+
+  let pending = scored.map((entry) => ({
+    author: authorKey(entry.item),
+    base: entry.score,
+    diversity: 0,
+    entry,
+    site: cafeDomain(entry.item.url),
+    topic: topic(entry.item),
+    topicRepeats: 0,
+  }));
+
+  while (pending.length > 0) {
+    const [next, ...rest] = pending.toSorted((a, b) =>
+      byAdjustedScore(a.entry, b.entry)
+    );
+
+    if (next === undefined) {
+      break;
+    }
+
+    ranked.push(next.entry);
+    pending = rest.map((row) => {
+      const diversity =
+        row.diversity +
+        Number(row.author === next.author || row.site === next.site);
+
+      const topicRepeats =
+        row.topicRepeats +
+        Number(
+          row.topic === next.topic &&
+            editorial(next.entry.item) >= editorial(row.entry.item)
+        );
+
+      return {
+        ...row,
+        diversity,
+        entry: {
+          ...row.entry,
+          score:
+            row.base -
+            (CAFE_DIVERSITY_PENALTY * diversity +
+              CAFE_TOPIC_PENALTY * topicRepeats),
+        },
+        topicRepeats,
+      };
+    });
+  }
+
+  return ranked;
+};
+
 export const rankCafeNews = (
   items: readonly CafeNewsItemValue[],
-  now: IsoDateValue
-): readonly RankedCafeNewsItemValue[] => {
-  const pick = (
-    remaining: readonly RankedCafeNewsItemValue[],
-    ranked: readonly RankedCafeNewsItemValue[]
-  ): readonly RankedCafeNewsItemValue[] => {
-    const repeats = (entry: RankedCafeNewsItemValue) =>
-      ranked.filter(
-        (placed) =>
-          authorKey(placed.item) === authorKey(entry.item) ||
-          cafeDomain(placed.item.url) === cafeDomain(entry.item.url)
-      ).length;
-
-    return Option.match(
-      Arr.head(
-        Arr.sort(
-          remaining.map((entry) => ({
-            ...entry,
-            score: entry.score - CAFE_DIVERSITY_PENALTY * repeats(entry),
-          })),
-          byAdjustedScore
-        )
-      ),
-      {
-        onNone: () => ranked,
-        onSome: (next) =>
-          pick(
-            remaining.filter((entry) => entry.item.url !== next.item.url),
-            [...ranked, next]
-          ),
-      }
-    );
-  };
-
-  return pick(
-    items.map((item) => ({ item, score: cafeNewsScore(item, now) })),
-    []
-  );
-};
+  now: IsoDateValue,
+  people: readonly Pick<CafePersonValue, "handles">[] = []
+): readonly RankedCafeNewsItemValue[] =>
+  rankScoredCafeNews(scoreCafeNews(items, now, people));
 
 export const cafeRankedAt = (
   news: readonly CafeNewsItemValue[],
@@ -583,15 +729,18 @@ export const selectCafeNews = (
   query: typeof CafeNewsQuery.Type
 ): typeof CafeNewsList.Type => {
   const sort = query.sort ?? "rank";
-  const ranked = rankCafeNews(data.news, data.rankedAt);
+  const scored = scoreCafeNews(data.news, data.rankedAt, data.people);
 
   const ordered =
     sort === "rank"
-      ? ranked
-      : sortCafeNewsNewest(data.news).map((item) => ({
-          item,
-          score: cafeNewsScore(item, data.rankedAt),
-        }));
+      ? rankScoredCafeNews(scored)
+      : Arr.sort(
+          scored,
+          Order.mapInput(
+            newestFirst,
+            (entry: RankedCafeNewsItemValue) => entry.item
+          )
+        );
 
   const matching = ordered.filter(
     (entry) => query.kind === undefined || entry.item.kind === query.kind

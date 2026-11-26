@@ -1,6 +1,6 @@
 import { CafeDirectory, listPeople } from "@rat-stack/core/cafe-directory";
 import { profileForNewsRow } from "@rat-stack/core/cafe-people";
-import { selectCafeNews, sortCafeProjects } from "@rat-stack/core/contracts";
+import { sortCafeProjects } from "@rat-stack/core/contracts";
 import { Effect, Option } from "effect";
 
 import { Model } from "../../web/src/client/cafe/model.ts";
@@ -10,6 +10,8 @@ import {
   directoryCopy,
   newsCopy,
 } from "../../web/src/features/cafe/copy.ts";
+import { newsOrder } from "../../web/src/features/cafe/news-order.ts";
+import { cafeNewsPageItems } from "./cafe-pages.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
 
@@ -21,7 +23,7 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
     const data = inputs.cafe;
 
     const page = Effect.fn("readerCafeFlags.page")(function* page(
-      path: "/news" | "/directory" | "/all-stars",
+      path: "/news" | "/news/latest" | "/directory" | "/all-stars",
       heading: string,
       sourcePath: string,
       cafe: CafeModel
@@ -60,15 +62,12 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
       .handler({ limit: pageLimit })
       .pipe(Effect.provide(CafeDirectory.layer(data)));
 
-    const items = selectCafeNews(data, {
-      limit: pageLimit,
-      sort: "rank",
-    }).items.map((entry) => entry.item);
+    const newsPage = (sort: keyof typeof newsOrder) => {
+      const items = cafeNewsPageItems(data, sort);
 
-    return [
-      yield* page(
-        "/news",
-        newsCopy.heading,
+      return page(
+        newsOrder[sort].href,
+        sort === "rank" ? newsCopy.heading : newsOrder.newest.heading,
         ".brain/data/cafe/news.json",
         Model.News({
           items,
@@ -82,8 +81,14 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
             )
           ),
           rankedAt: data.rankedAt,
+          sort,
         })
-      ),
+      );
+    };
+
+    return [
+      yield* newsPage("rank"),
+      yield* newsPage("newest"),
       yield* page(
         "/all-stars",
         allStarsCopy.heading,

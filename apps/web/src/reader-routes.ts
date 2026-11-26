@@ -5,6 +5,7 @@ export const readerRoutePaths: readonly string[] = [
   "/lore/services-capture-dependencies",
   "/learn",
   "/news",
+  "/news/latest",
   "/directory",
   "/all-stars",
   "/search",

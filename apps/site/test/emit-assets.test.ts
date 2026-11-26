@@ -60,6 +60,7 @@ it.effect(
           "/lore",
           "/prompts",
           "/news",
+          "/news/latest",
           "/directory",
           "/tube",
           ...tube.videos.flatMap((video) =>

@@ -40,7 +40,7 @@ export const homeFeaturedMarkdown = (
   videos: readonly TubeVideoValue[],
   origin: string
 ) => {
-  const news = rankCafeNews(cafe.news, cafe.rankedAt)
+  const news = rankCafeNews(cafe.news, cafe.rankedAt, cafe.people)
     .slice(0, featuredCount)
     .map(({ item }) =>
       [

@@ -6,7 +6,7 @@ import {
   CafeLetter,
   CafeProject,
   CafeStory,
-  CafeSignal,
+  CafeThread,
   IsoDate,
 } from "../src/contracts.js";
 import type { CafeEngagementValue } from "../src/contracts.js";
@@ -140,7 +140,36 @@ export const quietStories = Arbitrary.array(
   )
 );
 
-export const signal = Arbitrary.schema(CafeSignal);
+export const thread = Arbitrary.all({
+  author: handle,
+  bookmarks: int(0, 10_000),
+  date: isoDate,
+  likes: int(0, 10_000),
+  participants: int(0, 100),
+  replies: int(0, 100),
+  slug: int(0, 1_000_000),
+}).pipe(
+  Arbitrary.map(({ author, date, slug, ...counts }) => {
+    const url = `https://x.com/${author}/status/${slug}`;
+
+    return Schema.decodeSync(CafeThread)({
+      author: { github: null, x: author },
+      date,
+      engagement: counts,
+      kind: "thread",
+      repo: null,
+      source: url,
+      summary: null,
+      title: "A generated thread",
+      topReplies: [],
+      url,
+    });
+  })
+);
+
+export const threads = Arbitrary.array(thread, { maxLength: 12 }).pipe(
+  Arbitrary.map(uniqueByUrl)
+);
 
 export const letters = Arbitrary.array(Arbitrary.schema(CafeLetter), {
   maxLength: 4,
