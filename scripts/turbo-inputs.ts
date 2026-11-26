@@ -420,6 +420,14 @@ const moduleResolver = (root: string) => {
       };
     }
 
+    if (specifier === "virtual:news-effect-ui-entry") {
+      return {
+        files: [path.resolve(root, "apps/web/news-effect-ui.ts")],
+        unresolved: false,
+        configs: [],
+      };
+    }
+
     if (/^[a-z]+:/iu.test(specifier)) {
       return {
         files: [],

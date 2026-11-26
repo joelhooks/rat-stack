@@ -4,15 +4,19 @@ import {
   Responded,
   renderToString,
 } from "foldkit/experimental/server";
+import newsEntry from "virtual:news-effect-ui-entry";
 import { readerErrorTemplate } from "virtual:reader-error";
 
 import {
   ReaderErrorPage,
   readerErrorPath,
 } from "../../site/src/reader-error-page.js";
+import { Model as CafeModel } from "./client/cafe/model.js";
 import { findPage } from "./client/reader-pages.js";
 import { init } from "./client/reader/init.js";
 import { ReaderFlags } from "./client/reader/model.js";
+import type { ReaderPageFlags } from "./client/reader/model.js";
+import { newsOrder } from "./features/cafe/news-order.js";
 import { view } from "./features/reader.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
@@ -121,6 +125,30 @@ const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
   }
 );
 
+const renderReaderHtml = Effect.fn("reader.renderHtml")(
+  function* renderReaderHtml(page: ReaderPageFlags) {
+    const { path } = page.page;
+
+    if (path === newsOrder.rank.href || path === newsOrder.newest.href) {
+      const news = yield* page.cafe.pipe(
+        Option.filter(CafeModel.guards.News),
+        Effect.fromOption
+      );
+
+      const { renderNewsPage } = yield* Effect.promise(
+        () => import("./server/news-effect-ui.js")
+      );
+
+      return yield* renderNewsPage(page, news, newsEntry);
+    }
+
+    return yield* renderToString(
+      { Flags: ReaderFlags, init, view },
+      { flags: page }
+    );
+  }
+);
+
 export const renderReaderPage = Effect.fn("reader.renderPage")(
   function* renderReaderPage(request: Request) {
     const { pathname } = new URL(request.url);
@@ -190,23 +218,19 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       );
     }
 
-    const application = yield* renderToString(
-      { Flags: ReaderFlags, init, view },
-      { flags: page }
-    );
-
     const headers = yield* previewHeaders(request);
 
     if (promptRoute && !prerender) {
       headers.set("Vary", "Accept");
     }
 
-    return Rendered(
-      withReaderHead(application, page),
-      prerender
-        ? { status: page.page.status }
-        : { headers, status: page.page.status }
-    );
+    const responseOptions = prerender
+      ? { status: page.page.status }
+      : { headers, status: page.page.status };
+
+    const application = yield* renderReaderHtml(page);
+
+    return Rendered(withReaderHead(application, page), responseOptions);
   }
 );
 

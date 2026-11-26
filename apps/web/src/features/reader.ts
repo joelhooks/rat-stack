@@ -279,7 +279,13 @@ const breadcrumbView = (
         ),
       ];
 
-const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
+type CafeSlot = (h: HtmlBuilder<ReaderMessage>) => Html;
+
+const bodyView = (
+  model: ReaderModel,
+  h: HtmlBuilder<ReaderMessage>,
+  cafeSlot: CafeSlot | undefined
+) => [
   ...Option.match(model.bodyNodes, {
     onNone: () => [h.h1([], [model.heading])],
     onSome: (nodes) =>
@@ -289,17 +295,19 @@ const bodyView = (model: ReaderModel, h: HtmlBuilder<ReaderMessage>) => [
         )
       ),
   }),
-  ...Option.match(model.cafe, {
-    onNone: () => [],
-    onSome: (cafe) => [
-      h.submodel({
-        model: cafe,
-        slotId: "cafe",
-        toParentMessage: (message) => Message.GotCafeMessage({ message }),
-        view: CafeView.view,
-      }),
-    ],
-  }),
+  ...(cafeSlot === undefined
+    ? Option.match(model.cafe, {
+        onNone: () => [],
+        onSome: (cafe) => [
+          h.submodel({
+            model: cafe,
+            slotId: "cafe",
+            toParentMessage: (message) => Message.GotCafeMessage({ message }),
+            view: CafeView.view,
+          }),
+        ],
+      })
+    : [cafeSlot(h)]),
   ...Option.match(model.docs, {
     onNone: () => [],
     onSome: (docs) => [
@@ -383,32 +391,33 @@ const bibliographyView = (
     ],
   });
 
-export const view = (
-  model: ReaderModel,
-  h: HtmlBuilder<ReaderMessage>
-): Document => ({
-  body: h.div(
-    [h.Class(stylex.props(readerStyles.shell).className ?? "")],
-    [
-      siteHeader(h),
-      h.main(
-        [h.DataAttribute("path", model.page.path)],
-        [
-          agentPointer(model, h),
-          ...Option.match(model.newsTitle, {
-            onNone: () => [],
-            onSome: (title) => [readerNewsCallout(title, h)],
-          }),
-          ...breadcrumbView(model, h),
-          ...bodyView(model, h),
-          ...bibliographyView(model, h),
-          ...readerReferences(model, h),
-        ]
-      ),
-      readerFooter(h, footerLinksPrompts(model.page)),
-    ]
-  ),
-  canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
-  ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
-  title: model.page.metadata.title,
-});
+export const readerViewWithCafe =
+  (cafeSlot?: CafeSlot) =>
+  (model: ReaderModel, h: HtmlBuilder<ReaderMessage>): Document => ({
+    body: h.div(
+      [h.Class(stylex.props(readerStyles.shell).className ?? "")],
+      [
+        siteHeader(h),
+        h.main(
+          [h.DataAttribute("path", model.page.path)],
+          [
+            agentPointer(model, h),
+            ...Option.match(model.newsTitle, {
+              onNone: () => [],
+              onSome: (title) => [readerNewsCallout(title, h)],
+            }),
+            ...breadcrumbView(model, h),
+            ...bodyView(model, h, cafeSlot),
+            ...bibliographyView(model, h),
+            ...readerReferences(model, h),
+          ]
+        ),
+        readerFooter(h, footerLinksPrompts(model.page)),
+      ]
+    ),
+    canonical: `${model.origin}${model.page.metadata.canonicalPath}`,
+    ogUrl: `${model.origin}${model.page.metadata.canonicalPath}`,
+    title: model.page.metadata.title,
+  });
+
+export const view = readerViewWithCafe();

@@ -44,9 +44,12 @@ export const newsCopy = {
   heading: "Ratstack news",
   intro:
     "News from people who build with Cloudflare, Alchemy, Foldkit and Effect. The ratstack desk agent picks and checks entries from public sources each day.",
+  priorArtLead: "Prior art: ",
   repliesLabel: "Top replies",
   sortHeading: "How this list is sorted",
 };
+
+export const shownReplies = 3;
 
 export const sortSignalsLead =
   "Interest adds up popularity, substance, editorial judgment and peer engagement, then subtracts age.";

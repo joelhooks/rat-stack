@@ -21,6 +21,7 @@ import {
   cafeSubmissionPrompt,
   newsCopy,
   newsKindLabels,
+  shownReplies,
   sortRules,
   sortRulesLead,
   sortSignals,
@@ -29,8 +30,6 @@ import {
   threadCounts,
 } from "./copy.js";
 import { otherNewsOrder } from "./news-order.js";
-
-const shownReplies = 3;
 
 const externalLink = (
   h: HtmlBuilder<CafeMessage>,
@@ -177,7 +176,7 @@ const sortSectionView = (h: HtmlBuilder<CafeMessage>): Html =>
       h.p(
         [],
         [
-          "Prior art: ",
+          newsCopy.priorArtLead,
           ...sortSources.flatMap((source, index) => [
             ...(index === 0 ? [] : [", "]),
             externalLink(h, source.href, source.label),
