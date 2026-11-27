@@ -9,9 +9,7 @@ import {
   filterCafeProjects,
 } from "@rat-stack/core/contracts";
 import { Effect, FileSystem, Logger, Option, Path, Schema } from "effect";
-import { renderToString } from "foldkit/experimental/server";
 
-import { Model as CafeModel } from "../src/client/cafe/model.js";
 import { DirectoryPage } from "../src/client/directory-effect-ui/component.js";
 import { hydrateDirectory } from "../src/client/directory-effect-ui/hydration.js";
 import {
@@ -20,14 +18,12 @@ import {
   directoryHandoffId,
   directoryRootId,
 } from "../src/client/directory-effect-ui/model.js";
-import { init } from "../src/client/reader/init.js";
-import { ReaderFlags } from "../src/client/reader/model.js";
 import {
   directoryCopy,
   letterNames,
   projectCount,
 } from "../src/features/cafe/copy.js";
-import { view } from "../src/features/reader.js";
+import { CafePage, ReaderSource } from "../src/reader-cafe.js";
 import { renderDirectoryPage } from "../src/server/directory-effect-ui.js";
 import {
   renderDocument,
@@ -39,6 +35,8 @@ import {
   renderReaderError,
 } from "../src/server/reader-render.js";
 import { cafeProject, directoryHome } from "./cafe-fixture.js";
+import { cafeParity } from "./cafe-parity.js";
+import legacyDirectory from "./fixtures/foldkit-directory-parity.json";
 
 const directoryFlags = Effect.gen(function* directoryFlags() {
   const fs = yield* FileSystem.FileSystem;
@@ -49,7 +47,7 @@ const directoryFlags = Effect.gen(function* directoryFlags() {
   );
 
   const pages = yield* Schema.decodeEffect(
-    Schema.fromJsonString(Schema.Array(ReaderFlags))
+    Schema.fromJsonString(Schema.Array(ReaderSource))
   )(source);
 
   const flags = yield* Effect.fromOption(
@@ -57,7 +55,7 @@ const directoryFlags = Effect.gen(function* directoryFlags() {
   );
 
   const cafe = yield* Effect.fromOption(
-    flags.cafe.pipe(Option.filter(CafeModel.guards.Directory))
+    flags.cafe.pipe(Option.filter(CafePage.guards.Directory))
   );
 
   return { cafe, flags };
@@ -66,45 +64,10 @@ const directoryFlags = Effect.gen(function* directoryFlags() {
 const parseMarkup = (html: string) =>
   new DOMParser().parseFromString(html, "text/html");
 
-const text = (element: Element) =>
-  (element.textContent ?? "").replaceAll(/\s+/gu, " ").trim();
-
-const visibleText = (document: Document) =>
-  [...document.querySelectorAll("header, main, footer")].map(text);
-
 const projectLinks = (root: ParentNode) =>
   [...root.querySelectorAll("li > article > p:first-child > a")].map((link) =>
     link.getAttribute("href")
   );
-
-const links = (document: Document) =>
-  [...document.querySelectorAll("a")].map((a) =>
-    ["href", "rel", "target"].map((name) => a.getAttribute(name))
-  );
-
-const head = (document: Document) =>
-  [
-    ...document.head.querySelectorAll(
-      'title, meta, link:not([rel="modulepreload"]), script:not([type="module"]):not([id])'
-    ),
-  ].map((tag) => tag.outerHTML);
-
-const stylesAndControls = (document: Document) =>
-  [
-    ...document.querySelectorAll(
-      "main :is([class], button, abbr, [role=status])"
-    ),
-  ].map((element) => [
-    element.localName,
-    ...[
-      "class",
-      "type",
-      "title",
-      "aria-label",
-      "aria-pressed",
-      "aria-live",
-    ].map((key) => element.getAttribute(key)),
-  ]);
 
 const assets = {
   entryScript: "/assets/directory-effect-ui-test.js",
@@ -203,11 +166,36 @@ it.effect.prop(
   { arbitrary: { runs: 40 } }
 );
 
+it.live("directory text and styles match the captured Foldkit fixtures", () =>
+  Effect.gen(function* directoryParity() {
+    const { flags } = yield* directoryFlags;
+
+    const cases = [
+      { expected: legacyDirectory.all, selected: [] },
+      {
+        expected: legacyDirectory.alchemy,
+        selected: [CafeLetter.make("alchemy")],
+      },
+    ];
+
+    for (const { expected, selected } of cases) {
+      const props = { ...directoryHome, selected };
+      const rendered = yield* renderDirectoryPage(flags, props, assets);
+
+      const html = renderDocument(withReaderHead(rendered, flags), assets);
+
+      expect(cafeParity(parseMarkup(html), "main li:has(>article)")).toEqual(
+        expected
+      );
+    }
+  }).pipe(Effect.provide(NodeServices.layer))
+);
+
 it.live(
-  "committed data keeps Foldkit text and styles with and without a selected letter",
+  "the built Directory preserves the catalog order and explicit handoff",
   () =>
-    Effect.gen(function* directoryParity() {
-      const { cafe, flags } = yield* directoryFlags;
+    Effect.gen(function* committedDirectory() {
+      const { cafe } = yield* directoryFlags;
       const fs = yield* FileSystem.FileSystem;
       const paths = yield* Path.Path;
 
@@ -220,65 +208,24 @@ it.live(
         )
       );
 
-      expect(new Set(cafe.projects.map((project) => project.url)).size).toBe(
-        cafe.projects.length
-      );
+      const urls = cafe.projects.map(({ url }) => url);
 
-      const stylesheets = [
-        ...output.head.querySelectorAll('link[rel="stylesheet"][href]'),
-      ].flatMap((tag) =>
-        Option.toArray(Option.fromNullishOr(tag.getAttribute("href")))
-      );
+      expect(new Set(urls).size).toBe(urls.length);
+      expect(projectLinks(output)).toEqual(urls);
+      expect(
+        output.querySelector("[data-foldkit-app], [data-foldkit-flags]")
+      ).toBeNull();
 
-      const documentAssets = { ...assets, stylesheets };
+      const payload = output.querySelector(`#${directoryHandoffId}`);
+      expect(payload?.getAttribute("type")).toBe("application/json");
 
-      for (const selected of [[], [CafeLetter.make("alchemy")]]) {
-        const filteredCafe = CafeModel.Directory({ ...cafe, selected });
-        const page = { ...flags, cafe: Option.some(filteredCafe) };
+      const { props, state } = yield* Schema.decodeEffect(
+        Schema.fromJsonString(DirectoryHandoff)
+      )(payload?.textContent ?? "");
 
-        const legacy = yield* renderToString(
-          { Flags: ReaderFlags, init, view },
-          { flags: page, isHydratable: false }
-        );
-
-        const actual =
-          selected.length === 0
-            ? output
-            : yield* renderDirectoryPage(page, filteredCafe, assets).pipe(
-                Effect.map((application) =>
-                  parseMarkup(
-                    renderDocument(
-                      withReaderHead(application, page),
-                      documentAssets
-                    )
-                  )
-                )
-              );
-
-        const expected = parseMarkup(
-          renderDocument(withReaderHead(legacy, page), documentAssets)
-        );
-
-        expect(visibleText(actual)).toEqual(visibleText(expected));
-        expect(stylesAndControls(actual)).toEqual(stylesAndControls(expected));
-        expect(links(actual)).toEqual(links(expected));
-        expect(head(actual)).toEqual(head(expected));
-        expect(
-          actual.querySelector("[data-foldkit-app], [data-foldkit-flags]")
-        ).toBeNull();
-
-        const payload = actual.querySelector(`#${directoryHandoffId}`);
-        expect(payload?.getAttribute("type")).toBe("application/json");
-
-        const { props, state } = yield* Schema.decodeEffect(
-          Schema.fromJsonString(DirectoryHandoff)
-        )(payload?.textContent ?? "");
-
-        expect(props).toEqual({ projects: cafe.projects, selected });
-        expect(state["/DirectoryPage"]).toEqual(selected);
-
-        expect(actual.querySelector(`#${directoryRootId}`)).not.toBeNull();
-      }
+      expect(props).toEqual({ projects: cafe.projects, selected: [] });
+      expect(state["/DirectoryPage"]).toEqual([]);
+      expect(output.querySelector(`#${directoryRootId}`)).not.toBeNull();
     }).pipe(Effect.provide(NodeServices.layer))
 );
 

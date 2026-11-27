@@ -3,14 +3,13 @@ import { profileForNewsRow } from "@rat-stack/core/cafe-people";
 import { sortCafeProjects } from "@rat-stack/core/contracts";
 import { Effect, Option } from "effect";
 
-import { Model } from "../../web/src/client/cafe/model.ts";
-import type { CafeModel } from "../../web/src/client/cafe/model.ts";
 import {
   allStarsCopy,
   directoryCopy,
   newsCopy,
 } from "../../web/src/features/cafe/copy.ts";
 import { newsOrder } from "../../web/src/features/cafe/news-order.ts";
+import { CafePage } from "../../web/src/reader-cafe.ts";
 import { cafeNewsPageItems } from "./cafe-pages.ts";
 import { ReaderInputError } from "./reader-input-error.ts";
 import { prepareReaderSiteInputs } from "./reader-site-inputs.ts";
@@ -26,7 +25,7 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
       path: "/news" | "/news/latest" | "/directory" | "/all-stars",
       heading: string,
       sourcePath: string,
-      cafe: CafeModel
+      cafe: typeof CafePage.Type
     ) {
       const descriptor = inputs.pages.find((entry) => entry.path === path);
 
@@ -69,7 +68,7 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
         newsOrder[sort].href,
         sort === "rank" ? newsCopy.heading : newsOrder.newest.heading,
         ".brain/data/cafe/news.json",
-        Model.News({
+        CafePage.cases.News.make({
           items,
           profiles: items.flatMap((item) =>
             Option.toArray(
@@ -93,13 +92,13 @@ export const readerCafeFlags = Effect.fn("readerCafeFlags")(
         "/all-stars",
         allStarsCopy.heading,
         ".brain/data/cafe/people.json",
-        Model.AllStars({ people: people.people })
+        CafePage.cases.AllStars.make({ people: people.people })
       ),
       yield* page(
         "/directory",
         directoryCopy.heading,
         ".brain/data/cafe/projects.json",
-        Model.Directory({
+        CafePage.cases.Directory.make({
           projects: sortCafeProjects(data.projects, "updated"),
           selected: [],
         })

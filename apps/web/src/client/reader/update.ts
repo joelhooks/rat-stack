@@ -3,7 +3,6 @@ import { Update } from "foldkit";
 import { modifyFields } from "foldkit/struct";
 
 import { update as updateDocs } from "../../features/app.js";
-import * as Cafe from "../cafe/index.js";
 import type { AppMessage as DocsMessage } from "../docs/message.js";
 import type { AppModel as DocsModel } from "../docs/model.js";
 import type { DocumentQueries } from "../docs/queries.js";
@@ -33,15 +32,6 @@ const copyablePrompt = (model: ReaderModel, id: string) =>
   !isCopyInFlight(copyStatusOf(model, id))
     ? findCopyPrompt(model, id)
     : Option.none();
-
-const foldCafe = Update.foldChild({
-  read: (model: ReaderModel) => model.cafe,
-  toParentMessage: (message: Cafe.CafeMessage) =>
-    Message.GotCafeMessage({ message }),
-  update: Cafe.update,
-  write: (model: ReaderModel, cafe: Cafe.CafeModel) =>
-    modifyFields(model, { cafe: () => Option.some(cafe) }),
-});
 
 const foldDocs = Update.foldChild({
   read: (model: ReaderModel) => model.docs,
@@ -98,8 +88,6 @@ export const update = (
           ? withCopyStatus(model, id, CopyStatus.Failed())
           : model,
       }),
-      GotCafeMessage: ({ message: cafeMessage }) =>
-        foldCafe(model, cafeMessage),
       GotDocsMessage: ({ message: docsMessage }) =>
         foldDocs(model, docsMessage),
       GotMotionMessage: ({ message: motionMessage }) =>

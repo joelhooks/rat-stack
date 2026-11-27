@@ -7,20 +7,22 @@ import {
   ReaderErrorPage,
   readerErrorPath,
 } from "../../site/src/reader-error-page.js";
-import { findPage } from "./client/reader-pages.js";
-import type { ReaderPageFlags } from "./client/reader/model.js";
 import { newsOrder } from "./features/cafe/news-order.js";
 import {
+  allStarsRouter,
   directoryRouter,
   isWithinSection,
   loreRouter,
 } from "./features/site-route.js";
+import type { ReaderSourcePage } from "./reader-cafe.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
 import { EffectUiAssets } from "./server/reader-document.js";
 import { readerSupportsEffectUi } from "./server/reader-effect-ui-props.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
+import { findPage } from "./server/reader-pages.js";
 import {
+  renderAllStarsOrError,
   renderDirectoryOrError,
   renderNewsOrError,
   renderReaderApplication,
@@ -32,12 +34,13 @@ import {
   websiteTelemetry,
 } from "./server/website-bindings.js";
 
-export { pagePaths as prerenderPaths } from "./client/reader-pages.js";
+export { pagePaths as prerenderPaths } from "./server/reader-pages.js";
 
 export { renderDocument } from "./server/reader-document.js";
 
 const effectUiAssets = Schema.decodeUnknownSync(
   Schema.Struct({
+    "all-stars-effect-ui": EffectUiAssets,
     "directory-effect-ui": EffectUiAssets,
     "news-effect-ui": EffectUiAssets,
     "reader-effect-ui": EffectUiAssets,
@@ -134,7 +137,7 @@ const renderErrorRoute = Effect.fn("reader.renderErrorRoute")(
 const renderErrorApplication = (error: typeof ReaderErrorPage.Type) =>
   renderReaderError(errorTemplate, error);
 
-const renderReaderHtml = (page: ReaderPageFlags) => {
+const renderReaderHtml = (page: ReaderSourcePage) => {
   const { path, status } = page.page;
 
   if (path === newsOrder.rank.href || path === newsOrder.newest.href) {
@@ -151,6 +154,15 @@ const renderReaderHtml = (page: ReaderPageFlags) => {
       page,
       effectUiAssets["directory-effect-ui"],
       () => import("./server/directory-effect-ui.js"),
+      renderErrorApplication
+    );
+  }
+
+  if (path === allStarsRouter()) {
+    return renderAllStarsOrError(
+      page,
+      effectUiAssets["all-stars-effect-ui"],
+      () => import("./server/all-stars-effect-ui.js"),
       renderErrorApplication
     );
   }

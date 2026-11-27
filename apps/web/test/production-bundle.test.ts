@@ -16,8 +16,8 @@ import { Clock, DateTime, Duration, Effect, Schema } from "effect";
 
 import { declarativeToolNames } from "../../site/scripts/web-mcp-forms.js";
 import { ContentAssetManifest } from "../../site/src/asset-manifest.js";
-import { ReaderFlags } from "../src/client/reader/model.js";
 import { webMcpContracts } from "../src/client/web-mcp-contracts.js";
+import { ReaderSource } from "../src/reader-cafe.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
 const webRoot = path.resolve(import.meta.dirname, "..");
@@ -29,7 +29,7 @@ const decodeSourceMap = Schema.decodeUnknownSync(
 );
 
 const decodeReaderPages = Schema.decodeSync(
-  Schema.fromJsonString(Schema.Array(ReaderFlags))
+  Schema.fromJsonString(Schema.Array(ReaderSource))
 );
 
 const chromeTrialScriptPath = "/assets/webmcp-origin-trial.js";
@@ -114,6 +114,45 @@ const forbiddenModules = [
   "../site/scripts/reader-site-inputs",
 ];
 
+const cafeModules = (sources: readonly string[]) =>
+  sources.filter((source) =>
+    /(?:^|\/)src\/(?:reader-cafe\.ts$|client\/(?:(?:all-stars|directory|news)-effect-ui\/|effect-ui-handoff\.ts$))/u.test(
+      source
+    )
+  );
+
+const staticModules = (outDir: string, html: string) =>
+  [
+    ...html.matchAll(
+      /<(?:script type="module" crossorigin src|link rel="modulepreload" crossorigin href)="\/(?<file>[^"]+\.js)"/gu
+    ),
+  ].flatMap(([, file]) =>
+    decodeSourceMap(
+      readFileSync(path.join(outDir, `${file}.map`), "utf-8")
+    ).sources.map((source) =>
+      source.split(path.sep).join("/").replace(/\?.*$/u, "")
+    )
+  );
+
+const checkCafeBoundary = (outDir: string) => {
+  const modules = (file: string) =>
+    staticModules(outDir, readFileSync(path.join(outDir, file), "utf-8"));
+
+  const home = modules("index.html");
+
+  expect(home.some((id) => id.endsWith("/client/reader/model.ts"))).toBe(true);
+  expect(cafeModules(home), "Home preloads Cafe module IDs").toEqual([]);
+
+  for (const route of ["all-stars", "directory", "news"]) {
+    expect(
+      modules(`${route}/index.html`).some((id) =>
+        id.endsWith(`/client/${route}-effect-ui/model.ts`)
+      ),
+      route
+    ).toBe(true);
+  }
+};
+
 const build = (nodeEnv: "development" | "production") => {
   const outDir = mkdtempSync(path.join(tmpdir(), "rat-web-bundle-"));
 
@@ -142,6 +181,10 @@ const build = (nodeEnv: "development" | "production") => {
     const allowedToolNames = new Set<string>(
       webMcpContracts.map(({ name }) => name)
     );
+
+    if (nodeEnv === "production") {
+      checkCafeBoundary(outDir);
+    }
 
     const chromeTrial =
       nodeEnv === "production" ? checkChromeTrialAsset(outDir) : undefined;

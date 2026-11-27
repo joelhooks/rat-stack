@@ -13,7 +13,6 @@ import {
 } from "../client/reader/model.js";
 import type { ReaderModel } from "../client/reader/model.js";
 import { view as docsView } from "./app.js";
-import * as CafeView from "./cafe/index.js";
 import * as MotionView from "./motion/index.js";
 import { readerFooter, readerNewsCallout } from "./reader-chrome.js";
 import { readerCopyIcon } from "./reader-copy-icon.js";
@@ -295,19 +294,7 @@ const bodyView = (
         )
       ),
   }),
-  ...(cafeSlot === undefined
-    ? Option.match(model.cafe, {
-        onNone: () => [],
-        onSome: (cafe) => [
-          h.submodel({
-            model: cafe,
-            slotId: "cafe",
-            toParentMessage: (message) => Message.GotCafeMessage({ message }),
-            view: CafeView.view,
-          }),
-        ],
-      })
-    : [cafeSlot(h)]),
+  ...(cafeSlot === undefined ? [] : [cafeSlot(h)]),
   ...Option.match(model.docs, {
     onNone: () => [],
     onSome: (docs) => [

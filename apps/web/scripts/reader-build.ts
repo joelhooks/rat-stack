@@ -21,6 +21,7 @@ import { writeFileAtomically } from "../../site/scripts/write-file-atomically.ts
 import { ReaderFlags } from "../src/client/reader/model.ts";
 import type { ReaderPageFlags } from "../src/client/reader/model.ts";
 import { contentGenerationHeader } from "../src/content-generation-header.ts";
+import { ReaderSource } from "../src/reader-cafe.ts";
 import {
   isReaderRoutePath,
   readerNoStoreRoutePaths,
@@ -113,7 +114,7 @@ const readerPages = Effect.gen(function* readerPages() {
   const error = yield* readerErrorTemplate(origin);
 
   const decoded = yield* Effect.forEach((page: (typeof pages)[number]) =>
-    Schema.decodeUnknownEffect(ReaderFlags)({
+    Schema.decodeUnknownEffect(ReaderSource)({
       ...page,
       page: {
         ...page.page,
@@ -134,7 +135,7 @@ export const prepareReader = Effect.fn("reader.prepare")(
     const { error, pages } = yield* readerPages;
 
     const encoded = yield* Schema.encodeEffect(
-      Schema.fromJsonString(Schema.Array(ReaderFlags))
+      Schema.fromJsonString(Schema.Array(ReaderSource))
     )(pages);
 
     const encodedError = yield* Schema.encodeEffect(

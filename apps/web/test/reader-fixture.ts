@@ -17,7 +17,6 @@ export const readerFlagsFixture: ReaderPageFlags = {
   blocks: [ReaderBlock.CopyPrompt({ id: promptFixture.id })],
   bodyNodes: Option.none(),
   breadcrumb: Option.none(),
-  cafe: Option.none(),
   codeFences: [],
   copyPrompts: [promptFixture],
   docs: Option.none(),

@@ -6,7 +6,6 @@ import type { ReaderPageFlags } from "../client/reader/model.js";
 
 export const readerSupportsEffectUi = (flags: ReaderPageFlags) =>
   flags.blocks.length === 0 &&
-  Option.isNone(flags.cafe) &&
   Option.isNone(flags.docs) &&
   Option.isNone(flags.motion) &&
   Option.isNone(flags.tube);

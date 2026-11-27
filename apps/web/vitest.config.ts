@@ -11,6 +11,7 @@ export default defineConfig({
         test: {
           environment: "jsdom",
           include: [
+            "test/all-stars-effect-ui.test.ts",
             "test/app.test.ts",
             "test/directory-effect-ui.test.ts",
             "test/news-effect-ui.test.ts",
@@ -26,6 +27,7 @@ export default defineConfig({
         test: {
           environment: "node",
           exclude: [
+            "test/all-stars-effect-ui.test.ts",
             "test/app.test.ts",
             "test/directory-effect-ui.test.ts",
             "test/news-effect-ui.test.ts",

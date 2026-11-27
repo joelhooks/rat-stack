@@ -33,6 +33,15 @@
             }
           },
           {
+            "include": ["test/all-stars-effect-ui.test.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/html/testing#ssr",
+                "@effect/ui/testing/TestHost#layer"
+              ]
+            }
+          },
+          {
             "include": ["test/directory-effect-ui.test.ts"],
             "options": {
               "allowedExperimentalApis": [

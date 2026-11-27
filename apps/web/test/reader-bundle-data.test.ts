@@ -2,12 +2,12 @@ import { expect, it } from "@effect/vitest";
 import { Arbitrary, Schema } from "effect";
 
 import { ReaderBlock, ReaderInline } from "../src/client/reader-document.js";
-import { ReaderFlags } from "../src/client/reader/model.js";
+import { ReaderSource } from "../src/reader-cafe.js";
 import { readerCodeWithoutPageData } from "./reader-bundle-data.js";
 
 it.prop(
   "only the exact prepared ReaderFlags literal is exempt from executable-string checks",
-  { page: Arbitrary.schema(ReaderFlags) },
+  { page: Arbitrary.schema(ReaderSource) },
   ({ page }) => {
     const input = [
       {
@@ -26,16 +26,18 @@ it.prop(
     ];
 
     const prepared = Schema.decodeSync(
-      Schema.fromJsonString(Schema.Array(ReaderFlags))
+      Schema.fromJsonString(Schema.Array(ReaderSource))
     )(
-      Schema.encodeSync(Schema.fromJsonString(Schema.Array(ReaderFlags)))(input)
+      Schema.encodeSync(Schema.fromJsonString(Schema.Array(ReaderSource)))(
+        input
+      )
     );
 
     const sourcesOf = (pages: readonly (typeof prepared)[number][]) =>
       JSON.stringify(
         pages.map((document) => [
           document.page.path,
-          Schema.encodeSync(Schema.fromJsonString(ReaderFlags))(document),
+          Schema.encodeSync(Schema.fromJsonString(ReaderSource))(document),
         ])
       );
 
