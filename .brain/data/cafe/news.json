@@ -1,5 +1,90 @@
 [
   {
+    "kind": "launch",
+    "url": "https://github.com/Effect-TS/ui",
+    "title": "Effect UI is public",
+    "summary": "Effect's frontend library: each component is its own Elm Architecture program with a Schema Model. Experimental; install from pkg.pr.new snapshots, not npm.",
+    "date": "2026-11-26",
+    "repo": "Effect-TS/ui",
+    "author": {
+      "github": "Effect-TS",
+      "x": "EffectTS_"
+    },
+    "source": "https://ui.effect.website",
+    "engagement": {
+      "stars": 227
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 2,
+      "topic": "effect-ui",
+      "why": "Effect's component framework, now public"
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.6",
+    "title": "effect@4.1.6 lets McpServer register AI Skills",
+    "summary": "Patch release: a standalone effect/ai/Skill module that McpServer can register, plus cluster fixes for shard rebalancing stalls and a reply-handler leak.",
+    "date": "2026-11-26",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.6",
+    "engagement": {
+      "stars": 17711
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "effect-release",
+      "why": "AI Skills over MCP"
+    }
+  },
+  {
+    "kind": "video",
+    "url": "https://www.youtube.com/watch?v=_tSGby_q890",
+    "title": "Harry Solovay: Advanced Effect Design Patterns",
+    "summary": "Harry Solovay gives a 55-minute talk on advanced Effect design patterns at Effect Miami #3.",
+    "date": "2026-11-26",
+    "repo": null,
+    "author": {
+      "github": "harrysolovay",
+      "x": "harrysolovay"
+    },
+    "source": "https://www.youtube.com/watch?v=_tSGby_q890",
+    "engagement": {
+      "views": 2124
+    },
+    "interest": {
+      "substance": "technique",
+      "editorial": 1,
+      "topic": "effect-patterns-talk",
+      "why": "Advanced Effect design patterns"
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://bafle.app/",
+    "title": "Bafle: a music app built with Effect, Foldkit and Alchemy",
+    "summary": "A music app for albums, artists and playlists, built to avoid blank screens, spinners and content popping in. Made with Effect, Foldkit and Alchemy.",
+    "date": "2026-11-26",
+    "repo": null,
+    "author": {
+      "github": null,
+      "x": "5h1rU"
+    },
+    "source": "https://x.com/5h1rU/status/2126043143132901566",
+    "interest": {
+      "substance": "demo",
+      "editorial": 1,
+      "topic": "bafle",
+      "why": "A Foldkit app built to feel native"
+    }
+  },
+  {
     "kind": "video",
     "url": "https://www.youtube.com/watch?v=mZENB_CjK5M",
     "title": "Effect Module of the Week 9: EventLog",
@@ -34,13 +119,35 @@
     },
     "source": "https://x.com/tim_smart/status/2125536797413556397",
     "engagement": {
-      "stars": 53
+      "stars": 64
     },
     "interest": {
       "substance": "tool",
       "editorial": 1,
       "topic": "chad",
       "why": "Tim Smart's self-extending Effect assistant"
+    }
+  },
+  {
+    "kind": "launch",
+    "url": "https://github.com/dmmulroy/shaledb",
+    "title": "shaledb: a SlateDB-style LSM store on R2 and Durable Objects",
+    "summary": "Key-value store: a Durable Object's SQLite table is the write-ahead log, SSTs live in R2, and a Workflow compacts. Built with Effect and Alchemy.",
+    "date": "2026-11-25",
+    "repo": "dmmulroy/shaledb",
+    "author": {
+      "github": "dmmulroy",
+      "x": "dillon_mulroy"
+    },
+    "source": "https://github.com/dmmulroy/shaledb",
+    "engagement": {
+      "stars": 2
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 1,
+      "topic": "shaledb",
+      "why": "LSM storage on R2 and Durable Objects"
     }
   },
   {
@@ -119,7 +226,7 @@
     },
     "source": "https://github.com/dmmulroy/rex-sdk",
     "engagement": {
-      "stars": 74
+      "stars": 77
     },
     "interest": {
       "substance": "tool",
@@ -185,7 +292,7 @@
     },
     "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
     "engagement": {
-      "stars": 440
+      "stars": 444
     },
     "interest": {
       "substance": "demo",
@@ -1477,28 +1584,6 @@
       "editorial": 2,
       "topic": "domain-foldkit",
       "why": "Domain Apis become Foldkit Commands"
-    }
-  },
-  {
-    "kind": "launch",
-    "url": "https://github.com/foldkit/foldkit-domains",
-    "title": "Foldkit Domains example",
-    "summary": "A Foldkit example of domain search: the field ships in static HTML, accepts edits before hydration, and runs on the Blocks and Layers preview.",
-    "date": "2026-10-27",
-    "repo": "foldkit/foldkit-domains",
-    "author": {
-      "github": "foldkit",
-      "x": "foldkit"
-    },
-    "source": "https://github.com/foldkit/foldkit-domains",
-    "engagement": {
-      "stars": 29
-    },
-    "interest": {
-      "substance": "technique",
-      "editorial": 1,
-      "topic": "foldkit-example",
-      "why": "Static HTML that accepts edits early"
     }
   },
   {
