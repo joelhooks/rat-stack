@@ -77,6 +77,8 @@ it("only Tube pages widen the reader policy, by YouTube's image host and the noc
     "/tubes",
     "/news",
     "/news/latest",
+    "/lore",
+    "/lore/durability-bibliography",
     "/search",
   ]) {
     expect(readerPagePolicy(path), path).toBe(readerContentSecurityPolicy);
@@ -113,7 +115,13 @@ it.layer(NodeServices.layer)((test) => {
         )(files);
 
         expect(pages.map(({ route }) => route)).toEqual(
-          expect.arrayContaining([tubePagePath, "/news", "/news/latest"])
+          expect.arrayContaining([
+            tubePagePath,
+            "/news",
+            "/news/latest",
+            "/lore",
+            "/lore/durability-bibliography",
+          ])
         );
 
         const inlineStyles = pages.some(
@@ -137,6 +145,15 @@ it.layer(NodeServices.layer)((test) => {
             } else {
               expect(allows("script-src", source)).toBe(true);
             }
+          }
+
+          for (const link of document.querySelectorAll(
+            'link[rel="modulepreload"]'
+          )) {
+            expect(
+              pageAllows("script-src", link.getAttribute("href") ?? ""),
+              route
+            ).toBe(true);
           }
 
           for (const link of document.querySelectorAll(

@@ -46,6 +46,8 @@ const directoryEntry = "src/client/directory-effect-ui/entry.ts";
 
 const newsEntry = "src/client/news-effect-ui/entry.ts";
 
+const readerEntry = "src/client/reader-effect-ui/entry.ts";
+
 const serverEntry = "virtual:reader-asset-fixture";
 
 type ManifestFixture = Parameters<typeof manifestAssets>[0];
@@ -60,7 +62,11 @@ const fixture = (overrideManifest?: ManifestFixture): Plugin => ({
       return `export { default } from ${JSON.stringify(assetModule)}`;
     }
 
-    if (id.endsWith(directoryEntry) || id.endsWith(newsEntry)) {
+    if (
+      [directoryEntry, newsEntry, readerEntry].some((entry) =>
+        id.endsWith(entry)
+      )
+    ) {
       return `export default ${JSON.stringify(id)}`;
     }
 
@@ -126,8 +132,8 @@ it.effect("loads dev source URLs without a client build", () =>
       server.ssrLoadModule(assetModule)
     );
 
-    expect(module).toHaveProperty("default.directory-effect-ui", {
-      entryScript: `/${directoryEntry}`,
+    expect(module).toHaveProperty("default.reader-effect-ui", {
+      entryScript: `/${readerEntry}`,
       modulePreloads: [],
       stylesheets: [],
     });
@@ -148,7 +154,7 @@ it.effect(
       }
 
       const names = client.output.map(({ fileName }) => fileName);
-      expect(names).toHaveLength(2);
+      expect(names).toHaveLength(3);
       expect(names).not.toContain(".vite/manifest.json");
 
       const server = yield* buildEnvironment(builder, "ssr");

@@ -12,13 +12,11 @@ const inlineText = (inline: ReaderInlineValue): string =>
     Text: ({ value }) => value,
   });
 
-export const readerParagraph = <Message>(
+export const readerParagraphAnchor = (
   tag: "p" | "li",
   content: readonly ReaderInlineValue[],
-  anchors: readonly { readonly id: string; readonly text: string }[],
-  h: HtmlBuilder<Message>,
-  renderInline: (inline: ReaderInlineValue) => Html | string
-): Html => {
+  anchors: readonly { readonly id: string; readonly text: string }[]
+) => {
   const text = content
     .map(inlineText)
     .join("")
@@ -26,9 +24,19 @@ export const readerParagraph = <Message>(
     .replaceAll(/\s+/gu, " ")
     .trim();
 
-  const id = anchors.find(
+  return anchors.find(
     (anchor) => anchor.id.startsWith(`${tag}-`) && anchor.text === text
   )?.id;
+};
+
+export const readerParagraph = <Message>(
+  tag: "p" | "li",
+  content: readonly ReaderInlineValue[],
+  anchors: readonly { readonly id: string; readonly text: string }[],
+  h: HtmlBuilder<Message>,
+  renderInline: (inline: ReaderInlineValue) => Html | string
+): Html => {
+  const id = readerParagraphAnchor(tag, content, anchors);
 
   return h[tag](id === undefined ? [] : [h.Id(id)], [
     ...content.map(renderInline),

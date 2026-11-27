@@ -443,6 +443,19 @@
       "reason": "Waits for built reader pages and their assets to be loaded for CSP checks."
     }
   ],
+  "apps/web/test/reader-effect-ui.test.ts": [
+    {
+      "budget": [
+        "test",
+        [
+          "every committed lore page preserves Foldkit's text, metadata, elements, links and StyleX classes"
+        ],
+        "timeout",
+        "30000"
+      ],
+      "reason": "Compares complete documents for all 138 lore routes; the default five seconds expired during the parallel gate."
+    }
+  ],
   "apps/web/test/reader-systems-skills.test.ts": [
     {
       "budget": [

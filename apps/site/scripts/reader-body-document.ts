@@ -152,6 +152,9 @@ export const compileReaderNodes = (
   return Schema.decodeSync(Schema.Array(ReaderNodeSchema))(converted);
 };
 
+export const compileReaderSnippet = (html: string, sourcePath: string) =>
+  compileReaderNodes(parseDocument(html).children, sourcePath);
+
 const readBody = (
   html: string,
   sourcePath: string,
