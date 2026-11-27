@@ -3,6 +3,7 @@ title: "Publish the read cut before you trim the write log"
 description: "A durable writer can accept a write locally and publish it to readers later, so name both promises and test the gap between them."
 plain: "Accepting a write and letting readers see it are two steps. Name both, publish a complete cut, and only then clean up the log."
 group: idea
+prerequisites: ["lore.workers-answer-requests-durable-objects-own-named-state", "lore.checkpoints-follow-commits"]
 terms:
   - "acknowledgement point"
   - "read cut"
@@ -27,7 +28,7 @@ sources:
 
 A writer can accept a change before a reader can see it in object storage. Give those two promises different names.
 
-[Dillon Mulroy](https://github.com/dmmulroy) built [ShaleDB](https://github.com/dmmulroy/shaledb), a log-structured store on Cloudflare Durable Objects, R2 and Workflows, written with Effect and Alchemy. It is a clear worked example of this split, and its design notes, invariants and measurements are worth reading in full.
+[Dillon Mulroy](https://github.com/dmmulroy) built [ShaleDB](https://github.com/dmmulroy/shaledb), a log-structured store on Cloudflare Durable Objects, R2 and Workflows, written with [Effect](/lore/effect-basics) and [Alchemy](/skills/learn-alchemy). It is a clear worked example of this split, and its design notes, invariants and measurements are worth reading in full.
 
 Its [writer commits each batch to SQLite][lore-write]. The batch is durable at that point. It reaches object storage later.
 
