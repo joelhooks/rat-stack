@@ -50,8 +50,9 @@ sources:
 
 ## What it does
 
-`apps/web` is the reader site. It is one Foldkit program.
-Foldkit is a UI framework on Effect: a Model, Messages, an `update` function, and a pure view.
+`apps/web` is the reader site. [Foldkit](/lore/a-browser-send-follows-one-path) renders and hydrates most routes.
+The HTML pages at `/news`, `/news/latest`, and `/directory` render and hydrate their content with [Effect UI](https://ui.effect.website/article.md) inside the reader shell.
+Foldkit is a UI framework on [Effect](/lore/effect-basics): a Model, Messages, an `update` function, and a pure view.
 
 Server rendering means the Worker builds the page HTML for each request.
 Prerendering means the build writes page HTML to files before deployment.

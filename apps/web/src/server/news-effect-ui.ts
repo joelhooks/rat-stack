@@ -1,6 +1,5 @@
 import { HtmlServer } from "@effect/ui/html";
 import { Effect, Schema } from "effect";
-import { renderToString } from "foldkit/experimental/server";
 
 import { NewsPage } from "../client/news-effect-ui/component.js";
 import {
@@ -9,17 +8,15 @@ import {
   newsRootId,
 } from "../client/news-effect-ui/model.js";
 import type { NewsPageProps } from "../client/news-effect-ui/model.js";
-import { init } from "../client/reader/init.js";
-import { ReaderFlags } from "../client/reader/model.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
-import { readerViewWithCafe } from "../features/reader.js";
-import type { NewsDocumentAssets } from "./reader-document.js";
+import type { EffectUiAssets } from "./reader-document.js";
+import { renderEffectUiCafe } from "./reader-effect-ui.js";
 
 export const renderNewsPage = Effect.fn("reader.renderNewsPage")(
   function* renderNewsPage(
     page: ReaderPageFlags,
     props: NewsPageProps,
-    assets: typeof NewsDocumentAssets.Type
+    assets: typeof EffectUiAssets.Type
   ) {
     const rendered = yield* HtmlServer.renderToHtml(NewsPage, props);
 
@@ -28,23 +25,13 @@ export const renderNewsPage = Effect.fn("reader.renderNewsPage")(
       state: rendered.state,
     });
 
-    const application = yield* renderToString(
-      {
-        Flags: ReaderFlags,
-        init,
-        view: readerViewWithCafe((h) =>
-          h.div([h.Id(newsRootId), h.InnerHTML(rendered.html)])
-        ),
-      },
-      { flags: page, isHydratable: false }
+    return yield* renderEffectUiCafe(
+      page,
+      newsRootId,
+      rendered.html,
+      newsHandoffId,
+      handoff,
+      assets
     );
-
-    return {
-      ...application,
-      news: {
-        assets,
-        handoff: `<script type="application/json" id="${newsHandoffId}">${HtmlServer.serializeState(handoff)}</script>`,
-      },
-    };
   }
 );

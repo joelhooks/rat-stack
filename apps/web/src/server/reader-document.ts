@@ -9,14 +9,15 @@ import {
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { readerMetadataHead } from "../reader-metadata.js";
 
-export const NewsDocumentAssets = Schema.Struct({
+export const EffectUiAssets = Schema.Struct({
   entryScript: Schema.String,
   modulePreloads: Schema.Array(Schema.String),
+  stylesheets: Schema.Array(Schema.String),
 });
 
 const ReaderDocumentHead = Schema.Struct({
-  news: Schema.optionalKey(
-    Schema.Struct({ assets: NewsDocumentAssets, handoff: Schema.String })
+  effectUi: Schema.optionalKey(
+    Schema.Struct({ assets: EffectUiAssets, handoff: Schema.String })
   ),
   readerHead: Schema.String,
 });
@@ -43,14 +44,21 @@ export const renderDocument: Server.DocumentRenderer = (
   application,
   assets
 ) => {
-  const { news, readerHead } =
+  const { effectUi, readerHead } =
     Schema.decodeUnknownSync(ReaderDocumentHead)(application);
 
-  return Server.renderDocument(
-    application,
-    news === undefined ? assets : { ...assets, ...news.assets },
-    {
-      head: `${iconHead}\n${webMcpOriginTrialScript}\n${readerHead}${news?.handoff ?? ""}`,
-    }
-  );
+  const documentAssets =
+    effectUi === undefined
+      ? assets
+      : {
+          ...assets,
+          ...effectUi.assets,
+          stylesheets: [
+            ...new Set([...effectUi.assets.stylesheets, ...assets.stylesheets]),
+          ],
+        };
+
+  return Server.renderDocument(application, documentAssets, {
+    head: `${iconHead}\n${webMcpOriginTrialScript}\n${readerHead}${effectUi?.handoff ?? ""}`,
+  });
 };
