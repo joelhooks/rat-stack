@@ -14,10 +14,35 @@ import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
 
 import privateAuth from "../site/src/auth/private-worker.js";
+import { instituteStage } from "../site/src/institute-mount.js";
 import Mischief from "../site/src/worker.js";
 import Workshop from "../site/src/workshop-worker.js";
 import { Website } from "../web/src/website.js";
+import { instituteWorker } from "./src/institute.js";
 import { ratstackState } from "./src/state-store.js";
+
+const gateway = Effect.gen(function* declareGateway() {
+  const website = yield* Website;
+  const mischief = yield* Mischief;
+
+  yield* mischief.bind`${website}`({
+    bindings: [
+      { name: "WEBSITE", service: website.workerName, type: "service" },
+    ],
+  });
+
+  const institute = yield* instituteWorker;
+
+  if (institute !== null) {
+    yield* mischief.bind`${institute}`({
+      bindings: [
+        { name: "INSTITUTE", service: institute.workerName, type: "service" },
+      ],
+    });
+  }
+
+  return { mischiefUrl: mischief.url, websiteUrl: website.url };
+});
 
 export default Alchemy.Stack(
   "RatStack",
@@ -30,6 +55,12 @@ export default Alchemy.Stack(
     state: ratstackState(),
   },
   Effect.gen(function* stack() {
+    const stage = yield* Stage;
+
+    if (stage === instituteStage) {
+      return { ...(yield* gateway), catalogUrl: undefined };
+    }
+
     const dev = yield* Alchemy.ALCHEMY_DEV;
 
     if (!dev) {
@@ -157,28 +188,14 @@ export default Alchemy.Stack(
       );
     }
 
-    const website = yield* Website;
-
-    const mischief = yield* Mischief;
+    const gatewayUrls = yield* gateway;
 
     yield* Workshop;
     yield* turboCache;
 
-    const catalog = yield* CatalogWorker.pipe(
-      retain(Stage.pipe(Effect.map((stage) => stage === "prod")))
-    );
+    const catalog = yield* CatalogWorker.pipe(retain(stage === "prod"));
 
-    yield* mischief.bind`${website}`({
-      bindings: [
-        { name: "WEBSITE", service: website.workerName, type: "service" },
-      ],
-    });
-
-    return {
-      catalogUrl: catalog.url,
-      mischiefUrl: mischief.url,
-      websiteUrl: website.url,
-    };
+    return { ...gatewayUrls, catalogUrl: catalog.url };
   }).pipe(
     Effect.provide(
       Layer.unwrap(

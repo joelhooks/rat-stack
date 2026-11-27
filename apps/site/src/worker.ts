@@ -35,6 +35,7 @@ import CrashTail from "./crash-tail.js";
 import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { events as eventsFor } from "./events.js";
 import { flagsLayer, liveFlagsLayer } from "./flags.js";
+import { instituteStage, withInstitute } from "./institute-mount.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import {
@@ -315,13 +316,19 @@ export const makeMischief = (
     const chromeToken = yield* chromeWebMcpTrialToken;
     const edgeToken = yield* edgeWebMcpTrialToken;
 
-    const readerApp = withReaderWebsite(
-      website.pipe(Effect.orDie),
-      withWebMcpOriginTrials(
-        [chromeToken, edgeToken],
-        readerResponseHeaders(contentStore)
-      )
-    )(app);
+    const readerApp = withInstitute({
+      ALCHEMY_STAGE: environment.ALCHEMY_STAGE,
+      INSTITUTE: environment.INSTITUTE,
+      INSTITUTE_ENABLED: environment.INSTITUTE_ENABLED,
+    })(
+      withReaderWebsite(
+        website.pipe(Effect.orDie),
+        withWebMcpOriginTrials(
+          [chromeToken, edgeToken],
+          readerResponseHeaders(contentStore)
+        )
+      )(app)
+    );
 
     return {
       fetch: observeRequestLog(
@@ -452,23 +459,32 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
   "Mischief",
   Effect.gen(function* mischiefProps() {
     const traces = yield* traceSettings.pipe(Effect.orDie);
+    const stage = yield* Stage;
+
+    const instituteEnabled = yield* Config.Boolean("INSTITUTE_ENABLED").pipe(
+      Config.withDefault(false)
+    );
 
     const assets = yield* contentAssetsForBuild(
       new URL("../dist/content", import.meta.url).pathname,
       staticAssetGeneration
     ).pipe(Effect.orDie);
 
+    const env = {
+      MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint,
+      WEB_MCP_CHROME_TRIAL_TOKEN: chromeWebMcpTrialToken,
+      WEB_MCP_EDGE_TRIAL_TOKEN: edgeWebMcpTrialToken,
+    };
+
     return {
       assets,
       build: feedbackGatewayBuild,
       compatibility: { date: traces.enabled ? "2026-07-28" : "2026-05-28" },
       dev: { port: 1337 },
-      domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] },
-      env: {
-        MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint,
-        WEB_MCP_CHROME_TRIAL_TOKEN: chromeWebMcpTrialToken,
-        WEB_MCP_EDGE_TRIAL_TOKEN: edgeWebMcpTrialToken,
-      },
+      ...(stage === instituteStage
+        ? { workersDev: { enabled: false, previewsEnabled: false } }
+        : { domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] } }),
+      env: instituteEnabled ? { ...env, INSTITUTE_ENABLED: "true" } : env,
       main: import.meta.url,
       observability: traceObservability(traces),
       tailConsumers: [yield* CrashTail],
