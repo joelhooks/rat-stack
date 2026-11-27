@@ -1,0 +1,61 @@
+---
+title: "Publish the read cut before you trim the write log"
+description: "A durable writer can accept a write locally and publish it to readers later, so name both promises and test the gap between them."
+plain: "Accepting a write and letting readers see it are two steps. Name both, publish a complete cut, and only then clean up the log."
+group: idea
+terms:
+  - "acknowledgement point"
+  - "read cut"
+  - "immutable manifest"
+sources:
+  - url: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/docs/invariants.md#L20-L86
+    title: "ShaleDB invariants"
+    publisher: "Dillon Mulroy"
+    note: "Defines acknowledgement, publication, and the read consistency choices."
+    accessed: "2026-11-27"
+  - url: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/packages/lsm-cloudflare/src/database-lifecycle.ts#L552-L608
+    title: "ShaleDB fork lifecycle"
+    publisher: "Dillon Mulroy"
+    note: "Shows how a fork holds its parent's checkpoint before publishing references."
+    accessed: "2026-11-27"
+  - url: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/docs/measurements.md#L598-L678
+    title: "ShaleDB plain SQLite baseline"
+    publisher: "Dillon Mulroy"
+    note: "Records the test shape, stage, revision, and limits of the cost estimate."
+    accessed: "2026-11-27"
+---
+
+A writer can accept a change before a reader can see it in object storage. Give those two promises different names.
+
+[Dillon Mulroy](https://github.com/dmmulroy) built [ShaleDB](https://github.com/dmmulroy/shaledb), a log-structured store on Cloudflare Durable Objects, R2 and Workflows, written with Effect and Alchemy. It is a clear worked example of this split, and its design notes, invariants and measurements are worth reading in full.
+
+Its [writer commits each batch to SQLite][lore-write]. The batch is durable at that point. It reaches object storage later.
+
+## Publish one complete cut
+
+A read cut marks which changes a reader can see. A manifest lists the objects that serve that cut.
+
+1. Write the new data objects.
+2. [Publish the manifest][lore-write] that names them. Refuse a conflicting publication.
+3. Mark the covered part of the write log as eligible for cleanup.
+
+A crash before publication can leave an unused object. The local log still has the writes. A crash after publication can leave extra log entries. The published cut still tells the reader what is available.
+
+## Tell readers what they can see
+
+A [published read][lore-read] can skip the writer. It can miss changes that have not reached the manifest. A fresh read checks the writer for those changes.
+
+A [checkpoint](/lore/checkpoints-follow-commits) names an older cut. [A fork can share that cut's objects][lore-fork] if it first takes a hold on them. Releasing the hold is safe only when no permitted reader still needs the old objects.
+
+## Prove the gap before adding a store
+
+Stop the writer after it uploads data and before it publishes. Start it again. Check that every acknowledged write remains recoverable.
+
+Repeat the test after publication and before cleanup. Then try a read at an older cut while cleanup runs. Check that the reader gets a complete answer or a clear expiry error.
+
+[Compare with a plain SQLite table][lore-measure] before you add a manifest. Record the source revision, payload, read mix, and consistency mode. The extra machinery needs a job, such as keeping published reads off the writer or sharing a pinned cut.
+
+[lore-write]: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/docs/invariants.md#L20-L55
+[lore-read]: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/docs/invariants.md#L57-L86
+[lore-fork]: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/packages/lsm-cloudflare/src/database-lifecycle.ts#L552-L608
+[lore-measure]: https://github.com/dmmulroy/shaledb/blob/fccdc2d8362c9c436f2d8b5ce8c91087184c9ab5/docs/measurements.md#L598-L678
