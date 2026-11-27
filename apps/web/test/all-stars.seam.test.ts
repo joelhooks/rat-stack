@@ -1,6 +1,6 @@
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { Effect, Schema } from "effect";
+import { Effect, Option, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import { readerBodyFlags } from "../../site/scripts/reader-body-flags.ts";
@@ -9,6 +9,8 @@ import { prepareReaderSiteInputs } from "../../site/scripts/reader-site-inputs.t
 import { init } from "../src/client/reader/init.js";
 import { ReaderFlags } from "../src/client/reader/model.js";
 import { view } from "../src/features/reader.js";
+import { CafePage, ReaderSource } from "../src/reader-cafe.js";
+import { renderAllStarsPage } from "../src/server/all-stars-effect-ui.js";
 
 const htmlText = (value: string) =>
   value
@@ -67,13 +69,18 @@ it.effect(
         return;
       }
 
-      const cards = yield* renderToString(
-        { Flags: ReaderFlags, init, view },
-        {
-          flags: yield* Schema.decodeUnknownEffect(ReaderFlags)(index),
-          isHydratable: false,
-        }
+      const page = yield* Schema.decodeUnknownEffect(ReaderSource)(index);
+
+      const cafe = yield* page.cafe.pipe(
+        Option.filter(CafePage.guards.AllStars),
+        Effect.fromOption
       );
+
+      const cards = yield* renderAllStarsPage(page, cafe, {
+        entryScript: "/assets/all-stars-effect-ui-test.js",
+        modulePreloads: [],
+        stylesheets: [],
+      });
 
       for (const person of inputs.cafe.people) {
         expect(cards.html).toContain(`src="${person.avatar.path}"`);

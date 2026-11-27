@@ -1,0 +1,204 @@
+{
+  "people": [
+    {
+      "avatar": "/avatars/alchemy-run.png",
+      "handles": [
+        {
+          "handle": "alchemy-run",
+          "kind": "github",
+          "url": "https://github.com/alchemy-run",
+          "source": "https://github.com/alchemy-run",
+          "verified": "2026-11-02"
+        },
+        {
+          "handle": "alchemy_run",
+          "kind": "x",
+          "url": "https://x.com/alchemy_run",
+          "source": "https://github.com/alchemy-run",
+          "verified": "2026-11-02"
+        },
+        {
+          "handle": "alchemy.run",
+          "kind": "site",
+          "url": "https://alchemy.run",
+          "source": "https://github.com/alchemy-run",
+          "verified": "2026-11-02"
+        }
+      ],
+      "id": "alchemy-run",
+      "kind": "channel",
+      "name": "Alchemy",
+      "packages": ["@effect/platform-node", "alchemy", "effect"],
+      "repos": [
+        {
+          "repo": "alchemy-run/alchemy",
+          "stars": 1833,
+          "source": "https://github.com/alchemy-run/alchemy",
+          "verified": "2026-11-02"
+        }
+      ],
+      "route": "/all-stars/alchemy-run",
+      "summary": {
+        "text": "GitHub describes alchemy-run/alchemy as \"Infrastructure as Effects\".",
+        "source": "https://github.com/alchemy-run/alchemy",
+        "verified": "2026-11-02"
+      },
+      "topics": ["alchemy"]
+    },
+    {
+      "avatar": "/avatars/bjacobso.jpg",
+      "handles": [
+        {
+          "handle": "bjacobso",
+          "kind": "github",
+          "url": "https://github.com/bjacobso",
+          "source": "https://github.com/bjacobso",
+          "verified": "2026-11-16"
+        },
+        {
+          "handle": "bjacobso",
+          "kind": "x",
+          "url": "https://x.com/bjacobso",
+          "source": "https://github.com/bjacobso",
+          "verified": "2026-11-16"
+        }
+      ],
+      "id": "bjacobso",
+      "kind": "person",
+      "name": "Ben Jacobson",
+      "packages": ["effect"],
+      "repos": [
+        {
+          "repo": "bjacobso/forma",
+          "stars": 6,
+          "source": "https://github.com/bjacobso/forma",
+          "verified": "2026-11-16"
+        }
+      ],
+      "route": "/all-stars/bjacobso",
+      "summary": {
+        "text": "Ben Jacobson's Forma is \"a typed, homoiconic Lisp for building domain-specific languages and portable artifacts\", built on Effect.",
+        "source": "https://github.com/bjacobso/forma/blob/main/package.json",
+        "verified": "2026-11-16"
+      },
+      "topics": ["effect", "foldkit"]
+    },
+    {
+      "avatar": "/avatars/rankincodes.jpg",
+      "handles": [
+        {
+          "handle": "rankincodes",
+          "kind": "github",
+          "url": "https://github.com/rankincodes",
+          "source": "https://github.com/rankincodes",
+          "verified": "2026-11-04"
+        },
+        {
+          "handle": "rankintweets",
+          "kind": "x",
+          "url": "https://x.com/rankintweets",
+          "source": "https://github.com/rankincodes",
+          "verified": "2026-11-16"
+        }
+      ],
+      "id": "rankincodes",
+      "kind": "person",
+      "name": "Adam Rankin",
+      "packages": [],
+      "repos": [],
+      "route": "/all-stars/rankincodes",
+      "summary": {
+        "text": "Adam Rankin is the leading contributor to effect-mq, an Effect v4 background-job library.",
+        "source": "https://github.com/TeamWarp/effect-mq/graphs/contributors",
+        "verified": "2026-11-04"
+      },
+      "topics": ["effect"]
+    }
+  ],
+  "legacy": {
+    "text": [
+      "🐀 Rat Stackskillsloresystemsnewsall starsglossarysearchagent guide",
+      "For agents: start with the agent guide. Every page is Markdown by default; add Accept: text/html for HTML.source files / Ratstack all starsRatstack all starsPeople and channels with a /news row, contributions to pinned stack packages, code on the stack that rat-stack vendors or credits, or sourced public work on the stack. Every fact links to its source and the date we checked it.A person or channel enters through a /news row, contributions to a pinned stack package, code on the stack that rat-stack vendors or credits, or sourced public work built on or teaching the stack.Agents can call listPeople, readPerson, searchPeople, listChannels and peopleFor over MCP, HTTP or code mode. Atom feed.PeopleBen JacobsonBen Jacobson's Forma is \"a typed, homoiconic Lisp for building domain-specific languages and portable artifacts\", built on Effect.Built: bjacobso/forma (6 stars)source, checked 2026-11-16Adam RankinAdam Rankin is the leading contributor to effect-mq, an Effect v4 background-job library.source, checked 2026-11-04ChannelsAlchemyGitHub describes alchemy-run/alchemy as \"Infrastructure as Effects\".Built: alchemy-run/alchemy (1833 stars)source, checked 2026-11-02To be removed from this page, open an issue in joelhooks/rat-stack. A removal ships with the next site update.",
+      "Explorelearn modeglossarychange logpeersReferenceagent guideAPI docssourceMarkdown by default. HTML when you ask for it. Agents start here."
+    ],
+    "rows": [
+      "Ben JacobsonBen Jacobson's Forma is \"a typed, homoiconic Lisp for building domain-specific languages and portable artifacts\", built on Effect.Built: bjacobso/forma (6 stars)source, checked 2026-11-16",
+      "Adam RankinAdam Rankin is the leading contributor to effect-mq, an Effect v4 background-job library.source, checked 2026-11-04",
+      "AlchemyGitHub describes alchemy-run/alchemy as \"Infrastructure as Effects\".Built: alchemy-run/alchemy (1833 stars)source, checked 2026-11-02"
+    ],
+    "attributes": [
+      ["p", "class=agent-pointer visually-hidden"],
+      ["a", "href=https://ratstack.sh/llms.txt"],
+      ["nav", "class=breadcrumb", "aria-label=Breadcrumb"],
+      ["a", "href=/"],
+      ["a", "href=/all-stars.xml"],
+      ["ul", "class=xrvj5dj x1vjsyax xe8uvvx x1ghz6dp x1717udv"],
+      ["li", "class=x1cy8zhl x78zum5 x1vjsyax x17xev97"],
+      [
+        "img",
+        "class=x12oqio5 x1lliihq x2lah0s x1sh0tsm xekueh",
+        "src=/avatars/bjacobso.jpg",
+        "alt=",
+        "width=64",
+        "height=64",
+        "loading=lazy"
+      ],
+      ["a", "href=/all-stars/bjacobso"],
+      [
+        "a",
+        "href=https://github.com/bjacobso/forma",
+        "rel=noopener noreferrer"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      [
+        "a",
+        "href=https://github.com/bjacobso/forma/blob/main/package.json",
+        "rel=noopener noreferrer"
+      ],
+      ["li", "class=x1cy8zhl x78zum5 x1vjsyax x17xev97"],
+      [
+        "img",
+        "class=x12oqio5 x1lliihq x2lah0s x1sh0tsm xekueh",
+        "src=/avatars/rankincodes.jpg",
+        "alt=",
+        "width=64",
+        "height=64",
+        "loading=lazy"
+      ],
+      ["a", "href=/all-stars/rankincodes"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      [
+        "a",
+        "href=https://github.com/TeamWarp/effect-mq/graphs/contributors",
+        "rel=noopener noreferrer"
+      ],
+      ["ul", "class=xrvj5dj x1vjsyax xe8uvvx x1ghz6dp x1717udv"],
+      ["li", "class=x1cy8zhl x78zum5 x1vjsyax x17xev97"],
+      [
+        "img",
+        "class=x12oqio5 x1lliihq x2lah0s x1sh0tsm xekueh",
+        "src=/avatars/alchemy-run.png",
+        "alt=",
+        "width=64",
+        "height=64",
+        "loading=lazy"
+      ],
+      ["a", "href=/all-stars/alchemy-run"],
+      [
+        "a",
+        "href=https://github.com/alchemy-run/alchemy",
+        "rel=noopener noreferrer"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      [
+        "a",
+        "href=https://github.com/alchemy-run/alchemy",
+        "rel=noopener noreferrer"
+      ],
+      [
+        "a",
+        "href=https://github.com/joelhooks/rat-stack/issues/new?title=Remove%20an%20all%20stars%20profile"
+      ]
+    ]
+  }
+}

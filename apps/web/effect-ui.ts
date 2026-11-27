@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import type { Plugin } from "vite";
 
 const entries = {
+  "all-stars-effect-ui": "src/client/all-stars-effect-ui/entry.ts",
   "directory-effect-ui": "src/client/directory-effect-ui/entry.ts",
   "news-effect-ui": "src/client/news-effect-ui/entry.ts",
   "reader-effect-ui": "src/client/reader-effect-ui/entry.ts",

@@ -42,6 +42,8 @@ it("uses the static manifest graph and keeps first-seen stylesheet order", () =>
 
 const assetModule = "virtual:reader-effect-ui-assets";
 
+const allStarsEntry = "src/client/all-stars-effect-ui/entry.ts";
+
 const directoryEntry = "src/client/directory-effect-ui/entry.ts";
 
 const newsEntry = "src/client/news-effect-ui/entry.ts";
@@ -63,7 +65,7 @@ const fixture = (overrideManifest?: ManifestFixture): Plugin => ({
     }
 
     if (
-      [directoryEntry, newsEntry, readerEntry].some((entry) =>
+      [allStarsEntry, directoryEntry, newsEntry, readerEntry].some((entry) =>
         id.endsWith(entry)
       )
     ) {
@@ -132,11 +134,20 @@ it.effect("loads dev source URLs without a client build", () =>
       server.ssrLoadModule(assetModule)
     );
 
-    expect(module).toHaveProperty("default.reader-effect-ui", {
-      entryScript: `/${readerEntry}`,
-      modulePreloads: [],
-      stylesheets: [],
-    });
+    const entries = {
+      "all-stars-effect-ui": allStarsEntry,
+      "directory-effect-ui": directoryEntry,
+      "news-effect-ui": newsEntry,
+      "reader-effect-ui": readerEntry,
+    };
+
+    for (const [name, entry] of Object.entries(entries)) {
+      expect(module).toHaveProperty(`default.${name}`, {
+        entryScript: `/${entry}`,
+        modulePreloads: [],
+        stylesheets: [],
+      });
+    }
   })
 );
 
@@ -154,7 +165,7 @@ it.effect(
       }
 
       const names = client.output.map(({ fileName }) => fileName);
-      expect(names).toHaveLength(3);
+      expect(names).toHaveLength(4);
       expect(names).not.toContain(".vite/manifest.json");
 
       const server = yield* buildEnvironment(builder, "ssr");
@@ -196,12 +207,12 @@ it.effect(
       );
 
       expect(entryFailure).toContain(
-        `Missing Effect UI client entry for ${directoryEntry}`
+        `Missing Effect UI client entry for ${allStarsEntry}`
       );
 
       const missingChunk = yield* fixtureBuilder({
-        [directoryEntry]: {
-          file: "assets/directory.js",
+        [allStarsEntry]: {
+          file: "assets/all-stars.js",
           imports: ["_missing.js"],
           isEntry: true,
         },
@@ -212,7 +223,7 @@ it.effect(
       );
 
       expect(chunkFailure).toContain(
-        `Effect UI entry ${directoryEntry} imports missing manifest chunk _missing.js`
+        `Effect UI entry ${allStarsEntry} imports missing manifest chunk _missing.js`
       );
     })
 );

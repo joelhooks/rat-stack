@@ -5,7 +5,7 @@ import { Effect, FileSystem, Schema } from "effect";
 import type { Plugin } from "vite";
 
 import { prepareReader } from "./scripts/reader-build.js";
-import { ReaderFlags } from "./src/client/reader/model.js";
+import { ReaderSource } from "./src/reader-cafe.js";
 import { ReaderErrorTemplate } from "./src/server/reader-error-template.js";
 
 const preparedPages = Effect.gen(function* preparedPages() {
@@ -16,10 +16,10 @@ const preparedPages = Effect.gen(function* preparedPages() {
   );
 
   const pages = yield* Schema.decodeEffect(
-    Schema.fromJsonString(Schema.Array(ReaderFlags))
+    Schema.fromJsonString(Schema.Array(ReaderSource))
   )(source);
 
-  const encodePage = Schema.encodeEffect(Schema.fromJsonString(ReaderFlags));
+  const encodePage = Schema.encodeEffect(Schema.fromJsonString(ReaderSource));
 
   const sources = yield* Effect.forEach((page: (typeof pages)[number]) =>
     encodePage(page).pipe(

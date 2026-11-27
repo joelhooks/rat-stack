@@ -1,20 +1,20 @@
 import { Schema } from "effect";
 import { parseSync } from "vite";
 
-import { ReaderFlags } from "../src/client/reader/model.js";
-import type { ReaderPageFlags } from "../src/client/reader/model.js";
+import { ReaderSource } from "../src/reader-cafe.js";
+import type { ReaderSourcePage } from "../src/reader-cafe.js";
 
-const decodePage = Schema.decodeSync(Schema.fromJsonString(ReaderFlags), {
+const decodePage = Schema.decodeSync(Schema.fromJsonString(ReaderSource), {
   onExcessProperty: "error",
 });
 
-const samePages = Schema.toEquivalence(Schema.Array(ReaderFlags));
+const samePages = Schema.toEquivalence(Schema.Array(ReaderSource));
 
 const isString = Schema.is(Schema.String);
 
 export const readerCodeWithoutPageData = (
   code: string,
-  expected: readonly ReaderPageFlags[]
+  expected: readonly ReaderSourcePage[]
 ) => {
   const parsed = parseSync("reader-bundle.js", code);
 

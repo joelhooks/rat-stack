@@ -2,11 +2,13 @@ import { Cause, Effect, Option, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import type { ReaderErrorPage } from "../../../site/src/reader-error-page.js";
-import { Model as CafeModel } from "../client/cafe/model.js";
 import { init } from "../client/reader/init.js";
 import { ReaderFlags } from "../client/reader/model.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { view } from "../features/reader.js";
+import { CafePage } from "../reader-cafe.js";
+import type { ReaderSourcePage } from "../reader-cafe.js";
+import type * as AllStarsRenderer from "./all-stars-effect-ui.js";
 import type * as DirectoryRenderer from "./directory-effect-ui.js";
 import type * as NewsRenderer from "./news-effect-ui.js";
 import { withReaderHead } from "./reader-document.js";
@@ -42,7 +44,7 @@ type RenderError = (
 
 const renderCafeOrError = <E>(
   page: ReaderPageFlags,
-  label: "News" | "Directory",
+  label: "News" | "Directory" | "All Stars",
   renderCafe: Effect.Effect<Parameters<typeof withReaderHead>[0], E>,
   renderError: RenderError
 ) => {
@@ -79,7 +81,7 @@ const renderCafeOrError = <E>(
 
 export const renderNewsOrError = Effect.fn("reader.renderNewsOrError")(
   (
-    page: ReaderPageFlags,
+    page: ReaderSourcePage,
     assets: typeof EffectUiAssets.Type,
     loadNews: () => Promise<typeof NewsRenderer>,
     renderError: RenderError
@@ -88,7 +90,7 @@ export const renderNewsOrError = Effect.fn("reader.renderNewsOrError")(
       page,
       "News",
       Effect.gen(function* renderNews() {
-        const cafe = page.cafe.pipe(Option.filter(CafeModel.guards.News));
+        const cafe = page.cafe.pipe(Option.filter(CafePage.guards.News));
 
         if (Option.isNone(cafe)) {
           return yield* new MissingCafe({ path: page.page.path });
@@ -106,7 +108,7 @@ export const renderDirectoryOrError = Effect.fn(
   "reader.renderDirectoryOrError"
 )(
   (
-    page: ReaderPageFlags,
+    page: ReaderSourcePage,
     assets: typeof EffectUiAssets.Type,
     loadDirectory: () => Promise<typeof DirectoryRenderer>,
     renderError: RenderError
@@ -115,7 +117,7 @@ export const renderDirectoryOrError = Effect.fn(
       page,
       "Directory",
       Effect.gen(function* renderDirectory() {
-        const cafe = page.cafe.pipe(Option.filter(CafeModel.guards.Directory));
+        const cafe = page.cafe.pipe(Option.filter(CafePage.guards.Directory));
 
         if (Option.isNone(cafe)) {
           return yield* new MissingCafe({ path: page.page.path });
@@ -124,6 +126,31 @@ export const renderDirectoryOrError = Effect.fn(
         const { renderDirectoryPage } = yield* Effect.tryPromise(loadDirectory);
 
         return yield* renderDirectoryPage(page, cafe.value, assets);
+      }),
+      renderError
+    )
+);
+
+export const renderAllStarsOrError = Effect.fn("reader.renderAllStarsOrError")(
+  (
+    page: ReaderSourcePage,
+    assets: typeof EffectUiAssets.Type,
+    loadAllStars: () => Promise<typeof AllStarsRenderer>,
+    renderError: RenderError
+  ) =>
+    renderCafeOrError(
+      page,
+      "All Stars",
+      Effect.gen(function* renderAllStars() {
+        const cafe = page.cafe.pipe(Option.filter(CafePage.guards.AllStars));
+
+        if (Option.isNone(cafe)) {
+          return yield* new MissingCafe({ path: page.page.path });
+        }
+
+        const { renderAllStarsPage } = yield* Effect.tryPromise(loadAllStars);
+
+        return yield* renderAllStarsPage(page, cafe.value, assets);
       }),
       renderError
     )

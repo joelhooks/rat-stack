@@ -1,8 +1,8 @@
 import { Effect, Option, Schema } from "effect";
 import { readerPagePaths } from "virtual:reader-pages";
 
-import { ReaderFlags } from "./reader/model.js";
-import type { ReaderPageFlags } from "./reader/model.js";
+import { ReaderSource } from "../reader-cafe.js";
+import type { ReaderSourcePage } from "../reader-cafe.js";
 
 export const pagePaths = Schema.decodeUnknownSync(Schema.Array(Schema.String))(
   readerPagePaths
@@ -13,7 +13,7 @@ const decodeSources = Schema.decodeUnknownEffect(
 );
 
 const decodePage = Schema.decodeUnknownEffect(
-  Schema.fromJsonString(ReaderFlags)
+  Schema.fromJsonString(ReaderSource)
 );
 
 const importSources = () => import("virtual:reader-page-sources");
@@ -38,7 +38,7 @@ const loadSources = Effect.fn("reader.loadPageSources")(
 
 const knownPaths = new Set(pagePaths);
 
-const decoded = new Map<string, ReaderPageFlags>();
+const decoded = new Map<string, ReaderSourcePage>();
 
 export const findPage = Effect.fn("reader.findPage")(function* findPage(
   path: string

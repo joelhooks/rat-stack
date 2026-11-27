@@ -1,0 +1,113 @@
+{
+  "rank": {
+    "text": [
+      "🐀 Rat Stackskillsloresystemsnewsall starsglossarysearchagent guide",
+      "For agents: start with the agent guide. Every page is Markdown by default; add Accept: text/html for HTML.source files / News fixtureNews fixtureNews from people who build with Cloudflare, Alchemy, Foldkit and Effect. The ratstack desk agent picks and checks entries from public sources each day.Latest first · Atom feed[post]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (example.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-23 by example.com[thread]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-25 by @tester1 reply · 1 personTop replies[thread]Thread 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' endShows case 422026-11-24 by @tester1 reply · 1 personTop replies@replier: Reply 42 </script><!-- <span data-news-escape-probe> & \" ' end 42 likesHow this list is sortedInterest adds up popularity, substance, editorial judgment and peer engagement, then subtracts age.Popularity contributes up to 2 points. For X threads, add log10(1 + count) for each of likes, replies, participants and bookmarks. For videos, use log10(1 + views). For launches, use log10(1 + stars). Missing counts are zero.Compare that total with entries on the same platform: count the entries below it and 0.5 of those tied with it, then divide by the number of entries. If the author has at least 3 entries on that platform, average this result with the same calculation over that author's entries. Multiply the result by 2.Releases and posts get a neutral percentile of 0.5. Repo stars measure the repo, not the release.Substance: proofs and techniques get 1 point, demos get 0.75, releases and tools get 0.5, and announcements get 0.25.Editorial: from 0 to 3 points. 3 is reserved for news that changes how people build on the stack.Peers: 0.5 points each for up to 2 distinct All Stars who replied, quoted or shared a link, including All Stars in the top replies. The author does not count.Age subtracts one point per 7 days since the entry date or last push, whichever is later. Future dates count as zero days old.Unrated entries get 0.5 substance points, 0 editorial points and a topic of their own.We place the highest remaining score first and recalculate after each placement:An entry loses 0.5 points for each higher entry by the same author or from the same site. We identify the author by X handle, then GitHub login, then the site's hostname.An entry loses 0.75 points for each higher entry on the same topic with an equal or higher editorial score.Equal scores go to the newer entry, then to the earlier URL in alphabetical order.Prior art: Reddit hot ranking, Hacker News gravity and penalties, Bear Blog ranking for a small site.Know a project or story about the stack? Ask your agent to suggest it.",
+      "Explorelearn modeglossarychange logpeersReferenceagent guideAPI docssourceMarkdown by default. HTML when you ask for it. Agents start here."
+    ],
+    "rows": [
+      "[post]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (example.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-23 by example.com",
+      "[thread]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-25 by @tester1 reply · 1 personTop replies",
+      "[thread]Thread 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' endShows case 422026-11-24 by @tester1 reply · 1 personTop replies@replier: Reply 42 </script><!-- <span data-news-escape-probe> & \" ' end 42 likes"
+    ],
+    "attributes": [
+      ["p", "class=agent-pointer visually-hidden"],
+      ["a", "href=https://ratstack.sh/llms.txt"],
+      ["nav", "class=breadcrumb", "aria-label=Breadcrumb"],
+      ["a", "href=/"],
+      ["a", "href=/news/latest"],
+      ["a", "href=/news.xml"],
+      ["ol", "class=x1bkqx2q"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://example.com/news/42", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://x.com/tester/status/42", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"],
+      ["a", "href=https://x.com/tester", "rel=noopener noreferrer"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["details", "class=x1s8wshw"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://x.com/tester/status/43", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"],
+      ["a", "href=https://x.com/tester", "rel=noopener noreferrer"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["details", "class=x1s8wshw"],
+      ["a", "href=https://x.com/replier", "rel=noopener noreferrer"],
+      ["a", "href=https://x.com/replier/status/42", "rel=noopener noreferrer"],
+      [
+        "a",
+        "href=https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9",
+        "rel=noopener noreferrer"
+      ],
+      [
+        "a",
+        "href=https://www.righto.com/2013/11/how-hacker-news-ranking-really-works.html",
+        "rel=noopener noreferrer"
+      ],
+      [
+        "a",
+        "href=https://herman.bearblog.dev/a-better-ranking-algorithm/",
+        "rel=noopener noreferrer"
+      ]
+    ]
+  },
+  "latest": {
+    "text": [
+      "🐀 Rat Stackskillsloresystemsnewsall starsglossarysearchagent guide",
+      "For agents: start with the agent guide. Every page is Markdown by default; add Accept: text/html for HTML.source files / News fixtureNews fixtureNews from people who build with Cloudflare, Alchemy, Foldkit and Effect. The ratstack desk agent picks and checks entries from public sources each day.Ranked by interest · Atom feed[thread]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-25 by @tester1 reply · 1 personTop replies[thread]Thread 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' endShows case 422026-11-24 by @tester1 reply · 1 personTop replies@replier: Reply 42 </script><!-- <span data-news-escape-probe> & \" ' end 42 likes[post]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (example.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-23 by example.comKnow a project or story about the stack? Ask your agent to suggest it.",
+      "Explorelearn modeglossarychange logpeersReferenceagent guideAPI docssourceMarkdown by default. HTML when you ask for it. Agents start here."
+    ],
+    "rows": [
+      "[thread]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-25 by @tester1 reply · 1 personTop replies",
+      "[thread]Thread 42 </script><!-- <span data-news-escape-probe> & \" ' end (x.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' endShows case 422026-11-24 by @tester1 reply · 1 personTop replies@replier: Reply 42 </script><!-- <span data-news-escape-probe> & \" ' end 42 likes",
+      "[post]Title 42 </script><!-- <span data-news-escape-probe> & \" ' end (example.com)Summary 42 </script><!-- <span data-news-escape-probe> & \" ' end2026-11-23 by example.com"
+    ],
+    "attributes": [
+      ["p", "class=agent-pointer visually-hidden"],
+      ["a", "href=https://ratstack.sh/llms.txt"],
+      ["nav", "class=breadcrumb", "aria-label=Breadcrumb"],
+      ["a", "href=/"],
+      ["a", "href=/news"],
+      ["a", "href=/news.xml"],
+      ["ol", "class=x1bkqx2q"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://x.com/tester/status/42", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"],
+      ["a", "href=https://x.com/tester", "rel=noopener noreferrer"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["details", "class=x1s8wshw"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://x.com/tester/status/43", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"],
+      ["a", "href=https://x.com/tester", "rel=noopener noreferrer"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["details", "class=x1s8wshw"],
+      ["a", "href=https://x.com/replier", "rel=noopener noreferrer"],
+      ["a", "href=https://x.com/replier/status/42", "rel=noopener noreferrer"],
+      ["li", "class=x1sfq807"],
+      ["span", "class=xraqfvc x116panu"],
+      ["a", "href=https://example.com/news/42", "rel=noopener noreferrer"],
+      ["span", "class=xraqfvc x1s8wshw"],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["time"]
+    ]
+  }
+}

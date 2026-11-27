@@ -2,8 +2,6 @@ import { CafeProject, cafeLetters } from "@rat-stack/core/contracts";
 import type { CafeLetterValue } from "@rat-stack/core/contracts";
 import { Schema } from "effect";
 
-import { Model } from "../src/client/cafe/model.js";
-
 const evidenceFor = (
   letters: readonly CafeLetterValue[],
   letter: CafeLetterValue
@@ -42,7 +40,7 @@ export const edgeApp = cafeProject("edge-app", [
   "effect",
 ]);
 
-export const directoryHome = Model.Directory({
+export const directoryHome = {
   projects: [fullStack, effectOnly, edgeApp],
   selected: [],
-});
+};

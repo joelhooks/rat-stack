@@ -6,7 +6,6 @@ import {
   ReaderPageDescriptor,
   ReaderReferences,
 } from "../../page-descriptor.js";
-import { Model as CafeModel } from "../cafe/model.js";
 import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
 import { CopyPrompt } from "../reader-copy-prompt.js";
@@ -22,7 +21,6 @@ export const ReaderFlags = Schema.Struct({
   blocks: Schema.Array(ReaderBlock),
   bodyNodes: Schema.OptionFromOptional(Schema.Array(ReaderNodeSchema)),
   breadcrumb: Schema.OptionFromOptional(ReaderBreadcrumb),
-  cafe: Schema.OptionFromOptional(CafeModel),
   codeFences: Schema.Array(
     Schema.Struct({ html: Schema.String, value: Schema.String })
   ),

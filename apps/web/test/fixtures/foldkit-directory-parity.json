@@ -1,0 +1,219 @@
+{
+  "all": {
+    "text": [
+      "🐀 Rat Stackskillsloresystemsnewsall starsglossarysearchagent guide",
+      "For agents: start with the agent guide. Every page is Markdown by default; add Accept: text/html for HTML.source files / Ratstack directoryRatstack directoryProjects built with Cloudflare, Alchemy, Foldkit and Effect. A letter badge appears only when the repository shows evidence for it.Show projects that useCloudflareAlchemyFoldkitEffect3 projectsfull-stackCAFEfull-stack summary.by ada · updated 2026-10-01effect-onlyEeffect-only summary.by ada · updated 2026-10-01edge-appCAEedge-app summary.by ada · updated 2026-10-01Know a project or story about the stack? Ask your agent to suggest it.",
+      "Explorelearn modeglossarychange logpeersReferenceagent guideAPI docssourceMarkdown by default. HTML when you ask for it. Agents start here."
+    ],
+    "rows": [
+      "full-stackCAFEfull-stack summary.by ada · updated 2026-10-01",
+      "effect-onlyEeffect-only summary.by ada · updated 2026-10-01",
+      "edge-appCAEedge-app summary.by ada · updated 2026-10-01"
+    ],
+    "attributes": [
+      ["p", "class=agent-pointer visually-hidden"],
+      ["a", "href=https://ratstack.sh/llms.txt"],
+      ["nav", "class=breadcrumb", "aria-label=Breadcrumb"],
+      ["a", "href=/"],
+      ["fieldset", "class=x78zum5 x1a02dak x1xlarca x1ghz6dp x1717udv"],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      ["p", "aria-live=polite"],
+      ["ul", "class=x1bkqx2q"],
+      ["li", "class=x1sfq807"],
+      [
+        "a",
+        "href=https://github.com/ada/full-stack",
+        "rel=noopener noreferrer"
+      ],
+      ["span", "class=x3nfvp2 x1xlarca xr8tzk0"],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Cloudflare: cloudflare evidence in package.json",
+        "aria-label=Cloudflare: cloudflare evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Alchemy: alchemy evidence in package.json",
+        "aria-label=Alchemy: alchemy evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Foldkit: foldkit evidence in package.json",
+        "aria-label=Foldkit: foldkit evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Effect: effect evidence in package.json",
+        "aria-label=Effect: effect evidence in package.json"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["a", "href=https://github.com/ada", "rel=noopener noreferrer"],
+      ["li", "class=x1sfq807"],
+      [
+        "a",
+        "href=https://github.com/ada/effect-only",
+        "rel=noopener noreferrer"
+      ],
+      ["span", "class=x3nfvp2 x1xlarca xr8tzk0"],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Effect: effect evidence in package.json",
+        "aria-label=Effect: effect evidence in package.json"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["a", "href=https://github.com/ada", "rel=noopener noreferrer"],
+      ["li", "class=x1sfq807"],
+      ["a", "href=https://github.com/ada/edge-app", "rel=noopener noreferrer"],
+      ["span", "class=x3nfvp2 x1xlarca xr8tzk0"],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Cloudflare: cloudflare evidence in package.json",
+        "aria-label=Cloudflare: cloudflare evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Alchemy: alchemy evidence in package.json",
+        "aria-label=Alchemy: alchemy evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Effect: effect evidence in package.json",
+        "aria-label=Effect: effect evidence in package.json"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["a", "href=https://github.com/ada", "rel=noopener noreferrer"]
+    ]
+  },
+  "alchemy": {
+    "text": [
+      "🐀 Rat Stackskillsloresystemsnewsall starsglossarysearchagent guide",
+      "For agents: start with the agent guide. Every page is Markdown by default; add Accept: text/html for HTML.source files / Ratstack directoryRatstack directoryProjects built with Cloudflare, Alchemy, Foldkit and Effect. A letter badge appears only when the repository shows evidence for it.Show projects that useCloudflareAlchemyFoldkitEffectShow all projects2 projectsfull-stackCAFEfull-stack summary.by ada · updated 2026-10-01edge-appCAEedge-app summary.by ada · updated 2026-10-01Know a project or story about the stack? Ask your agent to suggest it.",
+      "Explorelearn modeglossarychange logpeersReferenceagent guideAPI docssourceMarkdown by default. HTML when you ask for it. Agents start here."
+    ],
+    "rows": [
+      "full-stackCAFEfull-stack summary.by ada · updated 2026-10-01",
+      "edge-appCAEedge-app summary.by ada · updated 2026-10-01"
+    ],
+    "attributes": [
+      ["p", "class=agent-pointer visually-hidden"],
+      ["a", "href=https://ratstack.sh/llms.txt"],
+      ["nav", "class=breadcrumb", "aria-label=Breadcrumb"],
+      ["a", "href=/"],
+      ["fieldset", "class=x78zum5 x1a02dak x1xlarca x1ghz6dp x1717udv"],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg x1fiepzm x1wzia90",
+        "type=button",
+        "aria-pressed=true"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      [
+        "button",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "type=button",
+        "aria-pressed=false"
+      ],
+      ["button", "type=button"],
+      ["p", "aria-live=polite"],
+      ["ul", "class=x1bkqx2q"],
+      ["li", "class=x1sfq807"],
+      [
+        "a",
+        "href=https://github.com/ada/full-stack",
+        "rel=noopener noreferrer"
+      ],
+      ["span", "class=x3nfvp2 x1xlarca xr8tzk0"],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Cloudflare: cloudflare evidence in package.json",
+        "aria-label=Cloudflare: cloudflare evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Alchemy: alchemy evidence in package.json",
+        "aria-label=Alchemy: alchemy evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Foldkit: foldkit evidence in package.json",
+        "aria-label=Foldkit: foldkit evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Effect: effect evidence in package.json",
+        "aria-label=Effect: effect evidence in package.json"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["a", "href=https://github.com/ada", "rel=noopener noreferrer"],
+      ["li", "class=x1sfq807"],
+      ["a", "href=https://github.com/ada/edge-app", "rel=noopener noreferrer"],
+      ["span", "class=x3nfvp2 x1xlarca xr8tzk0"],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Cloudflare: cloudflare evidence in package.json",
+        "aria-label=Cloudflare: cloudflare evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Alchemy: alchemy evidence in package.json",
+        "aria-label=Alchemy: alchemy evidence in package.json"
+      ],
+      [
+        "abbr",
+        "class=x12oqio5 x1rg5ohu x1xlr1w8 x1u7k74 x1et6avd xhpiq8o x2b8uid x1hl2dhg",
+        "title=Effect: effect evidence in package.json",
+        "aria-label=Effect: effect evidence in package.json"
+      ],
+      ["p", "class=xraqfvc x1s8wshw"],
+      ["a", "href=https://github.com/ada", "rel=noopener noreferrer"]
+    ]
+  }
+}
