@@ -10,10 +10,15 @@ import {
 import { findPage } from "./client/reader-pages.js";
 import type { ReaderPageFlags } from "./client/reader/model.js";
 import { newsOrder } from "./features/cafe/news-order.js";
-import { directoryRouter } from "./features/site-route.js";
+import {
+  directoryRouter,
+  isWithinSection,
+  loreRouter,
+} from "./features/site-route.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
 import { EffectUiAssets } from "./server/reader-document.js";
+import { readerSupportsEffectUi } from "./server/reader-effect-ui-props.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
 import {
   renderDirectoryOrError,
@@ -35,6 +40,7 @@ const effectUiAssets = Schema.decodeUnknownSync(
   Schema.Struct({
     "directory-effect-ui": EffectUiAssets,
     "news-effect-ui": EffectUiAssets,
+    "reader-effect-ui": EffectUiAssets,
   })
 )(effectUiAssetManifest);
 
@@ -146,6 +152,17 @@ const renderReaderHtml = (page: ReaderPageFlags) => {
       effectUiAssets["directory-effect-ui"],
       () => import("./server/directory-effect-ui.js"),
       renderErrorApplication
+    );
+  }
+
+  if (isWithinSection(loreRouter(), path) && readerSupportsEffectUi(page)) {
+    return Effect.tryPromise(
+      () => import("./server/reader-effect-ui-page.js")
+    ).pipe(
+      Effect.flatMap(({ renderEffectUiReader }) =>
+        renderEffectUiReader(page, effectUiAssets["reader-effect-ui"])
+      ),
+      Effect.map((application) => ({ application, status }))
     );
   }
 

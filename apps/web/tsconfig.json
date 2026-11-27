@@ -48,6 +48,40 @@
             }
           },
           {
+            "include": ["src/client/reader-effect-ui/command.ts"],
+            "options": {
+              "allowedExperimentalApis": ["@effect/ui/Command#make"]
+            }
+          },
+          {
+            "include": ["src/client/reader-effect-ui/model.ts"],
+            "options": {
+              "allowedExperimentalApis": ["@effect/ui/UiSchema#TaggedEnum"]
+            }
+          },
+          {
+            "include": ["src/features/reader-effect-ui/view.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/View#Input",
+                "@effect/ui/html/Html#H"
+              ]
+            }
+          },
+          {
+            "include": ["test/reader-effect-ui.test.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/html/HtmlServer#renderToHtml",
+                "@effect/ui/html/testing#ssr",
+                "@effect/ui/html/testing/HtmlLocator#role",
+                "@effect/ui/html/testing/HtmlScene#make",
+                "@effect/ui/testing/Story#make",
+                "@effect/ui/testing/TestHost#layer"
+              ]
+            }
+          },
+          {
             "include": ["test/news-effect-ui.test.ts"],
             "options": {
               "allowedExperimentalApis": [

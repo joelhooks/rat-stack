@@ -9,18 +9,12 @@ import {
 import { Model as CafeModel } from "../cafe/model.js";
 import { Model as DocsModel } from "../docs/model.js";
 import { Model as MotionDemoModel } from "../motion/model.js";
+import { CopyPrompt } from "../reader-copy-prompt.js";
 import { ReaderBlock } from "../reader-document.js";
 import { ReaderBreadcrumb, ReaderNodeSchema } from "../reader-node.js";
 import { Model as TubeModel } from "../tube/model.js";
 
 export { ReaderReferences } from "../../page-descriptor.js";
-
-export const CopyPrompt = Schema.Struct({
-  id: Schema.String,
-  label: Schema.String,
-  showText: Schema.Boolean,
-  text: Schema.String,
-});
 
 export const ReaderFlags = Schema.Struct({
   agentMarkdown: Schema.OptionFromOptional(Schema.String),
