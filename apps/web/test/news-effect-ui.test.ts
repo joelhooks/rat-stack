@@ -165,6 +165,7 @@ const newsScript = (document: Document) =>
 const newsAssets = {
   entryScript: "/assets/news-effect-ui-test.js",
   modulePreloads: [],
+  stylesheets: [],
 };
 
 const foldkit = (flags: typeof ReaderFlags.Type) =>

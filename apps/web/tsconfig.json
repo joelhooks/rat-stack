@@ -14,6 +14,40 @@
         ],
         "overrides": [
           {
+            "include": ["src/client/directory-effect-ui/component.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/Component#noop",
+                "@effect/ui/html/Html#component",
+                "@effect/ui/html/HtmlCommand#focus"
+              ]
+            }
+          },
+          {
+            "include": ["src/client/directory-effect-ui/model.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/UiSchema#TaggedEnum",
+                "@effect/ui/html/Html#ref"
+              ]
+            }
+          },
+          {
+            "include": ["test/directory-effect-ui.test.ts"],
+            "options": {
+              "allowedExperimentalApis": [
+                "@effect/ui/html/HtmlCommand#Focus",
+                "@effect/ui/html/HtmlServer#renderToHtml",
+                "@effect/ui/html/testing#ssr",
+                "@effect/ui/html/testing/HtmlLocator#role",
+                "@effect/ui/html/testing/HtmlScene#make",
+                "@effect/ui/testing/Story#make",
+                "@effect/ui/testing/TestHost#layer",
+                "@effect/ui/testing/TestHost#settle"
+              ]
+            }
+          },
+          {
             "include": ["test/news-effect-ui.test.ts"],
             "options": {
               "allowedExperimentalApis": [

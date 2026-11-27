@@ -1,4 +1,4 @@
-import { Effect, Option, Schema } from "effect";
+import { Cause, Effect, Option, Schema } from "effect";
 import { renderToString } from "foldkit/experimental/server";
 
 import type { ReaderErrorPage } from "../../../site/src/reader-error-page.js";
@@ -7,16 +7,17 @@ import { init } from "../client/reader/init.js";
 import { ReaderFlags } from "../client/reader/model.js";
 import type { ReaderPageFlags } from "../client/reader/model.js";
 import { view } from "../features/reader.js";
+import type * as DirectoryRenderer from "./directory-effect-ui.js";
 import type * as NewsRenderer from "./news-effect-ui.js";
 import { withReaderHead } from "./reader-document.js";
-import type { NewsDocumentAssets } from "./reader-document.js";
+import type { EffectUiAssets } from "./reader-document.js";
 import type { ReaderErrorTemplate } from "./reader-error-template.js";
 import { readerErrorFlags } from "./reader-error.js";
 
-class MissingNews extends Schema.TaggedError<
-  MissingNews,
+class MissingCafe extends Schema.TaggedError<
+  MissingCafe,
   { readonly brand: unique symbol }
->()("MissingNews", {
+>()("MissingCafe", {
   path: Schema.String,
 }) {}
 
@@ -35,44 +36,95 @@ export const renderReaderError = (
   buildId?: string
 ) => renderReaderApplication(readerErrorFlags(template, error), buildId);
 
-export const renderNewsOrError = Effect.fn("reader.renderNewsOrError")(
-  function* renderNewsOrError(
-    page: ReaderPageFlags,
-    assets: typeof NewsDocumentAssets.Type,
-    loadNews: () => Promise<typeof NewsRenderer>,
-    renderError: (
-      error: typeof ReaderErrorPage.Type
-    ) => ReturnType<typeof renderReaderError>
-  ) {
-    const { path } = page.page;
-    const cafe = page.cafe.pipe(Option.filter(CafeModel.guards.News));
+type RenderError = (
+  error: typeof ReaderErrorPage.Type
+) => ReturnType<typeof renderReaderError>;
 
-    return yield* Effect.gen(function* renderNews() {
-      if (Option.isNone(cafe)) {
-        return yield* new MissingNews({ path });
+const renderCafeOrError = <E>(
+  page: ReaderPageFlags,
+  label: "News" | "Directory",
+  renderCafe: Effect.Effect<Parameters<typeof withReaderHead>[0], E>,
+  renderError: RenderError
+) => {
+  const { path } = page.page;
+
+  return renderCafe.pipe(
+    Effect.map((application) => ({
+      application: withReaderHead(application, page),
+      status: page.page.status,
+    })),
+    Effect.catchCause((cause) => {
+      if (Cause.hasInterruptsOnly(cause)) {
+        return Effect.interrupt;
       }
 
-      const { renderNewsPage } = yield* Effect.tryPromise(loadNews);
-      const application = yield* renderNewsPage(page, cafe.value, assets);
+      return Effect.logError(
+        `${label} HTML could not render`,
+        { path },
+        cause
+      ).pipe(
+        Effect.andThen(
+          renderError({
+            code: 500,
+            message: `The ${label.toLowerCase()} page could not load. Try again in a moment.`,
+            path,
+            title: `${label} could not load`,
+          })
+        ),
+        Effect.map((application) => ({ application, status: 500 }))
+      );
+    })
+  );
+};
 
-      return {
-        application: withReaderHead(application, page),
-        status: page.page.status,
-      };
-    }).pipe(
-      Effect.catch((error) =>
-        Effect.logError("News HTML could not render", { path, error }).pipe(
-          Effect.andThen(
-            renderError({
-              code: 500,
-              message: "The news page could not load. Try again in a moment.",
-              path,
-              title: "News could not load",
-            })
-          ),
-          Effect.map((application) => ({ application, status: 500 }))
-        )
-      )
-    );
-  }
+export const renderNewsOrError = Effect.fn("reader.renderNewsOrError")(
+  (
+    page: ReaderPageFlags,
+    assets: typeof EffectUiAssets.Type,
+    loadNews: () => Promise<typeof NewsRenderer>,
+    renderError: RenderError
+  ) =>
+    renderCafeOrError(
+      page,
+      "News",
+      Effect.gen(function* renderNews() {
+        const cafe = page.cafe.pipe(Option.filter(CafeModel.guards.News));
+
+        if (Option.isNone(cafe)) {
+          return yield* new MissingCafe({ path: page.page.path });
+        }
+
+        const { renderNewsPage } = yield* Effect.tryPromise(loadNews);
+
+        return yield* renderNewsPage(page, cafe.value, assets);
+      }),
+      renderError
+    )
+);
+
+export const renderDirectoryOrError = Effect.fn(
+  "reader.renderDirectoryOrError"
+)(
+  (
+    page: ReaderPageFlags,
+    assets: typeof EffectUiAssets.Type,
+    loadDirectory: () => Promise<typeof DirectoryRenderer>,
+    renderError: RenderError
+  ) =>
+    renderCafeOrError(
+      page,
+      "Directory",
+      Effect.gen(function* renderDirectory() {
+        const cafe = page.cafe.pipe(Option.filter(CafeModel.guards.Directory));
+
+        if (Option.isNone(cafe)) {
+          return yield* new MissingCafe({ path: page.page.path });
+        }
+
+        const { renderDirectoryPage } = yield* Effect.tryPromise(loadDirectory);
+
+        return yield* renderDirectoryPage(page, cafe.value, assets);
+      }),
+      renderError
+    )
 );

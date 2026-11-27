@@ -1,6 +1,6 @@
 import { Effect, Layer, Option, Schema } from "effect";
 import { Rendered, Responded } from "foldkit/experimental/server";
-import newsAssets from "virtual:news-effect-ui-entry";
+import effectUiAssetManifest from "virtual:reader-effect-ui-assets";
 import { readerErrorTemplate } from "virtual:reader-error";
 
 import {
@@ -10,10 +10,13 @@ import {
 import { findPage } from "./client/reader-pages.js";
 import type { ReaderPageFlags } from "./client/reader/model.js";
 import { newsOrder } from "./features/cafe/news-order.js";
+import { directoryRouter } from "./features/site-route.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
+import { EffectUiAssets } from "./server/reader-document.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
 import {
+  renderDirectoryOrError,
   renderNewsOrError,
   renderReaderApplication,
   renderReaderError,
@@ -27,6 +30,13 @@ import {
 export { pagePaths as prerenderPaths } from "./client/reader-pages.js";
 
 export { renderDocument } from "./server/reader-document.js";
+
+const effectUiAssets = Schema.decodeUnknownSync(
+  Schema.Struct({
+    "directory-effect-ui": EffectUiAssets,
+    "news-effect-ui": EffectUiAssets,
+  })
+)(effectUiAssetManifest);
 
 const errorTemplate =
   Schema.decodeUnknownSync(ReaderErrorTemplate)(readerErrorTemplate);
@@ -121,16 +131,27 @@ const renderErrorApplication = (error: typeof ReaderErrorPage.Type) =>
 const renderReaderHtml = (page: ReaderPageFlags) => {
   const { path, status } = page.page;
 
-  return path === newsOrder.rank.href || path === newsOrder.newest.href
-    ? renderNewsOrError(
-        page,
-        newsAssets,
-        () => import("./server/news-effect-ui.js"),
-        renderErrorApplication
-      )
-    : renderReaderApplication(page).pipe(
-        Effect.map((application) => ({ application, status }))
-      );
+  if (path === newsOrder.rank.href || path === newsOrder.newest.href) {
+    return renderNewsOrError(
+      page,
+      effectUiAssets["news-effect-ui"],
+      () => import("./server/news-effect-ui.js"),
+      renderErrorApplication
+    );
+  }
+
+  if (path === directoryRouter()) {
+    return renderDirectoryOrError(
+      page,
+      effectUiAssets["directory-effect-ui"],
+      () => import("./server/directory-effect-ui.js"),
+      renderErrorApplication
+    );
+  }
+
+  return renderReaderApplication(page).pipe(
+    Effect.map((application) => ({ application, status }))
+  );
 };
 
 export const renderReaderPage = Effect.fn("reader.renderPage")(

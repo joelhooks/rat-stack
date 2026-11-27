@@ -2,6 +2,7 @@ import { CafeNewsItem, CafeNewsSort } from "@rat-stack/core/contracts";
 import { Schema } from "effect";
 
 import { NewsProfileLink } from "../cafe/model.js";
+import { effectUiHandoff } from "../effect-ui-handoff.js";
 
 export const NewsProps = Schema.Struct({
   items: Schema.Array(CafeNewsItem),
@@ -11,10 +12,7 @@ export const NewsProps = Schema.Struct({
 
 export type NewsPageProps = typeof NewsProps.Type;
 
-export const NewsHandoff = Schema.Struct({
-  props: NewsProps,
-  state: Schema.Record(Schema.String, Schema.Unknown),
-});
+export const NewsHandoff = effectUiHandoff(NewsProps);
 
 export const newsRootId = "news-effect-ui";
 

@@ -4,7 +4,7 @@ import { foldkit } from "@foldkit/vite-plugin";
 import { Predicate, Schema } from "effect";
 import { defineConfig } from "vite";
 
-import { newsEffectUiPlugin } from "./news-effect-ui.js";
+import { effectUiPlugin } from "./effect-ui.js";
 import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
 import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
@@ -28,7 +28,7 @@ export default defineConfig({
         serverEntry: "/src/entry.server.ts",
       },
     }),
-    newsEffectUiPlugin(),
+    effectUiPlugin(),
     readerFinalizationPlugin(),
     {
       apply: "build",
