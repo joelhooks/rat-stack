@@ -143,8 +143,15 @@ const parameterizedReadBoundaries = new Map(
       ...hashed("apps/site/dist/content/**"),
       ...temporary("<reader build output>/**"),
     ],
+    "apps/web/src/institute/content/artifact.ts": temporary(
+      "<optional external Institute dist verified against the hashed source pin>/**"
+    ),
     "apps/web/test/accent.test.ts": hashed("apps/web/src/**"),
     "apps/web/test/built-images.test.ts": hashed("apps/web/dist/**"),
+    "apps/web/test/institute-content.test.ts": [
+      ...temporary(),
+      ...temporary("<external Institute dist verified before corpus reads>/**"),
+    ],
     "apps/web/test/news-effect-ui.test.ts": hashed(
       "apps/web/dist/client/assets/**"
     ),

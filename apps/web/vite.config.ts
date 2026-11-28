@@ -5,6 +5,7 @@ import { Predicate, Schema } from "effect";
 import { defineConfig } from "vite";
 
 import { effectUiPlugin } from "./effect-ui.js";
+import { instituteAssetsPlugin } from "./institute-assets.js";
 import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
 import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
@@ -30,6 +31,7 @@ export default defineConfig({
     }),
     effectUiPlugin(),
     readerFinalizationPlugin(),
+    instituteAssetsPlugin(),
     {
       apply: "build",
       config: (config, environment) => {

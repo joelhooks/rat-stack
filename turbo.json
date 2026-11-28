@@ -249,6 +249,11 @@
         "$TURBO_ROOT$/apps/site/src/rpc-worker.ts"
       ]
     },
+    "@rat-stack/web#build": {
+      "dependsOn": ["^build"],
+      "env": ["INSTITUTE_CONTENT_ARTIFACT"],
+      "outputs": ["dist/**"]
+    },
     "@rat-stack/web#typecheck": {
       "dependsOn": ["^build", "^typecheck"],
       "outputs": []
