@@ -161,7 +161,8 @@ const parameterizedReadBoundaries = new Map(
     ),
     "apps/web/test/reader-csp.test.ts": hashed("apps/web/dist/**"),
     "apps/web/test/reader-effect-ui.test.ts": hashed(
-      "apps/web/dist/client/lore/**"
+      "apps/web/dist/client/lore/**",
+      "apps/web/dist/client/systems/**"
     ),
     "apps/web/test/reader-systems-skills.test.ts": hashed(
       "apps/site/dist/content/**"

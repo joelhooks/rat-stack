@@ -19,6 +19,7 @@ import {
   directoryRouter,
   isWithinSection,
   loreRouter,
+  systemsRouter,
 } from "./features/site-route.js";
 import { isInstitutePath } from "./institute/routes/paths.js";
 import { instituteWebsiteRuntime } from "./institute/routes/website-runtime.js";
@@ -181,7 +182,11 @@ const renderReaderHtml = (page: ReaderSourcePage) => {
     );
   }
 
-  if (isWithinSection(loreRouter(), path) && readerSupportsEffectUi(page)) {
+  if (
+    (isWithinSection(loreRouter(), path) ||
+      isWithinSection(systemsRouter(), path)) &&
+    readerSupportsEffectUi(page)
+  ) {
     return Effect.tryPromise(
       () => import("./server/reader-effect-ui-page.js")
     ).pipe(
