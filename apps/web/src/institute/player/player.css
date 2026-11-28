@@ -66,6 +66,9 @@
 
 .institute-player pre {
   margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
   overflow: auto;
   font:
     clamp(0.78rem, 1.2vw, 1.25rem)/1.65 ui-monospace,
@@ -182,6 +185,26 @@
   from {
     opacity: 0;
     filter: blur(4px);
+  }
+}
+
+@media (min-width: 54rem) {
+  .institute-player .institute-controls[role="group"] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    flex: 1;
+    column-gap: 1rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .institute-player .institute-controls [role="status"] {
+    grid-column: 1 / -1;
+  }
+
+  .institute-player .institute-controls [role="status"]:empty {
+    display: none;
   }
 }
 
