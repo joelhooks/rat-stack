@@ -1,0 +1,45 @@
+.institute-controls {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.institute-controls__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.institute-controls :is(button, select, input) {
+  min-height: 44px;
+}
+
+.institute-controls :is(button, select) {
+  min-width: 44px;
+  border: 1px solid currentcolor;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.625rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.institute-controls :is(button, select):disabled {
+  opacity: 0.55;
+}
+
+.institute-controls input[type="range"] {
+  width: 100%;
+  margin: 0;
+  touch-action: pan-y;
+}
+
+.institute-controls :is(button, select, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent, currentcolor);
+  outline-offset: 2px;
+}
+
+.institute-controls__time {
+  font-variant-numeric: tabular-nums;
+}
