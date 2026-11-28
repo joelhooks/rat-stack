@@ -28,4 +28,32 @@
   .institute-chapter {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   }
+
+  body > #institute-effect-ui:has(.institute-player) {
+    max-inline-size: none;
+    inline-size: 100%;
+  }
+
+  .institute-chapter:has(.institute-player) {
+    grid-column: full-bleed;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .institute-chapter:has(.institute-player) > nav,
+  .institute-chapter:has(.institute-player)
+    > article
+    > :not(#institute-player) {
+    inline-size: min(80ch, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .institute-chapter:has(.institute-player) > nav > ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.5rem;
+  }
+
+  .institute-page:has(.institute-player) > :is(h1, p) {
+    margin-block: 0 0.5rem;
+  }
 }
