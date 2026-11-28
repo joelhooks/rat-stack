@@ -68,6 +68,11 @@ import {
 } from "./executor-skills.js";
 import { flagsLayer } from "./flags.js";
 import { privateHttpTracingLayer } from "./http-privacy.js";
+import {
+  instituteRobotsDirective,
+  instituteSitemapIndex,
+  siteSitemapPath,
+} from "./institute-discovery.js";
 import { joinRequestMiddleware } from "./interest/join-request.js";
 import { withAvailablePageTicket } from "./interest/page-ticket.js";
 import { retiredInterestRoutes } from "./interest/retired-routes.js";
@@ -590,7 +595,48 @@ export const tokenmaxxResponse = Effect.gen(function* tokenmaxxPage() {
   });
 });
 
-const contentRoutes = () =>
+const sitemapResponse = (body: string) =>
+  HttpServerResponse.text(body, {
+    contentType: "application/xml; charset=utf-8",
+  });
+
+const sitemapRoutes = (
+  store: ContentStore["Service"],
+  discoverable: boolean
+) => {
+  const site = (request: HttpServerRequest.HttpServerRequest) =>
+    store.catalog.pipe(
+      Effect.map((catalog) =>
+        sitemapResponse(sitemapXml(originOf(request), catalog))
+      )
+    );
+
+  const robots = discoverable
+    ? robotsText + instituteRobotsDirective
+    : robotsText;
+
+  return Layer.mergeAll(
+    HttpRouter.add(
+      "GET",
+      "/robots.txt",
+      HttpServerResponse.text(robots, {
+        contentType: "text/plain; charset=utf-8",
+      })
+    ),
+    discoverable
+      ? Layer.merge(
+          HttpRouter.add(
+            "GET",
+            "/sitemap.xml",
+            sitemapResponse(instituteSitemapIndex)
+          ),
+          HttpRouter.add("GET", siteSitemapPath, site)
+        )
+      : HttpRouter.add("GET", "/sitemap.xml", site)
+  );
+};
+
+const contentRoutes = (discoverable: boolean) =>
   Layer.unwrap(
     Effect.gen(function* buildContentRoutes() {
       const tickets = yield* Effect.serviceOption(IntakeTicket);
@@ -669,22 +715,7 @@ const contentRoutes = () =>
           )
         ),
         HttpRouter.add("GET", "/auth.md", markdown(authMarkdown)),
-        HttpRouter.add(
-          "GET",
-          "/robots.txt",
-          HttpServerResponse.text(robotsText, {
-            contentType: "text/plain; charset=utf-8",
-          })
-        ),
-        HttpRouter.add("GET", "/sitemap.xml", (request) =>
-          store.catalog.pipe(
-            Effect.map((catalog) =>
-              HttpServerResponse.text(sitemapXml(originOf(request), catalog), {
-                contentType: "application/xml; charset=utf-8",
-              })
-            )
-          )
-        ),
+        sitemapRoutes(store, discoverable),
         HttpRouter.add(
           "GET",
           "/.well-known/agent-skills/index.json",
@@ -1140,6 +1171,7 @@ export interface MischiefRouteOptions {
   readonly feedback?: ReturnType<typeof feedbackAccess> | undefined;
   readonly contentStore?: ContentStore["Service"] | undefined;
   readonly assets?: StaticAssets["Service"] | undefined;
+  readonly instituteDiscoverable?: boolean;
   readonly interest?: Omit<InterestOptions, "rateLimits"> | undefined;
   readonly joinTokens?: Context.Context<InterestTokens> | undefined;
   readonly legacyMcp?: LegacyMcpRouter;
@@ -1234,7 +1266,7 @@ export const mischiefRoutes = (options: MischiefRouteOptions = {}) =>
 
       return Layer.mergeAll(
         unsubscribeRoutes,
-        contentRoutes(),
+        contentRoutes(options.instituteDiscoverable === true),
         retiredInterestRoutes,
         joinRequestMiddleware({
           rateLimits: options.rateLimits,

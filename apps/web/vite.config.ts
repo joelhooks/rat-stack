@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 import { effectUiPlugin } from "./effect-ui.js";
 import { readerFinalizationPlugin } from "./reader-finalization.js";
 import { readerPagesPlugin } from "./reader-pages.js";
+import { instituteFetchPlugin } from "./src/institute/routes/fetch-plugin.js";
 import { readerPrerenderOrigin } from "./src/server/prerender-origin.js";
 import type { BackendFetch } from "./src/server/rpc.js";
 import { stylexPlugin } from "./stylex.js";
@@ -29,6 +30,7 @@ export default defineConfig({
       },
     }),
     effectUiPlugin(),
+    instituteFetchPlugin(),
     readerFinalizationPlugin(),
     {
       apply: "build",

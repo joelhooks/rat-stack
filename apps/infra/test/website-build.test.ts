@@ -30,6 +30,9 @@ const bindings = {
   BACKEND: { fetch: async () => new Response("private RPC binding", { status: 200 }) },
   ASSETS: { fetch: async (request) => {
     const pathname = new URL(request.url).pathname;
+    if (pathname === "/institute" || pathname.startsWith("/institute/")) {
+      throw new Error("The disabled Institute must not read Website assets");
+    }
     const base = payload.clientDirectory + (pathname === "/" ? "/index.html" : pathname);
     for (const file of [base, base + "/index.html"]) {
       try { return new Response(await readFile(file), { status: 200 }); } catch {}
@@ -66,6 +69,20 @@ const ProbeResponses = Schema.fromJsonString(
     })
   )
 );
+
+const expectDisabledInstitute = (responses: typeof ProbeResponses.Type) => {
+  const outside = responses.find(({ path }) => path === "/outside-the-slice");
+
+  const institute = responses.filter(({ path }) =>
+    path.startsWith("/institute")
+  );
+
+  expect(institute).toHaveLength(5);
+
+  for (const response of institute) {
+    expect(response).toEqual({ ...outside, path: response.path });
+  }
+};
 
 it.layer(NodeServices.layer)((test) => {
   test.effect(
@@ -320,6 +337,11 @@ it.layer(NodeServices.layer)((test) => {
                       "/rpc",
                       "/__rat",
                       "/outside-the-slice",
+                      "/institute",
+                      "/institute/chapters/one-contract?section=define-boundary",
+                      "/institute/sitemap.xml",
+                      "/institute/og/home.png",
+                      "/institute/content/one-contract/define-boundary.4170eb40.webm",
                     ],
                   })
                 )
@@ -337,7 +359,11 @@ it.layer(NodeServices.layer)((test) => {
 
         const responses = yield* Schema.decodeEffect(ProbeResponses)(output);
 
-        for (const response of responses) {
+        expectDisabledInstitute(responses);
+
+        for (const response of responses.filter(
+          ({ path: url }) => !url.startsWith("/institute")
+        )) {
           expect(response.commit).toBe(commit);
           expect(response.noindex).toBe("noindex");
           expect(response.status).toBe(

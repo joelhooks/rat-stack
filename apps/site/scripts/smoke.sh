@@ -87,8 +87,29 @@ for accept in text/html text/markdown; do
   grep -Eiq '^cache-control:.*no-store' "$tmp_dir/workshop.headers" || fail "workshop $accept lost no-store"
   printf 'workshop indexable: %s\n' "$accept"
 done
-curl --fail --silent --show-error --max-time 20 "${base_url}/sitemap.xml" >"$tmp_dir/sitemap.xml"
-grep -Fq "<loc>${base_url}/tokenmaxx</loc>" "$tmp_dir/sitemap.xml" || fail "workshop missing from sitemap"
+curl --fail --silent --show-error --max-time 20 "${base_url}/sitemap.xml" >"$tmp_dir/sitemap.xml" || fail "GET ${base_url}/sitemap.xml did not complete"
+site_sitemap_path=/sitemap.xml
+if grep -Fq '<sitemapindex ' "$tmp_dir/sitemap.xml"; then
+  [[ "${INSTITUTE_PUBLIC:-true}" == "true" ]] || fail "${base_url}/sitemap.xml exposed a sitemap index with INSTITUTE_PUBLIC off"
+  grep -Fq '<loc>https://ratstack.sh/sitemap/site.xml</loc>' "$tmp_dir/sitemap.xml" || fail "${base_url}/sitemap.xml is missing the site child sitemap"
+  grep -Fq '<loc>https://ratstack.sh/institute/sitemap.xml</loc>' "$tmp_dir/sitemap.xml" || fail "${base_url}/sitemap.xml is missing the Institute child sitemap"
+  site_sitemap_path=/sitemap/site.xml
+  curl --fail --silent --show-error --max-time 20 "${base_url}${site_sitemap_path}" >"$tmp_dir/sitemap.xml" || fail "GET ${base_url}${site_sitemap_path} did not complete"
+else
+  if [[ "${INSTITUTE_ENABLED:-false}" == "true" && "${INSTITUTE_PUBLIC:-false}" == "true" ]]; then
+    fail "${base_url}/sitemap.xml is not an index with the public Institute enabled"
+  fi
+  if grep -Fiq 'institute' "$tmp_dir/sitemap.xml"; then
+    fail "${base_url}/sitemap.xml exposed the unlisted Institute"
+  fi
+  institute_status="$(curl --silent --show-error --max-time 20 --header 'accept: text/html' --dump-header "$tmp_dir/institute.headers" --output /dev/null --write-out '%{http_code}' "${base_url}/institute")" || fail "GET ${base_url}/institute did not complete"
+  case "$institute_status" in
+    200) grep -Eiq '^x-robots-tag:.*noindex' "$tmp_dir/institute.headers" || fail "${base_url}/institute lost X-Robots-Tag: noindex while unlisted" ;;
+    404) [[ "${INSTITUTE_ENABLED:-false}" != "true" ]] || fail "${base_url}/institute returned 404 with INSTITUTE_ENABLED on" ;;
+    *) fail "${base_url}/institute returned HTTP ${institute_status}; expected 200 unlisted or 404 disabled" ;;
+  esac
+fi
+grep -Fq "<loc>${base_url}/tokenmaxx</loc>" "$tmp_dir/sitemap.xml" || fail "workshop missing from ${base_url}${site_sitemap_path}"
 for route in '/tokenmaxx/confirm?token=invalid' '/tokenmaxx/unsubscribe?token=invalid' /tokenmaxx/interest /tokenmaxx/four-comma-club.jpg; do
   curl --silent --show-error --max-time 20 --dump-header "$tmp_dir/transaction.headers" --output /dev/null "${base_url}${route}"
   grep -Eiq '^x-robots-tag:.*noindex' "$tmp_dir/transaction.headers" || fail "$route lost noindex"

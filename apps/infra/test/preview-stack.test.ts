@@ -50,6 +50,8 @@ it.effect.prop(
                 "/__error",
                 "/__rat",
                 "/__rat/*",
+                "/institute",
+                "/institute/*",
                 "/prompts",
                 "/prompts/*",
               ],

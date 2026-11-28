@@ -2,6 +2,9 @@ import { Effect, Option, Schema } from "effect";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 
+import { isInstitutePath } from "./institute-paths.js";
+import { instituteVisibilityFor } from "./institute-visibility.js";
+import { instituteContentSecurityPolicy, secureResponse } from "./security.js";
 import { AssetBindingSchema } from "./static-assets.js";
 
 export const instituteStage = "institute-private";
@@ -10,12 +13,20 @@ export const withInstitute = (environment: {
   readonly ALCHEMY_STAGE?: unknown;
   readonly INSTITUTE?: unknown;
   readonly INSTITUTE_ENABLED?: unknown;
+  readonly WEBSITE?: unknown;
 }) => {
-  const binding = Schema.decodeUnknownOption(AssetBindingSchema)(
+  const { enabled } = instituteVisibilityFor(environment);
+
+  const legacy = Schema.decodeUnknownOption(AssetBindingSchema)(
     environment.INSTITUTE
   );
 
-  const enabled = environment.INSTITUTE_ENABLED === "true";
+  const binding = legacy.pipe(
+    Option.orElse(() =>
+      Schema.decodeUnknownOption(AssetBindingSchema)(environment.WEBSITE)
+    )
+  );
+
   const privateStage = environment.ALCHEMY_STAGE === instituteStage;
 
   return <E, R>(
@@ -37,10 +48,7 @@ export const withInstitute = (environment: {
               hostname === "ratstack.sh" ||
               (privateStage && hostname !== "www.ratstack.sh");
 
-            if (
-              !allowedHost ||
-              (pathname !== "/institute" && !pathname.startsWith("/institute/"))
-            ) {
+            if (!allowedHost || !isInstitutePath(pathname)) {
               return yield* fallback;
             }
 
@@ -50,7 +58,11 @@ export const withInstitute = (environment: {
               institute.fetch.bind(institute, original)
             );
 
-            return HttpServerResponse.fromWeb(response);
+            const web = HttpServerResponse.fromWeb(response);
+
+            return Option.isSome(legacy)
+              ? web
+              : secureResponse(web, instituteContentSecurityPolicy);
           });
 
     return privateStage

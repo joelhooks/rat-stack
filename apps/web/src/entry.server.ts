@@ -1,5 +1,11 @@
 import { Effect, Layer, Option, Schema } from "effect";
-import { Rendered, Responded } from "foldkit/experimental/server";
+import {
+  Rendered,
+  Responded,
+  handleRequest,
+  toResponse,
+} from "foldkit/experimental/server";
+import type { DocumentRenderer } from "foldkit/experimental/server";
 import effectUiAssetManifest from "virtual:reader-effect-ui-assets";
 import { readerErrorTemplate } from "virtual:reader-error";
 
@@ -14,10 +20,12 @@ import {
   isWithinSection,
   loreRouter,
 } from "./features/site-route.js";
+import { isInstitutePath } from "./institute/routes/paths.js";
+import { instituteWebsiteRuntime } from "./institute/routes/website-runtime.js";
 import type { ReaderSourcePage } from "./reader-cafe.js";
 import { isWorkerFirstReaderRoute } from "./reader-routes.js";
 import { readerPrerenderOrigin } from "./server/prerender-origin.js";
-import { EffectUiAssets } from "./server/reader-document.js";
+import { EffectUiAssets, renderDocument } from "./server/reader-document.js";
 import { readerSupportsEffectUi } from "./server/reader-effect-ui-props.js";
 import { ReaderErrorTemplate } from "./server/reader-error-template.js";
 import { findPage } from "./server/reader-pages.js";
@@ -36,12 +44,13 @@ import {
 
 export { pagePaths as prerenderPaths } from "./server/reader-pages.js";
 
-export { renderDocument } from "./server/reader-document.js";
+export { renderDocument };
 
 const effectUiAssets = Schema.decodeUnknownSync(
   Schema.Struct({
     "all-stars-effect-ui": EffectUiAssets,
     "directory-effect-ui": EffectUiAssets,
+    "institute-effect-ui": EffectUiAssets,
     "news-effect-ui": EffectUiAssets,
     "reader-effect-ui": EffectUiAssets,
   })
@@ -79,13 +88,18 @@ const previewHeaders = Effect.fn("reader.previewHeaders")(
 
 const responded = Effect.fn("reader.responded")(function* responded(
   request: Request,
-  response: Response
+  response: Response,
+  noindex?: boolean
 ) {
   const headers = new Headers(response.headers);
   const preview = yield* previewHeaders(request);
 
   for (const [name, value] of preview) {
     headers.set(name, value);
+  }
+
+  if (noindex === true) {
+    headers.set("X-Robots-Tag", "noindex");
   }
 
   return Responded(
@@ -183,6 +197,75 @@ const renderReaderHtml = (page: ReaderSourcePage) => {
   );
 };
 
+const notFound = (request: Request, noindex = false) =>
+  responded(
+    request,
+    new Response("This route is outside the reader preview slice", {
+      status: 404,
+    }),
+    noindex
+  );
+
+const institutePage = Effect.fn("reader.institutePage")(function* institutePage(
+  request: Request
+) {
+  const institute = yield* instituteWebsiteRuntime;
+
+  if (institute === null) {
+    return yield* notFound(request);
+  }
+
+  const { discoverable, fetchAsset } = institute;
+
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return yield* responded(
+      request,
+      new Response("Institute pages accept GET or HEAD", {
+        headers: { Allow: "GET, HEAD" },
+        status: 405,
+      }),
+      !discoverable
+    );
+  }
+
+  const { renderInstituteRequest } = yield* Effect.tryPromise(
+    () => import("./institute/routes/request.js")
+  );
+
+  const result = yield* renderInstituteRequest(
+    request,
+    fetchAsset,
+    effectUiAssets["institute-effect-ui"],
+    discoverable
+  ).pipe(
+    Effect.catch((error) =>
+      Effect.logError("Institute published content unavailable", error).pipe(
+        Effect.as({
+          response: new Response("Institute content is unavailable", {
+            status: 503,
+          }),
+        })
+      )
+    )
+  );
+
+  if (result === null) {
+    return yield* notFound(request, !discoverable);
+  }
+
+  if (result.response !== undefined) {
+    return yield* responded(request, result.response, !discoverable);
+  }
+
+  const headers = yield* previewHeaders(request);
+
+  if (!discoverable) {
+    headers.set("X-Robots-Tag", "noindex");
+  }
+
+  return Rendered(result.application, { headers, status: 200 });
+});
+
 export const renderReaderPage = Effect.fn("reader.renderPage")(
   function* renderReaderPage(request: Request) {
     const { pathname } = new URL(request.url);
@@ -204,6 +287,10 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
       return yield* renderErrorRoute(request);
     }
 
+    if (isInstitutePath(pathname)) {
+      return yield* institutePage(request);
+    }
+
     if (request.method !== "GET" && request.method !== "HEAD") {
       return yield* responded(
         request,
@@ -218,12 +305,7 @@ export const renderReaderPage = Effect.fn("reader.renderPage")(
     const found = yield* findPage(route);
 
     if (Option.isNone(found)) {
-      return yield* responded(
-        request,
-        new Response("This route is outside the reader preview slice", {
-          status: 404,
-        })
-      );
+      return yield* notFound(request);
     }
 
     const page = found.value;
@@ -277,3 +359,25 @@ export const renderPage = (request: Request) =>
       )
     )
   );
+
+export const renderWebsiteRequest = (
+  request: Request,
+  assets: Parameters<DocumentRenderer>[1]
+) => {
+  const document = (application: Parameters<DocumentRenderer>[0]) =>
+    renderDocument(application, assets);
+
+  if (!isInstitutePath(new URL(request.url).pathname)) {
+    return handleRequest(request, { renderDocument: document, renderPage });
+  }
+
+  return renderPage(request).then((result) => {
+    const response = toResponse(document, result);
+
+    if (request.method !== "HEAD" || response.body === null) {
+      return response;
+    }
+
+    return response.body.cancel().then(() => new Response(null, response));
+  });
+};

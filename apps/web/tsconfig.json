@@ -33,7 +33,10 @@
             }
           },
           {
-            "include": ["test/all-stars-effect-ui.test.ts"],
+            "include": [
+              "test/all-stars-effect-ui.test.ts",
+              "test/institute-effect-ui.test.ts"
+            ],
             "options": {
               "allowedExperimentalApis": [
                 "@effect/ui/html/testing#ssr",

@@ -7,10 +7,11 @@ const policy = (sources: {
   readonly formAction: string;
   readonly frames?: string;
   readonly images?: string;
+  readonly media?: string;
   readonly scripts: string;
   readonly styles: string;
 }) =>
-  `default-src 'none'; style-src ${sources.styles}; img-src 'self' data:${sources.images === undefined ? "" : ` ${sources.images}`}; script-src ${sources.scripts}; connect-src 'self' https://cloudflareinsights.com; base-uri ${sources.base}; form-action ${sources.formAction}; frame-ancestors 'none'${sources.frames === undefined ? "" : `; frame-src ${sources.frames}`}`;
+  `default-src 'none'; style-src ${sources.styles}; img-src 'self' data:${sources.images === undefined ? "" : ` ${sources.images}`}; script-src ${sources.scripts}; connect-src 'self' https://cloudflareinsights.com; base-uri ${sources.base}; form-action ${sources.formAction}; frame-ancestors 'none'${sources.frames === undefined ? "" : `; frame-src ${sources.frames}`}${sources.media === undefined ? "" : `; media-src ${sources.media}`}`;
 
 export const contentSecurityPolicy = (formAction: "'none'" | "'self'") =>
   policy({
@@ -28,6 +29,11 @@ const readerSources = {
 } as const;
 
 export const readerContentSecurityPolicy = policy(readerSources);
+
+export const instituteContentSecurityPolicy = policy({
+  ...readerSources,
+  media: "'self'",
+});
 
 export const tubePagePath = "/tube";
 
