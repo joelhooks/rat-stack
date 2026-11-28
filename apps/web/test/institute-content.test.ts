@@ -16,6 +16,7 @@ import {
   stageInstituteAssets,
 } from "../src/institute/content/artifact.js";
 import {
+  audioFallbackUrl,
   audioUrl,
   InstituteAssetError,
   InstituteContent,
@@ -36,11 +37,12 @@ const lessonNumber = Arbitrary.schema(
 
 it.effect.prop(
   "resolves a manifest's hashed lesson, not arbitrary file names, and accepts no narration",
-  { narrated: hasAudio, index: lessonNumber },
-  ({ narrated, index }) =>
+  { narrated: hasAudio, fallback: hasAudio, index: lessonNumber },
+  ({ narrated, fallback, index }) =>
     Effect.gen(function* resolveLesson() {
       const id = `lesson-${index}`;
       const narration = `lesson-${index}.a982ba54.webm`;
+      const alternate = `lesson-${index}.badf0151.m4a`;
       const file = `lesson-${index}.1234abcd.json`;
 
       const base = {
@@ -51,7 +53,12 @@ it.effect.prop(
         wordTimings: [{ word: "Start", start: 0, end: 0.25 }],
       };
 
-      const lesson = narrated ? { ...base, audioFile: narration } : base;
+      const primary = narrated ? { ...base, audioFile: narration } : base;
+
+      const lesson =
+        narrated && fallback
+          ? { ...primary, audioFallbackFile: alternate }
+          : primary;
 
       const assets = new Map([
         [
@@ -85,6 +92,12 @@ it.effect.prop(
       expect(section).toEqual(lesson);
       expect(audioUrl(chapterId, section)).toBe(
         narrated ? chapterAssetPath(chapterId, narration) : undefined
+      );
+
+      expect(audioFallbackUrl(chapterId, section)).toBe(
+        narrated && fallback
+          ? chapterAssetPath(chapterId, alternate)
+          : undefined
       );
 
       const missingSection = yield* Effect.flip(
@@ -172,6 +185,8 @@ it.effect(
         "the-fence",
       ]);
 
+      const expectedFallbacks: string[] = [];
+
       const assetCount = yield* Effect.forEach(
         ({ id: chapter }: (typeof course.chapters)[number]) =>
           Effect.gen(function* countLessons() {
@@ -185,10 +200,16 @@ it.effect(
                   expect(section.wordTimings.length).toBeGreaterThan(0);
                   expect(section._debug?.timingsStatus).toBe("matched");
                   const json = chapterAssetPath(chapter, file);
+                  const fallback = audioFallbackUrl(chapter, section);
+                  expect(fallback).toBeDefined();
 
-                  for (const asset of audio === undefined
-                    ? [json]
-                    : [json, audio]) {
+                  if (fallback !== undefined) {
+                    expectedFallbacks.push(fallback);
+                  }
+
+                  for (const asset of [json, audio, fallback].filter(
+                    (url) => url !== undefined
+                  )) {
                     const original = yield* fs.readFile(
                       path.join(artifact.value, "client", asset)
                     );
@@ -208,6 +229,12 @@ it.effect(
       const emitted = yield* fs.readDirectory(output, { recursive: true });
       expect(emitted.filter((file) => file.endsWith(".json"))).toHaveLength(28);
       expect(emitted.filter((file) => file.endsWith(".webm"))).toHaveLength(21);
+      expect(
+        emitted
+          .filter((file) => file.endsWith(".m4a"))
+          .map((file) => `/${file}`)
+          .toSorted()
+      ).toEqual(expectedFallbacks.toSorted());
       expect(emitted.some((file) => file.endsWith(".js"))).toBe(false);
     }).pipe(Effect.provide([NodeServices.layer, NodeCrypto.layerDigest]))
 );

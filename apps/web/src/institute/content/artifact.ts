@@ -3,6 +3,7 @@ import * as Digest from "effect/crypto/Digest";
 
 import { InstituteAssetError } from "./institute-asset-error.js";
 import {
+  audioFallbackUrl,
   audioUrl,
   chapterAssetPath,
   instituteManifestPath,
@@ -12,8 +13,8 @@ import { CourseManifestSchema } from "./schema.js";
 import { InstituteContent } from "./service.js";
 
 export const instituteArtifactPin = {
-  sha: "785387b5d4445352abe0dc9dbe12bda343a3bdf8",
-  digest: "7095fb9438d0ba6aa37342d7e3eb7cdf0e33357314c18e6eb9632efb5116e053",
+  sha: "ad383c832586b4d406d7495406a3c26f81fddc20",
+  digest: "cdba47941165c10e350040543124e86159a359a8622afb709e5e066096bb42ad",
 };
 
 export const instituteArtifactConfig = "INSTITUTE_CONTENT_ARTIFACT";
@@ -156,9 +157,12 @@ export const stageInstituteAssets = Effect.fn("Institute.stageAssets")(
           (entry: (typeof chapter.sections)[number]) =>
             Effect.gen(function* stageSection() {
               const section = yield* upstream.section(chapterId, entry.id);
-              const audio = audioUrl(chapterId, section);
-              const json = chapterAssetPath(chapterId, entry.file);
-              const urls = audio === undefined ? [json] : [json, audio];
+
+              const urls = [
+                chapterAssetPath(chapterId, entry.file),
+                audioUrl(chapterId, section),
+                audioFallbackUrl(chapterId, section),
+              ].filter((asset) => asset !== undefined);
 
               for (const asset of urls) {
                 const info = yield* fs

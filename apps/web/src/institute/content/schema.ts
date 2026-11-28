@@ -12,6 +12,10 @@ export const AudioFile = Schema.String.check(
   Schema.isPattern(/^[a-z0-9-]+\.[0-9a-f]{8}\.webm$/u)
 );
 
+export const AudioFallbackFile = Schema.String.check(
+  Schema.isPattern(/^[a-z0-9-]+\.[0-9a-f]{8}\.m4a$/u)
+);
+
 export const CourseManifestSchema = Schema.Struct({
   chapters: Schema.Array(
     Schema.Struct({
@@ -108,6 +112,7 @@ export const SectionSchema = Schema.Struct({
   isFirstInGroup: Schema.optionalKey(Schema.Boolean),
   groupDraft: Schema.optionalKey(Schema.Boolean),
   audioFile: Schema.optionalKey(AudioFile),
+  audioFallbackFile: Schema.optionalKey(AudioFallbackFile),
 });
 
 export type Section = typeof SectionSchema.Type;

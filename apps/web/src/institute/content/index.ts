@@ -1,6 +1,7 @@
-export { audioUrl } from "./paths.js";
+export { audioFallbackUrl, audioUrl } from "./paths.js";
 
 export {
+  AudioFallbackFile,
   AudioFile,
   ChapterManifestSchema,
   CourseManifestSchema,

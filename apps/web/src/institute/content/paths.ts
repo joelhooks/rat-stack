@@ -16,3 +16,11 @@ export const audioUrl = (
   section.audioFile === undefined
     ? undefined
     : chapterAssetPath(chapterId, section.audioFile);
+
+export const audioFallbackUrl = (
+  chapterId: string,
+  section: Section
+): string | undefined =>
+  section.audioFallbackFile === undefined
+    ? undefined
+    : chapterAssetPath(chapterId, section.audioFallbackFile);
