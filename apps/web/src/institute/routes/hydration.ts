@@ -13,20 +13,21 @@ const decodeHandoff = Schema.decodeEffect(
   Schema.fromJsonString(InstituteHandoff)
 );
 
-interface PlayerSlot {
-  readonly audioUrl: string;
+export interface PlayerSlot {
+  readonly audioUrl: string | undefined;
+  readonly audioFallbackUrl: string | undefined;
   readonly chapterId: string;
   readonly sectionId: string;
   readonly sectionUrl: string;
 }
 
-type MountChapterPlayer = (
+type MountChapterPlayer<E> = (
   host: HTMLElement,
   slot: PlayerSlot
-) => Effect.Effect<() => void>;
+) => Effect.Effect<() => void, E>;
 
 export const hydrateInstitute = Effect.fn("institute.hydrate")(
-  function* hydrateInstitute(page: Document, mount?: MountChapterPlayer) {
+  function* hydrateInstitute<E>(page: Document, mount: MountChapterPlayer<E>) {
     const container = page.querySelector<HTMLDivElement>(`#${instituteRootId}`);
     const payload = page.querySelector(`#${instituteHandoffId}`);
 
@@ -46,17 +47,14 @@ export const hydrateInstitute = Effect.fn("institute.hydrate")(
     yield* root.adopted;
     container.dataset.hydrated = "true";
 
-    if (
-      props.kind === "chapter" &&
-      props.audioUrl !== undefined &&
-      mount !== undefined
-    ) {
+    if (props.kind === "chapter") {
       const host = page.querySelector<HTMLDivElement>(`#${institutePlayerId}`);
 
       if (host !== null) {
         yield* Effect.acquireRelease(
           mount(host, {
             audioUrl: props.audioUrl,
+            audioFallbackUrl: props.audioFallbackUrl,
             chapterId: props.chapter.id,
             sectionId: props.section.id,
             sectionUrl: props.sectionUrl,

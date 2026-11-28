@@ -24,6 +24,8 @@ export const InstitutePageProps = Schema.Union([
     sections: Schema.Array(SectionLink),
     text: Schema.String,
     audioUrl: Schema.optional(Schema.String),
+    audioFallbackUrl: Schema.optional(Schema.String),
+    nextChapter: Schema.optional(ChapterLink),
     next: Schema.optional(SectionLink),
     previous: Schema.optional(SectionLink),
   }),

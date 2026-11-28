@@ -3,6 +3,7 @@ import { TestHost } from "@effect/ui/testing";
 import { expect, it } from "@effect/vitest";
 import { Effect, Schema } from "effect";
 
+import { preferredAudio } from "../src/institute/routes/audio-choice.js";
 import { InstitutePage } from "../src/institute/routes/component.js";
 import {
   InstituteHandoff,
@@ -10,6 +11,22 @@ import {
 } from "../src/institute/routes/model.js";
 import { renderInstituteRequest } from "../src/institute/routes/request.js";
 import { renderDocument } from "../src/server/reader-document.js";
+
+it("chooses WebM when supported and the AAC rendition otherwise", () => {
+  const webm = "/lesson.01234567.webm";
+  const aac = "/lesson.01234567.m4a";
+
+  const supported = {
+    canPlayType: (type: string): CanPlayTypeResult =>
+      type === 'audio/webm; codecs="opus"' ? "maybe" : "",
+  };
+
+  const unsupported = { canPlayType: (): CanPlayTypeResult => "" };
+  expect(preferredAudio(supported, webm, aac)).toBe(webm);
+  expect(preferredAudio(unsupported, webm, aac)).toBe(aac);
+  expect(preferredAudio(unsupported, webm)).toBeUndefined();
+  expect(preferredAudio(supported, undefined, aac)).toBe(aac);
+});
 
 const assets = {
   entryScript: "/assets/institute-test.js",
@@ -44,6 +61,7 @@ const files = new Map<string, unknown>([
     "/institute/content/one-contract/manifest.json",
     {
       id: "one-contract",
+      title: published.title,
       sections: [
         { file: "bind-behavior.01234567.json", id: "bind-behavior" },
         { file: "define-boundary.12345678.json", id: "define-boundary" },
@@ -55,15 +73,22 @@ const files = new Map<string, unknown>([
     "/institute/content/one-contract/define-boundary.12345678.json",
     {
       audioFile: "define-boundary.01234567.webm",
+      audioFallbackFile: "define-boundary.12345678.m4a",
+      code: "",
+      contentHash: "section-fixture",
       id: "define-boundary",
       text: transcript,
+      wordTimings: [],
     },
   ],
   [
     "/institute/content/one-contract/bind-behavior.01234567.json",
     {
+      code: "",
+      contentHash: "silent-fixture",
       id: "bind-behavior",
       text: "This section has no narration yet.",
+      wordTimings: [],
     },
   ],
 ]);
@@ -184,6 +209,10 @@ it.effect(
       const handoff = yield* Schema.decodeEffect(
         Schema.fromJsonString(InstituteHandoff)
       )(chapter.querySelector(`#${instituteHandoffId}`)?.textContent ?? "");
+
+      expect(
+        handoff.props.kind === "chapter" && handoff.props.audioFallbackUrl
+      ).toBe("/institute/content/one-contract/define-boundary.12345678.m4a");
 
       const hydrated = yield* ssr(InstitutePage, handoff.props).pipe(
         Effect.provide(TestHost.layer())

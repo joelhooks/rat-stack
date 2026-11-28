@@ -119,6 +119,7 @@
           "effect/ai/McpServer",
           "effect/crypto/Digest",
           "effect/http/FetchHttpClient",
+          "effect/http/HttpClient",
           "effect/http/HttpRouter",
           "effect/http/HttpServerRequest",
           "effect/http/HttpServerResponse",

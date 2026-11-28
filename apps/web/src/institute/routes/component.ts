@@ -55,7 +55,9 @@ export const InstitutePage = Html.component({
       .children(
         link("/", "ratstack.sh"),
         " / ",
-        link(institutePath, instituteTitle),
+        h.a
+          .attrs({ href: institutePath, "data-institute-home": "" })
+          .children(instituteTitle),
         " / ",
         link("https://github.com/joelhooks/rat-stack", "Source")
       );
@@ -103,9 +105,6 @@ export const InstitutePage = Html.component({
         );
     }
 
-    const sectionLink = (id: string, title: string) =>
-      link(sectionPath(props.chapter.id, id), title);
-
     const prerequisites = effectPrerequisites(props.section.id);
 
     return h.main.attr("class", "institute-page").children(
@@ -128,17 +127,29 @@ export const InstitutePage = Html.component({
               id: institutePlayerId,
               "data-audio-url": props.audioUrl,
             })
-            .children(
-              h.h2(props.section.title),
-              h.p(props.text),
-              ...(props.next === undefined
-                ? []
-                : [
-                    h.p(
-                      sectionLink(props.next.id, `Next: ${props.next.title}`)
-                    ),
-                  ])
-            ),
+            .children(h.h2(props.section.title), h.p(props.text)),
+          ...(props.next === undefined
+            ? []
+            : [
+                h.p(
+                  h.a
+                    .attrs({
+                      href: sectionPath(props.chapter.id, props.next.id),
+                      "data-institute-next": "",
+                    })
+                    .children(`Next: ${props.next.title}`)
+                ),
+              ]),
+          ...(props.nextChapter === undefined
+            ? []
+            : [
+                h.p(
+                  link(
+                    chapterPath(props.nextChapter.id),
+                    `Next chapter: ${props.nextChapter.title}`
+                  )
+                ),
+              ]),
           ...(prerequisites.length === 0
             ? []
             : [kitLinks("Prerequisites", prerequisites)])
@@ -151,6 +162,7 @@ export const InstitutePage = Html.component({
                 h.a
                   .attrs({
                     href: sectionPath(props.chapter.id, section.id),
+                    "data-institute-section-link": "",
                     "aria-current":
                       section.id === props.section.id ? "page" : undefined,
                   })
@@ -162,10 +174,12 @@ export const InstitutePage = Html.component({
             ? []
             : [
                 h.p(
-                  sectionLink(
-                    props.previous.id,
-                    `Previous: ${props.previous.title}`
-                  )
+                  h.a
+                    .attrs({
+                      href: sectionPath(props.chapter.id, props.previous.id),
+                      "data-institute-previous": "",
+                    })
+                    .children(`Previous: ${props.previous.title}`)
                 ),
               ])
         )

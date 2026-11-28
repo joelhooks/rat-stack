@@ -1,7 +1,13 @@
 import { Effect } from "effect";
 
 import type { EffectUiAssets } from "../../server/reader-document.js";
-import { artifactReader } from "./artifact.js";
+import {
+  audioFallbackUrl,
+  audioUrl,
+  InstituteContent,
+} from "../content/index.js";
+import { chapterAssetPath } from "../content/paths.js";
+import { instituteContentLayer } from "./artifact.js";
 import type { AssetFetch } from "./artifact.js";
 import { serveHashedAsset } from "./media.js";
 import type { InstituteProps } from "./model.js";
@@ -33,8 +39,12 @@ const sectionLink = ({ id }: { readonly id: string }) => ({
 });
 
 const chapterPage = Effect.fn("institute.chapterPage")(function* chapterPage(
-  reader: ReturnType<typeof artifactReader>,
+  reader: InstituteContent["Service"],
   chapter: Extract<InstituteProps, { readonly kind: "chapter" }>["chapter"],
+  nextChapter: Extract<
+    InstituteProps,
+    { readonly kind: "chapter" }
+  >["nextChapter"],
   sectionId: string | null
 ) {
   const manifest = yield* reader.chapter(chapter.id);
@@ -50,11 +60,7 @@ const chapterPage = Effect.fn("institute.chapterPage")(function* chapterPage(
     return null;
   }
 
-  const section = yield* reader.section(chapter.id, entry.file);
-
-  if (section.id !== entry.id) {
-    return null;
-  }
+  const section = yield* reader.section(chapter.id, entry.id);
 
   const next = manifest.sections[index + 1];
   const previous = manifest.sections[index - 1];
@@ -63,13 +69,12 @@ const chapterPage = Effect.fn("institute.chapterPage")(function* chapterPage(
     chapter,
     kind: "chapter",
     section: sectionLink(entry),
-    sectionUrl: `${institutePath}/content/${chapter.id}/${entry.file}`,
+    sectionUrl: chapterAssetPath(chapter.id, entry.file),
     sections: manifest.sections.map(sectionLink),
     text: section.text,
-    audioUrl:
-      section.audioFile === undefined
-        ? undefined
-        : `${institutePath}/content/${chapter.id}/${section.audioFile}`,
+    audioUrl: audioUrl(chapter.id, section),
+    audioFallbackUrl: audioFallbackUrl(chapter.id, section),
+    nextChapter: next === undefined ? nextChapter : undefined,
     next: next === undefined ? undefined : sectionLink(next),
     previous: previous === undefined ? undefined : sectionLink(previous),
   } satisfies InstituteProps;
@@ -114,8 +119,20 @@ export const renderInstituteRequest = Effect.fn("institute.request")(
       return null;
     }
 
-    const reader = artifactReader(fetchAsset, url.origin);
-    const chapters = yield* reader.manifest;
+    const reader = yield* InstituteContent;
+    const course = yield* reader.manifest;
+
+    const chapters = course.chapters
+      .filter(
+        ({ id, draft, comingSoon }) =>
+          !isKitChapter(id) && draft !== true && comingSoon !== true
+      )
+      .toSorted((left, right) => left.order - right.order)
+      .map(({ id, title, description }) => ({
+        id,
+        title,
+        description: description ?? "",
+      }));
 
     if (path === instituteSitemapPath) {
       return {
@@ -150,7 +167,8 @@ export const renderInstituteRequest = Effect.fn("institute.request")(
         : null;
     }
 
-    const chapter = chapters.find((item) => item.id === chapterId);
+    const chapterIndex = chapters.findIndex((item) => item.id === chapterId);
+    const chapter = chapters[chapterIndex];
 
     if (chapter === undefined) {
       return null;
@@ -159,11 +177,18 @@ export const renderInstituteRequest = Effect.fn("institute.request")(
     const props = yield* chapterPage(
       reader,
       chapter,
+      chapters[chapterIndex + 1],
       url.searchParams.get("section")
     );
 
     return props === null
       ? null
       : { application: yield* renderInstitute(props, assets, discoverable) };
-  }
+  },
+  (effect, request, fetchAsset) =>
+    effect.pipe(
+      Effect.provide(
+        instituteContentLayer(fetchAsset, new URL(request.url).origin)
+      )
+    )
 );
