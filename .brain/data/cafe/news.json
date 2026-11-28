@@ -1,6 +1,72 @@
 [
   {
     "kind": "launch",
+    "url": "https://github.com/kitlangton/effect-institute",
+    "title": "Effect Institute's source is public",
+    "summary": "Kit Langton open-sourced Effect Institute, the voice-narrated, semi-interactive Effect lessons behind effect.institute. Built with Effect v4, MIT licensed.",
+    "date": "2026-11-27",
+    "repo": "kitlangton/effect-institute",
+    "author": {
+      "github": "kitlangton",
+      "x": "kitlangton"
+    },
+    "source": "https://www.effect.institute",
+    "engagement": {
+      "stars": 68
+    },
+    "interest": {
+      "substance": "tool",
+      "editorial": 2,
+      "topic": "effect-institute",
+      "why": "Narrated Effect lessons, now open source"
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.7",
+    "title": "effect@4.1.7 brings McpClient up to the 2026-07-28 MCP spec",
+    "summary": "Patch release: McpClient supports MCP revisions 2025-03-26, 2025-06-18 and 2026-07-28 input continuation. ClusterCron no longer retries failed runs.",
+    "date": "2026-11-27",
+    "repo": "Effect-TS/effect",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/Effect-TS/effect/releases/tag/effect%404.1.7",
+    "engagement": {
+      "stars": 17741
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 0,
+      "topic": "effect-release",
+      "why": "MCP client protocol revisions"
+    }
+  },
+  {
+    "kind": "release",
+    "url": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.6",
+    "title": "xstate@6.0.0-beta.6 adds typed transition rejections",
+    "summary": "Machines can reject events with typed reasons, and snapshot.check(event) reports acceptance without running effects. xstate test can sample event payloads from JSON Schemas.",
+    "date": "2026-11-27",
+    "repo": "statelyai/xstate",
+    "author": {
+      "github": null,
+      "x": null
+    },
+    "source": "https://github.com/statelyai/xstate/releases/tag/xstate%406.0.0-beta.6",
+    "engagement": {
+      "stars": 30573
+    },
+    "interest": {
+      "substance": "release",
+      "editorial": 1,
+      "topic": "xstate-v6",
+      "why": "Typed rejections and schema-sampled tests"
+    }
+  },
+  {
+    "kind": "launch",
     "url": "https://github.com/Effect-TS/ui",
     "title": "Effect UI is public",
     "summary": "Effect's frontend library: each component is its own Elm Architecture program with a Schema Model. Experimental; install from pkg.pr.new snapshots, not npm.",
@@ -12,7 +78,7 @@
     },
     "source": "https://ui.effect.website",
     "engagement": {
-      "stars": 227
+      "stars": 370
     },
     "interest": {
       "substance": "tool",
@@ -119,7 +185,7 @@
     },
     "source": "https://x.com/tim_smart/status/2125536797413556397",
     "engagement": {
-      "stars": 64
+      "stars": 66
     },
     "interest": {
       "substance": "tool",
@@ -141,7 +207,7 @@
     },
     "source": "https://github.com/dmmulroy/shaledb",
     "engagement": {
-      "stars": 2
+      "stars": 30
     },
     "interest": {
       "substance": "tool",
@@ -226,7 +292,7 @@
     },
     "source": "https://github.com/dmmulroy/rex-sdk",
     "engagement": {
-      "stars": 77
+      "stars": 79
     },
     "interest": {
       "substance": "tool",
@@ -292,7 +358,7 @@
     },
     "source": "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
     "engagement": {
-      "stars": 444
+      "stars": 447
     },
     "interest": {
       "substance": "demo",
@@ -1275,7 +1341,7 @@
     },
     "source": "https://executor.sh",
     "engagement": {
-      "stars": 4600
+      "stars": 4649
     },
     "interest": {
       "substance": "tool",
