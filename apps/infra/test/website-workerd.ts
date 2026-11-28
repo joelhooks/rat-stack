@@ -7,13 +7,28 @@ import { rpcContentDirectory } from "../../site/src/rpc-worker.js";
 
 const nativeProbe = String.raw`
 import { Effect, Layer } from "effect";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
+import { HttpClient, HttpClientRequest, HttpClientResponse, HttpServerRequest, HttpServerResponse } from "effect/http";
+import { withInstituteNav } from "../../../site/src/institute-discovery.js";
 import { RpcClient, RpcSerialization } from "effect/rpc";
 import { toRpcGroup } from "@rat-stack/capability/rpc-group";
 import { searchContract, readContract } from "@rat-stack/core/contracts";
 
 export default {
   async test(_controller, env) {
+    const request = new Request("https://pr-40.ratstack.sh/", { headers: { Accept: "text/html" } });
+    const response = await env.WEBSITE.fetch(request);
+    const nav = (discoverable) => Effect.runPromise(
+      withInstituteNav(discoverable)(Effect.succeed(HttpServerResponse.fromWeb(response.clone()))).pipe(
+        Effect.provideService(HttpServerRequest.HttpServerRequest, HttpServerRequest.fromWeb(request)),
+        Effect.map(HttpServerResponse.toWeb),
+      )
+    ).then((value) => value.text());
+    const [unlisted, publicHtml, original] = await Promise.all([nav(false), nav(true), response.text()]);
+    if (unlisted !== original || unlisted.includes('href="/institute"') ||
+        !publicHtml.includes('<li><a href="/institute">institute</a></li>')) {
+      throw new Error("The public Institute switch did not preserve unlisted navigation and add the public link");
+    }
+
     const httpClient = HttpClient.make((request) =>
       HttpClientRequest.toWeb(request).pipe(
         Effect.orDie,

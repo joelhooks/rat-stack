@@ -46,6 +46,8 @@ const allStarsEntry = "src/client/all-stars-effect-ui/entry.ts";
 
 const directoryEntry = "src/client/directory-effect-ui/entry.ts";
 
+const instituteEntry = "src/client/institute-entry.ts";
+
 const newsEntry = "src/client/news-effect-ui/entry.ts";
 
 const readerEntry = "src/client/reader-effect-ui/entry.ts";
@@ -65,9 +67,13 @@ const fixture = (overrideManifest?: ManifestFixture): Plugin => ({
     }
 
     if (
-      [allStarsEntry, directoryEntry, newsEntry, readerEntry].some((entry) =>
-        id.endsWith(entry)
-      )
+      [
+        allStarsEntry,
+        directoryEntry,
+        instituteEntry,
+        newsEntry,
+        readerEntry,
+      ].some((entry) => id.endsWith(entry))
     ) {
       return `export default ${JSON.stringify(id)}`;
     }
@@ -137,6 +143,7 @@ it.effect("loads dev source URLs without a client build", () =>
     const entries = {
       "all-stars-effect-ui": allStarsEntry,
       "directory-effect-ui": directoryEntry,
+      "institute-effect-ui": instituteEntry,
       "news-effect-ui": newsEntry,
       "reader-effect-ui": readerEntry,
     };
@@ -165,7 +172,7 @@ it.effect(
       }
 
       const names = client.output.map(({ fileName }) => fileName);
-      expect(names).toHaveLength(4);
+      expect(names).toHaveLength(5);
       expect(names).not.toContain(".vite/manifest.json");
 
       const server = yield* buildEnvironment(builder, "ssr");

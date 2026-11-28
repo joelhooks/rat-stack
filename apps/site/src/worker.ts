@@ -35,7 +35,12 @@ import CrashTail from "./crash-tail.js";
 import { ErrorPageRenderer, websiteErrorPages } from "./error-page-renderer.js";
 import { events as eventsFor } from "./events.js";
 import { flagsLayer, liveFlagsLayer } from "./flags.js";
+import { withInstituteNav } from "./institute-discovery.js";
 import { instituteStage, withInstitute } from "./institute-mount.js";
+import {
+  instituteVisibilityConfig,
+  instituteVisibilityFor,
+} from "./institute-visibility.js";
 import { intakeApplicationsLayer } from "./interest/applications.js";
 import { interestDirectoryLayer } from "./interest/directory.js";
 import {
@@ -274,11 +279,14 @@ export const makeMischief = (
       )
     );
 
+    const { discoverable } = instituteVisibilityFor(environment);
+
     const workerRoutes = mischiefRoutes({
       assets,
       contentStore,
       feedback,
       flags: liveFlags,
+      instituteDiscoverable: discoverable,
       interest:
         interest === undefined
           ? undefined
@@ -320,14 +328,17 @@ export const makeMischief = (
       ALCHEMY_STAGE: environment.ALCHEMY_STAGE,
       INSTITUTE: environment.INSTITUTE,
       INSTITUTE_ENABLED: environment.INSTITUTE_ENABLED,
+      WEBSITE: environment.WEBSITE,
     })(
-      withReaderWebsite(
-        website.pipe(Effect.orDie),
-        withWebMcpOriginTrials(
-          [chromeToken, edgeToken],
-          readerResponseHeaders(contentStore)
-        )
-      )(app)
+      withInstituteNav(discoverable)(
+        withReaderWebsite(
+          website.pipe(Effect.orDie),
+          withWebMcpOriginTrials(
+            [chromeToken, edgeToken],
+            readerResponseHeaders(contentStore)
+          )
+        )(app)
+      )
     );
 
     return {
@@ -461,9 +472,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
     const traces = yield* traceSettings.pipe(Effect.orDie);
     const stage = yield* Stage;
 
-    const instituteEnabled = yield* Config.Boolean("INSTITUTE_ENABLED").pipe(
-      Config.withDefault(false)
-    );
+    const instituteVisibility = yield* instituteVisibilityConfig;
 
     const assets = yield* contentAssetsForBuild(
       new URL("../dist/content", import.meta.url).pathname,
@@ -471,6 +480,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
     ).pipe(Effect.orDie);
 
     const env = {
+      ...instituteVisibility,
       MISCHIEF_CONFIG_FINGERPRINT: mischiefConfigFingerprint,
       WEB_MCP_CHROME_TRIAL_TOKEN: chromeWebMcpTrialToken,
       WEB_MCP_EDGE_TRIAL_TOKEN: edgeWebMcpTrialToken,
@@ -484,7 +494,7 @@ export default class Mischief extends Cloudflare.Worker<Mischief>()(
       ...(stage === instituteStage
         ? { workersDev: { enabled: false, previewsEnabled: false } }
         : { domain: { name: "ratstack.sh", redirects: ["www.ratstack.sh"] } }),
-      env: instituteEnabled ? { ...env, INSTITUTE_ENABLED: "true" } : env,
+      env,
       main: import.meta.url,
       observability: traceObservability(traces),
       tailConsumers: [yield* CrashTail],

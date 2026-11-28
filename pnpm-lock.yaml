@@ -520,6 +520,9 @@ importers:
       '@stylexjs/stylex':
         specifier: 0.19.2
         version: 0.19.2
+      '@xstate/effect':
+        specifier: 1.0.0-beta.2
+        version: 1.0.0-beta.2(@oxlint/plugins@1.93.0)(effect@4.1.4)(xstate@6.0.0-beta.3)
       alchemy:
         specifier: 2.0.0-beta.87
         version: 2.0.0-beta.87(@effect/platform-bun@4.1.4(effect@4.1.4))(@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.2.1))(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.1)
@@ -529,6 +532,9 @@ importers:
       foldkit:
         specifier: 0.170.0
         version: 0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4)
+      xstate:
+        specifier: 6.0.0-beta.3
+        version: 6.0.0-beta.3
     devDependencies:
       '@effect/platform-node':
         specifier: 4.1.4

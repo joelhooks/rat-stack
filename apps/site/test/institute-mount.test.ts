@@ -81,6 +81,64 @@ it.effect.prop(
 );
 
 it.effect(
+  "forwards the original Range request to Website unless the legacy binding wins",
+  () =>
+    Effect.gen(function* websiteFallback() {
+      const website = {
+        fetch: (forwarded: Request) => {
+          expect(forwarded.headers.get("range")).toBe("bytes=0-31");
+          expect(forwarded.headers.get("accept")).toBe("audio/webm");
+          expect(new URL(forwarded.url).search).toBe(
+            "?section=define-boundary"
+          );
+
+          return Promise.resolve(new Response("website", { status: 206 }));
+        },
+      };
+
+      const legacy = { fetch: () => Promise.resolve(new Response("legacy")) };
+
+      const request = new Request(
+        "https://ratstack.sh/institute/content/one-contract/clip.webm?section=define-boundary",
+        {
+          headers: { accept: "audio/webm", range: "bytes=0-31" },
+        }
+      );
+
+      for (const binding of [legacy, undefined]) {
+        const response = yield* dispatch(request, {
+          INSTITUTE: binding,
+          INSTITUTE_ENABLED: "true",
+          WEBSITE: website,
+        });
+
+        const web = HttpServerResponse.toWeb(response);
+        expect(yield* Effect.promise(web.text.bind(web))).toBe(
+          binding === undefined ? "website" : "legacy"
+        );
+        expect(web.status).toBe(binding === undefined ? 206 : 200);
+      }
+
+      for (const url of [
+        "https://ratstack.sh/institutes",
+        "https://ratstack.sh/institute-x",
+        "https://www.ratstack.sh/institute",
+      ]) {
+        expect(
+          yield* dispatch(new Request(url), {
+            INSTITUTE_ENABLED: "true",
+            WEBSITE: website,
+          })
+        ).toBe(fallback);
+      }
+
+      expect(
+        yield* dispatch(request, { INSTITUTE: legacy, WEBSITE: website })
+      ).toBe(fallback);
+    })
+);
+
+it.effect(
   "keeps the stage noindex and passes the same request body to the service",
   () =>
     Effect.gen(function* proveStage() {

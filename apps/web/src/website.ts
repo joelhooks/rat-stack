@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Schema from "effect/Schema";
 
+import { instituteVisibilityConfig } from "../../site/src/institute-visibility.js";
 import {
   traceObservability,
   traceSettings,
@@ -48,6 +49,10 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
     const generation = yield* contentGeneration;
     const preview = /^pr-[1-9][0-9]*$/u.test(stage);
 
+    const instituteVisibility = yield* instituteVisibilityConfig.pipe(
+      Effect.orDie
+    );
+
     const props = {
       assets: {
         htmlHandling: "drop-trailing-slash",
@@ -57,6 +62,8 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
           "/__error",
           "/__rat",
           "/__rat/*",
+          "/institute",
+          "/institute/*",
           "/prompts",
           "/prompts/*",
         ],
@@ -64,6 +71,7 @@ export class Website extends Cloudflare.Website.Foldkit<Website>()(
       env: {
         BACKEND: preview ? PreviewRpcBackend : RpcBackend,
         CONTENT_GENERATION: generation,
+        ...instituteVisibility,
       },
       observability: traceObservability(traces),
       rootDir: "../web",
