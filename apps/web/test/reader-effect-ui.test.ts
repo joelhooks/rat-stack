@@ -117,7 +117,7 @@ const textOf = (root: ParentNode) =>
     (node.textContent ?? "").replaceAll(/\s+/gu, " ").trim()
   );
 
-const pageStructure = (root: ParentNode) =>
+const pageStructure = (root: ParentNode, excludeFoldkitMarkers = false) =>
   [
     ...root.querySelectorAll(
       "header, header *, main, main *, footer, footer *"
@@ -125,7 +125,12 @@ const pageStructure = (root: ParentNode) =>
   ].map((node) => [
     node.localName,
     ...[...node.attributes]
-      .map(({ name, value }) => [name, value])
+      .flatMap(({ name, value }) =>
+        excludeFoldkitMarkers &&
+        (name === "data-foldkit-identity" || name === "data-foldkit-key")
+          ? []
+          : [[name, value]]
+      )
       .toSorted(([left = ""], [right = ""]) => left.localeCompare(right)),
   ]);
 
@@ -156,10 +161,10 @@ const foldkit = (flags: typeof ReaderFlags.Type) =>
   );
 
 it.live.prop(
-  "every committed lore page preserves Foldkit's text, metadata, elements, links and StyleX classes",
+  "every packaged lore and systems page preserves Foldkit's content and metadata",
   { start: Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 1000 })) },
   ({ start }) =>
-    Effect.gen(function* loreParity() {
+    Effect.gen(function* packagedParity() {
       const fs = yield* FileSystem.FileSystem;
       const paths = yield* Path.Path;
       const client = paths.resolve(import.meta.dirname, "../dist/client");
@@ -176,13 +181,38 @@ it.live.prop(
         )
       ).toEqual([]);
 
-      const offset = start % lore.length;
-      const visit = [...lore.slice(offset), ...lore.slice(0, offset)];
+      const systems = pages.filter(
+        ({ page }) =>
+          page.path === "/systems" || page.path.startsWith("/systems/")
+      );
+
+      expect(systems).toHaveLength(22);
+      expect(
+        systems.flatMap((flags) =>
+          readerSupportsEffectUi(flags) ? [] : [flags.page.path]
+        )
+      ).toEqual(["/systems/motion"]);
+
+      const sectionPages = [...lore, ...systems];
+      const offset = start % sectionPages.length;
+
+      const visit = [
+        ...sectionPages.slice(offset),
+        ...sectionPages.slice(0, offset),
+      ];
+
       yield* Effect.forEach(
         visit,
         (flags) =>
-          Effect.gen(function* compareLorePage() {
+          Effect.gen(function* compareReaderPage() {
             const { path } = flags.page;
+            const isMotion = path === "/systems/motion";
+
+            const html = yield* fs.readFileString(
+              paths.join(client, path, "index.html")
+            );
+
+            const actual = parse(html);
             const legacy = yield* foldkit(flags);
 
             const expected = parse(
@@ -193,24 +223,54 @@ it.live.prop(
               })
             );
 
-            const html = yield* fs.readFileString(
-              paths.join(client, path, "index.html")
-            );
+            if (isMotion) {
+              expect(
+                actual.querySelector("#reader-effect-ui"),
+                path
+              ).toBeNull();
+              expect(
+                actual.querySelector("[data-foldkit-app]"),
+                path
+              ).not.toBeNull();
+              expect(
+                actual.querySelector(
+                  'script[type="module"][src^="/assets/app-"]'
+                ),
+                path
+              ).not.toBeNull();
+            } else {
+              expect(
+                actual.querySelector("#reader-effect-ui"),
+                path
+              ).not.toBeNull();
+              expect(
+                actual.querySelector("[data-foldkit-app]"),
+                path
+              ).toBeNull();
+            }
 
-            const actual = parse(html);
-            expect(
-              actual.querySelector("#reader-effect-ui"),
-              path
-            ).not.toBeNull();
-            expect(actual.querySelector("[data-foldkit-app]"), path).toBeNull();
             expect(actual.documentElement.lang, path).toBe(
               expected.documentElement.lang
             );
             expect(contentHead(actual), path).toEqual(contentHead(expected));
             expect(textOf(actual), path).toEqual(textOf(expected));
-            expect(pageStructure(actual), flags.page.path).toEqual(
-              pageStructure(expected)
+            const actualStructure = pageStructure(actual, isMotion);
+            const expectedStructure = pageStructure(expected);
+
+            const mismatch = actualStructure.findIndex(
+              (node, index) =>
+                JSON.stringify(node) !==
+                JSON.stringify(expectedStructure[index])
             );
+
+            if (mismatch !== -1) {
+              expect(
+                actualStructure[mismatch],
+                `${path}: element ${mismatch}`
+              ).toEqual(expectedStructure[mismatch]);
+            }
+
+            expect(actualStructure.length, path).toBe(expectedStructure.length);
           }),
         { discard: true }
       );

@@ -448,12 +448,12 @@
       "budget": [
         "test",
         [
-          "every committed lore page preserves Foldkit's text, metadata, elements, links and StyleX classes"
+          "every packaged lore and systems page preserves Foldkit's content and metadata"
         ],
         "timeout",
         "30000"
       ],
-      "reason": "Compares complete documents for all 138 lore routes; the default five seconds expired during the parallel gate."
+      "reason": "Compares every packaged lore and systems document; the default five seconds expired during the parallel gate."
     }
   ],
   "apps/web/test/reader-systems-skills.test.ts": [
